@@ -63,6 +63,11 @@ export function getSystemManagementRoutes(): Routes {
           canActivate: [() => canActivate([AuthRoles.SYSTEM_ADMIN])],
         },
         {
+          path: 'news-management',
+          loadChildren: () => import('./news-management/news-management.routes').then((m) => m.NEWS_MANAGEMENT_ROUTES),
+          canActivate: [() => canActivate([AuthRoles.SYSTEM_ADMIN])],
+        },
+        {
           path: 'legal-links-settings',
           loadChildren: () =>
             import('./legal-links-settings/legal-links-settings.routes').then((m) => m.LEGAL_LINK_SETTINGS_ROUTES),

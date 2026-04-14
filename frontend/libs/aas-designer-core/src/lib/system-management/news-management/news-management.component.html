@@ -1,0 +1,107 @@
+<div class="aas-page-surface">
+  <div class="hero-section">
+    <div class="hero-content">
+      <h1 class="hero-title">{{ 'NEWS_MANAGEMENT' | translate }}</h1>
+      <div class="hero-actions">
+        <p-button
+          label="{{ 'RELOAD' | translate }}"
+          icon="pi pi-refresh"
+          severity="secondary"
+          [disabled]="loading()"
+          (onClick)="loadData()"
+        ></p-button>
+        <p-button
+          label="{{ 'ADD_NEWS' | translate }}"
+          icon="pi pi-plus"
+          [disabled]="loading()"
+          (onClick)="startCreate()"
+        ></p-button>
+      </div>
+    </div>
+  </div>
+
+  <p class="pb-4 text-sm text-[var(--p-text-muted-color)]">{{ 'NEWS_MANAGEMENT_EXPL' | translate }}</p>
+
+  <div class="aas-page-layout w-full">
+    <div class="aas-page-fill">
+      <div class="aas-page-abs-fill">
+        <div class="aas-page-panel overflow-hidden rounded-lg">
+          <p-table
+            [value]="newsItems()"
+            dataKey="id"
+            sortField="date"
+            [sortOrder]="-1"
+            [rows]="10"
+            [rowsPerPageOptions]="[10, 20, 50]"
+            [paginator]="true"
+            [loading]="loading()"
+            responsiveLayout="scroll"
+            size="small"
+            [scrollable]="true"
+            scrollHeight="flex"
+            styleClass="h-full"
+          >
+            <ng-template #header>
+              <tr>
+                <th pSortableColumn="date">{{ 'DATUM' | translate }} <p-sortIcon field="date"></p-sortIcon></th>
+                <th>{{ 'TITEL' | translate }}</th>
+                <th>{{ 'IS_PUBLIC' | translate }}</th>
+                <th>{{ 'VISIBILITY' | translate }}</th>
+                <th class="text-right">{{ 'ACTIONS' | translate }}</th>
+              </tr>
+            </ng-template>
+
+            <ng-template pTemplate="body" let-newsItem>
+              <tr>
+                <td>{{ newsItem.date | vwsDate: 'SHORT_DATE' }}</td>
+                <td>
+                  <div class="font-semibold">{{ newsItem.description }}</div>
+                </td>
+                <td>
+                  <p-tag
+                    [value]="newsItem.isPublic ? ('IS_PUBLIC' | translate) : ('IS_NOT_PUBLIC' | translate)"
+                    [severity]="newsItem.isPublic ? 'success' : 'contrast'"
+                  ></p-tag>
+                </td>
+                <td>
+                  <p-tag
+                    [value]="newsItem.visible ? ('VISIBLE' | translate) : ('INVISIBLE' | translate)"
+                    [severity]="newsItem.visible ? 'success' : 'warn'"
+                  ></p-tag>
+                </td>
+                <td>
+                  <div class="flex justify-end gap-2">
+                    <p-button
+                      label="{{ 'EDIT' | translate }}"
+                      icon="pi pi-pencil"
+                      severity="secondary"
+                      [text]="true"
+                      (onClick)="startEdit(newsItem)"
+                    ></p-button>
+                    @if (newsItem.visible) {
+                      <p-button
+                        label="{{ 'HIDE' | translate }}"
+                        icon="pi pi-eye-slash"
+                        severity="secondary"
+                        [text]="true"
+                        (onClick)="setVisibility(newsItem, false)"
+                      ></p-button>
+                    } @else {
+                      <p-button
+                        label="{{ 'SHOW' | translate }}"
+                        icon="pi pi-eye"
+                        severity="secondary"
+                        [text]="true"
+                        (onClick)="setVisibility(newsItem, true)"
+                      ></p-button>
+                    }
+                  </div>
+                </td>
+              </tr>
+            </ng-template>
+          </p-table>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

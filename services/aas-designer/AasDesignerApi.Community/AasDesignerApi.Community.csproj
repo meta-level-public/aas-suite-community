@@ -40,6 +40,7 @@
     <PackageReference Include="Microsoft.Extensions.Diagnostics.HealthChecks.EntityFrameworkCore" />
     <PackageReference Include="BaSyx.Models" />
     <PackageReference Include="Microsoft.AspNetCore.Mvc.NewtonsoftJson" />
+    <PackageReference Include="log4net" />
     <PackageReference Include="Microsoft.Extensions.Logging.Log4Net.AspNetCore" />
     <PackageReference Include="BaSyx.Utils" />
     <PackageReference Include="BaSyx.Utils.DependencyInjection.Abstractions" />

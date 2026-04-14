@@ -1,76 +1,53 @@
-<div content>
-  <p-table
-    #dt
-    [value]="newsItemList"
-    sortField="date"
-    [sortOrder]="-1"
-    [rows]="8"
-    [rowsPerPageOptions]="[10, 20]"
-    [paginator]="true"
-    [filterDelay]="0"
-    size="small"
-  >
-    <ng-template #header>
-      <tr>
-        <th pSortableColumn="new" id="new">{{ 'NEU' | translate }}</th>
-        <th pSortableColumn="date" id="date">{{ 'DATUM' | translate }}<p-sortIcon field="date"></p-sortIcon></th>
-        <th id="description" style="width: 50%">{{ 'BESCHREIBUNG' | translate }}</th>
-        <th id="public" style="width: 50%">{{ 'IS_PUBLIC' | translate }}</th>
-      </tr>
-    </ng-template>
-    <ng-template pTemplate="body" let-newsItem>
-      <tr
-        (click)="selectedNewsItem = newsItem; displayNewsDetail = true; seenNewsItem(newsItem, true)"
-        [ngStyle]="hasUserSeenNews(newsItem) ? { 'font-weight': 'normal' } : { 'font-weight': 'bold' }"
-      >
-        <td>
-          <p-button
-            pRipple
-            (onClick)="seenNewsItem(newsItem)"
-            [icon]="getIcon(newsItem)"
-            styleClass="p-button-rounded p-button-text"
-          ></p-button>
-        </td>
-        <td><span class="p-column-title" date="newsItem.date"></span>{{ newsItem.date | vwsDate: 'SHORT_DATE' }}</td>
-        <td><span class="p-column-title" description="newsItem.description"></span>{{ newsItem.description }}</td>
-        <td>
-          <p-tag
-            [value]="newsItem.isPublic ? ('IS_PUBLIC' | translate) : ('IS_NOT_PUBLIC' | translate)"
-            [severity]="newsItem.isPublic ? 'success' : 'warn'"
-          ></p-tag>
-        </td>
-      </tr>
-    </ng-template>
-  </p-table>
-</div>
-@if (isUserAdmin() == true) {
-  <div>
-    <p-button
-      #thenBlock
-      ntype="button"
-      label="{{ 'EDIT_NEWS' | translate }}"
-      styleClass="edit-button"
-      (onClick)="editNews()"
-    ></p-button>
+<div class="news-sequence">
+  <div class="hero-section news-shell-header">
+    <div class="hero-content news-shell-header-content">
+      <div>
+        <h2 class="hero-title news-shell-title">{{ 'NEWS_INFO' | translate }}</h2>
+        <p class="hero-subtitle news-shell-subtitle">{{ 'NEWS_DIALOG_EXPL' | translate }}</p>
+      </div>
+      <div class="news-shell-toggle">
+        <p-checkbox
+          inputId="show-read-news"
+          [ngModel]="showReadNews()"
+          (ngModelChange)="toggleShowReadNews($event)"
+          [binary]="true"
+        ></p-checkbox>
+        <label for="show-read-news" class="text-sm text-[var(--p-text-color)]">{{ 'NEWS_SHOW_READ' | translate }}</label>
+      </div>
+    </div>
   </div>
-}
 
-<p-dialog
-  [header]="selectedNewsItem?.description ?? ''"
-  [(visible)]="displayNewsDetail"
-  [modal]="true"
-  [style]="{ width: '50vw', height: '50vh' }"
-  [maximizable]="true"
-  appendTo="body"
->
-  <ng-template pTemplate>
-    <p-editor
-      [ngModel]="selectedNewsItem?.text"
-      [style]="{ height: '100%', width: '100%' }"
-      class="news-editor"
-      [readonly]="true"
-    >
-      <ng-template #header>{{ selectedNewsItem?.date | vwsDate }}</ng-template>
-    </p-editor>
-  </ng-template>
-</p-dialog>
+  @if (currentNewsItem(); as newsItem) {
+    <div class="news-card" [class.news-card-animate]="animateCard()">
+      <div class="news-header">
+        <div>
+          <h2 class="news-title">{{ newsItem.description }}</h2>
+          <div class="news-date">{{ newsItem.date | vwsDate }}</div>
+        </div>
+        @if (hasVisibleNews()) {
+          <div class="news-progress">{{ progressLabel() }}</div>
+        }
+      </div>
+
+      <div class="news-content-surface">
+        <div class="news-content prose max-w-none" [innerHTML]="newsItem.text || ''"></div>
+      </div>
+
+      <div class="news-actions">
+        <p-button
+          [label]="isLastVisibleNews() ? ('CLOSE' | translate) : ('NEXT' | translate)"
+          icon="pi pi-arrow-right"
+          iconPos="right"
+          [ariaLabel]="'NEXT_NEWS_ARIA' | translate"
+          (onClick)="showNextNews()"
+        ></p-button>
+      </div>
+    </div>
+  } @else {
+    <div class="news-empty">
+      <h2 class="news-title">{{ 'NEWS' | translate }}</h2>
+      <p class="news-date">{{ 'NEWS_EMPTY_DIALOG' | translate }}</p>
+      <p-button label="{{ 'CLOSE' | translate }}" icon="pi pi-times" severity="secondary" (onClick)="closeDialog()"></p-button>
+    </div>
+  }
+</div>

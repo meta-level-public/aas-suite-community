@@ -1,5 +1,4 @@
 import { OrgaSettings } from '@aas-designer-model';
-import { DialogFooter } from '@aas/common-components';
 import { DateProxyPipe } from '@aas/common-pipes';
 import { AccessService, AppConfigService, buildMySpaceRoute, PortalService } from '@aas/common-services';
 import { NewsService, ShowNewsComponent } from '@aas/news';
@@ -105,13 +104,14 @@ export class AppTopBarComponent implements OnInit, OnDestroy {
   news() {
     this.dialogService.open(ShowNewsComponent, {
       header: this.translate.instant('NEWS'),
-      width: '50%',
-      height: '50%',
+      width: '78rem',
+      height: '48rem',
+      breakpoints: {
+        '1200px': '92vw',
+        '768px': '96vw',
+      },
       maximizable: true,
       closable: true,
-      templates: {
-        footer: DialogFooter,
-      },
     });
   }
 

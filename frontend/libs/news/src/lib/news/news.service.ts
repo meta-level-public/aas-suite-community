@@ -56,7 +56,7 @@ export class NewsService {
 
   async updateSettings() {
     if (this.portalService.user != null) {
-      firstValueFrom(
+      await firstValueFrom(
         this.http.patch(
           `${this.appConfigService.config.apiPath}/Benutzer/UpdateSettings`,
           this.portalService.user.einstellungen,

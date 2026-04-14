@@ -65,6 +65,7 @@ export class SystemManagementComponent implements OnInit {
       }
       this.modules.push({ label: 'CORS_CONFIG', value: 'cors-config', icon: 'pi pi-list' });
       this.modules.push({ label: 'MAIL_SETTINGS', value: 'mail-settings', icon: 'pi pi-envelope' });
+      this.modules.push({ label: 'NEWS_MANAGEMENT', value: 'news-management', icon: 'pi pi-bell' });
       this.modules.push({ label: 'LEGAL_LINK_SETTINGS', value: 'legal-links-settings', icon: 'pi pi-link' });
 
       if (this.systemConfguration()?.singleTenantMode === false) {

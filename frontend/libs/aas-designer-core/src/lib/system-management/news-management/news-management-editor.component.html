@@ -1,0 +1,65 @@
+<div class="flex flex-col flex-auto overflow-auto">
+  <div class="hero-section">
+    <div class="hero-content">
+      <h1 class="hero-title">{{ pageTitle() | translate }}</h1>
+      <div class="hero-actions">
+        <p-button
+          label="{{ 'CANCEL' | translate }}"
+          icon="pi pi-times"
+          severity="secondary"
+          [disabled]="saving()"
+          (onClick)="cancel()"
+        ></p-button>
+        <p-button label="{{ 'SAVE' | translate }}" icon="pi pi-save" [loading]="saving()" (onClick)="save()"></p-button>
+      </div>
+    </div>
+  </div>
+
+  <p class="pb-4 text-sm text-[var(--p-text-muted-color)]">{{ 'NEWS_MANAGEMENT_EXPL' | translate }}</p>
+
+  @if (newsItem(); as item) {
+    <div class="grid grid-cols-1 gap-4">
+      <p-inputgroup>
+        <p-inputgroup-addon class="font-bold w-56">
+          <i class="pi pi-tag mr-2"></i>
+          {{ 'TITEL' | translate }}
+        </p-inputgroup-addon>
+        <input pInputText [(ngModel)]="item.description" />
+      </p-inputgroup>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <p-inputgroup>
+          <p-inputgroup-addon class="font-bold w-56">
+            <i class="pi pi-calendar mr-2"></i>
+            {{ 'DATUM' | translate }}
+          </p-inputgroup-addon>
+          <p-datepicker class="w-full" appendTo="body" [showIcon]="true" [(ngModel)]="item.date"></p-datepicker>
+        </p-inputgroup>
+
+        <p-inputgroup>
+          <p-inputgroup-addon class="font-bold w-56">
+            <i class="pi pi-bullhorn mr-2"></i>
+            {{ 'VISIBILITY' | translate }}
+          </p-inputgroup-addon>
+          <input pInputText [readonly]="true" [ngModel]="item.visible ? ('VISIBLE' | translate) : ('INVISIBLE' | translate)" />
+        </p-inputgroup>
+      </div>
+
+      <div class="flex flex-wrap gap-6 pt-1">
+        <div class="flex items-center gap-2">
+          <p-checkbox [(ngModel)]="item.isPublic" [binary]="true"></p-checkbox>
+          <span>{{ 'IS_PUBLIC' | translate }}</span>
+        </div>
+        <div class="flex items-center gap-2">
+          <p-checkbox [(ngModel)]="item.visible" [binary]="true"></p-checkbox>
+          <span>{{ 'VISIBLE' | translate }}</span>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-1 gap-2">
+        <label class="text-sm font-semibold" for="news-management-editor">{{ 'CONTENT' | translate }}</label>
+        <p-editor inputId="news-management-editor" [(ngModel)]="item.text" [style]="{ height: '20rem' }"></p-editor>
+      </div>
+    </div>
+  }
+</div>

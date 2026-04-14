@@ -41,6 +41,17 @@
               [attr.aria-label]="'NEXT_NEWS_ARIA' | translate"
             />
           </div>
+
+          <div class="news-primary-action">
+            <p-button
+              [label]="canNavigateForward() ? ('NEWS_SHOW_OLDER' | translate) : ('NEWS_SHOW_NEWER' | translate)"
+              [icon]="canNavigateForward() ? 'pi pi-arrow-right' : 'pi pi-arrow-left'"
+              [iconPos]="canNavigateForward() ? 'right' : 'left'"
+              [disabled]="!canNavigateForward() && !canNavigateBack()"
+              (onClick)="canNavigateForward() ? requestNext() : requestPrevious()"
+              [attr.aria-label]="(canNavigateForward() ? 'NEXT_NEWS_ARIA' : 'PREVIOUS_NEWS_ARIA') | translate"
+            />
+          </div>
         }
       </div>
     } @else {

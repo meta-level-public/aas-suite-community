@@ -9,6 +9,7 @@
     <PackageVersion Include="AasCore.Aas3_1" Version="1.0.0" />
     <PackageVersion Include="AutoMapper" Version="16.1.1" />
     <PackageVersion Include="CsvHelper" Version="33.0.1" />
+    <PackageVersion Include="log4net" Version="3.3.0" />
     <PackageVersion Include="MailKit" Version="4.15.1" />
     <PackageVersion Include="MimeKit" Version="4.15.1" />
     <PackageVersion Include="MediatR" Version="14.0.0" />

@@ -22,13 +22,13 @@
   } @else {
     <p-splitter stateKey="systemManagementTree" stateStorage="local" [panelSizes]="[20, 80]" class="aas-splitter-fill">
       <ng-template pTemplate>
-        <div class="flex flex-col h-full text-base">
+        <div class="flex h-full min-h-0 min-w-0 flex-col text-base">
           <div class="hero-section" style="margin: 0.5rem 0.5rem 0.5rem 0.5rem">
             <div class="hero-content">
               <h1 class="hero-title">{{ 'SYSTEM_MANAGEMENT' | translate }}</h1>
             </div>
           </div>
-          <div class="flex-auto overflow-y-auto px-2 text-base">
+          <div class="min-w-0 flex-auto overflow-y-auto px-2 text-base">
             <aas-sidebar-tree-nav
               [items]="systemManagementEntries()"
               [selectedKey]="selectedEntryKey"
@@ -38,7 +38,7 @@
         </div>
       </ng-template>
       <ng-template pTemplate>
-        <div class="w-full h-full min-h-0 p-2 text-base">
+        <div class="h-full min-h-0 min-w-0 w-full overflow-y-auto overflow-x-hidden p-2 text-base">
           <router-outlet></router-outlet>
         </div>
       </ng-template>
