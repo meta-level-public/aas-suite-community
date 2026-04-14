@@ -1,0 +1,61 @@
+.qr-container {
+  display: inline-block;
+  position: relative;
+}
+
+.qr-frame-container {
+  position: relative;
+  display: inline-block;
+  background: var(--p-surface-0);
+}
+
+.qr-code-wrapper {
+  position: absolute;
+  z-index: 1;
+}
+
+canvas {
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 2;
+  pointer-events: none;
+}
+
+.download-button {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  z-index: 10;
+  width: 28px;
+  height: 28px;
+  padding: 0;
+  border: 1px solid color-mix(in srgb, var(--p-surface-900) 20%, transparent);
+  border-radius: var(--aas-radius-xs);
+  background: color-mix(in srgb, var(--p-surface-0) 80%, transparent);
+  backdrop-filter: blur(4px);
+  cursor: pointer;
+  color: var(--p-text-color);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 1px 3px color-mix(in srgb, var(--p-surface-900) 10%, transparent);
+  transition: all 0.2s ease;
+}
+
+.download-button i {
+  font-size: var(--aas-text-xs);
+}
+
+.download-button:hover {
+  background: color-mix(in srgb, var(--p-surface-0) 90%, transparent);
+  border-color: color-mix(in srgb, var(--p-surface-900) 30%, transparent);
+  box-shadow: 0 2px 4px color-mix(in srgb, var(--p-surface-900) 15%, transparent);
+  transform: translateY(-1px);
+}
+
+.download-button:active {
+  background: color-mix(in srgb, var(--p-surface-0) 70%, transparent);
+  transform: translateY(0);
+  box-shadow: 0 1px 2px color-mix(in srgb, var(--p-surface-900) 10%, transparent);
+}

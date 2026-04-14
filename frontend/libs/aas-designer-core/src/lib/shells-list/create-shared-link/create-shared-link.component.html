@@ -1,0 +1,54 @@
+<div class="flex flex-col gap-2">
+  <div class="mb-4">
+    <label for="name">{{ 'CREATE_SHARE_LINK_EXPL' | translate }}</label>
+  </div>
+  <div class="mb-4">
+    <label for="notiz">{{ 'NOTICE' | translate }}</label>
+    <div class="w-full">
+      <textarea pTextarea class="w-full" class="w-full" [(ngModel)]="sharedLink().notiz" id="notiz"></textarea>
+    </div>
+  </div>
+  <div class="mb-4">
+    <label for="name">{{ 'ABLAUFDATUM' | translate }}</label>
+    <div class="w-full">
+      <p-datepicker
+        [showIcon]="true"
+        class="w-full"
+        class="w-full"
+        [(ngModel)]="sharedLink().ablaufdatum"
+        appendTo="body"
+      />
+    </div>
+  </div>
+  <div class="mb-4">
+    <label for="sharedLinkPassword">{{ 'PASSWORT' | translate }}</label>
+    <div class="w-full">
+      <p-password
+        type="text"
+        id="sharedLinkPassword"
+        class="w-full"
+        class="w-full"
+        inputStyleClass="w-full"
+        [(ngModel)]="sharedLink().passwort"
+        [toggleMask]="true"
+      ></p-password>
+    </div>
+  </div>
+  <div class="flex flex-row gap-2 justify-end">
+    <p-button
+      label="{{ 'CANCEL' | translate }}"
+      icon="pi pi-times"
+      (onClick)="cancel()"
+      type="button"
+      [loading]="loading()"
+      styleClass="p-button-secondary"
+    ></p-button>
+    <p-button
+      label="{{ 'CREATE_SHARE_LINK' | translate }}"
+      icon="pi pi-share-alt"
+      (onClick)="share()"
+      type="button"
+      [loading]="loading()"
+    ></p-button>
+  </div>
+</div>

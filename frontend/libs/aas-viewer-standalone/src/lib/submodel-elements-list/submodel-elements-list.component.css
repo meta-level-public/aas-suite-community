@@ -1,0 +1,4 @@
+.elements-list {
+  display: flex;
+  flex-direction: column;
+}

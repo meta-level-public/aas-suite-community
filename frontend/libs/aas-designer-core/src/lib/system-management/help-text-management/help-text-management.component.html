@@ -1,0 +1,124 @@
+<div class="flex flex-col flex-auto overflow-auto">
+  <div class="hero-section">
+    <div class="hero-content">
+      <h1 class="hero-title">{{ 'HELP_TEXT_CONFIG' | translate }}</h1>
+      <div class="hero-actions">
+        <p-button
+          label="{{ 'UPLOAD_NEW_HELP_TEXTS' | translate }}"
+          icon="pi pi-pencil"
+          (onClick)="uploadMode.set(true)"
+          size="small"
+          severity="primary"
+        ></p-button>
+        <p-button
+          label="{{ 'DOWNLOAD_CURRENT_HELP_TEXTS' | translate }}"
+          icon="pi pi-download"
+          (onClick)="downloadHelpTexts()"
+          size="small"
+          severity="primary"
+        ></p-button>
+      </div>
+    </div>
+  </div>
+  @if (uploadMode()) {
+    <div class="flex w-full">
+      <p-fileUpload
+        maxFileSize="1000000"
+        [auto]="false"
+        class="w-full"
+        (onSelect)="selectFile($event)"
+        [multiple]="false"
+        [accept]="'.zip'"
+      >
+        <ng-template #header let-files let-chooseCallback="chooseCallback">
+          <div class="flex flex-wrap justify-between items-center flex-1 gap-2">
+            <div class="flex gap-2">
+              <p-button
+                icon="pi pi-file"
+                [rounded]="true"
+                [outlined]="true"
+                (onClick)="choose($event, chooseCallback)"
+              />
+            </div>
+          </div>
+        </ng-template>
+        <ng-template
+          pTemplate="content"
+          let-files
+          let-uploadedFiles="uploadedFiles"
+          let-removeFileCallback="removeFileCallback"
+          let-removeUploadedFileCallback="removeUploadedFileCallback"
+        >
+          @if (files?.length > 0) {
+            <div class="flex flex-row gap-2">
+              <lib-help-label class="w-14rem" tag="SELECTED_FILE"></lib-help-label>
+            </div>
+            <div class="flex flex-col gap-5">
+              @for (file of files; track file; let i = $index) {
+                <div class="flex flex-row items-center gap-3">
+                  <span class="font-semibold">{{ file.name }}</span>
+                  <div>{{ formatSize(file.size) }}</div>
+                  <p-button
+                    icon="pi pi-times"
+                    (onClick)="onRemoveTemplatingFile($event, file, removeFileCallback, i)"
+                    [outlined]="true"
+                    [rounded]="true"
+                    severity="danger"
+                    size="small"
+                  />
+                </div>
+              }
+            </div>
+            <div class="flex flex-row justify-end gap-2 mb-3">
+              <p-button
+                pRipple
+                label="{{ 'SAVE' | translate }}"
+                icon="pi pi-save"
+                (onClick)="doUpload()"
+                size="small"
+                severity="success"
+                [disabled]="selectedFile == null"
+              ></p-button>
+              <p-button
+                pRipple
+                label="{{ 'CANCEL' | translate }}"
+                icon="pi pi-times"
+                (onClick)="uploadMode.set(false)"
+                size="small"
+                severity="secondary"
+              ></p-button>
+            </div>
+          }
+        </ng-template>
+        <ng-template pTemplate="file"> </ng-template>
+        <ng-template pTemplate="empty">
+          <div class="flex items-center justify-center flex-row gap-2">
+            <i class="pi pi-cloud-upload border-1 border-circle p-1 text-xl text-400 border-400"></i>
+            <p class="mt-2 mb-0">{{ 'DRAG_DROP_FILE' | translate }}</p>
+          </div>
+          <div class="flex flex-row justify-end gap-2">
+            <p-button
+              pRipple
+              label="{{ 'CANCEL' | translate }}"
+              icon="pi pi-times"
+              (onClick)="uploadMode.set(false)"
+              size="small"
+              severity="secondary"
+            ></p-button>
+          </div>
+        </ng-template>
+      </p-fileUpload>
+    </div>
+  }
+
+  <div class="grid grid-cols-1 gap-4">
+    <p-inputgroup>
+      <p-inputgroup-addon class="font-bold w-56">
+        <i class="fa-solid fa-hashtag mr-2"></i>
+        <lib-help-label tag="AMOUNT" [showLabel]="false"></lib-help-label>
+        {{ 'AMOUNT' | translate }}
+      </p-inputgroup-addon>
+      <input pInputText [value]="helpInfo()?.amountTexts" [readonly]="true" />
+    </p-inputgroup>
+  </div>
+</div>

@@ -1,0 +1,112 @@
+@if (file != null && file.content != null) {
+  <div class="flex flex-col w-full">
+    <p-fieldset
+      class="w-full"
+      [toggleable]="true"
+      [collapsed]="uiStateStore.detailsPanelCollapsed()"
+      (collapsedChange)="uiStateStore.setDetailsPanelCollapsed($event)"
+    >
+      <ng-template #header>
+        <div class="flex items-center gap-2 px-2">
+          <lib-help-label tag="DETAILS" isLabelBold="true"></lib-help-label>
+        </div>
+      </ng-template>
+      <div class="mb-4">
+        <lib-help-label class="w-14rem mt-2" tag="FILE_PATH"></lib-help-label>
+        @if (file.content.path != null && file.content.path !== '') {
+          <input
+            pInputText
+            id="idShort"
+            type="text"
+            class="inputfield w-full"
+            [(ngModel)]="file.content.path"
+            name="filename"
+            readonly
+          />
+        } @else {
+          <input
+            pInputText
+            id="idShort"
+            type="text"
+            class="inputfield w-full"
+            [(ngModel)]="file.content.fileApiUrl"
+            name="filename"
+            readonly
+          />
+        }
+      </div>
+      <div class="mb-4">
+        <lib-help-label class="w-14rem mt-2" tag="CONTENT_TYPE"></lib-help-label>
+        <input
+          pInputText
+          id="idShort"
+          type="text"
+          class="inputfield w-full"
+          [(ngModel)]="file.content.contentType"
+          name="contentType"
+          readonly
+        />
+      </div>
+    </p-fieldset>
+    <p-fieldset
+      class="w-full mt-2"
+      [toggleable]="true"
+      [collapsed]="uiStateStore.contentPanelCollapsed()"
+      (collapsedChange)="uiStateStore.setContentPanelCollapsed($event)"
+    >
+      <ng-template #header>
+        <div class="flex items-center gap-2 px-2">
+          <lib-help-label tag="CONTENT" isLabelBold="true"></lib-help-label>
+        </div>
+      </ng-template>
+      <div class="flex flex-col gap-4">
+        <div class="flex flex-row flex-wrap gap-2">
+          <p-button
+            label="{{ 'DOWNLOAD' | translate }}"
+            icon="pi pi-download"
+            severity="warn"
+            outlined="true"
+            [disabled]="loading"
+            (onClick)="downloadFile()"
+          ></p-button>
+          @if (canPreview()) {
+            <p-button
+              label="{{ 'LOAD_PREVIEW' | translate }}"
+              icon="pi pi-eye"
+              severity="warn"
+              [loading]="loading"
+              (onClick)="loadFile()"
+            ></p-button>
+          }
+        </div>
+
+        @if (showPreview && previewAvailable()) {
+          @switch (getPreviewType()) {
+            @case ('image') {
+              <div class="border-round surface-border border p-3 flex justify-center">
+                <img class="max-w-full max-h-20rem" [src]="supplementalFile?.fileUrl" alt="Supplemental file preview" />
+              </div>
+            }
+            @case ('pdf') {
+              <object
+                class="w-full h-30rem border-round surface-border border"
+                [data]="supplementalFile?.fileUrl"
+                title="PDF preview"
+              ></object>
+            }
+            @case ('video') {
+              <video class="w-full max-h-30rem" [src]="supplementalFile?.fileUrl" controls></video>
+            }
+            @case ('xml') {
+              <pre class="surface-ground border-round p-3 overflow-auto max-h-30rem text-sm whitespace-pre-wrap">{{ previewText }}</pre>
+            }
+          }
+        } @else if (!canPreview()) {
+          <div class="surface-ground border-round p-3 text-color-secondary">
+            {{ 'NO_PREVIEW_AVAILABLE_FOR_THIS_TYPE' | translate }}
+          </div>
+        }
+      </div>
+    </p-fieldset>
+  </div>
+}

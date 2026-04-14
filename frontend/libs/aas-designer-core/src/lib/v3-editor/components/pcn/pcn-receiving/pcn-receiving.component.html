@@ -1,0 +1,73 @@
+@let pcnInfos = this.pcnStateStore.pcnInfos();
+{{ pcnStateStore.aasIdentifier() }}
+@if (pcnInfos != null) {
+  {{ 'PCN_REGISTRATION_EXISTS' | translate }}
+  <p-toolbar>
+    <ng-template #start>
+      <div class="flex flex-row gap-2">
+        <p-button
+          label="{{ 'DELETE' | translate }}"
+          icon="pi pi-trash"
+          (onClick)="deletePcn()"
+          [outlined]="true"
+        ></p-button>
+        @if (pcnInfos.isActive) {
+          <p-button
+            label="{{ 'DISABLE' | translate }}"
+            icon="pi pi-pause-circle"
+            (onClick)="deactivatePcn()"
+            [outlined]="true"
+          ></p-button>
+        } @else {
+          <p-button
+            label="{{ 'ENABLE' | translate }}"
+            icon="pi pi-play-circle"
+            (onClick)="activatePcn()"
+            [outlined]="true"
+          ></p-button>
+        }
+      </div>
+    </ng-template>
+  </p-toolbar>
+
+  Test-Button vorsehen für Verbindungsversuch?
+  <br />
+  Letzte Updates anzeigen die empfangen wurden
+} @else {
+  <p-message severity="info">{{ 'NO_PCN_REGISTRATION' | translate }}</p-message>
+  <p-message severity="info">{{ 'REGISTER_PCN_QUESTION' | translate }}</p-message>
+
+  <div class="flex flex-col gap-2 w-full">
+    <div class="mb-4">
+      <lib-help-label tag="PCN_BROKER_URL"></lib-help-label>
+      <p-select [options]="pcnStateStore.brokerUrls()" [(ngModel)]="pcnBrokerUrl" class="w-full"></p-select>
+    </div>
+    <div class="mb-4">
+      <lib-help-label tag="PCN_BROKER_TOPIC"></lib-help-label>
+      <input type="text" pInputText id="pcnBrokerTopic" class="w-full" [(ngModel)]="pcnBrokerTopic" />
+    </div>
+    <div class="mb-4">
+      <lib-help-label tag="PCN_BROKER_USER"></lib-help-label>
+      <input type="text" pInputText id="pcnBrokerUser" class="w-full" [(ngModel)]="pcnBrokerUsername" />
+    </div>
+    <div class="mb-4">
+      <lib-help-label tag="PCN_BROKER_PASSWORD"></lib-help-label>
+      <p-password
+        type="text"
+        id="pcnBrokerUser"
+        inputStyleClass="w-full"
+        class="w-full"
+        [(ngModel)]="pcnBrokerPassword"
+        toggleMask="true"
+        showClear="true"
+        [feedback]="false"
+      />
+    </div>
+    <p-button
+      label="{{ 'REGISTER_PCN' | translate }}"
+      icon="pi pi-sign-in"
+      (onClick)="registerPcn()"
+      [outlined]="true"
+    ></p-button>
+  </div>
+}

@@ -1,0 +1,205 @@
+/* Global Styles für Leaflet Custom Marker */
+:host ::ng-deep .numbered-marker {
+  background: none !important;
+  border: none !important;
+}
+
+:host ::ng-deep .marker-circle {
+  width: 40px;
+  height: 40px;
+  background: var(--aas-success-text);
+  border: 3px solid var(--p-surface-0);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 3px 10px color-mix(in srgb, var(--p-surface-900) 40%, transparent);
+  font-weight: bold;
+  font-size: var(--aas-text-xl);
+  color: var(--p-surface-0);
+  text-align: center;
+  line-height: 1;
+}
+
+.address-map-container {
+  margin-top: 2rem;
+  padding: 1.5rem;
+  background: var(--p-surface-0);
+  border-radius: var(--aas-radius-md);
+  box-shadow: 0 4px 8px color-mix(in srgb, var(--p-surface-900) 10%, transparent);
+  border: 1px solid var(--p-content-border-color);
+}
+
+.map-header {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0;
+  margin: 0 0 1.5rem 0;
+  background: transparent;
+  border: 0;
+  cursor: pointer;
+  text-align: left;
+}
+
+.map-title {
+  color: var(--aas-success-text);
+  font-size: var(--aas-text-xl);
+  font-weight: 600;
+}
+
+.map-header {
+  border-bottom: 2px solid var(--aas-success-icon);
+  padding-bottom: 0.5rem;
+}
+
+.map-content {
+  display: grid;
+  grid-template-columns: 1fr 2fr;
+  gap: 2rem;
+  min-height: 400px;
+}
+
+.address-list h5 {
+  margin: 0 0 1rem 0;
+  color: var(--aas-success-text);
+  font-weight: 600;
+}
+
+.addresses {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  max-height: 350px;
+  overflow-y: auto;
+}
+
+.address-item {
+  margin-bottom: 1rem;
+  background: var(--p-surface-50);
+  border: 1px solid var(--p-surface-200);
+  border-radius: var(--aas-radius-md);
+  box-shadow: 0 2px 4px color-mix(in srgb, var(--p-surface-900) 5%, transparent);
+  border-left: 4px solid var(--aas-success-text);
+  position: relative;
+}
+
+.address-header {
+  width: 100%;
+  display: flex;
+  align-items: flex-start;
+  gap: 1rem;
+  padding: 1rem;
+  background: transparent;
+  border: 0;
+  cursor: pointer;
+  text-align: left;
+}
+
+.step-number {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  width: 32px;
+  height: 32px;
+  background: var(--aas-success-text);
+  color: var(--p-surface-0);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
+  font-size: var(--aas-text-lg);
+  border: 2px solid var(--p-surface-0);
+  box-shadow: 0 2px 6px color-mix(in srgb, var(--p-surface-900) 20%, transparent);
+}
+
+.address-content {
+  flex: 1;
+  padding-right: 40px;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.address-item strong {
+  color: var(--aas-success-text);
+}
+
+.address-summary {
+  color: var(--p-text-color);
+}
+
+.address-toggle {
+  color: var(--aas-success-text);
+  margin-left: auto;
+  padding-top: 0.125rem;
+}
+
+.address-details {
+  padding: 0 1rem 1rem 1rem;
+  color: var(--p-text-color);
+}
+
+.map-wrapper {
+  position: relative;
+  height: 400px;
+  border-radius: var(--aas-radius-md);
+  overflow: hidden;
+  box-shadow: 0 2px 8px color-mix(in srgb, var(--p-surface-900) 15%, transparent);
+}
+
+.leaflet-map {
+  height: 100%;
+  width: 100%;
+}
+
+.no-addresses {
+  padding: 2rem;
+  text-align: center;
+  background: var(--aas-success-surface);
+  border-radius: var(--aas-radius-md);
+  border: 1px dashed var(--aas-success-icon);
+  color: var(--p-text-muted-color);
+}
+
+.collapsed-placeholder {
+  padding: 0.75rem 1rem;
+  color: var(--p-text-muted-color);
+  background: var(--aas-success-surface);
+  border: 1px dashed var(--aas-success-icon);
+  border-radius: var(--aas-radius-md);
+}
+
+.no-addresses p {
+  margin: 0;
+  font-size: 1rem;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .map-content {
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+  }
+
+  .address-list {
+    order: 2;
+  }
+
+  .map-wrapper {
+    order: 1;
+    height: 300px;
+  }
+}
+
+/* Leaflet Marker Popup Styling */
+:global(.leaflet-popup-content) {
+  font-family: inherit;
+  line-height: 1.4;
+}
+
+:global(.leaflet-popup-content strong) {
+  color: var(--aas-success-text);
+}

@@ -1,0 +1,73 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <OutputType>Library</OutputType>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <NoWarn>$(NoWarn);1591</NoWarn>
+    <NoWarn>$(NoWarn);CS8981</NoWarn>
+    <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
+  </PropertyGroup>
+  <ItemGroup>
+    <AssemblyAttribute Include="System.Runtime.CompilerServices.InternalsVisibleTo">
+      <_Parameter1>AasDesignerApi.UnitTests</_Parameter1>
+    </AssemblyAttribute>
+
+    <PackageReference Include="AasCore.Aas3.Package" />
+    <PackageReference Include="AasCore.Aas3_1" />
+    <PackageReference Include="AutoMapper" />
+    <PackageReference Include="CsvHelper" />
+    <PackageReference Include="MailKit" />
+    <PackageReference Include="MimeKit" />
+    <PackageReference Include="MediatR" />
+    <PackageReference Include="NJsonSchema" />
+    <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" />
+    <PackageReference Include="NSwag.AspNetCore" />
+    <PackageReference Include="sib_api_v3_sdk" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Design">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Tools">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" />
+    <PackageReference Include="Microsoft.Extensions.Diagnostics.HealthChecks.EntityFrameworkCore" />
+    <PackageReference Include="BaSyx.Models" />
+    <PackageReference Include="Microsoft.AspNetCore.Mvc.NewtonsoftJson" />
+    <PackageReference Include="Microsoft.Extensions.Logging.Log4Net.AspNetCore" />
+    <PackageReference Include="BaSyx.Utils" />
+    <PackageReference Include="BaSyx.Utils.DependencyInjection.Abstractions" />
+    <PackageReference Include="BaSyx.Models.Export" />
+    <PackageReference Include="Microsoft.AspNetCore.SpaServices.Extensions" />
+    <PackageReference Include="LibGit2Sharp" />
+    <PackageReference Include="LettuceEncrypt" />
+    <PackageReference Include="QRCoder" />
+    <PackageReference Include="LiquidTechnologies.XmlObjects.Runtime" />
+    <PackageReference Include="AspNetCore.HealthChecks.UI.Client" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile
+      Include="../AasDesignerApi/**/*.cs"
+      Exclude="../AasDesignerApi/Program.cs;../AasDesignerApi/NswagStartup.cs;../AasDesignerApi/OpenApiDocumentRegistration.cs;../AasDesignerApi/bin/**/*.cs;../AasDesignerApi/obj/**/*.cs"
+    />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\shared\AasShared\AasShared.csproj" />
+    <ProjectReference Include="..\..\xsd\AasSchema\AasSchema.csproj" />
+    <ProjectReference Include="..\AasDesignerModel\AasDesignerModel.csproj" />
+    <ProjectReference Include="..\AasDesignerAasApi\AasDesignerAasApi.csproj" />
+    <ProjectReference Include="..\AasDesignerCommon\AasDesignerCommon.csproj" />
+    <ProjectReference Include="..\AasDesignerAuthorization\AasDesignerAuthorization.csproj" />
+    <ProjectReference Include="..\AasDesignerSharedLinksApi\AasDesignerSharedLinksApi.csproj" />
+    <ProjectReference Include="..\AasDesignerDashboardApi\AasDesignerDashboardApi.csproj" />
+    <ProjectReference Include="..\AasDesignerSystemManagementApi\AasDesignerSystemManagementApi.csproj" />
+    <ProjectReference Include="..\AasDesignerHelpApi\AasDesignerHelpApi.csproj" />
+  </ItemGroup>
+</Project>

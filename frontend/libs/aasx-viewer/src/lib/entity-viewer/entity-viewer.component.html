@@ -1,0 +1,16 @@
+<aas-entity-element [entity]="entity" [idShort]="entity.idShort"></aas-entity-element>
+@if (entity.statements?.length > 0) {
+  <p-panel header="{{ 'STATEMENTS' | translate }}">
+    @for (item of entity.statements; track item) {
+      <div class="mb-5">
+        @if (item?.modelType?.name === 'Entity') {
+          <aas-entity-viewer [entity]="item" [idShort]="item.idShort"></aas-entity-viewer>
+        }
+        <div class="mb-2"></div>
+        @if (item?.modelType?.name === 'RelationshipElement') {
+          <aas-relationship-viewer [entity]="item" [idShort]="item.idShort" [aasId]="aasId"></aas-relationship-viewer>
+        }
+      </div>
+    }
+  </p-panel>
+}

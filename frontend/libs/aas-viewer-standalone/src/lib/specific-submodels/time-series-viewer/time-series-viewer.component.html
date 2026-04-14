@@ -1,0 +1,219 @@
+<p-card>
+  <div class="flex flex-col gap-2">
+    <div class="flex flex-col 2xl:flex-row gap-4 items-start">
+      <div class="w-full 2xl:w-1/2 flex flex-col gap-2 min-w-0">
+        <div class="flex flex-row gap-2 items-center">
+          <lib-help-label tag="CHART_AUTO_REFRESH" class="w-16rem"></lib-help-label>
+          <div class="flex flex-row gap-2 items-center">
+            <p-toggleswitch [(ngModel)]="autorefresh" (onChange)="updateAutorefresh()"></p-toggleswitch>
+            @if (autorefresh() === true) {
+              <p-inputgroup class="w-6rem">
+                <p-inputnumber
+                  [(ngModel)]="refreshInterval"
+                  [min]="1"
+                  [max]="60"
+                  [step]="1"
+                  (ngModelChange)="updateAutorefresh()"
+                ></p-inputnumber>
+                <p-inputgroup-addon> s </p-inputgroup-addon>
+              </p-inputgroup>
+            }
+          </div>
+        </div>
+        @if (hasLinkedSegmentApi) {
+          <div class="flex flex-row w-full gap-2 items-center">
+            <lib-help-label tag="SEGMENT" class="w-16rem"></lib-help-label>
+            <p-select
+              [options]="segmentUrls"
+              [(ngModel)]="selectedSegmentUrl"
+              placeholder="{{ 'SELECT_SEGMENT' | translate }}"
+              class="w-full"
+              optionLabel="label"
+            ></p-select>
+          </div>
+          <div class="flex flex-row w-full gap-2 items-center">
+            <div class="flex flex-row w-1/2 gap-2 items-center">
+              <lib-help-label tag="TIME_POINT" class="w-16rem"></lib-help-label>
+              <p-select
+                [options]="dataPoints"
+                [(ngModel)]="selectedTimePoint"
+                placeholder="{{ 'SELECT_TIME_POINT' | translate }}"
+                class="w-full"
+                (onChange)="filterDataPoints()"
+                optionLabel="idShort"
+              ></p-select>
+            </div>
+            <div class="flex flex-row w-1/2 gap-2 items-center">
+              <lib-help-label tag="DATA_POINT" class="w-16rem"></lib-help-label>
+              <p-multiSelect
+                [options]="filteredDataPoints"
+                [(ngModel)]="selectedDataPoints"
+                placeholder="{{ 'SELECT_DATA_POINT' | translate }}"
+                class="w-full"
+                optionLabel="idShort"
+              ></p-multiSelect>
+            </div>
+          </div>
+          <div class="flex flex-row w-full gap-2">
+            <div class="flex flex-row w-1/2 gap-2 items-center">
+              <lib-help-label tag="API_TOKEN" class="w-16rem"></lib-help-label>
+              <input pInputText [(ngModel)]="token" class="w-full" />
+            </div>
+            <div class="flex flex-row w-1/2 gap-2 items-center">
+              <lib-help-label tag="HTTP_METHOD" class="w-16rem"></lib-help-label>
+              <p-select [options]="['HTTP-GET', 'HTTP-POST']" [(ngModel)]="method" class="w-full"></p-select>
+            </div>
+          </div>
+        }
+        @if (hasInternalSegmentData) {
+          <div class="flex flex-row w-full gap-2 items-center">
+            <lib-help-label tag="SEGMENT" class="w-16rem"></lib-help-label>
+            <p-select
+              [options]="internalSegments"
+              [(ngModel)]="selectedInternalSegment"
+              placeholder="{{ 'SELECT_SEGMENT' | translate }}"
+              class="w-full"
+              optionLabel="label"
+            ></p-select>
+          </div>
+          <div class="flex flex-row w-full gap-2 items-center">
+            <lib-help-label tag="TIME_POINT" class="w-16rem"></lib-help-label>
+            <p-select
+              [options]="dataPoints"
+              [(ngModel)]="selectedTimePoint"
+              placeholder="{{ 'SELECT_TIME_POINT' | translate }}"
+              class="w-1/3"
+              optionLabel="idShort"
+              (onChange)="filterDataPoints()"
+            ></p-select>
+          </div>
+          <div class="flex flex-row w-full gap-2 items-center">
+            <lib-help-label tag="DATA_POINT" class="w-16rem"></lib-help-label>
+            <p-multiSelect
+              [options]="filteredDataPoints"
+              [(ngModel)]="selectedDataPoints"
+              placeholder="{{ 'SELECT_DATA_POINT' | translate }}"
+              class="w-1/3"
+              optionLabel="idShort"
+            ></p-multiSelect>
+          </div>
+        }
+        @if (hasExternalSegmentData) {
+          <div class="flex flex-row w-full gap-2 items-center">
+            <lib-help-label tag="SEGMENT" class="w-16rem"></lib-help-label>
+            <p-select
+              [options]="externalSegments"
+              [(ngModel)]="selectedExternalSegment"
+              placeholder="{{ 'SELECT_SEGMENT' | translate }}"
+              class="w-full"
+              optionLabel="label"
+            ></p-select>
+          </div>
+          <div class="flex flex-row w-full gap-2 items-center">
+            <div class="flex flex-row w-full gap-2 items-center">
+              <lib-help-label tag="TIME_POINT" class="w-16rem"></lib-help-label>
+              <p-select
+                [options]="dataPoints"
+                [(ngModel)]="selectedTimePoint"
+                placeholder="{{ 'SELECT_TIME_POINT' | translate }}"
+                class="w-full"
+                (onChange)="filterDataPoints()"
+                optionLabel="idShort"
+              ></p-select>
+            </div>
+            <div class="flex flex-row w-full gap-2 items-center">
+              <lib-help-label tag="DATA_POINT" class="w-16rem"></lib-help-label>
+              <p-multiSelect
+                [options]="filteredDataPoints"
+                [(ngModel)]="selectedDataPoints"
+                placeholder="{{ 'SELECT_DATA_POINT' | translate }}"
+                class="w-full"
+                optionLabel="idShort"
+              ></p-multiSelect>
+            </div>
+          </div>
+        }
+      </div>
+      <div class="flex flex-col w-full 2xl:w-1/2 gap-2 min-w-0">
+        <div class="flex flex-row gap-2">
+          @if (hasLinkedSegmentApi) {
+            <p-button
+              (onClick)="loadLinkedDataAndDraw()"
+              label="{{ 'LOAD_DATA' | translate }}"
+              [disabled]="selectedSegmentUrl == null"
+              loadingIcon="pi pi-spin pi-spinner"
+            ></p-button>
+          }
+          @if (hasExternalSegmentData) {
+            <p-button
+              (onClick)="loadExternalDataAndDraw()"
+              label="{{ 'LOAD_DATA' | translate }}"
+              [disabled]="selectedExternalSegment == null"
+              loadingIcon="pi pi-spin pi-spinner"
+            ></p-button>
+          }
+          @if (hasInternalSegmentData) {
+            <p-button
+              (onClick)="loadInternalDataAndDraw()"
+              label="{{ 'LOAD_DATA' | translate }}"
+              [disabled]="selectedInternalSegment == null"
+              loadingIcon="pi pi-spin pi-spinner"
+            ></p-button>
+          }
+        </div>
+        <div class="flex flex-row gap-2 items-center">
+          <lib-help-label tag="CHART_TYPE" class="w-16rem"></lib-help-label>
+          <p-select
+            [options]="['line', 'doughnut', 'pie', 'polarArea', 'radar', 'bar', 'scatter', 'bubble']"
+            [(ngModel)]="chartType"
+            (onChange)="drawChart()"
+            class="w-full"
+          ></p-select>
+        </div>
+        <div class="flex flex-row gap-2 items-center">
+          <lib-help-label tag="FROM" class="w-16rem"></lib-help-label>
+          <p-datepicker
+            [(ngModel)]="startDate"
+            [showTime]="true"
+            [showSeconds]="true"
+            [showIcon]="true"
+            [showClear]="true"
+            class="flex-1"
+            styleClass="w-full"
+            inputStyleClass="w-full"
+            (onSelect)="drawChart()"
+          ></p-datepicker>
+        </div>
+        <div class="flex flex-row gap-2 items-center">
+          <lib-help-label tag="TO" class="w-16rem"></lib-help-label>
+          <p-datepicker
+            [(ngModel)]="endDate"
+            [showTime]="true"
+            [showSeconds]="true"
+            [showIcon]="true"
+            [showClear]="true"
+            class="flex-1"
+            styleClass="w-full"
+            inputStyleClass="w-full"
+            (onSelect)="drawChart()"
+          ></p-datepicker>
+          <p-button
+            (onClick)="drawChart()"
+            [disabled]="selectedDataPoints.length === 0 || selectedTimePoint == null || currentData == null"
+            icon="pi pi-chart-line"
+            class="shrink-0"
+            outlined="true"
+          ></p-button>
+        </div>
+      </div>
+    </div>
+    @if (hasLoadingError()) {
+      <div class="w-full">
+        <p-message text="{{ 'ERROR_LOADING_DATA' | translate }}" severity="info"></p-message>
+      </div>
+    }
+    <div class="w-full">
+      <p-chart [type]="chartType" [data]="chartData" [options]="chartOptions"></p-chart>
+    </div>
+  </div>
+</p-card>

@@ -1,0 +1,119 @@
+<div class="flex h-full min-h-0 flex-col gap-2">
+  <div class="hero-section flex-shrink-0">
+    <div class="hero-content">
+      <h1 class="hero-title">{{ 'AAS_INFRASTRUCTURE' | translate }}</h1>
+      <div class="hero-actions">
+        @if (accessService.isAllowed('ORGA_ADMIN')) {
+          @if (mode() === 'list') {
+            @if (!settings()?.isInternal) {
+              <p-button
+                pRipple
+                label="{{ 'EDIT' | translate }}"
+                icon="pi pi-pencil"
+                [loading]="loading()"
+                (onClick)="startEditing()"
+              ></p-button>
+              <p-button
+                pRipple
+                label="{{ 'DELETE' | translate }}"
+                icon="pi pi-trash"
+                severity="danger"
+                [outlined]="true"
+                [loading]="loading()"
+                (onClick)="deleteInfrastructure()"
+              ></p-button>
+            } @else if (canManageInternalInfrastructure()) {
+              <p-button
+                pRipple
+                label="{{ 'UPDATE_VERSIONS' | translate }}"
+                icon="pi pi-pencil"
+                [loading]="loading()"
+                (onClick)="startUpdatingVersions()"
+              ></p-button>
+              <p-button
+                pRipple
+                label="{{ 'RECREATE' | translate }}"
+                icon="pi pi-refresh"
+                severity="danger"
+                [outlined]="true"
+                [loading]="loading()"
+                (onClick)="recreateInfrastructure()"
+              ></p-button>
+              @if (settings()?.isActive) {
+                <p-button
+                  pRipple
+                  label="{{ 'DEACTIVATE' | translate }}"
+                  icon="fa-solid fa-circle-stop"
+                  [loading]="loading()"
+                  (onClick)="deactivateInfrastructure()"
+                ></p-button>
+              } @else {
+                <p-button
+                  pRipple
+                  label="{{ 'ACTIVATE' | translate }}"
+                  icon="fa-solid fa-circle-play"
+                  [loading]="loading()"
+                  (onClick)="activateInfrastructure()"
+                ></p-button>
+              }
+            } @else {}
+          } @else if (mode() === 'updateVersions') {
+            <p-button
+              pRipple
+              label="{{ 'CANCEL' | translate }}"
+              icon="pi pi-times"
+              [loading]="loading()"
+              severity="secondary"
+              (onClick)="cancelEditing()"
+            ></p-button>
+            <p-button
+              pRipple
+              label="{{ 'SAVE' | translate }}"
+              icon="pi pi-save"
+              severity="success"
+              [loading]="loading()"
+              (onClick)="save()"
+              [disabled]="!hasChanges()"
+            ></p-button>
+          } @else {
+            <p-button
+              pRipple
+              label="{{ 'CANCEL' | translate }}"
+              icon="pi pi-times"
+              [loading]="loading()"
+              severity="secondary"
+              (onClick)="cancelEditing()"
+            ></p-button>
+            <p-button
+              pRipple
+              label="{{ 'SAVE' | translate }}"
+              icon="pi pi-save"
+              severity="success"
+              [loading]="loading()"
+              (onClick)="save()"
+              [disabled]="!hasChanges()"
+            ></p-button>
+          }
+        }
+      </div>
+    </div>
+  </div>
+  <div #contentScroll class="flex-1 min-h-0 overflow-y-auto">
+    @if (mode() === 'edit') {
+      @if (settings() != null) {
+        <aas-infrastructure-edit [settings]="settings()!" [loading]="loading"></aas-infrastructure-edit>
+      }
+    } @else if (mode() === 'updateVersions') {
+      @if (settings() != null) {
+        <aas-infrastructure-update-versions
+          [settings]="settings()!"
+          #updateVersionsComponent
+        ></aas-infrastructure-update-versions>
+      }
+    } @else {
+      @if (settings() != null) {
+        <aas-infrastructure-list [settings]="settings()!"></aas-infrastructure-list>
+      }
+    }
+  </div>
+</div>

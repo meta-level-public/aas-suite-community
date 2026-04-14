@@ -1,0 +1,39 @@
+:host {
+  display: block;
+}
+
+.bom-entity-dialog {
+  display: flex;
+  flex-direction: column;
+  gap: 0.85rem;
+}
+
+.dialog-content {
+  background: var(--p-content-background, #fff);
+  border: 1px solid var(--p-content-border-color, #d1d5db);
+  border-radius: var(--aas-radius-md, 0.75rem);
+  padding: 0.9rem 1rem 1rem;
+}
+
+:host ::ng-deep .dialog-toolbar {
+  border: 1px solid var(--p-content-border-color, #d1d5db);
+  border-radius: var(--aas-radius-md, 0.75rem);
+  padding: 0.65rem 0.75rem;
+  background: var(--p-content-background, #fff);
+}
+
+:host ::ng-deep .mode-button {
+  min-width: 11rem;
+}
+
+@media (max-width: 1100px) {
+  :host ::ng-deep .dialog-toolbar .p-toolbar-group-start,
+  :host ::ng-deep .dialog-toolbar .p-toolbar-group-center,
+  :host ::ng-deep .dialog-toolbar .p-toolbar-group-end {
+    width: 100%;
+    justify-content: flex-start;
+    margin-bottom: 0.4rem;
+    flex-wrap: wrap;
+    gap: 0.4rem;
+  }
+}

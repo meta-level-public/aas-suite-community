@@ -1,0 +1,48 @@
+@if (shellParent != null && shellParent.content != null) {
+  <div class="flex w-full flex-col gap-2">
+    @if (shellParent != null) {
+      <p-fieldset class="w-full" legend="{{ 'DETAILS' | translate }}" [toggleable]="true">
+        <div class="flex flex-col gap-2 w-full mb-2">
+          <label for="assetId">{{ 'FILENAME' | translate }}</label>
+          <input pInputText class="w-full" [(ngModel)]="shellParent.content.filename" required vwsV3Undo nullIfEmpty />
+        </div>
+        <div class="flex flex-col gap-2 w-full mb-2">
+          <label for="assetId">{{ 'FREIGABELEVEL' | translate }}</label>
+          <p-tag
+            [value]="shellParent.content.freigabeLevel | translate"
+            [severity]="getTagSeverity(shellParent.content.freigabeLevel)"
+          ></p-tag>
+        </div>
+      </p-fieldset>
+    }
+    <p-fieldset legend="{{ 'THUMBNAIL' | translate }}" [toggleable]="true" class="mt-2">
+      <div class="w-full flex flex-row">
+        <p-button
+          styleClass="mr-2"
+          label="{{ 'DOWNLOAD' | translate }}"
+          icon="pi pi-download"
+          (onClick)="downloadFile()"
+        ></p-button>
+        <p-fileUpload
+          #uploader
+          chooseIcon="pi pi-upload"
+          [auto]="false"
+          chooseLabel="{{ 'CHOOSE_LABEL' | translate }}"
+          [customUpload]="true"
+          accept="image/*,.tif,.tiff"
+          mode="basic"
+          (onSelect)="setFile($event)"
+        >
+        </p-fileUpload>
+      </div>
+      <div class="w-full mt-2">
+        @if (!loading && fileUrl != null) {
+          <p-image [src]="fileUrl" class="ml-5" width="150" [preview]="true"></p-image>
+        }
+        @if (loading) {
+          <p-skeleton shape="square" width="150px" height="150px"></p-skeleton>
+        }
+      </div>
+    </p-fieldset>
+  </div>
+}

@@ -1,0 +1,71 @@
+<aas-privacy-dialog [showPrivacy]="showPrivacy()"></aas-privacy-dialog>
+
+<div class="m-5">
+  @if (hasProblem()) {
+    <p-card header="{{ 'ERROR_OCCURED' | translate }}">
+      <div class="flex flex-col gap-2">
+        @switch (loginResult()?.resultCode) {
+          @case (ResultCode.NO_VALID_ROLES) {
+            <div class="text-xl">{{ 'NO_ROLES' | translate }}</div>
+            <div>{{ 'NO_ROLES_EXPL' | translate }}</div>
+            <ul>
+              <li>{{ AuthRoles.BENUTZER }}</li>
+              <li>{{ AuthRoles.ORGA_ADMIN }}</li>
+              <li>{{ AuthRoles.FEED_MAPPING_USER }}</li>
+            </ul>
+          }
+          @case (ResultCode.EXPIRED_TOKEN) {
+            <div class="text-xl">{{ 'EXPIRED_TOKEN' | translate }}</div>
+            <div>{{ 'EXPIRED_TOKEN_EXPL' | translate }}</div>
+          }
+          @case (ResultCode.INVALID_TOKEN) {
+            <div class="text-xl">{{ 'INVALID_TOKEN' | translate }}</div>
+            <div>{{ 'INVALID_TOKEN_EXPL' | translate }}</div>
+          }
+          @case (ResultCode.NO_MORE_USERS_ALLOWED) {
+            <div class="text-xl">{{ 'NO_MORE_USERS_ALLOWED_HEADLINE' | translate }}</div>
+            <div>{{ 'NO_MORE_USERS_ALLOWED_EXPL' | translate }}</div>
+          }
+          @case (ResultCode.NO_EMAIL_FOUND) {
+            <div class="text-xl">{{ 'NO_EMAIL_FOUND' | translate }}</div>
+            <div>{{ 'NO_EMAIL_FOUND_EXPL' | translate }}</div>
+          }
+          @case (ResultCode.DATENSCHUTZ_NOT_ACCEPTED) {
+            <div class="text-xl">{{ 'DATENSCHUTZ_NOT_ACCEPTED' | translate }}</div>
+            <div>{{ 'DATENSCHUTZ_NOT_ACCEPTED_EXPL' | translate }}</div>
+            <p-button label="{{ 'SHOW' | translate }}" (onClick)="openPrivacy()" [loading]="loading()"></p-button>
+          }
+          @case (ResultCode.NO_EMAIL_FOUND) {
+            <div class="text-xl">{{ 'NO_EMAIL_FOUND' | translate }}</div>
+            <div>{{ 'NO_EMAIL_FOUND_EXPL' | translate }}</div>
+          }
+          @case (ResultCode.NO_EMAIL_FOUND) {
+            <div class="text-xl">{{ 'NO_EMAIL_FOUND' | translate }}</div>
+            <div>{{ 'NO_EMAIL_FOUND_EXPL' | translate }}</div>
+          }
+          @default {
+            <div class="text-xl">{{ 'ERROR' | translate }}</div>
+            <div>{{ loginResult()?.resultCode }}</div>
+            <div>{{ loginResult()?.additionalMessage }}</div>
+          }
+        }
+
+        {{ loginResult()?.additionalMessage }}
+      </div>
+      <ng-template pTemplate="footer">
+        <p-button label="{{ 'RETRY' | translate }}" (onClick)="logout()"> </p-button>
+      </ng-template>
+    </p-card>
+  } @else {
+    <p-card header="{{ 'SSO_LOGIN_SUCCESS' | translate }}">
+      <div class="flex flex-col gap-2">
+        <div class="text-xl">{{ 'GREETING' | translate: { username: name } }}</div>
+        <div class="flex flex-col gap-2">
+          <div>{{ 'SSO_LOGIN_SUCCESS_EXPL' | translate }}</div>
+        </div>
+      </div>
+    </p-card>
+  }
+</div>
+
+<aas-privacy-dialog [showPrivacy]="showPrivacy()" (doAccept)="privacyAccept($event)"></aas-privacy-dialog>

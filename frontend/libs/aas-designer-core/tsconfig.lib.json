@@ -1,0 +1,14 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "outDir": "../../dist/out-tsc",
+    "declaration": true,
+    "declarationMap": true,
+    "inlineSources": true,
+    "types": [],
+    "skipLibCheck": true,
+    "noErrorTruncation": false
+  },
+  "exclude": ["src/**/*.spec.ts", "src/test-setup.vitest.ts", "vitest.config.ts", "src/**/*.test.ts"],
+  "include": ["src/**/*.ts", "../aas-designer-shared/src/lib/model/newsItem.ts"]
+}

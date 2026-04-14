@@ -1,0 +1,180 @@
+{
+  "x-generator": "NSwag v14.1.0.0 (NJsonSchema v11.0.2.0 (Newtonsoft.Json v13.0.0.0))",
+  "openapi": "3.0.0",
+  "info": {
+    "title": "Enterprise License API",
+    "description": "Enterprise license API for interaction with enterprise frontend",
+    "contact": {
+      "name": "Meta Level Software AG"
+    },
+    "version": "v1.0"
+  },
+  "paths": {
+    "/system-management-api/SystemManagement/UpdateLicense": {
+      "post": {
+        "tags": [
+          "SystemManagement"
+        ],
+        "operationId": "SystemManagement_UpdateLicense",
+        "requestBody": {
+          "x-name": "licenseUpdate",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/LicenseUpdate"
+              }
+            }
+          },
+          "required": true,
+          "x-position": 1
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LicenseUpdateResult"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/system-management-api/SystemManagement/GetLicenseInfo": {
+      "get": {
+        "tags": [
+          "SystemManagement"
+        ],
+        "operationId": "SystemManagement_GetLicenseInfo",
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LicenseInfoDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "LicenseUpdateResult": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "status": {
+            "$ref": "#/components/schemas/LicenseUpdateStatus"
+          }
+        }
+      },
+      "LicenseUpdateStatus": {
+        "type": "integer",
+        "description": "",
+        "x-enumNames": [
+          "Success",
+          "InvalidLicenceFile",
+          "LicenseExpired",
+          "LicenseNotForThisApplication",
+          "LicenseNotForThisOrganisation",
+          "ErrorSavingLicenseFile"
+        ],
+        "enum": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5
+        ]
+      },
+      "LicenseUpdate": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "licenseAsBase64": {
+            "type": "string"
+          },
+          "licensee": {
+            "type": "string"
+          }
+        }
+      },
+      "LicenseInfoDto": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "edition": {
+            "type": "string"
+          },
+          "licenseName": {
+            "type": "string"
+          },
+          "configuredLicenseName": {
+            "type": "string"
+          },
+          "configuredLicenseNameDiffers": {
+            "type": "boolean"
+          },
+          "licenseValidUntil": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "licensedProduct": {
+            "type": "string"
+          },
+          "licenseValid": {
+            "type": "boolean"
+          },
+          "status": {
+            "$ref": "#/components/schemas/LicenseStatus"
+          },
+          "features": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "limits": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "integer",
+              "format": "int32",
+              "nullable": true
+            }
+          },
+          "warnings": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        }
+      },
+      "LicenseStatus": {
+        "type": "integer",
+        "description": "",
+        "x-enumNames": [
+          "Missing",
+          "Valid",
+          "ExpiringSoon",
+          "Expired",
+          "Invalid"
+        ],
+        "enum": [
+          0,
+          1,
+          2,
+          3,
+          4
+        ]
+      }
+    }
+  }
+}

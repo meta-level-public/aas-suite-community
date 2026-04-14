@@ -1,0 +1,20 @@
+@if (hasErrors()) {
+  <p-panel
+    [toggleable]="true"
+    [style]="{ 'border-color': 'red' }"
+    [collapsed]="uiStateStore.errorPanelCollapsed()"
+    (collapsedChange)="uiStateStore.setErrorPanelCollapsed($event!)"
+  >
+    <ng-template #header>
+      <div class="flex items-center gap-2">
+        <em class="pi pi-exclamation-triangle"></em>
+        <span class="font-bold">{{ 'ERRORS' | translate }}</span>
+      </div>
+    </ng-template>
+    <div class="flex flex-col gap-2">
+      @for (error of errorArr(); track error.error.path.toString() + '|' + error.error.message + '|' + $index) {
+        <aas-error-line [errorEntry]="error" [parent]="parent"></aas-error-line>
+      }
+    </div>
+  </p-panel>
+}

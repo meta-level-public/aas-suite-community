@@ -1,0 +1,147 @@
+<div class="flex flex-col gap-2">
+  <div class="flex flex-row gap-2 mt-3 items-center">
+    <p-floatlabel variant="on">
+      <p-select [(ngModel)]="scheme" [options]="['urn:', 'http://', 'https://']" id="scheme"></p-select>
+      <label for="scheme">{{ 'ID_SCHEME' | translate }}</label>
+    </p-floatlabel>
+    <p-floatlabel variant="on">
+      <input pInputText [(ngModel)]="authority" id="authority" />
+      <label for="authority">{{ 'AUTHORITY' | translate }}</label>
+    </p-floatlabel>
+    <p-floatlabel variant="on">
+      <p-select [(ngModel)]="subunitSeparator" [options]="['/', ':']" id="subunitSeparator" class="w-6rem"></p-select>
+      <label for="subunitSeparator">{{ 'SEPARATOR' | translate }}</label>
+    </p-floatlabel>
+    <p-floatlabel variant="on">
+      <input pInputText [(ngModel)]="subunit" id="subunit" />
+      <label for="subunit">{{ 'ID_SUBUNIT' | translate }}</label>
+    </p-floatlabel>
+    <p-floatlabel variant="on">
+      <p-select [(ngModel)]="domainSeparator" [options]="['/', ':']" id="domainSeparator" class="w-6rem"></p-select>
+      <label for="domainSeparator">{{ 'SEPARATOR' | translate }}</label>
+    </p-floatlabel>
+    <p-floatlabel variant="on">
+      <p-select [(ngModel)]="domain" [options]="['USE_ID_SHORT', 'INPUT']" id="domain"></p-select>
+      <label for="domain">{{ 'ID_DOMAIN' | translate }}</label>
+    </p-floatlabel>
+    <p-floatlabel variant="on">
+      <p-select [(ngModel)]="releaseSeparator" [options]="['/', ':']" id="releaseSeparator" class="w-6rem"></p-select>
+      <label for="releaseSeparator">{{ 'SEPARATOR' | translate }}</label>
+    </p-floatlabel>
+    <label for="useRelease">{{ 'RELEASE' | translate }}</label>
+    <p-floatlabel variant="on">
+      <p-select
+        [(ngModel)]="elementSeparator"
+        [options]="['/', ':', '#']"
+        id="elementSeparator"
+        class="w-6rem"
+      ></p-select>
+      <label for="elementSeparator">{{ 'SEPARATOR' | translate }}</label>
+    </p-floatlabel>
+    <p-floatlabel variant="on">
+      <input pInputText [(ngModel)]="element" id="element" />
+      <label for="element">{{ 'ID_ELEMENT' | translate }}</label>
+    </p-floatlabel>
+  </div>
+  <p-table [value]="idsToCheck()" size="small">
+    <ng-template #header>
+      <tr>
+        <th style="width: 8rem">{{ 'TYPE' | translate }}</th>
+        <th style="width: 25%">{{ 'ID' | translate }}</th>
+        <th style="width: 15%">{{ 'ID_SHORT' | translate }}</th>
+        @if (domain() === 'INPUT') {
+          <th style="width: 10rem">{{ 'DOMAIN' | translate }}</th>
+        }
+        <th style="width: 12rem">{{ 'VERSION_REVISION' | translate }}</th>
+        <th style="width: 20rem">{{ 'NEW_VERSION_REVISON' | translate }}</th>
+        <th style="width: 40%">{{ 'NEW_ID' | translate }}</th>
+      </tr>
+    </ng-template>
+    <ng-template #body let-idToCheck>
+      <tr>
+        <td><p-tag [value]="idToCheck.type" [severity]="idToCheck.tagSeverity"></p-tag></td>
+        <td>{{ idToCheck.id }}</td>
+        <td>{{ idToCheck.idShort }}</td>
+        @if (domain() === 'INPUT') {
+          <td>
+            <input pInputText [(ngModel)]="idToCheck.domain" class="w-10rem" (ngModelChange)="calculateNewIds()" />
+          </td>
+        }
+        <td>{{ idToCheck.version }} / {{ idToCheck.revision }}</td>
+        <td>
+          <div class="flex flex-row gap-1 items-center">
+            <p-checkbox
+              [(ngModel)]="idToCheck.useRelease"
+              id="useRelease"
+              [binary]="true"
+              (onChange)="calculateNewIds()"
+            ></p-checkbox>
+            @if (idToCheck.useRelease) {
+              <input pInputText [(ngModel)]="idToCheck.newVersion" [maxLength]="2" class="w-3rem" /> /
+              <input pInputText [(ngModel)]="idToCheck.newRevision" [maxLength]="2" class="w-3rem" />
+            }
+          </div>
+        </td>
+        <td>
+          <div class="flex flex-row gap-1 items-center">
+            @if (idToCheck.isUnique === false) {
+              <i
+                class="pi pi-exclamation-triangle text-2xl"
+                style="color: var(--aas-danger-icon)"
+                pTooltip="{{ 'ID_NOT_UNIQUE' | translate }}"
+              ></i>
+            }
+            <p-checkbox
+              [(ngModel)]="idToCheck.changeId"
+              id="changeId"
+              [binary]="true"
+              (onChange)="calculateNewIds()"
+            ></p-checkbox>
+            @if (idToCheck.changeId) {
+              <input pInputText [(ngModel)]="idToCheck.newId" class="w-full" />
+            }
+          </div>
+        </td>
+      </tr>
+    </ng-template>
+    <ng-template #footer>
+      <tr>
+        <td colspan="8">
+          <div class="flex flex-row gap-2 w-full items-center justify-center">
+            <p-button
+              label="{{ 'INCREASE_MAJOR_VERSIONS' | translate }}"
+              icon="pi pi-plus"
+              (onClick)="increaseMajor()"
+              size="small"
+              outlined="true"
+            ></p-button>
+            <p-button
+              label="{{ 'INCREASE_MINOR_VERSIONS' | translate }}"
+              icon="pi pi-plus"
+              (onClick)="increaseMinor()"
+              size="small"
+              outlined="true"
+            ></p-button>
+            <p-button
+              label="{{ 'CHECK_ID_UNIQUENESS' | translate }}"
+              icon="pi pi-check-circle"
+              (onClick)="checkIdUniqueness()"
+              size="small"
+              outlined="true"
+            ></p-button>
+          </div>
+        </td>
+      </tr>
+    </ng-template>
+  </p-table>
+
+  <div class="flex flex-row gap-2 w-full justify-end">
+    <p-button label="{{ 'SAVE' | translate }}" icon="pi pi-save" (onClick)="save()"></p-button>
+    <p-button
+      label="{{ 'CANCEL' | translate }}"
+      icon="pi pi-times"
+      [severity]="'secondary'"
+      (onClick)="this.ref.close({ action: 'nothing' })"
+    ></p-button>
+  </div>
+</div>

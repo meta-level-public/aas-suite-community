@@ -1,0 +1,6 @@
+<div class="h-64 w-full rounded border" leaflet [leafletOptions]="options">
+  @let markerLayer = layer() | async;
+  @if (markerLayer) {
+    <div [leafletLayer]="markerLayer"></div>
+  }
+</div>

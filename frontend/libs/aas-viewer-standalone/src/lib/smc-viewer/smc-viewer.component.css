@@ -1,0 +1,70 @@
+.smc-card {
+  background: var(--p-content-background);
+  border-radius: var(--aas-radius-sm);
+  overflow: hidden;
+  transition: all 0.2s ease;
+  margin-bottom: 0.5rem;
+}
+
+.smc-header {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 0.75rem;
+  background: var(--p-surface-100);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  user-select: none;
+}
+
+.smc-header:hover {
+  background: var(--p-surface-200);
+}
+
+.expand-icon {
+  color: var(--p-text-muted-color);
+  font-size: 0.75rem;
+  transition: transform 0.2s ease;
+}
+
+.smc-icon {
+  color: var(--p-orange-500);
+  font-size: 0.875rem;
+}
+
+.smc-label {
+  flex: 1;
+  font-weight: 600;
+  font-size: 0.875rem;
+  color: var(--p-text-color);
+}
+
+.element-count {
+  background: var(--p-orange-100);
+  color: var(--p-orange-700);
+  padding: 0.125rem 0.5rem;
+  border-radius: var(--aas-radius-pill);
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+.smc-content {
+  padding: 0.5rem 0.75rem 0.5rem 1.5rem;
+  border-left: 2px solid var(--p-orange-200);
+  margin-left: 0.75rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  animation: slideDown 0.2s ease;
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}

@@ -1,0 +1,152 @@
+.circularity-container {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  width: 100%;
+}
+
+.section-grid-2 {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1rem;
+}
+
+.section-card {
+  padding: 1rem;
+  border: 1px solid var(--p-content-border-color);
+  background: var(--p-content-background);
+  border-radius: var(--aas-radius-md);
+}
+
+.section-title {
+  margin: 0 0 0.75rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 1.05rem;
+}
+
+.section-title .fa-solid {
+  color: var(--p-primary-color);
+}
+
+.circularity-label-addon {
+  width: 13rem;
+  min-width: 13rem;
+  white-space: nowrap;
+}
+
+.section-list {
+  margin: 0;
+  padding-left: 1.25rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.compact-list {
+  gap: 0.35rem;
+}
+
+.stacked-sections {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.compact-stack {
+  gap: 0.5rem;
+}
+
+.subsection-block {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.subsection-title {
+  margin: 0;
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--p-text-color);
+}
+
+.detail-card {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  padding: 0.75rem;
+  border-radius: var(--aas-radius-sm);
+  background: color-mix(in srgb, var(--p-content-background) 92%, var(--p-primary-color) 8%);
+  border: 1px solid color-mix(in srgb, var(--p-content-border-color) 84%, var(--p-primary-color) 16%);
+}
+
+.supplier-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1rem;
+}
+
+.supplier-card {
+  min-width: 0;
+}
+
+.components-block {
+  margin-top: 0.25rem;
+}
+
+.components-list {
+  gap: 0.5rem;
+}
+
+.component-row {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.75rem;
+  padding: 0.75rem;
+  border-radius: var(--aas-radius-sm);
+  background: var(--p-content-background);
+  border: 1px solid var(--p-content-border-color);
+}
+
+.component-text {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+  min-width: 0;
+}
+
+.component-label {
+  font-size: 0.78rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  color: var(--p-text-muted-color);
+}
+
+.empty-state {
+  margin: 0;
+  color: var(--p-text-muted-color);
+}
+
+.document-fallback {
+  padding: 0.75rem;
+  border-radius: var(--aas-radius-sm);
+  border: 1px solid var(--p-content-border-color);
+  background: var(--p-content-background);
+}
+
+@media (max-width: 960px) {
+  .section-grid-2,
+  .supplier-grid,
+  .component-row {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 768px) {
+  .circularity-label-addon {
+    width: 11rem;
+    min-width: 11rem;
+  }
+}

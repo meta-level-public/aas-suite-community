@@ -1,0 +1,238 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: aas-postgres
+    environment:
+      POSTGRES_USER: localPostgres
+      POSTGRES_PASSWORD: "P@SSworDT!"
+      POSTGRES_DB: designer
+      BASYX_POSTGRES_DB: basyx_core
+      KEYCLOAK_POSTGRES_DB: keycloak
+    ports:
+      - "5434:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ../deploy/shared/postgres-init/10-create-basyx-db.sh:/docker-entrypoint-initdb.d/10-create-basyx-db.sh:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U localPostgres -d designer"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+
+  keycloak:
+    image: quay.io/keycloak/keycloak:26.0
+    container_name: aas-keycloak
+    command: start-dev --http-port=8080 --hostname-strict=false --proxy-headers=xforwarded --import-realm --spi-theme-cache-themes=false --spi-theme-cache-templates=false
+    environment:
+      KC_DB: postgres
+      KC_DB_URL_HOST: postgres
+      KC_DB_URL_DATABASE: keycloak
+      KC_DB_USERNAME: localPostgres
+      KC_DB_PASSWORD: P@SSworDT!
+      KC_BOOTSTRAP_ADMIN_USERNAME: admin
+      KC_BOOTSTRAP_ADMIN_PASSWORD: admin
+      KC_PROXY_HEADERS: xforwarded
+      KC_HOSTNAME_STRICT: "false"
+    ports:
+      - "8088:8080"
+    volumes:
+      - ../docker-oss/keycloak/aas-local-realm.json:/opt/keycloak/data/import/aas-local-realm.json:ro
+      - ../docker-oss/keycloak/themes:/opt/keycloak/themes:ro
+    depends_on:
+      postgres:
+        condition: service_healthy
+    restart: unless-stopped
+
+  mailpit:
+    image: axllent/mailpit:v1.26
+    container_name: aas-mailpit
+    ports:
+      - "8025:8025"
+    restart: unless-stopped
+
+  aasregistry-go:
+    image: eclipsebasyx/aasregistry-go:1.0.0
+    container_name: aasregistry-go
+    ports:
+      - "5082:8082"
+    environment:
+      CORS_ALLOWEDORIGINS: "*"
+      CORS_ALLOWEDHEADERS: "*"
+      CORS_ALLOWEDCREDENTIALS: "true"
+      CORS_ALLOWEDMETHODS: GET,POST,PUT,PATCH,DELETE,OPTIONS
+      VIRTUAL_PORT: 8082
+      SERVER_PORT: 8082
+      POSTGRES_HOST: postgres
+      POSTGRES_PORT: 5432
+      POSTGRES_USER: localPostgres
+      POSTGRES_PASSWORD: P@SSworDT!
+      POSTGRES_DBNAME: basyx_core
+      POSTGRES_MAXOPENCONNECTIONS: 500
+      POSTGRES_MAXIDLECONNECTIONS: 500
+      POSTGRES_CONNMAXLIFETIMEMINUTES: 5
+      ABAC_ENABLED: "false"
+      ABAC_MODELPATH: /security_env/access-rules.json
+      OIDC_TRUSTLISTPATH: /security_env/trustlist.json
+    volumes:
+      - ../tools/docker-compose-wizard/security_env:/security_env:ro
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  submodelregistry-go:
+    image: eclipsebasyx/submodelregistry-go:1.0.0
+    container_name: submodelregistry-go
+    ports:
+      - "5083:8083"
+    environment:
+      CORS_ALLOWEDORIGINS: "*"
+      CORS_ALLOWEDHEADERS: "*"
+      CORS_ALLOWEDCREDENTIALS: "true"
+      CORS_ALLOWEDMETHODS: GET,POST,PUT,PATCH,DELETE,OPTIONS
+      VIRTUAL_PORT: 8083
+      SERVER_PORT: 8083
+      POSTGRES_HOST: postgres
+      POSTGRES_PORT: 5432
+      POSTGRES_USER: localPostgres
+      POSTGRES_PASSWORD: P@SSworDT!
+      POSTGRES_DBNAME: basyx_core
+      POSTGRES_MAXOPENCONNECTIONS: 500
+      POSTGRES_MAXIDLECONNECTIONS: 500
+      POSTGRES_CONNMAXLIFETIMEMINUTES: 5
+      ABAC_ENABLED: "false"
+      ABAC_MODELPATH: /security_env/access-rules.json
+      OIDC_TRUSTLISTPATH: /security_env/trustlist.json
+    volumes:
+      - ../tools/docker-compose-wizard/security_env:/security_env:ro
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  aasdiscovery-go:
+    image: eclipsebasyx/aasdiscovery-go:1.0.0
+    container_name: aasdiscovery-go
+    ports:
+      - "5084:8081"
+    environment:
+      CORS_ALLOWEDORIGINS: "*"
+      CORS_ALLOWEDHEADERS: "*"
+      CORS_ALLOWEDCREDENTIALS: "true"
+      CORS_ALLOWEDMETHODS: GET,POST,PUT,PATCH,DELETE,OPTIONS
+      VIRTUAL_PORT: 8081
+      SERVER_PORT: 8081
+      POSTGRES_HOST: postgres
+      POSTGRES_PORT: 5432
+      POSTGRES_USER: localPostgres
+      POSTGRES_PASSWORD: P@SSworDT!
+      POSTGRES_DBNAME: basyx_core
+      POSTGRES_MAXOPENCONNECTIONS: 500
+      POSTGRES_MAXIDLECONNECTIONS: 500
+      POSTGRES_CONNMAXLIFETIMEMINUTES: 5
+      ABAC_ENABLED: "false"
+      ABAC_MODELPATH: /security_env/access-rules.json
+      OIDC_TRUSTLISTPATH: /security_env/trustlist.json
+    volumes:
+      - ../tools/docker-compose-wizard/security_env:/security_env:ro
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  aasrepository-go:
+    image: eclipsebasyx/aasrepository-go:1.0.0
+    container_name: aasrepository-go
+    ports:
+      - "5081:8081"
+    environment:
+      CORS_ALLOWEDORIGINS: "*"
+      CORS_ALLOWEDHEADERS: "*"
+      CORS_ALLOWEDCREDENTIALS: "true"
+      CORS_ALLOWEDMETHODS: GET,POST,PUT,PATCH,DELETE,OPTIONS
+      SERVER_PORT: 8081
+      POSTGRES_HOST: postgres
+      POSTGRES_PORT: 5432
+      POSTGRES_USER: localPostgres
+      POSTGRES_PASSWORD: P@SSworDT!
+      POSTGRES_DBNAME: basyx_core
+      POSTGRES_MAXOPENCONNECTIONS: 500
+      POSTGRES_MAXIDLECONNECTIONS: 500
+      POSTGRES_CONNMAXLIFETIMEMINUTES: 5
+      ABAC_ENABLED: "false"
+      ABAC_MODELPATH: /security_env/access-rules.json
+      OIDC_TRUSTLISTPATH: /security_env/trustlist.json
+    volumes:
+      - ../tools/docker-compose-wizard/security_env:/security_env:ro
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  submodelrepository-go:
+    image: eclipsebasyx/submodelrepository-go:1.0.0
+    container_name: submodelrepository-go
+    ports:
+      - "5085:8081"
+    environment:
+      CORS_ALLOWEDORIGINS: "*"
+      CORS_ALLOWEDHEADERS: "*"
+      CORS_ALLOWEDCREDENTIALS: "true"
+      CORS_ALLOWEDMETHODS: GET,POST,PUT,PATCH,DELETE,OPTIONS
+      SERVER_PORT: 8081
+      POSTGRES_HOST: postgres
+      POSTGRES_PORT: 5432
+      POSTGRES_USER: localPostgres
+      POSTGRES_PASSWORD: P@SSworDT!
+      POSTGRES_DBNAME: basyx_core
+      POSTGRES_MAXOPENCONNECTIONS: 500
+      POSTGRES_MAXIDLECONNECTIONS: 500
+      POSTGRES_CONNMAXLIFETIMEMINUTES: 5
+      ABAC_ENABLED: "false"
+      ABAC_MODELPATH: /security_env/access-rules.json
+      OIDC_TRUSTLISTPATH: /security_env/trustlist.json
+      JWS_PRIVATEKEYPATH: ""
+    volumes:
+      - ../tools/docker-compose-wizard/security_env:/security_env:ro
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  conceptdescriptionrepository-go:
+    image: eclipsebasyx/conceptdescriptionrepository-go:1.0.0
+    container_name: conceptdescriptionrepository-go
+    ports:
+      - "5086:8081"
+    environment:
+      CORS_ALLOWEDORIGINS: "*"
+      CORS_ALLOWEDHEADERS: "*"
+      CORS_ALLOWEDCREDENTIALS: "true"
+      CORS_ALLOWEDMETHODS: GET,POST,PUT,PATCH,DELETE,OPTIONS
+      SERVER_PORT: 8081
+      POSTGRES_HOST: postgres
+      POSTGRES_PORT: 5432
+      POSTGRES_USER: localPostgres
+      POSTGRES_PASSWORD: P@SSworDT!
+      POSTGRES_DBNAME: basyx_core
+      POSTGRES_MAXOPENCONNECTIONS: 500
+      POSTGRES_MAXIDLECONNECTIONS: 500
+      POSTGRES_CONNMAXLIFETIMEMINUTES: 5
+      ABAC_ENABLED: "false"
+      ABAC_MODELPATH: /security_env/access-rules.json
+      OIDC_TRUSTLISTPATH: /security_env/trustlist.json
+    volumes:
+      - ../tools/docker-compose-wizard/security_env:/security_env:ro
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+volumes:
+  postgres_data:
+    name: vws-portal-postgres-dev
+
+networks:
+  default:
+    name: aas-dev-network

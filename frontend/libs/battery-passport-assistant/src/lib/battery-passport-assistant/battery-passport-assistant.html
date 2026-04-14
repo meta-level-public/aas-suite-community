@@ -1,0 +1,10 @@
+<aas-selection-card
+  [title]="'BATTERY_PASSPORT_ASSISTANT' | translate"
+  [description]="'BATTERY_PASSPORT_ASSISTANT_EXPL' | translate"
+  icon="pi-bolt"
+  severity="success"
+  [buttonLabel]="'CHOOSE' | translate"
+  [disabled]="loading"
+  [loading]="loading"
+  (choose)="onChoose()"
+></aas-selection-card>

@@ -1,0 +1,29 @@
+.details-grid-row {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  width: 100%;
+  align-items: flex-start;
+}
+
+.details-grid-label {
+  width: 100%;
+}
+
+.details-grid-content {
+  width: 100%;
+  min-width: 0;
+}
+
+@media (min-width: 768px) {
+  .details-grid-row {
+    flex-direction: row;
+    gap: 0.75rem;
+  }
+
+  .details-grid-label {
+    width: 14rem;
+    flex: 0 0 14rem;
+    padding-top: 0.25rem;
+  }
+}

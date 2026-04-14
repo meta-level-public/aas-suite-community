@@ -1,0 +1,33 @@
+@if (entity) {
+  <p-table [value]="[' ']" size="small" stripedRows>
+    <ng-template pTemplate="body">
+      <tr>
+        <td class="w-10rem">{{ 'TYPE' | translate }}</td>
+        <td class="font-bold">{{ 'RELATIONSHIP_ELEMENT' | translate }}</td>
+      </tr>
+      <tr>
+        <td class="w-10rem">{{ 'ID_SHORT' | translate }}</td>
+        <td class="font-bold">{{ entity.idShort }}</td>
+      </tr>
+    </ng-template>
+  </p-table>
+}
+@if (entity.first) {
+  <p-panel [collapsed]="true" [toggleable]="true" header="{{ 'FIRST' | translate }}">
+    <relationship-element-viewer
+      [entity]="entity.first"
+      [idShort]="entity.idShort"
+      [aasId]="aasId"
+    ></relationship-element-viewer>
+  </p-panel>
+}
+@if (entity.second) {
+  <p-panel [collapsed]="true" [toggleable]="true" header="{{ 'SECOND' | translate }}">
+    <relationship-element-viewer
+      [entity]="entity.second"
+      [idShort]="entity.idShort"
+      [aasId]="aasId"
+      [titel]="'SECOND'"
+    ></relationship-element-viewer>
+  </p-panel>
+}

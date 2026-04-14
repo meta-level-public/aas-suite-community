@@ -1,0 +1,66 @@
+.property-card {
+  display: flex;
+  flex-direction: column;
+  gap: 0.375rem;
+  padding: 0.5rem 0.75rem;
+  margin-bottom: 0.5rem;
+  background: var(--p-surface-50);
+  border-left: 3px solid var(--p-cyan-500);
+  border-radius: var(--aas-radius-xs);
+  transition: all 0.2s ease;
+}
+
+.property-card:hover {
+  background: var(--p-surface-100);
+  box-shadow: 0 1px 3px color-mix(in srgb, var(--p-primary-900) 8%, transparent);
+}
+
+.property-header {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--p-text-color);
+}
+
+.property-icon {
+  color: var(--p-cyan-500);
+  font-size: 0.875rem;
+}
+
+.property-label {
+  flex: 1;
+}
+
+.language-badge {
+  background: var(--p-cyan-100);
+  color: var(--p-cyan-700);
+  padding: 0.125rem 0.5rem;
+  border-radius: var(--aas-radius-pill);
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+}
+
+.property-value {
+  padding-left: 1.25rem;
+}
+
+.value-text {
+  font-size: 1rem;
+  color: var(--p-text-color);
+  font-weight: 500;
+}
+
+.value-text.highlighted {
+  background: color-mix(in srgb, var(--p-yellow-200) 45%, transparent);
+  padding: 0.125rem 0.25rem;
+  border-radius: var(--aas-radius-xs);
+}
+
+.value-unit {
+  color: var(--p-text-muted-color);
+  font-size: 0.875rem;
+  margin-left: 0.25rem;
+}

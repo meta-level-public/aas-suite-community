@@ -1,0 +1,26 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+    <NoWarn>$(NoWarn);AD0001</NoWarn>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="AspNetCore.Proxy"></PackageReference>
+
+    <ProjectReference Include="..\..\shared\AasShared\AasShared.csproj" />
+    <ProjectReference Include="..\AasDesignerModel\AasDesignerModel.csproj" />
+    <ProjectReference Include="..\AasDesignerAuthorization\AasDesignerAuthorization.csproj" />
+    <ProjectReference Include="..\AasDesignerCommon\AasDesignerCommon.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="AutoMapper" />
+    <PackageReference Include="MediatR" />
+    <PackageReference Include="MQTTnet" />
+    <PackageReference Include="MQTTnet.Extensions.TopicTemplate" />
+    <PackageReference Include="Docker.DotNet" />
+  </ItemGroup>
+</Project>

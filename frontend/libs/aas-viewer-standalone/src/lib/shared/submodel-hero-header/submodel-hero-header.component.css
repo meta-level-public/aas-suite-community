@@ -1,0 +1,80 @@
+.submodel-hero-card {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 0.9rem;
+  border: 1px solid var(--p-content-border-color);
+  background: var(--p-content-background);
+  border-radius: var(--aas-radius-md);
+  padding: 1rem 1.25rem;
+  overflow: hidden;
+}
+
+.submodel-hero-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: var(--p-primary-color);
+}
+
+.hero-icon-shell {
+  width: 46px;
+  height: 46px;
+  border-radius: var(--aas-radius-sm);
+  border: 1px dashed var(--p-content-border-color);
+  background: var(--p-surface-50);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.hero-icon-shell i {
+  font-size: 1.1rem;
+  color: var(--p-primary-color);
+}
+
+.hero-text {
+  flex: 1;
+  min-width: 0;
+}
+
+.hero-title {
+  margin: 0;
+  font-size: 1.45rem;
+  line-height: 1.2;
+  color: var(--p-primary-color);
+}
+
+.semantic-row {
+  margin-top: 0.2rem;
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  min-width: 0;
+}
+
+.semantic-row i {
+  color: var(--p-text-muted-color);
+  font-size: 0.8rem;
+  flex-shrink: 0;
+}
+
+.semantic-text {
+  display: block;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 0.95rem;
+  color: var(--p-text-muted-color);
+}
+
+@media (max-width: 900px) {
+  .hero-title {
+    font-size: 1.25rem;
+  }
+}

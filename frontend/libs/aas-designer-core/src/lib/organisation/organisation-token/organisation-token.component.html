@@ -1,0 +1,168 @@
+<div class="flex flex-col gap-2">
+  <div class="hero-section">
+    <div class="hero-content">
+      <h1 class="hero-title">{{ 'TOKEN' | translate }}</h1>
+      <div class="hero-actions">
+        <p-button
+          pRipple
+          label="{{ 'RELOAD' | translate }}"
+          icon="pi pi-refresh"
+          [loading]="loading"
+          (onClick)="loadData()"
+          severity="success"
+        ></p-button>
+        <p-button
+          pRipple
+          label="{{ 'ADD_TOKEN' | translate }}"
+          icon="pi pi-plus"
+          [loading]="loading"
+          (onClick)="showAddTokenDialog()"
+        ></p-button>
+      </div>
+    </div>
+  </div>
+
+  <p-table [value]="orgaTokens" class="w-full" size="small" stripedRows>
+    <ng-template #header let-user>
+      <tr>
+        <th scope="col" style="max-width: 3rem"></th>
+        <!-- <th scope="col">{{ 'TOKEN' | translate }}</th> -->
+        <th scope="col">{{ 'BESCHREIBUNG' | translate }}</th>
+        <th scope="col">{{ 'INFRASTRUCTURE' | translate }}</th>
+        <th scope="col">{{ 'SCOPES' | translate }}</th>
+        <th scope="col">{{ 'VALID_TO' | translate }}</th>
+        <th scope="col">{{ 'ACTIVE' | translate }}</th>
+      </tr>
+    </ng-template>
+    <ng-template pTemplate="body" let-orgaToken>
+      <tr>
+        <td style="max-width: 3rem">
+          <p-button
+            icon="pi pi-ellipsis-v"
+            styleClass="p-button-text p-button-secondary"
+            (onClick)="menu.toggle($event)"
+          ></p-button>
+          <p-menu
+            appendTo="body"
+            (onShow)="onShowActions(orgaToken)"
+            #menu
+            [popup]="true"
+            [model]="menuItems"
+            loadingIcon="pi pi-spin pi-spinner"
+          ></p-menu>
+        </td>
+        <!-- <td>{{ orgaToken.key }}</td> -->
+        <td>{{ orgaToken.notice }}</td>
+        <td>
+          @if (orgaToken.aasInfrastructureId != null && orgaToken.aasInfrastructureId != 0) {
+            {{ orgaToken.aasInfrastructureId }} ({{ orgaToken.aasInfrastructureName }})
+          }
+        </td>
+        <td>
+          @for (scope of orgaToken.scopes; track scope) {
+            {{ scope | translate }}<br />
+          }
+        </td>
+        <td>{{ orgaToken.validUntil | vwsDate }}</td>
+        <td>{{ (orgaToken.active ? 'YES' : 'NO') | translate }}</td>
+      </tr>
+    </ng-template>
+    <ng-template pTemplate="emptymessage">
+      <tr>
+        <td colspan="5">{{ 'NO_DATA_FOUND' | translate }}</td>
+      </tr>
+    </ng-template>
+  </p-table>
+</div>
+
+<p-dialog #tokens [visible]="addTokenDialogVisible" class="w-20rem" [closable]="false" [style]="{ width: '66vw' }">
+  <ng-template #header>
+    <div class="text-xl font-bold">{{ 'ADD_TOKEN' | translate }}</div>
+  </ng-template>
+  @if (newOrgaToken) {
+    <div class="mb-4">
+      <label class="flex items-center mt-2 mb-2" for="token">{{ 'BESCHREIBUNG' | translate }}</label>
+      <div class="w-full">
+        <textarea pTextarea [(ngModel)]="newOrgaToken.notice" class="w-full" [autoResize]="true" required></textarea>
+      </div>
+    </div>
+  }
+  @if (newOrgaToken) {
+    <div class="mb-4">
+      <label class="flex items-center mt-2 mb-2" for="token">{{ 'INFRASTRUCTURE' | translate }}</label>
+      <div class="w-full">
+        <p-select
+          [(ngModel)]="newOrgaToken.aasInfrastructureId"
+          [options]="availableInfrastructures()"
+          optionLabel="name"
+          optionValue="id"
+          class="w-full"
+        ></p-select>
+      </div>
+    </div>
+  }
+  @if (newOrgaToken) {
+    <div class="mb-4">
+      <label class="flex items-center mt-2 mb-2" for="token">{{ 'VALID_TO' | translate }}</label>
+      <div class="w-full">
+        <p-datepicker
+          appendTo="body"
+          [(ngModel)]="newOrgaToken.validUntil"
+          class="w-full"
+          [showIcon]="true"
+        ></p-datepicker>
+      </div>
+    </div>
+  }
+  @if (newOrgaToken) {
+    <div class="mb-4">
+      <label class="flex items-center mt-2 mb-2" for="token">{{ 'API_KEY' | translate }}</label>
+      <div class="flex flex-row w-full gap-2">
+        <input pInputText [(ngModel)]="newOrgaToken.key" class="w-full" readonly />
+        <p-button
+          label="{{ 'COPY_TO_CLIPBOARD' | translate }}"
+          icon="pi pi-copy"
+          (onClick)="copyTokenToClipboard()"
+          type="button"
+          [loading]="loading"
+          styleClass="w-10rem p-button-secondary p-button-outlined p-button-sm"
+        ></p-button>
+      </div>
+    </div>
+  }
+  @if (newOrgaToken) {
+    <div class="mb-4">
+      <label class="flex items-center mt-2 mb-2" for="token">{{ 'SCOPES' | translate }}</label>
+      <div class="w-full">
+        @for (scope of availableScopes; track scope) {
+          <div class="mb-4">
+            <p-checkbox name="group" [value]="scope" [(ngModel)]="newOrgaToken.scopes" [inputId]="scope"></p-checkbox>
+            <label [for]="scope">{{ scope | translate }}</label>
+          </div>
+        }
+      </div>
+    </div>
+  }
+  <ng-template pTemplate="footer">
+    <p-button
+      label="{{ 'CANCEL' | translate }}"
+      (onClick)="addTokenDialogVisible = false"
+      icon="pi pi-times"
+      iconPos="right"
+      [loading]="loading"
+      styleClass="p-button-secondary mr-2"
+    ></p-button>
+    <p-button
+      label="{{ 'SAVE' | translate }}"
+      (onClick)="saveToken()"
+      icon="pi pi-save"
+      iconPos="right"
+      [loading]="loading"
+      [disabled]="
+        newOrgaToken?.scopes?.length == 0 ||
+        newOrgaToken?.notice?.length == 0 ||
+        newOrgaToken?.aasInfrastructureId == null
+      "
+    ></p-button>
+  </ng-template>
+</p-dialog>

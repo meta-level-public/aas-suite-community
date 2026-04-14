@@ -1,0 +1,27 @@
+@if (element) {
+  <p-table [value]="[' ']" size="small" stripedRows>
+    <ng-template pTemplate="body">
+      <tr>
+        <td class="w-10rem">{{ 'TYPE' | translate }}</td>
+        <td class="font-bold">{{ 'REFERENCE_ELEMENT' | translate }}</td>
+      </tr>
+      <tr>
+        <td class="w-10rem">{{ 'ID_SHORT' | translate }}</td>
+        <td class="font-bold">{{ element.idShort }}</td>
+      </tr>
+      <tr>
+        <td class="w-10rem">{{ 'REFERENCES' | translate }}</td>
+        <td class="font-bold">
+          <p-table [value]="element.value?.keys" size="small" stripedRows>
+            <ng-template pTemplate="body" let-ref>
+              <tr>
+                <td>{{ ref.type }}</td>
+                <td class="font-bold">{{ ref.value }}</td>
+              </tr>
+            </ng-template>
+          </p-table>
+        </td>
+      </tr>
+    </ng-template>
+  </p-table>
+}

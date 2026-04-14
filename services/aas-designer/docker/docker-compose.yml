@@ -1,0 +1,295 @@
+name: "sps-demo-supplier"
+
+services:
+  aas-env1:
+    # image: eclipsebasyx/aas-environment:2.0.0-SNAPSHOT
+    image: eclipsebasyx/aas-environment:2.0.0-milestone-04
+    container_name: aas-env1
+    environment:
+      - SERVER_PORT=8081
+    volumes:
+      - ./aas1:/application/aas
+      - ./basyx1/aas-env.properties:/application/application.properties
+    ports:
+      - '8081:8081'
+    restart: always
+    depends_on:
+      aas-registry1:
+        condition: service_healthy
+      sm-registry1:
+        condition: service_healthy
+      mongo1:
+        condition: service_healthy
+      mosquitto1:
+        condition: service_healthy
+
+  aas-registry1:
+    # image: eclipsebasyx/aas-registry-log-mongodb:2.0.0-SNAPSHOT
+    image: eclipsebasyx/aas-registry-log-mongodb:2.0.0-milestone-04
+    container_name: aas-registry1
+    ports:
+      - '8082:8080'
+    environment:
+      - SERVER_PORT=8080
+    volumes:
+      - ./basyx1/aas-registry.yml:/workspace/config/application.yml
+    restart: always
+    depends_on:
+      mongo1:
+        condition: service_healthy
+
+  sm-registry1:
+    # image: eclipsebasyx/submodel-registry-log-mongodb:2.0.0-SNAPSHOT
+    image: eclipsebasyx/submodel-registry-log-mongodb:2.0.0-milestone-04
+    container_name: sm-registry1
+    ports:
+      - '8083:8080'
+    environment:
+      - SERVER_PORT=8080
+    volumes:
+      - ./basyx1/sm-registry.yml:/workspace/config/application.yml
+    restart: always
+    depends_on:
+      mongo1:
+        condition: service_healthy
+
+  aas-discovery1:
+    # image: eclipsebasyx/aas-discovery:2.0.0-SNAPSHOT
+    image: eclipsebasyx/aas-discovery:2.0.0-milestone-04
+    container_name: aas-discovery1
+    environment:
+      - SERVER_PORT=8081
+    volumes:
+      - ./basyx1/aas-discovery.properties:/application/application.properties
+    ports:
+      - '8084:8081'
+    restart: always
+    depends_on:
+      mongo1:
+        condition: service_healthy
+
+  mongo1:
+    image: mongo:5.0.10
+    container_name: mongo1
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: mongoAdmin
+      MONGO_INITDB_ROOT_PASSWORD: mongoPassword
+    restart: always
+    healthcheck:
+      test: mongo
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  mosquitto1:
+    image: eclipse-mosquitto:2.0.15
+    container_name: mosquitto1
+    ports:
+      - '8085:1883'
+    volumes:
+      - ./mqtt1:/mosquitto
+    restart: always
+    healthcheck:
+      test:
+        - CMD-SHELL
+        - mosquitto_sub -p 1883 -t 'topic' -C 1 -E -i probe -W 3
+      interval: 5s
+      timeout: 10s
+      start_period: 1s
+      retries: 3
+
+
+  aas-env2:
+    # image: eclipsebasyx/aas-environment:2.0.0-SNAPSHOT
+    image: eclipsebasyx/aas-environment:2.0.0-milestone-04
+    container_name: aas-env2
+    environment:
+      - SERVER_PORT=8081
+    volumes:
+      - ./aas2:/application/aas
+      - ./basyx2/aas-env.properties:/application/application.properties
+    ports:
+      - '8086:8081'
+    restart: always
+    depends_on:
+      aas-registry2:
+        condition: service_healthy
+      sm-registry2:
+        condition: service_healthy
+      mongo2:
+        condition: service_healthy
+      mosquitto2:
+        condition: service_healthy
+
+  aas-registry2:
+    # image: eclipsebasyx/aas-registry-log-mongodb:2.0.0-SNAPSHOT
+    image: eclipsebasyx/aas-registry-log-mongodb:2.0.0-milestone-04
+    container_name: aas-registry2
+    ports:
+      - '8087:8080'
+    environment:
+      - SERVER_PORT=8080
+    volumes:
+      - ./basyx2/aas-registry.yml:/workspace/config/application.yml
+    restart: always
+    depends_on:
+      mongo2:
+        condition: service_healthy
+
+  sm-registry2:
+    # image: eclipsebasyx/submodel-registry-log-mongodb:2.0.0-SNAPSHOT
+    image: eclipsebasyx/submodel-registry-log-mongodb:2.0.0-milestone-04
+    container_name: sm-registry2
+    ports:
+      - '8088:8080'
+    environment:
+      - SERVER_PORT=8080
+    volumes:
+      - ./basyx2/sm-registry.yml:/workspace/config/application.yml
+    restart: always
+    depends_on:
+      mongo2:
+        condition: service_healthy
+
+  aas-discovery2:
+    # image: eclipsebasyx/aas-discovery:2.0.0-SNAPSHOT
+    image: eclipsebasyx/aas-discovery:2.0.0-milestone-04
+    container_name: aas-discovery2
+    environment:
+      - SERVER_PORT=8081
+    volumes:
+      - ./basyx2/aas-discovery.properties:/application/application.properties
+    ports:
+      - '8089:8081'
+    restart: always
+    depends_on:
+      mongo2:
+        condition: service_healthy
+
+  mongo2:
+    image: mongo:5.0.10
+    container_name: mongo2
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: mongoAdmin
+      MONGO_INITDB_ROOT_PASSWORD: mongoPassword
+    restart: always
+    healthcheck:
+      test: mongo
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  mosquitto2:
+    image: eclipse-mosquitto:2.0.15
+    container_name: mosquitto
+    ports:
+      - '8090:1883'
+    volumes:
+      - ./mqtt2:/mosquitto
+    restart: always
+    healthcheck:
+      test:
+        - CMD-SHELL
+        - mosquitto_sub -p 1883 -t 'topic' -C 1 -E -i probe -W 3
+      interval: 5s
+      timeout: 10s
+      start_period: 1s
+      retries: 3
+
+
+  aas-env3:
+    # image: eclipsebasyx/aas-environment:2.0.0-SNAPSHOT
+    image: eclipsebasyx/aas-environment:2.0.0-milestone-04
+    container_name: aas-env3
+    environment:
+      - SERVER_PORT=8081
+    volumes:
+      - ./aas3:/application/aas
+      - ./basyx3/aas-env.properties:/application/application.properties
+    ports:
+      - '8091:8081'
+    restart: always
+    depends_on:
+      aas-registry3:
+        condition: service_healthy
+      sm-registry3:
+        condition: service_healthy
+      mongo3:
+        condition: service_healthy
+      mosquitto3:
+        condition: service_healthy
+
+  aas-registry3:
+    # image: eclipsebasyx/aas-registry-log-mongodb:2.0.0-SNAPSHOT
+    image: eclipsebasyx/aas-registry-log-mongodb:2.0.0-milestone-04
+    container_name: aas-registry3
+    ports:
+      - '8092:8080'
+    environment:
+      - SERVER_PORT=8080
+    volumes:
+      - ./basyx3/aas-registry.yml:/workspace/config/application.yml
+    restart: always
+    depends_on:
+      mongo3:
+        condition: service_healthy
+
+  sm-registry3:
+    # image: eclipsebasyx/submodel-registry-log-mongodb:2.0.0-SNAPSHOT
+    image: eclipsebasyx/submodel-registry-log-mongodb:2.0.0-milestone-04
+    container_name: sm-registry3
+    ports:
+      - '8093:8080'
+    environment:
+      - SERVER_PORT=8080
+    volumes:
+      - ./basyx3/sm-registry.yml:/workspace/config/application.yml
+    restart: always
+    depends_on:
+      mongo3:
+        condition: service_healthy
+
+  aas-discovery3:
+    # image: eclipsebasyx/aas-discovery:2.0.0-SNAPSHOT
+    image: eclipsebasyx/aas-discovery:2.0.0-milestone-04
+    container_name: aas-discovery3
+    environment:
+      - SERVER_PORT=8081
+    volumes:
+      - ./basyx3/aas-discovery.properties:/application/application.properties
+    ports:
+      - '8094:8081'
+    restart: always
+    depends_on:
+      mongo3:
+        condition: service_healthy
+
+  mongo3:
+    image: mongo:5.0.10
+    container_name: mongo3
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: mongoAdmin
+      MONGO_INITDB_ROOT_PASSWORD: mongoPassword
+    restart: always
+    healthcheck:
+      test: mongo
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  mosquitto3:
+    image: eclipse-mosquitto:2.0.15
+    container_name: mosquitto3
+    ports:
+      - '8085:1883'
+    volumes:
+      - ./mqtt3:/mosquitto
+    restart: always
+    healthcheck:
+      test:
+        - CMD-SHELL
+        - mosquitto_sub -p 1883 -t 'topic' -C 1 -E -i probe -W 3
+      interval: 5s
+      timeout: 10s
+      start_period: 1s
+      retries: 3

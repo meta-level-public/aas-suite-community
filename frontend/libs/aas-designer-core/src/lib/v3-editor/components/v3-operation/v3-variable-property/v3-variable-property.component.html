@@ -1,0 +1,113 @@
+<div class="flex flex-col w-full">
+  <div class="mb-4">
+    <lib-help-label class="w-14rem mt-2" tag="ID_SHORT"></lib-help-label>
+    <div class="flex flex-col">
+      <input
+        pInputText
+        class="w-full"
+        id="idShort"
+        name="idShort"
+        [(ngModel)]="variableValue.idShort"
+        [pKeyFilter]="idShortRegex"
+        [required]="true"
+        vwsUndo
+        [ngClass]="{ 'p-error': hasErrors }"
+      />
+      @if (hasErrors) {
+        <div class="text-error">
+          {{ 'errorMessages.' + errors[0].message | translate }}
+        </div>
+      }
+    </div>
+  </div>
+
+  <div class="flex w-full gap-2">
+    <div class="mb-4 w-6">
+      <lib-help-label class="w-14rem mt-2" for="valueField" tag="VALUE"></lib-help-label>
+      @switch (variableValue.valueType) {
+        @case ('bool') {
+          <p-checkbox
+            id="valueField"
+            name="valueField"
+            [(ngModel)]="variableValue.value"
+            [binary]="true"
+            vwsV3Undo
+          ></p-checkbox>
+        }
+        @case ('dateTime') {
+          <p-datepicker
+            [showTime]="true"
+            id="valueField"
+            name="valueField"
+            [(ngModel)]="variableValue.value"
+            [showIcon]="true"
+            appendTo="body"
+            vwsV3Undo
+          ></p-datepicker>
+        }
+        @case ('dateTimeStamp') {
+          <p-datepicker
+            [showTime]="true"
+            id="valueField"
+            name="valueField"
+            [(ngModel)]="variableValue.value"
+            [showIcon]="true"
+            appendTo="body"
+            vwsV3Undo
+          ></p-datepicker>
+        }
+        @case ('date') {
+          <p-datepicker
+            [showTime]="false"
+            id="valueField"
+            name="valueField"
+            [(ngModel)]="variableValue.value"
+            [showIcon]="true"
+            appendTo="body"
+            vwsV3Undo
+          ></p-datepicker>
+        }
+        @case ('time') {
+          <p-datepicker
+            [showTime]="true"
+            [showSeconds]="true"
+            [timeOnly]="true"
+            id="valueField"
+            name="valueField"
+            [(ngModel)]="variableValue.value"
+            [showIcon]="true"
+            icon="pi pi-clock"
+            appendTo="body"
+            vwsV3Undo
+          ></p-datepicker>
+        }
+        @default {
+          <input
+            pInputText
+            class="w-full"
+            id="valueField"
+            name="valueField"
+            [(ngModel)]="variableValue.value"
+            #inputEl
+            vwsV3Undo
+          />
+        }
+      }
+    </div>
+
+    <div class="mb-4 w-6">
+      <lib-help-label class="w-14rem mt-2" tag="DATA_TYPE"></lib-help-label>
+      <p-select
+        class="w-full"
+        class="w-full"
+        [options]="valueTypeOptions"
+        optionLabel="label"
+        optionValue="value"
+        [(ngModel)]="variableValue.valueType"
+        appendTo="body"
+        vwsUndo
+        placeholder="{{ 'PLEASE_SELECT' | translate }}"
+      ></p-select>
+    </div>
+  </div>
+</div>

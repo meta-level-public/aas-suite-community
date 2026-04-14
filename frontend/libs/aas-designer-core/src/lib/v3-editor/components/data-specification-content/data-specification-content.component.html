@@ -1,0 +1,313 @@
+@if (dataSpecificationContent) {
+  <div class="flex flex-col w-full gap-2">
+    <div class="flex flex-row gap-2">
+      <lib-help-label class="w-14rem" tag="PREFERRED_NAME"></lib-help-label>
+      <aas-v3-lang-string-list
+        [langStrings]="dataSpecificationContent.preferredName"
+        [langStringParent]="dataSpecificationContent"
+        [langStringParentPropertyName]="'preferredName'"
+        [removeBlockAllowed]="false"
+        class="w-full"
+      ></aas-v3-lang-string-list>
+    </div>
+    <div class="flex flex-row gap-2">
+      <lib-help-label class="w-14rem" tag="SHORT_NAME"></lib-help-label>
+      <div class="flex flex-col m-0 w-full">
+        <aas-v3-lang-string-list
+          [langStrings]="dataSpecificationContent.shortName"
+          [langStringParent]="dataSpecificationContent"
+          [langStringParentPropertyName]="'shortName'"
+          class="w-full"
+        ></aas-v3-lang-string-list>
+      </div>
+    </div>
+    <div class="flex flex-row gap-2">
+      <lib-help-label class="w-14rem" tag="DEFINITION"></lib-help-label>
+      <aas-v3-lang-string-list
+        [langStrings]="dataSpecificationContent.definition"
+        [langStringParent]="dataSpecificationContent"
+        [langStringParentPropertyName]="'definition'"
+        class="w-full"
+      ></aas-v3-lang-string-list>
+    </div>
+    <div class="flex flex-row gap-2">
+      <lib-help-label class="w-14rem" tag="SOURCE_OF_DEFINITION"></lib-help-label>
+      <p-inputgroup>
+        <input pInputText [(ngModel)]="dataSpecificationContent.sourceOfDefinition" class="w-full" nullIfEmpty />
+        <p-inputgroup-addon>
+          <p-button
+            icon="pi pi-times"
+            severity="secondary"
+            (onClick)="dataSpecificationContent.sourceOfDefinition = null"
+          />
+        </p-inputgroup-addon>
+      </p-inputgroup>
+    </div>
+    <div class="flex flex-row gap-2">
+      <lib-help-label class="w-14rem" tag="UNIT"></lib-help-label>
+      <p-inputgroup>
+        <input pInputText [(ngModel)]="dataSpecificationContent.unit" class="w-full" nullIfEmpty />
+        <p-inputgroup-addon>
+          <p-button icon="pi pi-times" severity="secondary" (onClick)="dataSpecificationContent.unit = null" />
+        </p-inputgroup-addon>
+      </p-inputgroup>
+    </div>
+    <div class="flex flex-row gap-2">
+      <lib-help-label class="w-14rem" tag="UNIT_ID"></lib-help-label>
+      <div class="flex flex-col w-full gap-2">
+        @if (dataSpecificationContent.unitId == null) {
+          <p-button
+            label="{{ 'ADD' | translate }}"
+            (onClick)="addUnitId()"
+            icon="pi pi-plus"
+            size="small"
+            [outlined]="true"
+          ></p-button>
+        } @else if (dataSpecificationContent.unitId.keys == null || dataSpecificationContent.unitId.keys[0] == null) {
+          <p-message severity="error" text="{{ 'INVALID_ELEMENT' | translate }}"></p-message>
+          <p-message severity="error">{{ dataSpecificationContent.unitId | json }}</p-message>
+          <p-button
+            label="{{ 'REMOVE' | translate }}"
+            (onClick)="removeUnitId()"
+            icon="pi pi-trash"
+            size="small"
+            [outlined]="true"
+          ></p-button>
+        } @else {
+          <div class="flex flex-row gap-2 w-full">
+            <p-inputgroup>
+              <input pInputText [(ngModel)]="dataSpecificationContent.unitId.keys[0].value" class="w-full" />
+              <p-inputgroup-addon>
+                <p-button icon="pi pi-times" severity="secondary" (onClick)="removeUnitId()" />
+              </p-inputgroup-addon>
+              @if (
+                dataSpecificationContent.unitId.keys[0].value != null &&
+                UrlHelper.isEclassId(dataSpecificationContent.unitId.keys[0].value)
+              ) {
+                <p-inputgroup-addon>
+                  <p-button
+                    icon="pi pi-external-link"
+                    severity="secondary"
+                    (onClick)="UrlHelper.openEclass(dataSpecificationContent.unitId.keys[0].value)"
+                  />
+                </p-inputgroup-addon>
+              }
+              @if (
+                dataSpecificationContent.unitId.keys[0].value != null &&
+                UrlHelper.isIecCddId(dataSpecificationContent.unitId.keys[0].value)
+              ) {
+                <p-inputgroup-addon>
+                  <p-button
+                    icon="pi pi-external-link"
+                    severity="secondary"
+                    (onClick)="UrlHelper.openIecCddUnit(dataSpecificationContent.unitId.keys[0].value)"
+                  />
+                </p-inputgroup-addon>
+              }
+            </p-inputgroup>
+            <p-button
+              (onClick)="lookupUnitIdValue()"
+              icon="pi pi-search"
+              size="small"
+              outlined="true"
+              text="true"
+            ></p-button>
+            <p-button (onClick)="removeUnitId()" icon="pi pi-trash" size="small" outlined="true" text="true"></p-button>
+          </div>
+          <div class="flex flex-row gap-2 items-center">
+            <lib-help-label class="w-14rem" tag="REF_ID"></lib-help-label>
+            @if (dataSpecificationContent.unitId.referredSemanticId == null) {
+              <p-button
+                label="{{ 'ADD_REFERRED_SEMANTIC_ID' | translate }}"
+                icon="pi pi-plus"
+                size="small"
+                [outlined]="true"
+              ></p-button>
+              <!-- (onClick)="addUnitIdSemanticId()" -->
+            } @else {
+              <p-inputgroup>
+                <input
+                  pInputText
+                  [(ngModel)]="dataSpecificationContent.unitId.referredSemanticId.keys[0].value"
+                  class="w-full"
+                />
+                <p-inputgroup-addon>
+                  <p-button
+                    icon="pi pi-external-link"
+                    severity="secondary"
+                    (onClick)="openLink(dataSpecificationContent.unitId.referredSemanticId.keys[0].value)"
+                    [disabled]="dataSpecificationContent.unitId.keys[0].value === ''"
+                  />
+                </p-inputgroup-addon>
+              </p-inputgroup>
+            }
+          </div>
+        }
+      </div>
+    </div>
+    <div class="flex flex-row gap-2">
+      <lib-help-label class="w-14rem" tag="SYMBOL"></lib-help-label>
+      <div class="flex flex-col w-full">
+        <p-inputgroup>
+          <input pInputText [(ngModel)]="dataSpecificationContent.symbol" class="w-full" nullIfEmpty />
+          <p-inputgroup-addon>
+            <p-button icon="pi pi-times" severity="secondary" (onClick)="dataSpecificationContent.symbol = null" />
+          </p-inputgroup-addon>
+        </p-inputgroup>
+        @if (hasErrors(dataSpecificationContent, 'symbol')) {
+          <div class="text-error">
+            @for (errorEntry of getErrors(dataSpecificationContent, 'symbol'); track $index) {
+              {{ 'errorMessages.' + errorEntry.message | translate }}
+            }
+          </div>
+        }
+      </div>
+    </div>
+    <div class="flex flex-row gap-2">
+      <lib-help-label class="w-14rem" tag="DATA_TYPE"></lib-help-label>
+      <div class="flex flex-col w-full">
+        <p-select
+          [options]="dataTypes"
+          [(ngModel)]="dataSpecificationContent.dataType"
+          optionLabel="label"
+          optionValue="value"
+          class="w-full"
+          class="w-full"
+          placeholder="{{ 'PLEASE_SELECT' | translate }}"
+          [showClear]="true"
+        ></p-select>
+        @if (hasErrors(dataSpecificationContent, 'dataType')) {
+          <div class="text-error">
+            @for (errorEntry of getErrors(dataSpecificationContent, 'dataType'); track $index) {
+              {{ 'errorMessages.' + errorEntry.message | translate }}
+            }
+          </div>
+        }
+      </div>
+    </div>
+    <div class="flex flex-row gap-2">
+      <lib-help-label class="w-14rem" tag="VALUE_FORMAT"></lib-help-label>
+      <div class="flex flex-col w-full gap-2">
+        <div class="flex flex-col w-full">
+          <p-inputgroup>
+            <input pInputText [(ngModel)]="dataSpecificationContent.valueFormat" class="w-full" nullIfEmpty />
+            <p-inputgroup-addon>
+              <p-button
+                icon="pi pi-times"
+                severity="secondary"
+                (onClick)="dataSpecificationContent.valueFormat = null"
+              />
+            </p-inputgroup-addon>
+          </p-inputgroup>
+          @if (hasErrors(dataSpecificationContent, 'valueFormat')) {
+            <div class="text-error">
+              @for (errorEntry of getErrors(dataSpecificationContent, 'valueFormat'); track $index) {
+                {{ 'errorMessages.' + errorEntry.message | translate }}
+              }
+            </div>
+          }
+        </div>
+      </div>
+    </div>
+    <div class="flex flex-row gap-2">
+      <lib-help-label class="w-14rem" tag="VALUE_LIST"></lib-help-label>
+      <div class="flex flex-col w-full">
+        <aas-v3-value-list
+          [valueList]="dataSpecificationContent.valueList"
+          [valueListParent]="dataSpecificationContent"
+          class="w-full"
+        ></aas-v3-value-list>
+        @if (hasValueListErrors(dataSpecificationContent)) {
+          <div class="text-error">
+            {{ 'errorMessages.' + getValueListError(dataSpecificationContent)[0].message | translate }}
+          </div>
+        }
+      </div>
+    </div>
+    <div class="flex flex-row gap-2">
+      <lib-help-label class="w-14rem" tag="VALUE"></lib-help-label>
+      <div class="flex flex-col w-full">
+        <p-inputgroup>
+          <input pInputText [(ngModel)]="dataSpecificationContent.value" class="w-full" nullIfEmpty />
+          <p-inputgroup-addon>
+            <p-button icon="pi pi-times" severity="secondary" (onClick)="dataSpecificationContent.value = null" />
+          </p-inputgroup-addon>
+        </p-inputgroup>
+        @if (hasValueErrors(dataSpecificationContent)) {
+          <div class="text-error">
+            {{ 'errorMessages.' + getValueError(dataSpecificationContent)[0].message | translate }}
+          </div>
+        }
+      </div>
+    </div>
+    <div class="flex flex-row gap-2">
+      <div class="w-14rem">
+        <lib-help-label class="w-14rem" tag="LEVEL_TYPE"></lib-help-label>
+      </div>
+      <aas-level-type
+        [levelType]="dataSpecificationContent.levelType"
+        [levelTypeParent]="dataSpecificationContent"
+        class="w-full"
+      ></aas-level-type>
+    </div>
+  </div>
+}
+
+<p-dialog
+  [(visible)]="showUnitSearch"
+  [style]="{ width: '75vw' }"
+  [resizable]="false"
+  [modal]="true"
+  [maximizable]="true"
+  appendTo="body"
+  [contentStyle]="{ height: '50vh' }"
+>
+  <ng-template #header>
+    <p-tabs [(value)]="source">
+      <p-tablist>
+        <p-tab [value]="'eclass'"> {{ 'TAB_ECLASS' | translate }} </p-tab>
+        <p-tab [value]="'qudt'"> {{ 'TAB_QUDT' | translate }} </p-tab>
+        <p-tab [value]="'si'"> {{ 'TAB_SI' | translate }} </p-tab>
+        <p-tab [value]="'other'"> {{ 'OTHER' | translate }} </p-tab>
+      </p-tablist>
+    </p-tabs>
+
+    @if (source() === 'qudt') {
+      <div class="flex flex-row gap-5 mb-3">
+        <aas-qudt-logo></aas-qudt-logo>
+        <div class="text-2xl">{{ 'QUDT_SEARCH' | translate }}</div>
+      </div>
+    }
+    @if (source() === 'si') {
+      <div class="flex flex-row gap-5 mb-3">
+        <div class="text-2xl">{{ 'SI_SEARCH' | translate }}</div>
+      </div>
+    }
+    @if (source() === 'eclass') {
+      <div class="flex flex-row gap-5 mb-3">
+        <aas-eclass-logo></aas-eclass-logo>
+        <div class="text-2xl">{{ 'ECLASS_SEARCH' | translate }}</div>
+      </div>
+    }
+    @if (source() === 'other') {
+      <div class="flex flex-row gap-5 mb-3">
+        <div class="text-2xl">{{ 'OTHER' | translate }}</div>
+      </div>
+    }
+  </ng-template>
+  @if (source() === 'qudt') {
+    <aas-qudt-datatype-lookup (selectedItem)="selectQudtUnit($event)"></aas-qudt-datatype-lookup>
+  }
+  @if (source() === 'si') {
+    <aas-si-datatype-lookup (selectedItem)="selectSiUnit($event)"></aas-si-datatype-lookup>
+  }
+  @if (source() === 'eclass') {
+    <aas-eclass-search (selectedItem)="selectEclass($event)" katalog="units"></aas-eclass-search>
+  }
+  @if (source() === 'other') {
+    <aas-additional-lookup-sources (closeClicked)="showUnitSearch.set(false)"></aas-additional-lookup-sources>
+  }
+  <ng-template #footer>
+    <p-button label="{{ 'CLOSE' | translate }}" icon="pi pi-check" (onClick)="showUnitSearch.set(false)" />
+  </ng-template>
+</p-dialog>

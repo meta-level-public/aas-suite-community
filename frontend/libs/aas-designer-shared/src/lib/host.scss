@@ -1,0 +1,58 @@
+:host {
+  display: flex !important;
+  flex-direction: column !important;
+  height: 100% !important;
+}
+
+:host ::ng-deep {
+  lib-app-topbar {
+    display: block;
+    transition: margin-left 0.3s ease-in-out;
+    margin-left: 0;
+
+    &.logged-in.sidebar-expanded {
+      margin-left: 258px;
+    }
+
+    &.logged-in.sidebar-collapsed {
+      margin-left: 58px;
+    }
+  }
+
+  .layout-content {
+    transition: margin-left 0.3s ease-in-out;
+    margin-right: 0;
+    margin-top: 0;
+    margin-bottom: 0;
+
+    &.logged-out {
+      margin: 0 !important;
+    }
+
+    &.logged-in.sidebar-expanded {
+      margin-left: 258px;
+    }
+
+    &.logged-in.sidebar-collapsed {
+      margin-left: 58px;
+    }
+  }
+
+  .layout-content-shell {
+    display: flex;
+    flex: 1 1 auto;
+    min-height: 0;
+    min-width: 0;
+    background: color-mix(in srgb, var(--p-content-background) 82%, transparent);
+    border-radius: var(--aas-radius-lg) var(--aas-radius-lg) 0 0;
+    overflow: hidden;
+  }
+
+  .layout-content-wrapper {
+    &:has(.logged-out) {
+      app-menu {
+        display: none !important;
+      }
+    }
+  }
+}

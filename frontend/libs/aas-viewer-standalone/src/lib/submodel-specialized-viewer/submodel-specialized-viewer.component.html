@@ -1,0 +1,112 @@
+@if (submodel != null) {
+  <div class="submodel-viewer-shell">
+    <aas-submodel-hero-header
+      [title]="headerTitle"
+      [iconClass]="headerIconClass"
+      [semanticId]="semanticIdDisplay"
+    ></aas-submodel-hero-header>
+
+    @switch (viewerType) {
+      @case ('AasDesignerChangelog') {
+        <aas-aas-designer-changelog-viewer [submodel]="submodel"></aas-aas-designer-changelog-viewer>
+      }
+      @case ('Circularity') {
+        <aas-circularity-viewer [submodel]="submodel" [currentLanguage]="currentLanguage"></aas-circularity-viewer>
+      }
+      @case ('ProductCondition') {
+        <aas-product-condition-viewer
+          [submodel]="submodel"
+          [currentLanguage]="currentLanguage"
+        ></aas-product-condition-viewer>
+      }
+      @case ('MaterialComposition') {
+        @let materialCompositionViewerComponent = loadMaterialCompositionViewerComponent() | async;
+        @if (materialCompositionViewerComponent) {
+          <ng-container
+            *ngComponentOutlet="
+              materialCompositionViewerComponent;
+              inputs: { submodel: submodel, currentLanguage: currentLanguage }
+            "
+          ></ng-container>
+        }
+      }
+      @case ('AssetInterfacesDescription') {
+        <aas-asset-interfaces-description-viewer [submodel]="submodel"></aas-asset-interfaces-description-viewer>
+      }
+      @case ('Nameplate') {
+        <aas-nameplate-viewer [nameplate]="submodel" [currentLanguage]="currentLanguage"></aas-nameplate-viewer>
+      }
+      @case ('BatteryNameplate') {
+        <aas-battery-nameplate-viewer
+          [nameplate]="submodel"
+          [currentLanguage]="currentLanguage"
+        ></aas-battery-nameplate-viewer>
+      }
+      @case ('SoftwareNameplate') {
+        <aas-software-nameplate-viewer
+          [submodel]="submodel"
+          [currentLanguage]="currentLanguage"
+        ></aas-software-nameplate-viewer>
+      }
+      @case ('CapabilityDescription') {
+        <aas-capability-description-viewer
+          [submodel]="submodel"
+          [currentLanguage]="currentLanguage"
+        ></aas-capability-description-viewer>
+      }
+      @case ('ContactInformation') {
+        <aas-contact-information-viewer
+          [submodel]="submodel"
+          [currentLanguage]="currentLanguage"
+        ></aas-contact-information-viewer>
+      }
+      @case ('TimeSeries') {
+        <aas-time-series-viewer [timeSeries]="submodel" (reloadData)="onReloadData()"></aas-time-series-viewer>
+      }
+      @case ('HandoverDocumentation') {
+        <aas-handover-documentation-viewer [documentation]="submodel"></aas-handover-documentation-viewer>
+      }
+      @case ('HandoverDocumentation_V2') {
+        <aas-handover-documentation-viewer-v2 [documentation]="submodel"></aas-handover-documentation-viewer-v2>
+      }
+      @case ('TechnicalData') {
+        <aas-technicaldata-viewer [technicalData]="submodel"></aas-technicaldata-viewer>
+      }
+      @case ('Bom') {
+        @defer (on viewport) {
+          <aas-bom-viewer
+            [bom]="submodel"
+            [currentLang]="currentLanguage"
+            [navigate]="navigateInBom"
+            [editable]="bomEditable"
+            [enableReinitializeAction]="enableBomReinitializeAction"
+            [assetInformation]="assetInformation"
+            [aasIdShort]="aasIdShort"
+            (requestReinitializeInEditor)="onRequestBomReinitializeInEditor()"
+            (requestEditModeInEditor)="onRequestBomEditModeInEditor()"
+          ></aas-bom-viewer>
+        } @placeholder {
+          <div class="min-h-12rem"></div>
+        }
+      }
+      @case ('PCF') {
+        <aas-pcf-viewer [pcfModel]="submodel"></aas-pcf-viewer>
+      }
+      @case ('PCF_V1') {
+        <aas-pcf-viewer-v1 [pcfModel]="submodel"></aas-pcf-viewer-v1>
+      }
+      @case ('ArticleInformation') {
+        <aas-article-information-viewer
+          [submodel]="submodel"
+          [currentLang]="currentLanguage"
+        ></aas-article-information-viewer>
+      }
+      @default {
+        <aas-generic-submodel-viewer
+          [submodel]="submodel"
+          [currentLanguage]="currentLanguage"
+        ></aas-generic-submodel-viewer>
+      }
+    }
+  </div>
+}

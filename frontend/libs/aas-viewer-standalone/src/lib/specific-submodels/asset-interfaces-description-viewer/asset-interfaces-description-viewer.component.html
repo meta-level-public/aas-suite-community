@@ -1,0 +1,369 @@
+@if (loading) {
+  <div class="aid-container">
+    <div class="section-card">
+      <h3 class="section-title"><i class="fa-solid fa-hourglass-half"></i> {{ 'LOADING' | translate }}...</h3>
+    </div>
+  </div>
+} @else {
+  <div class="aid-container">
+    <div class="section-card">
+      <h3 class="section-title"><i class="fa-solid fa-plug-circle-bolt"></i> Asset Interfaces Overview</h3>
+      <div class="summary-grid">
+        <p-inputgroup>
+          <p-inputgroup-addon class="font-bold min-w-40">Interfaces</p-inputgroup-addon>
+          <input pInputText type="text" [value]="interfaces.length" readonly />
+        </p-inputgroup>
+        <p-inputgroup>
+          <p-inputgroup-addon class="font-bold min-w-40">Forms</p-inputgroup-addon>
+          <input pInputText type="text" [value]="totalForms" readonly />
+        </p-inputgroup>
+        <p-inputgroup>
+          <p-inputgroup-addon class="font-bold min-w-40">Properties</p-inputgroup-addon>
+          <input pInputText type="text" [value]="totalProperties" readonly />
+        </p-inputgroup>
+        <p-inputgroup>
+          <p-inputgroup-addon class="font-bold min-w-40">Security Schemes</p-inputgroup-addon>
+          <input pInputText type="text" [value]="totalSecuritySchemes" readonly />
+        </p-inputgroup>
+      </div>
+    </div>
+
+    @if (interfaces.length > 0) {
+      <div class="section-card">
+        <h3 class="section-title"><i class="fa-solid fa-list-check"></i> Interfaces</h3>
+
+        <p-accordion [multiple]="true">
+          @for (item of interfaces; track item.idShort; let i = $index) {
+            <p-accordion-panel [value]="i">
+              <p-accordion-header>
+                <div class="flex items-center w-full gap-2">
+                  <div class="font-bold">{{ item.idShort }}</div>
+                  <span class="flex-1"></span>
+                  <p-tag [value]="item.interactionType" severity="secondary"></p-tag>
+                  <p-tag [value]="item.forms[0]?.protocol || '-'" severity="info"></p-tag>
+                </div>
+              </p-accordion-header>
+              <p-accordion-content>
+                <div class="detail-grid">
+                  <div class="mini-card">
+                    <h4 class="mini-title">Core</h4>
+                    <p-inputgroup>
+                      <p-inputgroup-addon class="min-w-48 font-bold">
+                        <lib-help-label tag="AID_VIEWER_TITLE" [showLabel]="false"></lib-help-label>
+                        {{ 'AID_VIEWER_TITLE' | translate }}
+                      </p-inputgroup-addon>
+                      <input pInputText type="text" [value]="item.title" readonly />
+                    </p-inputgroup>
+                    <p-inputgroup>
+                      <p-inputgroup-addon class="min-w-48 font-bold">
+                        <lib-help-label tag="AID_VIEWER_ENDPOINT" [showLabel]="false"></lib-help-label>
+                        {{ 'AID_VIEWER_ENDPOINT' | translate }}
+                      </p-inputgroup-addon>
+                      <input pInputText type="text" [value]="item.endpoint" readonly />
+                    </p-inputgroup>
+                    <p-inputgroup>
+                      <p-inputgroup-addon class="min-w-48 font-bold">
+                        <lib-help-label tag="AID_VIEWER_INTERACTION_TYPE" [showLabel]="false"></lib-help-label>
+                        {{ 'AID_VIEWER_INTERACTION_TYPE' | translate }}
+                      </p-inputgroup-addon>
+                      <input pInputText type="text" [value]="item.interactionType" readonly />
+                    </p-inputgroup>
+                  </div>
+
+                  <div class="mini-card">
+                    <h4 class="mini-title">{{ 'AID_VIEWER_SECURITY_DEFINITIONS' | translate }}</h4>
+                    @if (item.securitySchemes.length === 0) {
+                      <span class="text-color-secondary">-</span>
+                    } @else {
+                      <p-accordion [multiple]="true">
+                        @for (scheme of item.securitySchemes; track scheme.idShort; let schemeIdx = $index) {
+                          <p-accordion-panel [value]="1000 + schemeIdx">
+                            <p-accordion-header>
+                              <div class="flex items-center w-full">
+                                <strong>{{ scheme.idShort }}</strong>
+                              </div>
+                            </p-accordion-header>
+                            <p-accordion-content>
+                              <div class="entity-card entity-card-flat mb-0">
+                                <p-inputgroup>
+                                  <p-inputgroup-addon class="min-w-48 font-bold">
+                                    <lib-help-label
+                                      tag="AID_VIEWER_SECURITY_SCHEME"
+                                      [showLabel]="false"
+                                    ></lib-help-label>
+                                    {{ 'AID_VIEWER_SECURITY_SCHEME' | translate }}
+                                  </p-inputgroup-addon>
+                                  <input pInputText type="text" [value]="scheme.scheme" readonly />
+                                </p-inputgroup>
+                                <p-inputgroup>
+                                  <p-inputgroup-addon class="min-w-48 font-bold">
+                                    <lib-help-label tag="AID_VIEWER_SECURITY_IN" [showLabel]="false"></lib-help-label>
+                                    {{ 'AID_VIEWER_SECURITY_IN' | translate }}
+                                  </p-inputgroup-addon>
+                                  <input pInputText type="text" [value]="scheme.in" readonly />
+                                </p-inputgroup>
+                                <p-inputgroup>
+                                  <p-inputgroup-addon class="min-w-48 font-bold">
+                                    <lib-help-label tag="AID_VIEWER_SECURITY_NAME" [showLabel]="false"></lib-help-label>
+                                    {{ 'AID_VIEWER_SECURITY_NAME' | translate }}
+                                  </p-inputgroup-addon>
+                                  <input pInputText type="text" [value]="scheme.name" readonly />
+                                </p-inputgroup>
+                                <p-inputgroup>
+                                  <p-inputgroup-addon class="min-w-48 font-bold">
+                                    <lib-help-label
+                                      tag="AID_VIEWER_SECURITY_DESCRIPTION"
+                                      [showLabel]="false"
+                                    ></lib-help-label>
+                                    {{ 'AID_VIEWER_SECURITY_DESCRIPTION' | translate }}
+                                  </p-inputgroup-addon>
+                                  <input pInputText type="text" [value]="scheme.description" readonly />
+                                </p-inputgroup>
+                              </div>
+                            </p-accordion-content>
+                          </p-accordion-panel>
+                        }
+                      </p-accordion>
+                    }
+                  </div>
+                </div>
+
+                <div class="detail-grid mt-2">
+                  <div class="mini-card">
+                    <h4 class="mini-title">{{ 'AID_VIEWER_PROPERTIES' | translate }}</h4>
+                    @if (item.propertyDefinitions.length === 0) {
+                      <span class="text-color-secondary">-</span>
+                    } @else {
+                      <ng-template #propertyNode let-node>
+                        <div class="entity-card">
+                          <div class="entity-title">{{ node.idShort }}</div>
+                          <p-inputgroup>
+                            <p-inputgroup-addon class="min-w-48 font-bold">
+                              <lib-help-label tag="AID_VIEWER_PROPERTY_KEY" [showLabel]="false"></lib-help-label>
+                              {{ 'AID_VIEWER_PROPERTY_KEY' | translate }}
+                            </p-inputgroup-addon>
+                            <input pInputText type="text" [value]="node.key || '-'" readonly />
+                          </p-inputgroup>
+                          <p-inputgroup>
+                            <p-inputgroup-addon class="min-w-48 font-bold">
+                              <lib-help-label tag="AID_VIEWER_PROPERTY_TITLE" [showLabel]="false"></lib-help-label>
+                              {{ 'AID_VIEWER_PROPERTY_TITLE' | translate }}
+                            </p-inputgroup-addon>
+                            <input pInputText type="text" [value]="node.title || '-'" readonly />
+                          </p-inputgroup>
+                          <p-inputgroup>
+                            <p-inputgroup-addon class="min-w-48 font-bold">
+                              <lib-help-label tag="AID_VIEWER_PROPERTY_DATA_TYPE" [showLabel]="false"></lib-help-label>
+                              {{ 'AID_VIEWER_PROPERTY_DATA_TYPE' | translate }}
+                            </p-inputgroup-addon>
+                            <input pInputText type="text" [value]="node.dataType || '-'" readonly />
+                          </p-inputgroup>
+                          <p-inputgroup>
+                            <p-inputgroup-addon class="min-w-48 font-bold">
+                              <lib-help-label tag="AID_VIEWER_PROPERTY_UNIT_CODE" [showLabel]="false"></lib-help-label>
+                              {{ 'AID_VIEWER_PROPERTY_UNIT_CODE' | translate }}
+                            </p-inputgroup-addon>
+                            <input pInputText type="text" [value]="node.unitCode || '-'" readonly />
+                          </p-inputgroup>
+                          <p-inputgroup>
+                            <p-inputgroup-addon class="min-w-48 font-bold">
+                              <lib-help-label
+                                tag="AID_VIEWER_PROPERTY_IS_OBSERVABLE"
+                                [showLabel]="false"
+                              ></lib-help-label>
+                              {{ 'AID_VIEWER_PROPERTY_IS_OBSERVABLE' | translate }}
+                            </p-inputgroup-addon>
+                            <input pInputText type="text" [value]="node.isObservable" readonly />
+                          </p-inputgroup>
+                          <p-inputgroup>
+                            <p-inputgroup-addon class="min-w-48 font-bold">
+                              <lib-help-label
+                                tag="AID_VIEWER_PROPERTY_VALUE_SEMANTICS"
+                                [showLabel]="false"
+                              ></lib-help-label>
+                              {{ 'AID_VIEWER_PROPERTY_VALUE_SEMANTICS' | translate }}
+                            </p-inputgroup-addon>
+                            <input pInputText type="text" [value]="node.valueSemantics || '-'" readonly />
+                          </p-inputgroup>
+
+                          @if (node.children.length > 0) {
+                            <div class="line-entry mt-1 font-semibold">
+                              {{ 'AID_VIEWER_NESTED_PROPERTIES' | translate }}
+                            </div>
+                            <p-accordion [multiple]="true">
+                              @for (child of node.children; track child.idShort; let childIdx = $index) {
+                                <p-accordion-panel [value]="2000 + childIdx">
+                                  <p-accordion-header>
+                                    <strong>{{ child.idShort }}</strong>
+                                  </p-accordion-header>
+                                  <p-accordion-content>
+                                    <ng-container
+                                      *ngTemplateOutlet="propertyNode; context: { $implicit: child }"
+                                    ></ng-container>
+                                  </p-accordion-content>
+                                </p-accordion-panel>
+                              }
+                            </p-accordion>
+                          }
+                        </div>
+                      </ng-template>
+
+                      @for (prop of item.propertyDefinitions; track prop.idShort) {
+                        <ng-container *ngTemplateOutlet="propertyNode; context: { $implicit: prop }"></ng-container>
+                      }
+                    }
+                  </div>
+
+                  <div class="mini-card">
+                    <h4 class="mini-title">{{ 'AID_VIEWER_FORMS' | translate }}</h4>
+                    @if (item.forms.length === 0) {
+                      <span class="text-color-secondary">-</span>
+                    } @else {
+                      <p-accordion [multiple]="true">
+                        @for (form of item.forms; track form.idShort; let formIdx = $index) {
+                          <p-accordion-panel [value]="3000 + formIdx">
+                            <p-accordion-header>
+                              <div class="flex items-center w-full gap-2">
+                                <strong>{{ form.idShort }}</strong>
+                                <span class="flex-1"></span>
+                                <p-tag [value]="form.protocol" severity="info"></p-tag>
+                              </div>
+                            </p-accordion-header>
+                            <p-accordion-content>
+                              <div class="entity-card entity-card-flat mb-0">
+                                <p-inputgroup>
+                                  <p-inputgroup-addon class="min-w-48 font-bold">
+                                    <lib-help-label tag="AID_VIEWER_TARGET" [showLabel]="false"></lib-help-label>
+                                    {{ 'AID_VIEWER_TARGET' | translate }}
+                                  </p-inputgroup-addon>
+                                  <input pInputText type="text" [value]="form.target" readonly />
+                                </p-inputgroup>
+                                <p-inputgroup>
+                                  <p-inputgroup-addon class="min-w-48 font-bold">
+                                    <lib-help-label tag="AID_VIEWER_CONTENT_TYPE" [showLabel]="false"></lib-help-label>
+                                    {{ 'AID_VIEWER_CONTENT_TYPE' | translate }}
+                                  </p-inputgroup-addon>
+                                  <input pInputText type="text" [value]="form.contentType" readonly />
+                                </p-inputgroup>
+                                <p-inputgroup>
+                                  <p-inputgroup-addon class="min-w-48 font-bold">
+                                    <lib-help-label
+                                      tag="AID_VIEWER_SECURITY_CONFIGURATION"
+                                      [showLabel]="false"
+                                    ></lib-help-label>
+                                    {{ 'AID_VIEWER_SECURITY_CONFIGURATION' | translate }}
+                                  </p-inputgroup-addon>
+                                  <input pInputText type="text" [value]="form.securityConfiguration" readonly />
+                                </p-inputgroup>
+
+                                @if (form.protocol === 'HTTP') {
+                                  <p-inputgroup>
+                                    <p-inputgroup-addon class="min-w-48 font-bold">
+                                      <lib-help-label tag="AID_VIEWER_HTTP_METHOD" [showLabel]="false"></lib-help-label>
+                                      {{ 'AID_VIEWER_HTTP_METHOD' | translate }}
+                                    </p-inputgroup-addon>
+                                    <input pInputText type="text" [value]="form.httpMethod" readonly />
+                                  </p-inputgroup>
+                                  @if (form.httpHeaders.length > 0) {
+                                    <div class="line-entry mt-1 font-semibold">
+                                      {{ 'AID_VIEWER_HTTP_HEADERS' | translate }}
+                                    </div>
+                                    <p-accordion [multiple]="true">
+                                      @for (header of form.httpHeaders; track $index; let headerIdx = $index) {
+                                        <p-accordion-panel [value]="4000 + headerIdx">
+                                          <p-accordion-header>
+                                            <strong>{{ header.name || '-' }}</strong>
+                                          </p-accordion-header>
+                                          <p-accordion-content>
+                                            <div class="entity-card entity-card-flat mb-0">
+                                              <p-inputgroup>
+                                                <p-inputgroup-addon class="min-w-48 font-bold">
+                                                  <lib-help-label
+                                                    tag="AID_VIEWER_HTTP_HEADER_NAME"
+                                                    [showLabel]="false"
+                                                  ></lib-help-label>
+                                                  {{ 'AID_VIEWER_HTTP_HEADER_NAME' | translate }}
+                                                </p-inputgroup-addon>
+                                                <input pInputText type="text" [value]="header.name || '-'" readonly />
+                                              </p-inputgroup>
+                                              <p-inputgroup>
+                                                <p-inputgroup-addon class="min-w-48 font-bold">
+                                                  <lib-help-label
+                                                    tag="AID_VIEWER_HTTP_HEADER_VALUE"
+                                                    [showLabel]="false"
+                                                  ></lib-help-label>
+                                                  {{ 'AID_VIEWER_HTTP_HEADER_VALUE' | translate }}
+                                                </p-inputgroup-addon>
+                                                <input pInputText type="text" [value]="header.value || '-'" readonly />
+                                              </p-inputgroup>
+                                            </div>
+                                          </p-accordion-content>
+                                        </p-accordion-panel>
+                                      }
+                                    </p-accordion>
+                                  }
+                                }
+
+                                @if (form.protocol === 'MQTT') {
+                                  <p-inputgroup>
+                                    <p-inputgroup-addon class="min-w-48 font-bold">
+                                      <lib-help-label tag="AID_INTERFACE_MQTT_QOS" [showLabel]="false"></lib-help-label>
+                                      {{ 'AID_INTERFACE_MQTT_QOS' | translate }}
+                                    </p-inputgroup-addon>
+                                    <input pInputText type="text" [value]="form.mqttQos" readonly />
+                                  </p-inputgroup>
+                                  <p-inputgroup>
+                                    <p-inputgroup-addon class="min-w-48 font-bold">
+                                      <lib-help-label
+                                        tag="AID_INTERFACE_MQTT_RETAIN"
+                                        [showLabel]="false"
+                                      ></lib-help-label>
+                                      {{ 'AID_INTERFACE_MQTT_RETAIN' | translate }}
+                                    </p-inputgroup-addon>
+                                    <input pInputText type="text" [value]="form.mqttRetain" readonly />
+                                  </p-inputgroup>
+                                }
+
+                                @if (form.protocol === 'Modbus') {
+                                  <p-inputgroup>
+                                    <p-inputgroup-addon class="min-w-48 font-bold">
+                                      <lib-help-label
+                                        tag="AID_INTERFACE_MODBUS_FUNCTION"
+                                        [showLabel]="false"
+                                      ></lib-help-label>
+                                      {{ 'AID_INTERFACE_MODBUS_FUNCTION' | translate }}
+                                    </p-inputgroup-addon>
+                                    <input pInputText type="text" [value]="form.modbusFunction" readonly />
+                                  </p-inputgroup>
+                                  <p-inputgroup>
+                                    <p-inputgroup-addon class="min-w-48 font-bold">
+                                      <lib-help-label
+                                        tag="AID_INTERFACE_MODBUS_ENTITY"
+                                        [showLabel]="false"
+                                      ></lib-help-label>
+                                      {{ 'AID_INTERFACE_MODBUS_ENTITY' | translate }}
+                                    </p-inputgroup-addon>
+                                    <input pInputText type="text" [value]="form.modbusEntity" readonly />
+                                  </p-inputgroup>
+                                }
+                              </div>
+                            </p-accordion-content>
+                          </p-accordion-panel>
+                        }
+                      </p-accordion>
+                    }
+                  </div>
+                </div>
+              </p-accordion-content>
+            </p-accordion-panel>
+          }
+        </p-accordion>
+      </div>
+    } @else {
+      <div class="section-card">
+        <h3 class="section-title"><i class="fa-solid fa-circle-info"></i> Hinweis</h3>
+        <div>{{ 'AID_VIEWER_EMPTY' | translate }}</div>
+      </div>
+    }
+  </div>
+}

@@ -1,0 +1,106 @@
+<div class="detail-card">
+  <div class="orga-header mb-4">
+    @if (organisation().logoBase64) {
+      <img [src]="organisation().logoBase64" alt="Logo" class="orga-logo" />
+    }
+    <div class="orga-title-section">
+      <h2 class="orga-name">{{ organisation().name }}</h2>
+      @if (organisation().iriPrefix) {
+        <span class="iri-prefix">{{ organisation().iriPrefix }}</span>
+      }
+    </div>
+  </div>
+
+  <div class="grid grid-cols-2 gap-4">
+    <p-inputgroup>
+      <p-inputgroup-addon class="font-bold w-56">
+        <i class="fa-solid fa-building mr-2"></i>
+        <lib-help-label tag="NAME" [showLabel]="false"></lib-help-label>
+        {{ 'NAME' | translate }}
+      </p-inputgroup-addon>
+      <input pInputText [value]="organisation().name" [readonly]="true" />
+    </p-inputgroup>
+
+    @if (organisation().iriPrefix) {
+      <p-inputgroup>
+        <p-inputgroup-addon class="font-bold w-56">
+          <i class="fa-solid fa-tag mr-2"></i>
+          <lib-help-label tag="IRI_PREFIX" [showLabel]="false"></lib-help-label>
+          {{ 'IRI_PREFIX' | translate }}
+        </p-inputgroup-addon>
+        <input pInputText [value]="organisation().iriPrefix" [readonly]="true" />
+      </p-inputgroup>
+    }
+
+    <p-inputgroup>
+      <p-inputgroup-addon class="font-bold w-56">
+        <i class="fa-solid fa-road mr-2"></i>
+        <lib-help-label tag="STREET" [showLabel]="false"></lib-help-label>
+        {{ 'STREET' | translate }}
+      </p-inputgroup-addon>
+      <input pInputText [value]="organisation().strasse" [readonly]="true" />
+    </p-inputgroup>
+
+    <p-inputgroup>
+      <p-inputgroup-addon class="font-bold w-56">
+        <i class="fa-solid fa-location-dot mr-2"></i>
+        <lib-help-label tag="CITY" [showLabel]="false"></lib-help-label>
+        {{ 'CITY' | translate }}
+      </p-inputgroup-addon>
+      <input pInputText [value]="organisation().plz + ' ' + organisation().ort" [readonly]="true" />
+    </p-inputgroup>
+
+    @if (organisation().bundesland) {
+      <p-inputgroup>
+        <p-inputgroup-addon class="font-bold w-56">
+          <i class="fa-solid fa-map mr-2"></i>
+          <lib-help-label tag="STATE" [showLabel]="false"></lib-help-label>
+          {{ 'STATE' | translate }}
+        </p-inputgroup-addon>
+        <input pInputText [value]="organisation().bundesland" [readonly]="true" />
+      </p-inputgroup>
+    }
+
+    <p-inputgroup>
+      <p-inputgroup-addon class="font-bold w-56">
+        <i class="fa-solid fa-flag mr-2"></i>
+        <lib-help-label tag="COUNTRY" [showLabel]="false"></lib-help-label>
+        {{ 'COUNTRY' | translate }}
+      </p-inputgroup-addon>
+      <input pInputText [value]="organisation().laenderCode" [readonly]="true" />
+    </p-inputgroup>
+
+    @if (organisation().email) {
+      <p-inputgroup>
+        <p-inputgroup-addon class="font-bold w-56">
+          <i class="fa-solid fa-envelope mr-2"></i>
+          <lib-help-label tag="EMAIL" [showLabel]="false"></lib-help-label>
+          {{ 'EMAIL' | translate }}
+        </p-inputgroup-addon>
+        <input pInputText [value]="organisation().email" [readonly]="true" />
+      </p-inputgroup>
+    }
+
+    @if (organisation().telefon) {
+      <p-inputgroup>
+        <p-inputgroup-addon class="font-bold w-56">
+          <i class="fa-solid fa-phone mr-2"></i>
+          <lib-help-label tag="PHONE" [showLabel]="false"></lib-help-label>
+          {{ 'PHONE' | translate }}
+        </p-inputgroup-addon>
+        <input pInputText [value]="organisation().telefon" [readonly]="true" />
+      </p-inputgroup>
+    }
+
+    @if (organisation().fax) {
+      <p-inputgroup>
+        <p-inputgroup-addon class="font-bold w-56">
+          <i class="fa-solid fa-fax mr-2"></i>
+          <lib-help-label tag="FAX" [showLabel]="false"></lib-help-label>
+          {{ 'FAX' | translate }}
+        </p-inputgroup-addon>
+        <input pInputText [value]="organisation().fax" [readonly]="true" />
+      </p-inputgroup>
+    }
+  </div>
+</div>

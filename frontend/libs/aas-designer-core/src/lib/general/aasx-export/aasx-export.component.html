@@ -1,0 +1,89 @@
+<p-dialog
+  [(visible)]="displayExportDialog"
+  header="{{ 'EXPORT' | translate }}"
+  [style]="{ width: '60vw' }"
+  modal="true"
+  maximizable="true"
+>
+  <div class="flex flex-col w-full gap-2">
+    <div class="mb-4">
+      <p>{{ 'EXPORT_EXPL' | translate }}</p>
+    </div>
+    <div class="flex flex-row gap-2 items-center">
+      <lib-help-label class="w-14rem" tag="AASX_EXPORT_MODE"></lib-help-label>
+      <p-selectButton
+        class="w-14rem"
+        [options]="['XML', 'JSON']"
+        [(ngModel)]="exportMode"
+        name="exportMode"
+      ></p-selectButton>
+    </div>
+    <div class="flex flex-row gap-2 items-center">
+      <span class="w-14rem">{{ 'AASX_METAMODEL_VERSION' | translate }}</span>
+      <p-selectButton
+        class="w-14rem"
+        [options]="['3.1', '3.0']"
+        [(ngModel)]="metamodelVersion"
+        name="metamodelVersion"
+      ></p-selectButton>
+    </div>
+    <div class="mb-4 flex flex-col gap-2">
+      <lib-help-label class="w-14rem" tag="AASX_CONTENT"></lib-help-label>
+      <p-pickList
+        [source]="availableSubmodels()"
+        [target]="selectedSubmodels"
+        (onMoveToTarget)="onMoveToTarget($event)"
+        (onMoveToSource)="onMoveToSource($event)"
+        (onMoveAllToTarget)="onMoveAllToTarget($event)"
+        (onMoveAllToSource)="onMoveAllToSource()"
+        sourceHeader="Available"
+        targetHeader="Selected"
+        [dragdrop]="true"
+        [sourceStyle]="{ height: '30rem' }"
+        [targetStyle]="{ height: '30rem' }"
+        breakpoint="1400px"
+      >
+        <ng-template let-submodel pTemplate="item">
+          <div class="flex flex-wrap p-2 items-center gap-3">
+            <div class="flex-1 flex flex-col gap-2">
+              <span class="font-bold">{{ submodel.idShort }}</span>
+              <div class="flex items-center gap-2">
+                <i class="pi pi-tag text-sm"></i>
+                <span>
+                  {{ submodel.id }}
+                </span>
+              </div>
+            </div>
+          </div>
+        </ng-template>
+      </p-pickList>
+    </div>
+  </div>
+  <div class="flex flex-col gap-5">
+    @if (loading() == true) {
+      <div class="">{{ 'PLEASE_WAIT_DOWNLOADING' | translate }}</div>
+    }
+    @if (loading()) {
+      <p-progressBar mode="indeterminate" [style]="{ height: '20px' }"></p-progressBar>
+    }
+  </div>
+  <ng-template pTemplate="footer">
+    <div class="flex gap-2 justify-end">
+      <p-button
+        label="{{ 'CANCEL' | translate }}"
+        (onClick)="displayExportDialog = false"
+        icon="pi pi-times"
+        styleClass="p-button-secondary"
+        [loading]="loading()"
+      ></p-button>
+      <p-button
+        label="{{ 'DOWNLOAD' | translate }}"
+        icon="pi pi-download"
+        iconPos="right"
+        (onClick)="doExport()"
+        [disabled]="!hasSelectedSubmodels"
+        [loading]="loading()"
+      ></p-button>
+    </div>
+  </ng-template>
+</p-dialog>

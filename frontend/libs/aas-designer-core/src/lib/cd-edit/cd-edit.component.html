@@ -1,0 +1,28 @@
+<p-toolbar class="mb-2">
+  <div class="p-toolbar-group-start">
+    <div class="text-xl">{{ 'EDIT_CD' | translate }}</div>
+  </div>
+
+  <div class="p-toolbar-group-end flex gap-2">
+    <p-button
+      label="{{ 'CLOSE' | translate }}"
+      icon="pi pi-times"
+      outlined="true"
+      (onClick)="close()"
+      [loading]="loading()"
+    ></p-button>
+    <p-button
+      pRipple
+      label="{{ 'SAVE' | translate }}"
+      icon="pi pi-save"
+      styleClass="p-button-success"
+      (onClick)="save()"
+      [loading]="loading()"
+      type="submit"
+    ></p-button>
+  </div>
+</p-toolbar>
+<aas-v3-concept-description
+  [conceptDescription]="cdTreeItem() | async"
+  [shellResult]="shellResult"
+></aas-v3-concept-description>

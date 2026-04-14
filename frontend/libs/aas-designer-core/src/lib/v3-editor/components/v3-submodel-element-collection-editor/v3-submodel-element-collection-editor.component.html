@@ -1,0 +1,188 @@
+@if (submodelElementCollection != null && submodelElementCollection.content != null) {
+  <div class="flex flex-col gap-2">
+    <p-fieldset
+      [toggleable]="true"
+      class="mt-2"
+      [collapsed]="uiStateStore.detailsPanelCollapsed()"
+      (collapsedChange)="uiStateStore.setDetailsPanelCollapsed($event)"
+    >
+      <ng-template #header>
+        <div class="flex items-center gap-2 px-2">
+          <lib-help-label tag="DETAILS" isLabelBold="true"></lib-help-label>
+        </div>
+      </ng-template>
+      <div class="flex flex-col gap-2">
+        <aas-v3-id-short
+          [element]="submodelElementCollection"
+          class="w-full"
+          [shellResult]="shellResult"
+          size="small"
+        ></aas-v3-id-short>
+        <div class="details-grid-row">
+          <lib-help-label class="details-grid-label" tag="DESCRIPTION"></lib-help-label>
+          <aas-v3-lang-string-list
+            [langStrings]="submodelElementCollection.content.description"
+            [langStringParent]="submodelElementCollection.content"
+            [langStringParentPropertyName]="'description'"
+            class="details-grid-content"
+          ></aas-v3-lang-string-list>
+        </div>
+        <div class="details-grid-row">
+          <lib-help-label class="details-grid-label" tag="DISPLAY_NAME"></lib-help-label>
+          <aas-v3-lang-string-list
+            [langStrings]="submodelElementCollection.content.displayName"
+            [langStringParent]="submodelElementCollection.content"
+            [langStringParentPropertyName]="'displayName'"
+            class="details-grid-content"
+          ></aas-v3-lang-string-list>
+        </div>
+        <aas-v3-category [element]="submodelElementCollection" class="w-full"></aas-v3-category>
+      </div>
+    </p-fieldset>
+
+    <p-fieldset
+      [toggleable]="true"
+      [collapsed]="uiStateStore.contentPanelCollapsed()"
+      (collapsedChange)="uiStateStore.setContentPanelCollapsed($event)"
+    >
+      <ng-template #header>
+        <div class="flex items-center gap-2 px-2">
+          <lib-help-label tag="CONTENT" isLabelBold="true"></lib-help-label>
+        </div>
+      </ng-template>
+      @if (isMarkings) {
+        <aas-v3-markings-editor
+          [markingsTreeItem]="submodelElementCollection"
+          [shellResult]="shellResult"
+          [indexed]="false"
+          [idShortPath]="idShortPath"
+          [submodelIdentifier]="getSubmodelId()"
+          [parentSml]="false"
+        ></aas-v3-markings-editor>
+      }
+      @if (isAddress) {
+        <aas-address-selection
+          [submodelElementCollection]="submodelElementCollection"
+          (applied)="addressApplied()"
+        ></aas-address-selection>
+      }
+      @if (!isMarkings && !isDocumentClassification) {
+        <aas-v3-nested-submodel-element-collection
+          [collection]="submodelElementCollection.content"
+          [shellResult]="shellResult"
+          [repositoryUrl]="repositoryUrl"
+          #nestedSmc
+        ></aas-v3-nested-submodel-element-collection>
+      }
+      @if (isDocumentClassification) {
+        <p-table [value]="[' ']" size="small" stripedRows>
+          <ng-template pTemplate="body" let-item>
+            <tr>
+              <td style="width: 14rem">
+                <lib-help-label class="w-14rem" tag="CLASSIFICATION_SYSTEM"></lib-help-label>
+              </td>
+              <td>
+                @if (classificationSystemElement) {
+                  <aas-classification-system
+                    [classificationSystem]="classificationSystemElement"
+                  ></aas-classification-system>
+                }
+              </td>
+            </tr>
+            <tr>
+              <td style="width: 14rem"><lib-help-label class="w-14rem" tag="CLASS_ID"></lib-help-label></td>
+              <td>
+                @if (classIdElement && classNameElement) {
+                  <aas-class-id
+                    [classId]="classIdElement"
+                    [isIecClassId]="isIecClassId"
+                    [isVdiClassId]="isVdiClassId"
+                    [className]="classNameElement"
+                  ></aas-class-id>
+                }
+              </td>
+            </tr>
+            <tr>
+              <td style="width: 14rem"><lib-help-label class="w-14rem" tag="CLASS_NAME"></lib-help-label></td>
+              <td>
+                <aas-v3-mlp-current-editor
+                  [items]="classNameElement?.value"
+                  [itemsParent]="classNameElement"
+                ></aas-v3-mlp-current-editor>
+              </td>
+            </tr>
+          </ng-template>
+        </p-table>
+      }
+    </p-fieldset>
+    <!-- <p-fieldset legend="{{ 'EXTENSIONS' | translate }}" [toggleable]="true" [collapsed]="true">
+    <aas-v3-extensions
+      [extensions]="submodelElementCollection.content.extensions"
+      [extensionsParent]="submodelElementCollection.content"
+    ></aas-v3-extensions>
+  </p-fieldset> -->
+    <p-fieldset
+      [toggleable]="true"
+      [collapsed]="uiStateStore.semanticIdPanelCollapsed()"
+      (collapsedChange)="uiStateStore.setSemanticIdPanelCollapsed($event)"
+      [ngClass]="{ 'border-error': hasSemanticErrors }"
+    >
+      <ng-template #header>
+        <div class="flex items-center gap-2 px-2">
+          <lib-help-label tag="SEMANTIC_ID" isLabelBold="true"></lib-help-label>
+        </div>
+      </ng-template>
+      <aas-v3-semantic-description
+        [semanticId]="submodelElementCollection.content.semanticId"
+        [supplemantalSemanticIds]="submodelElementCollection.content.supplementalSemanticIds"
+        [referenceParent]="submodelElementCollection.content"
+        [referenceParentPropertyName]="'semanticId'"
+        [shellResult]="shellResult"
+      ></aas-v3-semantic-description>
+    </p-fieldset>
+    <p-fieldset
+      [toggleable]="true"
+      [collapsed]="uiStateStore.qualifiersPanelCollapsed()"
+      (collapsedChange)="uiStateStore.setQualifiersPanelCollapsed($event)"
+    >
+      <ng-template #header>
+        <div class="flex items-center gap-2 px-2">
+          <lib-help-label tag="QUALIFIERS" isLabelBold="true"></lib-help-label>
+        </div>
+      </ng-template>
+      <aas-v3-qualifiers
+        [qualifiers]="submodelElementCollection.content.qualifiers"
+        [qualifiersParent]="submodelElementCollection.content"
+      ></aas-v3-qualifiers>
+    </p-fieldset>
+    <p-fieldset
+      [toggleable]="true"
+      [collapsed]="uiStateStore.embeddedDataspecPanelCollapsed()"
+      (collapsedChange)="uiStateStore.setEmbeddedDataspecPanelCollapsed($event)"
+      [ngClass]="{ 'border-error': hasDataSpecErrors }"
+    >
+      <ng-template #header>
+        <div class="flex items-center gap-2 px-2">
+          <lib-help-label tag="EMBEDDED_DATA_SPECIFICATIONS" isLabelBold="true"></lib-help-label>
+        </div>
+      </ng-template>
+      <aas-v3-embedded-data-specification
+        [dataSpecification]="submodelElementCollection.content.embeddedDataSpecifications"
+        [dataSpecificationParent]="submodelElementCollection.content"
+        [shellResult]="shellResult"
+      ></aas-v3-embedded-data-specification>
+    </p-fieldset>
+    <p-fieldset
+      [toggleable]="true"
+      [collapsed]="uiStateStore.endpointUrlPanelCollapsed()"
+      (collapsedChange)="uiStateStore.setEndpointUrlPanelCollapsed($event)"
+    >
+      <ng-template #header>
+        <div class="flex items-center gap-2 px-2">
+          <lib-help-label tag="ENDPOINT_URL" isLabelBold="true"></lib-help-label>
+        </div>
+      </ng-template>
+      <aas-endpoint-url [element]="submodelElementCollection" [shellResult]="shellResult"></aas-endpoint-url>
+    </p-fieldset>
+  </div>
+}

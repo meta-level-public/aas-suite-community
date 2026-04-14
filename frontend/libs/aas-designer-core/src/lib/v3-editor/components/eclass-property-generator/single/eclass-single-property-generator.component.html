@@ -1,0 +1,75 @@
+<p-dialog
+  [(visible)]="importFromEclassDialogVisible"
+  [closeOnEscape]="true"
+  [closable]="true"
+  header="{{ 'FROM_ECLASS' | translate }}"
+  [style]="{ width: '66vw' }"
+>
+  @if (!eclassImported) {
+    <p>{{ 'NO_ECLASS_IMPORT_FOUND' | translate }}</p>
+    <p>{{ 'ECLASS_IMPORT_EXPLANATION' | translate }}</p>
+  } @else {
+    <div class="flex flex-col gap-2">
+      <div class="flex flex-row gap-2 w-full">
+        <div class="flex flex-col w-full">
+          <label class="flex items-center mt-2 mb-2" for="name">{{ 'IRDI' | translate }}</label>
+          <input pInputText type="text" id="name" class="w-full" name="name" [(ngModel)]="irdi" [required]="true" />
+        </div>
+        <div class="flex flex-col justify-end">
+          <p-button
+            pRipple
+            label="{{ 'FIND_PROPERTIES' | translate }}"
+            icon="pi pi-search"
+            styleClass="p-button-success mr-2 w-20rem"
+            [disabled]="irdi === ''"
+            (onClick)="findProperties()"
+          ></p-button>
+        </div>
+      </div>
+      <p-table [value]="propertyCandidates" selectionMode="single" [(selection)]="selectedIrdi" size="small">
+        <ng-template pTemplate="body" let-row>
+          <tr [pSelectableRow]="row.irdi">
+            <td>{{ getRowLabel(row) }}</td>
+            <td>{{ row.irdi }}</td>
+            <td>
+              <p-button
+                icon="pi pi-info"
+                styleClass="p-button-outlined p-button-rounded p-button-sm p-button-secondary"
+                (onClick)="showDefinition(row, opDefinition, $event)"
+              ></p-button>
+            </td>
+          </tr>
+        </ng-template>
+        <ng-template pTemplate="emptymessage">
+          <tr>
+            <td colspan="3">{{ 'NO_PROPERTY_FOUND' | translate }}</td>
+          </tr>
+        </ng-template>
+      </p-table>
+    </div>
+
+    <p-popover #opDefinition>
+      <!-- [showCloseIcon]="true"> -->
+      <p class="w-20rem">{{ 'DEFINITION' | translate }}: {{ definition }}</p>
+    </p-popover>
+  }
+  <ng-template pTemplate="footer">
+    <div class="flex flex-row gap-2 justify-end">
+      <p-button
+        pRipple
+        label="{{ 'CANCEL' | translate }}"
+        icon="pi pi-times"
+        styleClass="p-button-secondary mr-2"
+        (onClick)="importFromEclassDialogVisibleChanged.emit(false)"
+      ></p-button>
+      <p-button
+        pRipple
+        label="{{ 'CREATE' | translate }}"
+        icon="pi pi-save"
+        styleClass="p-button-success mr-2"
+        [disabled]="selectedIrdi === ''"
+        (onClick)="createProperty()"
+      ></p-button>
+    </div>
+  </ng-template>
+</p-dialog>

@@ -1,0 +1,22 @@
+:host ::ng-deep .submodel-name-cell,
+:host ::ng-deep .submodel-description-cell {
+  overflow-wrap: anywhere;
+  word-break: break-word;
+}
+
+:host ::ng-deep .submodel-name-wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 0.1rem;
+  min-width: 0;
+}
+
+:host ::ng-deep .submodel-identifier {
+  color: var(--text-color-secondary, #6b7280);
+  font-size: inherit;
+  line-height: 1.2;
+}
+
+:host ::ng-deep .submodel-version-cell {
+  white-space: nowrap;
+}

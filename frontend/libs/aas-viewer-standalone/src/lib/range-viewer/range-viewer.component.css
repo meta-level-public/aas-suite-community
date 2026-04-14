@@ -1,0 +1,12 @@
+.range-min-max-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.5rem;
+  width: 100%;
+}
+
+@media (max-width: 1024px) {
+  .range-min-max-grid {
+    grid-template-columns: 1fr;
+  }
+}

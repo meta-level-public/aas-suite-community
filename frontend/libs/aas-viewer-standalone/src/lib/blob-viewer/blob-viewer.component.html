@@ -1,0 +1,23 @@
+@if (blob) {
+  <div class="flex flex-col gap-2">
+    <p-inputgroup>
+      <p-inputgroup-addon class="font-bold w-48">
+        <i class="fa-solid fa-file-code mr-2"></i>
+        <lib-help-label tag="CONTENT_TYPE" [showLabel]="false"></lib-help-label>
+        {{ 'CONTENT_TYPE' | translate }}
+      </p-inputgroup-addon>
+      <input pInputText type="text" [value]="blob.contentType" readonly />
+    </p-inputgroup>
+
+    @if (blob.idShort) {
+      <p-inputgroup>
+        <p-inputgroup-addon class="font-bold w-48">
+          <i class="fa-solid fa-tag mr-2"></i>
+          <lib-help-label tag="ID_SHORT" [showLabel]="false"></lib-help-label>
+          {{ 'ID_SHORT' | translate }}
+        </p-inputgroup-addon>
+        <input pInputText type="text" [value]="blob.idShort" readonly />
+      </p-inputgroup>
+    }
+  </div>
+}

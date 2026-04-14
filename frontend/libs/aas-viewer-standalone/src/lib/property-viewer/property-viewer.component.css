@@ -1,0 +1,24 @@
+.field-label-addon {
+  min-width: 14rem;
+  max-width: min(28rem, 40%);
+  width: 32%;
+  align-items: flex-start;
+  white-space: normal;
+  overflow-wrap: anywhere;
+  line-height: 1.25rem;
+}
+
+@media (max-width: 1024px) {
+  .field-label-addon {
+    width: 40%;
+    min-width: 11rem;
+  }
+}
+
+@media (max-width: 768px) {
+  .field-label-addon {
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
+  }
+}

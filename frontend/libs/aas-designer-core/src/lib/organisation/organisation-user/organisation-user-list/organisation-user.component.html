@@ -1,0 +1,154 @@
+<div class="flex flex-col gap-2">
+  <p-message
+    severity="info"
+    text="{{
+      'LICENSES_USED' | translate: { maxUsers: maxUsersString, currentUsers: userSeatStats()?.activeUserSeatsCount }
+    }}"
+  ></p-message>
+  <p-table
+    #dt
+    [value]="users() ?? []"
+    responsiveLayout="scroll"
+    [rows]="10"
+    [globalFilterFields]="['organisation']"
+    [rows]="10"
+    [paginator]="false"
+    [rowHover]="true"
+    dataKey="id"
+    class="col-span-12"
+    size="small"
+    sortField="name"
+  >
+    <ng-template #header>
+      <tr>
+        <th scope="col" style="width: 4%; min-width: 1rem"></th>
+        <th scope="col" pSortableColumn="name" style="width: 24%; min-width: 10rem">
+          {{ 'LASTNAME' | translate }}<p-sortIcon field="name"></p-sortIcon>
+        </th>
+        <th scope="col" pSortableColumn="vorname" style="width: 24%; min-width: 10rem">
+          {{ 'FIRSTNAME' | translate }}<p-sortIcon field="vorname"></p-sortIcon>
+        </th>
+        <th scope="col" pSortableColumn="email" style="width: 39%; min-width: 10rem">
+          {{ 'EMAIL' | translate }}<p-sortIcon field="email"></p-sortIcon>
+        </th>
+        <th scope="col" pSortableColumn="accountAktiv" style="width: 5%; min-width: 6rem">
+          {{ 'ACTIVE' | translate }}<p-sortIcon field="accountAktiv"></p-sortIcon>
+        </th>
+        <th scope="col" pSortableColumn="createdBySso" style="width: 5%; min-width: 6rem">
+          {{ 'SSO' | translate }}<p-sortIcon field="createdBySso"></p-sortIcon>
+        </th>
+        <th scope="col">{{ 'USER_RIGHTS' | translate }}</th>
+      </tr>
+      <tr>
+        <th scope="col" style="width: 4%; min-width: 1rem"></th>
+        <th scope="col" style="width: 24%; min-width: 10rem">
+          <p-columnFilter type="text" field="name"></p-columnFilter>
+        </th>
+        <th scope="col" style="width: 24%; min-width: 10rem">
+          <p-columnFilter type="text" field="vorname"></p-columnFilter>
+        </th>
+        <th scope="col" style="width: 39%; min-width: 10rem">
+          <p-columnFilter type="text" field="email"></p-columnFilter>
+        </th>
+        <th scope="col" style="width: 5%; min-width: 6rem">
+          <p-columnFilter type="boolean" field="accountAktiv"></p-columnFilter>
+        </th>
+        <th scope="col" style="width: 5%; min-width: 6rem">
+          <p-columnFilter type="boolean" field="createdBySso"></p-columnFilter>
+        </th>
+        <th scope="col" style="width: 4%; min-width: 1rem"></th>
+      </tr>
+    </ng-template>
+    <ng-template pTemplate="body" let-benutzer>
+      <tr>
+        <td>
+          <p-button
+            icon="pi pi-ellipsis-v"
+            styleClass="p-button-text p-button-secondary"
+            (onClick)="menu.toggle($event)"
+          ></p-button>
+          <p-menu
+            appendTo="body"
+            (onShow)="onShowActions(benutzer, $event)"
+            #menu
+            [popup]="true"
+            [model]="menuItems()"
+          ></p-menu>
+        </td>
+        <td style="width: 15%; min-width: 10rem">
+          {{ benutzer.name }}
+        </td>
+        <td style="width: 15%; min-width: 10rem">
+          {{ benutzer.vorname }}
+        </td>
+        <td style="width: 15%; min-width: 10rem">
+          {{ benutzer.email }}
+        </td>
+        <td>
+          {{ benutzer.accountAktiv ? ('primeng.accept' | translate) : ('primeng.reject' | translate) }}
+        </td>
+        <td>
+          {{ benutzer.createdBySso ? ('primeng.accept' | translate) : ('primeng.reject' | translate) }}
+        </td>
+        <td class="font-bold">
+          @for (right of benutzer.benutzerRollen; track right) {
+            <div>
+              <div class="mt-1">
+                <p-tag>{{ right }}</p-tag>
+              </div>
+            </div>
+          }
+        </td>
+      </tr>
+    </ng-template>
+    <ng-template pTemplate="emptymessage">
+      <tr>
+        <td colspan="5">{{ 'NO_DATA_FOUND' | translate }}</td>
+      </tr>
+    </ng-template>
+  </p-table>
+</div>
+
+<p-dialog [(visible)]="editRolesVisible" appendTo="body" class="w-5" closable="false" closeIcon="null">
+  <ng-template #header>
+    <div class="font-medium mb-3" style="font-size: var(--aas-title-md); color: var(--p-text-color)">
+      {{ 'EDIT_ROLES_FOR_USER' | translate: { user: currentEditUser()?.email } }}
+    </div>
+  </ng-template>
+  <div class="flex flex-col gap-2">
+    @for (role of availableRoles; track $index) {
+      @if (currentEditUser() != null) {
+        <div class="flex flex-row gap-2 items-center">
+          <div>
+            <p-checkbox
+              name="rightgroup-{{ $index }}"
+              value="{{ role }}"
+              [(ngModel)]="currentEditUser()!.benutzerRollen"
+              class="mt-2"
+              inputId="role-{{ $index }}"
+            ></p-checkbox>
+          </div>
+          <div>
+            <label for="role-{{ $index }}">{{ role }}</label>
+          </div>
+        </div>
+      }
+    }
+  </div>
+  <ng-template #footer>
+    <div class="flex flex-row gap-2">
+      <p-button
+        label="{{ 'CANCEL' | translate }}"
+        icon="pi pi-times"
+        (onClick)="cancelEditRoles()"
+        outlined="true"
+      ></p-button>
+      <p-button
+        label="{{ 'SAVE' | translate }}"
+        icon="pi pi-save"
+        (onClick)="saveEditRoles()"
+        [disabled]="!canSaveEditRoles()"
+      ></p-button>
+    </div>
+  </ng-template>
+</p-dialog>

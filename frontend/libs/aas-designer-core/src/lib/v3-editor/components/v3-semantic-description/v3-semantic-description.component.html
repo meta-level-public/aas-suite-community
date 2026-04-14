@@ -1,0 +1,299 @@
+<p-accordion value="0" [multiple]="true">
+  <p-accordion-panel value="0">
+    <p-accordion-header>{{ 'SEMANTIC_ID' | translate }}</p-accordion-header>
+    <p-accordion-content>
+      @if (semanticId == null) {
+        <div class="flex flex-col w-full justify-center">
+          <p-button
+            label="{{ 'ADD' | translate }}"
+            (onClick)="addReference()"
+            icon="pi pi-plus"
+            size="small"
+            [outlined]="true"
+          ></p-button>
+        </div>
+      }
+      @if (semanticId != null) {
+        <div class="semantic-layout">
+          <div class="semantic-main">
+            <p-table [value]="[' ']" stripedRows size="small" class="w-full semantic-data-table">
+              <ng-template pTemplate="body">
+                <tr>
+                  <td><lib-help-label tag="ID"></lib-help-label></td>
+                  <td class="font-bold">
+                    <p-inputgroup>
+                      <input
+                        pInputText
+                        type="text"
+                        class="w-full"
+                        [(ngModel)]="semanticId.keys[0].value"
+                        (change)="loadCd()"
+                      />
+                      @if (semanticId.keys[0].value != null && UrlHelper.isEclassId(semanticId.keys[0].value)) {
+                        <p-inputgroup-addon>
+                          <p-button
+                            icon="pi pi-external-link"
+                            severity="secondary"
+                            (onClick)="UrlHelper.openEclass(semanticId.keys[0].value)"
+                          />
+                        </p-inputgroup-addon>
+                      }
+                      @if (semanticId.keys[0].value != null && UrlHelper.isIecCddId(semanticId.keys[0].value)) {
+                        <p-inputgroup-addon>
+                          <p-button
+                            icon="pi pi-external-link"
+                            severity="secondary"
+                            (onClick)="UrlHelper.openIecCdd(semanticId.keys[0].value)"
+                          />
+                        </p-inputgroup-addon>
+                      }
+                    </p-inputgroup>
+                  </td>
+                </tr>
+                <tr>
+                  <td><lib-help-label tag="DEFINITION"></lib-help-label></td>
+                  <td class="font-bold">
+                    <aas-v3-lang-string-display
+                      [langStrings]="$any(cd()?.embeddedDataSpecifications?.[0]?.dataSpecificationContent).definition"
+                      [langStringParent]="$any(cd()?.embeddedDataSpecifications?.[0]?.dataSpecificationContent)"
+                      [langStringParentPropertyName]="'definition'"
+                      class="w-full"
+                    ></aas-v3-lang-string-display>
+                  </td>
+                </tr>
+                <tr>
+                  <td><lib-help-label tag="SOURCE_OF_DEFINITION"></lib-help-label></td>
+                  <td class="font-bold">
+                    {{ $any(cd()?.embeddedDataSpecifications?.[0]?.dataSpecificationContent)?.sourceOfDefinition }}
+                  </td>
+                </tr>
+                <tr>
+                  <td><lib-help-label tag="UNIT"></lib-help-label></td>
+                  <td class="font-bold">
+                    {{ $any(cd()?.embeddedDataSpecifications?.[0]?.dataSpecificationContent)?.unit }}
+                  </td>
+                </tr>
+                <tr>
+                  <td><lib-help-label tag="SYMBOL"></lib-help-label></td>
+                  <td class="font-bold">
+                    {{ $any(cd()?.embeddedDataSpecifications?.[0]?.dataSpecificationContent)?.symbol }}
+                  </td>
+                </tr>
+                <tr>
+                  <td><lib-help-label tag="DATA_TYPE"></lib-help-label></td>
+                  <td class="font-bold">
+                    {{ getDatatypeLabel(cd()?.embeddedDataSpecifications?.[0]?.dataSpecificationContent) }}
+                  </td>
+                </tr>
+              </ng-template>
+            </p-table>
+          </div>
+
+          @if (semanticId != null) {
+            <div class="semantic-actions">
+              <div class="semantic-actions-panel">
+                @if (semanticId.keys != null && cd() == null) {
+                  <p-message
+                    severity="error"
+                    text="{{ 'CD_NOT_IN_REPOSITORY' | translate }}"
+                    class="semantic-warning w-full"
+                  ></p-message>
+                  <p-button
+                    label="{{ 'CREATE_CD' | translate }}"
+                    icon="pi pi-plus"
+                    (onClick)="createConceptDescriptionById(semanticId.keys[0].value)"
+                    size="small"
+                    class="w-full semantic-action-button"
+                    [outlined]="true"
+                  ></p-button>
+                } @else {
+                  <p-button
+                    label="{{ 'CREATE_NEW_CD' | translate }}"
+                    icon="pi pi-plus"
+                    size="small"
+                    class="w-full semantic-action-button"
+                    (onClick)="createConceptDescriptionById(null)"
+                    [outlined]="true"
+                  ></p-button>
+                }
+                <p-button
+                  label="{{ 'SEARCH_CD' | translate }}"
+                  icon="pi pi-search"
+                  size="small"
+                  class="w-full semantic-action-button"
+                  (onClick)="searchCd(null)"
+                  [outlined]="true"
+                ></p-button>
+                @if (cd() != null) {
+                  <p-button
+                    label="{{ 'EDIT_CD' | translate }}"
+                    icon="pi pi-pencil"
+                    (onClick)="goToEditConceptDescription()"
+                    class="w-full semantic-action-button"
+                    size="small"
+                    [outlined]="true"
+                  ></p-button>
+                }
+                <p-button
+                  label="{{ 'REMOVE' | translate }}"
+                  icon="pi pi-trash"
+                  (onClick)="removeReferenceBlock()"
+                  size="small"
+                  class="w-full semantic-action-button"
+                  [outlined]="true"
+                ></p-button>
+              </div>
+            </div>
+          }
+        </div>
+        <aas-error-panel class="w-12" [errorArr]="errors" [parent]="semanticId"></aas-error-panel>
+      }
+    </p-accordion-content>
+  </p-accordion-panel>
+  @for (item of this.supplemantalSemanticIds; track $index) {
+    <p-accordion-panel [value]="$index + 1">
+      <p-accordion-header>{{ 'SUPPLEMENTAL_SEMANTIC_ID' | translate }} {{ $index + 1 }}</p-accordion-header>
+      <p-accordion-content>
+        <div class="semantic-layout">
+          <div class="semantic-main">
+            <p-table [value]="[' ']" stripedRows size="small" class="w-full semantic-data-table">
+              <ng-template pTemplate="body">
+                <tr>
+                  <td><lib-help-label tag="ID"></lib-help-label></td>
+                  <td class="font-bold">
+                    <p-inputgroup>
+                      <input pInputText type="text" class="w-full" [(ngModel)]="item.keys[0].value" />
+                      @if (item.keys[0].value != null && UrlHelper.isEclassId(item.keys[0].value)) {
+                        <p-inputgroup-addon>
+                          <p-button
+                            icon="pi pi-external-link"
+                            severity="secondary"
+                            (onClick)="UrlHelper.openEclass(item.keys[0].value)"
+                          />
+                        </p-inputgroup-addon>
+                      }
+                      @if (item.keys[0].value != null && UrlHelper.isIecCddId(item.keys[0].value)) {
+                        <p-inputgroup-addon>
+                          <p-button
+                            icon="pi pi-external-link"
+                            severity="secondary"
+                            (onClick)="UrlHelper.openIecCdd(item.keys[0].value)"
+                          />
+                        </p-inputgroup-addon>
+                      }
+                    </p-inputgroup>
+                  </td>
+                </tr>
+                <tr>
+                  <td><lib-help-label tag="DEFINITION"></lib-help-label></td>
+                  <td class="font-bold">
+                    <aas-v3-lang-string-display
+                      [langStrings]="getDataspec(item)?.definition"
+                      [langStringParent]="getDataspec(item)"
+                      [langStringParentPropertyName]="'definition'"
+                      class="w-full"
+                    ></aas-v3-lang-string-display>
+                  </td>
+                </tr>
+                <tr>
+                  <td><lib-help-label tag="SOURCE_OF_DEFINITION"></lib-help-label></td>
+                  <td class="font-bold">
+                    {{ getDataspec(item)?.sourceOfDefinition }}
+                  </td>
+                </tr>
+                <tr>
+                  <td><lib-help-label tag="UNIT"></lib-help-label></td>
+                  <td class="font-bold">
+                    {{ getDataspec(item)?.unit }}
+                  </td>
+                </tr>
+                <tr>
+                  <td><lib-help-label tag="SYMBOL"></lib-help-label></td>
+                  <td class="font-bold">
+                    {{ getDataspec(item)?.symbol }}
+                  </td>
+                </tr>
+                <tr>
+                  <td><lib-help-label tag="DATA_TYPE"></lib-help-label></td>
+                  <td class="font-bold">
+                    {{ getDatatypeLabel(getDataspec(item)) }}
+                  </td>
+                </tr>
+              </ng-template>
+            </p-table>
+          </div>
+
+          @if (semanticId != null) {
+            <div class="semantic-actions">
+              <div class="semantic-actions-panel">
+                @if (getCd(item)?.id == null) {
+                  <p-message
+                    severity="error"
+                    text="{{ 'CD_NOT_IN_REPOSITORY' | translate }}"
+                    class="semantic-warning w-full"
+                  ></p-message>
+                  <p-button
+                    label="{{ 'CREATE_CD' | translate }}"
+                    icon="pi pi-plus"
+                    (onClick)="createConceptDescriptionById(item.keys[0].value)"
+                    size="small"
+                    class="w-full semantic-action-button"
+                    [outlined]="true"
+                  ></p-button>
+                } @else {
+                  <p-button
+                    label="{{ 'CREATE_NEW_CD' | translate }}"
+                    icon="pi pi-plus"
+                    (onClick)="createConceptDescriptionById(null)"
+                    size="small"
+                    class="w-full semantic-action-button"
+                    [outlined]="true"
+                  ></p-button>
+                }
+                <p-button
+                  label="{{ 'SEARCH_CD' | translate }}"
+                  icon="pi pi-search"
+                  class="w-full semantic-action-button"
+                  size="small"
+                  [outlined]="true"
+                  (onClick)="searchCd(item)"
+                ></p-button>
+                @if (getCd(item)?.id != null) {
+                  <p-button
+                    label="{{ 'EDIT_CD' | translate }}"
+                    icon="pi pi-pencil"
+                    (onClick)="goToEditConceptDescriptionById(item.keys[0].value)"
+                    size="small"
+                    class="w-full semantic-action-button"
+                    [outlined]="true"
+                  ></p-button>
+                }
+                <p-button
+                  label="{{ 'REMOVE' | translate }}"
+                  (onClick)="removeAdditionalReference(item)"
+                  icon="pi pi-trash"
+                  size="small"
+                  class="w-full semantic-action-button"
+                  [outlined]="true"
+                ></p-button>
+              </div>
+            </div>
+          }
+        </div>
+        <aas-error-panel class="w-12" [errorArr]="errors" [parent]="semanticId"></aas-error-panel>
+      </p-accordion-content>
+    </p-accordion-panel>
+  }
+</p-accordion>
+@if (semanticId != null) {
+  <div class="flex flex-col w-full justify-center mt-1 mb-1">
+    <p-button
+      label="{{ 'ADD_ADDITIONAL' | translate }}"
+      (onClick)="addAdditionalReference()"
+      class="w-20rem"
+      icon="pi pi-plus"
+      size="small"
+      [outlined]="true"
+    ></p-button>
+  </div>
+}

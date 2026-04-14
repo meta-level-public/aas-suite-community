@@ -1,0 +1,222 @@
+.nameplate-container {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+  width: 100%;
+}
+
+.nameplate-label-addon {
+  width: 16rem;
+  min-width: 16rem;
+  white-space: nowrap;
+}
+
+.section-card {
+  padding: 1rem;
+  border: 1px solid var(--p-content-border-color);
+  background: var(--p-content-background);
+  border-radius: var(--aas-radius-md);
+}
+
+.section-title {
+  margin: 0 0 0.75rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 1.05rem;
+}
+
+.section-title i {
+  color: var(--p-primary-color);
+}
+
+.section-title .fa-solid,
+.section-title .pi {
+  color: var(--p-primary-color);
+}
+
+.section-title-no-margin {
+  margin-bottom: 0;
+}
+
+.section-grid-12 {
+  display: grid;
+  grid-template-columns: repeat(12, minmax(0, 1fr));
+  gap: 1rem;
+}
+
+.span-7 {
+  grid-column: span 7 / span 7;
+}
+
+.span-5 {
+  grid-column: span 5 / span 5;
+}
+.details-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 1rem;
+}
+.detail-card {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 1.5rem;
+  background: var(--p-content-background);
+  border: 1px solid var(--p-content-border-color);
+  border-radius: var(--aas-radius-md);
+}
+.detail-icon {
+  font-size: 1.75rem;
+  color: var(--p-primary-color);
+  width: 2.5rem;
+  text-align: center;
+}
+.detail-content {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  flex: 1;
+}
+.detail-label {
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  color: var(--p-text-muted-color);
+}
+.detail-value {
+  font-weight: 500;
+}
+.version-section,
+.manufacturer-section,
+.map-section,
+.markings-section {
+  padding: 1.5rem;
+  background: var(--p-content-background);
+  border: 1px solid var(--p-content-border-color);
+  border-radius: var(--aas-radius-md);
+}
+.version-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 1rem;
+}
+.version-item {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  padding: 1rem;
+  background: var(--p-surface-50);
+  border-radius: var(--aas-radius-sm);
+  border-left: 3px solid var(--p-primary-color);
+}
+.version-label {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--p-text-muted-color);
+  text-transform: uppercase;
+}
+.version-value {
+  font-size: 1.1rem;
+  font-weight: 600;
+  font-family: 'Courier New', monospace;
+}
+.manufacturer-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+}
+.manufacturer-logo {
+  height: 60px;
+  max-width: 150px;
+  object-fit: contain;
+}
+.manufacturer-name {
+  font-size: 1.5rem;
+  font-weight: 600;
+  margin-bottom: 1.5rem;
+  padding-bottom: 1rem;
+  border-bottom: 2px solid var(--p-surface-200);
+}
+.contact-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 1.25rem;
+}
+.contact-item {
+  display: flex;
+  gap: 1rem;
+  padding: 1rem;
+  background: var(--p-surface-50);
+  border-radius: var(--aas-radius-sm);
+}
+.contact-item:hover {
+  background: var(--p-surface-100);
+}
+.contact-icon {
+  font-size: 1.25rem;
+  color: var(--p-primary-color);
+  width: 1.5rem;
+  text-align: center;
+  margin-top: 0.25rem;
+}
+.contact-content {
+  flex: 1;
+  line-height: 1.6;
+}
+.contact-link {
+  color: var(--p-primary-color);
+  text-decoration: none;
+}
+.contact-link:hover {
+  text-decoration: underline;
+}
+.map-container {
+  height: 350px;
+  width: 100%;
+  border-radius: var(--aas-radius-sm);
+  overflow: hidden;
+}
+@media (max-width: 768px) {
+  .section-grid-12 {
+    grid-template-columns: 1fr;
+  }
+
+  .span-7,
+  .span-5 {
+    grid-column: span 1 / span 1;
+  }
+
+  .nameplate-container {
+    width: 100%;
+  }
+
+  .nameplate-label-addon {
+    width: 13rem;
+    min-width: 13rem;
+  }
+
+  .details-grid,
+  .contact-grid,
+  .version-grid {
+    grid-template-columns: 1fr;
+  }
+}
+.manufacturer-logo-shell {
+  width: 120px;
+  min-height: 48px;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+}
+.manufacturer-logo-placeholder {
+  width: 120px;
+  height: 48px;
+  border: 1px dashed var(--p-content-border-color);
+  border-radius: var(--aas-radius-sm);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--p-text-muted-color);
+}

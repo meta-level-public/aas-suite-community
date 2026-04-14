@@ -1,0 +1,481 @@
+@if (isIdtaV1) {
+  <div class="flex flex-col w-full">
+    @for (submodelElement of documentation.submodelElements; track submodelElement) {
+      <p-panel header="{{ submodelElement.idShort }}" [toggleable]="true" [collapsed]="true">
+        <p-table [value]="[' ']" size="small" stripedRows>
+          <ng-template pTemplate="body">
+            @if (getPropValue(submodelElement, 'DocumentType')) {
+              <tr>
+                <td class="w-24rem">{{ 'DOCUMENT_TYPE' | translate }}</td>
+                <td class="font-bold">{{ getPropValue(submodelElement, 'DocumentType') }}</td>
+              </tr>
+            }
+            @if (getPropValue(submodelElement, 'ValueId')) {
+              <tr>
+                <td class="w-24rem">{{ 'DOCUMENT' | translate }}</td>
+                <td class="font-bold">{{ getPropValue(submodelElement, 'ValueId') }}</td>
+              </tr>
+            }
+            @if (getPropValue(submodelElement, 'IsPrimary')) {
+              <tr>
+                <td class="w-24rem">{{ 'IS_PRIMARY' | translate }}</td>
+                <td class="font-bold">{{ getPropValue(submodelElement, 'IsPrimary') }}</td>
+              </tr>
+            }
+            @if (getPropValue(submodelElement, 'ClassificationSystem')) {
+              <tr>
+                <td class="w-24rem">{{ 'CLASSIFICATION_SYSTEM' | translate }}</td>
+                <td class="font-bold">
+                  {{ getPropValue(submodelElement, 'ClassificationSystem') }}
+                </td>
+              </tr>
+            }
+            @if (getPropValue(submodelElement, 'ClassId')) {
+              <tr>
+                <td class="w-24rem">{{ 'CLASS_ID' | translate }}</td>
+                <td class="font-bold">
+                  {{ getPropValue(submodelElement, 'ClassId') }}
+                </td>
+              </tr>
+            }
+            @if (getPropValue(submodelElement, 'ClassName')) {
+              <tr>
+                <td class="w-24rem">{{ 'CLASS_NAME' | translate }}</td>
+                <td class="font-bold">
+                  {{ getPropValue(submodelElement, 'ClassName') }}
+                </td>
+              </tr>
+            }
+            @if (getPropValue(submodelElement, 'DocumentVersion*')) {
+              <tr>
+                <td class="w-24rem">{{ 'DOCUMENT_VERSION' | translate }}</td>
+                <td class="font-bold">
+                  <p-table [value]="[' ']" size="small" stripedRows>
+                    <ng-template pTemplate="body">
+                      @if (getLanguages(getPropValue(submodelElement, 'DocumentVersion*'))) {
+                        <tr>
+                          <td class="w-24rem">{{ 'LANGUAGES' | translate }}</td>
+                          <td class="font-bold">
+                            {{ getLanguages(getPropValue(submodelElement, 'DocumentVersion*')) }}
+                          </td>
+                        </tr>
+                      }
+                      @if (getPropValue(getPropValue(submodelElement, 'DocumentVersion*'), 'DocumentVersionId')) {
+                        <tr>
+                          <td class="w-24rem">{{ 'DOCUMENT_VERSION_ID' | translate }}</td>
+                          <td class="font-bold">
+                            {{ getPropValue(getPropValue(submodelElement, 'DocumentVersion*'), 'DocumentVersionId') }}
+                          </td>
+                        </tr>
+                      }
+                      @if (getMlpValue(getPropValue(submodelElement, 'DocumentVersion*'), 'Title')) {
+                        <tr>
+                          <td class="w-24rem">{{ 'TITEL' | translate }}</td>
+                          <td class="font-bold">
+                            {{ getMlpValue(getPropValue(submodelElement, 'DocumentVersion*'), 'Title') }}
+                          </td>
+                        </tr>
+                      }
+                      @if (getMlpValue(getPropValue(submodelElement, 'DocumentVersion*'), 'SubTitle')) {
+                        <tr>
+                          <td class="w-24rem">{{ 'SUB_TITEL' | translate }}</td>
+                          <td class="font-bold">
+                            {{ getMlpValue(getPropValue(submodelElement, 'DocumentVersion*'), 'SubTitle') }}
+                          </td>
+                        </tr>
+                      }
+                      @if (getMlpValue(getPropValue(submodelElement, 'DocumentVersion*'), 'Summary')) {
+                        <tr>
+                          <td class="w-24rem">{{ 'SUMMARY' | translate }}</td>
+                          <td class="font-bold">
+                            {{ getMlpValue(getPropValue(submodelElement, 'DocumentVersion*'), 'Summary') }}
+                          </td>
+                        </tr>
+                      }
+                      @if (getMlpValue(getPropValue(submodelElement, 'DocumentVersion*'), 'KeyWords')) {
+                        <tr>
+                          <td class="w-24rem">{{ 'KEYWORDS' | translate }}</td>
+                          <td class="font-bold">
+                            {{ getMlpValue(getPropValue(submodelElement, 'DocumentVersion*'), 'KeyWords') }}
+                          </td>
+                        </tr>
+                      }
+                      @if (getPropValue(getPropValue(submodelElement, 'DocumentVersion*'), 'StatusSetDate')) {
+                        <tr>
+                          <td class="w-24rem">{{ 'STATE_DATE' | translate }}</td>
+                          <td class="font-bold">
+                            {{ getPropValue(getPropValue(submodelElement, 'DocumentVersion*'), 'StatusSetDate') }}
+                          </td>
+                        </tr>
+                      }
+                      @if (getPropValue(getPropValue(submodelElement, 'DocumentVersion*'), 'StatusValue')) {
+                        <tr>
+                          <td class="w-24rem">{{ 'STATE' | translate }}</td>
+                          <td class="font-bold">
+                            {{ getPropValue(getPropValue(submodelElement, 'DocumentVersion*'), 'StatusValue') }}
+                          </td>
+                        </tr>
+                      }
+                      @if (
+                        getPropValue(
+                          getPropValue(submodelElement, 'DocumentVersion*'),
+                          'DocumentClassifOrganizationNameication'
+                        )
+                      ) {
+                        <tr>
+                          <td class="w-24rem">{{ 'ORGANISATION_NAME' | translate }}</td>
+                          <td class="font-bold">
+                            {{ getPropValue(getPropValue(submodelElement, 'DocumentVersion*'), 'OrganizationName') }}
+                          </td>
+                        </tr>
+                      }
+                      @if (
+                        getPropValue(getPropValue(submodelElement, 'DocumentVersion*'), 'OrganizationOfficialName')
+                      ) {
+                        <tr>
+                          <td class="w-24rem">{{ 'ORGANISATION_OFFICIAL_NAME' | translate }}</td>
+                          <td class="font-bold">
+                            {{
+                              getPropValue(
+                                getPropValue(submodelElement, 'DocumentVersion*'),
+                                'OrganizationOfficialName'
+                              )
+                            }}
+                          </td>
+                        </tr>
+                      }
+                      @if (getPropValue(getPropValue(submodelElement, 'DocumentVersion*'), 'DigitalFile*')) {
+                        <tr>
+                          <td class="w-24rem">{{ 'PREVIEW' | translate }}</td>
+                          <td class="font-bold">
+                            <aas-file-viewer
+                              [aasId]="aasId"
+                              [value]="getPropValue(getPropValue(submodelElement, 'DocumentVersion*'), 'DigitalFile*')"
+                              [apiUrl]="apiUrl"
+                            ></aas-file-viewer>
+                          </td>
+                        </tr>
+                      }
+                      @if (getPropValue(getPropValue(submodelElement, 'DocumentVersion*'), 'DigitalFile*')) {
+                        <tr>
+                          <td class="w-24rem">{{ 'FILE_NAME' | translate }}</td>
+                          <td class="font-bold">
+                            {{ getPropValue(getPropValue(submodelElement, 'DocumentVersion*'), 'DigitalFile*') }}
+                          </td>
+                        </tr>
+                      }
+                    </ng-template>
+                  </p-table>
+                </td>
+              </tr>
+            }
+          </ng-template>
+        </p-table>
+      </p-panel>
+    }
+  </div>
+}
+@if (isIdtaV2) {
+  <div class="flex flex-col w-full">
+    @for (submodelElement of documentation.submodelElements; track submodelElement) {
+      <p-panel header="{{ submodelElement.idShort }}" [toggleable]="true" [collapsed]="true">
+        <p-table [value]="[' ']" size="small" stripedRows>
+          <ng-template pTemplate="body">
+            @if (getPropValue(submodelElement, 'DocumentType')) {
+              <tr>
+                <td class="w-24rem">{{ 'DOCUMENT_TYPE' | translate }}</td>
+                <td class="font-bold">{{ getPropValue(submodelElement, 'DocumentType') }}</td>
+              </tr>
+            }
+            @if (getPropValue(submodelElement, 'DocumentId')) {
+              <tr>
+                <td class="w-24rem">{{ 'DOCUMENT' | translate }}</td>
+                <td class="font-bold">
+                  <p-table
+                    [value]="
+                      getPropValue(submodelElement, 'DocumentId') ? getPropValue(submodelElement, 'DocumentId') : []
+                    "
+                    size="small"
+                    stripedRows
+                  >
+                    <ng-template pTemplate="body" let-docId>
+                      @if (getPropValue(docId, 'ValueId')) {
+                        <tr>
+                          <td class="w-24rem">{{ 'DOCUMENT_ID' | translate }}</td>
+                          <td class="font-bold">{{ getPropValue(docId, 'ValueId') }}</td>
+                        </tr>
+                      }
+                      @if (getPropValue(docId, 'DocumentDomainId')) {
+                        <tr>
+                          <td class="w-24rem">{{ 'DOCUMENT_DOMAIN_ID' | translate }}</td>
+                          <td class="font-bold">{{ getPropValue(docId, 'DocumentDomainId') }}</td>
+                        </tr>
+                      }
+                      @if (getPropValue(docId, 'IsPrimary')) {
+                        <tr>
+                          <td class="w-24rem">{{ 'IS_PRIMARY' | translate }}</td>
+                          <td class="font-bold">{{ getPropValue(docId, 'IsPrimary') }}</td>
+                        </tr>
+                      }
+                    </ng-template>
+                  </p-table>
+                </td>
+              </tr>
+            }
+            @if (getPropValue(submodelElement, 'DocumentClassification')) {
+              <tr>
+                <td class="w-24rem">{{ 'CLASSIFICATION' | translate }}</td>
+                <td class="font-bold">
+                  <p-table [value]="[' ']" size="small" stripedRows>
+                    <ng-template pTemplate="body">
+                      @if (
+                        getPropValue(getPropValue(submodelElement, 'DocumentClassification'), 'ClassificationSystem') !=
+                        null
+                      ) {
+                        <tr>
+                          <td class="w-24rem">{{ 'CLASSIFICATION_SYSTEM' | translate }}</td>
+                          <td class="font-bold">
+                            {{
+                              getPropValue(
+                                getPropValue(submodelElement, 'DocumentClassification'),
+                                'ClassificationSystem'
+                              )
+                            }}
+                          </td>
+                        </tr>
+                      }
+                      @if (getPropValue(getPropValue(submodelElement, 'DocumentClassification'), 'ClassId')) {
+                        <tr>
+                          <td class="w-24rem">{{ 'CLASS_ID' | translate }}</td>
+                          <td class="font-bold">
+                            {{ getPropValue(getPropValue(submodelElement, 'DocumentClassification'), 'ClassId') }}
+                          </td>
+                        </tr>
+                      }
+                      @if (getPropValue(getPropValue(submodelElement, 'DocumentClassification'), 'ClassName')) {
+                        <tr>
+                          <td class="w-24rem">{{ 'CLASS_NAME' | translate }}</td>
+                          <td class="font-bold">
+                            {{ getMlpValue(getPropValue(submodelElement, 'DocumentClassification'), 'ClassName') }}
+                          </td>
+                        </tr>
+                      }
+                    </ng-template>
+                  </p-table>
+                </td>
+              </tr>
+            }
+            @if (getPropValue(submodelElement, 'DocumentVersion*')) {
+              <tr>
+                <td class="w-24rem">{{ 'DOCUMENT_VERSION' | translate }}</td>
+                <td class="font-bold">
+                  <p-table [value]="[' ']" size="small" stripedRows>
+                    <ng-template pTemplate="body">
+                      @if (getLanguages(getPropValue(submodelElement, 'DocumentVersion*'))) {
+                        <tr>
+                          <td class="w-24rem">{{ 'LANGUAGES' | translate }}</td>
+                          <td class="font-bold">
+                            {{ getLanguages(getPropValue(submodelElement, 'DocumentVersion*')) }}
+                          </td>
+                        </tr>
+                      }
+                      @if (getPropValue(getPropValue(submodelElement, 'DocumentVersion*'), 'DocumentVersionId')) {
+                        <tr>
+                          <td class="w-24rem">{{ 'DOCUMENT_VERSION_ID' | translate }}</td>
+                          <td class="font-bold">
+                            {{ getPropValue(getPropValue(submodelElement, 'DocumentVersion*'), 'DocumentVersionId') }}
+                          </td>
+                        </tr>
+                      }
+                      @if (getMlpValue(getPropValue(submodelElement, 'DocumentVersion*'), 'Title')) {
+                        <tr>
+                          <td class="w-24rem">{{ 'TITEL' | translate }}</td>
+                          <td class="font-bold">
+                            {{ getMlpValue(getPropValue(submodelElement, 'DocumentVersion*'), 'Title') }}
+                          </td>
+                        </tr>
+                      }
+                      @if (getMlpValue(getPropValue(submodelElement, 'DocumentVersion*'), 'SubTitle')) {
+                        <tr>
+                          <td class="w-24rem">{{ 'SUB_TITEL' | translate }}</td>
+                          <td class="font-bold">
+                            {{ getMlpValue(getPropValue(submodelElement, 'DocumentVersion*'), 'SubTitle') }}
+                          </td>
+                        </tr>
+                      }
+                      @if (getMlpValue(getPropValue(submodelElement, 'DocumentVersion*'), 'Summary')) {
+                        <tr>
+                          <td class="w-24rem">{{ 'SUMMARY' | translate }}</td>
+                          <td class="font-bold">
+                            {{ getMlpValue(getPropValue(submodelElement, 'DocumentVersion*'), 'Summary') }}
+                          </td>
+                        </tr>
+                      }
+                      @if (getMlpValue(getPropValue(submodelElement, 'DocumentVersion*'), 'KeyWords')) {
+                        <tr>
+                          <td class="w-24rem">{{ 'KEYWORDS' | translate }}</td>
+                          <td class="font-bold">
+                            {{ getMlpValue(getPropValue(submodelElement, 'DocumentVersion*'), 'KeyWords') }}
+                          </td>
+                        </tr>
+                      }
+                      @if (getPropValue(getPropValue(submodelElement, 'DocumentVersion*'), 'StatusSetDate')) {
+                        <tr>
+                          <td class="w-24rem">{{ 'STATE_DATE' | translate }}</td>
+                          <td class="font-bold">
+                            {{ getPropValue(getPropValue(submodelElement, 'DocumentVersion*'), 'StatusSetDate') }}
+                          </td>
+                        </tr>
+                      }
+                      @if (getPropValue(getPropValue(submodelElement, 'DocumentVersion*'), 'StatusValue')) {
+                        <tr>
+                          <td class="w-24rem">{{ 'STATE' | translate }}</td>
+                          <td class="font-bold">
+                            {{ getPropValue(getPropValue(submodelElement, 'DocumentVersion*'), 'StatusValue') }}
+                          </td>
+                        </tr>
+                      }
+                      @if (
+                        getPropValue(
+                          getPropValue(submodelElement, 'DocumentVersion*'),
+                          'DocumentClassifOrganizationNameication'
+                        )
+                      ) {
+                        <tr>
+                          <td class="w-24rem">{{ 'ORGANISATION_NAME' | translate }}</td>
+                          <td class="font-bold">
+                            {{ getPropValue(getPropValue(submodelElement, 'DocumentVersion*'), 'OrganizationName') }}
+                          </td>
+                        </tr>
+                      }
+                      @if (
+                        getPropValue(getPropValue(submodelElement, 'DocumentVersion*'), 'OrganizationOfficialName')
+                      ) {
+                        <tr>
+                          <td class="w-24rem">{{ 'ORGANISATION_OFFICIAL_NAME' | translate }}</td>
+                          <td class="font-bold">
+                            {{
+                              getPropValue(
+                                getPropValue(submodelElement, 'DocumentVersion*'),
+                                'OrganizationOfficialName'
+                              )
+                            }}
+                          </td>
+                        </tr>
+                      }
+                      @if (getPropValue(getPropValue(submodelElement, 'DocumentVersion*'), 'DigitalFile*')) {
+                        <tr>
+                          <td class="w-24rem">{{ 'PREVIEW' | translate }}</td>
+                          <td class="font-bold">
+                            <aas-file-viewer
+                              [aasId]="aasId"
+                              [value]="getPropValue(getPropValue(submodelElement, 'DocumentVersion*'), 'DigitalFile*')"
+                              [apiUrl]="apiUrl"
+                            ></aas-file-viewer>
+                          </td>
+                        </tr>
+                      }
+                      @if (getPropValue(getPropValue(submodelElement, 'DocumentVersion*'), 'DigitalFile*')) {
+                        <tr>
+                          <td class="w-24rem">{{ 'FILE_NAME' | translate }}</td>
+                          <td class="font-bold">
+                            {{ getPropValue(getPropValue(submodelElement, 'DocumentVersion*'), 'DigitalFile*') }}
+                          </td>
+                        </tr>
+                      }
+                    </ng-template>
+                  </p-table>
+                </td>
+              </tr>
+            }
+          </ng-template>
+        </p-table>
+      </p-panel>
+    }
+  </div>
+}
+@if (isHsu) {
+  <div class="flex flex-col w-full">
+    @for (submodelElement of documentation.submodelElements; track submodelElement) {
+      <p-panel header="{{ submodelElement.idShort }}" [toggleable]="true" [collapsed]="true">
+        <p-table [value]="[' ']" size="small" stripedRows>
+          <ng-template pTemplate="body">
+            @if (getPropValue(submodelElement, 'DocumentId')) {
+              <tr>
+                <td>{{ 'DOCUMENT_TYPE' | translate }}</td>
+                <td class="font-bold">{{ getPropValue(submodelElement, 'DocumentId') }}</td>
+              </tr>
+            }
+            @if (getPropValue(submodelElement, 'DocumentId')) {
+              <tr>
+                <td>{{ 'DOCUMENT_ID' | translate }}</td>
+                <td class="font-bold">{{ getPropValue(submodelElement, 'DocumentId') }}</td>
+              </tr>
+            }
+            @if (getPropValue(submodelElement, 'VDI2770_Role')) {
+              <tr>
+                <td>{{ 'VDI2770_Role' | translate }}</td>
+                <td class="font-bold">{{ getPropValue(submodelElement, 'VDI2770_Role') }}</td>
+              </tr>
+            }
+            @if (getPropValue(submodelElement, 'VDI2770_OrganisationName')) {
+              <tr>
+                <td>{{ 'ORGANISATION_NAME' | translate }}</td>
+                <td class="font-bold">{{ getPropValue(submodelElement, 'VDI2770_OrganisationName') }}</td>
+              </tr>
+            }
+            @if (getPropValue(submodelElement, 'OrganisationOfficialName')) {
+              <tr>
+                <td>{{ 'ORGANISATION_OFFICIAL_NAME' | translate }}</td>
+                <td class="font-bold">{{ getPropValue(submodelElement, 'OrganisationOfficialName') }}</td>
+              </tr>
+            }
+            @if (getPropValue(submodelElement, 'DocumentVersionId')) {
+              <tr>
+                <td>{{ 'DOCUMENT_VERSION_ID' | translate }}</td>
+                <td class="font-bold">{{ getPropValue(submodelElement, 'DocumentVersionId') }}</td>
+              </tr>
+            }
+            @if (getPropValue(submodelElement, 'DocumentVersion_LanguageCode')) {
+              <tr>
+                <td>{{ 'LANGUAGE' | translate }}</td>
+                <td class="font-bold">{{ getPropValue(submodelElement, 'DocumentVersion_LanguageCode') }}</td>
+              </tr>
+            }
+            @if (getPropValue(submodelElement, 'VDI2770_Title')) {
+              <tr>
+                <td>{{ 'TITEL' | translate }}</td>
+                <td class="font-bold">{{ getPropValue(submodelElement, 'VDI2770_Title') }}</td>
+              </tr>
+            }
+            @if (getPropValue(submodelElement, 'VDI2770_StatusValue')) {
+              <tr>
+                <td>{{ 'STATE' | translate }}</td>
+                <td class="font-bold">{{ getPropValue(submodelElement, 'VDI2770_StatusValue') }}</td>
+              </tr>
+            }
+            @if (getPropValue(submodelElement, 'VDI2770_SetDate')) {
+              <tr>
+                <td>{{ 'STATE_DATE' | translate }}</td>
+                <td class="font-bold">{{ getPropValue(submodelElement, 'VDI2770_SetDate') }}</td>
+              </tr>
+            }
+            <tr>
+              <td>{{ 'PREVIEW' | translate }}</td>
+              <td class="font-bold">
+                <aas-file-viewer
+                  [aasId]="aasId"
+                  [value]="getPropValue(submodelElement, 'File')"
+                  [apiUrl]="apiUrl"
+                ></aas-file-viewer>
+              </td>
+            </tr>
+          </ng-template>
+        </p-table>
+      </p-panel>
+    }
+    @if (isOther) {
+      <div class="flex flex-col w-full"><aas-generic-viewer></aas-generic-viewer></div>
+    }
+  </div>
+}

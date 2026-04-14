@@ -1,0 +1,83 @@
+<p-card>
+  <aas-generic-viewer
+    [rowData]="technicalData"
+    [formatted]="true"
+    [idShortPath]="''"
+    [submodelId]="technicalData?.id ?? ''"
+  ></aas-generic-viewer>
+</p-card>
+
+<!--
+  <p-accordion multiple="true">
+    @if (generalInformation.value != null && generalInformation.value.length > 0) {
+      <p-accordion-panel value="0">
+        <p-accordion-header>
+          <div class="flex items-center">
+            <i class="pi pi-book mr-2"></i>
+            <span class="vertical-align-middle">{{ 'GENERAL_INFORMATION' | translate }}</span>
+          </div>
+        </p-accordion-header>
+        <p-accordion-content>
+          <aas-generic-viewer
+            [rowData]="generalInformation"
+            [formatted]="true"
+            [idShortPath]="generalInformation.idShort ?? ''"
+            [submodelId]="technicalData?.id ?? ''"></aas-generic-viewer>
+        </p-accordion-content>
+      </p-accordion-panel>
+    }
+
+    @if (productClassification.value != null && productClassification.value.length > 0) {
+      <p-accordion-panel value="0">
+        <p-accordion-header>
+          <div class="flex items-center">
+            <i class="pi pi-box mr-2"></i>
+            <span class="vertical-align-middle">{{ 'PRODUCT_CLASSIFICATION' | translate }}</span>
+          </div>
+        </p-accordion-header>
+        <p-accordion-content>
+          <aas-product-classification
+            [productClassification]="productClassification"
+            [currentLang]="currentLang"
+          ></aas-product-classification>
+        </p-accordion-content>
+      </p-accordion-panel>
+    }
+
+    @if (technicalProperties.value != null && technicalProperties.value.length > 0) {
+      <p-accordion-panel value="0">
+        <p-accordion-header>
+          <div class="flex items-center">
+            <i class="pi pi-cog mr-2"></i>
+            <span class="vertical-align-middle">{{ 'TECHNICAL_PROPERTIES' | translate }}</span>
+          </div>
+        </p-accordion-header>
+        <p-accordion-content>
+          <aas-technical-properties
+            [technicalProperties]="technicalProperties"
+            [currentLang]="currentLang"
+            [submodelId]="technicalData?.id ?? ''"
+            [idShortPath]="technicalProperties.idShort ?? ''"
+          >
+          </aas-technical-properties>
+        </p-accordion-content>
+      </p-accordion-panel>
+    }
+    @if (furtherInformation.value != null && furtherInformation.value.length > 0) {
+      <p-accordion-panel value="0">
+        <p-accordion-header>
+          <div class="flex items-center">
+            <i class="pi pi-file mr-2"></i>
+            <span class="vertical-align-middle">{{ 'FURTHER_INFORMATION' | translate }}</span>
+          </div>
+        </p-accordion-header>
+        <p-accordion-content>
+          <aas-further-information
+            [furtherInformation]="furtherInformation"
+            [currentLang]="currentLang"
+          ></aas-further-information>
+        </p-accordion-content>
+      </p-accordion-panel>
+    }
+  </p-accordion>
+</p-card> -->

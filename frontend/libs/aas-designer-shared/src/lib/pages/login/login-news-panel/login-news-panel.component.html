@@ -1,0 +1,55 @@
+<div class="brand-section">
+  <div class="brand-content">
+    @if (news(); as currentNews) {
+      <div class="news-header-section">
+        <h1 class="news-title">{{ 'NEWS' | translate }}</h1>
+        <p class="news-subtitle">{{ 'NEWS_INFO' | translate }}</p>
+      </div>
+      <div class="news-display">
+        <div class="news-header" [class.news-fade-in]="isAnimating()">
+          <h2 class="news-item-title">{{ currentNews.description ?? '' }}</h2>
+          <time class="news-date-time" [attr.datetime]="currentNews.date ?? null">{{
+            currentNews.date | vwsDate
+          }}</time>
+        </div>
+        <p-editor
+          [ngModel]="currentNews.text ?? ''"
+          [readonly]="true"
+          [class.news-fade-in]="isAnimating()"
+          class="news-viewer"
+          [attr.aria-readonly]="true"
+        >
+          <ng-template pTemplate="header">
+            <span class="ql-formats"></span>
+          </ng-template>
+        </p-editor>
+        @if (hasMultipleNews()) {
+          <div class="news-navigation">
+            <p-button
+              icon="pi pi-chevron-left"
+              [text]="true"
+              [disabled]="!canNavigateBack()"
+              (onClick)="requestPrevious()"
+              [attr.aria-label]="'PREVIOUS_NEWS_ARIA' | translate"
+            />
+            <span class="news-counter">{{ currentNewsIndex() + 1 }} / {{ totalNewsCount() }}</span>
+            <p-button
+              icon="pi pi-chevron-right"
+              [text]="true"
+              [disabled]="!canNavigateForward()"
+              (onClick)="requestNext()"
+              [attr.aria-label]="'NEXT_NEWS_ARIA' | translate"
+            />
+          </div>
+        }
+      </div>
+    } @else {
+      <aas-login-empty-state
+        [showRegistrationOption]="showRegistrationOption()"
+        [showContactOption]="showContactOption()"
+        (registrationRequested)="requestRegistration()"
+        (contactRequested)="requestContact()"
+      />
+    }
+  </div>
+</div>

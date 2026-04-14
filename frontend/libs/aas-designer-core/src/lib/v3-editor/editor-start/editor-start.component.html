@@ -1,0 +1,83 @@
+<div class="flex-auto">
+  <div style="position: relative; height: 100%">
+    <div style="position: absolute; height: 100%; width: 100%">
+      <p-splitter stateKey="aasTree" stateStorage="local" [panelSizes]="[20, 80]" class="flex h-full">
+        <ng-template pTemplate>
+          @if (loading) {
+            <div
+              class="flex justify-items-end gap-1 w-full"
+              style="display: flex !important; flex-direction: column !important; height: 100% !important"
+            >
+              <div class="flex flex-row gap-2 mt-1">
+                <p-skeleton width="10rem" height="2rem"></p-skeleton>
+                <p-skeleton width="10rem" height="2rem"></p-skeleton>
+              </div>
+              <p-skeleton width="80%" height="2rem" class="ml-2"></p-skeleton>
+              <p-skeleton width="70%" height="2rem" class="ml-6"></p-skeleton>
+              <p-skeleton width="60%" height="2rem" class="ml-2"></p-skeleton>
+              <p-skeleton width="60%" height="2rem" class="ml-8"></p-skeleton>
+              <p-skeleton width="80%" height="2rem" class="ml-2"></p-skeleton>
+              <p-skeleton width="70%" height="2rem" class="ml-6"></p-skeleton>
+              <p-skeleton width="60%" height="2rem" class="ml-8"></p-skeleton>
+              <p-skeleton width="60%" height="2rem" class="ml-8"></p-skeleton>
+              <p-skeleton width="70%" height="2rem" class="ml-6"></p-skeleton>
+              <p-skeleton width="60%" height="2rem" class="ml-8"></p-skeleton>
+              <p-skeleton width="60%" height="2rem" class="ml-8"></p-skeleton>
+              <p-skeleton width="80%" height="2rem" class="ml-2"></p-skeleton>
+              <p-skeleton width="70%" height="2rem" class="ml-6"></p-skeleton>
+              <p-skeleton width="60%" height="2rem" class="ml-8"></p-skeleton>
+              <p-skeleton width="60%" height="2rem" class="ml-8"></p-skeleton>
+              <p-skeleton width="80%" height="2rem" class="ml-2"></p-skeleton>
+              <p-skeleton width="70%" height="2rem" class="ml-6"></p-skeleton>
+              <p-skeleton width="60%" height="2rem" class="ml-8"></p-skeleton>
+              <p-skeleton width="60%" height="2rem" class="ml-8"></p-skeleton>
+            </div>
+          }
+          @if (!loading) {
+            <aas-v3-tree
+              class="w-full"
+              [loading]="loading"
+              [shellResult]="shellResult"
+              (selectedElementChanged)="selectElement($event)"
+              (allSubmodelsNodeChanged)="selectAllSubmodelsNode($event)"
+            ></aas-v3-tree>
+          }
+        </ng-template>
+        <ng-template pTemplate>
+          @if (loading) {
+            <div
+              class="flex justify-items-end gap-1 w-full"
+              style="display: flex !important; flex-direction: column !important; height: 100% !important"
+            >
+              <div class="flex flex-row gap-2 w-full justify-end mt-1">
+                <p-skeleton width="4rem" height="2rem"></p-skeleton>
+                <p-skeleton width="4rem" height="2rem"></p-skeleton>
+                <p-skeleton width="2rem" height="2rem"></p-skeleton>
+                <p-skeleton width="2rem" height="2rem"></p-skeleton>
+                <p-skeleton width="2rem" height="2rem"></p-skeleton>
+                <p-skeleton width="2rem" height="2rem"></p-skeleton>
+                <p-skeleton width="2rem" height="2rem"></p-skeleton>
+                <p-skeleton width="2rem" height="2rem"></p-skeleton>
+                <p-skeleton width="2rem" height="2rem" class="mr-3"></p-skeleton>
+              </div>
+              <div class="m-3 w-full flex flex-col gap-2">
+                <p-skeleton height="8rem" width="98%" class="mr-3"></p-skeleton>
+                <p-skeleton height="12rem" width="98%" class="mr-3"></p-skeleton>
+              </div>
+            </div>
+          }
+          @if (!loading) {
+            <aas-v3-editor
+              class="w-full"
+              [loading]="loading"
+              [selectedElement]="selectedElement"
+              [shellResult]="shellResult"
+              (actionRequested)="handleAction($event)"
+              [repositoryUrl]="PortalService.getRepositoryUrl()"
+            ></aas-v3-editor>
+          }
+        </ng-template>
+      </p-splitter>
+    </div>
+  </div>
+</div>

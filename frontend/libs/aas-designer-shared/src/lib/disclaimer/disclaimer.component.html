@@ -1,0 +1,73 @@
+<div
+  [ngClass]="{ 'flex-row': direction === 'horizontal', 'flex-col': direction === 'vertical' }"
+  class="flex w-full justify-center content-center w-full gap-2"
+>
+  @if (withAasSuite) {
+    <div class="flex justify-center mb-2 mt-2 items-center">
+      <a target="_blank" pButton [text]="true" [href]="appConfigService.config.aasSuiteLink">AAS Suite</a>
+    </div>
+  }
+  @if (withAasSuite) {
+    <div class="flex justify-center mb-2 mt-2 items-center">
+      <em class="pi pi-circle-fill" style="font-size: 0.5rem"></em>
+    </div>
+  }
+  <div class="flex justify-center mb-2 mt-2 items-center">
+    <a target="_blank" href="https://meta-level.de" pButton [text]="true">Meta-Level Software AG</a>
+  </div>
+  <div class="flex justify-center mb-2 mt-2 items-center">
+    <em class="pi pi-circle-fill" style="font-size: 0.5rem"></em>
+  </div>
+  @if (portalService.currentLanguage.toLowerCase() === 'de') {
+    <div class="flex justify-center mb-2 mt-2 items-center">
+      <a target="_blank" [href]="appConfigService.config.datenschutzLinkDe" pButton [text]="true">{{
+        'PRIVACY_OPEN' | translate
+      }}</a>
+    </div>
+  }
+  @if (portalService.currentLanguage.toLowerCase() !== 'de') {
+    <div class="flex justify-center mb-2 mt-2 items-center">
+      <a target="_blank" [href]="appConfigService.config.datenschutzLinkEn" pButton [text]="true">{{
+        'PRIVACY_OPEN' | translate
+      }}</a>
+    </div>
+  }
+  <div class="flex justify-center mb-2 mt-2 items-center">
+    <em class="pi pi-circle-fill" style="font-size: 0.5rem"></em>
+  </div>
+  @if (portalService.currentLanguage.toLowerCase() === 'de') {
+    <div class="flex justify-center mb-2 mt-2 items-center">
+      <a target="_blank" pButton [text]="true" [href]="appConfigService.config.avvLinkDe">{{ 'AVV' | translate }}</a>
+    </div>
+  }
+  @if (portalService.currentLanguage.toLowerCase() !== 'de') {
+    <div class="flex justify-center mb-2 mt-2 items-center">
+      <a target="_blank" pButton [text]="true" [href]="appConfigService.config.avvLinkEn">{{ 'AVV' | translate }}</a>
+    </div>
+  }
+  <div class="flex justify-center mb-2 mt-2 items-center">
+    <em class="pi pi-circle-fill" style="font-size: 0.5rem"></em>
+  </div>
+  @if (portalService.currentLanguage.toLowerCase() === 'de') {
+    <div class="flex justify-center mb-2 mt-2 items-center">
+      <a target="_blank" pButton [text]="true" [href]="appConfigService.config.agbLinkDe">{{
+        'AGB_OPEN' | translate
+      }}</a>
+    </div>
+  }
+  @if (portalService.currentLanguage.toLowerCase() !== 'de') {
+    <div class="flex justify-center mb-2 mt-2 items-center">
+      <a target="_blank" pButton [text]="true" [href]="appConfigService.config.agbLinkEn">{{
+        'AGB_OPEN' | translate
+      }}</a>
+    </div>
+  }
+  <div class="flex justify-center mb-2 mt-2 items-center">
+    <em class="pi pi-circle-fill" style="font-size: 0.5rem"></em>
+  </div>
+  <div class="flex justify-center mb-2 mt-2 items-center">
+    <a target="_blank" pButton [text]="true" [href]="appConfigService.config.imprintLink">{{
+      'IMPRINT' | translate
+    }}</a>
+  </div>
+</div>

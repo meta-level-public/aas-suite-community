@@ -1,0 +1,18 @@
+<p-table [value]="changelogValues()" [tableStyle]="{ 'min-width': '60rem' }" sortField="date" [sortOrder]="-1">
+  <ng-template #header>
+    <tr>
+      <th pSortableColumn="date" style="width: 20%">{{ 'DATE' | translate }} <p-sortIcon field="date" /></th>
+      <th pSortableColumn="author" style="width: 20%">{{ 'AUTHOR' | translate }} <p-sortIcon field="author" /></th>
+      <th pSortableColumn="action" style="width: 20%">{{ 'ACTION' | translate }} <p-sortIcon field="action" /></th>
+      <th pSortableColumn="comment" style="width: 20%">{{ 'COMMENT' | translate }} <p-sortIcon field="comment" /></th>
+    </tr>
+  </ng-template>
+  <ng-template #body let-change>
+    <tr>
+      <td>{{ change.date | vwsDate: 'L LTS' }}</td>
+      <td>{{ change.author }}</td>
+      <td>{{ change.action }}</td>
+      <td>{{ change.comment }}</td>
+    </tr>
+  </ng-template>
+</p-table>

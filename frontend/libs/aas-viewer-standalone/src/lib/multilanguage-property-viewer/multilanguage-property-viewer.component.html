@@ -1,0 +1,41 @@
+@if (currentLangPropertyValue != null && currentLangPropertyValue.text !== '') {
+  <div class="property-card">
+    <div class="property-header">
+      <i class="fa-solid fa-language property-icon"></i>
+      <span class="property-label">{{ properties != null ? getLabel(properties) : '' }}</span>
+      <span class="language-badge">{{ currentLangPropertyValue.language }}</span>
+      <aas-semantic-description-popup [semanticId]="semanticId()"></aas-semantic-description-popup>
+    </div>
+    <div class="property-value">
+      @if (highlightedValueHtml != null) {
+        <div class="value-text highlighted" [innerHTML]="highlightedValueHtml"></div>
+      } @else {
+        <span class="value-text">
+          {{ currentLangPropertyValue.text }}
+          @if (symbol) {
+            <span class="value-unit">{{ symbol }} ({{ unit }})</span>
+          } @else if (unit) {
+            <span class="value-unit">{{ unit }}</span>
+          }
+        </span>
+      }
+    </div>
+  </div>
+}
+<!-- } @else {
+  <div class="flex flex-col w-full gap-2">
+    @for (property of value ?? []; track $index) {
+      @if (property.text != null && property.text !== '') {
+        <p-inputgroup>
+          <p-inputGroupAddon class="w-48rem font-bold">
+            {{ properties != null ? getLabel(properties) : '' }} &#64; {{ property.language }}</p-inputGroupAddon
+            >
+            <input pInputText type="text" class="w-full" [(ngModel)]="property.text" readonly />
+            <p-inputGroupAddon class="w-8rem">
+              <aas-semantic-description-popup [semanticId]="semanticId()"></aas-semantic-description-popup>
+            </p-inputGroupAddon>
+          </p-inputgroup>
+        }
+      }
+    </div>
+    } -->

@@ -1,0 +1,74 @@
+<div class="bom-container">
+  @if (bom) {
+    <!-- Chart Section -->
+    @let assetInformation = resolvedAssetInformation;
+    @let idShort = resolvedAasIdShort;
+
+    @if (assetInformation && idShort && entryNode) {
+      <div class="chart-section">
+        <h2 class="section-title">
+          <i class="pi pi-share-alt"></i>
+          {{ 'BOM_VIEWER.HIERARCHY_DIAGRAM' | translate }}
+        </h2>
+        @defer (on viewport) {
+          <aas-bom-hierarchy-chart
+            [apiUrl]="viewerStore.aasUrl()"
+            [editable]="editable"
+            [showReinitializeAction]="enableReinitializeAction"
+            [entryNode]="entryNode"
+            [submodel]="bom"
+            [assetInformation]="assetInformation"
+            [idShort]="idShort"
+            (requestReinitialize)="rebuildBomNow()"
+            (requestEditMode)="switchToEditMode()"
+          ></aas-bom-hierarchy-chart>
+        } @placeholder {
+          <div class="min-h-12rem"></div>
+        }
+      </div>
+    } @else {
+      <div class="chart-section">
+        <div class="warning-card">
+          <div class="warning-header">
+            <i class="pi pi-exclamation-triangle"></i>
+            <span>{{ 'WARNING' | translate }}</span>
+          </div>
+          <ul class="warning-list">
+            @if (!assetInformation) {
+              <li>{{ 'BOM_VIEWER.NO_ASSET_INFORMATION' | translate }}</li>
+            }
+            @if (!idShort) {
+              <li>{{ 'BOM_VIEWER.NO_ID_SHORT' | translate }}</li>
+            }
+            @if (!entryNode) {
+              <li>{{ 'BOM_VIEWER.NO_ENTRY_NODE' | translate }}</li>
+            }
+            @if (hasMixedRelationTypesOnEntryNode) {
+              <li>{{ 'BOM_VIEWER.MIXED_RELATIONS_INVALID' | translate }}</li>
+            }
+          </ul>
+          @if (showRebuildHint) {
+            <div class="mt-3 warning-rebuild-hint">
+              {{ 'BOM_VIEWER.REBUILD_HINT' | translate }}
+            </div>
+            @if (enableReinitializeAction && canStartRebuildDirectly) {
+              <div class="mt-3 warning-rebuild-action">
+                <p-button
+                  icon="pi pi-replay"
+                  styleClass="p-button-warning"
+                  label="{{ 'BOM_REINITIALIZE' | translate }}"
+                  (onClick)="rebuildBomNow()"
+                ></p-button>
+              </div>
+            }
+          }
+        </div>
+      </div>
+    }
+  } @else {
+    <div class="empty-state">
+      <i class="pi pi-inbox empty-icon"></i>
+      <p class="empty-text">{{ 'BOM_VIEWER.NO_BOM_DATA' | translate }}</p>
+    </div>
+  }
+</div>

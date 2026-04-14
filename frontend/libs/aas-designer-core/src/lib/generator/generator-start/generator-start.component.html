@@ -1,0 +1,22 @@
+<div class="aas-page-surface">
+  <div class="hero-section aas-page-header-inset flex-shrink-0">
+    <div class="hero-content">
+      <h1 class="hero-title">{{ 'GUIDED_MODE' | translate }}</h1>
+    </div>
+  </div>
+
+  <div class="flex-1 min-h-0">
+    <div class="h-full viewer-content-area rounded-lg pt-4 flex flex-col min-h-0 overflow-hidden">
+      @if (showStepper) {
+        <div class="generator-main-steps mb-4 flex-shrink-0 px-4">
+          <p-steps [model]="items" [readonly]="false"></p-steps>
+        </div>
+      }
+      <div class="generator-route-host flex-1 min-h-0 px-4">
+        <div class="generator-route-host-inner h-full min-h-0 flex flex-col">
+          <router-outlet></router-outlet>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

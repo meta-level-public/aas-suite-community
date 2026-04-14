@@ -1,0 +1,42 @@
+<div class="flex flex-col gap-2">
+  <p-inputgroup>
+    <p-inputgroup-addon
+      class="font-bold field-label-addon"
+      [pTooltip]="property != null ? getTooltipLabel(property) : ''"
+      tooltipPosition="top"
+    >
+      <i class="fa-solid fa-tag mr-2"></i>{{ property != null ? getLabel(property) : '' }}
+    </p-inputgroup-addon>
+    @if (isBool) {
+      @if (formattedValue?.toLowerCase() === 'true') {
+        <input pInputText type="text" [value]="'YES' | translate" readonly />
+        <p-inputgroup-addon class="w-auto bg-green-50">
+          <i class="fa-solid fa-check text-green-600"></i>
+        </p-inputgroup-addon>
+      } @else {
+        <input pInputText type="text" [value]="'NO' | translate" readonly />
+        <p-inputgroup-addon class="w-auto bg-red-50">
+          <i class="fa-solid fa-xmark text-red-600"></i>
+        </p-inputgroup-addon>
+      }
+    } @else {
+      @if (highlightedValueHtml != null) {
+        <div class="flex-1 px-3 py-2 border border-surface" [innerHTML]="highlightedValueHtml"></div>
+      } @else {
+        <input pInputText type="text" [value]="formattedValue ?? ''" readonly />
+      }
+      @if (symbol || unit) {
+        <p-inputgroup-addon class="w-auto">
+          @if (symbol) {
+            <span>{{ symbol }} ({{ unit }})</span>
+          } @else {
+            <span>{{ unit }}</span>
+          }
+        </p-inputgroup-addon>
+      }
+    }
+    <p-inputgroup-addon class="w-auto">
+      <aas-semantic-description-popup [semanticId]="semanticId()"></aas-semantic-description-popup>
+    </p-inputgroup-addon>
+  </p-inputgroup>
+</div>

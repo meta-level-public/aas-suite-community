@@ -1,0 +1,39 @@
+<div class="flex flex-col gap-2">
+  <div class="mb-4">
+    <label for="serial">{{ 'SERIAL_NUMBER' | translate }}</label>
+    <input type="text" pInputText id="serial" class="w-full" [(ngModel)]="createInstanceItem().serialNumber" />
+  </div>
+  <div class="mb-4">
+    <label for="year">{{ 'DATE_OF_MANUFACTURE' | translate }}</label>
+    <div>
+      <p-datepicker
+        [(ngModel)]="dateValue"
+        [showIcon]="true"
+        [showTime]="true"
+        [showSeconds]="true"
+        (ngModelChange)="onDateSelect($event)"
+        [showClear]="true"
+        [showButtonBar]="true"
+        appendTo="body"
+      ></p-datepicker>
+    </div>
+  </div>
+  <div class="flex flex-row gap-2 justify-end">
+    <p-button
+      label="{{ 'CANCEL' | translate }}"
+      icon="pi pi-times"
+      (onClick)="closeDialog()"
+      type="button"
+      [loading]="loading()"
+      styleClass="p-button-secondary"
+    ></p-button>
+    <p-button
+      label="{{ 'SAVE' | translate }}"
+      icon="pi pi-save"
+      (onClick)="doCreateInstance()"
+      type="button"
+      [loading]="loading()"
+      [disabled]="createInstanceItem().serialNumber === '' || createInstanceItem().dateOfManufacture == null"
+    ></p-button>
+  </div>
+</div>

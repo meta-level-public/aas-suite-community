@@ -1,0 +1,27 @@
+<div class="m-4">
+  <p-table [value]="[' ']" size="small" stripedRows>
+    <ng-template #header>
+      <tr>
+        <th scope="col" style="width: 20%">{{ 'TYP' | translate }}</th>
+        <th scope="col" style="width: 80%">{{ 'VALUE' | translate }}</th>
+      </tr>
+    </ng-template>
+    <ng-template pTemplate="body">
+      @for (asset of entity.keys | objectValue; track asset) {
+        <tr>
+          <td class="font-bold">
+            {{ asset.type }}
+          </td>
+          <td class="font-bold">
+            {{ asset.value }}
+          </td>
+        </tr>
+      }
+    </ng-template>
+    <ng-template pTemplate="emptymessage">
+      <tr>
+        <td colspan="2">{{ 'NO_DATA_FOUND' | translate }}</td>
+      </tr>
+    </ng-template>
+  </p-table>
+</div>

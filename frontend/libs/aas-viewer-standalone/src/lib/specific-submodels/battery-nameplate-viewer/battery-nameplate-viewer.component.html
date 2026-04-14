@@ -1,0 +1,245 @@
+<div class="nameplate-container">
+  <div class="section-card">
+    <h3 class="section-title">
+      <i class="fa-solid fa-battery-three-quarters"></i>
+      {{ 'BATTERY_NAMEPLATE_IDENTIFICATION' | translate }}
+    </h3>
+
+    <div class="flex flex-col gap-2">
+      @if (manufacturerName()) {
+        <p-inputgroup>
+          <p-inputgroup-addon class="font-bold nameplate-label-addon">
+            <i class="fa-solid fa-building mr-2"></i>
+            {{ 'MANUFACTURER' | translate }}
+          </p-inputgroup-addon>
+          <input pInputText type="text" [value]="manufacturerName()" readonly />
+        </p-inputgroup>
+      }
+      @if (manufacturerIdentifier()) {
+        <p-inputgroup>
+          <p-inputgroup-addon class="font-bold nameplate-label-addon">
+            <i class="fa-solid fa-fingerprint mr-2"></i>
+            {{ 'MANUFACTURER_IDENTIFIER' | translate }}
+          </p-inputgroup-addon>
+          <input pInputText type="text" [value]="manufacturerIdentifier()" readonly />
+        </p-inputgroup>
+      }
+      @if (serialNumber()) {
+        <p-inputgroup>
+          <p-inputgroup-addon class="font-bold nameplate-label-addon">
+            <i class="fa-solid fa-barcode mr-2"></i>
+            {{ 'SERIAL_NUMBER' | translate }}
+          </p-inputgroup-addon>
+          <input pInputText type="text" [value]="serialNumber()" readonly />
+        </p-inputgroup>
+      }
+      @if (operatorIdentifier()) {
+        <p-inputgroup>
+          <p-inputgroup-addon class="font-bold nameplate-label-addon">
+            <i class="fa-solid fa-id-badge mr-2"></i>
+            {{ 'OPERATOR_IDENTIFIER' | translate }}
+          </p-inputgroup-addon>
+          <input pInputText type="text" [value]="operatorIdentifier()" readonly />
+        </p-inputgroup>
+      }
+      @if (uniqueFacilityIdentifier()) {
+        <p-inputgroup>
+          <p-inputgroup-addon class="font-bold nameplate-label-addon">
+            <i class="fa-solid fa-industry mr-2"></i>
+            {{ 'UNIQUE_FACILITY_IDENTIFIER' | translate }}
+          </p-inputgroup-addon>
+          <input pInputText type="text" [value]="uniqueFacilityIdentifier()" readonly />
+        </p-inputgroup>
+      }
+      @if (lifeCycleStage()) {
+        <p-inputgroup>
+          <p-inputgroup-addon class="font-bold nameplate-label-addon">
+            <i class="fa-solid fa-arrows-rotate mr-2"></i>
+            {{ 'LIFE_CYCLE_STAGE' | translate }}
+          </p-inputgroup-addon>
+          <input pInputText type="text" [value]="lifeCycleStage()" readonly />
+        </p-inputgroup>
+      }
+      @if (dateOfManufacture() != null) {
+        <p-inputgroup>
+          <p-inputgroup-addon class="font-bold nameplate-label-addon">
+            <i class="fa-solid fa-calendar-check mr-2"></i>
+            {{ 'DATE_OF_MANUFACTURE' | translate }}
+          </p-inputgroup-addon>
+          <input pInputText type="text" [value]="dateOfManufacture() | vwsDate: 'SHORT_DATE'" readonly />
+        </p-inputgroup>
+      }
+      @if (dateOfPuttingIntoService() != null) {
+        <p-inputgroup>
+          <p-inputgroup-addon class="font-bold nameplate-label-addon">
+            <i class="fa-solid fa-calendar-day mr-2"></i>
+            {{ 'DATE_OF_PUTTING_INTO_SERVICE' | translate }}
+          </p-inputgroup-addon>
+          <input pInputText type="text" [value]="dateOfPuttingIntoService() | vwsDate: 'SHORT_DATE'" readonly />
+        </p-inputgroup>
+      }
+      @if (uriOfProduct()) {
+        <p-inputgroup>
+          <p-inputgroup-addon class="font-bold nameplate-label-addon">
+            <i class="fa-solid fa-link mr-2"></i>
+            {{ 'URI_OF_PRODUCT' | translate }}
+          </p-inputgroup-addon>
+          <input pInputText type="text" [value]="uriOfProduct()" readonly />
+          <p-inputgroup-addon class="w-auto">
+            <a [href]="uriOfProduct()" target="_blank" class="text-primary hover:underline">
+              <i class="fa-solid fa-external-link-alt"></i>
+            </a>
+          </p-inputgroup-addon>
+        </p-inputgroup>
+      }
+    </div>
+  </div>
+
+  @if (street() && city()) {
+    <div class="section-grid-12">
+      <div class="span-7">
+        <div class="section-card">
+          <h3 class="section-title">
+            <i class="fa-solid fa-address-book"></i>
+            {{ 'MANUFACTURER' | translate }}
+          </h3>
+
+          <div class="flex flex-col gap-2">
+            @if (company()) {
+              <p-inputgroup>
+                <p-inputgroup-addon class="font-bold nameplate-label-addon">
+                  <i class="fa-solid fa-building mr-2"></i>
+                  {{ 'NAME' | translate }}
+                </p-inputgroup-addon>
+                <input pInputText type="text" [value]="company()" readonly />
+              </p-inputgroup>
+            }
+            <p-inputgroup>
+              <p-inputgroup-addon class="font-bold nameplate-label-addon">
+                <i class="fa-solid fa-location-dot mr-2"></i>
+                {{ 'ADDRESS' | translate }}
+              </p-inputgroup-addon>
+              <input
+                pInputText
+                type="text"
+                [value]="
+                  (street() || '') +
+                  (street() && (zip() || city()) ? ', ' : '') +
+                  (countryCode() || '') +
+                  ' ' +
+                  (zip() || '') +
+                  ' ' +
+                  (city() || '')
+                "
+                readonly
+              />
+            </p-inputgroup>
+            @if (phone()) {
+              <p-inputgroup>
+                <p-inputgroup-addon class="font-bold nameplate-label-addon">
+                  <i class="fa-solid fa-phone mr-2"></i>
+                  {{ 'PHONE' | translate }}
+                </p-inputgroup-addon>
+                <input pInputText type="text" [value]="phone()" readonly />
+                <p-inputgroup-addon class="w-auto">
+                  <a [href]="'tel:' + phone()" class="text-primary hover:underline">
+                    <i class="fa-solid fa-external-link-alt"></i>
+                  </a>
+                </p-inputgroup-addon>
+              </p-inputgroup>
+            }
+            @if (email()) {
+              <p-inputgroup>
+                <p-inputgroup-addon class="font-bold nameplate-label-addon">
+                  <i class="fa-solid fa-envelope mr-2"></i>
+                  {{ 'EMAIL' | translate }}
+                </p-inputgroup-addon>
+                <input pInputText type="text" [value]="email()" readonly />
+                <p-inputgroup-addon class="w-auto">
+                  <a [href]="'mailto:' + email()" class="text-primary hover:underline">
+                    <i class="fa-solid fa-external-link-alt"></i>
+                  </a>
+                </p-inputgroup-addon>
+              </p-inputgroup>
+            }
+            @if (web()) {
+              <p-inputgroup>
+                <p-inputgroup-addon class="font-bold nameplate-label-addon">
+                  <i class="fa-solid fa-globe mr-2"></i>
+                  {{ 'WEB' | translate }}
+                </p-inputgroup-addon>
+                <input pInputText type="text" [value]="web()" readonly />
+                <p-inputgroup-addon class="w-auto">
+                  <a [href]="web()" target="_blank" class="text-primary hover:underline">
+                    <i class="fa-solid fa-external-link-alt"></i>
+                  </a>
+                </p-inputgroup-addon>
+              </p-inputgroup>
+            }
+          </div>
+        </div>
+      </div>
+
+      <div class="span-5">
+        <div class="section-card">
+          <h3 class="section-title">
+            <i class="fa-solid fa-map-location-dot"></i>
+            {{ 'MANUFACTURER' | translate }}
+          </h3>
+          @defer (on viewport) {
+            @let nameplateMapComponent = loadNameplateMapComponent() | async;
+            @if (nameplateMapComponent) {
+              <ng-container *ngComponentOutlet="nameplateMapComponent; inputs: nameplateMapInputs()"></ng-container>
+            }
+          } @placeholder {
+            <div class="h-64 w-full rounded border"></div>
+          }
+        </div>
+      </div>
+    </div>
+  }
+
+  @if (euDeclarationOfConformity() || resultsOfTestReports()) {
+    <div class="section-card">
+      <h3 class="section-title">
+        <i class="fa-solid fa-file-shield"></i>
+        {{ 'BATTERY_NAMEPLATE_COMPLIANCE' | translate }}
+      </h3>
+
+      <div class="flex flex-col gap-2">
+        @if (euDeclarationOfConformity()) {
+          <p-inputgroup>
+            <p-inputgroup-addon class="font-bold nameplate-label-addon">
+              <i class="fa-solid fa-file-circle-check mr-2"></i>
+              {{ 'EU_DECLARATION_OF_CONFORMITY' | translate }}
+            </p-inputgroup-addon>
+            <input pInputText type="text" [value]="euDeclarationOfConformity()" readonly />
+          </p-inputgroup>
+        }
+        @if (resultsOfTestReports()) {
+          <p-inputgroup>
+            <p-inputgroup-addon class="font-bold nameplate-label-addon">
+              <i class="fa-solid fa-file-lines mr-2"></i>
+              {{ 'RESULTS_OF_TEST_REPORTS_PROVING_COMPLIANCE' | translate }}
+            </p-inputgroup-addon>
+            <input pInputText type="text" [value]="resultsOfTestReports()" readonly />
+          </p-inputgroup>
+        }
+      </div>
+    </div>
+  }
+
+  @if (markings.length > 0) {
+    <div class="section-card">
+      <h3 class="section-title">
+        <i class="fa-solid fa-certificate"></i>
+        {{ 'KENNZEICHEN' | translate }}
+      </h3>
+      <aas-v3-markings-viewer-plain
+        [markings]="markings"
+        [idShortPath]="markingsIdShortPath()"
+        [indexed]="indexed()"
+      ></aas-v3-markings-viewer-plain>
+    </div>
+  }
+</div>

@@ -1,0 +1,16 @@
+{
+  "name": "bom-diagram",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "libs/bom-diagram/src",
+  "prefix": "vws",
+  "projectType": "library",
+  "tags": ["scope:shared"],
+  "targets": {
+    "lint": {
+      "executor": "@nx/eslint:lint",
+      "options": {
+        "lintFilePatterns": ["libs/bom-diagram/**/*.ts", "libs/bom-diagram/**/*.html"]
+      }
+    }
+  }
+}

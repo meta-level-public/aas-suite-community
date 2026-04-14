@@ -1,0 +1,61 @@
+<form #contactForm="ngForm" vwsAutocompleteOff>
+  <div class="mb-4">
+    <label for="topic"> {{ 'TOPIC' | translate }}</label>
+    <p-select
+      id="topic"
+      class="w-full"
+      name="topic"
+      [(ngModel)]="selectedTopic"
+      #topic="ngModel"
+      [required]="true"
+      [options]="topicOptions"
+      optionLabel="label"
+      placeholder="{{ 'PLEASE_SELECT' | translate }}"
+      (ngModelChange)="topicChanged()"
+    >
+      <ng-template pTemplate="selectedItem">
+        @if (selectedTopic) {
+          <div class="flex flex-col">{{ selectedTopic.label | translate }}</div>
+        }
+      </ng-template>
+      <ng-template let-item pTemplate="item">
+        @if (item) {
+          <div class="flex flex-col">{{ item.label | translate }}</div>
+        }
+      </ng-template>
+    </p-select>
+    @if (!topic.valid && topic.touched) {
+      <div class="p-error">
+        {{ 'REQUIRED_FIELD' | translate }}
+      </div>
+    }
+  </div>
+
+  @if (selectedTopic?.key === 'other') {
+    <aas-contact-message #messageform [request]="request"></aas-contact-message>
+  }
+  @if (selectedTopic?.key === 'Registrierung') {
+    <aas-contact-register-form #registerform [request]="request"></aas-contact-register-form>
+  }
+  @if (selectedTopic?.key === 'Angebotsanfrage') {
+    <aas-contact-request-offer #offerform [request]="request"></aas-contact-request-offer>
+  }
+
+  <div class="mb-4">
+    <div class="flex flex-row justify-end">
+      <app-drag-captcha class="w-full" #captcha></app-drag-captcha>
+    </div>
+  </div>
+  <div class="mb-4">
+    <div class="flex flex-row justify-end">
+      <p-button
+        type="submit"
+        [disabled]="!contactForm.valid || !registerformValid || !messageformValid || !offerFormValid"
+        label="{{ 'SEND' | translate }}"
+        [loading]="loading"
+        icon="pi pi-envelope"
+        (onClick)="send()"
+      ></p-button>
+    </div>
+  </div>
+</form>

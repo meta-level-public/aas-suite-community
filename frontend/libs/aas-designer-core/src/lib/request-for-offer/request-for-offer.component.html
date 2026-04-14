@@ -1,0 +1,98 @@
+<div class="flex flex-col flex-auto overflow-auto">
+  <div class="hero-section">
+    <div class="hero-content">
+      <h1 class="hero-title">{{ 'REQUESTS_FOR_OFFERS' | translate }}</h1>
+      <div class="hero-actions">
+        <p-button
+          label="{{ 'RELOAD' | translate }}"
+          icon="pi pi-refresh"
+          (onClick)="loadData()"
+          severity="success"
+        ></p-button>
+      </div>
+    </div>
+  </div>
+
+  <div class="flex-auto overflow-auto">
+    <p-table
+      #dt
+      [value]="requests"
+      responsiveLayout="scroll"
+      [rows]="10"
+      [paginator]="true"
+      [rowsPerPageOptions]="[5, 10, 25, 50]"
+      [showCurrentPageReport]="true"
+      currentPageReportTemplate="{{ 'SHOW_FROM_TO_OF_TOTAL' | translate }}"
+      [rowHover]="true"
+      dataKey="id"
+      [loading]="loading"
+      size="small"
+      [scrollable]="true"
+      scrollHeight="flex"
+      sortField="aenderungsDatum"
+      [sortOrder]="-1"
+    >
+      <ng-template #header>
+        <tr>
+          <th scope="col" style="width: 5%; min-width: 1rem"></th>
+          <th scope="col" pSortableColumn="organisation.name" style="width: 25%; min-width: 10rem">
+            {{ 'ORGANISATION' | translate }}<p-sortIcon field="organisation.name"></p-sortIcon>
+          </th>
+          <th scope="col" pSortableColumn="status" style="width: 25%; min-width: 10rem">
+            {{ 'STATE' | translate }}<p-sortIcon field="status"></p-sortIcon>
+          </th>
+          <th scope="col" pSortableColumn="anlageDatum" style="width: 10%; min-width: 10rem">
+            {{ 'ANGELEGT' | translate }}<p-sortIcon field="anlageDatum"></p-sortIcon>
+          </th>
+          <th scope="col" pSortableColumn="aenderungsDatum" style="width: 10%; min-width: 10rem">
+            {{ 'GEAENDERT' | translate }}<p-sortIcon field="aenderungsDatum"></p-sortIcon>
+          </th>
+        </tr>
+        <tr>
+          <th scope="col" style="width: 5%; min-width: 1rem"></th>
+          <th scope="col" style="width: 15%; min-width: 10rem">
+            <p-columnFilter type="text" field="organisation.name"></p-columnFilter>
+          </th>
+          <th scope="col" style="width: 15%; min-width: 10rem">
+            <p-columnFilter type="text" field="status"></p-columnFilter>
+          </th>
+          <th scope="col" style="width: 10%; min-width: 10rem">
+            <p-columnFilter type="date" field="anlageDatum"></p-columnFilter>
+          </th>
+          <th scope="col" style="width: 10%; min-width: 10rem">
+            <p-columnFilter type="date" field="aenderungsDatum"></p-columnFilter>
+          </th>
+        </tr>
+      </ng-template>
+      <ng-template pTemplate="body" let-entry>
+        <tr>
+          <td style="width: 5%; min-width: 1rem">
+            <p-button
+              icon="pi pi-ellipsis-v"
+              styleClass="p-button-text p-button-secondary"
+              (onClick)="menu.toggle($event)"
+            ></p-button>
+            <p-menu appendTo="body" (onShow)="onShowActions(entry)" #menu [popup]="true" [model]="menuItems"></p-menu>
+          </td>
+          <td style="width: 25%; min-width: 10rem">
+            {{ entry.organisation?.name }}
+          </td>
+          <td style="width: 25%; min-width: 10rem">
+            {{ entry.status }}
+          </td>
+          <td style="width: 10%; min-width: 10rem">
+            {{ entry.anlageDatum | vwsDate: 'SHORT_DATE_TIME' }}
+          </td>
+          <td style="width: 10%; min-width: 10rem">
+            {{ entry.aenderungsDatum | vwsDate: 'SHORT_DATE_TIME' }}
+          </td>
+        </tr>
+      </ng-template>
+      <ng-template pTemplate="emptymessage">
+        <tr>
+          <td colspan="5" style="width: 100%">{{ 'NO_DATA_FOUND' | translate }}</td>
+        </tr>
+      </ng-template>
+    </p-table>
+  </div>
+</div>

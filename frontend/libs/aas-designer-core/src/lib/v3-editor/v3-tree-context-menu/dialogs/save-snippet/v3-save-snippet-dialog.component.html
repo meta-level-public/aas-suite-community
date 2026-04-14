@@ -1,0 +1,53 @@
+<p-dialog
+  [visible]="visible()"
+  (visibleChange)="visible.set($event)"
+  (onHide)="onHide()"
+  [closeOnEscape]="true"
+  [closable]="true"
+  header="{{ 'CREATE_SNIPPET_HEADLINE' | translate }}"
+  [style]="{ width: '50vw' }"
+  [modal]="true"
+  appendTo="body"
+>
+  <div class="col-span-12">
+    <label class="flex items-center mt-2 mb-2" for="name">{{ 'NAME_OF_SNIPPET' | translate }}</label>
+    <input
+      class="inputfield w-full"
+      pInputText
+      type="text"
+      id="name"
+      name="name"
+      [(ngModel)]="snippet.templateName"
+      required
+    />
+  </div>
+  <div class="col-span-12">
+    <label class="flex items-center mt-2 mb-2" for="name">{{ 'DESCRIPTION' | translate }}</label>
+    <textarea
+      pTextarea
+      class="w-full"
+      id="description"
+      name="description"
+      [(ngModel)]="snippet.templateDescription"
+    ></textarea>
+  </div>
+
+  <ng-template pTemplate="footer">
+    <div class="flex flex-row gap-2 justify-end">
+      <p-button
+        pRipple
+        label="{{ 'CANCEL' | translate }}"
+        icon="pi pi-times"
+        styleClass="p-button-secondary mr-2"
+        (onClick)="confirmed.set(false); visible.set(false)"
+      ></p-button>
+      <p-button
+        pRipple
+        label="{{ 'SAVE' | translate }}"
+        icon="pi pi-save"
+        styleClass="p-button-success mr-2"
+        (onClick)="confirmed.set(true)"
+      ></p-button>
+    </div>
+  </ng-template>
+</p-dialog>

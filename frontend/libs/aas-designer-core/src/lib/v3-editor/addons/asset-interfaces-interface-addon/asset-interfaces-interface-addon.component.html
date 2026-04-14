@@ -1,0 +1,416 @@
+<div class="aid-addon-container flex flex-col gap-3">
+  @if (validationErrors.length > 0) {
+    <p-message severity="error" styleClass="w-full">
+      <div class="w-full">
+        <strong>{{ 'AID_INTERFACE_VALIDATION_ERRORS' | translate }}</strong>
+        <ul class="m-0 pl-3 mt-2">
+          @for (error of validationErrors; track $index) {
+            <li>{{ error | translate }}</li>
+          }
+        </ul>
+      </div>
+    </p-message>
+  }
+
+  <div class="grid grid-cols-12 gap-2">
+    <div class="col-span-12 md:col-span-4">
+      <label class="block mb-2 font-semibold">{{ 'AID_INTERFACE_ID_SHORT' | translate }}</label>
+      <input pInputText class="w-full" [(ngModel)]="idShort" />
+    </div>
+    <div class="col-span-12 md:col-span-4">
+      <label class="block mb-2 font-semibold">{{ 'AID_INTERFACE_TITLE' | translate }}</label>
+      <input pInputText class="w-full" [(ngModel)]="title" />
+    </div>
+    <div class="col-span-12 md:col-span-4">
+      <label class="block mb-2 font-semibold">{{ 'AID_INTERFACE_INTERACTION_TYPE' | translate }}</label>
+      <p-select
+        class="w-full"
+        [options]="interactionTypeOptions"
+        optionLabel="label"
+        optionValue="value"
+        [(ngModel)]="interactionType"
+      ></p-select>
+    </div>
+    <div class="col-span-12">
+      <label class="block mb-2 font-semibold">{{ 'AID_INTERFACE_ENDPOINT_BASE_URI' | translate }}</label>
+      <input
+        pInputText
+        class="w-full"
+        [(ngModel)]="endpointBase"
+        placeholder="{{ 'AID_INTERFACE_ENDPOINT_BASE_URI_PLACEHOLDER' | translate }}"
+      />
+    </div>
+  </div>
+
+  <p-fieldset styleClass="mb-0 capability-fieldset aid-fieldset">
+    <ng-template #header>
+      <div class="flex items-center w-full">
+        <strong>{{ 'AID_INTERFACE_SECURITY_DEFINITIONS' | translate }}</strong>
+        <span class="flex-1"></span>
+        <p-button
+          icon="pi pi-plus"
+          [text]="true"
+          size="small"
+          [label]="'AID_INTERFACE_SECURITY_SCHEME_ADD' | translate"
+          (onClick)="addSecurityScheme(); $event.stopPropagation()"
+        ></p-button>
+      </div>
+    </ng-template>
+
+    @if (securitySchemes.length === 0) {
+      <small class="text-color-secondary">{{ 'AID_INTERFACE_SECURITY_SCHEME_EMPTY' | translate }}</small>
+    }
+
+    @for (scheme of securitySchemes; track $index) {
+      <div class="grid grid-cols-12 gap-2 mb-2">
+        <div class="col-span-12 md:col-span-2">
+          <input pInputText class="w-full" [(ngModel)]="scheme.idShort" placeholder="idShort" />
+        </div>
+        <div class="col-span-12 md:col-span-2">
+          <input pInputText class="w-full" [(ngModel)]="scheme.scheme" placeholder="scheme" />
+        </div>
+        <div class="col-span-12 md:col-span-2">
+          <input pInputText class="w-full" [(ngModel)]="scheme.in" placeholder="in" />
+        </div>
+        <div class="col-span-12 md:col-span-2">
+          <input pInputText class="w-full" [(ngModel)]="scheme.name" placeholder="name" />
+        </div>
+        <div class="col-span-12 md:col-span-3">
+          <input pInputText class="w-full" [(ngModel)]="scheme.description" placeholder="description" />
+        </div>
+        <div class="col-span-12 md:col-span-1 flex justify-end">
+          <p-button
+            icon="pi pi-trash"
+            severity="danger"
+            [text]="true"
+            (onClick)="removeSecurityScheme($index)"
+          ></p-button>
+        </div>
+      </div>
+    }
+  </p-fieldset>
+
+  <p-fieldset styleClass="mb-0 capability-fieldset aid-fieldset">
+    <ng-template #header>
+      <div class="flex items-center w-full">
+        <strong>{{ 'AID_INTERFACE_PROPERTIES' | translate }}</strong>
+        <span class="flex-1"></span>
+        <p-button
+          icon="pi pi-plus"
+          [text]="true"
+          size="small"
+          [label]="'AID_INTERFACE_PROPERTY_ADD' | translate"
+          (onClick)="addPropertyDefinition(); $event.stopPropagation()"
+        ></p-button>
+      </div>
+    </ng-template>
+
+    @if (propertyDefinitions.length === 0) {
+      <small class="text-color-secondary">{{ 'AID_INTERFACE_PROPERTIES_EMPTY' | translate }}</small>
+    }
+
+    @for (prop of propertyDefinitions; track $index) {
+      <p-fieldset [toggleable]="true" styleClass="mb-2 capability-fieldset aid-fieldset">
+        <ng-template #header>
+          <div class="flex items-center w-full">
+            <strong>{{ 'AID_INTERFACE_PROPERTY' | translate }} {{ $index + 1 }}</strong>
+            <span class="flex-1"></span>
+            <p-button
+              icon="pi pi-trash"
+              severity="danger"
+              [text]="true"
+              size="small"
+              (onClick)="removePropertyDefinition($index); $event.stopPropagation()"
+            ></p-button>
+          </div>
+        </ng-template>
+
+        <div class="grid grid-cols-12 gap-2 mb-2">
+          <div class="col-span-12 md:col-span-3">
+            <label class="block mb-1">{{ 'AID_INTERFACE_PROPERTY_ID_SHORT' | translate }}</label>
+            <input pInputText class="w-full" [(ngModel)]="prop.idShort" />
+          </div>
+          <div class="col-span-12 md:col-span-3">
+            <label class="block mb-1">{{ 'AID_INTERFACE_PROPERTY_KEY' | translate }}</label>
+            <input pInputText class="w-full" [(ngModel)]="prop.key" />
+          </div>
+          <div class="col-span-12 md:col-span-3">
+            <label class="block mb-1">{{ 'AID_INTERFACE_PROPERTY_TITLE' | translate }}</label>
+            <input pInputText class="w-full" [(ngModel)]="prop.title" />
+          </div>
+          <div class="col-span-12 md:col-span-3">
+            <label class="block mb-1">{{ 'AID_INTERFACE_PROPERTY_DATA_TYPE' | translate }}</label>
+            <input pInputText class="w-full" [(ngModel)]="prop.dataType" />
+          </div>
+          <div class="col-span-12 md:col-span-3">
+            <label class="block mb-1">{{ 'AID_INTERFACE_PROPERTY_UNIT_CODE' | translate }}</label>
+            <input pInputText class="w-full" [(ngModel)]="prop.unitCode" />
+          </div>
+          <div class="col-span-12 md:col-span-3">
+            <label class="block mb-1">{{ 'AID_INTERFACE_PROPERTY_IS_OBSERVABLE' | translate }}</label>
+            <p-select
+              class="w-full"
+              [options]="[
+                { label: 'true', value: true },
+                { label: 'false', value: false },
+              ]"
+              optionLabel="label"
+              optionValue="value"
+              [(ngModel)]="prop.isObservable"
+            ></p-select>
+          </div>
+          <div class="col-span-12 md:col-span-6">
+            <label class="block mb-1">{{ 'AID_INTERFACE_PROPERTY_VALUE_SEMANTICS' | translate }}</label>
+            <input pInputText class="w-full" [(ngModel)]="prop.valueSemantics" />
+          </div>
+        </div>
+
+        <p-fieldset [toggleable]="true" styleClass="capability-fieldset aid-fieldset">
+          <ng-template #header>
+            <div class="flex items-center w-full">
+              <strong>{{ 'AID_INTERFACE_NESTED_PROPERTIES' | translate }}</strong>
+              <span class="flex-1"></span>
+              <p-button
+                icon="pi pi-plus"
+                [text]="true"
+                size="small"
+                [label]="'AID_INTERFACE_NESTED_PROPERTY_ADD' | translate"
+                (onClick)="addNestedPropertyDefinition(prop); $event.stopPropagation()"
+              ></p-button>
+            </div>
+          </ng-template>
+
+          @if (prop.children.length === 0) {
+            <small class="text-color-secondary">{{ 'AID_INTERFACE_NESTED_PROPERTIES_EMPTY' | translate }}</small>
+          }
+
+          @for (child of prop.children; track $index) {
+            <div class="grid grid-cols-12 gap-2 mb-2">
+              <div class="col-span-12 md:col-span-3">
+                <input
+                  pInputText
+                  class="w-full"
+                  [(ngModel)]="child.idShort"
+                  placeholder="{{ 'AID_INTERFACE_PROPERTY_ID_SHORT' | translate }}"
+                />
+              </div>
+              <div class="col-span-12 md:col-span-3">
+                <input
+                  pInputText
+                  class="w-full"
+                  [(ngModel)]="child.key"
+                  placeholder="{{ 'AID_INTERFACE_PROPERTY_KEY' | translate }}"
+                />
+              </div>
+              <div class="col-span-12 md:col-span-3">
+                <input
+                  pInputText
+                  class="w-full"
+                  [(ngModel)]="child.dataType"
+                  placeholder="{{ 'AID_INTERFACE_PROPERTY_DATA_TYPE' | translate }}"
+                />
+              </div>
+              <div class="col-span-12 md:col-span-2">
+                <input
+                  pInputText
+                  class="w-full"
+                  [(ngModel)]="child.valueSemantics"
+                  placeholder="{{ 'AID_INTERFACE_PROPERTY_VALUE_SEMANTICS' | translate }}"
+                />
+              </div>
+              <div class="col-span-12 md:col-span-1 flex justify-end">
+                <p-button
+                  icon="pi pi-trash"
+                  severity="danger"
+                  [text]="true"
+                  (onClick)="removeNestedPropertyDefinition(prop, $index)"
+                ></p-button>
+              </div>
+            </div>
+          }
+        </p-fieldset>
+      </p-fieldset>
+    }
+  </p-fieldset>
+
+  <p-fieldset styleClass="mb-0 capability-fieldset aid-fieldset">
+    <ng-template #header>
+      <div class="flex items-center w-full">
+        <strong>{{ 'AID_INTERFACE_FORMS' | translate }}</strong>
+        <span class="flex-1"></span>
+        <p-button
+          icon="pi pi-plus"
+          [text]="true"
+          size="small"
+          [label]="'AID_INTERFACE_FORM_ADD' | translate"
+          (onClick)="addForm(); $event.stopPropagation()"
+        ></p-button>
+      </div>
+    </ng-template>
+    <small class="text-color-secondary block mb-2">{{ 'AID_INTERFACE_FORMS_HELP' | translate }}</small>
+
+    @for (form of forms; track $index) {
+      <p-fieldset [toggleable]="true" styleClass="mb-2 capability-fieldset aid-fieldset">
+        <ng-template #header>
+          <div class="flex items-center w-full">
+            <strong>{{ 'AID_INTERFACE_FORM' | translate }} {{ $index + 1 }}</strong>
+            <span class="flex-1"></span>
+            <p-button
+              icon="pi pi-trash"
+              severity="danger"
+              [text]="true"
+              size="small"
+              (onClick)="removeForm($index); $event.stopPropagation()"
+            ></p-button>
+          </div>
+        </ng-template>
+
+        <div class="grid grid-cols-12 gap-2">
+          <div class="col-span-12 md:col-span-4">
+            <label class="block mb-1">{{ 'AID_INTERFACE_FORM_ID_SHORT' | translate }}</label>
+            <input pInputText class="w-full" [(ngModel)]="form.idShort" />
+          </div>
+          <div class="col-span-12 md:col-span-4">
+            <label class="block mb-1">{{ 'AID_INTERFACE_PROTOCOL' | translate }}</label>
+            <p-select
+              class="w-full"
+              [options]="protocolOptions"
+              optionLabel="label"
+              optionValue="value"
+              [(ngModel)]="form.protocol"
+              (ngModelChange)="onFormProtocolChanged(form, $event)"
+            ></p-select>
+          </div>
+          @if (form.protocol === 'Other') {
+            <div class="col-span-12 md:col-span-4">
+              <label class="block mb-1">{{ 'AID_INTERFACE_PROTOCOL_VALUE' | translate }}</label>
+              <input pInputText class="w-full" [(ngModel)]="form.otherProtocol" />
+            </div>
+          }
+
+          <div class="col-span-12 md:col-span-8">
+            <label class="block mb-1">{{ 'AID_INTERFACE_TARGET' | translate }}</label>
+            <input
+              pInputText
+              class="w-full"
+              [(ngModel)]="form.target"
+              placeholder="{{ 'AID_INTERFACE_TARGET_PLACEHOLDER' | translate }}"
+            />
+          </div>
+          <div class="col-span-12 md:col-span-4">
+            <label class="block mb-1">{{ 'AID_INTERFACE_CONTENT_TYPE' | translate }}</label>
+            <input pInputText class="w-full" [(ngModel)]="form.contentType" />
+          </div>
+
+          <div class="col-span-12 md:col-span-6">
+            <label class="block mb-1">{{ 'AID_INTERFACE_SECURITY_CONFIGURATION' | translate }}</label>
+            <input pInputText class="w-full" [(ngModel)]="form.securityConfiguration" />
+          </div>
+
+          @if (form.protocol === 'HTTP') {
+            <div class="col-span-12 md:col-span-6">
+              <label class="block mb-1">{{ 'AID_INTERFACE_HTTP_METHOD' | translate }}</label>
+              <p-select
+                class="w-full"
+                [options]="httpMethodOptions"
+                optionLabel="label"
+                optionValue="value"
+                [(ngModel)]="form.httpMethod"
+              ></p-select>
+            </div>
+
+            <div class="col-span-12">
+              <div class="flex items-center justify-between mb-2">
+                <label class="font-semibold m-0">{{ 'AID_INTERFACE_HTTP_HEADERS' | translate }}</label>
+                <p-button
+                  icon="pi pi-plus"
+                  [text]="true"
+                  [label]="'AID_INTERFACE_HTTP_HEADER_ADD' | translate"
+                  (onClick)="addHttpHeader(form)"
+                ></p-button>
+              </div>
+              @if (form.httpHeaders.length === 0) {
+                <small class="text-color-secondary">{{ 'AID_INTERFACE_HTTP_HEADERS_EMPTY' | translate }}</small>
+              }
+              @for (header of form.httpHeaders; track $index) {
+                <div class="grid grid-cols-12 gap-2 mb-2">
+                  <div class="col-span-12 md:col-span-5">
+                    <input
+                      pInputText
+                      class="w-full"
+                      [(ngModel)]="header.name"
+                      placeholder="{{ 'AID_INTERFACE_HTTP_HEADER_NAME' | translate }}"
+                    />
+                  </div>
+                  <div class="col-span-12 md:col-span-6">
+                    <input
+                      pInputText
+                      class="w-full"
+                      [(ngModel)]="header.value"
+                      placeholder="{{ 'AID_INTERFACE_HTTP_HEADER_VALUE' | translate }}"
+                    />
+                  </div>
+                  <div class="col-span-12 md:col-span-1 flex justify-end">
+                    <p-button
+                      icon="pi pi-trash"
+                      severity="danger"
+                      [text]="true"
+                      (onClick)="removeHttpHeader(form, $index)"
+                    ></p-button>
+                  </div>
+                </div>
+              }
+            </div>
+          }
+
+          @if (form.protocol === 'MQTT') {
+            <div class="col-span-12 md:col-span-4">
+              <label class="block mb-1">{{ 'AID_INTERFACE_MQTT_QOS' | translate }}</label>
+              <input pInputText class="w-full" [(ngModel)]="form.mqttQos" />
+            </div>
+            <div class="col-span-12 md:col-span-4">
+              <label class="block mb-1">{{ 'AID_INTERFACE_MQTT_RETAIN' | translate }}</label>
+              <input pInputText class="w-full" [(ngModel)]="form.mqttRetain" />
+            </div>
+            <div class="col-span-12 md:col-span-4">
+              <label class="block mb-1">{{ 'AID_INTERFACE_MQTT_CONTROL_PACKET' | translate }}</label>
+              <input pInputText class="w-full" [(ngModel)]="form.mqttControlPacket" />
+            </div>
+          }
+
+          @if (form.protocol === 'Modbus') {
+            <div class="col-span-12 md:col-span-6">
+              <label class="block mb-1">{{ 'AID_INTERFACE_MODBUS_FUNCTION' | translate }}</label>
+              <input pInputText class="w-full" [(ngModel)]="form.modbusFunction" />
+            </div>
+            <div class="col-span-12 md:col-span-6">
+              <label class="block mb-1">{{ 'AID_INTERFACE_MODBUS_ENTITY' | translate }}</label>
+              <input pInputText class="w-full" [(ngModel)]="form.modbusEntity" />
+            </div>
+            <div class="col-span-12 md:col-span-4">
+              <label class="block mb-1">{{ 'AID_INTERFACE_MODBUS_ZERO_BASED' | translate }}</label>
+              <input pInputText class="w-full" [(ngModel)]="form.modbusZeroBased" />
+            </div>
+            <div class="col-span-12 md:col-span-4">
+              <label class="block mb-1">{{ 'AID_INTERFACE_MODBUS_POLLING_TIME' | translate }}</label>
+              <input pInputText class="w-full" [(ngModel)]="form.modbusPollingTime" />
+            </div>
+            <div class="col-span-12 md:col-span-4">
+              <label class="block mb-1">{{ 'AID_INTERFACE_MODBUS_TIMEOUT' | translate }}</label>
+              <input pInputText class="w-full" [(ngModel)]="form.modbusTimeout" />
+            </div>
+            <div class="col-span-12">
+              <label class="block mb-1">{{ 'AID_INTERFACE_MODBUS_PAYLOAD_DATA_TYPE' | translate }}</label>
+              <input pInputText class="w-full" [(ngModel)]="form.modbusPayloadDataType" />
+            </div>
+          }
+        </div>
+      </p-fieldset>
+    }
+  </p-fieldset>
+
+  <div class="flex justify-end gap-2 mt-2">
+    <p-button label="{{ 'CANCEL' | translate }}" severity="secondary" [outlined]="true" (onClick)="cancel()"></p-button>
+    <p-button label="{{ 'APPLY' | translate }}" [disabled]="!canApply" (onClick)="apply()"></p-button>
+  </div>
+</div>

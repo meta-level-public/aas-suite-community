@@ -1,0 +1,47 @@
+<p-button
+  icon="pi pi-ellipsis-v"
+  styleClass="p-button-text p-button-secondary tree-action-button border-none p-0 m-0 no-focus-border z-10"
+  (onClick)="onShowActions($event, menu)"
+  #btn
+></p-button>
+
+<p-popover appendTo="body" #menu>
+  <p-tieredMenu [model]="menuItems" class="border-none" class="ctxMenu"></p-tieredMenu>
+  <!-- <p-panelmenu [model]="menuItems" class="border-none"></p-panelmenu> -->
+  <!-- <p-slideMenu
+      [model]="menuItems"
+      [viewportHeight]="245"
+      [menuWidth]="250"
+      class="border-none"
+      backLabel="{{ 'BACK' | translate }}"
+    ></p-slideMenu> -->
+</p-popover>
+
+<aas-v3-save-snippet-dialog
+  [(visible)]="saveSnippetDialogVisible"
+  [snippet]="snippet"
+  [(confirmed)]="saveSnippetConfirmed"
+></aas-v3-save-snippet-dialog>
+
+<aas-v3-save-as-json-dialog
+  [(visible)]="saveAsJsonDialogVisible"
+  [(jsonText)]="saveAsJsonData"
+  [(action)]="saveAsJsonAction"
+></aas-v3-save-as-json-dialog>
+
+<aas-v3-paste-question-dialog
+  [(visible)]="pasteAsReferenceQuestionDialogVisible"
+  [(acceptedAction)]="acceptedPasteAction"
+></aas-v3-paste-question-dialog>
+
+<aas-v3-insert-element-dialog
+  [(visible)]="insertElementDialogVisible"
+  [availableElements]="availableElements"
+  [(selectedElement)]="selectedElementToInsert"
+></aas-v3-insert-element-dialog>
+
+<aas-v3-insert-submodel-dialog
+  [(visible)]="insertSubmodelDialogVisible"
+  [availableSubmodels]="availableSubmodels"
+  [(selectedSubmodel)]="selectedSubmodelToInsert"
+></aas-v3-insert-submodel-dialog>

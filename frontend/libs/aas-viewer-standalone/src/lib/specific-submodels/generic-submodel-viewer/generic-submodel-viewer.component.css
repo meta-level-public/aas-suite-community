@@ -1,0 +1,12 @@
+.generic-submodel-viewer {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.elements-container {
+  background: var(--p-content-background);
+  border-radius: var(--aas-radius-sm);
+  padding: 1rem;
+  box-shadow: 0 1px 3px color-mix(in srgb, var(--p-primary-900) 10%, transparent);
+}

@@ -1,0 +1,137 @@
+<div class="flex flex-col w-full gap-2 justify-center">
+  @if (!keyList || keyList.length === 0) {
+    <p-button
+      label="{{ 'ADD' | translate }}"
+      (onClick)="addKey()"
+      icon="pi pi-plus"
+      size="small"
+      [outlined]="true"
+    ></p-button>
+  }
+  @for (key of keyList; track key) {
+    <div class="flex flex-col gap-3 justify-start">
+      <div class="flex flex-col w-full items-center gap-2">
+        @if (showKeyType) {
+          <div class="flex flex-row w-full gap-2">
+            <lib-help-label class="w-14rem" tag="KEY_TYPE"></lib-help-label>
+            <p-select
+              [options]="keyTypeOptions"
+              [(ngModel)]="key.type"
+              optionLabel="label"
+              optionValue="value"
+              class="w-full"
+              class="aas-concept-description flex w-full"
+              appendTo="body"
+              vwsV3Undo
+            ></p-select>
+          </div>
+        }
+        @if (key.type != keyTypesType.ConceptDescription && key.type != keyTypesType.GlobalReference) {
+          <div class="flex flex-row w-full gap-2">
+            <lib-help-label class="w-14rem" tag="VALUE"></lib-help-label>
+            <input pInputText [(ngModel)]="key.value" class="w-full" nullIfEmpty />
+          </div>
+        }
+      </div>
+      @if (key.type == keyTypesType.ConceptDescription || key.type == keyTypesType.GlobalReference) {
+        <div class="flex flex-row w-full gap-2">
+          <div class="w-14rem">
+            <lib-help-label class="w-14rem" tag="VALUE"></lib-help-label>
+          </div>
+          <div class="flex flex-col gap-2 w-full">
+            @if (!isContained(key) && key.value !== '') {
+              <div class="flex flex-row w-full gap-2">
+                <p-message severity="info" class="w-full">
+                  <ng-template pTemplate>
+                    {{ 'CONCEPT_DESCRIPTION_NOT_FOUND_IN_REPOSITORY' | translate }}
+                  </ng-template>
+                </p-message>
+              </div>
+            }
+            @if (!isContained(key) && key.value !== '') {
+              <div class="flex flex-row w-full gap-2">
+                <input pInputText [(ngModel)]="key.value" class="w-full" nullIfEmpty />
+                <p-button
+                  label="{{ 'CREATE' | translate }}"
+                  (onClick)="createConceptDescriptionByKey(key)"
+                  class="w-10rem"
+                  size="small"
+                ></p-button>
+              </div>
+            }
+            <div class="flex flex-row w-full">
+              <p-select
+                [options]="conceptDescriptionOptions"
+                [(ngModel)]="key.value"
+                optionLabel="label"
+                optionValue="value"
+                placeholder="{{ 'PLEASE_SELECT' | translate }}"
+                class="aas-concept-description flex w-full"
+                class="w-full"
+                appendTo="body"
+                (onChange)="createConceptDescriptionIfNew(key); itemChanged.emit(key.value)"
+                [filter]="true"
+              ></p-select>
+              @if (key.value != null) {
+                <p-button
+                  styleClass="p-button-text p-button-outlined p-button-rounded"
+                  icon="pi pi-pencil"
+                  (onClick)="goToEditConceptDescription(key)"
+                ></p-button>
+              }
+              <!-- <p-button styleClass="p-button-text p-button-outlined p-button-rounded" icon="pi pi-plus" (onClick)="addKey(keyTypesType.ConceptDescription)"></p-button> -->
+              @if (key.value != null) {
+                <p-button
+                  styleClass="p-button-text p-button-outlined p-button-rounded"
+                  icon="pi pi-trash"
+                  (onClick)="deleteConceptDescription(key)"
+                ></p-button>
+              }
+            </div>
+          </div>
+        </div>
+      }
+      @if (
+        (key.type == keyTypesType.ConceptDescription || key.type == keyTypesType.GlobalReference) &&
+        getConceptDescriptionDetail(key) &&
+        showDescription
+      ) {
+        <div class="flex flex-row w-full gap-2">
+          <lib-help-label class="w-14rem" tag="PREFERRED_NAME"></lib-help-label>
+          <div class="font-bold flex flex-row w-full">
+            {{ semIdHelper.getBenennung(getConceptDescriptionDetail(key), portalService.currentLanguage) }}
+          </div>
+        </div>
+        <div class="flex flex-row w-full gap-2">
+          <lib-help-label class="w-14rem" tag="DEFINITION"></lib-help-label>
+          <div class="font-bold flex flex-row w-full">
+            {{ semIdHelper.getDefinition(getConceptDescriptionDetail(key), portalService.currentLanguage) }}
+          </div>
+        </div>
+        <div class="flex flex-row w-full gap-2">
+          <lib-help-label class="w-14rem" tag="DATATYPE_UNIT_SYMBOL"></lib-help-label>
+          <div class="font-bold flex flex-row w-full">
+            {{
+              semIdHelper.getDatatype(getConceptDescriptionDetail(key)) !== ''
+                ? semIdHelper.getDatatype(getConceptDescriptionDetail(key))
+                : ('UNSET' | translate)
+            }}
+            /
+            {{
+              semIdHelper.getUnit(getConceptDescriptionDetail(key)) !== ''
+                ? semIdHelper.getUnit(getConceptDescriptionDetail(key))
+                : ('UNSET' | translate)
+            }}
+            /
+            {{
+              semIdHelper.getSymbol(getConceptDescriptionDetail(key)) !== ''
+                ? semIdHelper.getSymbol(getConceptDescriptionDetail(key))
+                : ('UNSET' | translate)
+            }}
+          </div>
+        </div>
+        <!-- {{ getConceptDescriptionDetail(key) | json }} -->
+      }
+    </div>
+  }
+</div>

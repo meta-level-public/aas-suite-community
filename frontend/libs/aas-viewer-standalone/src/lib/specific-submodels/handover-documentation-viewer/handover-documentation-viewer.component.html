@@ -1,0 +1,23 @@
+<p-card>
+  <p-accordion [multiple]="true" class="w-full" [value]="expandedDocPanels()">
+    @for (document of documents; track $index) {
+      <p-accordion-panel [value]="$index">
+        <p-accordion-header>
+          <div class="flex items-center">
+            <i class="pi pi-file mr-2"></i>
+            <span class="vertical-align-middle">{{ getHeader(document) }}</span>
+          </div>
+        </p-accordion-header>
+        <p-accordion-content>
+          <aas-handover-documentation-document
+            [document]="document"
+            [currentLang]="currentLang()"
+            [fileMap]="fileMap"
+            [documentFiles]="documentFiles"
+            [submodelIdentifier]="documentation?.id ?? ''"
+          ></aas-handover-documentation-document>
+        </p-accordion-content>
+      </p-accordion-panel>
+    }
+  </p-accordion>
+</p-card>

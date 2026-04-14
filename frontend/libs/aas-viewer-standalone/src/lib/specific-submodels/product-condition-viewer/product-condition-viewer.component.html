@@ -1,0 +1,246 @@
+<div class="product-condition-container">
+  @if (hasContent()) {
+    @if (healthMetrics().length > 0) {
+      <div class="section-card">
+        <h3 class="section-title">
+          <i class="fa-solid fa-heart-pulse"></i>
+          {{ 'PRODUCT_CONDITION_HEALTH_METRICS' | translate }}
+        </h3>
+
+        <div class="metric-grid">
+          @for (metric of healthMetrics(); track metric.idShortPath) {
+            <div class="metric-card">
+              <div class="metric-label">{{ metric.label }}</div>
+              <p-inputgroup>
+                <p-inputgroup-addon class="font-bold metric-addon">
+                  {{ 'PRODUCT_CONDITION_VALUE' | translate }}
+                </p-inputgroup-addon>
+                <input pInputText type="text" [value]="metric.value" readonly />
+              </p-inputgroup>
+              @if (metric.lastUpdate) {
+                <p-inputgroup>
+                  <p-inputgroup-addon class="font-bold metric-addon">
+                    {{ 'PRODUCT_CONDITION_LAST_UPDATE' | translate }}
+                  </p-inputgroup-addon>
+                  <input pInputText type="text" [value]="metric.lastUpdate" readonly />
+                </p-inputgroup>
+              }
+            </div>
+          }
+        </div>
+      </div>
+    }
+
+    @if (throughputMetrics().length > 0 || selfDischargeMetrics().length > 0) {
+      <div class="section-grid-2">
+        @if (throughputMetrics().length > 0) {
+          <div class="section-card">
+            <h3 class="section-title">
+              <i class="fa-solid fa-gauge-high"></i>
+              {{ 'PRODUCT_CONDITION_THROUGHPUT' | translate }}
+            </h3>
+
+            <div class="metric-stack">
+              @for (metric of throughputMetrics(); track metric.idShortPath) {
+                <div class="metric-card compact-card">
+                  <div class="metric-label">{{ metric.label }}</div>
+                  <p-inputgroup>
+                    <p-inputgroup-addon class="font-bold metric-addon">
+                      {{ 'PRODUCT_CONDITION_VALUE' | translate }}
+                    </p-inputgroup-addon>
+                    <input pInputText type="text" [value]="metric.value" readonly />
+                  </p-inputgroup>
+                  @if (metric.lastUpdate) {
+                    <p-inputgroup>
+                      <p-inputgroup-addon class="font-bold metric-addon">
+                        {{ 'PRODUCT_CONDITION_LAST_UPDATE' | translate }}
+                      </p-inputgroup-addon>
+                      <input pInputText type="text" [value]="metric.lastUpdate" readonly />
+                    </p-inputgroup>
+                  }
+                </div>
+              }
+            </div>
+          </div>
+        }
+
+        @if (selfDischargeMetrics().length > 0) {
+          <div class="section-card">
+            <h3 class="section-title">
+              <i class="fa-solid fa-battery-half"></i>
+              {{ 'PRODUCT_CONDITION_SELF_DISCHARGE' | translate }}
+            </h3>
+
+            <div class="metric-stack">
+              @for (metric of selfDischargeMetrics(); track metric.idShortPath) {
+                <div class="metric-card compact-card">
+                  <div class="metric-label">{{ metric.label }}</div>
+                  <p-inputgroup>
+                    <p-inputgroup-addon class="font-bold metric-addon">
+                      {{ 'PRODUCT_CONDITION_VALUE' | translate }}
+                    </p-inputgroup-addon>
+                    <input pInputText type="text" [value]="metric.value" readonly />
+                  </p-inputgroup>
+                  @if (metric.lastUpdate) {
+                    <p-inputgroup>
+                      <p-inputgroup-addon class="font-bold metric-addon">
+                        {{ 'PRODUCT_CONDITION_LAST_UPDATE' | translate }}
+                      </p-inputgroup-addon>
+                      <input pInputText type="text" [value]="metric.lastUpdate" readonly />
+                    </p-inputgroup>
+                  }
+                </div>
+              }
+            </div>
+          </div>
+        }
+      </div>
+    }
+
+    @if (powerCapabilityEntries().length > 0 || powerCapabilityLastUpdate()) {
+      <div class="section-card">
+        <h3 class="section-title">
+          <i class="fa-solid fa-bolt"></i>
+          {{ 'PRODUCT_CONDITION_POWER_CAPABILITY' | translate }}
+        </h3>
+
+        @if (powerCapabilityLastUpdate()) {
+          <div class="section-meta">
+            {{ 'PRODUCT_CONDITION_LAST_UPDATE' | translate }}: {{ powerCapabilityLastUpdate() }}
+          </div>
+        }
+
+        <div class="power-grid">
+          @for (entry of powerCapabilityEntries(); track entry.idShortPath) {
+            <div class="detail-card">
+              <div class="metric-label">{{ entry.label }}</div>
+              @if (entry.atSoC) {
+                <p-inputgroup>
+                  <p-inputgroup-addon class="font-bold metric-addon">At SoC</p-inputgroup-addon>
+                  <input pInputText type="text" [value]="entry.atSoC" readonly />
+                </p-inputgroup>
+              }
+              @if (entry.powerCapabilityAt) {
+                <p-inputgroup>
+                  <p-inputgroup-addon class="font-bold metric-addon">Power Capability</p-inputgroup-addon>
+                  <input pInputText type="text" [value]="entry.powerCapabilityAt" readonly />
+                </p-inputgroup>
+              }
+              @if (entry.rpcLastUpdated) {
+                <p-inputgroup>
+                  <p-inputgroup-addon class="font-bold metric-addon">RPC Updated</p-inputgroup-addon>
+                  <input pInputText type="text" [value]="entry.rpcLastUpdated" readonly />
+                </p-inputgroup>
+              }
+            </div>
+          }
+        </div>
+      </div>
+    }
+
+    @if (temperatureMetrics().length > 0) {
+      <div class="section-card">
+        <h3 class="section-title">
+          <i class="fa-solid fa-temperature-three-quarters"></i>
+          {{ 'PRODUCT_CONDITION_TEMPERATURE_INFORMATION' | translate }}
+        </h3>
+
+        @if (temperatureLastUpdate()) {
+          <div class="section-meta">
+            {{ 'PRODUCT_CONDITION_LAST_UPDATE' | translate }}: {{ temperatureLastUpdate() }}
+          </div>
+        }
+
+        <div class="metric-grid compact-grid">
+          @for (metric of temperatureMetrics(); track metric.idShortPath) {
+            <div class="metric-card compact-card">
+              <div class="metric-label">{{ metric.label }}</div>
+              <p-inputgroup>
+                <p-inputgroup-addon class="font-bold metric-addon">
+                  {{ 'PRODUCT_CONDITION_VALUE' | translate }}
+                </p-inputgroup-addon>
+                <input pInputText type="text" [value]="metric.value" readonly />
+              </p-inputgroup>
+            </div>
+          }
+        </div>
+      </div>
+    }
+
+    @if (accidentDocumentIdentifiers().length > 0 || negativeEvents().length > 0) {
+      <div class="section-grid-2">
+        @if (accidentDocumentIdentifiers().length > 0) {
+          <div class="section-card">
+            <h3 class="section-title">
+              <i class="fa-solid fa-file-shield"></i>
+              {{ 'PRODUCT_CONDITION_DOCUMENT_IDENTIFIERS' | translate }}
+            </h3>
+
+            <ul class="section-list">
+              @for (identifier of accidentDocumentIdentifiers(); track identifier) {
+                <li>{{ identifier }}</li>
+              }
+            </ul>
+          </div>
+        }
+
+        @if (negativeEvents().length > 0) {
+          <div class="section-card">
+            <h3 class="section-title">
+              <i class="fa-solid fa-triangle-exclamation"></i>
+              {{ 'PRODUCT_CONDITION_NEGATIVE_EVENTS' | translate }}
+            </h3>
+
+            <div class="metric-stack">
+              @for (event of negativeEvents(); track event.idShortPath) {
+                <div class="detail-card">
+                  @if (event.value) {
+                    <p-inputgroup>
+                      <p-inputgroup-addon class="font-bold metric-addon">Event</p-inputgroup-addon>
+                      <input pInputText type="text" [value]="event.value" readonly />
+                    </p-inputgroup>
+                  }
+                  @if (event.lastUpdate) {
+                    <p-inputgroup>
+                      <p-inputgroup-addon class="font-bold metric-addon">
+                        {{ 'PRODUCT_CONDITION_LAST_UPDATE' | translate }}
+                      </p-inputgroup-addon>
+                      <input pInputText type="text" [value]="event.lastUpdate" readonly />
+                    </p-inputgroup>
+                  }
+                </div>
+              }
+            </div>
+          </div>
+        }
+      </div>
+    }
+
+    @if (additionalDetails().length > 0) {
+      <div class="section-card">
+        <h3 class="section-title">
+          <i class="fa-solid fa-ellipsis"></i>
+          {{ 'PRODUCT_CONDITION_ADDITIONAL_DETAILS' | translate }}
+        </h3>
+
+        <div class="metric-stack">
+          @for (detail of additionalDetails(); track detail.idShort ?? $index) {
+            <aas-generic-viewer
+              [rowData]="detail"
+              [idShortPath]="detail.idShort ?? ''"
+              [submodelId]="submodel?.id ?? ''"
+            ></aas-generic-viewer>
+          }
+        </div>
+      </div>
+    }
+  } @else {
+    <div class="section-card">
+      <h3 class="section-title">
+        <i class="fa-solid fa-circle-info"></i>
+        {{ 'PRODUCT_CONDITION_OVERVIEW' | translate }}
+      </h3>
+      <p class="empty-state">{{ 'PRODUCT_CONDITION_NO_DATA' | translate }}</p>
+    </div>
+  }
+</div>

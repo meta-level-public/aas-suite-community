@@ -1,0 +1,8 @@
+.select-type-layout {
+  margin-top: 1rem;
+}
+
+.select-type-item.selected {
+  border-radius: var(--aas-radius-md, 0.75rem);
+  box-shadow: 0 0 0 2px var(--p-primary-color, #3b82f6);
+}

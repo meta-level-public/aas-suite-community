@@ -1,0 +1,49 @@
+<div class="address-map-container">
+  <button type="button" class="map-header" (click)="toggleOverview()">
+    <span class="map-title">{{ 'ADDRESS_MAP.TITLE' | translate }}</span>
+    <i class="pi" [class.pi-chevron-down]="overviewExpanded()" [class.pi-chevron-right]="!overviewExpanded()"></i>
+  </button>
+
+  @if (overviewExpanded() && addresses().length > 0) {
+    <div class="map-content">
+      <div class="address-list">
+        <h5>{{ 'ADDRESS_MAP.FOUND_ADDRESSES' | translate }}:</h5>
+        <ul class="addresses">
+          @for (address of addresses(); track $index) {
+            <li class="address-item">
+              <button type="button" class="address-header" (click)="toggleStep(address.stepIndex)">
+                <span class="step-number">{{ address.stepIndex + 1 }}</span>
+                <div class="address-content">
+                  <strong>{{ 'ADDRESS_MAP.STEP' | translate }} {{ address.stepIndex + 1 }}</strong>
+                  <span class="address-summary">{{ address.address || 'N/A' }}</span>
+                </div>
+                <i
+                  class="pi address-toggle"
+                  [class.pi-chevron-down]="isStepExpanded(address.stepIndex)"
+                  [class.pi-chevron-right]="!isStepExpanded(address.stepIndex)"
+                ></i>
+              </button>
+
+              @if (isStepExpanded(address.stepIndex)) {
+                <div class="address-details">
+                  {{ address.address || 'N/A' }}<br />
+                  {{ address.country || '' }} {{ address.zipCode || '' }} {{ address.city || '' }}<br />
+                </div>
+              }
+            </li>
+          }
+        </ul>
+      </div>
+
+      <div class="map-wrapper">
+        <div #mapContainer class="leaflet-map"></div>
+      </div>
+    </div>
+  } @else if (!overviewExpanded()) {
+    <div class="collapsed-placeholder">{{ 'ADDRESS_MAP.FOUND_ADDRESSES' | translate }}: {{ addresses().length }}</div>
+  } @else {
+    <div class="no-addresses">
+      <p>{{ 'ADDRESS_MAP.NO_ADDRESSES_FOUND' | translate }}</p>
+    </div>
+  }
+</div>

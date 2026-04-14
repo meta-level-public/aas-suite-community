@@ -1,0 +1,11 @@
+<div class="flex flex-row gap-2 items-center">
+  @let markingFile = this.markingFile() | async;
+  @if (markingFile) {
+    <img [src]="markingFile" height="50px" width="50px" class="scaleImage" alt="marking" />
+  }
+
+  <div clas="flex-flex-col gap-1">
+    <div>{{ markingAdditionalText() }}</div>
+    <div>{{ markingName() }}</div>
+  </div>
+</div>

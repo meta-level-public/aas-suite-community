@@ -1,0 +1,16 @@
+<div class="select-type-layout">
+  <div class="select-type-grid grid grid-cols-1 lg:grid-cols-3 gap-6">
+    @for (option of options; track option.value) {
+      <div class="flex select-type-item" [class.selected]="archeType() === option.value">
+        <aas-selection-card
+          [title]="getTitle(option.value)"
+          [description]="option.descriptionKey | translate"
+          [icon]="option.icon"
+          [severity]="option.severity"
+          [buttonLabel]="getButtonLabel(option.value) | translate"
+          (choose)="selectArcheType(option.value)"
+        ></aas-selection-card>
+      </div>
+    }
+  </div>
+</div>

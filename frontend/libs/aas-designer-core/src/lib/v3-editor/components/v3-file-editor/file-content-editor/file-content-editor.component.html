@@ -1,0 +1,235 @@
+@let fileValue = this.fileValueIncoming();
+<div class="flex flex-col gap-2">
+  <p-toolbar>
+    <ng-template #start>
+      <div class="flex flex-row gap-2">
+        <p-button
+          label="{{ 'UPLOAD_NEW' | translate }}"
+          icon="pi pi-upload"
+          (onClick)="openFileSelectionDialog()"
+          outlined="true"
+          size="small"
+        ></p-button>
+        <!-- <p-button label="{{ 'USE_EXISTING_FILE' | translate }}" icon="pi pi-file" (onClick)="displayFileSelectionDialog.set(true)"></p-button> -->
+        <p-button
+          label="{{ 'USE_NEW_URL' | translate }}"
+          icon="pi pi-link"
+          (onClick)="opNewUrl.toggle($event)"
+          outlined="true"
+          size="small"
+        ></p-button>
+        @if (fileValue != null && fileValue !== '') {
+          <p-button
+            label="{{ 'DELETE' | translate }}"
+            icon="pi pi-trash"
+            (onClick)="delete()"
+            size="small"
+            severity="danger"
+            outlined="true"
+          ></p-button>
+        } @else {
+          <!-- <p-button label="{{ 'DELETE' | translate }}" icon="pi pi-trash" disabled="true" size="small" severity="danger"></p-button> -->
+        }
+        @if (isPreviewable()) {
+          <p-button
+            label="{{ 'LOAD_PREVIEW' | translate }}"
+            icon="pi pi-eye"
+            (onClick)="loadPreview()"
+            outlined="true"
+            severity="warn"
+            size="small"
+          ></p-button>
+        } @else {
+          <!-- <p-button label="{{ 'LOAD_PREVIEW' | translate }}" icon="pi pi-eye" disabled="true" size="small"></p-button> -->
+        }
+        @if (isHttpFile() != true && fileValue !== '') {
+          @if (fileValue != null) {
+            <p-button
+              label="{{ 'DOWNLOAD' | translate }}"
+              icon="pi pi-download"
+              (onClick)="downloadFile()"
+              severity="warn"
+              size="small"
+              outlined="true"
+            ></p-button>
+          } @else {
+            <!-- <p-button
+              label="{{ 'DOWNLOAD' | translate }}"
+              icon="pi pi-download"
+              disabled="true"
+              size="small"
+            ></p-button> -->
+          }
+        }
+        @if (isHttpFile() && !isPreviewable()) {
+          <a href="{{ fileValue }}" target="_blank" class="p-button p-button-sm">{{
+            'OPEN_IN_NEW_WINDOW' | translate
+          }}</a>
+        }
+      </div>
+    </ng-template>
+  </p-toolbar>
+
+  @if (showPathType() === true) {
+    <div class="flex flex-row gap-2">
+      <lib-help-label class="w-14rem" tag="FILE_PATH"></lib-help-label>
+      <p-inputgroup>
+        <input
+          pInputText
+          [value]="currentFileValue()"
+          (input)="updateFileValue($any($event).target?.value)"
+          class="w-full"
+          nullIfEmpty
+        />
+        <p-inputgroup-addon>
+          <p-button icon="pi pi-times" severity="secondary" (onClick)="this.fileValueOutgoing.emit(null)" />
+        </p-inputgroup-addon>
+      </p-inputgroup>
+    </div>
+    <div class="flex flex-row gap-2">
+      <lib-help-label class="w-14rem" tag="CONTENT_TYPE"></lib-help-label>
+      <p-inputgroup>
+        <input
+          pInputText
+          [value]="currentFileContentType()"
+          (input)="updateFileContentType($any($event).target?.value)"
+          class="w-full"
+          nullIfEmpty
+        />
+        <!-- <input pInputText [(ngModel)]="fileContentTypeIncoming" class="w-full" nullIfEmpty /> -->
+        <p-inputgroup-addon>
+          <p-button icon="pi pi-times" severity="secondary" (onClick)="this.fileContentTypeOutgoing.emit('')" />
+        </p-inputgroup-addon>
+      </p-inputgroup>
+    </div>
+  }
+
+  @if (loadingError() === true) {
+    <p-message>{{ 'FILE_COULD_NOT_BE_LOADED' | translate }}</p-message>
+  }
+
+  <p-popover #opNewUrl>
+    <div class="flex flex-col gap-2 w-48rem">
+      <span class="font-medium text-surface-900 dark:text-surface-0 block mb-2">{{ 'USE_NEW_URL' | translate }}</span>
+      <p-inputgroup>
+        <input pInputText [(ngModel)]="newUrl" class="w-48rem" />
+        <p-inputgroup-addon>
+          <i class="pi pi-link"></i>
+        </p-inputgroup-addon>
+      </p-inputgroup>
+      <div class="flex flex-row gap-2 justify-center">
+        <p-button
+          label="{{ 'CANCEL' | translate }}"
+          icon="pi pi-times"
+          (onClick)="newUrl.set(''); opNewUrl.hide()"
+        ></p-button>
+        <p-button label="{{ 'APPLY' | translate }}" icon="pi pi-check" (onClick)="applyUrl(opNewUrl)"></p-button>
+      </div>
+    </div>
+  </p-popover>
+
+  <p-fileUpload
+    #uploader
+    mode="basic"
+    [styleClass]="'hidden-uploader'"
+    chooseIcon="pi pi-upload"
+    [auto]="false"
+    (onSelect)="onSelect($event)"
+    [accept]="acceptTypes()"
+  ></p-fileUpload>
+
+  @if (isPreviewable() && previewLoaded()) {
+    <div class="flex flex-row">
+      <lib-help-label class="w-14rem mt-2" tag="PREVIEW"></lib-help-label>
+      @if (isHttpFile() && fileValue != null) {
+        <div class="flex flex-col w-full">
+          <iframe [src]="fileValue | safe: 'resourceUrl'" class="w-full h-48rem" frameborder="0"></iframe>
+          <a href="{{ fileValue }}" target="_blank" class="p-button">{{ 'OPEN_IN_NEW_WINDOW' | translate }}</a>
+        </div>
+      } @else {
+        @switch (previewType()) {
+          @case ('image') {
+            <img [src]="fileResourceUrl() | safe: 'resourceUrl'" class="w-48rem" alt="File preview image" />
+          }
+          @case ('pdf') {
+            <object
+              [data]="fileResourceUrl() | safe: 'resourceUrl'"
+              class="w-48rem h-48rem"
+              title="PDF file preview"
+            ></object>
+          }
+          @case ('xml') {
+            @let test = xmlContent() | async;
+
+            @if (test != null && test.length > 0) {
+              <markdown>
+                ```xml
+
+                {{ test }}
+              </markdown>
+            }
+          }
+          @default {
+            <div class="flex flex-col w-full">
+              <p-button label="{{ 'DOWNLOAD' | translate }}" icon="pi pi-download"></p-button>
+            </div>
+          }
+        }
+      }
+    </div>
+  }
+</div>
+
+<p-dialog header="{{ 'SELECT_FILE' | translate }}" [(visible)]="displayFileSelectionDialog" [style]="{ width: '50%' }">
+  <p-table
+    #dt
+    class="w-full mt-5"
+    size="small"
+    class="col-span-12"
+    [value]="shellResult()?.supplementalFiles ?? []"
+    responsiveLayout="scroll"
+    scrollHeight="flex"
+    [globalFilterFields]="['fileName', 'filePath', 'isThumbnail', 'isLocal']"
+    [rows]="10"
+    [paginator]="false"
+    [rowHover]="true"
+    sortField="fileName"
+  >
+    <ng-template pTemplate="caption">
+      <div class="flex items-center justify-content"></div>
+    </ng-template>
+    <ng-template header>
+      <tr>
+        <th scope="col" pSortableColumn="fileName">
+          {{ 'FILENAME' | translate }}
+          <p-sortIcon field="fileName"></p-sortIcon>
+        </th>
+        <th scope="col" pSortableColumn="contentType">
+          {{ 'CONTENT_TYPE' | translate }}
+          <p-sortIcon field="contentType"></p-sortIcon>
+        </th>
+        <th scope="col" pSortableColumn="isLocal" class="flex-auto">
+          <div class="flex align -items-center justify-center">
+            {{ 'IS_LOCAL' | translate }}
+            <p-sortIcon field="isLocal"></p-sortIcon>
+          </div>
+        </th>
+        <th scope="col" pSortableColumn="isThumbnail" class="flex-auto">
+          <div class="flex align -items-center justify-center">
+            {{ 'IS_THUMBNAIL' | translate }}
+            <p-sortIcon field="isLocal"></p-sortIcon>
+          </div>
+        </th>
+      </tr>
+    </ng-template>
+    <ng-template #body let-file let-rowIndex="rowIndex">
+      <tr>
+        <td><p-button label="{{ 'APPLY' | translate }}" (onClick)="applyFile(file)" /></td>
+        <td field="fileName">{{ file.filename }}</td>
+        <td field="contentType">{{ file.contentType }}</td>
+        <td field="isLocal">{{ file.isLocal }}</td>
+        <td field="isThumbnail">{{ file.isThumbnail }}</td>
+      </tr>
+    </ng-template>
+  </p-table></p-dialog
+>

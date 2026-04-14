@@ -1,0 +1,10 @@
+{
+  "recommendations": [
+    "johnpapa.angular-essentials",
+    "nrwl.angular-console",
+    "sonarsource.sonarlint-vscode",
+    "firsttris.vscode-jest-runner",
+    "esbenp.prettier-vscode",
+    "ms-playwright.playwright"
+  ]
+}

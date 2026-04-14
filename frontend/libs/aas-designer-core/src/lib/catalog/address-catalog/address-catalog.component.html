@@ -1,0 +1,320 @@
+<div class="flex flex-col flex-auto">
+  <div class="hero-section">
+    <div class="hero-content">
+      <h1 class="hero-title">
+        {{ 'ADDRESSES' | translate }}
+      </h1>
+      <div class="hero-actions">
+        <p-button label="{{ 'ADD' | translate }}" icon="pi pi-plus" (onClick)="createAddress()"></p-button>
+      </div>
+    </div>
+  </div>
+
+  <div class="flex-auto h-0">
+    <div style="position: relative; height: 100%">
+      <div style="position: absolute; height: 100%; width: 100%">
+        <p-table
+          #dt1
+          [value]="addresses"
+          groupRowsBy="name"
+          sortField="name"
+          sortMode="single"
+          [paginator]="true"
+          [rowsPerPageOptions]="[5, 10, 15, 20, 25, 30, 100]"
+          [showCurrentPageReport]="true"
+          currentPageReportTemplate="{{ 'SHOW_FROM_TO_OF_TOTAL' | translate }}"
+          [rowHover]="true"
+          [scrollable]="true"
+          scrollHeight="flex"
+          scrollDirection="both"
+          [rows]="10"
+          [loading]="loading"
+        >
+          <ng-template #header>
+            <tr>
+              <th scope="col" style="width: 10%"></th>
+              <th scope="col" pSortableColumn="name">
+                <div class="flex items-center gap-2">
+                  <i class="pi pi-building text-sm" style="color: var(--p-text-muted-color)"></i>
+                  <span>{{ 'NAME' | translate }}</span>
+                </div>
+                <p-sortIcon field="name"></p-sortIcon>
+              </th>
+              <th scope="col" pSortableColumn="strasse">
+                <div class="flex items-center gap-2">
+                  <i class="pi pi-home text-sm" style="color: var(--p-text-muted-color)"></i>
+                  <span>{{ 'STREET' | translate }}</span>
+                </div>
+                <p-sortIcon field="strasse"></p-sortIcon>
+              </th>
+              <th scope="col" pSortableColumn="plz">
+                <div class="flex items-center gap-2">
+                  <i class="pi pi-map text-sm" style="color: var(--p-text-muted-color)"></i>
+                  <span>{{ 'ZIP' | translate }}</span>
+                </div>
+                <p-sortIcon field="plz"></p-sortIcon>
+              </th>
+              <th scope="col" pSortableColumn="ort">
+                <div class="flex items-center gap-2">
+                  <i class="pi pi-map-marker text-sm" style="color: var(--p-text-muted-color)"></i>
+                  <span>{{ 'CITY_TOWN' | translate }}</span>
+                </div>
+                <p-sortIcon field="ort"></p-sortIcon>
+              </th>
+              <th scope="col" pSortableColumn="laenderCode">
+                <div class="flex items-center gap-2">
+                  <i class="pi pi-globe text-sm" style="color: var(--p-text-muted-color)"></i>
+                  <span>{{ 'COUNTRY_CODE' | translate }}</span>
+                </div>
+                <p-sortIcon field="laenderCode"></p-sortIcon>
+              </th>
+              <th scope="col" pSortableColumn="bundesland">
+                <div class="flex items-center gap-2">
+                  <i class="pi pi-flag text-sm" style="color: var(--p-text-muted-color)"></i>
+                  <span>{{ 'STATE_COUNTY' | translate }}</span>
+                </div>
+                <p-sortIcon field="bundesland"></p-sortIcon>
+              </th>
+            </tr>
+          </ng-template>
+          <ng-template pTemplate="body" let-address>
+            <tr>
+              <td>
+                <p-button
+                  icon="pi pi-ellipsis-v"
+                  styleClass="p-button-text p-button-secondary"
+                  (onClick)="menu.toggle($event)"
+                ></p-button>
+                <p-menu
+                  appendTo="body"
+                  (onShow)="onShowActions(address)"
+                  #menu
+                  [popup]="true"
+                  [model]="menuItems"
+                ></p-menu>
+              </td>
+              <td>
+                <div class="flex items-center gap-2">
+                  <i class="pi pi-briefcase text-sm" style="color: var(--aas-warning-text)"></i>
+                  <span class="font-medium">{{ address.name }}</span>
+                </div>
+              </td>
+              <td>
+                <span class="text-sm">{{ address.strasse }}</span>
+              </td>
+              <td>
+                <span class="text-sm">{{ address.plz }}</span>
+              </td>
+              <td>
+                <span class="text-sm">{{ address.ort }}</span>
+              </td>
+              <td>
+                <span class="text-sm">{{ address.laenderCode }}</span>
+              </td>
+              <td>
+                <span class="text-sm">{{ address.bundesland }}</span>
+              </td>
+            </tr>
+          </ng-template>
+          <ng-template pTemplate="emptymessage" let-address>
+            <tr>
+              <td [attr.colspan]="2" class="text-center">
+                {{ 'NO_ADDRESS_HAS_BEEN_ADDED_YET' | translate }}
+              </td>
+            </tr>
+          </ng-template>
+        </p-table>
+      </div>
+
+      <!-- Add new Address -->
+      @if (displayAddressModal) {
+        <p-dialog [(visible)]="displayAddressModal" [style]="{ width: '60vw' }">
+          <ng-template #header>
+            @if (addressModalOption === 'new') {
+              <div class="flex flex-col">
+                <div class="flex items-center gap-3 mb-2">
+                  <div
+                    class="flex items-center justify-center w-12 h-12 rounded-full"
+                    style="background: var(--aas-warning-surface)"
+                  >
+                    <i class="pi pi-map-marker text-xl" style="color: var(--aas-warning-text)"></i>
+                  </div>
+                  <div class="font-semibold" style="font-size: var(--aas-title-md)">
+                    {{ 'ADD_ADDRESS' | translate }}
+                  </div>
+                </div>
+                <p class="text-sm ml-15" style="color: var(--p-text-muted-color)">
+                  {{ 'ADDRESS_CREATE_DESCRIPTION' | translate }}
+                </p>
+              </div>
+            }
+            @if (addressModalOption === 'update') {
+              <div class="flex flex-col">
+                <div class="flex items-center gap-3 mb-2">
+                  <div
+                    class="flex items-center justify-center w-12 h-12 rounded-full"
+                    style="background: var(--aas-warning-surface)"
+                  >
+                    <i class="pi pi-pencil text-xl" style="color: var(--aas-warning-text)"></i>
+                  </div>
+                  <div class="font-semibold" style="font-size: var(--aas-title-md)">
+                    {{ 'EDIT_ADDRESS' | translate }}
+                  </div>
+                </div>
+                <p class="text-sm ml-15" style="color: var(--p-text-muted-color)">
+                  {{ 'ADDRESS_EDIT_DESCRIPTION' | translate }}
+                </p>
+              </div>
+            }
+          </ng-template>
+
+          <div class="flex flex-col gap-6 py-4">
+            <!-- Name -->
+            <div
+              class="p-4 rounded-lg border"
+              style="background: var(--aas-surface-subtle); border-color: var(--p-content-border-color)"
+            >
+              <div class="flex items-center gap-2 mb-3">
+                <i class="pi pi-building" style="color: var(--p-text-muted-color)"></i>
+                <div class="font-semibold text-base">
+                  {{ 'NAME' | translate }}
+                  <span class="ml-1" style="color: var(--aas-danger-icon)">*</span>
+                </div>
+              </div>
+              <p class="text-sm mb-3" style="color: var(--p-text-muted-color)">
+                {{ 'ADDRESS_NAME_HELP' | translate }}
+              </p>
+              <input
+                pInputText
+                id="nameFallback"
+                type="text"
+                class="hidden"
+                name="nameFallback"
+                [ngModel]="addressDialogEntry.name"
+                readonly
+              />
+              <aas-multilanguage-property
+                [propList]="addressDialogEntry.nameMlpKeyValues"
+                [id]="'addressCatalogName'"
+                [syncGermanToEnglishOnEdit]="true"
+              ></aas-multilanguage-property>
+            </div>
+
+            <!-- Street -->
+            <div
+              class="p-4 rounded-lg border"
+              style="background: var(--aas-warning-surface); border-color: var(--aas-warning-border)"
+            >
+              <div class="flex items-center gap-2 mb-3">
+                <i class="pi pi-home" style="color: var(--aas-warning-text)"></i>
+                <div class="font-semibold text-base">
+                  {{ 'STREET' | translate }}
+                  <span class="ml-1" style="color: var(--aas-danger-icon)">*</span>
+                </div>
+              </div>
+              <aas-multilanguage-property
+                [propList]="addressDialogEntry.strasseMlpKeyValues"
+                [id]="'addressCatalogStreet'"
+                [syncGermanToEnglishOnEdit]="true"
+              ></aas-multilanguage-property>
+            </div>
+
+            <!-- ZIP and City in a row -->
+            <div
+              class="p-4 rounded-lg border"
+              style="background: var(--aas-surface-subtle); border-color: var(--p-content-border-color)"
+            >
+              <div class="flex items-center gap-2 mb-3">
+                <i class="pi pi-map" style="color: var(--p-text-muted-color)"></i>
+                <div class="font-semibold text-base">
+                  {{ 'ZIP' | translate }} / {{ 'CITY_TOWN' | translate }}
+                  <span class="ml-1" style="color: var(--aas-danger-icon)">*</span>
+                </div>
+              </div>
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <input
+                    pInputText
+                    id="zip"
+                    type="text"
+                    class="inputfield w-full"
+                    name="zip"
+                    [(ngModel)]="addressDialogEntry.plz"
+                    placeholder="z.B. 10115"
+                    required
+                  />
+                </div>
+
+                <div>
+                  <aas-multilanguage-property
+                    [propList]="addressDialogEntry.ortMlpKeyValues"
+                    [id]="'addressCatalogCity'"
+                    [syncGermanToEnglishOnEdit]="true"
+                  ></aas-multilanguage-property>
+                </div>
+              </div>
+            </div>
+
+            <!-- Country and State in a row -->
+            <div
+              class="p-4 rounded-lg border"
+              style="background: var(--aas-warning-surface); border-color: var(--aas-warning-border)"
+            >
+              <div class="flex items-center gap-2 mb-3">
+                <i class="pi pi-globe" style="color: var(--aas-warning-text)"></i>
+                <div class="font-semibold text-base">
+                  {{ 'COUNTRY_CODE' | translate }} / {{ 'STATE_COUNTY' | translate }}
+                  <span class="ml-1" style="color: var(--aas-danger-icon)">*</span>
+                </div>
+              </div>
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <aas-country-code
+                    class="inputfield w-full"
+                    [preSelectedCountry]="addressDialogEntry.laenderCode ? addressDialogEntry.laenderCode : ''"
+                    [inputId]="'country-code'"
+                    (selectedCountry)="setCountryCode($event)"
+                    [isRequired]="true"
+                  ></aas-country-code>
+                </div>
+
+                <div>
+                  <aas-multilanguage-property
+                    [propList]="addressDialogEntry.bundeslandMlpKeyValues"
+                    [id]="'addressCatalogState'"
+                    [syncGermanToEnglishOnEdit]="true"
+                  ></aas-multilanguage-property>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <ng-template pTemplate="footer">
+            <footer class="mt-4 pt-4 border-t">
+              <div class="flex flex-row gap-2 justify-end">
+                <p-button
+                  label="{{ 'CANCEL' | translate }}"
+                  icon="pi pi-times"
+                  severity="danger"
+                  outlined="true"
+                  (onClick)="displayAddressModal = false"
+                  [loading]="loading"
+                ></p-button>
+                <p-button
+                  label="{{ 'SAVE' | translate }}"
+                  icon="pi pi-save"
+                  severity="success"
+                  [disabled]="dataValid() === false"
+                  (onClick)="saveNewAddress()"
+                  [loading]="loading"
+                ></p-button>
+              </div>
+            </footer>
+          </ng-template>
+        </p-dialog>
+      }
+
+      <aas-confirm-dialog></aas-confirm-dialog>
+    </div>
+  </div>
+</div>

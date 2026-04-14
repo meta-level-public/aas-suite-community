@@ -1,0 +1,45 @@
+<div class="flex h-full min-h-0 flex-col gap-2">
+  <div class="hero-section flex-shrink-0">
+    <div class="hero-content">
+      <h1 class="hero-title">{{ 'AAS_INFRASTRUCTURE' | translate }}</h1>
+      <div class="hero-actions">
+        @if (accessService.isAllowed('ORGA_ADMIN') && mode() === 'view') {
+          <p-button
+            pRipple
+            label="{{ 'ADD' | translate }}"
+            icon="pi pi-plus"
+            [loading]="loading()"
+            (onClick)="startAdding()"
+          ></p-button>
+        }
+        @if (accessService.isAllowed('ORGA_ADMIN') && mode() === 'add') {
+          <p-button
+            pRipple
+            label="{{ 'CANCEL' | translate }}"
+            icon="pi pi-times"
+            severity="secondary"
+            [loading]="loading()"
+            (onClick)="cancelAdding()"
+          ></p-button>
+          <p-button
+            pRipple
+            label="{{ 'SAVE' | translate }}"
+            icon="pi pi-save"
+            severity="success"
+            [loading]="loading()"
+            (onClick)="saveSettings()"
+            [disabled]="!saveEnabled()"
+          ></p-button>
+        }
+      </div>
+    </div>
+  </div>
+  <div #contentScroll class="flex-1 min-h-0 overflow-y-auto">
+    @if (mode() === 'add') {
+      <aas-infrastructure-add [loading]="loading" [settings]="settings()" #addComponent></aas-infrastructure-add>
+    } @else {
+      <p>{{ 'AAS_INFRASTRUCTURE_EXPLANATION_1' | translate }}</p>
+      <p>{{ 'AAS_INFRASTRUCTURE_EXPLANATION_2' | translate }}</p>
+    }
+  </div>
+</div>

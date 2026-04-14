@@ -1,0 +1,171 @@
+@if (element != null && element.content != null) {
+  <div class="flex flex-col gap-2">
+    <p-fieldset
+      [toggleable]="true"
+      class="mt-2"
+      [collapsed]="uiStateStore.detailsPanelCollapsed()"
+      (collapsedChange)="uiStateStore.setDetailsPanelCollapsed($event)"
+    >
+      <ng-template #header>
+        <div class="flex items-center gap-2 px-2">
+          <lib-help-label tag="DETAILS" isLabelBold="true"></lib-help-label>
+        </div>
+      </ng-template>
+
+      <div class="flex flex-col gap-2">
+        <aas-v3-id-short [element]="element" class="w-full" [shellResult]="shellResult"></aas-v3-id-short>
+        <div class="flex flex-row w-full gap-2">
+          <lib-help-label class="w-14rem mt-2" tag="DESCRIPTION"></lib-help-label>
+          <aas-v3-lang-string-list
+            [langStrings]="element.content.description"
+            [langStringParent]="element.content"
+            [langStringParentPropertyName]="'description'"
+            class="w-full"
+          ></aas-v3-lang-string-list>
+        </div>
+        <div class="flex flex-row w-full gap-2">
+          <lib-help-label class="w-14rem mt-2" tag="DISPLAY_NAME"></lib-help-label>
+          <aas-v3-lang-string-list
+            [langStrings]="element.content.displayName"
+            [langStringParent]="element.content"
+            [langStringParentPropertyName]="'displayName'"
+            class="w-full"
+          ></aas-v3-lang-string-list>
+        </div>
+        <aas-v3-category [element]="element" class="w-full"></aas-v3-category>
+      </div>
+    </p-fieldset>
+    <p-fieldset
+      [toggleable]="true"
+      class="mt-2"
+      [collapsed]="uiStateStore.contentPanelCollapsed()"
+      (collapsedChange)="uiStateStore.setContentPanelCollapsed($event)"
+    >
+      <ng-template #header>
+        <div class="flex items-center gap-2 px-2">
+          <lib-help-label tag="CONTENT" isLabelBold="true"></lib-help-label>
+        </div>
+      </ng-template>
+      <div class="flex flex-col gap-2">
+        <div class="flex flex-row w-full gap-2">
+          <lib-help-label class="w-14rem mt-2" tag="MESSAGE_BROKER"></lib-help-label>
+          <aas-v3-reference
+            [reference]="element.content.messageBroker"
+            [referenceParent]="element.content"
+            [referenceParentField]="'messageBroker'"
+            [referenceParentIsArray]="false"
+            [shellResult]="shellResult"
+            class="w-full"
+          ></aas-v3-reference>
+        </div>
+        <div class="flex flex-row w-full gap-2">
+          <lib-help-label class="w-14rem mt-2" tag="MESSAGE_TOPIC"></lib-help-label>
+          <input pInputText [(ngModel)]="element.content.messageTopic" class="w-full" nullIfEmpty />
+        </div>
+        <div class="flex flex-row w-full gap-2">
+          <lib-help-label class="w-14rem mt-2" tag="LAST_UPDATE"></lib-help-label>
+          <input pInputText [(ngModel)]="element.content.lastUpdate" class="w-full" nullIfEmpty />
+        </div>
+        <div class="flex flex-row w-full gap-2">
+          <lib-help-label class="w-14rem mt-2" tag="MIN_INTERVAL"></lib-help-label>
+          <input pInputText [(ngModel)]="element.content.minInterval" class="w-full" nullIfEmpty />
+        </div>
+        <div class="flex flex-row w-full gap-2">
+          <lib-help-label class="w-14rem mt-2" tag="MAX_INTERVAL"></lib-help-label>
+          <input pInputText [(ngModel)]="element.content.maxInterval" class="w-full" nullIfEmpty />
+        </div>
+        <div class="flex flex-row w-full gap-2">
+          <lib-help-label class="w-14rem mt-2" tag="EVENT_STATE"></lib-help-label>
+          <p-select
+            [options]="eventStateTypes"
+            [(ngModel)]="element.content.state"
+            optionLabel="label"
+            optionValue="value"
+            class="w-full"
+            class="w-full"
+          ></p-select>
+        </div>
+        <div class="flex flex-row w-full gap-2">
+          <lib-help-label class="w-14rem mt-2" tag="DIRECTION"></lib-help-label>
+          <p-select
+            [options]="directionTypes"
+            [(ngModel)]="element.content.direction"
+            optionLabel="label"
+            optionValue="value"
+            class="w-full"
+            class="w-full"
+          ></p-select>
+        </div>
+        <div class="flex flex-row w-full gap-2">
+          <lib-help-label class="w-14rem mt-2" tag="OBSERVED"></lib-help-label>
+          <aas-v3-reference
+            [reference]="element.content.observed"
+            [referenceParent]="element.content"
+            [referenceParentField]="'observed'"
+            [referenceParentIsArray]="false"
+            [shellResult]="shellResult"
+            class="w-full"
+          ></aas-v3-reference>
+        </div>
+      </div>
+    </p-fieldset>
+
+    <!-- <p-fieldset legend="{{ 'EXTENSIONS' | translate }}" [toggleable]="true" [collapsed]="true">
+      <aas-v3-extensions [extensions]="file.content.extensions" [extensionsParent]="file.content"></aas-v3-extensions>
+    </p-fieldset> -->
+    <p-fieldset
+      [toggleable]="true"
+      [collapsed]="true"
+      [ngClass]="{ 'border-error': hasSemanticErrors }"
+      [collapsed]="uiStateStore.semanticIdPanelCollapsed()"
+      (collapsedChange)="uiStateStore.setSemanticIdPanelCollapsed($event)"
+    >
+      <ng-template #header>
+        <div class="flex items-center gap-2 px-2">
+          <lib-help-label tag="SEMANTIC_ID" isLabelBold="true"></lib-help-label>
+        </div>
+      </ng-template>
+      <div class="flex flex-col gap-2">
+        <aas-v3-semantic-description
+          [semanticId]="element.content.semanticId"
+          [supplemantalSemanticIds]="element.content.supplementalSemanticIds"
+          [referenceParent]="element.content"
+          [referenceParentPropertyName]="'semanticId'"
+          [shellResult]="shellResult"
+        ></aas-v3-semantic-description>
+      </div>
+    </p-fieldset>
+    <p-fieldset
+      [toggleable]="true"
+      [collapsed]="uiStateStore.qualifiersPanelCollapsed()"
+      (collapsedChange)="uiStateStore.setQualifiersPanelCollapsed($event)"
+    >
+      <ng-template #header>
+        <div class="flex items-center gap-2 px-2">
+          <lib-help-label tag="QUALIFIERS" isLabelBold="true"></lib-help-label>
+        </div>
+      </ng-template>
+      <aas-v3-qualifiers
+        [qualifiers]="element.content.qualifiers"
+        [qualifiersParent]="element.content"
+      ></aas-v3-qualifiers>
+    </p-fieldset>
+    <p-fieldset
+      [toggleable]="true"
+      [collapsed]="uiStateStore.embeddedDataspecPanelCollapsed()"
+      (collapsedChange)="uiStateStore.setEmbeddedDataspecPanelCollapsed($event)"
+    >
+      <ng-template #header>
+        <div class="flex items-center gap-2 px-2">
+          <lib-help-label tag="EMBEDDED_DATA_SPECIFICATIONS" isLabelBold="true"></lib-help-label>
+        </div>
+      </ng-template>
+
+      <aas-v3-embedded-data-specification
+        [dataSpecification]="element.content.embeddedDataSpecifications"
+        [dataSpecificationParent]="element.content"
+        [shellResult]="shellResult"
+      ></aas-v3-embedded-data-specification>
+    </p-fieldset>
+  </div>
+}

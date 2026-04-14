@@ -1,0 +1,24 @@
+<p-confirmdialog [style]="{ width: 'min(92vw, 36rem)' }" [closable]="false" [draggable]="false">
+  <ng-template #headless let-message let-onAccept="onAccept" let-onReject="onReject">
+    <div class="aas-confirm-headless">
+      <div class="aas-confirm-icon-wrap">
+        <i class="pi pi-question aas-confirm-icon"></i>
+      </div>
+      <span class="aas-confirm-title">{{ message.header }}</span>
+      <p class="aas-confirm-message">{{ message.message }}</p>
+      <div class="aas-confirm-actions">
+        <p-button
+          label="{{ 'primeng.reject' | translate }}"
+          [outlined]="true"
+          (onClick)="onReject()"
+          styleClass="aas-confirm-btn-secondary"
+        ></p-button>
+        <p-button
+          label="{{ 'primeng.accept' | translate }}"
+          (onClick)="onAccept()"
+          styleClass="aas-confirm-btn-primary"
+        ></p-button>
+      </div>
+    </div>
+  </ng-template>
+</p-confirmdialog>

@@ -1,0 +1,7 @@
+.contact-map {
+  width: 100%;
+  height: 260px;
+  border: 1px solid var(--p-content-border-color);
+  border-radius: var(--aas-radius-sm);
+  overflow: hidden;
+}

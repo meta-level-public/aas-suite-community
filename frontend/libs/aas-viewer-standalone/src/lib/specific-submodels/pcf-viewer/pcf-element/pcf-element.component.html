@@ -1,0 +1,49 @@
+<div class="flex flex-col gap-2">
+  <p-table [value]="[' ']" size="small" stripedRows>
+    <ng-template pTemplate="body">
+      @if (calculationMethod() != null && calculationMethod() !== '') {
+        <tr>
+          <td style="width: 25%">{{ 'PCF_CALCULATION_METHOD' | translate }}</td>
+          <td class="font-bold">{{ calculationMethod() }}</td>
+        </tr>
+      }
+      @if (pcfCo2Eq() != null && pcfCo2Eq() !== '') {
+        <tr>
+          <td style="width: 25%">{{ 'PCFCO2_EQ' | translate }}</td>
+          <td class="font-bold">{{ pcfCo2Eq() }} {{ pcfCo2EqUnit() | async }}</td>
+        </tr>
+      }
+      @if (pcfReferenceValueForCalculation() != null && pcfReferenceValueForCalculation() !== '') {
+        <tr>
+          <td style="width: 25%">{{ 'PCF_REFERENCE_VALUE_FOR_CALCULATION' | translate }}</td>
+          <td class="font-bold">{{ pcfReferenceValueForCalculation() }}</td>
+        </tr>
+      }
+      @if (pcfQuantityOfMeasureForCalculation() != null && pcfQuantityOfMeasureForCalculation() !== '') {
+        <tr>
+          <td style="width: 25%">{{ 'PCF_QUANTITY_OF_MEASURE_FOR_CALCULATION' | translate }}</td>
+          <td class="font-bold">{{ pcfQuantityOfMeasureForCalculation() }}</td>
+        </tr>
+      }
+      @if (pcfLifecyclePhase() != null && pcfLifecyclePhase() !== '') {
+        <tr>
+          <td style="width: 25%">{{ 'PCF_LIFECYCLE_PHASE' | translate }}</td>
+          <td class="font-bold">{{ pcfLifecyclePhase() }}</td>
+        </tr>
+      }
+      @if (pcfEmissionFactor() != null && pcfEmissionFactor() !== '') {
+        <tr>
+          <td style="width: 25%">{{ 'PCF_EMISSION_FACTOR' | translate }}</td>
+          <td class="font-bold">{{ pcfEmissionFactor() }} {{ pcfEmissionFactorUnit() | async }}</td>
+        </tr>
+      }
+      @if (pcfEnergyUsageCumulated() != null && pcfEnergyUsageCumulated() !== '') {
+        <tr>
+          <td style="width: 25%">{{ 'PCF_ENERGY_USAGE_CUMULATED' | translate }}</td>
+          <td class="font-bold">{{ pcfEnergyUsageCumulated() }} {{ pcfEnergyUsageCumulatedUnit() | async }}</td>
+        </tr>
+      }
+    </ng-template>
+  </p-table>
+  <aas-pcf-address [pcfAddress]="pcfAddress()" markerType="pcf"></aas-pcf-address>
+</div>

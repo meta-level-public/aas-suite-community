@@ -1,0 +1,546 @@
+<div class="flex flex-col flex-auto gap-2">
+  <div class="flex flex-row justify-between">
+    <div class="flex flex-row" style="max-width: 50%">
+      <div class="w-full">
+        @if (showUpdateWarning()) {
+          <p-message severity="warn" closable>
+            <div class="flex flex-col gap-1">
+              {{ 'UPDATE_WARNING' | translate }}
+              <div class="flex flex-row gap-2">
+                <p-button
+                  icon="fa-solid fa-code-compare"
+                  label="{{ 'SHOW_CHANGES' | translate }}"
+                  (onClick)="showUpdateChanges()"
+                ></p-button>
+                <p-button
+                  icon="pi pi-trash"
+                  label="{{ 'RELOAD_AND_DISCARD' | translate }}"
+                  (onClick)="discardAndReload()"
+                ></p-button>
+              </div>
+            </div>
+          </p-message>
+        }
+        <div class="mt-2 ml-2 mr-2 px-3 py-2 rounded-lg flex items-center gap-2">
+          <i class="pi pi-server" style="color: var(--p-primary-color)"></i>
+          <span class="font-semibold">{{ 'AAS_INFRASTRUCTURE' | translate }}:</span>
+          <span>{{ currentInfrastructure()?.name ?? '-' }}</span>
+        </div>
+      </div>
+    </div>
+    <div class="flex justify-end gap-2 m-2">
+      @if (validationErrorCount > 0) {
+        <em
+          pTooltip="{{ 'VALIDATE' | translate }}"
+          class="pi pi-exclamation-triangle mt-3 mr-2 error-badge"
+          pBadge
+          severity="info"
+          pTooltip="{{ 'NUM_VALIDATION_ERRORS' | translate }}"
+          [value]="validationErrors().length.toString()"
+          (click)="showValidationResult()"
+        ></em>
+      }
+      <p-splitButton
+        icon="pi pi-check-circle"
+        appendTo="body"
+        severity="secondary"
+        (onClick)="validate()"
+        [model]="validateMenuItems"
+        size="small"
+      ></p-splitButton>
+
+      <p-splitButton
+        icon="pi pi-save"
+        appendTo="body"
+        severity="success"
+        (onClick)="save(true, null)"
+        [model]="saveMenuItems"
+        [disabled]="loading || !hasChanges()"
+        size="small"
+      ></p-splitButton>
+
+      <p-button
+        pTooltip="{{ 'DELETE' | translate }}"
+        icon="pi pi-trash"
+        severity="danger"
+        (onClick)="deleteShell()"
+        [disabled]="loading || hasChanges()"
+        size="small"
+      ></p-button>
+      <p-button
+        pTooltip="{{ 'RESET' | translate }}"
+        icon="pi pi-times"
+        severity="danger"
+        (onClick)="reset()"
+        [disabled]="loading || !hasChanges()"
+        size="small"
+      ></p-button>
+      <p-button
+        pTooltip="{{ 'UNDO' | translate }}"
+        icon="pi pi-undo"
+        appendTo="body"
+        [disabled]="loading || !treeService.hasUndoStep()"
+        (onClick)="treeService.undo()"
+        size="small"
+      ></p-button>
+      <p-button
+        pTooltip="{{ 'REDO' | translate }}"
+        icon="pi pi-refresh"
+        appendTo="body"
+        [disabled]="loading || !treeService.hasRedoStep()"
+        (onClick)="treeService.redo()"
+        size="small"
+      ></p-button>
+      <p-button
+        pTooltip="{{ 'TREE_SELECT_BACKWARD' | translate }}"
+        icon="pi pi-step-backward"
+        appendTo="body"
+        (onClick)="treeService.previousNode()"
+        [disabled]="treeService.currentIndex === 0"
+        size="small"
+      ></p-button>
+      <p-button
+        pTooltip="{{ 'TREE_SELECT_FORWARD' | translate }}"
+        icon="pi pi-step-forward"
+        appendTo="body"
+        (onClick)="treeService.nextNode()"
+        [disabled]="!treeService.hasNextNode()"
+        size="small"
+      ></p-button>
+      <p-button
+        icon="pi pi-ellipsis-v"
+        severity="info"
+        (onClick)="initMenuItems(); menu.toggle($event)"
+        size="small"
+      ></p-button>
+      <p-menu #menu [popup]="true" [model]="menuItems" appendTo="body"></p-menu>
+    </div>
+  </div>
+  <div class="flex-auto h-0 m-2">
+    <div style="position: relative; height: 100%">
+      <div style="position: absolute; height: 100%; width: 100%" class="overflow-auto">
+        @if (isViewerToggleSelection()) {
+          <div class="flex flex-row flex-wrap justify-end items-center mb-2 gap-2">
+            <p-button
+              label="{{ 'VIEWER' | translate }}"
+              [outlined]="capabilityDetailMode !== 'viewer'"
+              severity="secondary"
+              (onClick)="showCapabilityViewer()"
+              size="small"
+            ></p-button>
+            <p-button
+              label="{{ 'EDIT' | translate }}"
+              [outlined]="capabilityDetailMode !== 'edit'"
+              severity="secondary"
+              (onClick)="showCapabilityEditor()"
+              size="small"
+            ></p-button>
+            @if (isAssetInterfacesDescriptionSubmodelSelection()) {
+              <p-button
+                label="{{ 'AID_INTERFACE_ADD' | translate }}"
+                icon="pi pi-plus"
+                [outlined]="true"
+                severity="secondary"
+                (onClick)="openAddAssetInterfacesDescriptionInterfaceAddon()"
+                size="small"
+              ></p-button>
+            }
+            @if (isAssetInterfacesDescriptionInterfaceSelection()) {
+              <p-button
+                label="{{ 'AID_INTERFACE_EDIT_WITH_ASSISTANT' | translate }}"
+                icon="pi pi-wrench"
+                [outlined]="true"
+                severity="secondary"
+                (onClick)="openEditAssetInterfacesDescriptionInterfaceAddon()"
+                size="small"
+              ></p-button>
+              <p-button
+                label="{{ 'AID_INTERFACE_DELETE' | translate }}"
+                icon="pi pi-trash"
+                [outlined]="true"
+                severity="danger"
+                (onClick)="deleteAssetInterfacesDescriptionInterface()"
+                size="small"
+              ></p-button>
+            }
+            @if (isCapabilitySetSelection()) {
+              <p-button
+                label="{{ 'ADD_CAPABILITY' | translate }}"
+                icon="pi pi-plus"
+                [outlined]="true"
+                severity="secondary"
+                (onClick)="openAddCapabilityAddonForSet()"
+                size="small"
+              ></p-button>
+            }
+            @if (isCapabilityContainerSelection()) {
+              <p-button
+                label="{{ 'CAPABILITY_EDIT_WITH_ASSISTANT' | translate }}"
+                icon="pi pi-wrench"
+                [outlined]="true"
+                severity="secondary"
+                (onClick)="openCapabilityContainerAddon()"
+                size="small"
+              ></p-button>
+            }
+            @if (isPcfAssistantContextSelection()) {
+              @if (isPcfListSelection()) {
+                <p-button
+                  label="{{ 'PCF_ADD_ENTRY' | translate }}"
+                  icon="pi pi-plus"
+                  [outlined]="true"
+                  severity="secondary"
+                  (onClick)="openAddPcfEntryAddon()"
+                  size="small"
+                ></p-button>
+              }
+              @if (isPcfEntrySelection()) {
+                <p-button
+                  label="{{ 'PCF_EDIT_WITH_ASSISTANT' | translate }}"
+                  icon="pi pi-wrench"
+                  [outlined]="true"
+                  severity="secondary"
+                  (onClick)="openEditPcfEntryAddon()"
+                  size="small"
+                ></p-button>
+              }
+            }
+          </div>
+        }
+
+        @if (isCapabilityViewerMode()) {
+          @if (
+            isCapabilityDescriptionSubmodelSelection() || isCapabilitySetSelection() || isCapabilityContainerSelection()
+          ) {
+            @if (capabilityViewerSubmodel != null) {
+              <aas-capability-description-viewer
+                [submodel]="capabilityViewerSubmodel"
+                [allSubmodels]="capabilityViewerSubmodels"
+                [capabilitySet]="capabilityViewerSet"
+                [capabilityContainer]="capabilityViewerContainer"
+                [currentLanguage]="currentLanguage"
+                [showHeader]="true"
+              ></aas-capability-description-viewer>
+            }
+          } @else {
+            <aas-submodel-specialized-viewer
+              [submodel]="capabilityViewerSubmodel"
+              [currentLanguage]="currentLanguage"
+              [bomEditable]="true"
+              [assetInformation]="assetInformation"
+              [aasIdShort]="idShort"
+              [enableBomReinitializeAction]="true"
+              (requestBomReinitializeInEditor)="onBomReinitializeInViewerRequested()"
+              (requestBomEditModeInEditor)="showCapabilityEditor()"
+            ></aas-submodel-specialized-viewer>
+          }
+        }
+
+        @if (isPcfViewerMode()) {
+          @if (isProductCarbonFootprintListSelection() && pcfListViewerSubmodel != null) {
+            <aas-pcf-viewer-v1 [pcfModel]="pcfListViewerSubmodel"></aas-pcf-viewer-v1>
+          }
+          @if (isProductOrSectorSpecificCarbonFootprintListSelection() && pcfListViewerSubmodel != null) {
+            <aas-product-or-sector-specific-pcf-viewer
+              [pcfModel]="pcfListViewerSubmodel"
+            ></aas-product-or-sector-specific-pcf-viewer>
+          }
+          @if (isProductCarbonFootprintEntrySelection() && pcfSelectedStep != null) {
+            <aas-pcf-step-viewer [step]="pcfSelectedStep"></aas-pcf-step-viewer>
+          }
+          @if (isProductOrSectorSpecificCarbonFootprintEntrySelection() && pcfSelectedStep != null) {
+            <aas-product-or-sector-specific-pcf-step-viewer
+              [step]="pcfSelectedStep"
+            ></aas-product-or-sector-specific-pcf-step-viewer>
+          }
+        }
+
+        @if (isCapabilityEditMode()) {
+          <div>
+            @switch (selectedElement?.editorType) {
+              @case (EditorTypeOption.AssetAdministrationShells) {
+                <aas-v3-shells [shellParent]="selectedElement" [shellResult]="shellResult"></aas-v3-shells>
+              }
+              @case (EditorTypeOption.AssetAdministrationShell) {
+                <aas-v3-shell [shell]="selectedElement" [shellResult]="shellResult"></aas-v3-shell>
+              }
+              @case (EditorTypeOption.Property) {
+                <aas-v3-property-editor
+                  [property]="selectedElement"
+                  [shellResult]="shellResult"
+                  [idShortPath]="getIdShortParentPath(selectedElement, '')"
+                ></aas-v3-property-editor>
+              }
+              @case (EditorTypeOption.SubmodelElementCollection) {
+                <aas-v3-submodel-element-collection-editor
+                  [submodelElementCollection]="selectedElement"
+                  [shellResult]="shellResult"
+                  [repositoryUrl]="repositoryUrl"
+                  [idShortPath]="getIdShortParentPath(selectedElement, '')"
+                ></aas-v3-submodel-element-collection-editor>
+              }
+              @case (EditorTypeOption.File) {
+                <aas-v3-file-editor
+                  [file]="selectedElement"
+                  [shellResult]="shellResult"
+                  [repositoryUrl]="repositoryUrl"
+                  [idShortPath]="getIdShortParentPath(selectedElement, '')"
+                ></aas-v3-file-editor>
+              }
+              @case (EditorTypeOption.Submodel) {
+                <aas-v3-submodel-editor
+                  [submodel]="selectedElement"
+                  [shellResult]="shellResult"
+                  [assetInformation]="assetInformation!"
+                  [idShort]="idShort ?? ''"
+                  [bomReinitializeRequestId]="bomReinitializeRequestId"
+                ></aas-v3-submodel-editor>
+              }
+              @case (EditorTypeOption.SubmodelElementList) {
+                <aas-v3-submodel-element-list-editor
+                  [submodelElementList]="selectedElement"
+                  [shellResult]="shellResult"
+                  [repositoryUrl]="repositoryUrl"
+                  [idShortPath]="getIdShortParentPath(selectedElement, '')"
+                ></aas-v3-submodel-element-list-editor>
+              }
+              @case (EditorTypeOption.ConceptDescription) {
+                <aas-v3-concept-description
+                  [conceptDescription]="selectedElement"
+                  [shellResult]="shellResult"
+                ></aas-v3-concept-description>
+              }
+              @case (EditorTypeOption.MultiLanguageProperty) {
+                <aas-v3-multilanguage-property
+                  [property]="selectedElement"
+                  [shellResult]="shellResult"
+                  [idShortPath]="getIdShortParentPath(selectedElement, '')"
+                ></aas-v3-multilanguage-property>
+              }
+              @case (EditorTypeOption.Operation) {
+                <aas-v3-operation
+                  [operation]="selectedElement"
+                  [shellResult]="shellResult"
+                  [idShortPath]="getIdShortParentPath(selectedElement, '')"
+                ></aas-v3-operation>
+              }
+              @case (EditorTypeOption.ReferenceElement) {
+                <aas-v3-reference-element
+                  [reference]="selectedElement"
+                  [shellResult]="shellResult"
+                  [idShortPath]="getIdShortParentPath(selectedElement, '')"
+                ></aas-v3-reference-element>
+              }
+              @case (EditorTypeOption.Entity) {
+                <aas-v3-entity-element
+                  [entity]="selectedElement"
+                  [shellResult]="shellResult"
+                  [assetInformation]="assetInformation!"
+                  [submodel]="submodel"
+                  [idShort]="idShort ?? ''"
+                  [idShortPath]="getIdShortParentPath(selectedElement, '')"
+                ></aas-v3-entity-element>
+              }
+              @case (EditorTypeOption.Range) {
+                <aas-v3-range-element
+                  [range]="selectedElement"
+                  [shellResult]="shellResult"
+                  [idShortPath]="getIdShortParentPath(selectedElement, '')"
+                ></aas-v3-range-element>
+              }
+              @case (EditorTypeOption.Capability) {
+                <aas-v3-capability-element
+                  [capability]="selectedElement"
+                  [shellResult]="shellResult"
+                  [idShortPath]="getIdShortParentPath(selectedElement, '')"
+                ></aas-v3-capability-element>
+              }
+              @case (EditorTypeOption.ConceptDescriptions) {
+                <aas-v3-concept-descriptions
+                  [conceptDescriptions]="selectedElement?.content.conceptDescriptions"
+                  [shellResult]="shellResult"
+                ></aas-v3-concept-descriptions>
+              }
+              @case (EditorTypeOption.SupplementalFiles) {
+                <aas-v3-supplemental-files [files]="selectedElement"></aas-v3-supplemental-files>
+              }
+              @case (EditorTypeOption.SupplementalFile) {
+                <aas-v3-supplemental-file
+                  [file]="selectedElement"
+                  [aasId]="shellResult?.id ?? 0"
+                  [shellResult]="shellResult"
+                ></aas-v3-supplemental-file>
+              }
+              @case (EditorTypeOption.Blob) {
+                <aas-v3-blob-editor [blob]="selectedElement" [shellResult]="shellResult"></aas-v3-blob-editor>
+              }
+              @case (EditorTypeOption.RelationshipElement) {
+                <aas-v3-relationship-element
+                  [relationship]="selectedElement"
+                  [shellResult]="shellResult"
+                ></aas-v3-relationship-element>
+              }
+              @case (EditorTypeOption.MissingSubmodel) {
+                <div>
+                  <aas-v3-missing-submodel
+                    [submodelRef]="selectedElement"
+                    [shellResult]="shellResult"
+                  ></aas-v3-missing-submodel>
+                </div>
+              }
+              @case (null) {
+                <div>
+                  <p-fieldset legend="{{ 'CONTENT' | translate }}">
+                    <p-message
+                      severity="info"
+                      text="{{ 'NOTHING_SELECTED_IN_TREE' | translate }}"
+                      class="mr-2"
+                    ></p-message>
+                  </p-fieldset>
+                </div>
+              }
+              @case (EditorTypeOption.BasicEventElement) {
+                <div>
+                  <aas-v3-basic-event-element
+                    [element]="selectedElement"
+                    [shellResult]="shellResult"
+                  ></aas-v3-basic-event-element>
+                </div>
+              }
+              @default {
+                <div>was anderes {{ selectedElement?.editorType }}</div>
+              }
+            }
+          </div>
+        }
+      </div>
+    </div>
+  </div>
+</div>
+
+<aas-aasx-export #exportComponent></aas-aasx-export>
+
+<p-dialog header="Diff Json Struktur (debug only)" [(visible)]="displayDiff" [style]="{ width: '95vw' }">
+  <aas-diff-viewer #diffViewer [object2]="shellResult?.v3Shell" [object1]="v3ShellBackup?.v3Shell"></aas-diff-viewer>
+</p-dialog>
+
+<p-dialog header="Update Changes" [(visible)]="showDiffChanges" [style]="{ width: '95vw' }">
+  <aas-diff-viewer
+    #diffViewerChanges
+    [object2]="env2()"
+    [object1]="env1()"
+    [showChanges]="true"
+    [showFullObject]="false"
+  ></aas-diff-viewer>
+</p-dialog>
+
+<p-dialog
+  header="{{ 'VALIDATION_RESULT' | translate: { errors: validationErrors().length } }}"
+  [(visible)]="displayValidationResult"
+  [modal]="true"
+  [maximizable]="true"
+  appendTo="body"
+  [style]="{ width: '75vw' }"
+  [contentStyle]="{ height: '50vh' }"
+>
+  <p-table [value]="validationErrors()" size="small" [stripedRows]="true" [scrollable]="true" scrollHeight="flex">
+    <ng-template #header>
+      <tr>
+        <th scope="col" pSortableColumn="number" style="min-width: 50px"><p-sortIcon field="number" /></th>
+        <th scope="col" pSortableColumn="messageTranslated">
+          {{ 'VALIDATION_ERROR_MESSAGE' | translate }}<p-sortIcon field="messageTranslated" />
+        </th>
+        @if (advanced) {
+          <th scope="col" pSortableColumn="path" style="min-width: 200px">
+            {{ 'OBJECT_PATH' | translate }}<p-sortIcon field="path" />
+          </th>
+        }
+        @if (advanced) {
+          <th scope="col" pSortableColumn="constraint" style="min-width: 200px">
+            {{ 'CONSTRAINT' | translate }}<p-sortIcon field="constraint" />
+          </th>
+        }
+        <th scope="col" style="min-width: 50px"></th>
+      </tr>
+      <tr>
+        <th scope="col" style="min-width: 50px"></th>
+        <th scope="col" style="min-width: 200px">
+          <p-columnFilter type="text" field="messageTranslated" matchMode="contains"></p-columnFilter>
+        </th>
+        @if (advanced) {
+          <th scope="col" style="min-width: 200px">
+            <p-columnFilter type="text" field="path" matchMode="contains"></p-columnFilter>
+          </th>
+        }
+        @if (advanced) {
+          <th scope="col" style="min-width: 200px">
+            <p-columnFilter field="constraint" matchMode="equals" [showMenu]="false">
+              <ng-template #filter let-value let-filter="filterCallback">
+                <p-select [ngModel]="value" [options]="constraintOptions" (onChange)="filter($event.value)">
+                  <ng-template let-option pTemplate="item">
+                    <p-tag [value]="option" severity="secondary" />
+                  </ng-template>
+                </p-select>
+              </ng-template>
+            </p-columnFilter>
+          </th>
+        }
+        <th scope="col" style="min-width: 50px"></th>
+      </tr>
+    </ng-template>
+    <ng-template #body let-error let-index="rowIndex">
+      <tr>
+        <td style="min-width: 50px">{{ error.number }}</td>
+        <td style="min-width: 200px">{{ error.messageTranslated }}</td>
+        @if (advanced) {
+          <td style="min-width: 200px">{{ error.path }}</td>
+        }
+        @if (advanced) {
+          <td style="min-width: 200px">
+            @if (error.constraint !== '' && error.constraint != null) {
+              <p-tag [value]="error.constraint" severity="secondary" />
+            }
+          </td>
+        }
+        <td style="min-width: 50px">
+          <div class="flex flex-row gap-2">
+            <p-button
+              label="{{ 'JUMP_TO_ERROR' | translate }}"
+              class="w-13rem"
+              (onClick)="treeService.jumpToError(error.path); this.displayValidationResult = false"
+              icon="pi pi-chevron-circle-right"
+              size="small"
+            ></p-button>
+            @if (isAutoFixable(error)) {
+              <p-button
+                label="{{ error.label | translate }}"
+                class="w-11rem"
+                (onClick)="fixThis(error)"
+                icon="pi pi-check-circle"
+                size="small"
+              ></p-button>
+            }
+            @if (isAutoFixable(error)) {
+              <p-button
+                label="{{ error.allLabel | translate }}"
+                class="w-11rem"
+                (onClick)="fixAll(error)"
+                icon="pi pi-check-circle"
+                size="small"
+              ></p-button>
+            }
+          </div>
+        </td>
+      </tr>
+    </ng-template>
+  </p-table>
+  <ng-template #footer>
+    <div class="mt-3 flex flex-row justify-center items-center gap-2">
+      {{ 'SIMPLE' | translate }}
+      <p-toggleswitch [(ngModel)]="advanced"></p-toggleswitch>
+      {{ 'ADVANCED' | translate }}
+    </div>
+  </ng-template>
+</p-dialog>
+
+<aas-viewer-main></aas-viewer-main>

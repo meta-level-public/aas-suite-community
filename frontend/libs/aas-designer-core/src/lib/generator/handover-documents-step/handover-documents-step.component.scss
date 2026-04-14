@@ -1,0 +1,72 @@
+.handover-documents-step {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  width: 100%;
+}
+
+.handover-documents-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  width: 100%;
+}
+
+.handover-documents-panel-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.handover-documents-title-row {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+}
+
+.handover-documents-count {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 1.75rem;
+  height: 1.75rem;
+  padding: 0 0.5rem;
+  border-radius: 999px;
+  background: var(--p-content-border-color);
+  color: var(--p-text-color);
+  font-size: 0.875rem;
+  font-weight: 600;
+}
+
+.handover-documents-empty-state,
+.handover-document-card {
+  border: 1px solid var(--p-content-border-color);
+  border-radius: 1rem;
+  background: var(--p-content-background);
+}
+
+.handover-documents-empty-state {
+  padding: 1rem 1.25rem;
+  color: var(--p-text-muted-color);
+}
+
+.handover-documents-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.handover-document-card {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 1rem;
+  padding: 1rem;
+}
+
+.handover-documents-step-description {
+  color: var(--p-text-muted-color);
+}

@@ -1,0 +1,42 @@
+@if (classifications().length > 0) {
+  <div class="flex flex-col gap-4">
+    @for (c of classifications(); track $index) {
+      @if (classifications().length > 1) {
+        <div class="flex items-center gap-2 mb-1">
+          <i class="pi pi-tags text-primary"></i>
+          <span class="font-medium"
+            >{{ c.collectionIdShort || ('CLASSIFICATION' | translate) }} (#{{ $index + 1 }})</span
+          >
+        </div>
+      }
+      <div class="flex flex-wrap gap-2 text-sm items-end">
+        <div class="col-span-12 md:col-span-4">
+          <p-inputgroup>
+            <p-inputGroupAddon class="w-12rem font-bold justify-start">{{
+              'DOCUMENT_CLASS_ID' | translate
+            }}</p-inputGroupAddon>
+            <input pInputText [value]="c.classId || ''" readonly />
+          </p-inputgroup>
+        </div>
+        <div class="col-span-12 md:col-span-4">
+          <p-inputgroup>
+            <p-inputGroupAddon class="w-12rem font-bold justify-start">{{
+              'DOCUMENT_CLASS_NAME' | translate
+            }}</p-inputGroupAddon>
+            <input pInputText [value]="c.className || ''" readonly />
+          </p-inputgroup>
+        </div>
+        <div class="col-span-12 md:col-span-4">
+          <p-inputgroup>
+            <p-inputGroupAddon class="w-12rem font-bold justify-start">{{
+              'DOCUMENT_CLASS_SYSTEM' | translate
+            }}</p-inputGroupAddon>
+            <input pInputText [value]="c.classificationSystem || ''" readonly />
+          </p-inputgroup>
+        </div>
+      </div>
+    }
+  </div>
+} @else {
+  <div class="text-500 italic text-sm">No classifications section found.</div>
+}

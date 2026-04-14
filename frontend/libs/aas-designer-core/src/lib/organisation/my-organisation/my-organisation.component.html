@@ -1,0 +1,25 @@
+<div class="aas-splitter-layout">
+  <p-splitter stateKey="myOrgaTree" stateStorage="local" [panelSizes]="[20, 80]" class="aas-splitter-fill">
+    <ng-template pTemplate>
+      <div class="flex h-full min-h-0 flex-col text-base">
+        <div class="hero-section" style="margin: 0.5rem 0.5rem 0.5rem 0.5rem">
+          <div class="hero-content">
+            <h1 class="hero-title">{{ 'USER_ORGANISATIONS' | translate }}</h1>
+          </div>
+        </div>
+        <div class="flex-auto overflow-y-auto px-2 text-base">
+          <aas-sidebar-tree-nav
+            [items]="orgaSubentries()"
+            [selectedKey]="selectedNodeKey"
+            (nodeSelected)="selectPage($event)"
+          />
+        </div>
+      </div>
+    </ng-template>
+    <ng-template pTemplate>
+      <div class="w-full h-full min-h-0 overflow-y-auto p-2 text-base">
+        <router-outlet></router-outlet>
+      </div>
+    </ng-template>
+  </p-splitter>
+</div>

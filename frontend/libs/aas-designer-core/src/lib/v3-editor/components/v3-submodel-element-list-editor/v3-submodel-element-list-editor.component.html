@@ -1,0 +1,253 @@
+@if (submodelElementList != null && submodelElementList.content != null) {
+  <div class="flex flex-col gap-2">
+    <p-fieldset
+      [toggleable]="true"
+      class="mt-2"
+      [collapsed]="uiStateStore.detailsPanelCollapsed()"
+      (collapsedChange)="uiStateStore.setDetailsPanelCollapsed($event)"
+    >
+      <ng-template #header>
+        <div class="flex items-center gap-2 px-2">
+          <lib-help-label tag="DETAILS" isLabelBold="true"></lib-help-label>
+        </div>
+      </ng-template>
+      <div class="flex flex-col gap-2">
+        <aas-v3-id-short [element]="submodelElementList" class="w-full" [shellResult]="shellResult"></aas-v3-id-short>
+        <div class="details-grid-row">
+          <lib-help-label class="details-grid-label" tag="DESCRIPTION"></lib-help-label>
+          <aas-v3-lang-string-list
+            [langStrings]="submodelElementList.content.description"
+            [langStringParent]="submodelElementList.content"
+            [langStringParentPropertyName]="'description'"
+            class="details-grid-content"
+          ></aas-v3-lang-string-list>
+        </div>
+        <div class="details-grid-row">
+          <lib-help-label class="details-grid-label" tag="DISPLAY_NAME"></lib-help-label>
+          <aas-v3-lang-string-list
+            [langStrings]="submodelElementList.content.displayName"
+            [langStringParent]="submodelElementList.content"
+            [langStringParentPropertyName]="'displayName'"
+            class="details-grid-content"
+          ></aas-v3-lang-string-list>
+        </div>
+        <div class="details-grid-row">
+          <lib-help-label class="details-grid-label" tag="ORDER_RELEVANT"></lib-help-label>
+          <div class="details-grid-content">
+            <p-checkbox
+              id="orderRelevant"
+              [(ngModel)]="submodelElementList.content.orderRelevant"
+              [binary]="true"
+            ></p-checkbox>
+          </div>
+        </div>
+        <div class="details-grid-row">
+          <lib-help-label class="details-grid-label" tag="ELEMENT_TYPE"></lib-help-label>
+          <p-select
+            id="valueType"
+            [options]="smlSubmodelElementTypes"
+            [(ngModel)]="valueType"
+            optionLabel="label"
+            optionValue="value"
+            class="details-grid-content"
+            placeholder="{{ 'PLEASE_SELECT' | translate }}"
+            vwsV3Undo
+            (onChange)="onElementtypeChange($event)"
+          ></p-select>
+        </div>
+        @if (
+          submodelElementList.content.typeValueListElement == AasSubmodelElements.Range ||
+          submodelElementList.content.typeValueListElement == AasSubmodelElements.Property
+        ) {
+          <div class="details-grid-row">
+            <lib-help-label class="details-grid-label" tag="ELEMENT_VALUE_TYPE"></lib-help-label>
+            <p-select
+              id="dataType"
+              [options]="valueTypeOptions"
+              [(ngModel)]="dataType"
+              optionLabel="label"
+              optionValue="value"
+              class="details-grid-content"
+              placeholder="{{ 'PLEASE_SELECT' | translate }}"
+              vwsV3Undo
+              (onChange)="onDatatypeChange($event)"
+            ></p-select>
+          </div>
+        }
+      </div>
+    </p-fieldset>
+
+    <p-fieldset
+      [toggleable]="true"
+      [collapsed]="uiStateStore.contentPanelCollapsed()"
+      (collapsedChange)="uiStateStore.setContentPanelCollapsed($event)"
+    >
+      <ng-template #header>
+        <div class="flex items-center gap-2 px-2">
+          <lib-help-label tag="CONTENT" isLabelBold="true"></lib-help-label>
+        </div>
+      </ng-template>
+
+      @if (isMarkings) {
+        <aas-v3-markings-editor
+          [markingsTreeItem]="submodelElementList"
+          [shellResult]="shellResult"
+          [indexed]="true"
+          [idShortPath]="idShortPath"
+          [submodelIdentifier]="getSubmodelId()"
+          [parentSml]="true"
+        ></aas-v3-markings-editor>
+      }
+
+      @if (isHandoverDocumentList) {
+        <div class="handover-documents-panel">
+          <div class="handover-documents-header">
+            <div class="handover-documents-copy">
+              <div class="handover-documents-title-row">
+                <span class="handover-documents-title">{{ 'DOCUMENTS' | translate }}</span>
+                <span class="handover-documents-count">{{ handoverDocuments.length }}</span>
+              </div>
+              <p class="handover-documents-expl">{{ 'BATTERY_PASSPORT_HANDOVER_DOCUMENTS_EXPL' | translate }}</p>
+            </div>
+            <p-button
+              label="{{ 'ADD_DOCUMENT' | translate }}"
+              icon="pi pi-plus"
+              (onClick)="addHandoverDocument()"
+              size="small"
+              [disabled]="!canAddHandoverDocument"
+            ></p-button>
+          </div>
+
+          @if (hasHandoverDocuments) {
+            <div class="handover-document-list">
+              @for (document of handoverDocuments; track document.id; let index = $index) {
+                <div class="handover-document-list-item">
+                  <div class="handover-document-icon">
+                    <i class="pi pi-file"></i>
+                  </div>
+                  <div class="handover-document-copy">
+                    <div class="handover-document-primary">
+                      <span class="handover-document-name">{{ document.label }}</span>
+                      @if (document.idShort !== '') {
+                        <span class="handover-document-idshort">{{ document.idShort }}</span>
+                      }
+                    </div>
+                    @if (document.secondaryLabel !== '') {
+                      <div class="handover-document-secondary">{{ document.secondaryLabel }}</div>
+                    }
+                  </div>
+                  <div class="handover-document-index">{{ index + 1 }}</div>
+                </div>
+              }
+            </div>
+          } @else {
+            <p-message severity="info" text="{{ 'BATTERY_PASSPORT_HANDOVER_DOCUMENTS_EMPTY' | translate }}"></p-message>
+          }
+        </div>
+      }
+
+      <!-- <p-orderList
+      [value]="orderListValues"
+      [dragdrop]="submodelElementList.content.orderRelevant ?? false"
+      (onReorder)="onReorder()"
+      dataKey="id"
+    >
+      <ng-template #header let-row>
+        <div class="grid grid-cols-12">
+          <div class="col"></div>
+          <div class="w-12rem">
+            <p-button
+              label="{{ 'ADD' | translate }}"
+              icon="pi pi-plus"
+              (onClick)="addElement()"
+              size="small"
+              [outlined]="true"
+            ></p-button>
+          </div>
+        </div>
+      </ng-template>
+      <ng-template let-row pTemplate="item" let-index="index">
+        <div class="grid grid-cols-12">
+          <div class="col">{{ 'ELEMENT' | translate }} {{ index }}</div>
+          <div class="w-12rem">
+            <div class="flex flex-row">
+              <div class="flex w-full justify-end">
+                <p-button icon="pi pi-trash" styleClass="aas-oben p-button-text" (onClick)="removeElement(row)"></p-button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </ng-template>
+    </p-orderList> -->
+    </p-fieldset>
+    <!-- <p-fieldset legend="{{ 'EXTENSIONS' | translate }}" [toggleable]="true" [collapsed]="true">
+    <aas-v3-extensions
+      [extensions]="submodelElementList.content.extensions"
+      [extensionsParent]="submodelElementList.content"
+    ></aas-v3-extensions>
+  </p-fieldset> -->
+    <p-fieldset
+      [toggleable]="true"
+      [collapsed]="uiStateStore.semanticIdPanelCollapsed()"
+      (collapsedChange)="uiStateStore.setSemanticIdPanelCollapsed($event)"
+      [ngClass]="{ 'border-error': hasSemanticErrors }"
+    >
+      <ng-template #header>
+        <div class="flex items-center gap-2 px-2">
+          <lib-help-label tag="SEMANTIC_ID" isLabelBold="true"></lib-help-label>
+        </div>
+      </ng-template>
+      <aas-v3-semantic-description
+        [semanticId]="submodelElementList.content.semanticId"
+        [supplemantalSemanticIds]="submodelElementList.content.supplementalSemanticIds"
+        [referenceParent]="submodelElementList.content"
+        [referenceParentPropertyName]="'semanticId'"
+        [shellResult]="shellResult"
+      ></aas-v3-semantic-description>
+    </p-fieldset>
+    <p-fieldset
+      [toggleable]="true"
+      [collapsed]="uiStateStore.qualifiersPanelCollapsed()"
+      (collapsedChange)="uiStateStore.setQualifiersPanelCollapsed($event)"
+    >
+      <ng-template #header>
+        <div class="flex items-center gap-2 px-2">
+          <lib-help-label tag="QUALIFIERS" isLabelBold="true"></lib-help-label>
+        </div>
+      </ng-template>
+      <aas-v3-qualifiers
+        [qualifiers]="submodelElementList.content.qualifiers"
+        [qualifiersParent]="submodelElementList.content"
+      ></aas-v3-qualifiers>
+    </p-fieldset>
+
+    <p-fieldset
+      [toggleable]="true"
+      [collapsed]="uiStateStore.embeddedDataspecPanelCollapsed()"
+      (collapsedChange)="uiStateStore.setEmbeddedDataspecPanelCollapsed($event)"
+    >
+      <ng-template #header>
+        <div class="flex items-center gap-2 px-2">
+          <lib-help-label tag="EMBEDDED_DATA_SPECIFICATIONS" isLabelBold="true"></lib-help-label>
+        </div>
+      </ng-template>
+      <aas-v3-embedded-data-specification
+        [dataSpecification]="submodelElementList.content.embeddedDataSpecifications"
+        [dataSpecificationParent]="submodelElementList.content"
+        [shellResult]="shellResult"
+      ></aas-v3-embedded-data-specification>
+    </p-fieldset>
+    <p-fieldset
+      [toggleable]="true"
+      [collapsed]="uiStateStore.endpointUrlPanelCollapsed()"
+      (collapsedChange)="uiStateStore.setEndpointUrlPanelCollapsed($event)"
+    >
+      <ng-template #header>
+        <div class="flex items-center gap-2 px-2">
+          <lib-help-label tag="ENDPOINT_URL" isLabelBold="true"></lib-help-label>
+        </div>
+      </ng-template>
+      <aas-endpoint-url [element]="submodelElementList" [shellResult]="shellResult"></aas-endpoint-url>
+    </p-fieldset>
+  </div>
+}

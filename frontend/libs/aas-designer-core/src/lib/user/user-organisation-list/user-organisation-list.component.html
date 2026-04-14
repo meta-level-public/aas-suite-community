@@ -1,0 +1,70 @@
+<div class="flex flex-col gap-2">
+  <div class="hero-section">
+    <div class="hero-content">
+      <h1 class="hero-title">
+        {{ 'USER_ORGANISATIONS' | translate }}
+      </h1>
+    </div>
+  </div>
+
+  <div
+    class="p-6 mb-6 rounded-r-lg shadow-sm"
+    style="background: var(--aas-info-surface); border-left: 4px solid var(--aas-info-icon)"
+  >
+    <div class="flex items-center gap-3">
+      <i class="pi pi-info-circle text-xl" style="color: var(--aas-info-text)"></i>
+      <p class="text-base leading-relaxed" style="color: var(--p-text-color)">
+        {{ 'USER_ORGANISATIONEN_EXPL' | translate }}
+      </p>
+    </div>
+  </div>
+
+  @if (organisations.length > 0) {
+    <div class="flex flex-col gap-6">
+      @for (orga of organisations; track orga.orgaName) {
+        <div class="detail-card">
+          <div class="flex flex-col gap-4">
+            <p-inputgroup>
+              <p-inputgroup-addon class="font-bold w-72">
+                <i class="pi pi-building mr-2" style="color: var(--aas-info-text)"></i>
+                <lib-help-label tag="ORGANISATION_NAME" [showLabel]="false"></lib-help-label>
+                {{ 'ORGANISATION_NAME' | translate }}
+              </p-inputgroup-addon>
+              <input pInputText [value]="orga.orgaName" readonly style="background: var(--aas-surface-subtle)" />
+            </p-inputgroup>
+            <p-inputgroup>
+              <p-inputgroup-addon class="font-bold w-72">
+                <i class="pi pi-shield mr-2" style="color: var(--p-primary-700)"></i>
+                <lib-help-label tag="USER_RIGHTS" [showLabel]="false"></lib-help-label>
+                {{ 'USER_RIGHTS' | translate }}
+              </p-inputgroup-addon>
+              <input
+                pInputText
+                [value]="orga.benutzerRollen.join(', ')"
+                readonly
+                style="background: var(--aas-surface-subtle)"
+              />
+            </p-inputgroup>
+            <p-inputgroup>
+              <p-inputgroup-addon class="font-bold w-72">
+                <i class="pi pi-check-circle mr-2" style="color: var(--aas-success-text)"></i>
+                <lib-help-label tag="ACTIVE" [showLabel]="false"></lib-help-label>
+                {{ 'ACTIVE' | translate }}
+              </p-inputgroup-addon>
+              <input
+                pInputText
+                [value]="orga.aktiv ? ('YES' | translate) : ('NO' | translate)"
+                readonly
+                style="background: var(--aas-surface-subtle)"
+              />
+            </p-inputgroup>
+          </div>
+        </div>
+      }
+    </div>
+  } @else {
+    <div class="text-center italic py-8" style="color: var(--p-text-muted-color)">
+      {{ 'NO_DATA_FOUND' | translate }}
+    </div>
+  }
+</div>

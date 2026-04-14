@@ -1,0 +1,254 @@
+<form #registerForm="ngForm" vwsAutocompleteOff>
+  @if (request && request.organisation && request.admin) {
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+      <div>
+        <div class="mb-6">
+          <h3 class="text-xl font-bold text-white">{{ 'ORGA_DATA' | translate }}</h3>
+        </div>
+        <div class="mb-4">
+          <label for="name" class="block text-white mb-2 font-semibold">
+            {{ 'NAME_OF_THE_ORGANIZATION' | translate }}</label
+          >
+          <input
+            pInputText
+            id="name"
+            type="text"
+            class="inputfield w-full"
+            name="name"
+            [(ngModel)]="request.organisation.name"
+            #organame="ngModel"
+            required
+          />
+          @if (!organame.valid && organame.touched) {
+            <div class="p-error">{{ 'REQUIRED_FIELD' | translate }}</div>
+          }
+        </div>
+        <div class="mb-4">
+          <label for="street" class="block text-white mb-2 font-semibold"> {{ 'STREET' | translate }}</label>
+          <input
+            pInputText
+            id="street"
+            type="text"
+            class="inputfield w-full"
+            name="street"
+            [(ngModel)]="request.organisation.strasse"
+            #street="ngModel"
+            required
+          />
+          @if (!street.valid && street.touched) {
+            <div class="p-error">{{ 'REQUIRED_FIELD' | translate }}</div>
+          }
+        </div>
+        <div class="mb-4">
+          <label for="zip" class="block text-white mb-2 font-semibold"> {{ 'ZIP' | translate }}</label>
+          <input
+            pInputText
+            id="zip"
+            type="text"
+            class="inputfield w-full"
+            name="zip"
+            [(ngModel)]="request.organisation.plz"
+            #zip="ngModel"
+            required
+          />
+          @if (!zip.valid && zip.touched) {
+            <div class="p-error">{{ 'REQUIRED_FIELD' | translate }}</div>
+          }
+        </div>
+        <div class="mb-4">
+          <label for="city" class="block text-white mb-2 font-semibold"> {{ 'CITY_TOWN' | translate }}</label>
+          <input
+            pInputText
+            id="city"
+            type="text"
+            class="inputfield w-full"
+            name="city"
+            [(ngModel)]="request.organisation.ort"
+            #city="ngModel"
+            required
+          />
+          @if (!city.valid && city.touched) {
+            <div class="p-error">{{ 'REQUIRED_FIELD' | translate }}</div>
+          }
+        </div>
+        <div class="mb-4">
+          <label for="countryCode" class="block text-white mb-2 font-semibold">
+            {{ 'COUNTRY' | translate }}
+          </label>
+          <div class="w-full">
+            <aas-country-code
+              class="w-full"
+              [preSelectedCountry]="request.organisation.laenderCode"
+              (selectedCountry)="setCountryCode($event)"
+              [inputId]="'countryCode'"
+            ></aas-country-code>
+          </div>
+        </div>
+        <div class="mb-4">
+          <label for="email" class="block text-white mb-2 font-semibold"> {{ 'EMAIL' | translate }}</label>
+          <input
+            #email="ngModel"
+            pInputText
+            id="email"
+            name="email"
+            [(ngModel)]="request.organisation.email"
+            class="w-full"
+            required
+          />
+          @if (!isValidEmail(request.organisation.email) && email.touched) {
+            <div class="p-error">
+              {{ 'EMAIL_IS_INVALID' | translate }}
+            </div>
+          }
+        </div>
+        <div class="mb-4">
+          <label for="telephone" class="block text-white mb-2 font-semibold"> {{ 'PHONE' | translate }} </label>
+          <input
+            pInputText
+            id="telephone"
+            type="tel"
+            class="inputfield w-full"
+            name="telephone"
+            [(ngModel)]="request.organisation.telefon"
+          />
+        </div>
+        <div class="mb-4">
+          <label for="fax" class="block text-white mb-2 font-semibold"> {{ 'FAX' | translate }} </label>
+          <input
+            pInputText
+            id="fax"
+            type="tel"
+            class="inputfield w-full"
+            name="fax"
+            [(ngModel)]="request.organisation.fax"
+          />
+        </div>
+      </div>
+      <div>
+        <div class="mb-6">
+          <h3 class="text-xl font-bold text-white">{{ 'ANSPRECHPARTNER' | translate }}</h3>
+        </div>
+        <div class="mb-4">
+          <label for="firstname" class="block text-white mb-2 font-semibold"> {{ 'FIRSTNAME' | translate }}</label>
+          <input
+            pInputText
+            id="firstname"
+            type="text"
+            class="inputfield w-full"
+            name="firstname"
+            [(ngModel)]="request.admin.name"
+            #firstname="ngModel"
+            required
+          />
+          @if (!firstname.valid && firstname.touched) {
+            <div class="p-error">
+              {{ 'REQUIRED_FIELD' | translate }}
+            </div>
+          }
+        </div>
+        <div class="mb-4">
+          <label for="lastname" class="block text-white mb-2 font-semibold"> {{ 'LASTNAME' | translate }}</label>
+          <input
+            pInputText
+            id="lastname"
+            type="text"
+            class="inputfield w-full"
+            name="lastname"
+            [(ngModel)]="request.admin.vorname"
+            #lastname="ngModel"
+            required
+          />
+          @if (!lastname.valid && lastname.touched) {
+            <div class="p-error">{{ 'REQUIRED_FIELD' | translate }}</div>
+          }
+        </div>
+        <div class="mb-4">
+          <label for="adminmail" class="block text-white mb-2 font-semibold"> {{ 'EMAIL' | translate }}</label>
+          <input
+            #adminemail="ngModel"
+            pInputText
+            id="adminemail"
+            name="adminemail"
+            [(ngModel)]="request.admin.email"
+            class="w-full"
+            required
+          />
+          @if (!isValidEmail(request.admin.email) && adminemail.touched) {
+            <div class="p-error">
+              {{ 'EMAIL_IS_INVALID' | translate }}
+            </div>
+          }
+        </div>
+        <div class="mb-4">
+          <label for="message" class="block text-white mb-2 font-semibold"> {{ 'MESSAGE' | translate }}</label>
+          <textarea
+            pTextarea
+            class="w-full"
+            [autoResize]="true"
+            [(ngModel)]="request.message"
+            name="message"
+            [rows]="4"
+          ></textarea>
+        </div>
+        <div class="mb-4 mt-6">
+          <p-checkbox [(ngModel)]="privacy" [binary]="true" inputId="privacy" name="privacy" [required]="true">
+          </p-checkbox>
+          <label for="privacy" class="ml-2 text-white"> {{ 'PRIVACY_CB' | translate }} </label>
+        </div>
+        <div class="mb-4">
+          @if (portalService.currentLanguage === 'de') {
+            <a
+              target="_blank"
+              [href]="appConfigService.config.datenschutzLinkDe"
+              class="text-white underline hover:text-gray-200"
+              >{{ 'PRIVACY_OPEN' | translate }} <em class="pi pi-external"></em
+            ></a>
+          }
+          @if (portalService.currentLanguage !== 'de') {
+            <a
+              target="_blank"
+              [href]="appConfigService.config.datenschutzLinkEn"
+              class="text-white underline hover:text-gray-200"
+              >{{ 'PRIVACY_OPEN' | translate }} <em class="pi pi-external"></em
+            ></a>
+          }
+        </div>
+        <div class="mb-4">
+          <p-checkbox [(ngModel)]="agb" [binary]="true" inputId="agb" name="agb" [required]="true"> </p-checkbox>
+          <label for="agb" class="ml-2 text-white"> {{ 'AGB_CB' | translate }} </label>
+        </div>
+        <div class="mb-4">
+          @if (portalService.currentLanguage === 'de') {
+            <a
+              target="_blank"
+              [href]="appConfigService.config.agbLinkDe"
+              class="text-white underline hover:text-gray-200"
+              >{{ 'AGB_OPEN' | translate }} <em class="pi pi-external"></em
+            ></a>
+          }
+          @if (portalService.currentLanguage !== 'de') {
+            <a
+              target="_blank"
+              [href]="appConfigService.config.agbLinkEn"
+              class="text-white underline hover:text-gray-200"
+              >{{ 'AGB_OPEN' | translate }} <em class="pi pi-external"></em
+            ></a>
+          }
+        </div>
+        <div class="mb-4">
+          <p-checkbox [(ngModel)]="contact" [binary]="true" inputId="contact" name="contact" [required]="true">
+          </p-checkbox>
+          <label for="contact" class="ml-2 text-white">
+            {{ 'ACCEPT_TO_GET_CONTACTED' | translate }}
+          </label>
+        </div>
+        <div style="position: absolute; left: -9999px">
+          <label>
+            {{ 'BOT_CHECK_HINT' | translate }}
+            <input type="text" name="botField" [(ngModel)]="invisibleFieldValue" autocomplete="off" />
+          </label>
+        </div>
+      </div>
+    </div>
+  }
+</form>

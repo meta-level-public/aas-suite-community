@@ -1,0 +1,45 @@
+<div class="grid">
+  <div class="col-span-12 flex justify-end">
+    @if (shells.length > 1) {
+      <p-select [options]="shells" (onChange)="selectSubmodel($event)"></p-select>
+    }
+  </div>
+  <div class="col-span-12 grid">
+    <div class="col-span-12 xl:col-span-3 transition-all transition-duration-200">
+      <p-card header="{{ 'OVERVIEW' | translate }}">
+        <div class="flex flex-col">
+          @if (isThumbLoaded && fileUrl) {
+            <p-image [src]="fileUrl" class="ml-5" width="240px" [preview]="true"></p-image>
+          }
+          @if (!isThumbLoaded) {
+            <p-skeleton shape="square" height="50px" width="240px"></p-skeleton>
+          }
+          <label class="font-bold">{{ 'MANUFACTURER_NAME' | translate }}</label>
+          <label>{{ manufacturer }}</label>
+          <label class="font-bold">{{ 'MANUFACTURER_PRODUCT_DESIGNATION' | translate }}</label>
+          <label>{{ productDesignation }}</label>
+        </div>
+      </p-card>
+      <p-card header="{{ 'SUBMODELS' | translate }}" class="mt-2">
+        <p-listbox
+          [options]="submodels"
+          [(ngModel)]="selectedModel"
+          optionLabel="idShort"
+          class="border-none"
+        ></p-listbox>
+      </p-card>
+    </div>
+    <div class="col-span-12 xl:col-span-9 transition-all transition-duration-200">
+      <p-card header="{{ selectedModel?.idShort }}">
+        <aas-aasx-model-viewer
+          [selectedModel]="selectedModel"
+          [aasId]="aasId"
+          [currentLanguage]="currentLanguage"
+          [apiUrl]="apiUrl"
+          [conceptDescriptions]="aasStructure?.conceptDescriptions"
+        ></aas-aasx-model-viewer>
+      </p-card>
+    </div>
+  </div>
+</div>
+<p-scrollTop [threshold]="200" icon="pi pi-arrow-up"></p-scrollTop>

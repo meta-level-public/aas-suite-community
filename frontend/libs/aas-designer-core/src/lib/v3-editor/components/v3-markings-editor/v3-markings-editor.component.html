@@ -1,0 +1,191 @@
+<p-toolbar class="mb-2">
+  <div class="p-toolbar-group-start">
+    <div class="my-2">
+      <!-- <p-button pRipple label="New" icon="pi pi-plus" styleClass="p-button-success mr-2" (onClick)="openNew()"></p-button> -->
+      <!-- <p-button pRipple label="Delete" icon="pi pi-trash" styleClass="p-button-danger" (onClick)="deleteSelectedProducts()" [disabled]="!selectedProducts || !selectedProducts.length"></p-button> -->
+    </div>
+  </div>
+
+  <div class="p-toolbar-group-end gap-2">
+    <p-select
+      class="w-48rem"
+      class="w-48rem mr-2"
+      [options]="types"
+      optionLabel="preferredNameEn"
+      [(ngModel)]="selectedMarkingToAdd"
+      [filter]="true"
+      filterBy="preferredNameEn"
+      [showClear]="true"
+      placeholder="{{ 'SELECT_MARKING' | translate }}"
+    >
+      <ng-template pTemplate="selectedItem">
+        @if (selectedMarkingToAdd) {
+          <div class="flex flex-col items-center">
+            @if (selectedMarkingToAdd.filename !== '') {
+              <img
+                src="/assets/markings/{{ selectedMarkingToAdd.filename }}"
+                style="width: 48px; max-height: 48px"
+                class="mr-2"
+                alt="
+            marking
+            logo"
+              />
+            }
+            @if (selectedMarkingToAdd.filename === '') {
+              <div class="mr-2" style="width: 48px"></div>
+            }
+            <div class="w-14rem mr-2">
+              {{ selectedMarkingToAdd.irdi }}
+            </div>
+            <div class="">{{ selectedMarkingToAdd.preferredNameEn }}</div>
+          </div>
+        }
+      </ng-template>
+      <ng-template let-marking pTemplate="item">
+        <div class="flex flex-col items-center">
+          @if (marking.filename !== '') {
+            <img
+              src="/assets/markings/{{ marking.filename }}"
+              style="width: 48px; max-height: 48px"
+              class="mr-2"
+              alt="marking logo"
+            />
+          }
+          @if (marking.filename === '') {
+            <div class="mr-2" style="width: 48px"></div>
+          }
+          <div class="w-14rem mr-2">{{ marking.irdi }}</div>
+          <div>{{ marking.preferredNameEn }}</div>
+        </div>
+      </ng-template>
+    </p-select>
+    <p-button
+      pRipple
+      label="{{ 'ADD' | translate }}"
+      styleClass="aas-add-button"
+      icon="pi pi-plus"
+      (onClick)="addMarking()"
+      [disabled]="selectedMarkingToAdd == null"
+    ></p-button>
+  </div>
+</p-toolbar>
+
+<p-table
+  #dt
+  [value]="markingsSmc()?.value ?? []"
+  responsiveLayout="scroll"
+  [paginator]="false"
+  [showCurrentPageReport]="false"
+  [rowHover]="true"
+>
+  <!-- [dataKey]="nameplate != null ? 'id' : 'mlGenUuid'" -->
+  <ng-template pTemplate="caption">
+    <div class="flex flex-col md:flex-row md:justify-between md:items-center">
+      <h5 class="m-0">{{ 'KENNZEICHEN' | translate }}</h5>
+    </div>
+  </ng-template>
+  <ng-template #header>
+    <tr>
+      <th scope="col">
+        {{ 'TYP' | translate }}
+      </th>
+      <!-- <th scope="col">
+      {{ 'FILE_PATH' | translate }}
+    </th> -->
+      <th scope="col">
+        {{ 'FILE' | translate }}
+      </th>
+      <th scope="col">
+        {{ 'ADDITIONAL_TEXT' | translate }}
+      </th>
+      <th scope="col"></th>
+    </tr>
+  </ng-template>
+  <ng-template pTemplate="body" let-marking>
+    <tr>
+      <td style="width: 15%; min-width: 10rem">
+        {{ getMarkingName(marking) }}
+      </td>
+      <!-- <td style="width: 15%; min-width: 10rem">
+    <em>{{ getMarkingFilename(marking) }}</em>
+  </td> -->
+      <td style="width: 15%; min-width: 10rem">
+        @if (getFileSrc(marking); as fileSrc) {
+          <img [src]="fileSrc" height="50" width="50" class="scaleImage" alt="marking" />
+        } @else {
+          <aas-single-marking-file-view
+            [idShortPath]="getMarkingFileIdShort(marking)"
+            [markingFileContentType]="getMarkingContentType(marking)"
+            [markingFilename]="getMarkingFilename(marking)"
+            [submodelIdentifier]="submodelIdentifier"
+            [repositoryUrl]="baseUrl()"
+          ></aas-single-marking-file-view>
+        }
+      </td>
+      <td style="width: 15%; min-width: 10rem">
+        {{ getMarkingAdditionalText(marking) }}
+      </td>
+      <td style="width: 15%; min-width: 10rem">
+        <p-button
+          styleClass="p-button-rounded p-button-text"
+          (onClick)="deleteMarking(marking)"
+          icon="pi pi-trash"
+        ></p-button>
+        <p-button
+          styleClass="p-button-rounded p-button-text"
+          (onClick)="startEditMarking(marking)"
+          icon="pi pi-pencil"
+        ></p-button>
+      </td>
+    </tr>
+  </ng-template>
+</p-table>
+
+<p-dialog
+  [(visible)]="showEditMarkingDialog"
+  [modal]="true"
+  [style]="{ width: '50vw' }"
+  header="{{ 'EDIT_MARKING' | translate }}"
+  [closable]="true"
+>
+  <div class="flex flex-col gap-2 w-full">
+    <div class="flex flex-row gap-2">
+      <lib-help-label class="w-14rem" tag="MARKING_TYPE"></lib-help-label>
+      <input id="irdi" type="text" [(ngModel)]="editMarkingName" pInputText class="w-full" />
+    </div>
+    <div class="flex flex-row gap-2">
+      <lib-help-label class="w-14rem" tag="ADDITIONAL_TEXT"></lib-help-label>
+      <input id="irdi" type="text" [(ngModel)]="editMarkingAdditionalText" pInputText class="w-full" />
+    </div>
+    <div class="flex flex-row gap-2">
+      <lib-help-label class="w-14rem" tag="FILE"></lib-help-label>
+      <p-fileUpload
+        #uploader
+        chooseIcon="pi pi-upload"
+        accept="image/*,"
+        [auto]="true"
+        chooseLabel="{{ 'CHOOSE_FILE' | translate }}"
+        [customUpload]="true"
+        (onSelect)="setMarkingFile($event)"
+      >
+        <ng-template pTemplate="content" let-files>
+          <em> {{ 'UPLOAD_OR_SELECT_TEXT' | translate }} </em>
+        </ng-template>
+      </p-fileUpload>
+    </div>
+  </div>
+  <ng-template pTemplate="footer">
+    <p-button
+      label="{{ 'CANCEL' | translate }}"
+      (onClick)="showEditMarkingDialog.set(false)"
+      icon="pi pi-time"
+      severity="secondary"
+    ></p-button>
+    <p-button
+      label="{{ 'APPLY' | translate }}"
+      (onClick)="saveEditedMarking()"
+      icon="pi pi-check"
+      severity="success"
+    ></p-button>
+  </ng-template>
+</p-dialog>

@@ -1,0 +1,58 @@
+<div class="aas-flex-auto-relative">
+  <router-outlet></router-outlet>
+</div>
+<p-toast [baseZIndex]="11000" position="top-center"></p-toast>
+<p-toast
+  class="aas-big-toast aas-status-toast"
+  position="center"
+  key="errorDlg"
+  (onClose)="onConfirm()"
+  [baseZIndex]="11000"
+  [preventOpenDuplicates]="true"
+>
+  <ng-template let-message pTemplate="message">
+    <div
+      class="aas-status-toast-card"
+      [class.aas-status-toast-card-success]="message.severity === 'success'"
+      [class.aas-status-toast-card-warn]="message.severity === 'warn'"
+      [class.aas-status-toast-card-error]="message.severity === 'error'"
+      [class.aas-status-toast-card-info]="!message.severity || message.severity === 'info'"
+    >
+      <div
+        class="aas-status-toast-icon-wrap"
+        [class.aas-status-toast-icon-wrap-success]="message.severity === 'success'"
+        [class.aas-status-toast-icon-wrap-warn]="message.severity === 'warn'"
+        [class.aas-status-toast-icon-wrap-error]="message.severity === 'error'"
+        [class.aas-status-toast-icon-wrap-info]="!message.severity || message.severity === 'info'"
+      >
+        <span class="aas-status-toast-icon">
+          {{ message.severity === 'success' ? '✓' : message.severity === 'warn' ? '!' : message.severity === 'error' ?
+          '!' : 'i' }}
+        </span>
+      </div>
+      <div class="aas-status-toast-body">
+        <div class="aas-status-toast-title">{{ message.summary }}</div>
+        <div class="aas-status-toast-detail">{{ message.detail }}</div>
+      </div>
+      <div class="aas-status-toast-actions">
+        <p-button
+          type="button"
+          [styleClass]="
+            'w-full aas-status-toast-ok ' +
+            (message.severity === 'success'
+              ? 'aas-status-toast-ok-success'
+              : message.severity === 'warn'
+                ? 'aas-status-toast-ok-warn'
+                : message.severity === 'error'
+                  ? 'aas-status-toast-ok-error'
+                  : 'aas-status-toast-ok-info')
+          "
+          (onClick)="onConfirm()"
+          label="Ok"
+        ></p-button>
+      </div>
+    </div>
+  </ng-template>
+</p-toast>
+
+<aas-confirm-dialog></aas-confirm-dialog>

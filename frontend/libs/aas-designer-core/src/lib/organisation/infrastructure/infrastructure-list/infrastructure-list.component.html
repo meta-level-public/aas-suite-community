@@ -1,0 +1,404 @@
+<div class="detail-card mb-4">
+  <div class="grid grid-cols-2 gap-4">
+    <p-inputgroup>
+      <p-inputgroup-addon class="font-bold w-56">
+        <lib-help-label tag="NAME" [showLabel]="false"></lib-help-label>
+        {{ 'NAME' | translate }}
+      </p-inputgroup-addon>
+      <input pInputText [value]="settings().name" [readonly]="true" />
+    </p-inputgroup>
+
+    <p-inputgroup>
+      <p-inputgroup-addon class="font-bold w-56">
+        <lib-help-label tag="INFRASTRUCTURE_ID" [showLabel]="false"></lib-help-label>
+        {{ 'INFRASTRUCTURE_ID' | translate }}
+      </p-inputgroup-addon>
+      <input pInputText [value]="settings().id" [readonly]="true" />
+    </p-inputgroup>
+
+    <div class="col-span-2">
+      <p-inputgroup>
+        <p-inputgroup-addon class="font-bold w-56">
+          <lib-help-label tag="DESCRIPTION" [showLabel]="false"></lib-help-label>
+          {{ 'DESCRIPTION' | translate }}
+        </p-inputgroup-addon>
+        <input pInputText [value]="settings().description" [readonly]="true" />
+      </p-inputgroup>
+    </div>
+
+    <p-inputgroup>
+      <p-inputgroup-addon class="font-bold w-56">
+        <lib-help-label tag="IS_INTERNAL" [showLabel]="false"></lib-help-label>
+        {{ 'IS_INTERNAL' | translate }}
+      </p-inputgroup-addon>
+      <input
+        pInputText
+        [value]="(settings().isInternal ? 'YES' : 'NO') | translate"
+        [readonly]="true"
+        class="font-bold"
+        [style.color]="settings().isInternal ? 'var(--aas-success-text)' : 'var(--aas-danger-text)'"
+      />
+    </p-inputgroup>
+
+    <p-inputgroup>
+      <p-inputgroup-addon class="font-bold w-56">
+        <lib-help-label tag="READONLY" [showLabel]="false"></lib-help-label>
+        {{ 'READONLY' | translate }}
+      </p-inputgroup-addon>
+      <input
+        pInputText
+        [value]="(settings().isReadonly ? 'YES' : 'NO') | translate"
+        [readonly]="true"
+        class="font-bold"
+        [style.color]="settings().isReadonly ? 'var(--aas-success-text)' : 'var(--aas-danger-text)'"
+      />
+    </p-inputgroup>
+
+    <p-inputgroup>
+      <p-inputgroup-addon class="font-bold w-56">
+        <lib-help-label tag="IS_ACTIVE" [showLabel]="false"></lib-help-label>
+        {{ 'IS_ACTIVE' | translate }}
+      </p-inputgroup-addon>
+      <input
+        pInputText
+        [value]="(settings().isActive ? 'YES' : 'NO') | translate"
+        [readonly]="true"
+        class="font-bold"
+        [style.color]="settings().isActive ? 'var(--aas-success-text)' : 'var(--aas-danger-text)'"
+      />
+    </p-inputgroup>
+  </div>
+</div>
+
+<div class="grid grid-cols-3 m-3 gap-4 justify-center mt-5">
+  <p-card header="{{ 'DISCOVERY' | translate }}">
+    <div class="flex flex-col gap-2">
+      <div class="rounded-xl border border-slate-200 bg-slate-50/70 p-3">
+        <div class="mb-1 flex items-center gap-2 text-xs font-semibold uppercase tracking-wide text-slate-600">
+          <i class="pi pi-shield"></i>
+          <span>{{ 'PROXY' | translate }}</span>
+          <i
+            class="pi pi-info-circle cursor-help text-slate-400"
+            [pTooltip]="getProxyTooltip()"
+            tooltipPosition="top"
+          ></i>
+        </div>
+        <div class="break-all font-mono text-sm font-semibold text-slate-800">{{ getProxyUrl('discovery') }}</div>
+      </div>
+      <div class="rounded-xl border border-emerald-200 bg-emerald-50/70 p-3">
+        <div class="mb-1 flex items-center gap-2 text-xs font-semibold uppercase tracking-wide text-emerald-700">
+          <i class="pi pi-globe"></i>
+          <span>{{ 'DIRECT' | translate }}</span>
+          <i
+            class="pi pi-info-circle cursor-help text-emerald-500"
+            [pTooltip]="getDirectTooltip()"
+            tooltipPosition="top"
+          ></i>
+        </div>
+        <div class="break-all font-mono text-sm text-slate-700">{{ getDirectUrl('discovery') }}</div>
+      </div>
+      @if (shouldShowConfiguredUrl('discovery')) {
+        <div class="rounded-xl border border-sky-200 bg-sky-50/70 p-3">
+          <div class="mb-1 flex items-center gap-2 text-xs font-semibold uppercase tracking-wide text-sky-700">
+            <i class="pi pi-cog"></i>
+            <span>{{ 'CONFIGURED' | translate }}</span>
+            <i
+              class="pi pi-info-circle cursor-help text-sky-500"
+              [pTooltip]="getConfiguredTooltip()"
+              tooltipPosition="top"
+            ></i>
+          </div>
+          <div class="break-all font-mono text-sm text-slate-700">{{ getConfiguredUrl('discovery') }}</div>
+        </div>
+      }
+      @if (settings().isInternal) {
+        <div>
+          {{ 'DISCOVERY_VERSION' | translate }}
+          <p-tag value="{{ settings().aasDiscoveryVersion }}" severity="info"></p-tag>
+        </div>
+      }
+      @if (settings().aasDiscoveryHcEnabled) {
+        <div class="flex items-center gap-2">
+          {{ 'STATUS' | translate }} <em class="pi pi-circle-on text-xl" [style]="{ color: discoveryColor() }"></em>
+        </div>
+      }
+    </div>
+  </p-card>
+  <p-card header="{{ 'AAS_REGISTRY' | translate }}">
+    <div class="flex flex-col gap-2">
+      <div class="rounded-xl border border-slate-200 bg-slate-50/70 p-3">
+        <div class="mb-1 flex items-center gap-2 text-xs font-semibold uppercase tracking-wide text-slate-600">
+          <i class="pi pi-shield"></i>
+          <span>{{ 'PROXY' | translate }}</span>
+          <i
+            class="pi pi-info-circle cursor-help text-slate-400"
+            [pTooltip]="getProxyTooltip()"
+            tooltipPosition="top"
+          ></i>
+        </div>
+        <div class="break-all font-mono text-sm font-semibold text-slate-800">{{ getProxyUrl('aasRegistry') }}</div>
+      </div>
+      <div class="rounded-xl border border-emerald-200 bg-emerald-50/70 p-3">
+        <div class="mb-1 flex items-center gap-2 text-xs font-semibold uppercase tracking-wide text-emerald-700">
+          <i class="pi pi-globe"></i>
+          <span>{{ 'DIRECT' | translate }}</span>
+          <i
+            class="pi pi-info-circle cursor-help text-emerald-500"
+            [pTooltip]="getDirectTooltip()"
+            tooltipPosition="top"
+          ></i>
+        </div>
+        <div class="break-all font-mono text-sm text-slate-700">{{ getDirectUrl('aasRegistry') }}</div>
+      </div>
+      @if (shouldShowConfiguredUrl('aasRegistry')) {
+        <div class="rounded-xl border border-sky-200 bg-sky-50/70 p-3">
+          <div class="mb-1 flex items-center gap-2 text-xs font-semibold uppercase tracking-wide text-sky-700">
+            <i class="pi pi-cog"></i>
+            <span>{{ 'CONFIGURED' | translate }}</span>
+            <i
+              class="pi pi-info-circle cursor-help text-sky-500"
+              [pTooltip]="getConfiguredTooltip()"
+              tooltipPosition="top"
+            ></i>
+          </div>
+          <div class="break-all font-mono text-sm text-slate-700">{{ getConfiguredUrl('aasRegistry') }}</div>
+        </div>
+      }
+      @if (settings().isInternal) {
+        <div>
+          {{ 'AAS_REGISTRY_VERSION' | translate }}
+          <p-tag value="{{ settings().aasRegistryVersion }}" severity="info"></p-tag>
+        </div>
+      }
+      @if (settings().aasRegistryHcEnabled) {
+        <div class="flex items-center gap-2">
+          {{ 'STATUS' | translate }} <em class="pi pi-circle-on text-xl" [style]="{ color: aasRegColor() }"></em>
+        </div>
+      }
+    </div>
+  </p-card>
+  <p-card header="{{ 'AAS_REPOSITORY' | translate }}">
+    <div class="flex flex-col gap-2">
+      <div class="rounded-xl border border-slate-200 bg-slate-50/70 p-3">
+        <div class="mb-1 flex items-center gap-2 text-xs font-semibold uppercase tracking-wide text-slate-600">
+          <i class="pi pi-shield"></i>
+          <span>{{ 'PROXY' | translate }}</span>
+          <i
+            class="pi pi-info-circle cursor-help text-slate-400"
+            [pTooltip]="getProxyTooltip()"
+            tooltipPosition="top"
+          ></i>
+        </div>
+        <div class="break-all font-mono text-sm font-semibold text-slate-800">{{ getProxyUrl('aasRepository') }}</div>
+      </div>
+      <div class="rounded-xl border border-emerald-200 bg-emerald-50/70 p-3">
+        <div class="mb-1 flex items-center gap-2 text-xs font-semibold uppercase tracking-wide text-emerald-700">
+          <i class="pi pi-globe"></i>
+          <span>{{ 'DIRECT' | translate }}</span>
+          <i
+            class="pi pi-info-circle cursor-help text-emerald-500"
+            [pTooltip]="getDirectTooltip()"
+            tooltipPosition="top"
+          ></i>
+        </div>
+        <div class="break-all font-mono text-sm text-slate-700">{{ getDirectUrl('aasRepository') }}</div>
+      </div>
+      @if (shouldShowConfiguredUrl('aasRepository')) {
+        <div class="rounded-xl border border-sky-200 bg-sky-50/70 p-3">
+          <div class="mb-1 flex items-center gap-2 text-xs font-semibold uppercase tracking-wide text-sky-700">
+            <i class="pi pi-cog"></i>
+            <span>{{ 'CONFIGURED' | translate }}</span>
+            <i
+              class="pi pi-info-circle cursor-help text-sky-500"
+              [pTooltip]="getConfiguredTooltip()"
+              tooltipPosition="top"
+            ></i>
+          </div>
+          <div class="break-all font-mono text-sm text-slate-700">{{ getConfiguredUrl('aasRepository') }}</div>
+        </div>
+      }
+      @if (settings().isInternal) {
+        <div>
+          {{ 'AAS_ENVIRONMENT_VERSION' | translate }}
+          <p-tag value="{{ settings().aasRepositoryVersion }}" severity="info"></p-tag>
+        </div>
+      }
+      @if (settings().aasRepositoryHcEnabled) {
+        <div class="flex items-center gap-2">
+          {{ 'STATUS' | translate }} <em class="pi pi-circle-on text-xl" [style]="{ color: aasRepoColor() }"></em>
+        </div>
+      }
+    </div>
+  </p-card>
+  <p-card header="{{ 'SM_REGISTRY' | translate }}">
+    <div class="flex flex-col gap-2">
+      <div class="rounded-xl border border-slate-200 bg-slate-50/70 p-3">
+        <div class="mb-1 flex items-center gap-2 text-xs font-semibold uppercase tracking-wide text-slate-600">
+          <i class="pi pi-shield"></i>
+          <span>{{ 'PROXY' | translate }}</span>
+          <i
+            class="pi pi-info-circle cursor-help text-slate-400"
+            [pTooltip]="getProxyTooltip()"
+            tooltipPosition="top"
+          ></i>
+        </div>
+        <div class="break-all font-mono text-sm font-semibold text-slate-800">
+          {{ getProxyUrl('submodelRegistry') }}
+        </div>
+      </div>
+      <div class="rounded-xl border border-emerald-200 bg-emerald-50/70 p-3">
+        <div class="mb-1 flex items-center gap-2 text-xs font-semibold uppercase tracking-wide text-emerald-700">
+          <i class="pi pi-globe"></i>
+          <span>{{ 'DIRECT' | translate }}</span>
+          <i
+            class="pi pi-info-circle cursor-help text-emerald-500"
+            [pTooltip]="getDirectTooltip()"
+            tooltipPosition="top"
+          ></i>
+        </div>
+        <div class="break-all font-mono text-sm text-slate-700">{{ getDirectUrl('submodelRegistry') }}</div>
+      </div>
+      @if (shouldShowConfiguredUrl('submodelRegistry')) {
+        <div class="rounded-xl border border-sky-200 bg-sky-50/70 p-3">
+          <div class="mb-1 flex items-center gap-2 text-xs font-semibold uppercase tracking-wide text-sky-700">
+            <i class="pi pi-cog"></i>
+            <span>{{ 'CONFIGURED' | translate }}</span>
+            <i
+              class="pi pi-info-circle cursor-help text-sky-500"
+              [pTooltip]="getConfiguredTooltip()"
+              tooltipPosition="top"
+            ></i>
+          </div>
+          <div class="break-all font-mono text-sm text-slate-700">{{ getConfiguredUrl('submodelRegistry') }}</div>
+        </div>
+      }
+      @if (settings().isInternal) {
+        <div>
+          {{ 'SM_REGISTRY_VERSION' | translate }}
+          <p-tag value="{{ settings().submodelRegistryVersion }}" severity="info"></p-tag>
+        </div>
+      }
+      @if (settings().submodelRegistryHcEnabled) {
+        <div class="flex items-center gap-2">
+          {{ 'STATUS' | translate }} <em class="pi pi-circle-on text-xl" [style]="{ color: smRegColor() }"></em>
+        </div>
+      }
+    </div>
+  </p-card>
+  <p-card header="{{ 'SM_REPOSITORY' | translate }}">
+    <div class="flex flex-col gap-2">
+      <div class="rounded-xl border border-slate-200 bg-slate-50/70 p-3">
+        <div class="mb-1 flex items-center gap-2 text-xs font-semibold uppercase tracking-wide text-slate-600">
+          <i class="pi pi-shield"></i>
+          <span>{{ 'PROXY' | translate }}</span>
+          <i
+            class="pi pi-info-circle cursor-help text-slate-400"
+            [pTooltip]="getProxyTooltip()"
+            tooltipPosition="top"
+          ></i>
+        </div>
+        <div class="break-all font-mono text-sm font-semibold text-slate-800">
+          {{ getProxyUrl('submodelRepository') }}
+        </div>
+      </div>
+      <div class="rounded-xl border border-emerald-200 bg-emerald-50/70 p-3">
+        <div class="mb-1 flex items-center gap-2 text-xs font-semibold uppercase tracking-wide text-emerald-700">
+          <i class="pi pi-globe"></i>
+          <span>{{ 'DIRECT' | translate }}</span>
+          <i
+            class="pi pi-info-circle cursor-help text-emerald-500"
+            [pTooltip]="getDirectTooltip()"
+            tooltipPosition="top"
+          ></i>
+        </div>
+        <div class="break-all font-mono text-sm text-slate-700">{{ getDirectUrl('submodelRepository') }}</div>
+      </div>
+      @if (shouldShowConfiguredUrl('submodelRepository')) {
+        <div class="rounded-xl border border-sky-200 bg-sky-50/70 p-3">
+          <div class="mb-1 flex items-center gap-2 text-xs font-semibold uppercase tracking-wide text-sky-700">
+            <i class="pi pi-cog"></i>
+            <span>{{ 'CONFIGURED' | translate }}</span>
+            <i
+              class="pi pi-info-circle cursor-help text-sky-500"
+              [pTooltip]="getConfiguredTooltip()"
+              tooltipPosition="top"
+            ></i>
+          </div>
+          <div class="break-all font-mono text-sm text-slate-700">{{ getConfiguredUrl('submodelRepository') }}</div>
+        </div>
+      }
+      @if (settings().isInternal) {
+        <div>
+          {{ 'AAS_ENVIRONMENT_VERSION' | translate }}
+          <p-tag value="{{ settings().submodelRepositoryVersion }}" severity="info"></p-tag>
+        </div>
+      }
+      @if (settings().submodelRepositoryHcEnabled) {
+        <div class="flex items-center gap-2">
+          {{ 'STATUS' | translate }} <em class="pi pi-circle-on text-xl" [style]="{ color: smRepoColor() }"></em>
+        </div>
+      }
+    </div>
+  </p-card>
+  <p-card header="{{ 'CD_REPOSITORY' | translate }}">
+    <div class="flex flex-col gap-2">
+      <div class="rounded-xl border border-slate-200 bg-slate-50/70 p-3">
+        <div class="mb-1 flex items-center gap-2 text-xs font-semibold uppercase tracking-wide text-slate-600">
+          <i class="pi pi-shield"></i>
+          <span>{{ 'PROXY' | translate }}</span>
+          <i
+            class="pi pi-info-circle cursor-help text-slate-400"
+            [pTooltip]="getProxyTooltip()"
+            tooltipPosition="top"
+          ></i>
+        </div>
+        <div class="break-all font-mono text-sm font-semibold text-slate-800">
+          {{ getProxyUrl('conceptDescriptionRepository') }}
+        </div>
+      </div>
+      <div class="rounded-xl border border-emerald-200 bg-emerald-50/70 p-3">
+        <div class="mb-1 flex items-center gap-2 text-xs font-semibold uppercase tracking-wide text-emerald-700">
+          <i class="pi pi-globe"></i>
+          <span>{{ 'DIRECT' | translate }}</span>
+          <i
+            class="pi pi-info-circle cursor-help text-emerald-500"
+            [pTooltip]="getDirectTooltip()"
+            tooltipPosition="top"
+          ></i>
+        </div>
+        <div class="break-all font-mono text-sm text-slate-700">{{ getDirectUrl('conceptDescriptionRepository') }}</div>
+      </div>
+      @if (shouldShowConfiguredUrl('conceptDescriptionRepository')) {
+        <div class="rounded-xl border border-sky-200 bg-sky-50/70 p-3">
+          <div class="mb-1 flex items-center gap-2 text-xs font-semibold uppercase tracking-wide text-sky-700">
+            <i class="pi pi-cog"></i>
+            <span>{{ 'CONFIGURED' | translate }}</span>
+            <i
+              class="pi pi-info-circle cursor-help text-sky-500"
+              [pTooltip]="getConfiguredTooltip()"
+              tooltipPosition="top"
+            ></i>
+          </div>
+          <div class="break-all font-mono text-sm text-slate-700">
+            {{ getConfiguredUrl('conceptDescriptionRepository') }}
+          </div>
+        </div>
+      }
+      @if (settings().isInternal) {
+        <div>
+          {{ 'AAS_ENVIRONMENT_VERSION' | translate }}
+          <p-tag value="{{ settings().conceptDescriptionRepositoryVersion }}" severity="info"></p-tag>
+        </div>
+      }
+      @if (settings().conceptDescriptionRepositoryHcEnabled) {
+        <div class="flex items-center gap-2">
+          {{ 'STATUS' | translate }} <em class="pi pi-circle-on text-xl" [style]="{ color: cdRepoColor() }"></em>
+        </div>
+      }
+    </div>
+  </p-card>
+  @let infraId = settings().id;
+  @if (infraId) {
+    <aas-viewer-setup-code class="col-span-3" [infrastructureId]="infraId"></aas-viewer-setup-code>
+  }
+</div>

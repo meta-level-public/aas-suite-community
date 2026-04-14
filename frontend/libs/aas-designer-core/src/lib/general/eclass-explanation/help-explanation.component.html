@@ -1,0 +1,87 @@
+<p-popover #op appendTo="body" class="w-5">
+  <!-- [showCloseIcon]="true"> -->
+  <div class="font-medium text-2xl text-900 mb-3">
+    {{ 'DEFINITION' | translate }}
+  </div>
+  <div class="text-500 mb-5">{{ 'DEFINITION_SUBTITLE' | translate }}</div>
+
+  @if (loading == true) {
+    <div>
+      <div class="w-5 flex flex-col">
+        <p-skeleton width="10rem" class="mb-2 mr-5"></p-skeleton>
+        <p-skeleton width="30rem" class="mb-2"></p-skeleton>
+      </div>
+      <div class="w-5 flex flex-col">
+        <p-skeleton width="10rem" class="mb-2 mr-5"></p-skeleton>
+        <p-skeleton width="30rem" class="mb-2"></p-skeleton>
+      </div>
+      <div class="w-5 flex flex-col">
+        <p-skeleton width="10rem" class="mb-2 mr-5"></p-skeleton>
+        <p-skeleton width="30rem" class="mb-2"></p-skeleton>
+      </div>
+    </div>
+  }
+
+  @if (dataItem != null) {
+    <div class="list-none p-0 m-2 border-top-1 border-300">
+      <div class="w-full flex flex-col surface-50">
+        <div class="mb-2 ml-2 mr-5 text-500 w-16rem font-medium">
+          {{ 'DEFINITION_TYPE' | translate }}
+        </div>
+        @if (dataItem.type === 'IRDI') {
+          <div class="mb-2 text-900 w-full">
+            <aas-eclass-logo></aas-eclass-logo>
+          </div>
+        }
+        @if (dataItem.type !== 'IRDI') {
+          <div class="mb-2 text-900 w-full">
+            {{ dataItem.type | translate }}
+          </div>
+        }
+      </div>
+      <div class="w-full flex flex-col surface-50">
+        <div class="mb-2 ml-2 mr-5 text-500 w-16rem font-medium">
+          {{ 'ID' | translate }}
+        </div>
+        <div class="mb-2 text-900 w-full">{{ dataItem.id | translate }}</div>
+      </div>
+      @if (dataItem.type === 'IRDI') {
+        <div class="w-full flex flex-col surface-50">
+          <div class="mb-2 ml-2 mr-5 text-500 w-16rem font-medium">
+            {{ 'BENENNUNG' | translate }}
+          </div>
+          <div class="mb-2 text-900 w-full">
+            {{ dataItem.getBenennung(languageService.userLanguage) | translate }}
+          </div>
+        </div>
+      }
+      <div class="w-full flex flex-col surface-50">
+        <div class="mb-2 ml-2 mr-5 text-500 w-16rem font-medium">
+          {{ 'DEFINITION' | translate }}
+        </div>
+        <div class="mb-2 text-900 w-full">
+          {{ dataItem.getDefinition(languageService.userLanguage) | translate }}
+        </div>
+      </div>
+      @if (dataItem.type === 'IRDI') {
+        <div class="w-full flex flex-col surface-50">
+          <div class="mb-2 ml-2 mr-5 text-500 w-16rem font-medium">
+            {{ 'DATENFORMAT' | translate }}
+          </div>
+          <div class="mb-2 text-900 w-full">
+            {{ dataItem.format | translate }}
+          </div>
+        </div>
+      }
+    </div>
+  }
+</p-popover>
+
+<p-button
+  type="text"
+  tabindex="-1"
+  icon="fa-solid fa-info"
+  styleClass="mini-info p-button-rounded p-button-info p-button-outlined ml-3 p-button-sm"
+  styleClass="p-button-sm"
+  (onClick)="loadData($event)"
+></p-button>

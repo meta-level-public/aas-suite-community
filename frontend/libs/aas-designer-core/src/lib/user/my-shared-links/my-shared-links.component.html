@@ -1,0 +1,134 @@
+<div class="aas-page-layout">
+  <div class="hero-section">
+    <div class="hero-content">
+      <h1 class="hero-title">
+        {{ 'SHARED_LINKS' | translate }}
+      </h1>
+      <div class="hero-actions">
+        <p-button label="{{ 'RELOAD' | translate }}" icon="pi pi-refresh" (onClick)="loadData()"></p-button>
+      </div>
+    </div>
+  </div>
+
+  <div class="aas-page-fill">
+    <div class="aas-page-abs-fill">
+      <p-table
+        #dt1
+        [value]="mySharedLinks()"
+        groupRowsBy="name"
+        sortField="ablaufdatum"
+        [sortOrder]="-1"
+        sortMode="single"
+        [paginator]="true"
+        [rowsPerPageOptions]="[5, 10, 15, 20, 25, 30, 100]"
+        [showCurrentPageReport]="true"
+        currentPageReportTemplate="{{ 'SHOW_FROM_TO_OF_TOTAL' | translate }}"
+        [rowHover]="true"
+        [scrollable]="true"
+        scrollHeight="flex"
+        scrollDirection="both"
+        [rows]="10"
+        [loading]="loading()"
+      >
+        <ng-template #header>
+          <tr>
+            <th scope="col" style="width: 50px"></th>
+            <th scope="col" pSortableColumn="aasIdentifier" style="width: 250px">
+              <div class="inline-flex items-center gap-2">
+                <i class="pi pi-tag text-sm" style="color: var(--p-text-muted-color)"></i>
+                <span>{{ 'AAS_ID' | translate }}</span>
+                <p-sortIcon field="aasIdentifier"></p-sortIcon>
+              </div>
+            </th>
+            <th scope="col" pSortableColumn="ablaufdatum" style="width: 180px">
+              <div class="inline-flex items-center gap-2">
+                <i class="pi pi-calendar text-sm" style="color: var(--p-text-muted-color)"></i>
+                <span>{{ 'ABLAUFDATUM' | translate }}</span>
+                <p-sortIcon field="ablaufdatum"></p-sortIcon>
+              </div>
+            </th>
+            <th scope="col" style="width: 120px">
+              <div class="flex items-center gap-2">
+                <i class="pi pi-lock text-sm" style="color: var(--p-text-muted-color)"></i>
+                <span>{{ 'PASSWORT' | translate }}</span>
+              </div>
+            </th>
+            <th scope="col" pSortableColumn="count" style="width: 110px">
+              <div class="inline-flex items-center gap-2">
+                <i class="pi pi-eye text-sm" style="color: var(--p-text-muted-color)"></i>
+                <span>{{ 'AUFRUFE' | translate }}</span>
+                <p-sortIcon field="count"></p-sortIcon>
+              </div>
+            </th>
+            <th scope="col" style="width: 60px">
+              <div class="flex items-center gap-2">
+                <i class="pi pi-link text-sm" style="color: var(--p-text-muted-color)"></i>
+                <span>{{ 'LINK' | translate }}</span>
+              </div>
+            </th>
+          </tr>
+        </ng-template>
+        <ng-template pTemplate="body" let-sharedLink>
+          <tr style="height: 60px">
+            <td style="width: 50px">
+              <p-button
+                icon="pi pi-ellipsis-v"
+                styleClass="p-button-text p-button-secondary"
+                (onClick)="menu.toggle($event)"
+              ></p-button>
+              <p-menu
+                appendTo="body"
+                (onShow)="onShowActions(sharedLink)"
+                #menu
+                [popup]="true"
+                [model]="menuItems"
+              ></p-menu>
+            </td>
+            <td style="width: 250px">
+              <div class="flex items-center gap-2">
+                <i class="pi pi-id-card text-sm" style="color: var(--aas-info-text)"></i>
+                <span class="font-mono text-sm">{{ sharedLink.aasIdentifier }}</span>
+              </div>
+            </td>
+            <td style="width: 180px">
+              <div class="flex items-center gap-2">
+                <i class="pi pi-clock text-sm" style="color: var(--aas-warning-text)"></i>
+                <span>{{ sharedLink.ablaufdatum | vwsDate: 'SHORT_DATE_TIME' }}</span>
+              </div>
+            </td>
+            <td style="width: 120px">
+              <p-tag
+                [value]="sharedLink.hasPasswort == true ? 'YES' : ('NO' | translate)"
+                [severity]="sharedLink.hasPasswort == false ? 'success' : 'warn'"
+              ></p-tag>
+            </td>
+            <td style="width: 110px">
+              <div class="flex items-center gap-2">
+                <i class="pi pi-chart-bar text-sm" style="color: var(--aas-info-text)"></i>
+                <span class="font-semibold">{{ sharedLink.numberOfViews }}</span>
+              </div>
+            </td>
+            <td style="width: 60px">
+              <div class="flex justify-center">
+                <a
+                  href="{{ sharedLink.generatedLink }}"
+                  target="_blank"
+                  class="transition-colors"
+                  style="color: var(--aas-info-text)"
+                  [title]="sharedLink.generatedLink"
+                >
+                  <i class="pi pi-external-link text-xl"></i>
+                </a>
+              </div>
+            </td>
+          </tr>
+        </ng-template>
+        <ng-template pTemplate="emptymessage">
+          <tr>
+            <td colspan="6" style="width: 100%">{{ 'NO_DATA_FOUND' | translate }}</td>
+          </tr>
+        </ng-template>
+      </p-table>
+    </div>
+  </div>
+</div>

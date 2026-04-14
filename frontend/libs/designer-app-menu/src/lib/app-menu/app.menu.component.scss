@@ -1,0 +1,130 @@
+.app-sidebar {
+  position: fixed;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  background-color: var(--aas-surface-overlay-strong);
+  backdrop-filter: blur(10px);
+  border-right: 1px solid var(--surface-border);
+  border-radius: 0;
+  display: flex;
+  flex-direction: column;
+  width: 60px;
+  padding-top: 50px;
+  box-sizing: border-box;
+  transition: width 0.3s ease;
+  z-index: 10;
+  overflow: hidden;
+  box-shadow: 2px 0 8px color-mix(in srgb, var(--p-primary-900) 10%, transparent);
+
+  &.expanded {
+    width: 250px;
+  }
+}
+
+:host-context(html.my-app-dark) {
+  .app-sidebar {
+    background-color: color-mix(in srgb, var(--p-surface-900) 92%, transparent);
+  }
+}
+
+.sidebar-header {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  padding: 1rem;
+  border-bottom: 1px solid var(--surface-border);
+  min-height: 60px;
+}
+
+.sidebar-toggle {
+  width: 2.5rem;
+  height: 2.5rem;
+  color: var(--text-color);
+
+  &:hover {
+    background-color: var(--surface-hover);
+  }
+}
+
+.sidebar-nav {
+  flex: 1;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding: 0.5rem 0;
+}
+
+.sidebar-item {
+  display: flex;
+  align-items: center;
+  padding: 0.75rem 1rem;
+  color: var(--text-color-secondary);
+  text-decoration: none;
+  cursor: pointer;
+  transition: all 0.2s;
+  white-space: nowrap;
+  min-height: 48px;
+  justify-content: center;
+
+  .app-sidebar.expanded & {
+    justify-content: flex-start;
+  }
+
+  &:hover {
+    background-color: var(--surface-hover);
+    color: var(--text-color);
+  }
+
+  &.active {
+    background-color: var(--p-highlight-background);
+    color: var(--p-highlight-color);
+
+    .sidebar-icon {
+      color: var(--p-highlight-color) !important;
+    }
+
+    .sidebar-label {
+      color: var(--p-highlight-color);
+      font-weight: 600;
+    }
+
+    &:hover {
+      background-color: var(--p-highlight-background);
+    }
+  }
+}
+
+.sidebar-icon {
+  font-size: var(--aas-text-xl);
+  min-width: 1.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.sidebar-label {
+  margin-left: 1rem;
+  font-size: var(--aas-text-md);
+  font-weight: 500;
+  opacity: 1;
+}
+
+// Scrollbar styling
+.sidebar-nav {
+  &::-webkit-scrollbar {
+    width: 4px;
+  }
+
+  &::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background: var(--surface-border);
+    border-radius: var(--aas-radius-xs);
+
+    &:hover {
+      background: var(--text-color-secondary);
+    }
+  }
+}

@@ -1,0 +1,346 @@
+<div class="flex flex-col flex-auto overflow-auto">
+  <div class="hero-section">
+    <div class="hero-content">
+      <h1 class="hero-title">{{ 'SUBMODEL_TEMPLATES' | translate }}</h1>
+      <div class="hero-actions">
+        <p-button
+          label="{{ 'RELOAD' | translate }}"
+          icon="pi pi-refresh"
+          (onClick)="loadData()"
+          severity="success"
+        ></p-button>
+        <p-button label="{{ 'ADD' | translate }}" icon="pi pi-plus" (onClick)="displayUploadDialog = true"></p-button>
+        <p-button
+          label="{{ 'ADD_BULK' | translate }}"
+          icon="pi pi-upload"
+          (onClick)="displayBulkDialog = true"
+        ></p-button>
+      </div>
+    </div>
+  </div>
+
+  <div class="flex-auto overflow-auto">
+    <p-table
+      #dt
+      [value]="templates"
+      responsiveLayout="scroll"
+      [rows]="10"
+      [paginator]="true"
+      [rowsPerPageOptions]="[5, 10, 25, 50]"
+      [showCurrentPageReport]="true"
+      currentPageReportTemplate="{{ 'SHOW_FROM_TO_OF_TOTAL' | translate }}"
+      [rowHover]="true"
+      dataKey="id"
+      [loading]="loading"
+      size="small"
+      [scrollable]="true"
+      scrollHeight="flex"
+      sortField="aenderungsDatum"
+      [sortOrder]="-1"
+    >
+      <ng-template #header>
+        <tr>
+          <th scope="col" style="width: 5%; min-width: 1rem"></th>
+          <th scope="col" pSortableColumn="name" style="width: 15%; min-width: 10rem">
+            {{ 'NAME' | translate }}<p-sortIcon field="name"></p-sortIcon>
+          </th>
+          <th scope="col" pSortableColumn="name" style="width: 15%; min-width: 10rem">
+            {{ 'LABEL' | translate }}<p-sortIcon field="label"></p-sortIcon>
+          </th>
+          <th scope="col" pSortableColumn="submodelVersion" style="width: 10%; min-width: 5rem">
+            {{ 'VERSION' | translate }}<p-sortIcon field="submodelVersion"></p-sortIcon>
+          </th>
+          <th scope="col" pSortableColumn="filename" style="width: 15%; min-width: 10rem">
+            {{ 'FILENAME' | translate }}<p-sortIcon field="filename"></p-sortIcon>
+          </th>
+          <th scope="col" pSortableColumn="semanticIds" style="width: 20%; min-width: 10rem">
+            {{ 'SEMANTIC_IDS_HEADER' | translate }}<p-sortIcon field="semanticIds"></p-sortIcon>
+          </th>
+          <th scope="col" pSortableColumn="anlageDatum" style="width: 10%; min-width: 10rem">
+            {{ 'ANGELEGT' | translate }}<p-sortIcon field="anlageDatum"></p-sortIcon>
+          </th>
+          <th scope="col" pSortableColumn="aenderungsDatum" style="width: 10%; min-width: 10rem">
+            {{ 'GEAENDERT' | translate }}<p-sortIcon field="aenderungsDatum"></p-sortIcon>
+          </th>
+        </tr>
+        <tr>
+          <th scope="col" style="width: 5%; min-width: 1rem"></th>
+          <th scope="col" style="width: 15%; min-width: 10rem">
+            <p-columnFilter type="text" field="name"></p-columnFilter>
+          </th>
+          <th scope="col" style="width: 15%; min-width: 10rem">
+            <p-columnFilter type="text" field="label"></p-columnFilter>
+          </th>
+          <th scope="col" style="width: 15%; min-width: 10rem">
+            <p-columnFilter type="text" field="filename"></p-columnFilter>
+          </th>
+          <th scope="col" style="width: 10%; min-width: 5rem">
+            <p-columnFilter type="text" field="submodelVersion"></p-columnFilter>
+          </th>
+          <th scope="col" style="width: 20%; min-width: 10rem">
+            <p-columnFilter type="text" field="semanticIds"></p-columnFilter>
+          </th>
+          <th scope="col" style="width: 10%; min-width: 10rem">
+            <p-columnFilter type="date" field="anlageDatum"></p-columnFilter>
+          </th>
+          <th scope="col" style="width: 10%; min-width: 10rem">
+            <p-columnFilter type="date" field="aenderungsDatum"></p-columnFilter>
+          </th>
+        </tr>
+      </ng-template>
+      <ng-template pTemplate="body" let-smt>
+        <tr>
+          <td style="width: 5%; min-width: 1rem">
+            <p-button
+              icon="pi pi-ellipsis-v"
+              styleClass="p-button-text p-button-secondary"
+              (onClick)="menu.toggle($event)"
+            ></p-button>
+            <p-menu appendTo="body" (onShow)="onShowActions(smt)" #menu [popup]="true" [model]="menuItems"></p-menu>
+          </td>
+          <td style="width: 15%; min-width: 10rem">
+            {{ smt.name }}
+          </td>
+          <td style="width: 15%; min-width: 10rem">
+            {{ smt.label }}
+          </td>
+          <td style="width: 10%; min-width: 5rem">
+            {{ smt.submodelVersion }}
+          </td>
+          <td style="width: 15%; min-width: 10rem">
+            {{ smt.filename }}
+          </td>
+          <td style="width: 20%; min-width: 10rem">
+            {{ smt.semanticIds }}
+          </td>
+          <td style="width: 10%; min-width: 10rem">
+            {{ smt.anlageDatum | vwsDate: 'SHORT_DATE_TIME' }}
+          </td>
+          <td style="width: 10%; min-width: 10rem">
+            {{ smt.aenderungsDatum | vwsDate: 'SHORT_DATE_TIME' }}
+          </td>
+        </tr>
+      </ng-template>
+      <ng-template pTemplate="emptymessage">
+        <tr>
+          <td colspan="8" style="width: 100%">{{ 'NO_DATA_FOUND' | translate }}</td>
+        </tr>
+      </ng-template>
+    </p-table>
+  </div>
+</div>
+
+<p-dialog
+  [(visible)]="displayUploadDialog"
+  [breakpoints]="{ '960px': '75vw', '640px': '100vw' }"
+  [style]="{ width: '50vw' }"
+>
+  <ng-template #header>
+    <div class="font-bold text-xl">{{ 'ADD_SUBMODEL_TEMPLATE' | translate }}</div>
+  </ng-template>
+  <div class="mb-4">
+    <label for="name">{{ 'ENTER_DATA_FOR_TEMPLATE' | translate }}</label>
+  </div>
+  <p-fileUpload
+    #uploader
+    chooseIcon="pi pi-upload"
+    accept=".aasx"
+    [auto]="false"
+    chooseLabel="{{ 'CHOOSE_LABEL' | translate }}"
+    (onSelect)="fileSelected($event)"
+    [customUpload]="true"
+    [disabled]="loading"
+    [showUploadButton]="false"
+  >
+    <ng-template pTemplate="content" let-files>
+      <em>
+        {{ 'SELECT_FILE' | translate }}
+      </em>
+    </ng-template>
+  </p-fileUpload>
+  <form #uploadForm="ngForm">
+    <div class="mb-4">
+      <label for="name">{{ 'NAME' | translate }}</label>
+      <input type="text" pInputText id="name" name="name" class="w-full" [(ngModel)]="name" required />
+    </div>
+    <div class="mb-4">
+      <label for="name">{{ 'FILENAME' | translate }}</label>
+      <input type="text" pInputText id="filename" name="filename" class="w-full" [(ngModel)]="filename" required />
+    </div>
+    <div class="mb-4">
+      <label for="name">{{ 'LABEL' | translate }}</label>
+      <input type="text" pInputText id="label" name="label" class="w-full" [(ngModel)]="label" required />
+    </div>
+    <div class="mb-4">
+      <label for="name">{{ 'GROUP' | translate }}</label>
+      <p-select
+        name="label"
+        class="w-full"
+        class="w-full"
+        [options]="['IDTA', 'VDMA', 'OTHER']"
+        [(ngModel)]="group"
+        appendTo="body"
+      />
+    </div>
+    <div class="mb-4">
+      <label for="name">{{ 'SEMANTIC_IDS' | translate }}</label>
+      <textarea pTextarea id="label" name="semanticIds" class="w-full" [(ngModel)]="semanticIds" required></textarea>
+    </div>
+  </form>
+  <ng-template pTemplate="footer">
+    <p-button
+      pRipple
+      label="{{ 'SAVE' | translate }}"
+      icon="pi pi-save"
+      styleClass="p-button-success"
+      (onClick)="doUpload()"
+      [disabled]="!uploadForm.valid || file == null"
+    ></p-button>
+  </ng-template>
+</p-dialog>
+
+<p-dialog
+  [(visible)]="displayEditDialog"
+  [breakpoints]="{ '960px': '75vw', '640px': '100vw' }"
+  [style]="{ width: '50vw' }"
+>
+  <ng-template #header>
+    <div class="font-bold text-xl">{{ 'EDIT_SUBMODEL_TEMPLATE' | translate }}</div>
+  </ng-template>
+  <div class="mb-4">
+    <label for="name">{{ 'ENTER_DATA_FOR_TEMPLATE' | translate }}</label>
+  </div>
+  <form #updateForm="ngForm">
+    @if (editSmt) {
+      <div class="mb-4">
+        <label for="name">{{ 'NAME' | translate }}</label>
+        <input type="text" pInputText id="name" name="name" class="w-full" [(ngModel)]="editSmt.name" required />
+      </div>
+    }
+    @if (editSmt) {
+      <div class="mb-4">
+        <label for="name">{{ 'LABEL' | translate }}</label>
+        <input type="text" pInputText id="label" name="label" class="w-full" [(ngModel)]="editSmt.label" required />
+      </div>
+    }
+    @if (editSmt) {
+      <div class="mb-4">
+        <label for="name">{{ 'GROUP' | translate }}</label>
+        <p-select
+          name="label"
+          class="w-full"
+          class="w-full"
+          [options]="['IDTA', 'VDMA', 'OTHER']"
+          [(ngModel)]="editSmt.group"
+          appendTo="body"
+        />
+      </div>
+    }
+    @if (editSmt) {
+      <div class="mb-4">
+        <label for="name">{{ 'SEMANTIC_IDS' | translate }}</label>
+        <textarea
+          pTextarea
+          id="label"
+          name="semanticIds"
+          class="w-full"
+          [(ngModel)]="editSmt.semanticIds"
+          required
+        ></textarea>
+      </div>
+    }
+  </form>
+  <ng-template pTemplate="footer">
+    <p-button
+      pRipple
+      label="{{ 'CANCEL' | translate }}"
+      icon="pi pi-times"
+      styleClass="p-button-secondary"
+      (onClick)="displayEditDialog = false"
+    ></p-button>
+    <p-button
+      pRipple
+      label="{{ 'SAVE' | translate }}"
+      icon="pi pi-save"
+      styleClass="p-button-success"
+      (onClick)="doEdit()"
+      [disabled]="!updateForm.valid"
+    ></p-button>
+  </ng-template>
+</p-dialog>
+
+<p-dialog
+  [(visible)]="displayBulkDialog"
+  [breakpoints]="{ '960px': '75vw', '640px': '100vw' }"
+  [style]="{ width: '50vw' }"
+>
+  <ng-template #header>
+    <div class="font-bold text-xl">{{ 'ADD_SUBMODEL_TEMPLATE' | translate }}</div>
+  </ng-template>
+  <p-fileUpload
+    #bulkUploader
+    chooseIcon="pi pi-upload"
+    accept=".aasx"
+    [auto]="false"
+    chooseLabel="{{ 'SELECT_FILES' | translate }}"
+    cancelLabel="{{ 'RESET_FILES' | translate }}"
+    (onSelect)="bulkFileSelected($event)"
+    (onClear)="files = []"
+    [customUpload]="true"
+    [disabled]="loading"
+    [showUploadButton]="false"
+    [multiple]="true"
+    [previewWidth]="0"
+  >
+    <ng-template let-file pTemplate="file">
+      @if (files.length) {
+        <ul>
+          <li>{{ file.name }} - {{ file.size }} bytes</li>
+        </ul>
+      }
+    </ng-template>
+    <ng-template pTemplate="content">
+      <em>
+        {{ 'SELECT_FILE' | translate }}
+      </em>
+      <div class="mb-4">
+        <label for="version">{{ 'VERSION' | translate }}</label>
+        <p-select
+          name="version"
+          [options]="versionOptions"
+          [(ngModel)]="version"
+          class="w-full"
+          class="w-full"
+        ></p-select>
+      </div>
+      <div class="mb-4">
+        <label for="version">{{ 'GROUP' | translate }}</label>
+        <p-select
+          name="label"
+          class="w-full"
+          class="w-full"
+          [options]="['IDTA', 'VDMA', 'OTHER']"
+          [(ngModel)]="group"
+          appendTo="body"
+        />
+      </div>
+    </ng-template>
+  </p-fileUpload>
+  <ng-template pTemplate="footer">
+    <p-button
+      pRipple
+      label="{{ 'CANCEL' | translate }}"
+      icon="pi pi-times"
+      styleClass="p-button-secondary"
+      (onClick)="displayBulkDialog = false"
+    ></p-button>
+    <p-button
+      pRipple
+      label="{{ 'SAVE' | translate }}"
+      icon="pi pi-save"
+      styleClass="p-button-success"
+      (onClick)="doBulkUpload()"
+      [disabled]="files.length === 0"
+    ></p-button>
+  </ng-template>
+</p-dialog>

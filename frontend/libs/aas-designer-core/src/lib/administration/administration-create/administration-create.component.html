@@ -1,0 +1,258 @@
+<form #adminOrgaCreateForm="ngForm" vwsAutocompleteOff class="overflow-y-scroll overflow-x-hidden">
+  <div class="grid grid-cols-12 overflow-y-scroll">
+    <div class="card col-12 grid grid-cols-12">
+      <div class="col-span-12">
+        <p-toolbar class="mb-2">
+          <div class="p-toolbar-group-start">
+            <div class="text-xl">{{ 'CREATE_ORGANIZATION' | translate }}</div>
+          </div>
+
+          <div class="p-toolbar-group-end flex gap-2">
+            <p-button
+              label="{{ 'CLOSE' | translate }}"
+              icon="pi pi-times"
+              outlined="true"
+              (onClick)="close()"
+              [loading]="loading"
+            ></p-button>
+            <p-button
+              pRipple
+              label="{{ 'SAVE' | translate }}"
+              icon="pi pi-save"
+              styleClass="p-button-success"
+              (onClick)="save()"
+              [loading]="loading"
+              [disabled]="validData() === false"
+              type="submit"
+            ></p-button>
+          </div>
+        </p-toolbar>
+      </div>
+      <div class="col-span-12 md:col-span-6">
+        <p-fieldset legend="{{ 'ORGA_DATA' | translate }}">
+          <div class="mb-4">
+            <label for="name"> {{ 'NAME_OF_THE_ORGANIZATION' | translate }}</label>
+            <input
+              pInputText
+              id="name"
+              type="text"
+              class="inputfield w-full"
+              name="name"
+              [(ngModel)]="organisation.name"
+              #organame="ngModel"
+              required
+            />
+            @if (!organame.valid && organame.touched) {
+              <div class="p-error">{{ 'REQUIRED_FIELD' | translate }}</div>
+            }
+          </div>
+
+          <div class="mb-4">
+            <label for="street"> {{ 'STREET' | translate }}</label>
+            <input
+              pInputText
+              id="street"
+              type="text"
+              class="inputfield w-full"
+              name="street"
+              [(ngModel)]="organisation.strasse"
+              #street="ngModel"
+              required
+            />
+            @if (!street.valid && street.touched) {
+              <div class="p-error">{{ 'REQUIRED_FIELD' | translate }}</div>
+            }
+          </div>
+
+          <div class="mb-4">
+            <label for="zip"> {{ 'ZIP' | translate }}</label>
+            <input
+              pInputText
+              id="zip"
+              type="text"
+              class="inputfield w-full"
+              name="zip"
+              [(ngModel)]="organisation.plz"
+              #zip="ngModel"
+              required
+            />
+            @if (!zip.valid && zip.touched) {
+              <div class="p-error">{{ 'REQUIRED_FIELD' | translate }}</div>
+            }
+          </div>
+
+          <div class="mb-4">
+            <label for="city"> {{ 'CITY_TOWN' | translate }}</label>
+            <input
+              pInputText
+              id="city"
+              type="text"
+              class="inputfield w-full"
+              name="city"
+              [(ngModel)]="organisation.ort"
+              #city="ngModel"
+              required
+            />
+            @if (!city.valid && city.touched) {
+              <div class="p-error">{{ 'REQUIRED_FIELD' | translate }}</div>
+            }
+          </div>
+
+          <div class="mb-4">
+            <label for="state"> {{ 'STATE_COUNTY' | translate }} </label>
+            <input
+              pInputText
+              id="state"
+              type="text"
+              class="inputfield w-full"
+              name="state"
+              [(ngModel)]="organisation.bundesland"
+            />
+          </div>
+
+          <div class="mb-4">
+            <label for="countryCode">
+              {{ 'COUNTRY' | translate }}
+            </label>
+            <div>
+              <aas-country-code
+                [preSelectedCountry]="organisation.laenderCode"
+                (selectedCountry)="organisation.laenderCode = $event"
+                [inputId]="'countryCode'"
+              ></aas-country-code>
+            </div>
+          </div>
+
+          <div class="mb-4">
+            <label for="email"> {{ 'EMAIL' | translate }}</label>
+            <input
+              #email="ngModel"
+              pInputText
+              id="email"
+              name="email"
+              [(ngModel)]="organisation.email"
+              class="w-full"
+              required
+            />
+            @if (!isValidEmail(organisation.email) && email.touched) {
+              <div class="p-error">
+                {{ 'EMAIL_IS_INVALID' | translate }}
+              </div>
+            }
+          </div>
+
+          <div class="mb-4">
+            <label for="telephone"> {{ 'PHONE' | translate }} </label>
+            <input
+              pInputText
+              id="telephone"
+              type="tel"
+              class="inputfield w-full"
+              name="telephone"
+              [(ngModel)]="organisation.telefon"
+            />
+          </div>
+
+          <div class="mb-4">
+            <label for="fax"> {{ 'FAX' | translate }} </label>
+            <input pInputText id="fax" type="tel" class="inputfield w-full" name="fax" [(ngModel)]="organisation.fax" />
+          </div>
+
+          <div class="mb-4">
+            <p-checkbox [(ngModel)]="organisation.accountAktiv" [binary]="true" id="active" name="active"> </p-checkbox>
+            <label for="active"> {{ 'ACTIVE' | translate }} </label>
+          </div>
+
+          @if (themeSelectionEnabled) {
+            <div class="mb-4">
+              <label for="theme"> {{ 'THEME' | translate }}</label>
+              <div>
+                <p-select
+                  [(ngModel)]="organisation.themeUrl"
+                  [options]="themeOptions"
+                  optionLabel="label"
+                  optionValue="value"
+                  name="theme"
+                  class="w-full"
+                >
+                  <ng-template let-item pTemplate="selectedItem">
+                    <div>{{ item?.label }}</div>
+                  </ng-template>
+                  <ng-template let-item pTemplate="item">
+                    <div>{{ item?.label }}</div>
+                  </ng-template>
+                </p-select>
+              </div>
+            </div>
+          }
+        </p-fieldset>
+      </div>
+      <div class="col-span-12 md:col-span-6">
+        <p-fieldset legend="{{ 'ADMIN_DATA' | translate }}">
+          <div class="mb-4">
+            <label for="firstname"> {{ 'FIRSTNAME' | translate }}</label>
+            <input
+              pInputText
+              id="firstname"
+              type="text"
+              class="inputfield w-full"
+              name="firstname"
+              [(ngModel)]="admin.name"
+              #firstname="ngModel"
+              required
+            />
+            @if (!firstname.valid && firstname.touched) {
+              <div class="p-error">
+                {{ 'REQUIRED_FIELD' | translate }}
+              </div>
+            }
+          </div>
+
+          <div class="mb-4">
+            <label for="lastname"> {{ 'LASTNAME' | translate }}</label>
+            <input
+              pInputText
+              id="lastname"
+              type="text"
+              class="inputfield w-full"
+              name="lastname"
+              [(ngModel)]="admin.vorname"
+              #lastname="ngModel"
+              required
+            />
+            @if (!lastname.valid && lastname.touched) {
+              <div class="p-error">{{ 'REQUIRED_FIELD' | translate }}</div>
+            }
+          </div>
+
+          <div class="mb-4">
+            <label for="adminmail"> {{ 'EMAIL' | translate }}</label>
+            <input
+              #adminemail="ngModel"
+              pInputText
+              id="email"
+              name="email"
+              [(ngModel)]="admin.email"
+              class="w-full"
+              required
+            />
+            @if (!isValidEmail(admin.email) && adminemail.touched) {
+              <div class="p-error">
+                {{ 'EMAIL_IS_INVALID' | translate }}
+              </div>
+            }
+          </div>
+
+          <div class="mb-4">
+            <label for="password"> {{ 'PASSWORD' | translate }}</label>
+            <aas-password
+              [passwordInput]="admin.passwort"
+              (passwordOutput)="setPassword($event)"
+              vwsAutocompleteOff
+            ></aas-password>
+          </div>
+        </p-fieldset>
+      </div>
+    </div>
+  </div>
+</form>

@@ -1,0 +1,49 @@
+<div class="flex flex-col gap-4">
+  @if (entries.length === 0) {
+    <div class="pcf-viewer-empty-state">{{ 'NO_PCF_ENTRIES' | translate }}</div>
+  } @else {
+    @for (entry of entries; track entry.id; let index = $index) {
+      <div class="pcf-viewer-card">
+        <div class="flex items-start justify-between gap-4 mb-4">
+          <div>
+            <h3 class="text-2xl font-bold mb-2">{{ definition.titleKey | translate }} {{ index + 1 }}</h3>
+            <p class="text-sm text-gray-600 mb-0">{{ definition.descriptionKey | translate }}</p>
+          </div>
+          @if (showEditActions) {
+            <p-button
+              label="{{ 'EDIT' | translate }}"
+              icon="pi pi-wrench"
+              [outlined]="true"
+              severity="secondary"
+              (onClick)="edit(index)"
+            ></p-button>
+          }
+        </div>
+
+        <div class="flex flex-col gap-4">
+          @for (group of definition.groups; track group.id) {
+            @if (hasVisibleFields(entry, group)) {
+              <div class="pcf-viewer-group-card">
+                <div class="font-bold text-lg mb-2">{{ group.labelKey | translate }}</div>
+                @if (group.descriptionKey != null) {
+                  <div class="text-sm text-gray-500 mb-3">{{ group.descriptionKey | translate }}</div>
+                }
+
+                <div class="flex flex-col gap-3">
+                  @for (field of group.fields; track field.id) {
+                    @if (getFieldValue(entry, field.id) !== '') {
+                      <div>
+                        <div class="font-semibold">{{ field.labelKey | translate }}</div>
+                        <div class="text-sm text-gray-700 mt-1">{{ getFieldValue(entry, field.id) }}</div>
+                      </div>
+                    }
+                  }
+                </div>
+              </div>
+            }
+          }
+        </div>
+      </div>
+    }
+  }
+</div>

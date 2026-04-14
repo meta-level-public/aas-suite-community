@@ -1,0 +1,68 @@
+<div class="changelog-container">
+  <div class="section-card">
+    <h3 class="section-title"><i class="fa-solid fa-clock-rotate-left"></i> Changelog Overview</h3>
+    <div class="summary-grid">
+      <p-inputgroup>
+        <p-inputgroup-addon class="font-bold min-w-40">Entries</p-inputgroup-addon>
+        <input pInputText type="text" [value]="entries.length" readonly />
+      </p-inputgroup>
+      <p-inputgroup>
+        <p-inputgroup-addon class="font-bold min-w-40">Latest User</p-inputgroup-addon>
+        <input pInputText type="text" [value]="latestEntry?.user ?? '-'" readonly />
+      </p-inputgroup>
+      <p-inputgroup>
+        <p-inputgroup-addon class="font-bold min-w-40">Latest Action</p-inputgroup-addon>
+        <input pInputText type="text" [value]="latestEntry?.action ?? '-'" readonly />
+      </p-inputgroup>
+      <p-inputgroup>
+        <p-inputgroup-addon class="font-bold min-w-40">Latest Date</p-inputgroup-addon>
+        <input pInputText type="text" [value]="latestEntry?.dateDisplay ?? '-'" readonly />
+      </p-inputgroup>
+    </div>
+  </div>
+
+  <div class="section-card">
+    <h3 class="section-title"><i class="fa-solid fa-timeline"></i> Timeline</h3>
+    @if (entries.length === 0) {
+      <div class="text-color-secondary">No changelog entries available.</div>
+    } @else {
+      <div class="timeline-wrap">
+        @for (entry of entries; track entry.idShort + entry.dateRaw + $index; let i = $index; let isLast = $last) {
+          <div class="timeline-item">
+            <div class="timeline-marker-col">
+              <div class="timeline-dot" [ngClass]="actionMarkerClass(entry.action)">
+                <i [ngClass]="actionMarkerIcon(entry.action)" class="timeline-dot-icon"></i>
+              </div>
+              @if (!isLast) {
+                <div class="timeline-line"></div>
+              }
+            </div>
+
+            <article class="timeline-card">
+              <header class="timeline-card-head">
+                <div class="timeline-card-main">
+                  <div class="timeline-date">{{ entry.dateDisplay }}</div>
+                  <div class="timeline-user">
+                    <i class="fa-solid fa-user"></i>
+                    <span>{{ entry.user }}</span>
+                  </div>
+                </div>
+                <p-tag [value]="entry.action || '-'" [severity]="actionSeverity(entry.action)"></p-tag>
+              </header>
+
+              <div class="timeline-comment">
+                @if (entry.comment !== '-') {
+                  {{ entry.comment }}
+                } @else {
+                  <span class="text-color-secondary">No comment</span>
+                }
+              </div>
+
+              <footer class="timeline-meta">#{{ entries.length - i }} · {{ entry.idShort }}</footer>
+            </article>
+          </div>
+        }
+      </div>
+    }
+  </div>
+</div>

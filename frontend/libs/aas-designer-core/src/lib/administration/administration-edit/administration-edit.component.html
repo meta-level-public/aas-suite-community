@@ -1,0 +1,295 @@
+<form #adminOrgaEditForm="ngForm" vwsAutocompleteOff class="overflow-y-scroll overflow-x-hidden">
+  @if (organisation != null) {
+    <div class="grid grid-cols-12 overflow-y-scroll">
+      <div class="card col-12 grid grid-cols-12">
+        <div class="col-span-12">
+          <p-toolbar class="mb-2">
+            <div class="p-toolbar-group-start">
+              <div class="text-xl">{{ 'EDIT_ORGANIZATION' | translate }}</div>
+            </div>
+            <div class="p-toolbar-group-end flex gap-2">
+              <p-button
+                label="{{ 'CANCEL' | translate }}"
+                icon="pi pi-times"
+                (onClick)="close()"
+                [loading]="loading"
+                outlined="true"
+              ></p-button>
+              <p-button
+                pRipple
+                label="{{ 'SAVE' | translate }}"
+                icon="pi pi-save"
+                styleClass="p-button-success"
+                (onClick)="save()"
+                [loading]="loading"
+                [disabled]="validData() === false || !form.dirty"
+                type="submit"
+              ></p-button>
+              @if (payment.isExclusivePaymentModel !== true) {
+                <p-button
+                  pRipple
+                  label="{{ 'ADD_PAYMENT_MODEL' | translate }}"
+                  icon="pi pi-plus"
+                  (onClick)="payment.openAddPaymentModel()"
+                  [loading]="loading"
+                  type="button"
+                ></p-button>
+              }
+              @if (organisation.bezahlmodelle.length > 1) {
+                <div
+                  pTooltip="{{ 'BEZAHLMODELL_CHANGE_ONLY_WITH_NO_OPTIONS' | translate }}"
+                  style="display: inline-block"
+                >
+                  <p-button
+                    pRipple
+                    label="{{ 'CHANGE_PAYMENT_MODEL' | translate }}"
+                    icon="pi pi-sync"
+                    (onClick)="payment.openChangePaymentModel()"
+                    [disabled]="true"
+                    [loading]="loading"
+                    type="button"
+                  ></p-button>
+                </div>
+              }
+              @if (organisation.bezahlmodelle.length == 1) {
+                <p-button
+                  pRipple
+                  label="{{ 'CHANGE_PAYMENT_MODEL' | translate }}"
+                  icon="pi pi-sync"
+                  (onClick)="payment.openChangePaymentModel()"
+                  [loading]="loading"
+                  type="button"
+                ></p-button>
+              }
+            </div>
+          </p-toolbar>
+        </div>
+        <div class="col-span-12">
+          <p-fieldset legend="{{ 'ORGA_DATA' | translate }}">
+            <div class="grid grid-cols-12">
+              <div class="col-span-12 md:col-span-6">
+                <div class="mb-4">
+                  <label for="name"> {{ 'NAME_OF_THE_ORGANIZATION' | translate }}</label>
+                  <input
+                    pInputText
+                    id="name"
+                    type="text"
+                    class="inputfield w-full"
+                    name="name"
+                    [(ngModel)]="organisation.name"
+                    #organame="ngModel"
+                    required
+                  />
+                  @if (!organame.valid && organame.touched) {
+                    <div class="p-error">
+                      {{ 'REQUIRED_FIELD' | translate }}
+                    </div>
+                  }
+                </div>
+                <div class="mb-4">
+                  <label for="street"> {{ 'STREET' | translate }}</label>
+                  <input
+                    pInputText
+                    id="street"
+                    type="text"
+                    class="inputfield w-full"
+                    name="street"
+                    [(ngModel)]="organisation.strasse"
+                    #street="ngModel"
+                    required
+                  />
+                  @if (!street.valid && street.touched) {
+                    <div class="p-error">{{ 'REQUIRED_FIELD' | translate }}</div>
+                  }
+                </div>
+                <div class="mb-4">
+                  <label for="zip"> {{ 'ZIP' | translate }}</label>
+                  <input
+                    pInputText
+                    id="zip"
+                    type="text"
+                    class="inputfield w-full"
+                    name="zip"
+                    [(ngModel)]="organisation.plz"
+                    #zip="ngModel"
+                    required
+                  />
+                  @if (!zip.valid && zip.touched) {
+                    <div class="p-error">{{ 'REQUIRED_FIELD' | translate }}</div>
+                  }
+                </div>
+                <div class="mb-4">
+                  <label for="city"> {{ 'CITY_TOWN' | translate }}</label>
+                  <input
+                    pInputText
+                    id="city"
+                    type="text"
+                    class="inputfield w-full"
+                    name="city"
+                    [(ngModel)]="organisation.ort"
+                    #city="ngModel"
+                    required
+                  />
+                  @if (!city.valid && city.touched) {
+                    <div class="p-error">{{ 'REQUIRED_FIELD' | translate }}</div>
+                  }
+                </div>
+                <div class="mb-4">
+                  <label for="state"> {{ 'STATE_COUNTY' | translate }} </label>
+                  <input
+                    pInputText
+                    id="state"
+                    type="text"
+                    class="inputfield w-full"
+                    name="state"
+                    [(ngModel)]="organisation.bundesland"
+                  />
+                </div>
+                <div class="mb-4">
+                  <label for="countryCode">
+                    {{ 'COUNTRY_CODE' | translate }}
+                  </label>
+                  <div>
+                    <aas-country-code
+                      [preSelectedCountry]="organisation.laenderCode"
+                      (selectedCountry)="setCountryCode($event)"
+                      [inputId]="'countryCode'"
+                    ></aas-country-code>
+                  </div>
+                </div>
+              </div>
+              <div class="col-span-12 md:col-span-6">
+                <div class="mb-4">
+                  <label for="email"> {{ 'EMAIL' | translate }}</label>
+                  <input
+                    #email="ngModel"
+                    pInputText
+                    id="email"
+                    name="email"
+                    [(ngModel)]="organisation.email"
+                    class="w-full"
+                    required
+                  />
+                  @if (!isValidEmail(organisation.email) && email.touched) {
+                    <div class="p-error">
+                      {{ 'EMAIL_IS_INVALID' | translate }}
+                    </div>
+                  }
+                </div>
+                <div class="mb-4">
+                  <label for="telephone"> {{ 'PHONE' | translate }} </label>
+                  <input
+                    pInputText
+                    id="telephone"
+                    type="tel"
+                    class="inputfield w-full"
+                    name="telephone"
+                    [(ngModel)]="organisation.telefon"
+                  />
+                </div>
+                <div class="mb-4">
+                  <label for="fax"> {{ 'FAX' | translate }} </label>
+                  <input
+                    pInputText
+                    id="fax"
+                    type="tel"
+                    class="inputfield w-full"
+                    name="fax"
+                    [(ngModel)]="organisation.fax"
+                  />
+                </div>
+                <div class="mb-4">
+                  <p-checkbox [(ngModel)]="organisation.accountAktiv" [binary]="true" id="active" name="active">
+                  </p-checkbox>
+                  <label for="active"> {{ 'ACTIVE' | translate }} </label>
+                </div>
+                @if (themeSelectionEnabled) {
+                  <div class="mb-4 mt-8">
+                    <label for="theme"> {{ 'THEME' | translate }}</label>
+                    <div>
+                      <p-select
+                        [(ngModel)]="organisation.themeUrl"
+                        [options]="themeOptions"
+                        optionLabel="label"
+                        optionValue="value"
+                        name="theme"
+                        class="w-full"
+                        class="w-full"
+                      >
+                        <ng-template let-item pTemplate="selectedItem">
+                          <div>{{ item?.label }}</div>
+                        </ng-template>
+                        <ng-template let-item pTemplate="item">
+                          <div>{{ item?.label }}</div>
+                        </ng-template>
+                      </p-select>
+                    </div>
+                  </div>
+                }
+              </div>
+            </div>
+          </p-fieldset>
+        </div>
+        <div class="col-span-12 flex flex-col gap-2">
+          <aas-orga-payment-model-list
+            [orgaId]="id"
+            (paymentModelSaved)="paymentModelSaved()"
+            #payment
+          ></aas-orga-payment-model-list>
+          <p-fieldset legend="{{ 'USERS' | translate }}">
+            <p-table
+              #dt
+              [value]="orgaUsers"
+              responsiveLayout="scroll"
+              [rows]="10"
+              [globalFilterFields]="['organisation']"
+              [rows]="10"
+              [paginator]="false"
+              [rowHover]="true"
+              dataKey="id"
+              sortField="name"
+            >
+              <ng-template #header>
+                <tr>
+                  <th scope="col" pSortableColumn="name">
+                    {{ 'LASTNAME' | translate }}<p-sortIcon field="name"></p-sortIcon>
+                  </th>
+                  <th scope="col" pSortableColumn="vorname">
+                    {{ 'FIRSTNAME' | translate }}<p-sortIcon field="vorname"></p-sortIcon>
+                  </th>
+                  <th scope="col" pSortableColumn="email">
+                    {{ 'EMAIL' | translate }}<p-sortIcon field="email"></p-sortIcon>
+                  </th>
+                  <th scope="col" pSortableColumn="accountAktiv">
+                    {{ 'ACTIVE' | translate }}<p-sortIcon field="accountAktiv"></p-sortIcon>
+                  </th>
+                </tr>
+              </ng-template>
+              <ng-template pTemplate="body" let-benutzer>
+                <tr>
+                  <td style="width: 25%; min-width: 10rem">
+                    {{ benutzer.name }}
+                  </td>
+                  <td style="width: 25%; min-width: 10rem">
+                    {{ benutzer.vorname }}
+                  </td>
+                  <td style="width: 25%; min-width: 10rem">
+                    {{ benutzer.email }}
+                  </td>
+                  <td>
+                    {{ benutzer.accountAktiv ? ('primeng.accept' | translate) : ('primeng.reject' | translate) }}
+                  </td>
+                </tr>
+              </ng-template>
+              <ng-template pTemplate="emptymessage">
+                <tr>
+                  <td colspan="4">{{ 'NO_DATA_FOUND' | translate }}</td>
+                </tr>
+              </ng-template>
+            </p-table>
+          </p-fieldset>
+        </div>
+      </div>
+    </div>
+  }
+</form>

@@ -1,0 +1,94 @@
+<div class="mb-2">
+  <p-steps [model]="steps" [readonly]="true" [activeIndex]="activeIndex" />
+</div>
+
+@if (activeIndex === 0) {
+  <div class="flex flex-col h-12rem mt-2">
+    <div
+      class="border-2 border-dashed surface-border border-round surface-ground flex-auto flex justify-center items-center font-medium"
+    >
+      <div class="flex flex-col gap-2 justify-center">
+        <div>{{ 'DELETE_USER_MOVE_PACKAGE_QUESTION' | translate }}</div>
+        <div class="flex flex-row gap-2 w-full justify-center">
+          <p-button
+            label="{{ 'YES' | translate }}"
+            icon="pi pi-check"
+            iconPos="right"
+            (onClick)="activeIndex = activeIndex + 1"
+          />
+          <p-button label="{{ 'NO' | translate }}" icon="pi pi-times" iconPos="right" (onClick)="cancel()" />
+        </div>
+      </div>
+    </div>
+  </div>
+}
+
+@if (activeIndex === 1) {
+  <div class="flex flex-col h-12rem mt-2">
+    <div
+      class="border-2 border-dashed surface-border border-round surface-ground flex-auto flex justify-center items-center font-medium"
+    >
+      <div class="flex flex-col gap-2 justify-center">
+        <div>{{ 'MOVE_OR_DELETE_PACKAGE_QUESTION' | translate }}</div>
+        <div class="flex flex-row gap-2 w-full justify-center">
+          <p-button label="{{ 'DELETE' | translate }}" icon="pi pi-trash" iconPos="right" (onClick)="delete()" />
+          <p-button
+            label="{{ 'MOVE' | translate }}"
+            icon="pi pi-arrow-right"
+            iconPos="right"
+            (onClick)="activeIndex = activeIndex + 1"
+          />
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="flex pt-4 justify-between">
+    <p-button label="Back" icon="pi pi-arrow-left" (onClick)="activeIndex = activeIndex - 1" />
+  </div>
+}
+
+@if (activeIndex === 2) {
+  <div class="flex flex-col h-12rem mt-2">
+    <div
+      class="border-2 border-dashed surface-border border-round surface-ground flex-auto flex justify-center items-center font-medium"
+    >
+      <div class="flex flex-col gap-2 justify-center">
+        <div>{{ 'SELECT_TARGET_USER' | translate }}</div>
+        <div class="flex flex-row gap-2 w-full justify-center">
+          <p-select
+            [options]="targetUserOptions"
+            [(ngModel)]="selectedTargetUser"
+            optionLabel="name"
+            placeholder="{{ 'SELECT_USER' | translate }}"
+            class="w-48rem"
+            class="w-48rem"
+          >
+            <ng-template pTemplate="selectedItem">
+              @if (selectedTargetUser) {
+                <div class="flex items-center gap-2">
+                  {{ selectedTargetUser.name }}, {{ selectedTargetUser.vorname }}
+                  @if (selectedTargetUser.isSystemUser) {
+                    ({{ 'SYSTEM_USER' | translate }})
+                  }
+                </div>
+              }
+            </ng-template>
+            <ng-template let-user pTemplate="item">
+              {{ user.name }}, {{ user.vorname }}
+              @if (user.isSystemUser) {
+                ({{ 'SYSTEM_USER' | translate }})
+              }
+            </ng-template>
+          </p-select>
+        </div>
+        @if (selectedTargetUser?.isSystemUser) {
+          <p-message severity="info" text="{{ 'TARGET_USER_SYSTEM_PACKAGE_PUBLIC' | translate }}" />
+        }
+        <p-button label="{{ 'DELETE_AND_MOVE' | translate }}" icon="pi pi-trash" iconPos="right" (onClick)="delete()" />
+      </div>
+    </div>
+  </div>
+  <div class="flex pt-4 justify-between">
+    <p-button label="Back" icon="pi pi-arrow-left" (onClick)="activeIndex = activeIndex - 1" />
+  </div>
+}

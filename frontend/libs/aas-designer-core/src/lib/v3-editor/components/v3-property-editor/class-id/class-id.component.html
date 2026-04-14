@@ -1,0 +1,54 @@
+@if (classId != null) {
+  <div class="flex flex-row gap-2">
+    @if (isIecClassId) {
+      <p-select
+        [options]="iecClasses()"
+        [(ngModel)]="selectedClassId"
+        (ngModelChange)="onClassIdChange()"
+        appendTo="body"
+        class="w-full"
+        class="w-full"
+        optionLabel="title"
+        optionValue="value"
+        placeholder="{{ 'PLEASE_SELECT' | translate }}"
+      >
+        <ng-template #selectedItem let-selectedOption>
+          <!-- {{ selectedOption?.[classLabel()] + ' (' + selectedOption?.value + ')' }} -->
+          {{ selectedOption?.value }}
+        </ng-template>
+        <ng-template let-item #item>
+          {{ item?.[classLabel()] + ' (' + item?.value + ')' }}
+        </ng-template>
+      </p-select>
+    } @else if (isVdiClassId) {
+      <p-select
+        [options]="vdiClasses()"
+        [(ngModel)]="selectedClassId"
+        (ngModelChange)="onClassIdChange()"
+        appendTo="body"
+        class="w-full"
+        class="w-full"
+        optionLabel="title"
+        optionValue="value"
+        placeholder="{{ 'PLEASE_SELECT' | translate }}"
+      >
+        <ng-template #selectedItem let-selectedOption>
+          {{ selectedOption?.value }}
+          <!-- {{ selectedOption?.[classLabel()] + ' (' + selectedOption?.value + ')' }} -->
+        </ng-template>
+        <ng-template let-item #item>
+          {{ item?.[classLabel()] + ' (' + item?.value + ')' }}
+        </ng-template>
+      </p-select>
+    } @else {
+      <input
+        pInputText
+        [(ngModel)]="classId.value"
+        class="w-full"
+        vwsV3Undo
+        (ngModelChange)="sanitizeValue()"
+        nullIfEmpty
+      />
+    }
+  </div>
+}

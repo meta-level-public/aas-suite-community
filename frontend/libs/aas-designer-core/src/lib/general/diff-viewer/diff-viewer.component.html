@@ -1,0 +1,6 @@
+@if (showChanges()) {
+  <ngx-object-diff [obj]="diffValueChanges"></ngx-object-diff>
+}
+@if (showFullObject()) {
+  <ngx-object-diff [obj]="diffView"></ngx-object-diff>
+}

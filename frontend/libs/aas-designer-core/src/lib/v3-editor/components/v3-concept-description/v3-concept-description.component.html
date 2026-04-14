@@ -1,0 +1,133 @@
+@if (conceptDescription != null && conceptDescription.content != null) {
+  <div class="flex flex-col gap-4 p-2">
+    <p-fieldset
+      [toggleable]="true"
+      [collapsed]="uiStateStore.detailsPanelCollapsed()"
+      (collapsedChange)="uiStateStore.setDetailsPanelCollapsed($event)"
+      class="compact-fieldset"
+    >
+      <ng-template #header>
+        <div class="flex items-center gap-1.5">
+          <div
+            class="flex items-center justify-center w-6 h-6 rounded-full"
+            style="background: var(--aas-info-surface)"
+          >
+            <i class="pi pi-info-circle text-xs" style="color: var(--aas-info-text)"></i>
+          </div>
+          <lib-help-label tag="DETAILS" isLabelBold="true"></lib-help-label>
+        </div>
+      </ng-template>
+
+      <div class="flex flex-col gap-3 p-3">
+        <aas-v3-id
+          [element]="conceptDescription"
+          class="w-full"
+          [shellResult]="shellResult"
+          (eclassLoaded)="eclassLoaded($event)"
+          (vecLoaded)="vecLoaded($event)"
+        ></aas-v3-id>
+        <div class="flex flex-row w-full gap-2">
+          <aas-v3-id-short [element]="conceptDescription" class="w-full" [shellResult]="shellResult"></aas-v3-id-short>
+        </div>
+        <div class="flex flex-row w-full gap-2">
+          <lib-help-label class="w-48" tag="DESCRIPTION"></lib-help-label>
+          <aas-v3-lang-string-list
+            [langStrings]="conceptDescription.content.description"
+            [langStringParent]="conceptDescription.content"
+            [langStringParentPropertyName]="'description'"
+            class="w-full"
+          ></aas-v3-lang-string-list>
+        </div>
+        <div class="flex flex-row w-full gap-2">
+          <lib-help-label class="w-48" tag="DISPLAY_NAME"></lib-help-label>
+          <aas-v3-lang-string-list
+            [langStrings]="conceptDescription.content.displayName"
+            [langStringParent]="conceptDescription.content"
+            [langStringParentPropertyName]="'displayName'"
+            class="w-full"
+          ></aas-v3-lang-string-list>
+        </div>
+      </div>
+    </p-fieldset>
+    <p-fieldset
+      [toggleable]="true"
+      [ngClass]="{ 'border-error': hasAdministrationErrors }"
+      [collapsed]="uiStateStore.administrativeInformationPanelCollapsed()"
+      (collapsedChange)="uiStateStore.setAdministrativeInformationPanelCollapsed($event)"
+      class="compact-fieldset"
+    >
+      <ng-template #header>
+        <div class="flex items-center gap-1.5">
+          <div
+            class="flex items-center justify-center w-6 h-6 rounded-full"
+            style="background: color-mix(in srgb, var(--p-primary-50) 84%, var(--p-surface-0))"
+          >
+            <i class="pi pi-shield text-xs" style="color: var(--p-primary-700)"></i>
+          </div>
+          <lib-help-label tag="ADMINISTRATTIVE_INFORMATION" isLabelBold="true"></lib-help-label>
+        </div>
+      </ng-template>
+      <aas-v3-administration
+        [administration]="conceptDescription.content.administration"
+        [administrationParent]="conceptDescription.content"
+        class="w-full"
+      ></aas-v3-administration>
+    </p-fieldset>
+    <p-fieldset
+      legend="{{ 'CASE_OF' | translate }}"
+      [toggleable]="true"
+      class="mt-2"
+      [collapsed]="true"
+      [ngClass]="{ 'border-error': hasCaseOfErrors }"
+      [collapsed]="caseOfCollapsed"
+    >
+      @for (item of conceptDescription.content.isCaseOf; track item) {
+        <aas-v3-reference
+          [reference]="item"
+          [referenceParent]="conceptDescription.content"
+          [referenceParentField]="'isCaseOf'"
+          [referenceParentIsArray]="true"
+          [shellResult]="shellResult"
+        ></aas-v3-reference>
+      }
+      @if (conceptDescription.content.isCaseOf == null) {
+        <aas-v3-reference
+          [reference]="null"
+          [referenceParent]="conceptDescription.content"
+          [referenceParentField]="'isCaseOf'"
+          [referenceParentIsArray]="true"
+          [shellResult]="shellResult"
+        ></aas-v3-reference>
+      }
+
+      @for (error of caseOfErrors; track error) {
+        <p-message
+          severity="error"
+          text="{{ 'errorMessages.' + error.message | translate }}"
+          class="w-full"
+        ></p-message>
+      }
+    </p-fieldset>
+    <p-fieldset
+      [toggleable]="true"
+      class="mt-2"
+      [ngClass]="{ 'border-error': hasDefinitionErrors }"
+      [collapsed]="uiStateStore.dataDefinitionPanelCollapsed()"
+      (collapsedChange)="uiStateStore.setDataDefinitionPanelCollapsed($event)"
+    >
+      <ng-template #header>
+        <div class="flex items-center gap-2 px-2">
+          <lib-help-label tag="DATA_DEFINITION" isLabelBold="true"></lib-help-label>
+        </div>
+      </ng-template>
+
+      <aas-v3-embedded-data-specification
+        [dataSpecification]="conceptDescription.content.embeddedDataSpecifications"
+        [dataSpecificationParent]="conceptDescription.content"
+        class="w-full"
+        [shellResult]="shellResult"
+        #dataSpecComponent
+      ></aas-v3-embedded-data-specification>
+    </p-fieldset>
+  </div>
+}

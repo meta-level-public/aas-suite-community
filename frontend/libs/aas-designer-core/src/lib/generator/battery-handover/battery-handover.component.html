@@ -1,0 +1,92 @@
+<aas-submodel-editor-host
+  [titleKey]="'HANDOVER_DOCUMENTATION'"
+  [subtitle]="handoverSemanticId"
+  [nodes]="handoverNodes"
+  [activeItemKey]="activeItemKey"
+  [activeItem]="activeItem"
+  [activeFields]="activeFields"
+  [activeStepLabel]="activeStepLabel"
+  [unknownDebugJson]="getUnknownDebugJson()"
+  [unsupportedFieldPaths]="unsupportedFieldPaths"
+  [referenceTypeOptions]="referenceTypeOptions"
+  [keyTypeOptions]="keyTypeOptions"
+  [conceptDescriptions]="generatorService.additionalV3ConceptDescriptions"
+  [fieldIdPrefix]="'handover'"
+  [nextLabel]="getNextLabel()"
+  [fileUploadCardStateFactory]="buildFileUploadCardState"
+  (nodeSelected)="selectNode($event)"
+  (prevRequested)="prevGroup()"
+  (nextRequested)="nextGroup()"
+  (fieldChanged)="onFieldChanged()"
+  (fileSelected)="handleFileSelected($event)"
+  (removeRequested)="removeFileSelection($event)"
+>
+  <div editor-intro>
+    <p class="text-lg battery-editor-page-copy mb-0" style="color: var(--p-text-muted-color)">
+      {{ 'BATTERY_PASSPORT_HANDOVER_EXPL' | translate }}
+    </p>
+
+    @if (handoverModels.length === 0) {
+      <div
+        class="p-3 border-round border-1 mt-4"
+        style="
+          border-color: var(--aas-warning-border);
+          background: var(--aas-warning-surface);
+          color: var(--aas-warning-text);
+        "
+      >
+        {{ 'BATTERY_PASSPORT_HANDOVER_MISSING' | translate }}
+      </div>
+    }
+  </div>
+
+  <div editor-special-section>
+    <div class="flex flex-col gap-6">
+      <div class="flex items-start justify-between gap-4">
+        <div>
+          <h4 class="text-xl font-bold mb-2">{{ 'DOCUMENTS' | translate }}</h4>
+          <p class="text-sm mb-0" style="color: var(--p-text-muted-color)">
+            {{ 'BATTERY_PASSPORT_HANDOVER_DOCUMENTS_EXPL' | translate }}
+          </p>
+        </div>
+        <p-button label="{{ 'ADD_DOCUMENT' | translate }}" icon="pi pi-plus" (onClick)="startAddDocument()"></p-button>
+      </div>
+
+      @if (handoverDocuments.length === 0) {
+        <div class="battery-handover-empty-state">{{ 'BATTERY_PASSPORT_HANDOVER_DOCUMENTS_EMPTY' | translate }}</div>
+      } @else {
+        <div class="flex flex-col gap-3">
+          @for (document of handoverDocuments; track $index; let index = $index) {
+            <div class="battery-handover-document-card">
+              <div>
+                <div class="font-bold">{{ getDocumentLabel(document, index) }}</div>
+                @if (getDocumentSubtitle(document); as subtitle) {
+                  <div class="text-sm" style="color: var(--p-text-muted-color)">{{ subtitle }}</div>
+                }
+                @if (getDocumentFileName(document); as fileName) {
+                  <div class="text-sm mt-1">
+                    <span class="font-medium">{{ 'CURRENT_DOCUMENT' | translate }}:</span>
+                    {{ fileName }}
+                  </div>
+                }
+              </div>
+              <div class="flex gap-2">
+                <p-button
+                  label="{{ 'EDIT' | translate }}"
+                  severity="secondary"
+                  (onClick)="editDocument(index)"
+                ></p-button>
+                <p-button
+                  label="{{ 'DELETE' | translate }}"
+                  severity="danger"
+                  [outlined]="true"
+                  (onClick)="deleteDocument(index)"
+                ></p-button>
+              </div>
+            </div>
+          }
+        </div>
+      }
+    </div>
+  </div>
+</aas-submodel-editor-host>

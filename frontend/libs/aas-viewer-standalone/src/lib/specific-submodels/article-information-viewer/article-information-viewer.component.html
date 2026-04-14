@@ -1,0 +1,87 @@
+<div class="article-info-container">
+  @if (identifyingOrderNumber || productDescription || productGroup || unitOfContent || weight || grossWeight) {
+    <div class="section-grid-2">
+      @if (identifyingOrderNumber || productDescription || productGroup) {
+        <div class="section-card">
+          <h3 class="section-title">
+            <i class="fa-solid fa-box"></i>
+            {{ 'ARTICLE_INFORMATION' | translate }}
+          </h3>
+          <div class="flex flex-col gap-2">
+            @if (identifyingOrderNumber) {
+              <p-inputgroup>
+                <p-inputgroup-addon class="font-bold article-label-addon">
+                  <i class="fa-solid fa-hashtag mr-2"></i>
+                  <lib-help-label tag="IDENTIFYING_ORDER_NUMBER" [showLabel]="false"></lib-help-label>
+                  {{ 'IDENTIFYING_ORDER_NUMBER' | translate }}
+                </p-inputgroup-addon>
+                <input pInputText type="text" [value]="identifyingOrderNumber" readonly />
+              </p-inputgroup>
+            }
+            @if (productDescription) {
+              <p-inputgroup>
+                <p-inputgroup-addon class="font-bold article-label-addon">
+                  <i class="fa-solid fa-align-left mr-2"></i>
+                  <lib-help-label tag="PRODUCT_DESCRIPTION" [showLabel]="false"></lib-help-label>
+                  {{ 'PRODUCT_DESCRIPTION' | translate }}
+                </p-inputgroup-addon>
+                <input pInputText type="text" [value]="productDescription" readonly />
+              </p-inputgroup>
+            }
+            @if (productGroup) {
+              <p-inputgroup>
+                <p-inputgroup-addon class="font-bold article-label-addon">
+                  <i class="fa-solid fa-layer-group mr-2"></i>
+                  <lib-help-label tag="PRODUCT_GROUP" [showLabel]="false"></lib-help-label>
+                  {{ 'PRODUCT_GROUP' | translate }}
+                </p-inputgroup-addon>
+                <input pInputText type="text" [value]="productGroup" readonly />
+              </p-inputgroup>
+            }
+          </div>
+        </div>
+      }
+
+      @if (unitOfContent || weight || grossWeight) {
+        <div class="section-card">
+          <h3 class="section-title">
+            <i class="fa-solid fa-scale-balanced"></i>
+            {{ 'TECHNICAL_DATA' | translate }}
+          </h3>
+          <div class="flex flex-col gap-2">
+            @if (unitOfContent) {
+              <p-inputgroup>
+                <p-inputgroup-addon class="font-bold article-label-addon">
+                  <i class="fa-solid fa-box-open mr-2"></i>
+                  <lib-help-label tag="UNIT_OF_CONTENT" [showLabel]="false"></lib-help-label>
+                  {{ 'UNIT_OF_CONTENT' | translate }}
+                </p-inputgroup-addon>
+                <input pInputText type="text" [value]="unitOfContent" readonly />
+              </p-inputgroup>
+            }
+            @if (weight) {
+              <p-inputgroup>
+                <p-inputgroup-addon class="font-bold article-label-addon">
+                  <i class="fa-solid fa-weight-hanging mr-2"></i>
+                  <lib-help-label tag="WEIGHT" [showLabel]="false"></lib-help-label>
+                  {{ 'WEIGHT' | translate }}
+                </p-inputgroup-addon>
+                <input pInputText type="text" [value]="weight" readonly />
+              </p-inputgroup>
+            }
+            @if (grossWeight) {
+              <p-inputgroup>
+                <p-inputgroup-addon class="font-bold article-label-addon">
+                  <i class="fa-solid fa-weight-scale mr-2"></i>
+                  <lib-help-label tag="GROSS_WEIGHT" [showLabel]="false"></lib-help-label>
+                  {{ 'GROSS_WEIGHT' | translate }}
+                </p-inputgroup-addon>
+                <input pInputText type="text" [value]="grossWeight" readonly />
+              </p-inputgroup>
+            }
+          </div>
+        </div>
+      }
+    </div>
+  }
+</div>

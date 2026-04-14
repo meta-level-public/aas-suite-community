@@ -1,0 +1,90 @@
+@if (asset == null) {
+  <div class="flex flex-col w-full justify-center">
+    <p-button
+      label="{{ 'ADD' | translate }}"
+      (onClick)="addAsset()"
+      styleClass="aas-add-button"
+      [outlined]="true"
+      icon="pi pi-plus"
+    ></p-button>
+  </div>
+}
+@if (asset != null) {
+  <div class="flex flex-col w-full gap-2 justify-center">
+    <div class="flex flex-row gap-2 items-center w-full">
+      <lib-help-label tag="ASSET_KIND" class="w-14rem" class="w-14rem"></lib-help-label>
+      <p-select
+        [options]="assetTypes"
+        [(ngModel)]="asset.assetKind"
+        optionLabel="label"
+        optionValue="value"
+        appendTo="body"
+        class="w-full"
+        class="w-full"
+        vwsV3Undo
+      ></p-select>
+    </div>
+    @if (asset.assetKind == assetKind.Instance) {
+      <div class="flex flex-row gap-2 items-center w-full">
+        <lib-help-label tag="ASSET_TYPE" class="w-14rem" class="w-14rem"></lib-help-label>
+        <p-inputGroup>
+          <input pInputText [(ngModel)]="asset.assetType" class="w-full" vwsV3Undo />
+          <p-button
+            icon="pi pi-eye"
+            (onClick)="showTypeAsset.set(true)"
+            severity="secondary"
+            [disabled]="!asset.assetType || asset.assetType.length == 0"
+          ></p-button>
+          <p-button icon="pi pi-search" (onClick)="search()"></p-button>
+        </p-inputGroup>
+        <p-dialog [(visible)]="showTypeAsset" closable="true" [style]="{ width: '75%' }">
+          <aas-aas-result-list
+            [globalAssetId]="asset.assetType"
+            [specificAssetIds]="[]"
+            [apiUrl]="'apiUrl'"
+          ></aas-aas-result-list>
+        </p-dialog>
+      </div>
+    }
+    <div class="flex flex-row gap-2">
+      <lib-help-label tag="DEFAULT_THUMBNAIL" class="w-14rem" class="w-14rem"></lib-help-label>
+      <aas-v3-resource
+        [resource]="asset.defaultThumbnail"
+        [resourceParent]="asset"
+        [resourceParentPropertyName]="'defaultThumbnail'"
+        [shellResult]="shellResult"
+        class="w-full"
+        [isThumbnail]="true"
+      ></aas-v3-resource>
+    </div>
+    @if (thumbnailContentTypeError) {
+      <p-message severity="error">{{ 'THUMBNAIL_CONTENT_TYPE_MUST_BE_IMAGE' | translate }}</p-message>
+    }
+    <div class="flex flex-row w-full gap-2">
+      <lib-help-label tag="GLOBAL_ASSET_ID" class="w-14rem" class="w-14rem"></lib-help-label>
+      <div class="flex flex-col w-full">
+        <aas-v3-global-asset-id [content]="asset" class="w-full"></aas-v3-global-asset-id>
+        @if (hasValueErrors()) {
+          <div class="text-error">
+            {{ 'errorMessages.' + getValueError()[0].message | translate }}
+          </div>
+        }
+      </div>
+    </div>
+    <div class="flex flex-row gap-2">
+      <lib-help-label tag="SPECIFIC_ASSET_IDS" class="w-14rem" class="w-14rem"></lib-help-label>
+      <div class="flex flex-col w-full">
+        <aas-v3-specific-asset-ids
+          [specificAssetIds]="asset.specificAssetIds"
+          [parent]="asset"
+          class="w-full"
+        ></aas-v3-specific-asset-ids>
+        @if (hasValueErrors()) {
+          <div class="text-error">
+            {{ 'errorMessages.' + getValueError()[0].message | translate }}
+          </div>
+        }
+      </div>
+    </div>
+  </div>
+}

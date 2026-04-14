@@ -1,0 +1,68 @@
+@if (request != null) {
+  <form #registerForm="ngForm" vwsAutocompleteOff>
+    <div class="mb-4">
+      <label for="otherTopic"> {{ 'SUBJECT' | translate }}</label>
+      <input
+        pInputText
+        id="otherTopic"
+        type="text"
+        class="w-full"
+        name="otherTopic"
+        [(ngModel)]="request.topic"
+        #otherTopic="ngModel"
+        required
+      />
+      @if (!otherTopic.valid && otherTopic.touched) {
+        <div class="p-error">
+          {{ 'REQUIRED_FIELD' | translate }}
+        </div>
+      }
+    </div>
+    <div class="mb-4">
+      <label for="email"> {{ 'EMAIL' | translate }}</label>
+      <input
+        pInputText
+        id="email"
+        type="text"
+        class="w-full"
+        name="email"
+        [(ngModel)]="request.email"
+        #email="ngModel"
+        required
+      />
+      @if (!isValidEmail(request.email) && email.touched) {
+        <div class="p-error">
+          {{ 'REQUIRED_FIELD' | translate }}
+        </div>
+      }
+    </div>
+    <div class="mb-4">
+      <label for="message"> {{ 'MESSAGE' | translate }}</label>
+      <textarea
+        pTextarea
+        id="otherTopic"
+        type="text"
+        class="w-full"
+        name="message"
+        [(ngModel)]="request.message"
+        #message="ngModel"
+        rows="5"
+        cols="30"
+        required
+        [autoResize]="true"
+        style="min-height: 100px"
+      ></textarea>
+      @if (!message.valid && message.touched) {
+        <div class="p-error">
+          {{ 'REQUIRED_FIELD' | translate }}
+        </div>
+      }
+    </div>
+    <div style="position: absolute; left: -9999px">
+      <label>
+        {{ 'BOT_CHECK_HINT' | translate }}
+        <input type="text" name="botField" [(ngModel)]="invisibleFieldValue" autocomplete="off" />
+      </label>
+    </div>
+  </form>
+}

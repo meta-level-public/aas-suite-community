@@ -1,0 +1,88 @@
+# Build outputs
+**/bin
+**/obj
+**/bin\\Debug
+**/obj\\Debug
+**/dist
+output/
+
+# Dependencies
+**/node_modules
+
+# IDE / Editor
+.vs/
+.husky/_/
+.vscode/settings.json
+.vscode/launch.json
+*.user
+*.suo
+.DS_Store
+.eslintcache
+.angular
+
+# .NET / C#
+*.user
+
+# Node / NX
+.nx/cache/*
+.nx/workspace-data/*
+
+# Yarn
+.yarn/*
+!.yarn/cache
+!.yarn/patches
+!.yarn/plugins
+!.yarn/releases
+!.yarn/sdks
+!.yarn/versions
+
+# Logs
+*.log
+
+# Secrets & Config
+devextreme-license.ts
+sbom-tool.exe
+vws.code-workspace
+tmpGit
+tmp/
+
+# Storage / Data
+fileStorage
+aasFiles
+infrastructures
+infrastructures/available
+
+# Docker volumes & data
+docker/backup/
+docker/prod/app
+docker/prod/mssql*
+docker/prod/pgsql*
+docker/prod/generator
+docker/prod/markt
+docker/prod/mongo*
+docker/prod/aasx-server1/aasxs
+docker/prod/aas-server/aasx
+docker/prod/helm-vws-system
+docker/prod/influxdb
+docker/mssql_*
+docker/pgsql_*
+docker/aasx-server/aasxs/
+
+# Build artifacts
+generator.tar
+backendGenerator/*/build
+
+# Test results
+TestResults
+coverage
+
+# Generated theme files
+**/assets/theme/theme-*.css
+**/assets/theme/theme-*.css.map
+**/assets/layout/theme-*.css
+**/assets/layout/theme-*.css.map
+layout-ml.css
+
+# Docker compose wizard generated files
+tools/docker-compose-wizard/**/.env.generated
+tools/docker-compose-wizard/**/docker-compose.generated.yml

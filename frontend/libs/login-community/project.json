@@ -1,0 +1,23 @@
+{
+  "name": "login-community",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "libs/login-community/src",
+  "prefix": "lib",
+  "projectType": "library",
+  "tags": ["scope:designer-community"],
+  "targets": {
+    "test": {
+      "executor": "@analogjs/vitest-angular:test",
+      "outputs": ["{workspaceRoot}/coverage/{projectRoot}"],
+      "options": {
+        "configFile": "vitest.config.ts",
+        "coverage": false,
+        "watch": false,
+        "passWithNoTests": true
+      }
+    },
+    "lint": {
+      "executor": "@nx/eslint:lint"
+    }
+  }
+}

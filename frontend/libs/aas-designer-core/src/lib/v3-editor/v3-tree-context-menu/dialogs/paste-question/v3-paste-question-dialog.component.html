@@ -1,0 +1,29 @@
+<p-dialog
+  header="{{ 'PASTE' | translate }}"
+  [visible]="visible()"
+  (visibleChange)="visible.set($event)"
+  (onHide)="onHide()"
+  [style]="{ width: '50vw' }"
+  [modal]="true"
+  appendTo="body"
+>
+  <p>{{ 'PASTE_AS_REFERENCE_QUESTION' | translate }}</p>
+  <ng-template pTemplate="footer">
+    <p-button
+      (onClick)="acceptedAction.set('reference'); visible.set(false)"
+      label="{{ 'PASTE_AS_REFERENCE' | translate }}"
+      styleClass="p-button-primary"
+    ></p-button>
+    <p-button
+      (onClick)="acceptedAction.set('copy'); visible.set(false)"
+      label="{{ 'PASTE_AS_COPY' | translate }}"
+      styleClass="p-button-primary"
+    ></p-button>
+    <p-button
+      icon="pi pi-times"
+      (onClick)="visible.set(false)"
+      label="{{ 'CLOSE' | translate }}"
+      styleClass="p-button-secondary"
+    ></p-button>
+  </ng-template>
+</p-dialog>

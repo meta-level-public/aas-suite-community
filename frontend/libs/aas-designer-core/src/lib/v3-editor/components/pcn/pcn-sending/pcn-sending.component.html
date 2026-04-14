@@ -1,0 +1,71 @@
+<div class="flex flex-col gap-2">
+  <h3>{{ 'MESSAGE_FOR_SENDING' | translate }}</h3>
+  <div class="flex flex-row gap-2">
+    <lib-help-label tag="CHANGE_TYPE" class="w-14rem"></lib-help-label>
+    <p-select id="organization" [options]="availableChangeTypes" [(ngModel)]="changeType" class="w-full"></p-select>
+  </div>
+  <div class="flex flex-row gap-2">
+    <lib-help-label tag="CHANGE_COMMENT" class="w-14rem"></lib-help-label>
+    <input
+      id="comment"
+      type="text"
+      class="w-full"
+      pInputText
+      [(ngModel)]="message"
+      vwsAutocompleteOff
+      [required]="true"
+    />
+  </div>
+  <div class="flex flex-row gap-2">
+    <lib-help-label tag="CHANGE_REASON" class="w-14rem"></lib-help-label>
+    <p-select
+      id="reason"
+      [options]="availableChangeReasons()"
+      [(ngModel)]="reason"
+      [optionLabel]="reasonLabel()"
+      optionValue="value"
+      class="w-full"
+      filter="true"
+      [filterBy]="reasonLabel()"
+      filterMatchMode="contains"
+      appendTo="body"
+    ></p-select>
+  </div>
+  <p-divider>{{ 'BROKER_DATA' | translate }}</p-divider>
+  <div class="mb-4">
+    <lib-help-label tag="PCN_BROKER_URL"></lib-help-label>
+    <p-select [options]="pcnStateStore.brokerUrls()" [(ngModel)]="pcnBrokerUrl" class="w-full"></p-select>
+  </div>
+  <div class="mb-4">
+    <lib-help-label tag="PCN_BROKER_TOPIC"></lib-help-label>
+    <input type="text" pInputText id="pcnBrokerTopic" class="w-full" [(ngModel)]="pcnBrokerTopic" />
+  </div>
+  <div class="mb-4">
+    <lib-help-label tag="PCN_BROKER_USER"></lib-help-label>
+    <input type="text" pInputText id="pcnBrokerUser" class="w-full" [(ngModel)]="pcnBrokerUsername" />
+  </div>
+  <div class="mb-4">
+    <lib-help-label tag="PCN_BROKER_PASSWORD"></lib-help-label>
+    <p-password
+      type="text"
+      id="pcnBrokerUser"
+      inputStyleClass="w-full"
+      class="w-full"
+      [(ngModel)]="pcnBrokerPassword"
+      toggleMask="true"
+      showClear="true"
+      [feedback]="false"
+    />
+  </div>
+
+  <div class="mb-4">
+    <p-button
+      label="{{ 'SEND' | translate }}"
+      icon="pi pi-send"
+      (onClick)="sendMessage()"
+      [outlined]="true"
+      [disabled]="pcnBrokerUrl() === '' || pcnBrokerTopic() === ''"
+      [loading]="loading()"
+    ></p-button>
+  </div>
+</div>

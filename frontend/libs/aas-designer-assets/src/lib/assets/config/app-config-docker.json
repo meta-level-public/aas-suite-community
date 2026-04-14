@@ -1,0 +1,13 @@
+{
+  "apiPath": "/api",
+  "aasApiPath": "/aas-api",
+  "eclassApiPath": "/eclass",
+  "publishToRegistryActive": true,
+  "datenschutzLinkDe": "https://data.aas-suite.de/privacy-de.html",
+  "datenschutzLinkEn": "https://data.aas-suite.de/privacy-en.html",
+  "agbLinkDe": "https://data.aas-suite.de/terms-de.pdf",
+  "agbLinkEn": "https://data.aas-suite.de/terms-en.pdf",
+  "imprintLink": "https://data.aas-suite.de/imprint.html",
+  "aasSuiteLink": "https://aas-suite.de",
+  "defaultTheme": "ml"
+}

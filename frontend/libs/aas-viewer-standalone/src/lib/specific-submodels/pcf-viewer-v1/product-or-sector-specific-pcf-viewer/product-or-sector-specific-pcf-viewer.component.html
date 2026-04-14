@@ -1,0 +1,14 @@
+<div class="pcf-container">
+  @if (steps().length > 0) {
+    <div class="steps-grid">
+      @for (step of steps(); track $index) {
+        <aas-product-or-sector-specific-pcf-step-viewer [step]="step"></aas-product-or-sector-specific-pcf-step-viewer>
+      }
+    </div>
+  } @else {
+    <div class="empty-state">
+      <i class="pi pi-inbox empty-icon"></i>
+      <p class="empty-text">{{ 'PCF_VIEWER.NO_STEPS_FOUND' | translate }}</p>
+    </div>
+  }
+</div>

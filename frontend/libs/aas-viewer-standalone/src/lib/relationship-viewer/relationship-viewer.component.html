@@ -1,0 +1,39 @@
+<div class="flex flex-col gap-2">
+  @if (entity != null) {
+    <p-inputgroup>
+      <p-inputGroupAddon class="w-48rem font-bold"> {{ getLabel(entity) }}</p-inputGroupAddon>
+      <input pInputText type="text" class="w-full" [(ngModel)]="entity.idShort" readonly />
+      <p-inputGroupAddon class="w-8rem">
+        <aas-semantic-description-popup [semanticId]="semanticId()"></aas-semantic-description-popup>
+      </p-inputGroupAddon>
+    </p-inputgroup>
+  }
+
+  <p-accordion value="first">
+    <p-accordion-panel value="first">
+      <p-accordion-header>
+        {{ 'FIRST_RELATIONSHIP_EL' | translate }}
+      </p-accordion-header>
+      <p-accordion-content>
+        <relationship-element-viewer
+          [entity]="entity.first"
+          [idShort]="entity.idShort"
+          [aasId]="aasId"
+        ></relationship-element-viewer>
+      </p-accordion-content>
+    </p-accordion-panel>
+    <p-accordion-panel value="first">
+      <p-accordion-header>
+        {{ 'SECOND_RELATIONSHIP_EL' | translate }}
+      </p-accordion-header>
+      <p-accordion-content>
+        <relationship-element-viewer
+          [entity]="entity.second"
+          [idShort]="entity.idShort"
+          [aasId]="aasId"
+          [titel]="'SECOND'"
+        ></relationship-element-viewer>
+      </p-accordion-content>
+    </p-accordion-panel>
+  </p-accordion>
+</div>

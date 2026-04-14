@@ -1,0 +1,5 @@
+<Project>
+  <!-- Override NSwag targets during Docker builds. -->
+  <Target Name="NSwag" />
+  <Target Name="NSwag_AfterBuild" />
+</Project>

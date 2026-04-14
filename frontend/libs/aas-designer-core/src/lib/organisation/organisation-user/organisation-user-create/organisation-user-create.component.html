@@ -1,0 +1,84 @@
+<form #orgaUserForm="ngForm" vwsAutocompleteOff>
+  @if (invitation != null) {
+    <div class="flex flex-col gap-2">
+      <p-message text="{{ 'USER_INVITATION_EXPL' | translate }}" severity="info"></p-message>
+      @if (invitation != null) {
+        <div class="grid grid-cols-2 gap-4 w-full">
+          <p-fieldset legend="{{ 'USER_DATA' | translate }}">
+            <div class="mb-4">
+              <label for="lastName"> {{ 'LASTNAME' | translate }}</label>
+              <input
+                pInputText
+                id="lastName"
+                type="text"
+                class="inputfield w-full"
+                name="lastName"
+                [(ngModel)]="invitation().name"
+                #lastname="ngModel"
+                required
+              />
+              @if (!lastname.valid && lastname.touched) {
+                <div class="p-error">{{ 'REQUIRED_FIELD' | translate }}</div>
+              }
+            </div>
+            <div class="mb-4">
+              <label for="email"> {{ 'FIRSTNAME' | translate }}</label>
+              <input
+                pInputText
+                id="firstname"
+                type="text"
+                class="inputfield w-full"
+                name="firstname"
+                [(ngModel)]="invitation().vorname"
+                #firstname="ngModel"
+                required
+              />
+              @if (!firstname.valid && firstname.touched) {
+                <div class="p-error">
+                  {{ 'REQUIRED_FIELD' | translate }}
+                </div>
+              }
+            </div>
+            <div class="mb-4">
+              <label for="email"> {{ 'EMAIL' | translate }}</label>
+              <input
+                #email="ngModel"
+                pInputText
+                id="email"
+                name="email"
+                [(ngModel)]="invitation().email"
+                class="w-full"
+                required
+              />
+              @if (!validEmail() && email.touched) {
+                <div class="p-error">
+                  {{ 'EMAIL_IS_INVALID' | translate }}
+                </div>
+              }
+            </div>
+          </p-fieldset>
+          <p-fieldset legend="{{ 'USER_RIGHTS' | translate }}">
+            <div class="flex flex-col gap-2">
+              @for (role of availableRoles; track $index) {
+                <div class="flex flex-row gap-2 items-center">
+                  <div>
+                    <p-checkbox
+                      name="rightgroup-{{ $index }}"
+                      value="{{ role }}"
+                      [(ngModel)]="invitation()!.benutzerRollen"
+                      class="mt-2"
+                      inputId="role-{{ $index }}"
+                    ></p-checkbox>
+                  </div>
+                  <div>
+                    <label for="role-{{ $index }}">{{ role }}</label>
+                  </div>
+                </div>
+              }
+            </div>
+          </p-fieldset>
+        </div>
+      }
+    </div>
+  }
+</form>

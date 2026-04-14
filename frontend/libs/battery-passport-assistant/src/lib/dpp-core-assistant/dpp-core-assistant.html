@@ -1,0 +1,10 @@
+<aas-selection-card
+  [title]="'DPP_CORE_ASSISTANT' | translate"
+  [description]="'DPP_CORE_ASSISTANT_EXPL' | translate"
+  icon="pi-id-card"
+  severity="warn"
+  [buttonLabel]="'CHOOSE' | translate"
+  [disabled]="loading"
+  [loading]="loading"
+  (choose)="onChoose()"
+></aas-selection-card>

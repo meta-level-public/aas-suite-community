@@ -1,0 +1,16 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\AasDesignerModel\AasDesignerModel.csproj" />
+    <ProjectReference Include="..\AasDesignerCommon\AasDesignerCommon.csproj" />
+    <ProjectReference Include="..\..\shared\AasShared\AasShared.csproj" />
+
+    <PackageReference Include="Microsoft.AspNetCore.Mvc" />
+  </ItemGroup>
+</Project>

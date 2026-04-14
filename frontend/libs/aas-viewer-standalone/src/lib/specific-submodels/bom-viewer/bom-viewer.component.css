@@ -1,0 +1,75 @@
+/* BOM Viewer Modern Styles */
+
+.bom-container {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  width: 100%;
+}
+
+/* Hero Stats - Using central styles from common-components.css */
+
+/* Chart Section */
+.chart-section {
+  background: var(--p-content-background);
+  border-radius: var(--aas-radius-md);
+  padding: 2rem;
+  box-shadow: 0 2px 8px color-mix(in srgb, var(--p-primary-900) 10%, transparent);
+}
+
+/* Warning Messages */
+.warning-card {
+  background: var(--aas-warning-surface);
+  border: 1px solid var(--aas-warning-border);
+  border-radius: var(--aas-radius-sm);
+  padding: 1.1rem 1.35rem;
+  margin-top: 0.75rem;
+}
+
+.warning-header {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  color: var(--aas-warning-text);
+  font-weight: 600;
+  font-size: 1.1rem;
+  line-height: 1.35;
+}
+
+.warning-header i {
+  color: var(--aas-warning-icon);
+  font-size: 1.1rem;
+}
+
+.warning-list {
+  margin: 0.6rem 0 0 1.4rem;
+  padding: 0;
+}
+
+.warning-list li {
+  color: var(--aas-warning-text);
+  font-size: 1rem;
+  line-height: 1.5;
+}
+
+.warning-rebuild-hint {
+  color: var(--aas-warning-text);
+  font-size: 1rem;
+  line-height: 1.5;
+}
+
+.warning-rebuild-action {
+  display: flex;
+  align-items: center;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .details-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .chart-section {
+    padding: 0.7rem 1rem;
+  }
+}

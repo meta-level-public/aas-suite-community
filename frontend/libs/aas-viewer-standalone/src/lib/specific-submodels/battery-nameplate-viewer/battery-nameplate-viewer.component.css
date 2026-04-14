@@ -1,0 +1,62 @@
+.nameplate-container {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+  width: 100%;
+}
+
+.nameplate-label-addon {
+  width: 16rem;
+  min-width: 16rem;
+  white-space: nowrap;
+}
+
+.section-card {
+  padding: 1rem;
+  border: 1px solid var(--p-content-border-color);
+  background: var(--p-content-background);
+  border-radius: var(--aas-radius-md);
+}
+
+.section-title {
+  margin: 0 0 0.75rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 1.05rem;
+}
+
+.section-title .fa-solid,
+.section-title .pi {
+  color: var(--p-primary-color);
+}
+
+.section-grid-12 {
+  display: grid;
+  grid-template-columns: repeat(12, minmax(0, 1fr));
+  gap: 1rem;
+}
+
+.span-7 {
+  grid-column: span 7 / span 7;
+}
+
+.span-5 {
+  grid-column: span 5 / span 5;
+}
+
+@media (max-width: 768px) {
+  .section-grid-12 {
+    grid-template-columns: 1fr;
+  }
+
+  .span-7,
+  .span-5 {
+    grid-column: span 1 / span 1;
+  }
+
+  .nameplate-label-addon {
+    width: 13rem;
+    min-width: 13rem;
+  }
+}

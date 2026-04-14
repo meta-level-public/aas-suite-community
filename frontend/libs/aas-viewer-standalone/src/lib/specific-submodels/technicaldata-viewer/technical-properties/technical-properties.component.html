@@ -1,0 +1,10 @@
+<div class="flex flex-col gap-2">
+  @for (element of technicalProperties?.value; track $index) {
+    <aas-generic-viewer
+      [rowData]="element"
+      [formatted]="true"
+      [idShortPath]="element.idShort ?? ''"
+      [submodelId]="submodelId"
+    ></aas-generic-viewer>
+  }
+</div>

@@ -1,0 +1,38 @@
+[
+  {
+    "label": "UNSPSC (United Nations Standard Products and Services Code)  ",
+    "textEn": "Managed by GS1 US for the United Nations Development Programme (UNDP). You can download the codeset (PDF or Excel) after creating a free account.",
+    "textDe": "Verwaltet von GS1 US für das Entwicklungsprogramm der Vereinten Nationen (UNDP). Sie können den Codesatz (PDF oder Excel) herunterladen, nachdem Sie ein kostenloses Konto erstellt haben.",
+    "link": "https://www.unspsc.org/"
+  },
+  {
+    "label": "ETIM (Electro-Technical Information Model) ",
+    "textEn": "Hosted by ETIM International, this site provides information on the classification system, though full access to the model may require membership or a licensed tool.",
+    "textDe": "Diese von ETIM International betriebene Website bietet Informationen über das Klassifizierungssystem, wobei für den vollständigen Zugriff auf das Modell eine Mitgliedschaft oder ein lizenziertes Tool erforderlich sein kann.",
+    "link": "https://www.etim-international.com/"
+  },
+  {
+    "label": "ProClass (Procurement Classification)",
+    "textEn": "Primarily used in the UK; documentation is often distributed through government or procurement portals rather than a dedicated site.",
+    "textDe": "Hauptsächlich im Vereinigten Königreich verwendet; die Dokumentation wird häufig über Regierungs- oder Beschaffungsportale und nicht über eine spezielle Website verbreitet.",
+    "link": "https://www.local.gov.uk/"
+  },
+  {
+    "label": "ISO 13584 (PLIB - Parts Library) ",
+    "textEn": "This is the official ISO page where you can purchase or read about the standard. It’s not a database itself but a framework, so implementations vary by organization.",
+    "textDe": "Dies ist die offizielle ISO-Seite, auf der Sie die Norm erwerben oder sich über sie informieren können. Es handelt sich nicht um eine Datenbank selbst, sondern um einen Rahmen, so dass die Implementierungen je nach Organisation variieren.",
+    "link": "https://www.iso.org/standard/72249.html"
+  },
+  {
+    "label": "NATO Codification System (NCS)  ",
+    "textEn": "Managed by the NATO Support and Procurement Agency (NSPA). Detailed access to the NCS (e.g., NATO Stock Numbers) is typically through national codification bureaus or tools like https://www.ncb.nato.int/ (example for some countries), but public info is limited.",
+    "textDe": "Wird von der NATO Support and Procurement Agency (NSPA) verwaltet. Ein detaillierter Zugang zu den NCS (z. B. NATO-Bestandsnummern) erfolgt in der Regel über nationale Kodifizierungsbüros oder Instrumente wie https://www.ncb.nato.int/ (Beispiel für einige Länder), aber die Öffentlichkeit hat nur begrenzte Informationen.",
+    "link": "https://www.nato.int/cps/en/natohq/topics_110641.htm"
+  },
+  {
+    "label": "GPC (Global Product Classification) ",
+    "textEn": "Hosted by GS1, this page offers access to the GPC schema and browser tool. Full use may require engagement with GS1’s Global Data Synchronization Network (GDSN).",
+    "textDe": "Diese Seite wird von GS1 gehostet und bietet Zugang zum GPC-Schema und zum Browser-Tool. Die vollständige Nutzung erfordert möglicherweise eine Verbindung mit dem Global Data Synchronization Network (GDSN) von GS1.",
+    "link": "https://www.gs1.org/standards/gpc"
+  }
+]

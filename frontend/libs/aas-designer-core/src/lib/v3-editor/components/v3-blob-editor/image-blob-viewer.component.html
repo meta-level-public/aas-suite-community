@@ -1,0 +1,5 @@
+@if (isBase64Image() == true) {
+  <img [src]="blobBase64Content()" alt="Blob image preview" />
+} @else {
+  <img [src]="blobContentUrl() | safe: 'resourceUrl'" alt="Blob image preview" />
+}

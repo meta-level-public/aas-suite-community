@@ -1,0 +1,182 @@
+@if (entity != null && entity.content != null) {
+  <div class="flex flex-col gap-2">
+    <p-fieldset
+      [toggleable]="true"
+      class="mt-2"
+      [collapsed]="uiStateStore.detailsPanelCollapsed()"
+      (collapsedChange)="uiStateStore.setDetailsPanelCollapsed($event)"
+    >
+      <ng-template #header>
+        <div class="flex items-center gap-2 px-2">
+          <lib-help-label tag="DETAILS" isLabelBold="true"></lib-help-label>
+        </div>
+      </ng-template>
+
+      <div class="flex flex-col gap-2">
+        <aas-v3-id-short [element]="entity" class="w-full" [shellResult]="shellResult"></aas-v3-id-short>
+        <div class="flex flex-row w-full gap-2">
+          <lib-help-label class="w-14rem mt-2" tag="DESCRIPTION"></lib-help-label>
+          <aas-v3-lang-string-list
+            [langStrings]="entity.content.description"
+            [langStringParent]="entity.content"
+            [langStringParentPropertyName]="'description'"
+            class="w-full"
+          ></aas-v3-lang-string-list>
+        </div>
+        <div class="flex flex-row w-full gap-2">
+          <lib-help-label class="w-14rem mt-2" tag="DISPLAY_NAME"></lib-help-label>
+          <aas-v3-lang-string-list
+            [langStrings]="entity.content.displayName"
+            [langStringParent]="entity.content"
+            [langStringParentPropertyName]="'displayName'"
+            class="w-full"
+          ></aas-v3-lang-string-list>
+        </div>
+        <aas-v3-category [element]="entity" class="w-full"></aas-v3-category>
+      </div>
+    </p-fieldset>
+    <p-fieldset
+      [toggleable]="true"
+      class="mt-2"
+      [collapsed]="uiStateStore.contentPanelCollapsed()"
+      (collapsedChange)="uiStateStore.setContentPanelCollapsed($event)"
+    >
+      <ng-template #header>
+        <div class="flex items-center gap-2 px-2">
+          <lib-help-label tag="CONTENT" isLabelBold="true"></lib-help-label>
+        </div>
+      </ng-template>
+
+      <div class="flex flex-col gap-2">
+        <div class="flex flex-row w-full gap-2">
+          <lib-help-label class="w-14rem mt-2" tag="ENTITY_TYPE"></lib-help-label>
+          <p-select
+            [options]="entityTypes"
+            [(ngModel)]="entity.content.entityType"
+            optionLabel="label"
+            optionValue="value"
+            class="w-full"
+            class="w-full"
+            appendTo="body"
+            placeholder="{{ 'PLEASE_SELECT' | translate }}"
+            vwsV3Undo
+          >
+          </p-select>
+        </div>
+        <div class="flex flex-row w-full gap-2">
+          <lib-help-label class="w-14rem mt-2" tag="GLOBAL_ASSET_ID"></lib-help-label>
+          @if (!isBomNode) {
+            <aas-v3-global-asset-id [content]="entity.content" class="w-full"></aas-v3-global-asset-id>
+          }
+          <div class="flex flex-row gap-2 w-full">
+            <input pInputText [(ngModel)]="entity.content.globalAssetId" class="w-full" class="w-full" nullIfEmpty />
+          </div>
+        </div>
+        <div class="flex flex-row gap-2 items-center">
+          <lib-help-label class="w-14rem mt-2" tag="SPECIFIC_ASSET_IDS"></lib-help-label>
+          <aas-v3-specific-asset-ids
+            [specificAssetIds]="entity.content.specificAssetIds"
+            [parent]="entity.content"
+            class="w-full"
+          ></aas-v3-specific-asset-ids>
+        </div>
+        <!-- <div class="flex flex-row gap-2 items-center w-full">
+        <p-table [value]="entity.content.statements ?? []" class="w-full">
+          <ng-template #header>
+            <tr>
+              <th>{{ 'STATEMENTS' | translate }}</th>
+            </tr>
+          </ng-template>
+          <ng-template pTemplate="body" let-statement>
+            <tr>
+              <td>{{ statement | json }}</td>
+            </tr>
+          </ng-template>
+        </p-table>
+      </div> -->
+      </div>
+    </p-fieldset>
+    <!-- <p-fieldset legend="{{ 'EXTENSIONS' | translate }}" [toggleable]="true" [collapsed]="true">
+      <aas-v3-extensions [extensions]="entity.content.extensions" [extensionsParent]="entity.content"></aas-v3-extensions>
+    </p-fieldset> -->
+    <p-fieldset
+      [toggleable]="true"
+      [collapsed]="true"
+      [ngClass]="{ 'border-error': hasSemanticErrors }"
+      [collapsed]="uiStateStore.semanticIdPanelCollapsed()"
+      (collapsedChange)="uiStateStore.setSemanticIdPanelCollapsed($event)"
+    >
+      <ng-template #header>
+        <div class="flex items-center gap-2 px-2">
+          <lib-help-label tag="SEMANTIC_ID" isLabelBold="true"></lib-help-label>
+        </div>
+      </ng-template>
+
+      <aas-v3-semantic-description
+        [semanticId]="entity.content.semanticId"
+        [supplemantalSemanticIds]="entity.content.supplementalSemanticIds"
+        [referenceParent]="entity.content"
+        [referenceParentPropertyName]="'semanticId'"
+        [shellResult]="shellResult"
+      ></aas-v3-semantic-description>
+    </p-fieldset>
+    <p-fieldset legend="{{ 'QUALIFIERS' | translate }}" [toggleable]="true" [collapsed]="true">
+      <aas-v3-qualifiers
+        [qualifiers]="entity.content.qualifiers"
+        [qualifiersParent]="entity.content"
+      ></aas-v3-qualifiers>
+    </p-fieldset>
+    @if (isBomNode) {
+      <p-fieldset [toggleable]="true" [collapsed]="false" [ngClass]="{ 'border-error': relationInvalid }">
+        <ng-template #header>
+          <div class="flex items-center gap-2 px-2">
+            <lib-help-label tag="BOM" isLabelBold="true"></lib-help-label>
+          </div>
+        </ng-template>
+
+        @if (relationInvalid) {
+          <p-message
+            severity="error"
+            class="w-full"
+            text="{{ 'HAS_PART_AND_IS_PART_ERROR' | translate }}"
+            class="mr-2"
+          ></p-message>
+        }
+        <!-- <aas-bom-diagram
+      [aasId]="shellResult?.id ?? 0"
+      [apiUrl]="appConfigService.config.apiPath"
+      [entryNode]="entity.content"
+      [navigate]="false"
+      [registry]="''"
+      [httpHeader]="[]"
+    ></aas-bom-diagram> -->
+        @defer (on viewport) {
+          <aas-bom-hierarchy-chart
+            [apiUrl]="appConfigService.config.apiPath"
+            [editable]="true"
+            [entryNode]="entity.content"
+            [submodel]="submodel"
+            [assetInformation]="assetInformation!"
+            [idShort]="idShort ?? ''"
+          ></aas-bom-hierarchy-chart>
+        } @placeholder {
+          <div class="p-3 text-sm text-color-secondary">{{ 'LOADING' | translate }}...</div>
+        }
+      </p-fieldset>
+    }
+
+    <p-fieldset
+      [toggleable]="true"
+      [collapsed]="uiStateStore.endpointUrlPanelCollapsed()"
+      (collapsedChange)="uiStateStore.setEndpointUrlPanelCollapsed($event)"
+    >
+      <ng-template #header>
+        <div class="flex items-center gap-2 px-2">
+          <lib-help-label tag="ENDPOINT_URL" isLabelBold="true"></lib-help-label>
+        </div>
+      </ng-template>
+      <aas-endpoint-url [element]="entity" [shellResult]="shellResult"></aas-endpoint-url>
+    </p-fieldset>
+  </div>
+}
+

@@ -1,0 +1,21 @@
+img.shell-thumb {
+  box-shadow: 2px 2px 5px color-mix(in srgb, var(--p-surface-900) 30%, transparent);
+  border-radius: var(--aas-radius-xs);
+  max-width: 50px;
+  max-height: 48px;
+  width: auto;
+  height: auto;
+  object-fit: contain;
+  display: block;
+}
+
+.shell-thumb-placeholder {
+  width: 50px;
+  height: 48px;
+  border-radius: var(--aas-radius-xs);
+  border: 1px solid var(--p-content-border-color);
+  color: var(--p-text-muted-color);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}

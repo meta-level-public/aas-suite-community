@@ -1,0 +1,43 @@
+@let levelType = this.levelType();
+
+@if (levelType == null) {
+  <div class="flex flex-col w-full justify-center">
+    <p-button
+      label="{{ 'ADD' | translate }}"
+      (onClick)="addLevelType()"
+      size="small"
+      icon="pi pi-plus"
+      [outlined]="true"
+    ></p-button>
+  </div>
+} @else {
+  <div class="flex flex-row gap-2 items-start">
+    <div class="flex flex-col gap-2 w-full">
+      <div class="flex flex-row gap-2 items-center">
+        <p-checkbox inputId="min" name="min" [binary]="true" [(ngModel)]="levelType.min" />
+        <lib-help-label tag="LEVEL_TYPE_MIN" for="min"></lib-help-label>
+      </div>
+      <div class="flex flex-row gap-2 items-center">
+        <p-checkbox inputId="max" name="max" [binary]="true" [(ngModel)]="levelType.max" />
+        <lib-help-label tag="LEVEL_TYPE_MAX" for="max"></lib-help-label>
+      </div>
+      <div class="flex flex-row gap-2 items-center">
+        <p-checkbox inputId="nom" name="nom" [binary]="true" [(ngModel)]="levelType.nom" />
+        <lib-help-label tag="LEVEL_TYPE_NOM" for="nom"></lib-help-label>
+      </div>
+      <div class="flex flex-row gap-2 items-center">
+        <p-checkbox inputId="typ" name="typ" [binary]="true" [(ngModel)]="levelType.typ" />
+        <lib-help-label tag="LEVEL_TYPE_TYPE" for="typ"></lib-help-label>
+      </div>
+      <div>
+        <p-button
+          (onClick)="removeLevelType()"
+          label="{{ 'REMOVE_BLOCK' | translate }}"
+          icon="pi pi-trash"
+          size="small"
+          outlined="true"
+        ></p-button>
+      </div>
+    </div>
+  </div>
+}

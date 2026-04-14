@@ -1,0 +1,45 @@
+@switch (contactInformation.modelType.name) {
+  @case ('Property') {
+    @if (disabledByEmptyValue(contactInformation.value)) {
+      <p-table [value]="[' ']" size="small" stripedRows>
+        <ng-template pTemplate="body">
+          <tr>
+            <td class="font-bold" style="width: 35%; min-width: 5rem">
+              {{ contactInformation.idShort }}
+            </td>
+            <td class="font-bold" style="width: 65%; min-width: 10rem">
+              {{ contactInformation.value }}
+            </td>
+          </tr>
+        </ng-template>
+      </p-table>
+    }
+  }
+  @case ('MultiLanguageProperty') {
+    @if (disabledByEmptyValue(contactInformation.value)) {
+      <p-table [value]="[' ']" size="small" stripedRows>
+        <ng-template pTemplate="body">
+          <tr>
+            <td class="font-bold" style="width: 35%; min-width: 5rem">
+              {{ contactInformation.idShort }}
+            </td>
+            <td style="width: 65%; min-width: 10rem">
+              <aas-multilanguage-property [aasId]="aasId" [properties]="contactInformation">
+              </aas-multilanguage-property>
+            </td>
+          </tr>
+        </ng-template>
+      </p-table>
+    }
+  }
+  @case ('SubmodelElementCollection') {
+    @for (contactInformationElement of contactInformation.value; track contactInformationElement) {
+      <aas-contact-information-element-viewer
+        [contactInformation]="contactInformationElement"
+      ></aas-contact-information-element-viewer>
+    }
+  }
+  @default {
+    <div>{{ 'VIEWER_MISSING' | translate }}: {{ contactInformation.modelType.name }}</div>
+  }
+}

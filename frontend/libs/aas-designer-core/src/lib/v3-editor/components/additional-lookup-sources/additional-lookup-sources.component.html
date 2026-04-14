@@ -1,0 +1,23 @@
+<p-accordion [multiple]="true">
+  @for (source of lookupSources(); track $index) {
+    <p-accordion-panel [value]="source.label">
+      <p-accordion-header>{{ source.label }}</p-accordion-header>
+      <p-accordion-content>
+        @if (translate.currentLang === 'de') {
+          <p class="m-0">
+            {{ source.textDe }}
+          </p>
+        } @else {
+          <p class="m-0">
+            {{ source.textEn }}
+          </p>
+        }
+        <p class="m-0 mt-5">
+          <a href="{{ source.link }}" target="_blank" class="text-blue-500 underline" (click)="close()">{{
+            source.link
+          }}</a>
+        </p>
+      </p-accordion-content>
+    </p-accordion-panel>
+  }
+</p-accordion>

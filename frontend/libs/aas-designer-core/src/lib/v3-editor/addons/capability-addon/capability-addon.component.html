@@ -1,0 +1,404 @@
+<div class="flex flex-col gap-3">
+  @if (validationErrorKeys.length > 0) {
+    <p-message severity="error" styleClass="w-full">
+      <div class="w-full">
+        <strong>{{ 'VALIDATION_ERRORS' | translate }}</strong>
+        <ul class="m-0 pl-3 mt-2">
+          @for (errorKey of validationErrorKeys; track $index) {
+            <li>{{ errorKey | translate }}</li>
+          }
+        </ul>
+      </div>
+    </p-message>
+  }
+
+  <div class="grid grid-cols-12 gap-2">
+    <div class="col-span-12 md:col-span-6">
+      <lib-help-label class="block mb-2" tag="CAPABILITY_ID_SHORT"></lib-help-label>
+      <input pInputText class="w-full" [(ngModel)]="capabilityIdShort" />
+    </div>
+    <div class="col-span-12 md:col-span-6">
+      <lib-help-label class="block mb-2" tag="CAPABILITY_ROLE"></lib-help-label>
+      <p-select
+        class="w-full"
+        [options]="roleOptions"
+        optionLabel="label"
+        optionValue="value"
+        [(ngModel)]="role"
+      ></p-select>
+    </div>
+    <div class="col-span-12">
+      <lib-help-label class="block mb-2" tag="CAPABILITY_COMMENT" width="w-80"></lib-help-label>
+      <aas-v3-lang-string-list
+        [langStrings]="capabilityCommentParent.value"
+        [langStringParent]="capabilityCommentParent"
+        langStringParentPropertyName="value"
+      ></aas-v3-lang-string-list>
+    </div>
+    <div class="col-span-12">
+      <lib-help-label class="block mb-2" tag="CAPABILITY_SUPPLEMENTAL_SEMANTICS" width="w-80"></lib-help-label>
+      <div class="flex gap-2 mb-2">
+        <input pInputText class="w-full" [(ngModel)]="supplementalSemanticIdInput" />
+        <p-button
+          icon="pi pi-plus"
+          [text]="true"
+          (onClick)="addSupplementalSemanticId(supplementalSemanticIdInput)"
+        ></p-button>
+      </div>
+      @for (entry of supplementalSemanticIds; track $index; let i = $index) {
+        <div class="flex justify-between items-center mb-1">
+          <input
+            pInputText
+            class="w-full mr-2"
+            [(ngModel)]="supplementalSemanticIds[i]"
+            (blur)="normalizeSupplementalSemanticId(i)"
+          />
+          <p-button
+            icon="pi pi-times"
+            [text]="true"
+            severity="danger"
+            (onClick)="removeSupplementalSemanticId(i)"
+          ></p-button>
+        </div>
+      }
+    </div>
+  </div>
+
+  <div class="flex justify-between items-center">
+    <h4 class="m-0">{{ 'CAPABILITY_PROPERTIES' | translate }}</h4>
+    <p-button icon="pi pi-plus" [text]="true" [label]="'ADD_PROPERTY' | translate" (onClick)="addProperty()"></p-button>
+  </div>
+
+  @for (property of properties; track $index) {
+    <p-fieldset [toggleable]="true" styleClass="mb-2 capability-fieldset">
+      <ng-template #header>
+        <div class="flex items-center w-full">
+          <strong>{{ property.idShort || ('PROPERTY' | translate) + ' ' + ($index + 1) }}</strong>
+          <span class="flex-1"></span>
+          <p-button
+            icon="pi pi-trash"
+            severity="danger"
+            [text]="true"
+            size="small"
+            (onClick)="removeProperty($index); $event.stopPropagation()"
+          ></p-button>
+        </div>
+      </ng-template>
+      <div class="grid grid-cols-12 gap-2">
+        <div class="col-span-12 md:col-span-4">
+          <lib-help-label class="block mb-2" tag="ID_SHORT"></lib-help-label>
+          <input pInputText class="w-full" [(ngModel)]="property.idShort" />
+        </div>
+        <div class="col-span-12 md:col-span-4">
+          <lib-help-label class="block mb-2" tag="TYPE"></lib-help-label>
+          <p-select
+            class="w-full"
+            [options]="propertyTypeOptions"
+            optionLabel="label"
+            optionValue="value"
+            [(ngModel)]="property.type"
+          ></p-select>
+        </div>
+        @if (property.type !== 'MultiLanguageProperty') {
+          <div class="col-span-12 md:col-span-4">
+            <lib-help-label class="block mb-2" tag="VALUE_TYPE"></lib-help-label>
+            <p-select
+              class="w-full"
+              [options]="valueTypeOptions"
+              optionLabel="label"
+              optionValue="value"
+              [(ngModel)]="property.valueType"
+            ></p-select>
+          </div>
+        } @else {
+          <div class="col-span-12 md:col-span-4"></div>
+        }
+
+        @if (property.type === 'Range') {
+          <div class="col-span-12 md:col-span-4">
+            <lib-help-label class="block mb-2" tag="MIN"></lib-help-label>
+            <input pInputText class="w-full" [(ngModel)]="property.min" />
+          </div>
+          <div class="col-span-12 md:col-span-4">
+            <lib-help-label class="block mb-2" tag="MAX"></lib-help-label>
+            <input pInputText class="w-full" [(ngModel)]="property.max" />
+          </div>
+        } @else if (property.type === 'MultiLanguageProperty') {
+          <div class="col-span-12">
+            <lib-help-label class="block mb-2" tag="VALUE"></lib-help-label>
+            <aas-v3-lang-string-list
+              [langStrings]="property.mlpValue"
+              [langStringParent]="property"
+              langStringParentPropertyName="mlpValue"
+            ></aas-v3-lang-string-list>
+          </div>
+        } @else {
+          <div class="col-span-12">
+            <lib-help-label class="block mb-2" tag="VALUE"></lib-help-label>
+            <input pInputText class="w-full" [(ngModel)]="property.value" />
+          </div>
+        }
+
+        <div class="col-span-12">
+          <lib-help-label class="block mb-2" tag="COMMENT"></lib-help-label>
+          <aas-v3-lang-string-list
+            [langStrings]="property.commentValue"
+            [langStringParent]="property"
+            langStringParentPropertyName="commentValue"
+          ></aas-v3-lang-string-list>
+        </div>
+      </div>
+    </p-fieldset>
+  }
+
+  <div class="grid grid-cols-12 gap-2">
+    <div class="col-span-12 md:col-span-6">
+      <h4 class="mt-0">{{ 'CAPABILITY_REALIZED_BY' | translate }}</h4>
+      <small class="text-color-secondary block mb-1">{{ 'CAPABILITY_RELATION_INTERNAL_HINT' | translate }}</small>
+      <div class="flex gap-2 mb-2">
+        <p-select class="w-full" [options]="availableCapabilityRefs" [(ngModel)]="selectedRealizedBy"></p-select>
+        <p-button icon="pi pi-plus" [text]="true" (onClick)="addRealizedBy(selectedRealizedBy)"></p-button>
+      </div>
+      <small class="text-color-secondary block mb-1">{{ 'CAPABILITY_RELATION_EXTERNAL_HINT' | translate }}</small>
+      <div class="flex gap-2 mb-2">
+        <input pInputText class="w-full" [(ngModel)]="realizedByInput" />
+        <p-button icon="pi pi-plus" [text]="true" (onClick)="addRealizedBy(realizedByInput, 'external')"></p-button>
+      </div>
+      @for (ref of realizedByRefs; track $index; let i = $index) {
+        <p-fieldset [toggleable]="true" styleClass="mb-2 capability-fieldset">
+          <ng-template #header>
+            <div class="flex items-center w-full">
+              <strong>{{ 'CAPABILITY_REALIZED_BY' | translate }} {{ i + 1 }}</strong>
+              <span class="flex-1"></span>
+              <p-button
+                icon="pi pi-trash"
+                severity="danger"
+                [text]="true"
+                size="small"
+                (onClick)="removeRealizedBy(i); $event.stopPropagation()"
+              ></p-button>
+            </div>
+          </ng-template>
+          <div class="grid grid-cols-12 gap-2">
+            <div class="col-span-12 md:col-span-4">
+              <lib-help-label class="block mb-2" tag="TYPE"></lib-help-label>
+              <p-select
+                class="w-full"
+                [options]="relationModeOptions"
+                optionLabel="label"
+                optionValue="value"
+                [(ngModel)]="ref.mode"
+              ></p-select>
+            </div>
+            <div class="col-span-12 md:col-span-8">
+              <lib-help-label class="block mb-2" tag="TARGET_CAPABILITY"></lib-help-label>
+              <input pInputText class="w-full" [(ngModel)]="ref.value" />
+            </div>
+          </div>
+        </p-fieldset>
+      }
+    </div>
+
+    <div class="col-span-12 md:col-span-6">
+      <h4 class="mt-0">{{ 'CAPABILITY_GENERALIZED_BY' | translate }}</h4>
+      <small class="text-color-secondary block mb-1">{{ 'CAPABILITY_RELATION_INTERNAL_HINT' | translate }}</small>
+      <div class="flex gap-2 mb-2">
+        <p-select class="w-full" [options]="availableCapabilityRefs" [(ngModel)]="selectedGeneralizedBy"></p-select>
+        <p-button icon="pi pi-plus" [text]="true" (onClick)="addGeneralizedBy(selectedGeneralizedBy)"></p-button>
+      </div>
+      <small class="text-color-secondary block mb-1">{{ 'CAPABILITY_RELATION_EXTERNAL_HINT' | translate }}</small>
+      <div class="flex gap-2 mb-2">
+        <input pInputText class="w-full" [(ngModel)]="generalizedByInput" />
+        <p-button
+          icon="pi pi-plus"
+          [text]="true"
+          (onClick)="addGeneralizedBy(generalizedByInput, 'external')"
+        ></p-button>
+      </div>
+      @for (ref of generalizedByRefs; track $index; let i = $index) {
+        <p-fieldset [toggleable]="true" styleClass="mb-2 capability-fieldset">
+          <ng-template #header>
+            <div class="flex items-center w-full">
+              <strong>{{ 'CAPABILITY_GENERALIZED_BY' | translate }} {{ i + 1 }}</strong>
+              <span class="flex-1"></span>
+              <p-button
+                icon="pi pi-trash"
+                severity="danger"
+                [text]="true"
+                size="small"
+                (onClick)="removeGeneralizedBy(i); $event.stopPropagation()"
+              ></p-button>
+            </div>
+          </ng-template>
+          <div class="grid grid-cols-12 gap-2">
+            <div class="col-span-12 md:col-span-4">
+              <lib-help-label class="block mb-2" tag="TYPE"></lib-help-label>
+              <p-select
+                class="w-full"
+                [options]="relationModeOptions"
+                optionLabel="label"
+                optionValue="value"
+                [(ngModel)]="ref.mode"
+              ></p-select>
+            </div>
+            <div class="col-span-12 md:col-span-8">
+              <lib-help-label class="block mb-2" tag="TARGET_CAPABILITY"></lib-help-label>
+              <input pInputText class="w-full" [(ngModel)]="ref.value" />
+            </div>
+          </div>
+        </p-fieldset>
+      }
+    </div>
+  </div>
+
+  <div class="flex justify-between items-center mt-2">
+    <h4 class="m-0">{{ 'CONSTRAINT_SET' | translate }}</h4>
+    <div class="flex gap-2">
+      <p-button
+        icon="pi pi-plus"
+        [text]="true"
+        [label]="'ADD_PROPERTY_CONSTRAINT' | translate"
+        (onClick)="addPropertyConstraint()"
+      ></p-button>
+      <p-button
+        icon="pi pi-plus"
+        [text]="true"
+        [label]="'ADD_TRANSITION_CONSTRAINT' | translate"
+        (onClick)="addTransitionConstraint()"
+      ></p-button>
+    </div>
+  </div>
+
+  @for (constraint of propertyConstraints; track $index; let cIdx = $index) {
+    <p-fieldset [toggleable]="true" styleClass="mb-2 capability-fieldset">
+      <ng-template #header>
+        <div class="flex items-center w-full">
+          <strong>{{ 'PROPERTY_CONSTRAINT' | translate }} {{ cIdx + 1 }}</strong>
+          <span class="flex-1"></span>
+          <p-button
+            icon="pi pi-trash"
+            [text]="true"
+            severity="danger"
+            size="small"
+            (onClick)="removePropertyConstraint(cIdx); $event.stopPropagation()"
+          ></p-button>
+        </div>
+      </ng-template>
+      <div class="grid grid-cols-12 gap-2">
+        <div class="col-span-12 md:col-span-4">
+          <lib-help-label class="block mb-2" tag="ID_SHORT"></lib-help-label>
+          <input pInputText class="w-full" [(ngModel)]="constraint.idShort" />
+        </div>
+        <div class="col-span-12 md:col-span-4">
+          <lib-help-label class="block mb-2" tag="CONSTRAINT_TYPE"></lib-help-label>
+          <p-select
+            class="w-full"
+            [options]="propertyConstraintTypeOptions"
+            optionLabel="label"
+            optionValue="value"
+            [(ngModel)]="constraint.type"
+          ></p-select>
+        </div>
+        <div class="col-span-12 md:col-span-4">
+          <lib-help-label class="block mb-2" tag="CONDITIONAL_TYPE"></lib-help-label>
+          <p-select
+            class="w-full"
+            [options]="conditionalTypeOptions"
+            optionLabel="label"
+            optionValue="value"
+            [(ngModel)]="constraint.conditionalType"
+          ></p-select>
+        </div>
+        <div class="col-span-12">
+          <lib-help-label class="block mb-2" tag="CONSTRAINT_VALUE"></lib-help-label>
+          <input pInputText class="w-full" [(ngModel)]="constraint.value" />
+        </div>
+        <div class="col-span-12 md:col-span-8">
+          <lib-help-label class="block mb-2" tag="CONSTRAINT_TARGET_PROPERTIES"></lib-help-label>
+          <div class="flex gap-2 mb-2">
+            <p-select
+              class="w-full"
+              [options]="propertyReferenceOptions"
+              [(ngModel)]="constraint.selectedTargetProperty"
+            ></p-select>
+            <p-button
+              icon="pi pi-plus"
+              [text]="true"
+              (onClick)="addConstraintTargetProperty(cIdx, constraint.selectedTargetProperty)"
+            ></p-button>
+          </div>
+          <div class="flex gap-2 mb-2">
+            <input pInputText class="w-full" [(ngModel)]="constraint.targetPropertyInput" />
+            <p-button
+              icon="pi pi-plus"
+              [text]="true"
+              (onClick)="addConstraintTargetProperty(cIdx, constraint.targetPropertyInput)"
+            ></p-button>
+          </div>
+          @for (target of constraint.targetProperties; track target; let tIdx = $index) {
+            <div class="flex justify-between items-center mb-1">
+              <span>{{ target }}</span>
+              <p-button
+                icon="pi pi-times"
+                [text]="true"
+                severity="danger"
+                (onClick)="removeConstraintTargetProperty(cIdx, tIdx)"
+              ></p-button>
+            </div>
+          }
+        </div>
+      </div>
+    </p-fieldset>
+  }
+
+  @for (constraint of transitionConstraints; track $index; let tIdx = $index) {
+    <p-fieldset [toggleable]="true" styleClass="mb-2 capability-fieldset">
+      <ng-template #header>
+        <div class="flex items-center w-full">
+          <strong>{{ 'TRANSITION_CONSTRAINT' | translate }} {{ tIdx + 1 }}</strong>
+          <span class="flex-1"></span>
+          <p-button
+            icon="pi pi-trash"
+            [text]="true"
+            severity="danger"
+            size="small"
+            (onClick)="removeTransitionConstraint(tIdx); $event.stopPropagation()"
+          ></p-button>
+        </div>
+      </ng-template>
+      <div class="grid grid-cols-12 gap-2">
+        <div class="col-span-12 md:col-span-4">
+          <lib-help-label class="block mb-2" tag="ID_SHORT"></lib-help-label>
+          <input pInputText class="w-full" [(ngModel)]="constraint.idShort" />
+        </div>
+        <div class="col-span-12 md:col-span-4">
+          <lib-help-label class="block mb-2" tag="CONDITIONAL_TYPE"></lib-help-label>
+          <p-select
+            class="w-full"
+            [options]="conditionalTypeOptions"
+            optionLabel="label"
+            optionValue="value"
+            [(ngModel)]="constraint.conditionalType"
+          ></p-select>
+        </div>
+        <div class="col-span-12 md:col-span-4">
+          <lib-help-label class="block mb-2" tag="TARGET_CAPABILITY"></lib-help-label>
+          <p-select
+            class="w-full"
+            [options]="availableCapabilityRefs"
+            [(ngModel)]="constraint.targetCapability"
+          ></p-select>
+        </div>
+        <div class="col-span-12">
+          <lib-help-label class="block mb-2" tag="TARGET_CAPABILITY_FREE"></lib-help-label>
+          <input pInputText class="w-full" [(ngModel)]="constraint.targetCapability" />
+        </div>
+      </div>
+    </p-fieldset>
+  }
+
+  <div class="flex justify-end gap-2 mt-3">
+    <p-button severity="secondary" [label]="'CANCEL' | translate" (onClick)="cancel()"></p-button>
+    <p-button [label]="'APPLY' | translate" (onClick)="apply()" [disabled]="!canApply"></p-button>
+  </div>
+</div>

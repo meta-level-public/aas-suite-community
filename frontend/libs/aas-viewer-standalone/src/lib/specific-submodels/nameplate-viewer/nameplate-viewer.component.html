@@ -1,0 +1,353 @@
+<div class="nameplate-container">
+  <!-- Product Details Grid -->
+  <div class="section-card">
+    <h3 class="section-title">
+      <i class="fa-solid fa-id-card"></i>
+      {{ 'NAMEPLATE' | translate }}
+    </h3>
+    <div class="flex flex-col gap-2">
+      @if (productRoot() && productRoot() !== '') {
+        <p-inputgroup>
+          <p-inputgroup-addon class="font-bold nameplate-label-addon">
+            <i class="fa-solid fa-sitemap mr-2"></i>
+            <lib-help-label tag="PRODUCT_ROOT" [showLabel]="false"></lib-help-label>
+            {{ 'PRODUCT_ROOT' | translate }}
+          </p-inputgroup-addon>
+          <input pInputText type="text" [value]="productRoot()" readonly />
+        </p-inputgroup>
+      }
+      @if (isInstance() && serialnumber()) {
+        <p-inputgroup>
+          <p-inputgroup-addon class="font-bold nameplate-label-addon">
+            <i class="fa-solid fa-barcode mr-2"></i>
+            <lib-help-label tag="SERIAL_NUMBER" [showLabel]="false"></lib-help-label>
+            {{ 'SERIAL_NUMBER' | translate }}
+          </p-inputgroup-addon>
+          <input pInputText type="text" [value]="serialnumber()" readonly />
+        </p-inputgroup>
+      }
+      @if (articleNumber()) {
+        <p-inputgroup>
+          <p-inputgroup-addon class="font-bold nameplate-label-addon">
+            <i class="fa-solid fa-hashtag mr-2"></i>
+            <lib-help-label tag="ARTICLE_NUMBER" [showLabel]="false"></lib-help-label>
+            {{ 'ARTICLE_NUMBER' | translate }}
+          </p-inputgroup-addon>
+          <input pInputText type="text" [value]="articleNumber()" readonly />
+        </p-inputgroup>
+      }
+      @if (isInstance() && yearOfConstruction() != null && yearOfConstruction() !== '') {
+        <p-inputgroup>
+          <p-inputgroup-addon class="font-bold nameplate-label-addon">
+            <i class="fa-solid fa-calendar mr-2"></i>
+            <lib-help-label tag="YEAR_OF_CONSTRUCTION" [showLabel]="false"></lib-help-label>
+            {{ 'YEAR_OF_CONSTRUCTION' | translate }}
+          </p-inputgroup-addon>
+          <input pInputText type="text" [value]="yearOfConstruction()" readonly />
+        </p-inputgroup>
+      }
+      @if (isInstance() && dateOfManufacturing() != null) {
+        <p-inputgroup>
+          <p-inputgroup-addon class="font-bold nameplate-label-addon">
+            <i class="fa-solid fa-calendar-check mr-2"></i>
+            <lib-help-label tag="DATE_OF_MANUFACTURE" [showLabel]="false"></lib-help-label>
+            {{ 'DATE_OF_MANUFACTURE' | translate }}
+          </p-inputgroup-addon>
+          <input pInputText type="text" [value]="dateOfManufacturing() | vwsDate: 'SHORT_DATE_TIME'" readonly />
+        </p-inputgroup>
+      }
+    </div>
+  </div>
+
+  <!-- Version Information -->
+  @if (swVersion() || hwVersion() || fwVersion()) {
+    <div class="section-card">
+      <h3 class="section-title">
+        <i class="fa-solid fa-code-branch"></i>
+        {{ 'VERSIONS' | translate }}
+      </h3>
+      <div class="flex flex-col gap-2">
+        @if (swVersion()) {
+          <p-inputgroup>
+            <p-inputgroup-addon class="font-bold nameplate-label-addon">
+              <i class="fa-solid fa-microchip mr-2"></i>
+              <lib-help-label tag="SW" [showLabel]="false"></lib-help-label>
+              {{ 'SW' | translate }}
+            </p-inputgroup-addon>
+            <input pInputText type="text" [value]="swVersion()" readonly />
+          </p-inputgroup>
+        }
+        @if (hwVersion()) {
+          <p-inputgroup>
+            <p-inputgroup-addon class="font-bold nameplate-label-addon">
+              <i class="fa-solid fa-server mr-2"></i>
+              <lib-help-label tag="HW" [showLabel]="false"></lib-help-label>
+              {{ 'HW' | translate }}
+            </p-inputgroup-addon>
+            <input pInputText type="text" [value]="hwVersion()" readonly />
+          </p-inputgroup>
+        }
+        @if (fwVersion()) {
+          <p-inputgroup>
+            <p-inputgroup-addon class="font-bold nameplate-label-addon">
+              <i class="fa-solid fa-memory mr-2"></i>
+              <lib-help-label tag="FW" [showLabel]="false"></lib-help-label>
+              {{ 'FW' | translate }}
+            </p-inputgroup-addon>
+            <input pInputText type="text" [value]="fwVersion()" readonly />
+          </p-inputgroup>
+        }
+      </div>
+    </div>
+  }
+  <!-- Manufacturer + Map Section -->
+  @if (street() && city()) {
+    <div class="section-grid-12">
+      <div class="span-7">
+        <div class="section-card">
+          <div class="flex items-center justify-between mb-2">
+            <h3 class="section-title section-title-no-margin">
+              <i class="fa-solid fa-industry"></i>
+              {{ 'MANUFACTURER' | translate }}
+            </h3>
+            @let manufacturerImage = this.manufacturerImage() | async;
+            <div class="manufacturer-logo-shell">
+              @if (manufacturerImage && !manufacturerImageError()) {
+                <img
+                  [src]="manufacturerImage"
+                  class="h-12 object-contain"
+                  alt="Manufacturer"
+                  (error)="onManufacturerImageError()"
+                  (load)="onManufacturerImageLoad()"
+                />
+              } @else {
+                <div class="manufacturer-logo-placeholder">
+                  <i class="pi pi-image"></i>
+                </div>
+              }
+            </div>
+          </div>
+
+          <div class="flex flex-col gap-2">
+            @if (manufacturer()) {
+              <p-inputgroup>
+                <p-inputgroup-addon class="font-bold nameplate-label-addon">
+                  <i class="fa-solid fa-building mr-2"></i>
+                  <lib-help-label tag="NAME" [showLabel]="false"></lib-help-label>
+                  {{ 'NAME' | translate }}
+                </p-inputgroup-addon>
+                <input pInputText type="text" [value]="manufacturer()" readonly />
+              </p-inputgroup>
+            }
+            @if (street() || zip() || city()) {
+              <p-inputgroup>
+                <p-inputgroup-addon class="font-bold nameplate-label-addon">
+                  <i class="fa-solid fa-location-dot mr-2"></i>
+                  <lib-help-label tag="ADDRESS" [showLabel]="false"></lib-help-label>
+                  {{ 'ADDRESS' | translate }}
+                </p-inputgroup-addon>
+                <input
+                  pInputText
+                  type="text"
+                  [value]="
+                    (street() || '') +
+                    (street() && (zip() || city()) ? ', ' : '') +
+                    (countryCode() || '') +
+                    ' ' +
+                    (zip() || '') +
+                    ' ' +
+                    (city() || '')
+                  "
+                  readonly
+                />
+              </p-inputgroup>
+            }
+            @if (phone()) {
+              <p-inputgroup>
+                <p-inputgroup-addon class="font-bold nameplate-label-addon">
+                  <i class="fa-solid fa-phone mr-2"></i>
+                  <lib-help-label tag="PHONE" [showLabel]="false"></lib-help-label>
+                  {{ 'PHONE' | translate }}
+                </p-inputgroup-addon>
+                <input pInputText type="text" [value]="phone()" readonly />
+                <p-inputgroup-addon class="w-auto">
+                  <a [href]="'tel:' + phone()" class="text-primary hover:underline">
+                    <i class="fa-solid fa-external-link-alt"></i>
+                  </a>
+                </p-inputgroup-addon>
+              </p-inputgroup>
+            }
+            @if (email()) {
+              <p-inputgroup>
+                <p-inputgroup-addon class="font-bold nameplate-label-addon">
+                  <i class="fa-solid fa-envelope mr-2"></i>
+                  <lib-help-label tag="EMAIL" [showLabel]="false"></lib-help-label>
+                  {{ 'EMAIL' | translate }}
+                </p-inputgroup-addon>
+                <input pInputText type="text" [value]="email()" readonly />
+                <p-inputgroup-addon class="w-auto">
+                  <a [href]="'mailto:' + email()" class="text-primary hover:underline">
+                    <i class="fa-solid fa-external-link-alt"></i>
+                  </a>
+                </p-inputgroup-addon>
+              </p-inputgroup>
+            }
+            @if (web()) {
+              <p-inputgroup>
+                <p-inputgroup-addon class="font-bold nameplate-label-addon">
+                  <i class="fa-solid fa-globe mr-2"></i>
+                  <lib-help-label tag="WEB" [showLabel]="false"></lib-help-label>
+                  {{ 'WEB' | translate }}
+                </p-inputgroup-addon>
+                <input pInputText type="text" [value]="web()" readonly />
+                <p-inputgroup-addon class="w-auto">
+                  <a [href]="web()" target="_blank" class="text-primary hover:underline">
+                    <i class="fa-solid fa-external-link-alt"></i>
+                  </a>
+                </p-inputgroup-addon>
+              </p-inputgroup>
+            }
+          </div>
+        </div>
+      </div>
+
+      <div class="span-5">
+        <div class="section-card">
+          <h3 class="section-title">
+            <i class="fa-solid fa-map-location-dot"></i>
+            {{ 'MANUFACTURER' | translate }}
+          </h3>
+          @defer (on viewport) {
+            @let nameplateMapComponent = loadNameplateMapComponent() | async;
+            @if (nameplateMapComponent) {
+              <ng-container *ngComponentOutlet="nameplateMapComponent; inputs: nameplateMapInputs()"></ng-container>
+            }
+          } @placeholder {
+            <div class="h-64 w-full rounded border"></div>
+          }
+        </div>
+      </div>
+    </div>
+  } @else {
+    <div class="section-card">
+      <div class="flex items-center justify-between mb-2">
+        <h3 class="section-title section-title-no-margin">
+          <i class="fa-solid fa-industry"></i>
+          {{ 'MANUFACTURER' | translate }}
+        </h3>
+        @let manufacturerImage = this.manufacturerImage() | async;
+        <div class="manufacturer-logo-shell">
+          @if (manufacturerImage && !manufacturerImageError()) {
+            <img
+              [src]="manufacturerImage"
+              class="h-12 object-contain"
+              alt="Manufacturer"
+              (error)="onManufacturerImageError()"
+              (load)="onManufacturerImageLoad()"
+            />
+          } @else {
+            <div class="manufacturer-logo-placeholder">
+              <i class="pi pi-image"></i>
+            </div>
+          }
+        </div>
+      </div>
+
+      <div class="flex flex-col gap-2">
+        @if (manufacturer()) {
+          <p-inputgroup>
+            <p-inputgroup-addon class="font-bold nameplate-label-addon">
+              <i class="fa-solid fa-building mr-2"></i>
+              <lib-help-label tag="NAME" [showLabel]="false"></lib-help-label>
+              {{ 'NAME' | translate }}
+            </p-inputgroup-addon>
+            <input pInputText type="text" [value]="manufacturer()" readonly />
+          </p-inputgroup>
+        }
+        @if (street() || zip() || city()) {
+          <p-inputgroup>
+            <p-inputgroup-addon class="font-bold nameplate-label-addon">
+              <i class="fa-solid fa-location-dot mr-2"></i>
+              <lib-help-label tag="ADDRESS" [showLabel]="false"></lib-help-label>
+              {{ 'ADDRESS' | translate }}
+            </p-inputgroup-addon>
+            <input
+              pInputText
+              type="text"
+              [value]="
+                (street() || '') +
+                (street() && (zip() || city()) ? ', ' : '') +
+                (countryCode() || '') +
+                ' ' +
+                (zip() || '') +
+                ' ' +
+                (city() || '')
+              "
+              readonly
+            />
+          </p-inputgroup>
+        }
+        @if (phone()) {
+          <p-inputgroup>
+            <p-inputgroup-addon class="font-bold nameplate-label-addon">
+              <i class="fa-solid fa-phone mr-2"></i>
+              <lib-help-label tag="PHONE" [showLabel]="false"></lib-help-label>
+              {{ 'PHONE' | translate }}
+            </p-inputgroup-addon>
+            <input pInputText type="text" [value]="phone()" readonly />
+            <p-inputgroup-addon class="w-auto">
+              <a [href]="'tel:' + phone()" class="text-primary hover:underline">
+                <i class="fa-solid fa-external-link-alt"></i>
+              </a>
+            </p-inputgroup-addon>
+          </p-inputgroup>
+        }
+        @if (email()) {
+          <p-inputgroup>
+            <p-inputgroup-addon class="font-bold nameplate-label-addon">
+              <i class="fa-solid fa-envelope mr-2"></i>
+              <lib-help-label tag="EMAIL" [showLabel]="false"></lib-help-label>
+              {{ 'EMAIL' | translate }}
+            </p-inputgroup-addon>
+            <input pInputText type="text" [value]="email()" readonly />
+            <p-inputgroup-addon class="w-auto">
+              <a [href]="'mailto:' + email()" class="text-primary hover:underline">
+                <i class="fa-solid fa-external-link-alt"></i>
+              </a>
+            </p-inputgroup-addon>
+          </p-inputgroup>
+        }
+        @if (web()) {
+          <p-inputgroup>
+            <p-inputgroup-addon class="font-bold nameplate-label-addon">
+              <i class="fa-solid fa-globe mr-2"></i>
+              <lib-help-label tag="WEB" [showLabel]="false"></lib-help-label>
+              {{ 'WEB' | translate }}
+            </p-inputgroup-addon>
+            <input pInputText type="text" [value]="web()" readonly />
+            <p-inputgroup-addon class="w-auto">
+              <a [href]="web()" target="_blank" class="text-primary hover:underline">
+                <i class="fa-solid fa-external-link-alt"></i>
+              </a>
+            </p-inputgroup-addon>
+          </p-inputgroup>
+        }
+      </div>
+    </div>
+  }
+
+  <!-- Markings Section -->
+  @if (markings.length > 0) {
+    <div class="section-card">
+      <h3 class="section-title">
+        <i class="fa-solid fa-certificate"></i>
+        {{ 'KENNZEICHEN' | translate }}
+      </h3>
+      <aas-v3-markings-viewer-plain
+        [markings]="markings"
+        [idShortPath]="markingsIdShortPath()"
+        [indexed]="indexed"
+      ></aas-v3-markings-viewer-plain>
+    </div>
+  }
+</div>

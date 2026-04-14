@@ -1,0 +1,14 @@
+<div class="flex flex-col">
+  <div class="w-full flex items-center gap-4 pre-whitespaced">
+    <em class="pi pi-question-circle text-4xl"></em>
+    {{ config.data.options.question | translate }}
+  </div>
+  <div class="w-full mt-3">
+    <p-checkbox [(ngModel)]="result.dontShowAgain" [binary]="true" inputId="disableHelp"></p-checkbox>
+    <label for="disableHelp">{{ 'HILFE_DEAKTIVIEREN' | translate }}</label>
+  </div>
+  <div class="flex flex-row justify-end gap-2 mt-3">
+    <p-button label="{{ 'NO' | translate }}" (onClick)="reject()"></p-button>
+    <p-button label="{{ 'YES' | translate }}" (onClick)="accept()"></p-button>
+  </div>
+</div>

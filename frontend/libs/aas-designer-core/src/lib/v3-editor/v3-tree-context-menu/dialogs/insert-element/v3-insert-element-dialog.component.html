@@ -1,0 +1,59 @@
+<p-dialog
+  header="{{ 'INSERT_ELEMENT' | translate }}"
+  [visible]="visible()"
+  (visibleChange)="visible.set($event)"
+  (onHide)="onHide()"
+  [style]="{ width: '75vw' }"
+  [modal]="true"
+  appendTo="body"
+>
+  <p>{{ 'PLEASE_SELECT_ELEMENT_TO_INSERT' | translate }}</p>
+  <p-table
+    [value]="availableElements()"
+    [globalFilterFields]="['name', 'description']"
+    selectionMode="single"
+    dataKey="createElement"
+    size="small"
+    stripedRows
+    #dt
+  >
+    <ng-template pTemplate="caption">
+      <div class="flex">
+        <span class="p-input-icon-left ml-auto">
+          <i class="pi pi-search"></i>
+          <input
+            pInputText
+            type="text"
+            (input)="dt.filterGlobal(getEventValue($event), 'contains')"
+            placeholder="Search keyword"
+          />
+        </span>
+      </div>
+    </ng-template>
+    <ng-template pTemplate="body" let-element>
+      <tr [pSelectableRow]="element">
+        <td class="justify-center" style="min-width: 10rem; max-width: 10rem">
+          <p-button label="{{ 'APPLY' | translate }}" (onClick)="onApply(element)" size="small"></p-button>
+        </td>
+        <td><lib-help-label [tag]="element.label"></lib-help-label></td>
+        <td class="text-sm">{{ element.description | translate }}</td>
+      </tr>
+    </ng-template>
+    <ng-template pTemplate="emptymessage" let-columns>
+      <tr>
+        <td [attr.colspan]="columns?.length">
+          {{ 'NO_DATA_FOUND' | translate }}
+        </td>
+      </tr>
+    </ng-template>
+  </p-table>
+
+  <ng-template pTemplate="footer">
+    <p-button
+      icon="pi pi-times"
+      (onClick)="onHide()"
+      label="{{ 'CLOSE' | translate }}"
+      styleClass="p-button-secondary"
+    ></p-button>
+  </ng-template>
+</p-dialog>

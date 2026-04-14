@@ -1,0 +1,5 @@
+<div [hidden]="!outlet.isActivated" class="aas-router h-full min-h-0 flex flex-col">
+  <div class="aas-router__content h-full min-h-0 flex flex-col">
+    <router-outlet #outlet="outlet" (deactivate)="deactivate.emit($event)"></router-outlet>
+  </div>
+</div>

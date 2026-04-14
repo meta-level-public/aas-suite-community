@@ -1,0 +1,233 @@
+@switch (field.type) {
+  @case ('Property') {
+    <div class="flex flex-col gap-2">
+      @if (usesDatePickerPropertyInput()) {
+        <p-datepicker
+          class="w-full"
+          [inputId]="fieldId"
+          [ngModel]="getPropertyDatePickerValue()"
+          [showIcon]="true"
+          [showTime]="isDateTimePropertyInput() || isTimeOnlyPropertyInput()"
+          [timeOnly]="isTimeOnlyPropertyInput()"
+          [hourFormat]="'24'"
+          dateFormat="yy-mm-dd"
+          (ngModelChange)="onPropertyDatePickerChanged($event)"
+        />
+      } @else if (hasPropertyValueList()) {
+        <p-select
+          class="w-full"
+          styleClass="w-full"
+          [options]="getPropertyValueListOptions()"
+          [ngModel]="field.element.value"
+          optionLabel="label"
+          optionValue="value"
+          appendTo="body"
+          (ngModelChange)="onPropertyValueChanged($event)"
+        ></p-select>
+      } @else {
+        <input pInputText class="w-full" [(ngModel)]="field.element.value" (ngModelChange)="onValueChanged()" />
+      }
+    </div>
+  }
+
+  @case ('MultiLanguageProperty') {
+    <aas-multilanguage-property
+      [propList]="field.element.value"
+      [preferredLanguages]="['en', 'de']"
+      [editableNode]="field.element"
+      [id]="fieldId"
+    ></aas-multilanguage-property>
+  }
+
+  @case ('Range') {
+    <div class="flex flex-col gap-3">
+      @if (getRangeValueTypeLabel(); as valueTypeLabel) {
+        <div class="text-xs uppercase tracking-wide" style="color: var(--p-text-muted-color)">
+          {{ 'TYPE' | translate }}: {{ valueTypeLabel }}
+        </div>
+      }
+
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+        <div>
+          <div class="text-xs uppercase tracking-wide mb-1" style="color: var(--p-text-muted-color)">
+            {{ 'MIN' | translate }}
+          </div>
+          @if (usesDatePickerRangeInput()) {
+            <p-datepicker
+              class="w-full"
+              [inputId]="fieldId + '_min'"
+              [ngModel]="getRangeDatePickerValue('min')"
+              [showIcon]="true"
+              [showTime]="isDateTimeRangeInput()"
+              [hourFormat]="'24'"
+              dateFormat="yy-mm-dd"
+              (ngModelChange)="onRangeDatePickerChanged('min', $event)"
+            />
+          } @else {
+            <input
+              pInputText
+              class="w-full"
+              [type]="getRangeInputType()"
+              [ngModel]="getRangeEditorValue('min')"
+              (ngModelChange)="onRangeBoundaryChanged('min', $event)"
+            />
+          }
+          @if (usesStructuredRangeInput() && field.element.min) {
+            <div class="text-xs mt-1" style="color: var(--p-text-muted-color)">
+              {{ 'RAW_DATA' | translate }}: {{ field.element.min }}
+            </div>
+          }
+        </div>
+
+        <div>
+          <div class="text-xs uppercase tracking-wide mb-1" style="color: var(--p-text-muted-color)">
+            {{ 'MAX' | translate }}
+          </div>
+          @if (usesDatePickerRangeInput()) {
+            <p-datepicker
+              class="w-full"
+              [inputId]="fieldId + '_max'"
+              [ngModel]="getRangeDatePickerValue('max')"
+              [showIcon]="true"
+              [showTime]="isDateTimeRangeInput()"
+              [hourFormat]="'24'"
+              dateFormat="yy-mm-dd"
+              (ngModelChange)="onRangeDatePickerChanged('max', $event)"
+            />
+          } @else {
+            <input
+              pInputText
+              class="w-full"
+              [type]="getRangeInputType()"
+              [ngModel]="getRangeEditorValue('max')"
+              (ngModelChange)="onRangeBoundaryChanged('max', $event)"
+            />
+          }
+          @if (usesStructuredRangeInput() && field.element.max) {
+            <div class="text-xs mt-1" style="color: var(--p-text-muted-color)">
+              {{ 'RAW_DATA' | translate }}: {{ field.element.max }}
+            </div>
+          }
+        </div>
+      </div>
+    </div>
+  }
+
+  @case ('ReferenceElement') {
+    <div
+      class="p-3 border-round border-1 flex flex-col gap-3"
+      style="border-color: var(--aas-info-border); background: var(--aas-info-surface); color: var(--aas-info-text)"
+    >
+      <div>
+        <div class="text-xs uppercase tracking-wide mb-1">{{ 'TYPE' | translate }}</div>
+        <p-select
+          class="w-full"
+          styleClass="w-full"
+          [options]="referenceTypeOptions"
+          [(ngModel)]="field.element.value.type"
+          optionLabel="label"
+          optionValue="value"
+          (onChange)="onReferenceTypeChanged()"
+        ></p-select>
+      </div>
+
+      <div class="flex flex-col gap-2">
+        <div class="flex items-center justify-between gap-2">
+          <div class="text-xs uppercase tracking-wide">{{ 'REFERENCE' | translate }}</div>
+          <p-button icon="pi pi-plus" size="small" [text]="true" (onClick)="addReferenceKey()"></p-button>
+        </div>
+
+        @for (key of field.element.value.keys; track $index) {
+          <div class="grid grid-cols-1 md:grid-cols-[16rem_minmax(0,1fr)_auto] gap-2 items-start">
+            <p-select
+              class="w-full"
+              styleClass="w-full"
+              [options]="getKeyTypeOptions()"
+              [(ngModel)]="key.type"
+              optionLabel="label"
+              optionValue="value"
+              (ngModelChange)="onValueChanged()"
+            ></p-select>
+            <input pInputText class="w-full" [(ngModel)]="key.value" (ngModelChange)="onValueChanged()" />
+            <p-button
+              icon="pi pi-trash"
+              size="small"
+              severity="danger"
+              [text]="true"
+              [disabled]="field.element.value.keys.length <= 1"
+              (onClick)="removeReferenceKey($index)"
+            ></p-button>
+          </div>
+        }
+      </div>
+
+      <div class="text-xs break-all" style="color: var(--p-text-muted-color)">
+        {{ getReferenceSummary() ?? ('REFERENCE_ELEMENT.NO_REFERENCES' | translate) }}
+      </div>
+    </div>
+  }
+
+  @case ('Blob') {
+    <div
+      class="p-3 border-round border-1 flex flex-col gap-3"
+      style="border-color: var(--aas-info-border); background: var(--aas-info-surface); color: var(--aas-info-text)"
+    >
+      <div class="font-semibold">{{ 'BLOB' | translate }}</div>
+
+      <div>
+        <div class="text-xs uppercase tracking-wide mb-1">{{ 'CONTENT_TYPE' | translate }}</div>
+        <input
+          pInputText
+          class="w-full"
+          [ngModel]="getBlobContentType()"
+          (ngModelChange)="onBlobContentTypeChanged($event)"
+        />
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-3 text-xs" style="color: var(--p-text-muted-color)">
+        <div>
+          {{ 'PREVIEW' | translate }}:
+          {{ (isTextualBlob() ? 'BATTERY_PASSPORT_BLOB_MODE_TEXT' : 'BATTERY_PASSPORT_BLOB_MODE_BINARY') | translate }}
+        </div>
+        <div>{{ 'BATTERY_PASSPORT_BLOB_VALUE_LENGTH' | translate }}: {{ getBlobLength() }}</div>
+      </div>
+
+      @if (!isTextualBlob()) {
+        <div class="text-sm" style="color: var(--p-text-muted-color)">
+          {{ 'BATTERY_PASSPORT_BLOB_MODE_BINARY_EXPL' | translate }}
+        </div>
+      }
+
+      <div>
+        <div class="text-xs uppercase tracking-wide mb-1">
+          {{ (isTextualBlob() ? 'VALUE' : 'RAW_DATA') | translate }}
+        </div>
+        <textarea
+          pTextarea
+          class="w-full font-mono text-sm"
+          [rows]="isTextualBlob() ? 8 : 4"
+          [ngModel]="getBlobValue()"
+          (ngModelChange)="onBlobValueChanged($event)"
+        ></textarea>
+      </div>
+    </div>
+  }
+
+  @case ('Unsupported') {
+    <div
+      class="p-3 border-round border-1 flex flex-col gap-2"
+      style="
+        border-color: var(--aas-warning-border);
+        background: var(--aas-warning-surface);
+        color: var(--aas-warning-text);
+      "
+    >
+      <div class="font-semibold">{{ 'BATTERY_PASSPORT_UNSUPPORTED_FIELD' | translate }}</div>
+      <div class="text-sm">{{ 'BATTERY_PASSPORT_UNSUPPORTED_FIELD_EXPL' | translate }}</div>
+      <div class="text-sm break-all">
+        <span class="font-medium">{{ 'TYPE' | translate }}:</span>
+        {{ field.modelTypeName || ('UNKNOWN_COUNT' | translate) }}
+      </div>
+    </div>
+  }
+}

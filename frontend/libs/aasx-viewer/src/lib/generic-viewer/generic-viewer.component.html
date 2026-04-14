@@ -1,0 +1,53 @@
+<div class="flex flex-col w-full">
+  @switch (rowData.modelType?.name) {
+    @case ('Property') {
+      <th scope="col">
+        <aas-property-viewer
+          [conceptDescriptions]="conceptDescriptions"
+          [property]="rowData"
+          [apiUrl]="apiUrl"
+        ></aas-property-viewer>
+      </th>
+    }
+    @case ('MultiLanguageProperty') {
+      <aas-multilanguage-property [properties]="rowData" [aasId]="aasId"></aas-multilanguage-property>
+    }
+    @case ('Submodel') {
+      <aas-smc-viewer
+        [conceptDescriptions]="conceptDescriptions"
+        [smc]="rowData.submodelElements"
+        [aasId]="aasId"
+        [apiUrl]="apiUrl"
+      ></aas-smc-viewer>
+    }
+    @case ('SubmodelElementCollection') {
+      <aas-smc-viewer
+        [conceptDescriptions]="conceptDescriptions"
+        [smc]="rowData.value"
+        [aasId]="aasId"
+        [apiUrl]="apiUrl"
+      ></aas-smc-viewer>
+    }
+    @case ('File') {
+      <aas-file-viewer [value]="rowData.value" [aasId]="aasId" [localFiles]="[]" [apiUrl]="apiUrl"></aas-file-viewer>
+    }
+    @case ('Entity') {
+      <aas-entity-viewer [entity]="rowData"></aas-entity-viewer>
+    }
+    @case ('Operation') {
+      <aas-operation-viewer [entity]="rowData"></aas-operation-viewer>
+    }
+    @case ('RelationshipElement') {
+      <aas-relationship-viewer [entity]="rowData"></aas-relationship-viewer>
+    }
+    @case ('ReferenceElement') {
+      <aas-reference-element [element]="rowData"></aas-reference-element>
+    }
+    @case ('Capability') {
+      <aas-capability-element-viewer [element]="rowData"></aas-capability-element-viewer>
+    }
+    @default {
+      <div>{{ 'VIEWER_MISSING' | translate }}: {{ rowData.modelType?.name }}</div>
+    }
+  }
+</div>

@@ -1,0 +1,26 @@
+:host ::ng-deep .pcf-entry-group-stepper .p-steps {
+  width: 100%;
+}
+
+:host ::ng-deep .pcf-entry-group-stepper .p-steps-item {
+  min-width: 12rem;
+}
+
+.pcf-entry-card {
+  border: 1px solid var(--p-content-border-color);
+  border-radius: var(--aas-radius-md);
+  box-shadow: var(--aas-shadow-sm);
+  padding: 1.25rem;
+}
+
+.pcf-entry-field-card {
+  border: 1px solid var(--p-content-border-color);
+  border-radius: var(--aas-radius-md);
+  padding: 1rem;
+}
+
+.pcf-entry-multi-value-row {
+  display: flex;
+  gap: 0.75rem;
+  align-items: center;
+}

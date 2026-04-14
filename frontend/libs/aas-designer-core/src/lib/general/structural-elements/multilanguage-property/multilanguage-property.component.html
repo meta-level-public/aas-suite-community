@@ -1,0 +1,170 @@
+@if (readonly == false) {
+  @if (editableNode != null && showIdShort) {
+    <div class="mb-4">
+      <label for="typ" class="flex items-center mt-2 mb-2"
+        >{{ 'ID_SHORT' | translate }}<aas-help-explanation [infoItem]="Info.ID_SHORT"></aas-help-explanation
+      ></label>
+      <input
+        pInputText
+        class="w-full"
+        id="{{ editableNode.idShort }}"
+        name="{{ editableNode.idShort }}"
+        [(ngModel)]="editableNode.idShort"
+        (ngModelChange)="syncWithTree()"
+        [pKeyFilter]="idShortRegex"
+        vwsUndo
+      />
+    </div>
+  }
+
+  @if (editableNode != null && showIdShort) {
+    <div class="mb-4">
+      <label for="typ" class="flex items-center mt-2 mb-2">{{ 'TYPE' | translate }}</label>
+      <p-select
+        id="idType"
+        [options]="['Instance', 'Template']"
+        [(ngModel)]="editableNode.kind"
+        placeholder="{{ 'PLEASE_SELECT' | translate }}"
+        name="type"
+        class="w-40"
+        vwsUndo
+      ></p-select>
+    </div>
+  }
+
+  @if (isProductFamily) {
+    <div class="mb-4">
+      <label for="typ" class="flex items-center mt-2 mb-2">{{ 'SELECT_PRODUCT_FAMILY' | translate }}</label>
+      <div class="flex flex-row gap-2 justify-between">
+        <p-select
+          [options]="families"
+          class="w-full"
+          class="w-full"
+          optionLabel="name"
+          [(ngModel)]="selectedFamily"
+          [filter]="true"
+          [placeholder]="'PLEASE_SELECT' | translate"
+          vwsUndo
+        >
+        </p-select>
+        <p-button label="{{ 'APPLY' | translate }}" styleClass="w-20rem" (onClick)="applyFamily()"></p-button>
+      </div>
+      <p-divider type="solid">{{ 'OR' | translate }}</p-divider>
+    </div>
+  }
+
+  @if (isProductDesignation) {
+    <div class="mb-4">
+      <label for="typ" class="flex items-center mt-2 mb-2">{{ 'SELECT_PRODUCT_DESIGNATION' | translate }}</label>
+      <div class="flex flex-row gap-2 justify-between">
+        <p-select
+          [options]="designations"
+          class="w-full"
+          class="w-full"
+          optionLabel="name"
+          [(ngModel)]="selectedDesignation"
+          [filter]="true"
+          [placeholder]="'PLEASE_SELECT' | translate"
+          vwsUndo
+        >
+        </p-select>
+        <p-button label="{{ 'APPLY' | translate }}" styleClass="w-20rem" (onClick)="applyDesignation()"></p-button>
+      </div>
+      <p-divider type="solid">{{ 'OR' | translate }}</p-divider>
+    </div>
+  }
+
+  @if (isProductRoot) {
+    <div class="mb-4">
+      <label for="typ" class="flex items-center mt-2 mb-2">{{ 'SELECT_PRODUCT_ROOT' | translate }}</label>
+      <div class="flex flex-row gap-2 justify-between">
+        <p-select
+          [options]="roots"
+          class="w-full"
+          class="w-full"
+          optionLabel="name"
+          [(ngModel)]="selectedRoot"
+          [filter]="true"
+          [placeholder]="'PLEASE_SELECT' | translate"
+          vwsUndo
+        >
+        </p-select>
+        <p-button label="{{ 'APPLY' | translate }}" styleClass="w-20rem" (onClick)="applyRoot()"></p-button>
+      </div>
+      <p-divider type="solid">{{ 'OR' | translate }}</p-divider>
+    </div>
+  }
+
+  @for (prop of propList; track getPropTrackKey($index, prop)) {
+    <div class="flex gap-2 items-start mb-2">
+      <div class="w-40">
+        <p-select
+          [options]="isoLanguages"
+          class="w-full"
+          optionValue="iso2Code"
+          optionLabel="languageName"
+          [(ngModel)]="prop.language"
+          (ngModelChange)="onLanguageChange(prop, $event)"
+          [filter]="true"
+          filterBy="languageName"
+          (onFocus)="setDisabledStatus()"
+          [placeholder]="'PLEASE_SELECT_A_LANGUAGE' | translate"
+          vwsUndo
+        >
+          <ng-template let-item let-i="index" pTemplate="item">
+            <div class="flex">
+              <div class="w-48">{{ item.languageName }}</div>
+              <div class="w-12 text-center">{{ item.iso2Code }}</div>
+            </div>
+          </ng-template>
+          <ng-template let-item let-i="index" pTemplate="selectedItem">
+            <div class="flex">
+              <div class="w-48">{{ item?.languageName }}</div>
+              <div class="w-12 text-center">{{ item?.iso2Code }}</div>
+            </div>
+          </ng-template>
+        </p-select>
+      </div>
+      <div class="flex-1">
+        <textarea
+          pTextarea
+          [(ngModel)]="prop.text"
+          (ngModelChange)="onTextChange(prop, $event)"
+          class="w-full"
+          id="{{ id }}"
+          name="{{ id }}"
+          [rows]="1"
+          [autoResize]="true"
+          vwsUndo
+        ></textarea>
+      </div>
+      @if (propList && propList.length > 1) {
+        <div class="w-9">
+          <p-button
+            icon="pi pi-trash"
+            styleClass="p-button-danger p-button-rounded p-button-text"
+            (onClick)="removeLanguage(prop)"
+          ></p-button>
+        </div>
+      }
+      <div class="w-9">
+        <p-button
+          icon="pi pi-plus"
+          styleClass="p-button-sm p-button-rounded p-button-text"
+          (onClick)="addLanguage()"
+        ></p-button>
+      </div>
+    </div>
+  }
+} @else {
+  @for (prop of propList; track getPropTrackKey($index, prop)) {
+    <div class="flex gap-2 mb-2">
+      <div class="w-40">
+        <div>{{ prop.language }}</div>
+      </div>
+      <div class="flex-1">
+        <div>{{ prop.text }}</div>
+      </div>
+    </div>
+  }
+}

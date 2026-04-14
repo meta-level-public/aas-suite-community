@@ -1,0 +1,65 @@
+<div class="sector-step-card">
+  <div class="hero-card">
+    <div class="hero-icon">
+      <i class="pi pi-sitemap"></i>
+    </div>
+    <div class="hero-content">
+      <span class="hero-label">{{ 'DPP_PCF_TYPE_PRODUCT_OR_SECTOR' | translate }}</span>
+      <span class="hero-title">{{ ruleName() || ('COMMON.NOT_AVAILABLE' | translate) }}</span>
+      <span class="hero-subtitle">{{ ruleVersion() || ('COMMON.NOT_AVAILABLE' | translate) }}</span>
+    </div>
+  </div>
+
+  <div class="section-card">
+    <h3 class="section-title">
+      <i class="pi pi-calculator"></i>
+      {{ 'DPP_PCF_GROUP_METHODS' | translate }}
+    </h3>
+    @if (calculationMethods().length > 0) {
+      <div class="badge-list">
+        @for (method of calculationMethods(); track method) {
+          <span class="info-badge">{{ method }}</span>
+        }
+      </div>
+    } @else {
+      <div class="empty-inline">{{ 'COMMON.NOT_AVAILABLE' | translate }}</div>
+    }
+  </div>
+
+  <div class="detail-grid">
+    <div class="detail-card">
+      <span class="detail-label">{{ 'DPP_PCF_FIELD_RULE_OPERATOR' | translate }}</span>
+      <span class="detail-value">{{ ruleOperator() || ('COMMON.NOT_AVAILABLE' | translate) }}</span>
+    </div>
+    <div class="detail-card">
+      <span class="detail-label">{{ 'DPP_PCF_FIELD_RULE_NAME' | translate }}</span>
+      <span class="detail-value">{{ ruleName() || ('COMMON.NOT_AVAILABLE' | translate) }}</span>
+    </div>
+    <div class="detail-card">
+      <span class="detail-label">{{ 'DPP_PCF_FIELD_RULE_VERSION' | translate }}</span>
+      <span class="detail-value">{{ ruleVersion() || ('COMMON.NOT_AVAILABLE' | translate) }}</span>
+    </div>
+    <div class="detail-card">
+      <span class="detail-label">{{ 'DPP_PCF_FIELD_RULE_ONLINE_REFERENCE' | translate }}</span>
+      <span class="detail-value wrap">{{ ruleOnlineReference() || ('COMMON.NOT_AVAILABLE' | translate) }}</span>
+    </div>
+    <div class="detail-card">
+      <span class="detail-label">{{ 'DPP_PCF_FIELD_API_ENDPOINT' | translate }}</span>
+      <span class="detail-value wrap">{{ apiEndpoint() || ('COMMON.NOT_AVAILABLE' | translate) }}</span>
+    </div>
+    <div class="detail-card">
+      <span class="detail-label">{{ 'DPP_PCF_FIELD_API_QUERY' | translate }}</span>
+      <span class="detail-value wrap">{{ apiQuery() || ('COMMON.NOT_AVAILABLE' | translate) }}</span>
+    </div>
+  </div>
+
+  @if (arbitraryContent() !== '') {
+    <div class="section-card">
+      <h3 class="section-title">
+        <i class="pi pi-file-edit"></i>
+        {{ 'DPP_PCF_GROUP_INFORMATION' | translate }}
+      </h3>
+      <p class="long-text">{{ arbitraryContent() }}</p>
+    </div>
+  }
+</div>

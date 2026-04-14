@@ -1,0 +1,67 @@
+<div class="hero-section mb-4">
+  <div class="flex items-center justify-between gap-4">
+    <h1 class="hero-title">{{ 'CONCEPT_DESCRIPTIONS' | translate }}</h1>
+    <div class="flex items-center gap-2 flex-nowrap">
+      <p-button
+        icon="pi pi-trash"
+        (onClick)="deleteSelected()"
+        [disabled]="selectedCds.length === 0"
+        label="{{ 'DELETE' | translate }}"
+        severity="danger"
+        [outlined]="true"
+        [style]="{ 'min-width': '150px' }"
+      ></p-button>
+    </div>
+  </div>
+</div>
+
+<div class="card p-4">
+  <p-table
+    [value]="conceptDescriptions ?? []"
+    class="w-full"
+    size="small"
+    responsiveLayout="scroll"
+    scrollHeight="flex"
+    selectionMode="multiple"
+    [(selection)]="selectedCds"
+  >
+    <ng-template #header>
+      <tr>
+        <th scope="col" class="w-12"></th>
+        <th scope="col" class="w-12"><p-tableHeaderCheckbox></p-tableHeaderCheckbox></th>
+        <th scope="col">{{ 'ID' | translate }}</th>
+        <th scope="col">{{ 'ID_SHORT' | translate }}</th>
+        <th scope="col">{{ 'PREFERRED_NAME' | translate }}</th>
+      </tr>
+    </ng-template>
+    <ng-template pTemplate="body" let-conceptDescription>
+      <tr>
+        <td>
+          <p-button
+            icon="pi pi-ellipsis-v"
+            styleClass="p-button-text p-button-secondary"
+            (onClick)="menu.toggle($event)"
+          ></p-button>
+          <p-menu
+            appendTo="body"
+            (onShow)="onShowActions(conceptDescription)"
+            #menu
+            [popup]="true"
+            [model]="menuItems"
+          ></p-menu>
+        </td>
+        <td>
+          <p-tableCheckbox [value]="conceptDescription"></p-tableCheckbox>
+        </td>
+        <td>{{ conceptDescription.id }}</td>
+        <td>{{ conceptDescription.idShort }}</td>
+        <td>{{ ConceptDescriptionHelper.getBenennung(conceptDescription, portalService.currentLanguage) }}</td>
+      </tr>
+    </ng-template>
+    <ng-template pTemplate="emptymessage">
+      <tr>
+        <td colspan="5">{{ 'NO_DATA_FOUND' | translate }}</td>
+      </tr>
+    </ng-template>
+  </p-table>
+</div>

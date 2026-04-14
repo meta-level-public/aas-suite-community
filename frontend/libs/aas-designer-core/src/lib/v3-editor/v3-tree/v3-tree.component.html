@@ -1,0 +1,242 @@
+@if (loading === false) {
+  <div class="flex m-2 justify-between">
+    <div class="w-full flex justify-between">
+      <div>
+        <p-button
+          severity="secondary"
+          type="button"
+          icon="pi pi-search-plus"
+          pTooltip="{{ 'EXTENDED_SEARCH' | translate }}"
+          (onClick)="extSearch.visible = true"
+          size="small"
+        ></p-button>
+      </div>
+      <div class="flex items-center">
+        {{ shellResult?.v3Shell?.assetAdministrationShells?.[0]?.idShort }}
+      </div>
+      <div class="flex flex-row gap-2">
+        <p-button
+          type="button"
+          icon="pi pi-chevron-down"
+          pTooltip="{{ 'EXPAND_ALL' | translate }}"
+          (onClick)="expandAll()"
+          size="small"
+        ></p-button>
+        <p-button
+          type="button"
+          icon="pi pi-chevron-right"
+          pTooltip="{{ 'COLLAPSE_ALL' | translate }}"
+          (onClick)="collapseAll()"
+          size="small"
+        ></p-button>
+      </div>
+    </div>
+  </div>
+}
+<div class="mb-5 m-2 flex-1 overflow-hidden">
+  <div class="relative h-full">
+    <div class="absolute inset-0 overflow-auto">
+      <div
+        class="aas-tree p-2 h-full flex flex-col focus-visible:outline focus-visible:outline-2 focus-visible:outline-primary"
+        tabindex="0"
+        role="tree"
+        aria-label="AAS tree"
+        (keydown)="onTreeKeydown($event)"
+      >
+        <div class="mb-2">
+          <input
+            pInputText
+            class="w-full"
+            [placeholder]="'ALL' | translate"
+            [(ngModel)]="filterValue"
+            (ngModelChange)="onFilterChanged()"
+          />
+        </div>
+
+        <cdk-virtual-scroll-viewport
+          class="flex-1 min-h-0 w-full"
+          [itemSize]="34"
+          [minBufferPx]="340"
+          [maxBufferPx]="900"
+        >
+          <div cdkDropList [cdkDropListData]="buildVisibleFlatNodes()" (cdkDropListDropped)="onFlatNodeDrop($event)">
+            <div
+              *cdkVirtualFor="let item of buildVisibleFlatNodes(); trackBy: trackByFlatNodeId"
+              class="py-0.5"
+              cdkDrag
+              [cdkDragDisabled]="!isNodeDraggable(item.node)"
+              (cdkDragStarted)="onDragStarted(item.node)"
+              (cdkDragEnded)="onDragEnded()"
+            >
+              <div
+                class="flex items-center rounded-md px-1 cursor-pointer select-none transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-primary"
+                [style.background]="selectedNodeId === item.node.data?.id ? 'var(--aas-info-surface)' : 'transparent'"
+                [style.border-left]="
+                  selectedNodeId === item.node.data?.id ? '3px solid var(--p-primary-color)' : '3px solid transparent'
+                "
+                [style.outline]="isDropAllowedForTarget(item.node) ? '1px solid var(--aas-success-border)' : null"
+                [style.box-shadow]="
+                  isDropAllowedForTarget(item.node)
+                    ? 'inset 0 0 0 1px var(--aas-success-border)'
+                    : isDropForbiddenForTarget(item.node)
+                      ? 'inset 0 0 0 1px var(--aas-danger-border)'
+                      : null
+                "
+                [style.padding-left.rem]="item.depth * 0.95"
+                [attr.aria-level]="item.depth + 1"
+                [attr.aria-selected]="selectedNodeId === item.node.data?.id"
+                [attr.aria-expanded]="hasChildren(item.node) ? item.node.expanded === true : null"
+                [attr.tabindex]="selectedNodeId === item.node.data?.id ? 0 : -1"
+                role="treeitem"
+                (click)="onNodeClicked(item.node)"
+              >
+                <button
+                  type="button"
+                  class="w-6 h-6 mr-1 flex items-center justify-center border-0 bg-transparent cursor-pointer"
+                  [disabled]="!hasChildren(item.node)"
+                  (click)="toggleNode(item.node, $event)"
+                >
+                  @if (hasChildren(item.node)) {
+                    <i class="pi" [ngClass]="item.node.expanded ? 'pi-chevron-down' : 'pi-chevron-right'"></i>
+                  }
+                </button>
+
+                @if (
+                  item.node.data?.editorType !== EditorTypeOption.AllSubmodels &&
+                  item.node.data?.editorType !== EditorTypeOption.SupplementalFiles
+                ) {
+                  <aas-v3-tree-context-menu
+                    [node]="item.node"
+                    [allSubmodelsNode]="allSubmodelsTreeNode"
+                    (elementCopied)="elementCopied($event)"
+                    [copiedElement]="copiedElement"
+                    [availableSubmodelTemplates]="availableSubmodelTemplates"
+                    [conceptDescriptionsRootNode]="allConceptDescriptionsNode"
+                    [filesRootNode]="allFilesTreeNode"
+                    [shellResult]="shellResult"
+                    [shellNode]="shellNode"
+                    (showInsertSnippetDialog)="showInsertSnippetDialog($event)"
+                    (showInsertJsonDialog)="showInsertJsonDialog($event)"
+                    (showInsertFromEclassDialog)="showInsertFromEclassDialog($event)"
+                  ></aas-v3-tree-context-menu>
+                } @else {
+                  <div style="width: 2.35rem">&nbsp;</div>
+                }
+
+                <p-tag
+                  cdkDragHandle
+                  [value]="getTypeTag(item.node)"
+                  class="mr-1 cursor-grab active:cursor-grabbing"
+                  severity="warn"
+                  [ngClass]="{ 'p-tag-missing': isUnreferenced(item.node), 'p-tag-local-file': isLocal(item.node) }"
+                  (click)="$event.stopPropagation()"
+                ></p-tag>
+                @if (hasAasTypeTag(item.node)) {
+                  <p-tag
+                    cdkDragHandle
+                    [value]="getAasTypeTag(item.node) | translate"
+                    class="mr-1 cursor-grab active:cursor-grabbing"
+                    [severity]="getAasTypeTagSeverity(item.node)"
+                    (click)="$event.stopPropagation()"
+                  ></p-tag>
+                }
+                <div [id]="getNodeDomId(item.node)" class="aas-treenode-label">
+                  {{ item.node.label }}
+                </div>
+              </div>
+            </div>
+          </div>
+        </cdk-virtual-scroll-viewport>
+      </div>
+    </div>
+  </div>
+</div>
+<p-dialog
+  [(visible)]="insertSnippetDialogVisible"
+  header="{{ 'INSERT_SNIPPET' | translate }}"
+  [closable]="true"
+  [closeOnEscape]="true"
+  [style]="{ width: '80vw', height: '80vh' }"
+  [contentStyle]="{ height: 'calc(100% - 60px)', display: 'flex', 'flex-direction': 'column' }"
+  #insertSnippetDialog
+>
+  <div class="flex flex-col flex-auto h-full">
+    <aas-snippets-catalog
+      [insertEnabled]="true"
+      emptyText="NO_SNIPPET_MATCHES"
+      #snippetTable
+      (insertSnippet)="insertSnippetFromDialog($event)"
+    ></aas-snippets-catalog>
+  </div>
+</p-dialog>
+
+<aas-extended-search #extSearch [treeData]="treeService.aasTreeData" version="v3"></aas-extended-search>
+
+<p-dialog
+  [(visible)]="importJsonDialogVisible"
+  [closeOnEscape]="true"
+  [closable]="true"
+  header="{{ 'IMPORT_PLAIN_JSON' | translate }}"
+  [style]="{ width: '66vw' }"
+>
+  <div class="col-span-12">
+    <label class="flex items-center mt-2 mb-2" for="name">{{ 'PASTE_JSON_HERE' | translate }}</label>
+    <textarea
+      pTextarea
+      type="text"
+      id="name"
+      class="w-full"
+      name="name"
+      rows="5"
+      [(ngModel)]="plainJson"
+      (ngModelChange)="checkJsonValidity()"
+      required
+    ></textarea>
+    @if (jsonValid() == false && plainJson !== '' && importType === 'submodel') {
+      <p-message severity="error">{{ 'JSON_IS_NOT_A_VALID_SM' | translate }}</p-message>
+    }
+    @if (jsonValid() == false && plainJson !== '' && importType === 'element') {
+      <p-message severity="error">{{ 'JSON_IS_NOT_A_VALID_ELEMENT' | translate }}</p-message>
+    }
+  </div>
+  <div class="col-span-12">
+    <p-fileUpload
+      chooseIcon="pi pi-upload"
+      accept=".json"
+      [auto]="true"
+      chooseLabel="{{ 'CHOOSE_FILE' | translate }}"
+      [disabled]="loading"
+      [customUpload]="true"
+      (onSelect)="setPlainJsonText($event)"
+    >
+      <ng-template pTemplate="content" let-files>
+        <em> {{ 'EXCHANGE_CHOOSE_OR_SELECT_TEXT' | translate }} </em>
+      </ng-template>
+    </p-fileUpload>
+  </div>
+
+  <ng-template pTemplate="footer">
+    <div class="flex flex-row gap-2 justify-end">
+      <p-button
+        pRipple
+        label="{{ 'CANCEL' | translate }}"
+        icon="pi pi-times"
+        styleClass="p-button-secondary mr-2"
+        (onClick)="importJsonDialogVisible = false"
+      ></p-button>
+      <p-button
+        styleClass="p-button-success"
+        label="{{ 'IMPORT' | translate }}"
+        icon="pi pi-download"
+        [disabled]="plainJson === '' || !jsonValid()"
+        (onClick)="insertPlainJson()"
+      ></p-button>
+    </div>
+  </ng-template>
+</p-dialog>
+
+<aas-eclass-single-property-generator
+  [importFromEclassDialogVisible]="importFromEclassDialogVisible"
+  [targetNodeId]="targetNodeId"
+  (importFromEclassDialogVisibleChanged)="importFromEclassDialogVisible = $event"
+></aas-eclass-single-property-generator>

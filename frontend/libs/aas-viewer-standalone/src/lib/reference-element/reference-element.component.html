@@ -1,0 +1,43 @@
+@if (element) {
+  <div class="flex flex-col gap-2">
+    @if (element.idShort) {
+      <p-inputgroup>
+        <p-inputgroup-addon class="font-bold w-48">
+          <i class="fa-solid fa-tag mr-2"></i>
+          <lib-help-label tag="ID_SHORT" [showLabel]="false"></lib-help-label>
+          {{ 'ID_SHORT' | translate }}
+        </p-inputgroup-addon>
+        <input pInputText type="text" [value]="element.idShort" readonly />
+      </p-inputgroup>
+    }
+
+    @if (element.value?.keys && element.value.keys.length > 0) {
+      @for (ref of element.value.keys; track $index) {
+        <p-inputgroup>
+          <p-inputgroup-addon class="font-bold w-48">
+            <i [class]="getIconForType(ref.type) + ' mr-2'"></i>{{ getReadableType(ref.type) }}
+          </p-inputgroup-addon>
+          @if (isUrl(ref.value)) {
+            <input pInputText type="text" [value]="ref.value" readonly />
+            <p-inputgroup-addon class="w-auto">
+              <a [href]="ref.value" target="_blank" class="text-primary hover:underline">
+                <i class="fa-solid fa-external-link-alt"></i>
+              </a>
+            </p-inputgroup-addon>
+          } @else {
+            <input pInputText type="text" [value]="ref.value" [title]="ref.value" readonly />
+          }
+        </p-inputgroup>
+      }
+    } @else {
+      <p-inputgroup>
+        <p-inputgroup-addon class="font-bold w-48">
+          <i class="fa-solid fa-circle-info mr-2"></i>
+          <lib-help-label tag="INFO" [showLabel]="false"></lib-help-label>
+          {{ 'INFO' | translate }}
+        </p-inputgroup-addon>
+        <input pInputText type="text" [value]="'REFERENCE_ELEMENT.NO_REFERENCES' | translate" readonly />
+      </p-inputgroup>
+    }
+  </div>
+}

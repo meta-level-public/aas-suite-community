@@ -1,0 +1,54 @@
+<div class="hero-section flex-shrink-0">
+  <div class="hero-content">
+    <div>
+      <h1 class="hero-title">
+        @if (title() !== '') {
+          {{ title() }}
+        } @else {
+          {{ titleKey() | translate }}
+        }
+      </h1>
+
+      @if (subtitle() !== '') {
+        <p class="hero-subtitle generator-shell-subtitle">
+          <i class="fa-solid fa-fingerprint generator-shell-subtitle-icon"></i>
+          <span>{{ subtitle() }}</span>
+        </p>
+      }
+    </div>
+  </div>
+</div>
+
+<div class="flex-1 min-h-0">
+  <div class="h-full min-h-0 viewer-content-area rounded-lg overflow-hidden flex flex-col">
+    <div class="battery-editor-page flex-1 min-h-0">
+      <ng-content select="[generator-shell-intro]"></ng-content>
+
+      <div class="battery-editor-layout" [class.is-single-column]="!showSidebar()">
+        <div class="generator-step-card card mb-0 battery-editor-content" [ngClass]="contentCardClass()">
+          <div class="generator-step-card-body">
+            <ng-content select="[generator-shell-main]"></ng-content>
+          </div>
+
+          @if (showActions()) {
+            <div class="generator-step-card-actions">
+              <ng-content select="[generator-shell-actions]"></ng-content>
+            </div>
+          }
+        </div>
+
+        @if (showSidebar()) {
+          <div class="battery-editor-sidebar">
+            <div class="battery-editor-sidebar-body">
+              <ng-content select="[generator-shell-sidebar-nav]"></ng-content>
+            </div>
+
+            <div class="battery-editor-sidebar-footer">
+              <ng-content select="[generator-shell-sidebar-actions]"></ng-content>
+            </div>
+          </div>
+        }
+      </div>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,186 @@
+@if (dataSpecification == null) {
+  <div class="flex flex-col w-full justify-center">
+    <p-button
+      label="{{ 'ADD' | translate }}"
+      (onClick)="addDataSpecification()"
+      size="small"
+      icon="pi pi-plus"
+      [outlined]="true"
+    ></p-button>
+  </div>
+}
+
+@if (dataSpecification != null && dataSpecification.length == 0) {
+  <div class="flex flex-row justify-between">
+    <p-message
+      severity="info"
+      text="{{ 'NO_VALUES_SET_BUT_EMPTY_OR_AT_LEAST_ONE' | translate }}"
+      class="mr-2"
+    ></p-message>
+    <p-button
+      text="true"
+      outlined="true"
+      rounded="true"
+      icon="pi pi-plus"
+      (onClick)="addDataSpecification()"
+    ></p-button>
+    <p-button
+      text="true"
+      outlined="true"
+      rounded="true"
+      icon="pi pi-trash"
+      icon="pi pi-trash"
+      (onClick)="removeDataSpecificationBlock()"
+    ></p-button>
+  </div>
+}
+
+@if (dataSpecification != null) {
+  <div class="flex flex-col w-full gap-2">
+    @for (dataSpec of dataSpecification; track $index) {
+      <p-accordion [value]="$index">
+        <p-accordion-panel [value]="$index">
+          <p-accordion-header>{{ 'DEFINITION' | translate }} {{ $index + 1 }}</p-accordion-header>
+          <p-accordion-content>
+            <div class="flex flex-row gap-2">
+              <div class="w-full flex flex-col gap-2">
+                <div class="flex flex-row gap-2">
+                  <lib-help-label class="w-14rem" tag="TYPE" for="refTypes"></lib-help-label>
+                  @if (dataSpec.dataSpecification != null) {
+                    <p-select
+                      id="refTypes"
+                      [options]="refTypes"
+                      [(ngModel)]="dataSpec.dataSpecification.type"
+                      optionLabel="label"
+                      optionValue="value"
+                      vwsV3Undo
+                      class="w-full"
+                      class="w-full"
+                    ></p-select>
+                  }
+                </div>
+                @if (
+                  dataSpec.dataSpecification != null &&
+                  dataSpec.dataSpecification.keys != null &&
+                  dataSpec.dataSpecification.keys[0] != null
+                ) {
+                  <div class="flex flex-row gap-2 items-center">
+                    <lib-help-label class="w-14rem" tag="REF_ID" for="refId"></lib-help-label>
+                    <p-inputgroup>
+                      <input
+                        pInputText
+                        [(ngModel)]="dataSpec.dataSpecification!.keys[0].value"
+                        class="w-full"
+                        readonly
+                      />
+                      <p-inputgroup-addon>
+                        <p-button
+                          icon="pi pi-external-link"
+                          severity="secondary"
+                          (onClick)="openLink(dataSpec.dataSpecification!.keys[0].value)"
+                          [disabled]="dataSpec.dataSpecification!.keys[0].value === ''"
+                        />
+                      </p-inputgroup-addon>
+                    </p-inputgroup>
+                  </div>
+                }
+                <aas-data-specification-content
+                  class="flex w-full"
+                  [dataSpecificationContent]="getDataSpecContent(dataSpec)"
+                  [dataSpecificationContentParent]="dataSpec"
+                  [shellResult]="shellResult"
+                ></aas-data-specification-content>
+              </div>
+              <div class="flex flex-col gap-2 w-18rem">
+                <p-button
+                  icon="pi pi-trash"
+                  label="{{ 'REMOVE_SPEC' | translate }}"
+                  (onClick)="removeDataSpecification($index)"
+                  [outlined]="true"
+                  class="w-full"
+                  size="small"
+                ></p-button>
+                <p-button
+                  label="{{ 'SEARCH_IN_REFERENCE_SYSTEMS' | translate }}"
+                  (onClick)="lookupDataspec(dataSpec)"
+                  icon="pi pi-search"
+                  class="w-full"
+                  size="small"
+                  [outlined]="true"
+                ></p-button>
+              </div>
+            </div>
+          </p-accordion-content>
+        </p-accordion-panel>
+      </p-accordion>
+    }
+    <p-button
+      label="{{ 'ADD_ADDITIONAL_DATASPEC' | translate }}"
+      (onClick)="addDataSpecification()"
+      size="small"
+      icon="pi pi-plus"
+      [outlined]="true"
+    ></p-button>
+  </div>
+}
+@if (dataSpecification != null && dataSpecification.length > 0) {
+  <div class="flex flex-row w-full justify-start mt-2 mb-2">
+    <p-button
+      label="{{ 'REMOVE_BLOCK' | translate }}"
+      (onClick)="removeDataSpecificationBlock()"
+      icon="pi pi-trash"
+      size="small"
+      [outlined]="true"
+    ></p-button>
+  </div>
+}
+
+<p-dialog
+  [(visible)]="showEclassSearch"
+  [style]="{ width: '75vw' }"
+  [resizable]="false"
+  [modal]="true"
+  [maximizable]="true"
+  appendTo="body"
+  [contentStyle]="{ height: '50vh' }"
+>
+  <ng-template #header>
+    <p-tabs [(value)]="source">
+      <p-tablist>
+        <p-tab [value]="'eclass'"> {{ 'TAB_ECLASS' | translate }} </p-tab>
+        <p-tab [value]="'vec'"> {{ 'TAB_VEC' | translate }} </p-tab>
+        <p-tab [value]="'other'"> {{ 'OTHER' | translate }} </p-tab>
+      </p-tablist>
+    </p-tabs>
+
+    @if (source() === 'eclass') {
+      <div class="flex flex-row gap-5 mb-3">
+        <aas-eclass-logo></aas-eclass-logo>
+        <div class="text-2xl">{{ 'ECLASS_SEARCH' | translate }}</div>
+      </div>
+    }
+    @if (source() === 'vec') {
+      <div class="flex flex-row gap-5 mb-3">
+        <aas-vec-logo></aas-vec-logo>
+        <div class="text-2xl">{{ 'VEC_LOOKUP' | translate }}</div>
+      </div>
+    }
+    @if (source() === 'other') {
+      <div class="flex flex-row gap-5 mb-3">
+        <div class="text-2xl">{{ 'OTHER' | translate }}</div>
+      </div>
+    }
+  </ng-template>
+  @if (source() === 'eclass') {
+    <aas-eclass-search (selectedItem)="selectEclass($event)" katalog="properties"></aas-eclass-search>
+  }
+  @if (source() === 'vec') {
+    <aas-vec-lookup (selectedItem)="selectVec($event)"></aas-vec-lookup>
+  }
+  @if (source() === 'other') {
+    <aas-additional-lookup-sources (closeClicked)="showEclassSearch = false"></aas-additional-lookup-sources>
+  }
+  <ng-template #footer>
+    <p-button label="{{ 'CLOSE' | translate }}" icon="pi pi-check" (onClick)="showEclassSearch = false" />
+  </ng-template>
+</p-dialog>

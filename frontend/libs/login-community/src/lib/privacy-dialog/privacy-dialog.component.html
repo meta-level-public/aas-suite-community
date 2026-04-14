@@ -1,0 +1,33 @@
+<p-dialog
+  header="{{ 'PRIVACY' | translate }}"
+  [visible]="showPrivacy()"
+  [style]="{ width: '95vw', height: '90vh' }"
+  [closable]="false"
+  [modal]="true"
+>
+  <div class="flex flex-col w-full h-full gap-2">
+    <div>{{ 'PRIVACY_CHANGED' | translate }}</div>
+    @if (portalService.currentLanguage.toLowerCase() === 'de') {
+      <iframe
+        [src]="this.appConfigService.config.datenschutzLinkDe | safe: 'resourceUrl'"
+        style="width: 100%; height: calc(100% - 50px); border: 0"
+        title="{{ 'PRIVACY' | translate }}"
+      ></iframe>
+    }
+    @if (portalService.currentLanguage.toLowerCase() !== 'de') {
+      <iframe
+        [src]="this.appConfigService.config.datenschutzLinkEn | safe: 'resourceUrl'"
+        style="width: 100%; height: calc(100% - 50px); border: 0"
+        title="{{ 'PRIVACY' | translate }}"
+      ></iframe>
+    }
+
+    <p-button
+      styleClass="p-button-secondary w-full"
+      type="button"
+      label="{{ 'PRIVACY_DENY' | translate }}"
+      (onClick)="reject()"
+    ></p-button>
+    <p-button type="button" label="{{ 'PRIVACY_ACCEPT' | translate }}" (onClick)="accept()"></p-button>
+  </div>
+</p-dialog>

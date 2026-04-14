@@ -1,0 +1,156 @@
+@if (collection != null && visible) {
+  @if (totalItems === 0) {
+    <div class="nested-empty-state">{{ 'NO_ELEMENTS_FOUND' | translate }}</div>
+  } @else {
+    <div class="nested-toolbar">
+      <div class="nested-toolbar-summary">
+        <span>{{ 'COUNT' | translate }}: {{ totalItems }}</span>
+        <span>{{
+          'NESTED_COLLECTION_SHOWING' | translate: { start: pageStart + 1, end: pageEnd, total: totalItems }
+        }}</span>
+      </div>
+
+      <div class="nested-toolbar-actions">
+        <div class="nested-toolbar-page-size">
+          <span>{{ 'NESTED_COLLECTION_PAGE_SIZE' | translate }}</span>
+          <p-select
+            [options]="pageSizeOptions"
+            [(ngModel)]="pageSize"
+            optionLabel="label"
+            optionValue="value"
+            (onChange)="onPageSizeChange()"
+          ></p-select>
+        </div>
+
+        <div class="nested-toolbar-navigation">
+          <p-button
+            [label]="'PREVIOUS_PAGE' | translate"
+            icon="pi pi-chevron-left"
+            size="small"
+            text="true"
+            [disabled]="!canGoToPreviousPage"
+            (onClick)="goToPreviousPage()"
+          ></p-button>
+          <span class="nested-toolbar-page-indicator">{{ currentPageIndex + 1 }} / {{ totalPages }}</span>
+          <p-button
+            [label]="'NEXT' | translate"
+            icon="pi pi-chevron-right"
+            iconPos="right"
+            size="small"
+            text="true"
+            [disabled]="!canGoToNextPage"
+            (onClick)="goToNextPage()"
+          ></p-button>
+        </div>
+
+        <p-button
+          [label]="'NESTED_COLLECTION_CLEAR_ALL' | translate"
+          icon="pi pi-trash"
+          severity="danger"
+          size="small"
+          text="true"
+          (onClick)="clearAllChildren()"
+        ></p-button>
+      </div>
+    </div>
+
+    <p-accordion [(value)]="expandedPanels" [multiple]="true" class="nested-smc-accordion">
+      @for (item of visibleItems; track pageStart + $index) {
+        <p-accordion-panel [value]="$index">
+          <p-accordion-header>
+            <div class="nested-panel-header">
+              <span class="nested-panel-title">{{ getItemTitle(item, $index) }}</span>
+              <div class="nested-panel-actions">
+                <span class="nested-panel-type">{{ InstanceHelper.getInstanceName(item) }}</span>
+                @if ($index === 0) {
+                  <div class="nested-header-buttons">
+                    <p-button
+                      [label]="'EXPAND_ALL' | translate"
+                      icon="pi pi-plus"
+                      size="small"
+                      text="true"
+                      (onClick)="expandAll(); $event.stopPropagation()"
+                    ></p-button>
+                    <p-button
+                      [label]="'COLLAPSE_ALL' | translate"
+                      icon="pi pi-minus"
+                      size="small"
+                      text="true"
+                      (onClick)="collapseAll(); $event.stopPropagation()"
+                    ></p-button>
+                  </div>
+                }
+              </div>
+            </div>
+          </p-accordion-header>
+          <p-accordion-content>
+            @switch (InstanceHelper.getInstanceName(item)) {
+              @case ('Property') {
+                <div class="w-full nested-value-editor">
+                  <aas-property-value-editor
+                    [property]="$any(item)"
+                    [shellResult]="shellResult"
+                    [parentCollection]="$any(item).parent"
+                  ></aas-property-value-editor>
+                </div>
+              }
+              @case ('Range') {
+                <div class="nested-range-row">
+                  <div class="nested-range-field">
+                    <label>{{ 'MIN' | translate }}</label>
+                    <input pInputText class="w-full" [(ngModel)]="$any(item).min" nullIfEmpty />
+                  </div>
+                  <div class="nested-range-field">
+                    <label>{{ 'MAX' | translate }}</label>
+                    <input pInputText class="w-full" [(ngModel)]="$any(item).max" nullIfEmpty />
+                  </div>
+                </div>
+              }
+              @case ('MultiLanguageProperty') {
+                <div class="w-full nested-value-editor">
+                  <aas-v3-mlp-current-editor
+                    [items]="$any(item).value"
+                    [itemsParent]="$any(item)"
+                  ></aas-v3-mlp-current-editor>
+                </div>
+              }
+              @case ('SubmodelElementCollection') {
+                <aas-v3-nested-submodel-element-collection
+                  [collection]="$any(item)"
+                  [shellResult]="shellResult"
+                  [repositoryUrl]="repositoryUrl"
+                ></aas-v3-nested-submodel-element-collection>
+              }
+              @case ('SubmodelElementList') {
+                <aas-v3-nested-submodel-element-collection
+                  [collection]="$any(item)"
+                  [shellResult]="shellResult"
+                  [withIdShort]="false"
+                  [repositoryUrl]="repositoryUrl"
+                ></aas-v3-nested-submodel-element-collection>
+              }
+              @case ('File') {
+                <div class="w-full nested-value-editor">
+                  <aas-file-content-editor
+                    [shellResult]="shellResult"
+                    [fileValueIncoming]="$any(item).value"
+                    (fileValueOutgoing)="$any(item).value = $event ?? ''"
+                    [fileContentTypeIncoming]="$any(item).contentType ?? ''"
+                    (fileContentTypeOutgoing)="$any(item).contentType = $event"
+                    [semanticId]="$any(item).semanticId"
+                    [showPathType]="true"
+                  ></aas-file-content-editor>
+                </div>
+              }
+            }
+          </p-accordion-content>
+        </p-accordion-panel>
+      }
+    </p-accordion>
+  }
+}
+<!-- @if (isEclass && collection != null) {
+<aas-eclass-multiple-property-generator
+  [submodelElementCollection]="collection"
+></aas-eclass-multiple-property-generator>
+} -->

@@ -1,0 +1,20 @@
+@if (isImageContentType()) {
+  <aas-image-blob-viewer [blobValue]="blobValue()" [contentType]="contentType()"></aas-image-blob-viewer>
+} @else {
+  @switch (contentType()) {
+    @case ('text/plain') {
+    <aas-plain-text-blob-viewer [blobValue]="blobValue()" [blobIdShort]="blobIdShort()"></aas-plain-text-blob-viewer>
+    }
+    @case ('text/markdown') {
+    <aas-plain-text-blob-viewer
+      [blobValue]="blobValue()"
+      [blobIdShort]="blobIdShort()"
+      [type]="'md'"
+    ></aas-plain-text-blob-viewer>
+    }
+    @default {
+      {{ contentType() }}
+      {{ 'NO_PREVIEW_AVAILABLE_FOR_THIS_TYPE' }}
+    }
+  }
+}

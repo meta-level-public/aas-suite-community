@@ -1,0 +1,50 @@
+pre {
+  display: block;
+  padding: 0.625rem;
+  margin: 0 0 0.625rem;
+  font-size: var(--aas-text-sm);
+  line-height: 1.45;
+  color: var(--p-text-color);
+  word-break: break-all;
+  word-wrap: break-word;
+  background-color: var(--aas-surface-subtle);
+  border: 1px solid var(--p-content-border-color);
+  border-radius: var(--aas-radius-xs);
+}
+.diff {
+  display: inline-block;
+}
+.diff-level {
+  margin-left: 1.6em;
+}
+.diff-holder {
+  color: var(--p-text-muted-color);
+  margin: 0;
+}
+.diff-holder span {
+  color: color-mix(in srgb, var(--p-text-muted-color) 72%, transparent);
+}
+del.diff {
+  text-decoration: none;
+  color: var(--aas-danger-text);
+  background: var(--aas-danger-surface);
+}
+ins.diff {
+  background: var(--aas-success-surface);
+  color: var(--aas-success-text);
+  text-decoration: none;
+}
+del.diff-key {
+  border: 1px solid var(--aas-danger-border);
+}
+ins.diff-key {
+  border: 1px solid var(--aas-success-border);
+  margin-top: -1px;
+  position: relative;
+}
+ins.diff span {
+  color: color-mix(in srgb, var(--aas-success-text) 72%, var(--p-text-color));
+}
+del.diff span {
+  color: color-mix(in srgb, var(--aas-danger-text) 72%, var(--p-text-color));
+}

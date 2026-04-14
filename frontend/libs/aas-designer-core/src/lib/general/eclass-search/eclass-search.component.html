@@ -1,0 +1,188 @@
+@if (!hasEclass) {
+  <div class="flex flex-col">
+    <div class="mb-2">{{ 'NO_ECLASS_1' | translate }}</div>
+    <div class="mb-4">{{ 'NO_ECLASS_2' | translate }}</div>
+    <div class="font-italic">{{ 'NO_ECLASS_3' | translate }}</div>
+  </div>
+}
+@if (hasEclass) {
+  <div class="grid grid-cols-12 items-center">
+    <div class="col">
+      <div class="flex flex-row gap-2 items-end justify-items-end">
+        <div class="mb-4 w-full">
+          <label for="idShort">{{ 'SEARCH_KEYWORD' | translate }}</label>
+          <input
+            pInputText
+            id="keyword"
+            type="text"
+            class="inputfield w-full"
+            [(ngModel)]="keyword"
+            name="keyword"
+            (keydown.enter)="search('keyword')"
+          />
+        </div>
+        <div class="mb-4 w-20rem">
+          <p-button
+            label="{{ 'SEARCH_BY_KEYWORD' | translate }}"
+            (onClick)="search('keyword')"
+            [loading]="loading"
+            [disabled]="keyword.length == 0"
+          ></p-button>
+        </div>
+      </div>
+      <p-divider>{{ 'OR' | translate }}</p-divider>
+      <div class="flex flex-row gap-2 items-end justify-items-end">
+        <div class="mb-4 w-full">
+          <label for="idShort">{{ 'SEARCH_IRDI' | translate }}</label>
+          <input
+            pInputText
+            id="irdi"
+            type="text"
+            class="inputfield w-full"
+            [(ngModel)]="irdi"
+            name="irdi"
+            (keydown.enter)="search('irdi')"
+          />
+        </div>
+        <div class="mb-4 w-20rem">
+          <p-button
+            label="{{ 'SEARCH_BY_IRDI' | translate }}"
+            (onClick)="search('irdi')"
+            [loading]="loading"
+            [disabled]="irdi.length == 0"
+          ></p-button>
+        </div>
+      </div>
+      <div class="flex flex-row gap-2 justify-between">
+        <div class="mb-4 w-6">
+          <label for="idShort">{{ 'KATALOG' | translate }}</label>
+          <p-select
+            [options]="katalogOptions"
+            id="catalog"
+            class="w-full"
+            class="w-full"
+            [(ngModel)]="selectedKatalog"
+            name="katalog"
+            appendTo="body"
+            optionLabel="label"
+            placeholder="{{ 'PLEASE_SELECT' | translate }}"
+          >
+            <ng-template let-option pTemplate="item">
+              {{ option.label | translate }}
+            </ng-template>
+            <ng-template pTemplate="selectedItem">
+              {{ selectedKatalog?.label ?? '' | translate }}
+            </ng-template>
+          </p-select>
+        </div>
+        <div class="mb-4 w-6">
+          <label for="idShort">{{ 'LANGUAGE' | translate }}</label>
+          <p-multiSelect
+            [options]="langOptions"
+            id="lang"
+            class="w-full"
+            class="w-full"
+            [(ngModel)]="lang"
+            name="lang"
+            appendTo="body"
+          ></p-multiSelect>
+        </div>
+      </div>
+    </div>
+    <div class="col-span-12">
+      <p-table
+        [value]="searchResult"
+        class="w-full"
+        size="small"
+        stripedRows
+        [scrollable]="true"
+        scrollHeight="flex"
+        responsiveLayout="scroll"
+        [lazy]="true"
+        (onLazyLoad)="nextPage($event)"
+        [showCurrentPageReport]="true"
+        [rowsPerPageOptions]="[10, 25, 50]"
+        [loading]="loading"
+        [(first)]="first"
+        [paginator]="true"
+        [rows]="rows"
+        [totalRecords]="totalRecords"
+        paginatorDropdownAppendTo="body"
+        currentPageReportTemplate="{{ 'SHOW_FROM_TO_OF_TOTAL' | translate }}"
+      >
+        <ng-template #header>
+          <tr>
+            <th scope="col" style="min-width: 20rem; max-width: 20rem">
+              {{ 'IRDI' | translate }}
+            </th>
+            <th scope="col">{{ 'BENENNUNG' | translate }}</th>
+            <th scope="col"></th>
+            <th scope="col" style="min-width: 10rem; max-width: 10rem"></th>
+          </tr>
+        </ng-template>
+        <ng-template pTemplate="body" let-item>
+          <tr>
+            <td style="min-width: 20rem; max-width: 20rem">{{ item.irdi }}</td>
+            <td>{{ item.benennung }}</td>
+            <td>
+              <p-button (onClick)="showDetails(item.irdi)" icon="pi pi-eye"></p-button>
+            </td>
+            <td class="justify-center" style="min-width: 10rem; max-width: 10rem">
+              <p-button label="{{ 'APPLY' | translate }}" (onClick)="selectItem(item)" [loading]="loading"></p-button>
+            </td>
+          </tr>
+        </ng-template>
+        <ng-template pTemplate="emptymessage">
+          <tr>
+            <td colspan="4">{{ 'NO_DATA_FOUND' | translate }}</td>
+          </tr>
+        </ng-template>
+      </p-table>
+    </div>
+  </div>
+}
+
+<p-dialog [(visible)]="showDetailsDialog">
+  <p-table [value]="[' ']" size="small" stripedRows>
+    <ng-template pTemplate="body">
+      <tr>
+        <td>{{ 'IRDI' | translate }}</td>
+        <td colspan="2" class="font-bold">{{ detailsItem?.irdi }}</td>
+      </tr>
+      @for (item of detailsItem?.preferredName | keyvalue; track item; let i = $index) {
+        <tr>
+          <td>
+            @if (i === 0) {
+              {{ 'PREFERRED_NAME' | translate }}
+            }
+          </td>
+          <td style="min-width: 6rem; max-width: 6rem">{{ item.key }}</td>
+          <td class="font-bold">{{ item.value }}</td>
+        </tr>
+      }
+      @for (item of detailsItem?.definition | keyvalue; track item; let i = $index) {
+        <tr>
+          <td>
+            @if (i === 0) {
+              {{ 'DEFINITION' | translate }}
+            }
+          </td>
+          <td>{{ item.key }}</td>
+          <td class="font-bold">{{ item.value }}</td>
+        </tr>
+      }
+      <tr>
+        <td>{{ 'DATA_TYPE' | translate }}</td>
+        <td colspan="2" class="font-bold">{{ detailsItem?.propertyDataType }}</td>
+      </tr>
+      <tr>
+        <td>{{ 'DATENFORMAT' | translate }}</td>
+        <td colspan="2" class="font-bold">{{ detailsItem?.datenformat }}</td>
+      </tr>
+      <!-- <tr>
+      <td>{{ 'UNIT' | translate }}</td>
+      <td colspan="2" class="font-bold">{{ detailsItem?.unit | json }}</td>
+    </tr> -->
+    </ng-template>
+  </p-table>
+</p-dialog>

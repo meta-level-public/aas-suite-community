@@ -1,0 +1,7 @@
+@if (pcnStateStore.isIncoming()) {
+  <aas-pcn-receiving></aas-pcn-receiving>
+} @else if (pcnStateStore.isOutgoing()) {
+  <aas-pcn-sending></aas-pcn-sending>
+} @else {
+  <h2>{{ 'PCN_UNKNOWN_STATE' | translate }}</h2>
+}

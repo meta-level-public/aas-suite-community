@@ -1,0 +1,81 @@
+Hallo
+
+<div class="flex flex-col gap-2">
+  <p-card header="Product Carbon Footprint" class="mt-2">
+    <p-accordion [multiple]="true" class="w-full" [value]="expandedPcfPanels()">
+      @for (pcf of pcfList; track pcf) {
+        <p-accordion-panel [value]="pcf.idShort ?? 0">
+          <p-accordion-header>
+            <div class="flex items-center">
+              <i class="pi pi-file mr-2"></i>
+              <span class="vertical-align-middle">{{ pcf.idShort }}</span>
+            </div>
+          </p-accordion-header>
+          <p-accordion-content>
+            <aas-pcf-element [pcf]="pcf"></aas-pcf-element>
+          </p-accordion-content>
+        </p-accordion-panel>
+      }
+      @for (pcfGroup of groupedPcfLists; track $index) {
+        <p-accordion-panel [value]="pcfGroup.name">
+          <p-accordion-header>
+            <div class="flex items-center">
+              <i class="pi pi-file mr-2"></i>
+              <span class="vertical-align-middle">{{ pcfGroup.name }}</span>
+            </div>
+          </p-accordion-header>
+
+          <p-accordion-content>
+            @for (pcf of pcfGroup.pcfs; track $index) {
+              <p-accordion [multiple]="true" class="w-full" [value]="expandedPcfGroupPanels()[pcfGroup.name] || []">
+                <p-accordion-panel [value]="pcf.idShort ?? 0">
+                  <p-accordion-header>
+                    <div class="flex items-center">
+                      <i class="pi pi-file mr-2"></i>
+                      <span class="vertical-align-middle">{{ pcf.idShort }}</span>
+                    </div>
+                  </p-accordion-header>
+                  <p-accordion-content>
+                    <aas-pcf-element [pcf]="pcf"></aas-pcf-element>
+                  </p-accordion-content>
+                </p-accordion-panel>
+              </p-accordion>
+            }
+          </p-accordion-content>
+        </p-accordion-panel>
+      }
+    </p-accordion>
+    @if (pcfList.length === 0 && groupedTcfLists.length === 0) {
+      <div class="flex justify-start">
+        {{ 'NO_PCF_ENTRIES' | translate }}
+      </div>
+    }
+  </p-card>
+
+  <p-card header="Transport Carbon Footprint">
+    <p-accordion [multiple]="true" class="w-full" [value]="expandedTcfPanels()">
+      @for (tcf of tcfList; track $index) {
+        <p-accordion-panel [value]="tcf.idShort ?? 0">
+          <p-accordion-header>
+            <div class="flex items-center">
+              <i class="pi pi-file mr-2"></i>
+              <span class="vertical-align-middle">{{ tcf.idShort }}</span>
+            </div>
+          </p-accordion-header>
+          <p-accordion-content>
+            <aas-tcf-element [tcf]="tcf"></aas-tcf-element>
+          </p-accordion-content>
+        </p-accordion-panel>
+      }
+    </p-accordion>
+    @if (tcfList.length === 0 && groupedTcfLists.length === 0) {
+      <div class="flex justify-start">
+        {{ 'NO_TCF_ENTRIES' | translate }}
+      </div>
+    }
+  </p-card>
+
+  <p-card header="Map">
+    <aas-pcf-map-overview [pcfList]="pcfList" [tcfList]="tcfList"></aas-pcf-map-overview>
+  </p-card>
+</div>

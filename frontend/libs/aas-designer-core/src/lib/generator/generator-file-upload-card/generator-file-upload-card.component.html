@@ -1,0 +1,102 @@
+<div
+  class="generator-file-card"
+  [class.generator-file-card-drop-active]="dropZoneHovered()"
+  [attr.id]="inputId() || null"
+  tabindex="-1"
+  (dragover)="onDragOver($event)"
+  (dragleave)="onDragLeave($event)"
+  (drop)="onDrop($event)"
+>
+  <div class="generator-file-card-hero">
+    <div class="generator-file-card-copy">
+      <div class="generator-file-card-label generator-file-card-label-row">
+        @if (iconClass() !== '') {
+          <i [class]="iconClass()"></i>
+        }
+        @if (helpTag() !== '') {
+          <lib-help-label [tag]="helpTag()" [showLabel]="false"></lib-help-label>
+        }
+        {{ resolvedTitleKey | translate }}
+      </div>
+
+      @if (resolvedHasSelection && resolvedFilename; as currentFilename) {
+        <div class="generator-file-card-filename">{{ currentFilename }}</div>
+      } @else {
+        <div class="generator-file-card-empty">{{ emptyTextKey() | translate }}</div>
+      }
+    </div>
+
+    @if (resolvedContentType; as contentTypeValue) {
+      <div class="generator-file-card-badge">{{ contentTypeValue }}</div>
+    }
+  </div>
+
+  <div class="generator-file-card-meta">
+    <div class="generator-file-card-meta-item">
+      <div class="generator-file-card-meta-label">{{ 'BATTERY_PASSPORT_FILE_SELECTED' | translate }}</div>
+      <div class="generator-file-card-meta-value">
+        @if (resolvedHasSelection && resolvedFilename; as currentFilename) {
+          {{ currentFilename }}
+        } @else {
+          {{ emptyTextKey() | translate }}
+        }
+      </div>
+    </div>
+
+    @if (resolvedFileReference; as storedReference) {
+      <div class="generator-file-card-meta-item">
+        <div class="generator-file-card-meta-label">{{ 'FILE_PATH' | translate }}</div>
+        <div class="generator-file-card-meta-value">{{ storedReference }}</div>
+      </div>
+    }
+  </div>
+
+  <div class="generator-file-card-actions">
+    <p-fileUpload
+      mode="basic"
+      chooseIcon="pi pi-upload"
+      [accept]="resolvedAccept"
+      [auto]="true"
+      [customUpload]="true"
+      [multiple]="false"
+      [showUploadButton]="false"
+      [showCancelButton]="false"
+      chooseLabel="{{ uploadLabelKey | translate }}"
+      (onSelect)="onFileSelected($event)"
+    ></p-fileUpload>
+
+    @if (showRemoveButton) {
+      <p-button
+        severity="secondary"
+        [outlined]="true"
+        label="{{ removeTextKey() | translate }}"
+        icon="pi pi-times"
+        (onClick)="onRemoveRequested()"
+      ></p-button>
+    }
+  </div>
+
+  @if (resolvedPreviewUrl; as resolvedPreviewUrl) {
+    <div class="generator-file-card">
+      <div class="generator-file-card-copy">
+        <div class="generator-file-card-label">{{ resolvedTitleKey | translate }}</div>
+        @if (resolvedFilename; as currentFilename) {
+          <div class="generator-file-card-filename">{{ currentFilename }}</div>
+        }
+      </div>
+      <img class="generator-file-card-preview-image" [src]="resolvedPreviewUrl" [alt]="resolvedPreviewAlt" />
+    </div>
+  } @else if (resolvedPreviewFallback) {
+    <div class="generator-file-card generator-file-card-warning">
+      <div class="generator-file-card-copy">
+        <div class="generator-file-card-label">{{ resolvedTitleKey | translate }}</div>
+        @if (resolvedFilename; as currentFilename) {
+          <div class="generator-file-card-filename">{{ currentFilename }}</div>
+        }
+      </div>
+      <div class="generator-file-card-message">
+        {{ previewUnavailableTextKey() | translate }}
+      </div>
+    </div>
+  }
+</div>

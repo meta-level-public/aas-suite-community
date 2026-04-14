@@ -1,0 +1,149 @@
+{
+  "name": "aas-designer-community",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "projectType": "application",
+  "prefix": "vws",
+  "sourceRoot": "apps/aas-designer-community/src",
+  "tags": ["scope:designer-community"],
+  "targets": {
+    "build": {
+      "executor": "@angular/build:application",
+      "outputs": ["{options.outputPath}"],
+      "options": {
+        "outputPath": "dist/apps/aas-designer-community",
+        "browser": "apps/aas-designer-community/src/main.ts",
+        "allowedCommonJsDependencies": [
+          "@braintree/sanitize-url",
+          "@cospired/i18n-iso-languages",
+          "buffer",
+          "canvg",
+          "core-js",
+          "cytoscape-cose-bilkent",
+          "cytoscape-dagre",
+          "cytoscape-svg",
+          "dayjs",
+          "docxtemplater",
+          "elkjs",
+          "html2canvas",
+          "i18n-iso-countries",
+          "leaflet",
+          "moment",
+          "n3",
+          "papaparse",
+          "pizzip",
+          "prismjs",
+          "qrcode",
+          "quill-delta",
+          "raf",
+          "readable-stream",
+          "rgbcolor"
+        ],
+        "polyfills": ["zone.js"],
+        "tsConfig": "apps/aas-designer-community/tsconfig.app.json",
+        "inlineStyleLanguage": "scss",
+        "stylePreprocessorOptions": {
+          "includePaths": ["libs/aas-designer-assets/src/lib"]
+        },
+        "assets": [
+          {
+            "glob": "**/*",
+            "input": "apps/aas-designer-community/public"
+          },
+          {
+            "input": "libs/aas-designer-assets/src/lib/assets",
+            "glob": "images/**/*",
+            "output": "assets"
+          },
+          {
+            "input": "libs/aas-designer-assets/src/lib/assets",
+            "glob": "*.{svg,png,html,docx}",
+            "output": ""
+          },
+          {
+            "input": "libs/aas-designer-assets/src/lib/assets",
+            "glob": "logos/**/*",
+            "output": ""
+          },
+          {
+            "input": "libs/aas-designer-assets/src/lib/assets",
+            "glob": "{lookups,map-images,markings}/**/*",
+            "output": "assets"
+          }
+        ],
+        "styles": [
+          "apps/aas-designer-community/src/styles.css",
+          "libs/aas-designer-core/src/lib/generator/submodel-editor-layout.global.scss"
+        ]
+      },
+      "configurations": {
+        "production": {
+          "budgets": [
+            {
+              "type": "initial",
+              "maximumWarning": "8mb",
+              "maximumError": "10mb"
+            },
+            {
+              "type": "anyComponentStyle",
+              "maximumWarning": "20kb",
+              "maximumError": "30kb"
+            }
+          ],
+          "outputHashing": "all"
+        },
+        "development": {
+          "optimization": false,
+          "extractLicenses": false,
+          "sourceMap": true
+        }
+      },
+      "defaultConfiguration": "production"
+    },
+    "serve": {
+      "continuous": true,
+      "executor": "@angular/build:dev-server",
+      "configurations": {
+        "production": {
+          "buildTarget": "aas-designer-community:build:production"
+        },
+        "development": {
+          "buildTarget": "aas-designer-community:build:development"
+        }
+      },
+      "defaultConfiguration": "development",
+      "options": {
+        "port": 4210,
+        "host": "0.0.0.0"
+      }
+    },
+    "extract-i18n": {
+      "executor": "@angular/build:extract-i18n",
+      "options": {
+        "buildTarget": "aas-designer-community:build"
+      }
+    },
+    "lint": {
+      "executor": "@nx/eslint:lint"
+    },
+    "test": {
+      "executor": "@analogjs/vitest-angular:test",
+      "outputs": ["{workspaceRoot}/coverage/{projectRoot}"],
+      "options": {
+        "configFile": "vitest.config.ts",
+        "coverage": false,
+        "watch": false,
+        "passWithNoTests": true
+      }
+    },
+    "serve-static": {
+      "continuous": true,
+      "executor": "@nx/web:file-server",
+      "options": {
+        "buildTarget": "aas-designer-community:build",
+        "port": 4210,
+        "staticFilePath": "dist/apps/aas-designer-community/browser",
+        "spa": true
+      }
+    }
+  }
+}

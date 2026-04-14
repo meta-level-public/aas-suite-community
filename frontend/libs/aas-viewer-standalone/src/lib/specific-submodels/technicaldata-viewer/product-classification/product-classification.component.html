@@ -1,0 +1,10 @@
+<div class="flex flex-col gap-2">
+  @for (element of classifications; track $index) {
+    <aas-generic-viewer
+      [rowData]="element"
+      [formatted]="true"
+      [idShortPath]="element.idShort ?? ''"
+      [submodelId]="''"
+    ></aas-generic-viewer>
+  }
+</div>

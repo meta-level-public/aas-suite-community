@@ -1,0 +1,14 @@
+.pcf-viewer-card,
+.pcf-viewer-group-card {
+  border: 1px solid var(--p-content-border-color);
+  border-radius: var(--aas-radius-md);
+  box-shadow: var(--aas-shadow-sm);
+  padding: 1.25rem;
+}
+
+.pcf-viewer-empty-state {
+  border: 1px dashed var(--p-surface-400);
+  border-radius: var(--aas-radius-md);
+  padding: 1rem;
+  color: var(--p-text-muted-color);
+}

@@ -1,0 +1,152 @@
+<div class="grid grid-cols-12 gap-4 w-full">
+  <div class="col-span-12">
+    <div class="flex flex-col md:flex-row gap-4 justify-between items-start md:items-center p-4">
+      <div class="flex flex-wrap gap-2">
+        <p-button
+          icon="pi pi-search"
+          (onClick)="openSearch()"
+          pTooltip="{{ 'SEARCH' | translate }}"
+          styleClass="p-button-sm"
+        ></p-button>
+        <p-button
+          icon="pi pi-refresh"
+          (onClick)="reloadSubmodel()"
+          pTooltip="{{ 'RELOAD' | translate }}"
+          size="small"
+        ></p-button>
+        @if (viewerStore.highlightedIdShortPath() !== '') {
+          <p-button
+            icon="pi pi-eraser"
+            styleClass="p-button-outlined p-button-sm"
+            (onClick)="clearHighlight()"
+            pTooltip="{{ 'CLEAR_HIGHLIGHT' | translate }}"
+          ></p-button>
+        }
+      </div>
+      <div class="flex items-center gap-2">
+        <span class="text-sm font-semibold hidden md:inline">{{ 'VIEW_MODE' | translate }}:</span>
+        <p-selectButton
+          [options]="viewModeOptions"
+          optionLabel="label"
+          optionValue="value"
+          [(ngModel)]="selectedViewMode"
+          [unselectable]="true"
+          dataKey="value"
+          size="small"
+        >
+          <ng-template #item let-item>
+            <span class="text-sm">{{ item.label | translate }}</span>
+          </ng-template>
+        </p-selectButton>
+      </div>
+    </div>
+  </div>
+  <div class="col-span-12 xl:col-span-3">
+    <p-card class="mt-4 overview-card">
+      <ng-template #header>
+        <div class="flex flex-row justify-between p-6 ml-2 mr-2">
+          <div class="p-card-title">{{ 'OVERVIEW' | translate }}</div>
+        </div>
+      </ng-template>
+      <div class="flex flex-col items-center mb-2">
+        @let thumbnail = this.thumbnail() | async;
+        <div class="w-[300px] h-[200px] border rounded bg-white flex items-center justify-center overflow-hidden">
+          @if (thumbnail && !thumbnailLoadError()) {
+            <img
+              [src]="thumbnail"
+              class="scaleImage w-full h-full"
+              alt="thumbnail"
+              (error)="onOverviewThumbnailError()"
+              (load)="onOverviewThumbnailLoad()"
+            />
+          } @else {
+            <div class="flex flex-col items-center gap-2 text-gray-500">
+              <i class="pi pi-image text-3xl"></i>
+              <span class="text-sm">{{ 'NO_IMAGE_FOUND' | translate }}</span>
+            </div>
+          }
+        </div>
+      </div>
+      <div class="flex flex-row gap-2">
+        <label class="font-bold">{{ 'AAS_TYPE' | translate }}</label>
+        @let type = typeTag();
+        @let severity = typeTagSeverity();
+        @if (type && severity) {
+          <p-tag [value]="type" [severity]="severity"></p-tag>
+        }
+      </div>
+      <div class="flex flex-col mt-2">
+        <div class="flex flex-row justify-between gap-2">
+          <label class="font-bold">{{ 'GLOBAL_ASSET_ID' | translate }}</label>
+          <p-button icon="pi pi-copy" (onClick)="copyGlobalAssetId()" styleClass="p-button-text"></p-button>
+        </div>
+        <label style="word-wrap: break-word">{{ globalAssetId() }}</label>
+      </div>
+    </p-card>
+
+    <p-card class="mt-2 navigation-card">
+      <ng-template #header>
+        <div class="p-6 ml-2 mr-2">
+          <div class="p-card-title">{{ 'NAVIGATION' | translate }}</div>
+        </div>
+      </ng-template>
+
+      <!-- Metadata Button -->
+      <div class="navigation-item" [class.active]="viewMetadata()" (click)="selectMetadata()">
+        <i class="fa-solid fa-database navigation-icon"></i>
+        <span class="navigation-label">{{ 'AAS_METADATA' | translate }}</span>
+        @if (viewMetadata()) {
+          <i class="fa-solid fa-chevron-right ml-auto"></i>
+        }
+      </div>
+
+      <!-- Submodels Section -->
+      <div class="submodels-section">
+        <div class="submodels-header">
+          <i class="fa-solid fa-cubes"></i>
+          <span class="font-semibold">{{ 'SUBMODELS' | translate }}</span>
+        </div>
+
+        @if (viewerStore.isLoadingSubmodels()) {
+          <p-skeleton shape="square" height="100px" width="100%"></p-skeleton>
+        } @else {
+          @for (submodel of viewerStore.submodels(); track submodel.id) {
+            <div
+              class="navigation-item submodel-item"
+              [class.active]="viewSubmodels() && viewerStore.currentSubmodelId() === submodel.id"
+              (click)="selectSubmodel(submodel.id)"
+            >
+              <i class="fa-solid fa-cube navigation-icon"></i>
+              <span class="navigation-label">{{ submodel?.idShort ?? submodel?.id }}</span>
+              @if (viewSubmodels() && viewerStore.currentSubmodelId() === submodel.id) {
+                <i class="fa-solid fa-chevron-right ml-auto"></i>
+              }
+            </div>
+          }
+        }
+      </div>
+    </p-card>
+  </div>
+  @let currentSm = viewerStore.currentSubmodel();
+  @if (viewSubmodels() && currentSm) {
+    <div class="col-span-12 xl:col-span-9 w-full mt-4">
+      <aas-aas-model-viewer
+        class="w-full"
+        [currentLanguage]="currentLanguage"
+        [navigateInBom]="false"
+        (viewerOptions)="setSelectedViewMode($event)"
+        [selectedViewMode]="selectedViewMode"
+      ></aas-aas-model-viewer>
+    </div>
+  }
+  @if (viewMetadata()) {
+    <div class="col-span-12 xl:col-span-9 w-full mt-4">
+      <aas-aas-metadata-viewer
+        class="w-full"
+        [selectedViewMode]="selectedViewMode"
+        (viewerOptions)="setSelectedViewMode($event)"
+      ></aas-aas-metadata-viewer>
+    </div>
+  }
+</div>
+<p-scrollTop [threshold]="200" icon="pi pi-arrow-up"></p-scrollTop>

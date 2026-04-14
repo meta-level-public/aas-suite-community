@@ -1,0 +1,231 @@
+<div class="aas-page-layout">
+  <div class="hero-section">
+    <div class="hero-content">
+      <h1 class="hero-title">
+        {{ 'PRODUCT_ROOTS' | translate }}
+      </h1>
+      <div class="hero-actions">
+        <p-button label="{{ 'ADD' | translate }}" icon="pi pi-plus" (onClick)="createAddress()"></p-button>
+      </div>
+    </div>
+  </div>
+
+  <div class="aas-page-fill">
+    <div class="aas-page-abs-fill">
+      <p-table
+        #dt1
+        [value]="productRoots()"
+        groupRowsBy="name"
+        sortField="name"
+        sortMode="single"
+        [paginator]="true"
+        [rowsPerPageOptions]="[5, 10, 15, 20, 25, 30, 100]"
+        [showCurrentPageReport]="true"
+        currentPageReportTemplate="{{ 'SHOW_FROM_TO_OF_TOTAL' | translate }}"
+        [rowHover]="true"
+        [scrollable]="true"
+        scrollHeight="flex"
+        scrollDirection="both"
+        [rows]="10"
+        [loading]="loading"
+      >
+        <ng-template #header>
+          <tr>
+            <th style="width: 10%"></th>
+            <th pSortableColumn="name">
+              <div class="inline-flex items-center gap-2">
+                <i class="pi pi-box text-sm" style="color: var(--p-text-muted-color)"></i>
+                <span>{{ 'NAME' | translate }}</span>
+                <p-sortIcon field="name"></p-sortIcon>
+              </div>
+            </th>
+            <th pSortableColumn="anlageDatum">
+              <div class="inline-flex items-center gap-2">
+                <i class="pi pi-calendar-plus text-sm" style="color: var(--p-text-muted-color)"></i>
+                <span>{{ 'ANGELEGT' | translate }}</span>
+                <p-sortIcon field="anlageDatum"></p-sortIcon>
+              </div>
+            </th>
+            <th pSortableColumn="aenderungsDatum">
+              <div class="inline-flex items-center gap-2">
+                <i class="pi pi-calendar text-sm" style="color: var(--p-text-muted-color)"></i>
+                <span>{{ 'GEAENDERT' | translate }}</span>
+                <p-sortIcon field="aenderungsDatum"></p-sortIcon>
+              </div>
+            </th>
+          </tr>
+        </ng-template>
+        <ng-template pTemplate="body" let-productRoot>
+          <tr>
+            <td>
+              <p-button
+                icon="pi pi-ellipsis-v"
+                styleClass="p-button-text p-button-secondary"
+                (onClick)="menu.toggle($event)"
+              ></p-button>
+              <p-menu
+                appendTo="body"
+                (onShow)="onShowActions(productRoot)"
+                #menu
+                [popup]="true"
+                [model]="menuItems"
+              ></p-menu>
+            </td>
+            <td>
+              <div class="flex items-center gap-2">
+                <i class="pi pi-inbox text-sm" style="color: var(--p-primary-700)"></i>
+                <span class="font-medium">{{ productRoot.name }}</span>
+              </div>
+            </td>
+            <td>
+              <div class="flex items-center gap-2">
+                <i class="pi pi-clock text-xs" style="color: var(--p-text-muted-color)"></i>
+                <span class="text-sm">{{ productRoot.anlageDatum | vwsDate: 'SHORT_DATE_TIME' }}</span>
+              </div>
+            </td>
+            <td>
+              <div class="flex items-center gap-2">
+                <i class="pi pi-clock text-xs" style="color: var(--p-text-muted-color)"></i>
+                <span class="text-sm">{{ productRoot.aenderungsDatum | vwsDate: 'SHORT_DATE_TIME' }}</span>
+              </div>
+            </td>
+          </tr>
+        </ng-template>
+        <ng-template pTemplate="emptymessage" let-productRoot>
+          <tr>
+            <td [attr.colspan]="4" class="text-center">
+              {{ 'NO_DATA_FOUND' | translate }}
+            </td>
+          </tr>
+        </ng-template>
+      </p-table>
+
+      <!-- Add new Address -->
+      @if (displayproductRootModal) {
+        <p-dialog header="Title" [(visible)]="displayproductRootModal" [style]="{ width: '60vw' }">
+          <ng-template #header>
+            @if (productRootModalOption === 'new') {
+              <div class="flex flex-col">
+                <div class="flex items-center gap-3 mb-2">
+                  <div
+                    class="flex items-center justify-center w-12 h-12 rounded-full"
+                    style="background: color-mix(in srgb, var(--p-primary-50) 84%, var(--p-surface-0))"
+                  >
+                    <i class="pi pi-box text-xl" style="color: var(--p-primary-700)"></i>
+                  </div>
+                  <div class="font-semibold" style="font-size: var(--aas-title-md)">
+                    {{ 'ADD_PRODUCT_ROOT' | translate }}
+                  </div>
+                </div>
+                <p class="text-sm ml-15" style="color: var(--p-text-muted-color)">
+                  {{ 'PRODUCT_ROOT_CREATE_DESCRIPTION' | translate }}
+                </p>
+              </div>
+            }
+            @if (productRootModalOption === 'update') {
+              <div class="flex flex-col">
+                <div class="flex items-center gap-3 mb-2">
+                  <div
+                    class="flex items-center justify-center w-12 h-12 rounded-full"
+                    style="background: color-mix(in srgb, var(--p-primary-50) 84%, var(--p-surface-0))"
+                  >
+                    <i class="pi pi-pencil text-xl" style="color: var(--p-primary-700)"></i>
+                  </div>
+                  <div class="font-semibold" style="font-size: var(--aas-title-md)">
+                    {{ 'EDIT_PRODUCT_ROOT' | translate }}
+                  </div>
+                </div>
+                <p class="text-sm ml-15" style="color: var(--p-text-muted-color)">
+                  {{ 'PRODUCT_ROOT_EDIT_DESCRIPTION' | translate }}
+                </p>
+              </div>
+            }
+          </ng-template>
+
+          <div class="flex flex-col gap-6 py-4">
+            <!-- Name Section -->
+            <div
+              class="p-4 rounded-lg border"
+              style="background: var(--aas-surface-subtle); border-color: var(--p-content-border-color)"
+            >
+              <div class="flex items-center gap-2 mb-3">
+                <i class="pi pi-key" style="color: var(--p-text-muted-color)"></i>
+                <div class="font-semibold text-base">
+                  {{ 'NAME' | translate }}
+                  <span class="ml-1" style="color: var(--aas-danger-icon)">*</span>
+                </div>
+              </div>
+              <p class="text-sm mb-3" style="color: var(--p-text-muted-color)">
+                {{ 'PRODUCT_ROOT_NAME_HELP' | translate }}
+              </p>
+              <input
+                pInputText
+                id="NAME"
+                type="text"
+                class="inputfield w-full"
+                name="NAME"
+                [(ngModel)]="productRootDialogEntry.name"
+                placeholder="z.B. Komponenten"
+                required
+              />
+            </div>
+
+            <!-- Multilingual Section -->
+            <div
+              class="p-4 rounded-lg border"
+              style="
+                background: color-mix(in srgb, var(--p-primary-50) 84%, var(--p-surface-0));
+                border-color: color-mix(in srgb, var(--p-primary-400) 45%, var(--p-content-border-color));
+              "
+            >
+              <div class="flex items-center gap-2 mb-3">
+                <i class="pi pi-globe" style="color: var(--p-primary-700)"></i>
+                <div class="font-semibold text-base">
+                  {{ 'MULTILINGUAL_DESIGNATIONS' | translate }}
+                  <span class="ml-1" style="color: var(--aas-danger-icon)">*</span>
+                </div>
+              </div>
+              <p class="text-sm mb-4" style="color: var(--p-text-muted-color)">
+                {{ 'MULTILINGUAL_DESIGNATIONS_HELP' | translate }}
+              </p>
+              <aas-v3-lang-string-list
+                [langStrings]="productRootDialogEntry.mlpKeyValues ?? []"
+                [langStringParent]="productRootDialogEntry"
+                [langStringParentPropertyName]="'mlpKeyValues'"
+                class="w-full"
+                [doValidation]="false"
+                [mlpKeyValueMode]="true"
+                [removeBlockAllowed]="false"
+              ></aas-v3-lang-string-list>
+            </div>
+          </div>
+
+          <ng-template pTemplate="footer">
+            <footer class="mt-4 pt-4 border-t">
+              <div class="flex flex-row gap-2 justify-end">
+                <p-button
+                  label="{{ 'CANCEL' | translate }}"
+                  icon="pi pi-times"
+                  severity="danger"
+                  outlined="true"
+                  (onClick)="displayproductRootModal = false"
+                  [loading]="loading"
+                ></p-button>
+                <p-button
+                  label="{{ 'SAVE' | translate }}"
+                  icon="pi pi-save"
+                  severity="success"
+                  [disabled]="dataValid() === false"
+                  (onClick)="saveNewproductRoot()"
+                  [loading]="loading"
+                ></p-button>
+              </div>
+            </footer>
+          </ng-template>
+        </p-dialog>
+      }
+
+      <aas-confirm-dialog></aas-confirm-dialog>
+    </div>
+  </div>
+</div>

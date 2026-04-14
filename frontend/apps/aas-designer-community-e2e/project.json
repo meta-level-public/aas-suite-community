@@ -1,0 +1,19 @@
+{
+  "name": "aas-designer-community-e2e",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "projectType": "application",
+  "sourceRoot": "apps/aas-designer-community-e2e/src",
+  "implicitDependencies": ["aas-designer-community"],
+  "targets": {
+    "e2e": {
+      "executor": "@nx/playwright:playwright",
+      "outputs": ["{workspaceRoot}/dist/.playwright/apps/aas-designer-community-e2e"],
+      "options": {
+        "config": "apps/aas-designer-community-e2e/playwright.config.ts"
+      }
+    },
+    "lint": {
+      "executor": "@nx/eslint:lint"
+    }
+  }
+}

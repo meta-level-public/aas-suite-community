@@ -1,0 +1,327 @@
+@let selectedShell = viewerStore.aas();
+@if (selectedShell != null) {
+  @if (selectedViewMode === 'formatted') {
+    <div class="metadata-container">
+      <!-- Hero Section -->
+      <div class="hero-section">
+        <div class="hero-content">
+          <h1 class="hero-title">
+            <i class="fa-solid fa-database"></i>
+            {{ selectedShell.idShort || 'Asset Administration Shell' }}
+          </h1>
+          @if (selectedShell.displayName && selectedShell.displayName.length > 0) {
+            <p class="hero-subtitle">{{ selectedShell.displayName[0].text }}</p>
+          }
+        </div>
+
+        <div class="hero-stats">
+          @if (selectedShell.administration?.version) {
+            <div class="stat-item">
+              <i class="fa-solid fa-code-branch stat-icon"></i>
+              <div class="stat-content">
+                <span class="stat-label">{{ 'VERSION' | translate }}</span>
+                <span class="stat-value">{{ selectedShell.administration?.version }}</span>
+              </div>
+            </div>
+          }
+
+          @if (selectedShell.administration?.revision) {
+            <div class="stat-item">
+              <i class="fa-solid fa-rotate stat-icon"></i>
+              <div class="stat-content">
+                <span class="stat-label">{{ 'REVISION' | translate }}</span>
+                <span class="stat-value">{{ selectedShell.administration?.revision }}</span>
+              </div>
+            </div>
+          }
+        </div>
+      </div>
+
+      <!-- ID & Thumbnail -->
+      <div class="flex flex-col md:flex-row gap-4 mb-4 items-center md:items-start">
+        <!-- Left: Thumbnail -->
+        @let thumbnailSrc = thumbnail() | async;
+        <div
+          class="flex-shrink-0 border rounded p-4 bg-white flex flex-col items-center justify-center gap-2"
+          style="width: 200px; min-height: 220px"
+        >
+          @if (thumbnailSrc && !thumbnailLoadError()) {
+            <img
+              [src]="thumbnailSrc"
+              alt="Thumbnail"
+              class="max-w-full max-h-48 object-contain rounded"
+              (error)="onMetadataThumbnailError()"
+              (load)="onMetadataThumbnailLoad()"
+            />
+            <p class="text-xs text-gray-600 text-center">{{ thumbFileName() }}</p>
+          } @else {
+            <div class="w-full h-48 flex items-center justify-center rounded border border-dashed text-gray-500">
+              <div class="flex flex-col items-center gap-2">
+                <i class="pi pi-image text-3xl"></i>
+                <span class="text-sm">{{ 'NO_IMAGE_FOUND' | translate }}</span>
+              </div>
+            </div>
+          }
+        </div>
+
+        <!-- Right: IDs -->
+        <div class="flex-1 w-full flex flex-col gap-2">
+          <!-- Art/Type -->
+          @let type = typeTag();
+          @let severity = typeTagSeverity();
+          @if (type && severity) {
+            <p-inputgroup>
+              <p-inputgroup-addon class="font-bold w-48">
+                <i class="fa-solid fa-tag mr-2"></i>
+                <lib-help-label tag="ART" [showLabel]="false"></lib-help-label>
+                {{ 'ART' | translate }}
+              </p-inputgroup-addon>
+              <p-inputgroup-addon class="flex-1">
+                <p-tag [value]="type" [severity]="severity"></p-tag>
+              </p-inputgroup-addon>
+            </p-inputgroup>
+          }
+
+          <!-- Shell ID -->
+          <p-inputgroup>
+            <p-inputgroup-addon class="font-bold w-48">
+              <i class="fa-solid fa-fingerprint mr-2"></i>
+              <lib-help-label tag="ID" [showLabel]="false"></lib-help-label>
+              {{ 'ID' | translate }}
+            </p-inputgroup-addon>
+            <input pInputText type="text" [value]="selectedShell.id" readonly />
+            <p-inputgroup-addon class="w-auto">
+              <p-button
+                icon="pi pi-copy"
+                (onClick)="copyText(selectedShell.id)"
+                [text]="true"
+                [rounded]="true"
+              ></p-button>
+            </p-inputgroup-addon>
+          </p-inputgroup>
+
+          <!-- Global Asset ID -->
+          @if (selectedShell.assetInformation.globalAssetId) {
+            <p-inputgroup>
+              <p-inputgroup-addon class="font-bold w-48">
+                <i class="fa-solid fa-box mr-2"></i>
+                <lib-help-label tag="GLOBAL_ASSET_ID" [showLabel]="false"></lib-help-label>
+                {{ 'GLOBAL_ASSET_ID' | translate }}
+              </p-inputgroup-addon>
+              <input pInputText type="text" [value]="selectedShell.assetInformation.globalAssetId" readonly />
+              <p-inputgroup-addon class="w-auto">
+                <p-button
+                  icon="pi pi-copy"
+                  (onClick)="copyText(selectedShell.assetInformation.globalAssetId!)"
+                  [text]="true"
+                  [rounded]="true"
+                ></p-button>
+              </p-inputgroup-addon>
+            </p-inputgroup>
+          }
+        </div>
+      </div>
+
+      <!-- Display Names -->
+      @if (selectedShell.displayName && selectedShell.displayName.length > 0) {
+        <div class="flex flex-col gap-2 mb-4">
+          @for (desc of selectedShell.displayName; track desc) {
+            <p-inputgroup>
+              <p-inputgroup-addon class="font-bold w-48">
+                <i class="fa-solid fa-language mr-2"></i>
+                <lib-help-label tag="DISPLAY_NAME" [showLabel]="false"></lib-help-label>
+                {{ 'DISPLAY_NAME' | translate }} ({{ desc.language }})
+              </p-inputgroup-addon>
+              <input pInputText type="text" [value]="desc.text" readonly />
+            </p-inputgroup>
+          }
+        </div>
+      }
+
+      <!-- Description -->
+      @if (selectedShell.description && selectedShell.description.length > 0) {
+        <div class="flex flex-col gap-2 mb-4">
+          @for (desc of selectedShell.description; track desc) {
+            <p-inputgroup>
+              <p-inputgroup-addon class="font-bold w-48">
+                <i class="fa-solid fa-align-left mr-2"></i>
+                <lib-help-label tag="BESCHREIBUNG" [showLabel]="false"></lib-help-label>
+                {{ 'BESCHREIBUNG' | translate }} ({{ desc.language }})
+              </p-inputgroup-addon>
+              <input pInputText type="text" [value]="desc.text" readonly />
+            </p-inputgroup>
+          }
+        </div>
+      }
+
+      <!-- Creator -->
+      @if (
+        selectedShell.administration?.creator?.keys && (selectedShell.administration?.creator?.keys?.length ?? 0) > 0
+      ) {
+        <div class="flex flex-col gap-2 mb-4">
+          @for (creator of selectedShell.administration?.creator?.keys ?? []; track creator) {
+            <p-inputgroup>
+              <p-inputgroup-addon class="font-bold w-48">
+                <i class="fa-solid fa-user mr-2"></i>
+                <lib-help-label tag="CREATOR" [showLabel]="false"></lib-help-label>
+                {{ 'CREATOR' | translate }}
+              </p-inputgroup-addon>
+              <input pInputText type="text" [value]="creator.value" readonly />
+            </p-inputgroup>
+          }
+        </div>
+      }
+
+      <!-- Asset Information -->
+      @if (selectedShell.assetInformation != null) {
+        @if (
+          selectedShell.assetInformation.specificAssetIds && selectedShell.assetInformation.specificAssetIds.length > 0
+        ) {
+          <div class="flex flex-col gap-2 mb-4">
+            @for (assetId of selectedShell.assetInformation.specificAssetIds; track assetId) {
+              <p-inputgroup>
+                <p-inputgroup-addon class="font-bold w-48">
+                  <i class="fa-solid fa-key mr-2"></i>
+                  <lib-help-label tag="SPECIFIC_ASSET_ID" [showLabel]="false"></lib-help-label>
+                  {{ 'SPECIFIC_ASSET_ID' | translate }}
+                </p-inputgroup-addon>
+                <input pInputText type="text" [value]="assetId.value" readonly />
+              </p-inputgroup>
+            }
+          </div>
+        }
+      }
+
+      <!-- QR Code Reference Section -->
+      <div class="mb-4">
+        <h3 class="text-lg font-semibold mb-3 flex items-center gap-2">
+          <i class="fa-solid fa-qrcode"></i>
+          {{ 'REFERENCE' | translate }}
+        </h3>
+
+        @if (selectedShell.assetInformation.globalAssetId) {
+          <div class="flex flex-col md:flex-row gap-4 mb-4 items-center md:items-start">
+            <div class="flex-shrink-0">
+              <aas-framed-qr-code
+                [qrdata]="selectedShell.assetInformation.globalAssetId"
+                [width]="200"
+                [errorCorrectionLevel]="'M'"
+              ></aas-framed-qr-code>
+            </div>
+            <div class="flex-1 w-full">
+              <p-inputgroup>
+                <p-inputgroup-addon class="font-bold w-48">
+                  <i class="fa-solid fa-globe mr-2"></i>
+                  <lib-help-label tag="GLOBAL_ASSET_ID" [showLabel]="false"></lib-help-label>
+                  {{ 'GLOBAL_ASSET_ID' | translate }}
+                </p-inputgroup-addon>
+                <input pInputText type="text" [value]="selectedShell.assetInformation.globalAssetId" readonly />
+                <p-inputgroup-addon class="w-auto">
+                  <p-button
+                    icon="pi pi-copy"
+                    (onClick)="copyText(selectedShell.assetInformation.globalAssetId)"
+                    [text]="true"
+                    [rounded]="true"
+                  ></p-button>
+                </p-inputgroup-addon>
+              </p-inputgroup>
+            </div>
+          </div>
+        }
+
+        @if (selectedShell.id) {
+          <div class="flex flex-col md:flex-row gap-4 mb-4 items-center md:items-start">
+            <div class="flex-shrink-0">
+              <aas-framed-qr-code
+                [qrdata]="selectedShell.id"
+                [width]="200"
+                [errorCorrectionLevel]="'M'"
+                [showFrame]="false"
+              ></aas-framed-qr-code>
+            </div>
+            <div class="flex-1 w-full">
+              <p-inputgroup>
+                <p-inputgroup-addon class="font-bold w-48">
+                  <i class="fa-solid fa-fingerprint mr-2"></i>
+                  <lib-help-label tag="SHELL_ID" [showLabel]="false"></lib-help-label>
+                  {{ 'SHELL_ID' | translate }}
+                </p-inputgroup-addon>
+                <input pInputText type="text" [value]="selectedShell.id" readonly />
+                <p-inputgroup-addon class="w-auto">
+                  <p-button
+                    icon="pi pi-copy"
+                    (onClick)="copyText(selectedShell.id)"
+                    [text]="true"
+                    [rounded]="true"
+                  ></p-button>
+                </p-inputgroup-addon>
+              </p-inputgroup>
+            </div>
+          </div>
+        }
+
+        @if (displayAasUrl()) {
+          <div class="flex flex-col md:flex-row gap-4 mb-4 items-center md:items-start">
+            <div class="flex-shrink-0">
+              <aas-framed-qr-code
+                [qrdata]="displayAasUrl()"
+                [width]="200"
+                [errorCorrectionLevel]="'M'"
+                [showFrame]="false"
+              ></aas-framed-qr-code>
+            </div>
+            <div class="flex-1 w-full">
+              <p-inputgroup>
+                <p-inputgroup-addon class="font-bold w-48">
+                  <i class="fa-solid fa-link mr-2"></i>
+                  <lib-help-label tag="REPOSITORY_ENDPOINT" [showLabel]="false"></lib-help-label>
+                  {{ 'REPOSITORY_ENDPOINT' | translate }}
+                </p-inputgroup-addon>
+                <input pInputText type="text" [value]="displayAasUrl()" readonly />
+                <p-inputgroup-addon class="w-auto">
+                  <a [href]="displayAasUrl()" target="_blank" class="text-primary hover:underline mr-2">
+                    <i class="fa-solid fa-external-link-alt"></i>
+                  </a>
+                  <p-button
+                    icon="pi pi-copy"
+                    (onClick)="copyText(displayAasUrl())"
+                    [text]="true"
+                    [rounded]="true"
+                  ></p-button>
+                </p-inputgroup-addon>
+              </p-inputgroup>
+            </div>
+          </div>
+        }
+      </div>
+    </div>
+  } @else {
+    <p-tabs [value]="0">
+      <p-tablist>
+        <p-tab [value]="0">{{ 'RAW_VIEW' | translate }}</p-tab>
+        <p-tab [value]="1">{{ 'OBJECT_VIEW' | translate }}</p-tab>
+      </p-tablist>
+      <p-tabpanels>
+        <p-tabpanel [value]="0">
+          <div class="flex flex-row justify-end">
+            <p-button
+              icon="pi pi-copy"
+              [rounded]="true"
+              [text]="true"
+              [outlined]="true"
+              (onClick)="copyToClipboard()"
+            ></p-button>
+          </div>
+          @let shellString = this.shellString();
+          <pre class="diff" [innerHTML]="shellString"></pre>
+        </p-tabpanel>
+        <p-tabpanel [value]="1">
+          @let jsonObj = viewerStore.aas();
+          @if (jsonObj != null) {
+            <ngx-json-viewer [json]="jsonObj" [expanded]="false" (viewModeOptions)="(viewerOptions)"></ngx-json-viewer>
+          }
+        </p-tabpanel>
+      </p-tabpanels>
+    </p-tabs>
+  }
+}

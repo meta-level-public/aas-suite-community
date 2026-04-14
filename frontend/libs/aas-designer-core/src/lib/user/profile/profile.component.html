@@ -1,0 +1,146 @@
+<div class="flex flex-col gap-2">
+  <div class="hero-section">
+    <div class="hero-content">
+      <h1 class="hero-title">
+        {{ 'PROFILE' | translate }}
+      </h1>
+      <div class="hero-actions flex gap-2">
+        <p-button
+          label="{{ 'SAVE' | translate }}"
+          (onClick)="save()"
+          icon="pi pi-save"
+          [loading]="loading"
+          [disabled]="!profileForm.valid || !emailAvailable || !profileForm.dirty"
+        ></p-button>
+      </div>
+    </div>
+  </div>
+
+  <form #profileForm="ngForm">
+    <div class="flex w-full flex-col gap-6">
+      <!-- Personal Information Section -->
+      <div class="detail-card">
+        <div class="flex items-center gap-2 mb-4">
+          <i class="pi pi-user" style="color: var(--p-primary-700)"></i>
+          <div class="font-semibold text-lg">{{ 'PERSONAL_INFORMATION' | translate }}</div>
+        </div>
+
+        <div class="grid grid-cols-1 gap-4">
+          <p-inputgroup>
+            <p-inputgroup-addon class="font-bold w-56"
+              ><i class="pi pi-id-card mr-2"></i><lib-help-label tag="VORNAME" [showLabel]="false"></lib-help-label
+              >{{ 'VORNAME' | translate
+              }}<span class="ml-1" style="color: var(--aas-danger-icon)">*</span></p-inputgroup-addon
+            >
+            <input
+              pInputText
+              [(ngModel)]="profile.vorname"
+              id="vorname"
+              name="vorname"
+              [required]="true"
+              placeholder="{{ 'VORNAME' | translate }}"
+            />
+          </p-inputgroup>
+          <p-inputgroup>
+            <p-inputgroup-addon class="font-bold w-56"
+              ><i class="pi pi-id-card mr-2"></i><lib-help-label tag="NAME" [showLabel]="false"></lib-help-label
+              >{{ 'NAME' | translate
+              }}<span class="ml-1" style="color: var(--aas-danger-icon)">*</span></p-inputgroup-addon
+            >
+            <input
+              pInputText
+              [(ngModel)]="profile.name"
+              id="name"
+              name="name"
+              [required]="true"
+              placeholder="{{ 'NAME' | translate }}"
+            />
+          </p-inputgroup>
+        </div>
+        <div class="mt-4">
+          <p-inputgroup>
+            <p-inputgroup-addon class="font-bold w-56"
+              ><i class="pi pi-envelope mr-2"></i><lib-help-label tag="EMAIL" [showLabel]="false"></lib-help-label
+              >{{ 'EMAIL' | translate }}</p-inputgroup-addon
+            >
+            <input
+              pInputText
+              [(ngModel)]="profile.email"
+              id="email"
+              name="email"
+              #email="ngModel"
+              (change)="checkEmail()"
+              disabled
+            />
+          </p-inputgroup>
+        </div>
+      </div>
+
+      <!-- Profile Image Section -->
+      <div class="detail-card">
+        <div class="flex items-center gap-2 mb-4">
+          <i class="pi pi-image" style="color: var(--p-text-muted-color)"></i>
+          <div class="font-semibold text-lg">{{ 'PROFILE_IMAGE' | translate }}</div>
+        </div>
+
+        <div class="flex flex-row gap-6">
+          <div class="flex-1">
+            <div class="flex items-center gap-2 mb-3">
+              <i class="pi pi-eye text-sm" style="color: var(--p-text-muted-color)"></i>
+              <div class="font-semibold text-base">{{ 'CURRENT_PROFILE_IMAGE' | translate }}</div>
+            </div>
+            <div
+              class="flex flex-col items-center p-4 rounded-lg border"
+              style="background: var(--aas-surface-overlay-strong); border-color: var(--p-content-border-color)"
+            >
+              @if (profile.profilbildBase64) {
+                <p-avatar [image]="profile.profilbildBase64" shape="circle" size="xlarge"></p-avatar>
+                <p-button
+                  (onClick)="deleteProfileImage()"
+                  label="{{ 'DELETE_PROFILE_IMAGE' | translate }}"
+                  icon="pi pi-trash"
+                  severity="danger"
+                  outlined="true"
+                  styleClass="mt-4"
+                ></p-button>
+              } @else {
+                <div
+                  class="flex items-center justify-center w-32 h-32 rounded-full"
+                  style="background: var(--aas-surface-subtle)"
+                >
+                  <i class="pi pi-user text-5xl" style="color: var(--p-text-muted-color)"></i>
+                </div>
+                <p class="text-sm mt-3" style="color: var(--p-text-muted-color)">
+                  {{ 'NO_PROFILE_IMAGE' | translate }}
+                </p>
+              }
+            </div>
+          </div>
+
+          <div class="flex-[2]">
+            <div class="flex items-center gap-2 mb-3">
+              <i class="pi pi-upload text-sm" style="color: var(--p-text-muted-color)"></i>
+              <div class="font-semibold text-base">{{ 'UPLOAD_NEW_IMAGE' | translate }}</div>
+            </div>
+            <p-fileUpload
+              #uploader
+              chooseIcon="pi pi-upload"
+              [auto]="false"
+              chooseLabel="{{ 'CHOOSE_LABEL' | translate }}"
+              [customUpload]="true"
+              (onSelect)="setProfilbild($event)"
+              (onClear)="profile.profilbildBase64 = ''"
+              (onRemove)="profile.profilbildBase64 = ''"
+            >
+              <ng-template pTemplate="content" let-files>
+                <em>
+                  {{ 'EXCHANGE_CHOOSE_OR_SELECT_TEXT' | translate }}
+                </em>
+              </ng-template>
+            </p-fileUpload>
+          </div>
+        </div>
+      </div>
+    </div>
+  </form>
+</div>

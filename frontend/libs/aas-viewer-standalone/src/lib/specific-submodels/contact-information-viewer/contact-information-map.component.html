@@ -1,0 +1,7 @@
+@let layer = this.layer() | async;
+
+<div leaflet [leafletOptions]="options" class="contact-map" #map>
+  @if (layer != null) {
+    <div [leafletLayer]="layer"></div>
+  }
+</div>

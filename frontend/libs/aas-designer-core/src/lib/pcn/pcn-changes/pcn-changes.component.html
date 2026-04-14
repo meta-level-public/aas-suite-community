@@ -1,0 +1,26 @@
+<p-table [value]="[' ']" size="small" stripedRows>
+  <ng-template pTemplate="body">
+    <tr>
+      <td class="w-20rem">{{ 'CHANGE_TYPE' | translate }}</td>
+      <td class="font-bold">{{ changeType() | async }}</td>
+    </tr>
+    <tr>
+      <td class="w-20rem">{{ 'CHANGE_COMMENT' | translate }}</td>
+      <td class="font-bold">{{ comment() | async }}</td>
+    </tr>
+    <tr>
+      <td class="w-20rem">{{ 'DATE_OF_RECORD' | translate }}</td>
+      <td class="font-bold">{{ dateOfRecord() | async | vwsDate: 'SHORT_DATE_TIME' }}</td>
+    </tr>
+    <tr>
+      <td class="w-20rem">{{ 'CHANGE_REASON' | translate }}</td>
+      <td class="font-bold">{{ changeReason() | async }}</td>
+    </tr>
+  </ng-template>
+  <ng-template #footer>
+    <div class="flex flex-row gap-2 justify-center mt-2">
+      <p-button label="Aktion1" [outlined]="true"></p-button>
+      <p-button label="Aktion2" [outlined]="true"></p-button>
+    </div>
+  </ng-template>
+</p-table>

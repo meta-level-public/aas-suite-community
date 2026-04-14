@@ -1,0 +1,44 @@
+@if (errorEntry != null) {
+  <div class="flex flex-row gap-2 items-center">
+    @if (showPath() === true && errorEntry.error.path.toString() !== '') {
+      <p-message
+        severity="error"
+        text="{{ errorEntry.error.path }}: {{ 'errorMessages.' + errorEntry.error.message | translate }}"
+        class="w-full"
+      ></p-message>
+    } @else {
+      <p-message
+        severity="error"
+        text="{{ 'errorMessages.' + errorEntry.error.message | translate }}"
+        class="w-full"
+      ></p-message>
+    }
+    @if (errorEntry.action === ErrorHandlingAction.SET_NULL) {
+      <p-button
+        label="{{ 'SET_NULL' | translate }}"
+        icon="pi pi-trash"
+        (onClick)="setNull(errorEntry.error)"
+        size="small"
+        class="w-20rem"
+      ></p-button>
+    }
+    @if (errorEntry.action === ErrorHandlingAction.FIX_SUBMODEL_REFERENCES_MUST_BE_MODEL_REFERENCES) {
+      <p-button
+        label="{{ 'CONVERT_TO_MODEL_REFERENCE' | translate }}"
+        icon="pi pi-arrow-right-arrow-left"
+        (onClick)="fixSubmodelReferencesMustBeModelReferences(errorEntry.error)"
+        size="small"
+        class="w-20rem"
+      ></p-button>
+    }
+    @if (errorEntry.action === ErrorHandlingAction.FIX_EXTERNAL_REFERENCES) {
+      <p-button
+        label="{{ 'FIX_EXTERNAL_REFERENCES' | translate }}"
+        icon="pi pi-arrow-right-arrow-left"
+        (onClick)="fixExternalReferences(errorEntry.error)"
+        size="small"
+        class="w-20rem"
+      ></p-button>
+    }
+  </div>
+}

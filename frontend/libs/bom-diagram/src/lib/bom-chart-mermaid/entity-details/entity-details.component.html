@@ -1,0 +1,210 @@
+@if (entity != null) {
+  <p-fieldset legend="{{ 'DETAILS' | translate }}" [toggleable]="true" class="mt-2">
+    <div class="flex flex-col gap-2">
+      <div class="flex flex-row w-full gap-2">
+        <div class="w-14rem">
+          <label for="idShort">{{ 'ID_SHORT' | translate }}</label>
+        </div>
+        <div class="flex flex-col gap-2 w-full">
+          <input
+            id="idShort"
+            pInputText
+            [(ngModel)]="entity.idShort"
+            class="w-full"
+            [required]="true"
+            [pKeyFilter]="idShortRegex"
+            (ngModelChange)="onIdShortChange()"
+            [disabled]="!editable"
+          />
+        </div>
+      </div>
+      @if (editAmount()) {
+        <div class="flex flex-row w-full gap-2">
+          <div class="w-14rem">
+            <label for="idShort">{{ 'AMOUNT' | translate }}</label>
+          </div>
+          <div class="flex flex-col gap-2 w-full">
+            <input
+              id="idShort"
+              pInputText
+              [(ngModel)]="amount"
+              class="w-full"
+              (ngModelChange)="onAmountChange()"
+              [disabled]="!editable"
+            />
+          </div>
+        </div>
+      }
+      @if (entity) {
+        <div class="flex flex-row w-full gap-2">
+          <label for="entityType" class="w-14rem mt-2">{{ 'ENTITY_TYPE' | translate }}</label>
+          <p-select
+            [(ngModel)]="entity.entityType"
+            [options]="entityTypeOptions"
+            optionLabel="label"
+            optionValue="value"
+            class="w-full"
+            class="w-full"
+            id="entityType"
+            [disabled]="!editable || !editEntityType()"
+          >
+            <ng-template let-item pTemplate="item">
+              <div class="flex flex-row gap-2">
+                <div>{{ item.label | translate }}</div>
+              </div>
+            </ng-template>
+            <ng-template pTemplate="selectedItem">
+              <div class="flex flex-row gap-2">
+                <div>{{ entityTypeString | translate }}</div>
+              </div>
+            </ng-template>
+          </p-select>
+        </div>
+      }
+      <div class="flex flex-row w-full gap-2">
+        <label for="referenceType" class="w-14rem mt-2">{{ 'TYP' | translate }}</label>
+        <input
+          id="referenceType"
+          class="w-full"
+          type="text"
+          pInputText
+          [(ngModel)]="referenceType().label"
+          (ngModelChange)="markAsChanged()"
+          [disabled]="true"
+        />
+      </div>
+      <div class="flex flex-row w-full gap-2">
+        <label for="globalAssetId" class="w-14rem">{{ 'GLOBAL_ASSET_ID' | translate }}</label>
+        <p-inputGroup>
+          <input
+            id="globalAssetId"
+            pInputText
+            [(ngModel)]="entity.globalAssetId"
+            class="w-full"
+            (ngModelChange)="markAsChanged()"
+            [disabled]="!editable || !editAssetIds()"
+          />
+          @if (selectAsset() && entity.entityType == EntityType.SelfManagedEntity) {
+            <p-button icon="pi pi-search" (onClick)="search()"></p-button>
+          }
+        </p-inputGroup>
+      </div>
+      @if ((editable && editAssetIds()) || (entity.specificAssetIds != null && entity.specificAssetIds.length > 0)) {
+        <div class="flex flex-row gap-2 items-center">
+          <div class="w-14rem flex flex-col gap-2">
+            <label for="addButton">{{ 'SPECIFIC_ASSET_IDS' | translate }}</label>
+            @if (editable && editAssetIds()) {
+              <p-button
+                id="addButton"
+                styleClass="p-button-text p-button-outlined p-button-rounded p-button-sm"
+                icon="pi pi-plus"
+                (onClick)="addSpecificAssetId(); markAsChanged()"
+              ></p-button>
+            }
+          </div>
+          <p-table [value]="entity.specificAssetIds ?? []" class="w-full" size="small">
+            <ng-template #header>
+              <tr>
+                <th scope="col">{{ 'NAME' | translate }}</th>
+                <th scope="col">{{ 'VALUE' | translate }}</th>
+                @if (editable) {
+                  <th scope="col"></th>
+                }
+              </tr>
+            </ng-template>
+            <ng-template pTemplate="body" let-specificAssetId>
+              <tr>
+                <td>
+                  <input
+                    pInputText
+                    [(ngModel)]="specificAssetId.name"
+                    class="w-full"
+                    required="true"
+                    (ngModelChange)="markAsChanged()"
+                    [disabled]="!editable"
+                  />
+                </td>
+                <td>
+                  <input
+                    pInputText
+                    [(ngModel)]="specificAssetId.value"
+                    class="w-full"
+                    required="true"
+                    (ngModelChange)="markAsChanged()"
+                    [disabled]="!editable || !editAssetIds()"
+                  />
+                </td>
+                @if (editable && editAssetIds()) {
+                  <td>
+                    <p-button
+                      styleClass="p-button-text p-button-outlined p-button-rounded"
+                      icon="pi pi-trash"
+                      (onClick)="removeSpecificAssetId(specificAssetId)"
+                    ></p-button>
+                  </td>
+                }
+              </tr>
+            </ng-template>
+          </p-table>
+        </div>
+      }
+      <div class="flex flex-col justify-end w-full gap-2">
+        @if (!hasIdShort()) {
+          <p-message severity="warn" class="w-full" text="{{ 'ID_SHORT_MISSING' | translate }}"></p-message>
+        }
+        @if (!specificAssetIdsValid()) {
+          <p-message severity="warn" class="w-full" text="{{ 'SPECIFIC_ASSET_IDS_INVALID' | translate }}"></p-message>
+        }
+        @if (!hasExclusiveAssetReference()) {
+          <p-message
+            severity="warn"
+            class="w-full"
+            text="{{ 'BOM_ENTITY_ASSET_REFERENCE_EXCLUSIVE' | translate }}"
+          ></p-message>
+        }
+        @if (!hasRequiredAssetReference()) {
+          <p-message
+            severity="warn"
+            class="w-full"
+            text="{{ 'BOM_CHILD_ENTITY_ASSET_REFERENCE_REQUIRED' | translate }}"
+          ></p-message>
+        }
+        @if (hasDuplicateSiblingIdShort()) {
+          <p-message
+            severity="warn"
+            class="w-full"
+            text="{{ 'ID_SHORT_ALREADY_EXISTS_ON_LEVEL' | translate }}"
+          ></p-message>
+        }
+        @if (!isEntryAssetValid()) {
+          <p-message severity="warn" class="w-full" text="{{ 'ENTRY_ASSET_ID_INVALID' | translate }}"></p-message>
+          @if (editable && expectedEntryGlobalAssetId()) {
+            <p-button
+              icon="pi pi-copy"
+              styleClass="p-button-outlined p-button-sm mt-1 self-start"
+              label="{{ 'ADOPT_CURRENT_AAS_GLOBAL_ASSET_ID' | translate }}"
+              (onClick)="adoptCurrentAasGlobalAssetId()"
+            ></p-button>
+          }
+        }
+        @if (!isEntryAssetTypeValid()) {
+          <p-message severity="warn" class="w-full" text="{{ 'ENTRY_ASSET_TYPE_INVALID' | translate }}"></p-message>
+        }
+        @if (!isBulkCountValid()) {
+          <p-message
+            severity="warn"
+            class="w-full"
+            text="{{ 'BULK_COUNT_UNSIGNED_LONG_INVALID' | translate }}"
+          ></p-message>
+        }
+        @if (!isBulkCountTypeReferenceValid()) {
+          <p-message
+            severity="warn"
+            class="w-full"
+            text="{{ 'BULK_COUNT_REQUIRES_TYPE_REFERENCE' | translate }}"
+          ></p-message>
+        }
+      </div>
+    </div>
+  </p-fieldset>
+}

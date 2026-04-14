@@ -1,0 +1,193 @@
+@if (data != null) {
+  <aas-generator-page-shell
+    [titleKey]="'MASTER_DATA'"
+    [showSidebar]="true"
+    [contentCardClass]="'asset-metadata-step-card'"
+  >
+    <p generator-shell-intro class="text-lg battery-editor-page-copy mb-0" style="color: var(--p-text-muted-color)">
+      {{ 'BASIC_DATA_EXPL' | translate }}
+    </p>
+
+    <div generator-shell-main>
+      <div class="battery-editor-step-header">
+        <div class="battery-editor-step-heading">
+          <div class="battery-editor-step-index">{{ activeStepIndex + 1 }}</div>
+          <div>
+            <h2 class="text-2xl font-bold mb-2">{{ currentStep.labelKey | translate }}</h2>
+            <p class="text-sm mb-0" style="color: var(--p-text-muted-color)">
+              {{ currentStep.descriptionKey | translate }}
+            </p>
+          </div>
+        </div>
+      </div>
+
+      @switch (activeStepIndex) {
+        @case (0) {
+          <div>
+            <div class="font-bold mb-2 flex items-center gap-2">
+              <i class="pi pi-align-left"></i>
+              <lib-help-label tag="ASSET_SHELL_DESCRIPTION" [showLabel]="false"></lib-help-label>
+              {{ 'ASSET_SHELL_DESCRIPTION' | translate }}
+            </div>
+            <aas-multilanguage-property
+              [propList]="data.assetShellDescription"
+              [preferredLanguages]="['en', 'de']"
+              [id]="'assetShellDescription'"
+            ></aas-multilanguage-property>
+            @if (currentStepValidationMessageKey != null) {
+              <div class="asset-metadata-validation-hint mt-3">{{ currentStepValidationMessageKey | translate }}</div>
+            }
+          </div>
+        }
+
+        @case (1) {
+          <div class="flex flex-col gap-4">
+            <div>
+              <div class="font-bold mb-2 flex items-center gap-2">
+                <i class="pi pi-tag"></i>
+                <lib-help-label tag="ASSET_SHELL_ID" for="assetShellId" [showLabel]="false"></lib-help-label>
+                {{ 'ID_SHORT' | translate }}
+              </div>
+              <p class="text-sm mb-2" style="color: var(--p-text-muted-color)">
+                {{ 'ASSET_SHELL_ID_ASSISTANT_EXPL' | translate }}
+              </p>
+              <input
+                pInputText
+                id="assetShellId"
+                type="text"
+                class="w-full"
+                name="assetShellId"
+                [ngModel]="data.assetShellId"
+                (ngModelChange)="onAssetShellIdChanged($event)"
+                [pKeyFilter]="idShortRegex"
+                [required]="true"
+              />
+              @if (isCheckingAssetShellIdAvailability) {
+                <div class="asset-metadata-status-hint mt-2">{{ 'ASSET_SHELL_ID_CHECKING_HINT' | translate }}</div>
+              }
+              @if (generatedAssetShellId !== '') {
+                <div class="mt-2 flex flex-col gap-2 md:flex-row md:items-center md:justify-between">
+                  <div class="text-sm" style="color: var(--p-text-muted-color)">
+                    {{ 'ASSET_SHELL_ID_SUGGESTION' | translate: { suggestion: generatedAssetShellId } }}
+                  </div>
+                  @if (hasAlternativeSuggestion()) {
+                    <p-button
+                      styleClass="p-button-text p-button-sm"
+                      icon="pi pi-sparkles"
+                      label="{{ 'ASSET_SHELL_ID_USE_SUGGESTION' | translate }}"
+                      (onClick)="applySuggestedAssetShellId()"
+                    ></p-button>
+                  }
+                </div>
+              }
+            </div>
+
+            <div>
+              <div class="font-bold mb-2 flex items-center gap-2">
+                <i class="pi pi-box"></i>
+                {{ 'ASSET_ID' | translate }}
+              </div>
+              <p class="text-sm mb-2" style="color: var(--p-text-muted-color)">
+                {{ 'ASSET_ID_ASSISTANT_EXPL' | translate }}
+              </p>
+              <input pInputText class="w-full" [ngModel]="generatedAssetId" [readonly]="true" />
+            </div>
+
+            <div>
+              <div class="font-bold mb-2 flex items-center gap-2">
+                <i class="pi pi-sitemap"></i>
+                {{ 'AAS_ID' | translate }}
+              </div>
+              <p class="text-sm mb-2" style="color: var(--p-text-muted-color)">
+                {{ 'AAS_ID_ASSISTANT_EXPL' | translate }}
+              </p>
+              <input pInputText class="w-full" [ngModel]="generatedAssetShellIdentifier" [readonly]="true" />
+              @if (assetShellIdentifierStatusKey !== '') {
+                <div class="mt-2">
+                  <p-tag
+                    [value]="assetShellIdentifierStatusKey | translate"
+                    [severity]="assetShellIdentifierStatusSeverity"
+                    [icon]="assetShellIdentifierStatusIcon"
+                  ></p-tag>
+                </div>
+              }
+            </div>
+          </div>
+
+          @if (hasAssetShellIdCollision) {
+            <div class="asset-metadata-validation-hint mt-4">
+              <div>
+                {{ 'ASSET_SHELL_ID_ALREADY_EXISTS_HINT' | translate: { identifier: generatedAssetShellIdentifier } }}
+              </div>
+              @if (assetShellIdCorrectionSuggestion !== '') {
+                <div class="asset-metadata-correction-row mt-3">
+                  <div class="text-sm">
+                    {{
+                      'ASSET_SHELL_ID_CORRECTION_SUGGESTION'
+                        | translate: { suggestion: assetShellIdCorrectionSuggestion }
+                    }}
+                  </div>
+                  <p-button
+                    styleClass="p-button-warning p-button-sm"
+                    icon="pi pi-wrench"
+                    label="{{ 'ASSET_SHELL_ID_CORRECT' | translate }}"
+                    (onClick)="applyCorrectedAssetShellId()"
+                  ></p-button>
+                </div>
+              }
+            </div>
+          }
+
+          @if (currentStepValidationMessageKey != null) {
+            <div class="asset-metadata-validation-hint">{{ currentStepValidationMessageKey | translate }}</div>
+          }
+        }
+
+        @case (2) {
+          <div>
+            <aas-generator-file-upload-card
+              [titleKey]="'ASSET_THUMBNAIL'"
+              [helpTag]="'ASSET_THUMBNAIL'"
+              [iconClass]="'pi pi-image'"
+              [state]="assetThumbnailUploadCardState"
+              [emptyTextKey]="'UPLOAD_OR_SELECT_TEXT'"
+              [selectTextKey]="'CHOOSE_FILE'"
+              [allowRemove]="false"
+              [accept]="'image/*'"
+              [inputId]="'assetThumbnailUpload'"
+              [previewUnavailableTextKey]="'ASSET_THUMBNAIL_PREVIEW_UNAVAILABLE'"
+              (fileSelected)="setAssetThumbnail($event); setPackageThumbnail($event)"
+            ></aas-generator-file-upload-card>
+          </div>
+        }
+      }
+    </div>
+
+    <div class="battery-editor-nav" generator-shell-sidebar-nav>
+      <aas-sidebar-tree-nav
+        [items]="stepNodes"
+        [selectedKey]="activeStepKey"
+        [appearance]="'step-list'"
+        [showFilter]="false"
+        (nodeSelected)="selectStepNode($event)"
+      ></aas-sidebar-tree-nav>
+    </div>
+
+    <div class="battery-editor-nav-actions" generator-shell-sidebar-actions>
+      <p-button
+        [fluid]="true"
+        label="{{ 'BACK' | translate }}"
+        (onClick)="prevPage()"
+        icon="pi pi-angle-left"
+      ></p-button>
+      <p-button
+        [fluid]="true"
+        label="{{ 'NEXT' | translate }}"
+        [disabled]="!canProceedFromCurrentStep"
+        (onClick)="nextPage()"
+        icon="pi pi-angle-right"
+        iconPos="right"
+      ></p-button>
+    </div>
+  </aas-generator-page-shell>
+}

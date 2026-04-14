@@ -1,0 +1,9 @@
+**/bin
+**/obj
+**/node_modules
+**/TestResults
+services/**/Migrations
+xsd
+xsd/**
+services/xsd
+services/xsd/**

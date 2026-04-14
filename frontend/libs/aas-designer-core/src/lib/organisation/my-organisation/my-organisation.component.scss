@@ -1,0 +1,35 @@
+:host {
+  min-height: 0;
+}
+
+:host ::ng-deep {
+  p-splitter,
+  .p-splitter,
+  .p-splitterpanel,
+  .p-splitter-panel,
+  .p-splitter-gutter {
+    min-height: 0;
+  }
+
+  p-splitter,
+  .p-splitter {
+    display: flex;
+    flex: 1 1 auto;
+    height: 100%;
+  }
+
+  .p-splitterpanel,
+  .p-splitter-panel {
+    display: flex;
+    flex: 1 1 0;
+    min-height: 0;
+  }
+
+  .p-splitterpanel > .p-splitterpanel-content,
+  .p-splitter-panel > .p-splitter-panel-content {
+    display: flex;
+    flex: 1 1 auto;
+    min-height: 0;
+    width: 100%;
+  }
+}

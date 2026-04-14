@@ -1,0 +1,15 @@
+<p-table [value]="entity?.keys ?? []" size="small" stripedRows>
+  <ng-template pTemplate="body" let-key>
+    <tr>
+      <td style="width: 20%">{{ getTypeString(key.type) }}</td>
+      <td style="width: 80%">
+        {{ key.value }}
+      </td>
+    </tr>
+  </ng-template>
+  <ng-template pTemplate="emptymessage" let-columns>
+    <tr>
+      <td [attr.colspan]="columns?.length">{{ 'NO_DATA_FOUND' | translate }}</td>
+    </tr>
+  </ng-template>
+</p-table>

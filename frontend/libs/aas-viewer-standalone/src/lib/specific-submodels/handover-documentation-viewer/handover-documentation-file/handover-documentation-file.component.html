@@ -1,0 +1,83 @@
+<div class="flex flex-col h-full gap-2 ml-2">
+  <div class="flex flex-row gap-2">
+    @if (documentFiles.length > 0) {
+      <p-select
+        [options]="documentFiles"
+        [(ngModel)]="selectedFile"
+        class="w-full"
+        class="w-full"
+        optionLabel="label"
+        (onChange)="selectedFileChanged()"
+        placeholder="{{ 'PLEASE_SELECT' | translate }}"
+      ></p-select>
+    }
+    @if (documentFiles.length === 0) {
+      <div>{{ 'NO_FILES_GIVEN' | translate }}</div>
+    }
+    @if (selectedFile && selectedFile.path !== '' && !loadError) {
+      <p-button (onClick)="selectedFile ? download.emit(selectedFile) : null" icon="pi pi-download"></p-button>
+    }
+  </div>
+  @if (selectedFile && fileSrc) {
+    <div class="flex flex-col h-full gap-2">
+      @if (FilenameHelper.isImage(selectedFile.path)) {
+        <img
+          class="w-full"
+          [src]="fileSrc | safe: 'resourceUrl'"
+          style="object-fit: contain"
+          alt="imageContent"
+          (error)="objectLoadError()"
+        />
+      }
+      @if (FilenameHelper.isPdf(selectedFile.path)) {
+        <object
+          class="w-full"
+          [data]="fileSrc | safe: 'resourceUrl'"
+          style="object-fit: contain"
+          height="500px"
+          (error)="objectLoadError()"
+          type="application/pdf"
+        ></object>
+      }
+      @if (FilenameHelper.isVideo(selectedFile.path)) {
+        <video
+          class="w-full"
+          [src]="fileSrc | safe: 'resourceUrl'"
+          controls
+          muted
+          autoplay
+          (error)="objectLoadError()"
+        ></video>
+      }
+      @if (FilenameHelper.isXmlType(selectedFile.path) && xmlString != null) {
+        <markdown class="w-full h-full flex flex-col overflow-scroll">
+          ```xml
+          {{ xmlString }}
+        </markdown>
+      }
+      @if (selectedFile.path.startsWith('http')) {
+        <a class="text-xs" [href]="selectedFile.path" target="_blank">
+          {{ 'SOURCE' | translate }}: {{ selectedFile.path }}
+        </a>
+      }
+      @if (
+        !FilenameHelper.isVideo(selectedFile.path) &&
+        !FilenameHelper.isPdf(selectedFile.path) &&
+        !FilenameHelper.isImage(selectedFile.path) &&
+        !FilenameHelper.isXmlType(selectedFile.path) &&
+        this.selectedFile.path !== ''
+      ) {
+        <p-message severity="warn" text="{{ 'NO_PREVIEW_AVAILABLE_FOR_THIS_TYPE' | translate }}"></p-message>
+      }
+      @if (isPreview && selectedFile.path === '') {
+        <p-message severity="warn" text="{{ 'NO_PREVIEW_FILE_SET' | translate }}"></p-message>
+      }
+      @if (selectedFile.path.startsWith('http') && loadError) {
+        <p-message severity="error" text="{{ 'ERROR_LOADING_ERXTERNAL_FILE' | translate }}"></p-message>
+      }
+    </div>
+  }
+  @if (isPreview && selectedFile && fileSrc == null) {
+    <p-message severity="warn" text="{{ 'NO_PREVIEW_FILE_SET' | translate }}"></p-message>
+  }
+</div>

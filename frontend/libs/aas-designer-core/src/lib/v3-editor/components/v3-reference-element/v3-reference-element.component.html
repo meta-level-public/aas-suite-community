@@ -1,0 +1,109 @@
+@if (reference != null && reference.content != null) {
+  <div class="flex flex-col gap-2">
+    <p-fieldset
+      [toggleable]="true"
+      class="mt-2"
+      [collapsed]="uiStateStore.detailsPanelCollapsed()"
+      (collapsedChange)="uiStateStore.setDetailsPanelCollapsed($event)"
+    >
+      <ng-template #header>
+        <div class="flex items-center gap-2 px-2">
+          <lib-help-label tag="DETAILS" isLabelBold="true"></lib-help-label>
+        </div>
+      </ng-template>
+      <div class="flex flex-col gap-2">
+        <aas-v3-id-short [element]="reference" class="w-full" [shellResult]="shellResult"></aas-v3-id-short>
+        <div class="flex flex-row w-full gap-2">
+          <lib-help-label class="w-14rem mt-2" tag="DESCRIPTION"></lib-help-label>
+          <aas-v3-lang-string-list
+            [langStrings]="reference.content.description"
+            [langStringParent]="reference.content"
+            [langStringParentPropertyName]="'description'"
+            class="w-full"
+          ></aas-v3-lang-string-list>
+        </div>
+        <div class="flex flex-row w-full gap-2">
+          <lib-help-label class="w-14rem mt-2" tag="DISPLAY_NAME"></lib-help-label>
+          <aas-v3-lang-string-list
+            [langStrings]="reference.content.displayName"
+            [langStringParent]="reference.content"
+            [langStringParentPropertyName]="'displayName'"
+            class="w-full"
+          ></aas-v3-lang-string-list>
+        </div>
+      </div>
+    </p-fieldset>
+
+    <p-fieldset
+      [toggleable]="true"
+      class="mt-2"
+      [collapsed]="uiStateStore.contentPanelCollapsed()"
+      (collapsedChange)="uiStateStore.setContentPanelCollapsed($event)"
+    >
+      <ng-template #header>
+        <div class="flex items-center gap-2 px-2">
+          <lib-help-label tag="CONTENT" isLabelBold="true"></lib-help-label>
+        </div>
+      </ng-template>
+      <aas-v3-reference
+        [reference]="reference.content.value"
+        [referenceParent]="reference.content"
+        [referenceParentField]="'value'"
+        [shellResult]="shellResult"
+      ></aas-v3-reference>
+    </p-fieldset>
+    <!-- <p-fieldset legend="{{ 'EXTENSIONS' | translate }}" [toggleable]="true" [collapsed]="true">
+    <aas-v3-extensions
+      [extensions]="reference.content.extensions"
+      [extensionsParent]="reference.content"
+    ></aas-v3-extensions>
+  </p-fieldset> -->
+    <p-fieldset
+      [toggleable]="true"
+      [collapsed]="uiStateStore.semanticIdPanelCollapsed()"
+      (collapsedChange)="uiStateStore.setSemanticIdPanelCollapsed($event)"
+      [ngClass]="{ 'border-error': hasSemanticErrors }"
+    >
+      <ng-template #header>
+        <div class="flex items-center gap-2 px-2">
+          <lib-help-label tag="SEMANTIC_ID" isLabelBold="true"></lib-help-label>
+        </div>
+      </ng-template>
+      <aas-v3-semantic-description
+        [semanticId]="reference.content.semanticId"
+        [supplemantalSemanticIds]="reference.content.supplementalSemanticIds"
+        [referenceParent]="reference.content"
+        [referenceParentPropertyName]="'semanticId'"
+        [shellResult]="shellResult"
+      ></aas-v3-semantic-description>
+    </p-fieldset>
+    <p-fieldset
+      [toggleable]="true"
+      [collapsed]="uiStateStore.qualifiersPanelCollapsed()"
+      (collapsedChange)="uiStateStore.setQualifiersPanelCollapsed($event)"
+    >
+      <ng-template #header>
+        <div class="flex items-center gap-2 px-2">
+          <lib-help-label tag="QUALIFIERS" isLabelBold="true"></lib-help-label>
+        </div>
+      </ng-template>
+      <aas-v3-qualifiers
+        [qualifiers]="reference.content.qualifiers"
+        [qualifiersParent]="reference.content"
+      ></aas-v3-qualifiers>
+    </p-fieldset>
+
+    <p-fieldset
+      [toggleable]="true"
+      [collapsed]="uiStateStore.endpointUrlPanelCollapsed()"
+      (collapsedChange)="uiStateStore.setEndpointUrlPanelCollapsed($event)"
+    >
+      <ng-template #header>
+        <div class="flex items-center gap-2 px-2">
+          <lib-help-label tag="ENDPOINT_URL" isLabelBold="true"></lib-help-label>
+        </div>
+      </ng-template>
+      <aas-endpoint-url [element]="reference" [shellResult]="shellResult"></aas-endpoint-url>
+    </p-fieldset>
+  </div>
+}

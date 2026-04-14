@@ -1,0 +1,87 @@
+@if (selectedModel) {
+  <div>
+    @switch (selectedModel.idShort) {
+      @case ('Nameplate') {
+        @if (hasViewer('Nameplate')) {
+          <aas-aasx-nameplate-viewer
+            [nameplate]="selectedModel"
+            [aasId]="aasId"
+            [apiUrl]="apiUrl"
+          ></aas-aasx-nameplate-viewer>
+        }
+        @if (hasViewer('HsuNameplate')) {
+          <aas-hsu-nameplate-viewer
+            [nameplate]="selectedModel"
+            [aasId]="aasId"
+            [apiUrl]="apiUrl"
+          ></aas-hsu-nameplate-viewer>
+        }
+        @if (hasViewer('GenericNameplate')) {
+          <aas-generic-nameplate-viewer
+            [nameplate]="selectedModel"
+            [aasId]="aasId"
+            [apiUrl]="apiUrl"
+          ></aas-generic-nameplate-viewer>
+        }
+      }
+      @case ('TechnicalData') {
+        @if (hasViewer('TechnicalData')) {
+          <aas-technicaldata-viewer
+            [submodelData]="selectedModel"
+            [aasId]="aasId"
+            [apiUrl]="apiUrl"
+            [conceptDescriptions]="conceptDescriptions"
+          ></aas-technicaldata-viewer>
+        } @else {
+          <aas-generic-viewer
+            [conceptDescriptions]="conceptDescriptions"
+            [rowData]="selectedModel"
+            [aasId]="aasId"
+            [apiUrl]="apiUrl"
+          ></aas-generic-viewer>
+        }
+      }
+      @case ('ContactInformation') {
+        @if (hasViewer('ContactInformation')) {
+          <aas-contact-information-viewer
+            [contactInformation]="selectedModel"
+            [aasId]="aasId"
+            [apiUrl]="apiUrl"
+          ></aas-contact-information-viewer>
+        } @else {
+          <aas-generic-viewer
+            [conceptDescriptions]="conceptDescriptions"
+            [rowData]="selectedModel"
+            [aasId]="aasId"
+            [apiUrl]="apiUrl"
+          ></aas-generic-viewer>
+        }
+      }
+      @case ('Documentation') {
+        @if (hasViewer('Documentation')) {
+          <aas-documentation-viewer
+            [documentation]="selectedModel"
+            [aasId]="aasId"
+            [currentLanguage]="currentLanguage"
+            [apiUrl]="apiUrl"
+          ></aas-documentation-viewer>
+        } @else {
+          <aas-generic-viewer
+            [conceptDescriptions]="conceptDescriptions"
+            [rowData]="selectedModel"
+            [aasId]="aasId"
+            [apiUrl]="apiUrl"
+          ></aas-generic-viewer>
+        }
+      }
+      @default {
+        <aas-generic-viewer
+          [conceptDescriptions]="conceptDescriptions"
+          [rowData]="selectedModel"
+          [aasId]="aasId"
+          [apiUrl]="apiUrl"
+        ></aas-generic-viewer>
+      }
+    }
+  </div>
+}

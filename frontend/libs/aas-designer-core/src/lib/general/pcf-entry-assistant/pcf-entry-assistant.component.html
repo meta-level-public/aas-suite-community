@@ -1,0 +1,107 @@
+@if (activeDefinition != null && activeGroup != null) {
+  <p class="text-lg text-gray-600 mb-6">{{ activeDefinition.descriptionKey | translate }}</p>
+
+  @if (activeDefinition.groups.length > 1) {
+    <div class="pcf-entry-group-stepper mb-6">
+      <p-steps [model]="groupItems" [activeIndex]="activeGroupIndex" [readonly]="false"></p-steps>
+    </div>
+  }
+
+  <div class="pcf-entry-card">
+    <div class="mb-5">
+      <h3 class="text-2xl font-bold mb-2">{{ activeGroup.labelKey | translate }}</h3>
+      @if (getGroupDescription(activeGroup) !== '') {
+        <p class="text-sm text-gray-600 mb-0">{{ getGroupDescription(activeGroup) | translate }}</p>
+      }
+    </div>
+
+    <div class="flex flex-col gap-4">
+      @for (field of activeGroup.fields; track field.id) {
+        <div class="pcf-entry-field-card">
+          <div class="font-bold mb-2">{{ field.labelKey | translate }}</div>
+          @if (field.descriptionKey != null) {
+            <div class="text-sm text-gray-500 mb-3">{{ field.descriptionKey | translate }}</div>
+          }
+
+          @if (field.fieldType === 'multilanguage') {
+            <aas-multilanguage-property [propList]="getMultilanguageFieldValue(field)"></aas-multilanguage-property>
+          } @else if (field.multiple) {
+            <div class="flex flex-col gap-2">
+              @for (value of getMultiValueFieldValues(field); track $index; let index = $index) {
+                <div class="pcf-entry-multi-value-row">
+                  @if (hasFieldOptions(field)) {
+                    <p-select
+                      class="w-full"
+                      [options]="getFieldOptions(field)"
+                      [ngModel]="value"
+                      (ngModelChange)="setMultiValueFieldValue(field, index, $event)"
+                      appendTo="body"
+                    ></p-select>
+                  } @else {
+                    <input
+                      pInputText
+                      class="w-full"
+                      [ngModel]="value"
+                      (ngModelChange)="setMultiValueFieldValue(field, index, $event)"
+                    />
+                  }
+                  <p-button
+                    icon="pi pi-trash"
+                    severity="secondary"
+                    outlined="true"
+                    (onClick)="removeMultiValueFieldValue(field, index)"
+                  ></p-button>
+                </div>
+              }
+
+              <div>
+                <p-button
+                  icon="pi pi-plus"
+                  severity="secondary"
+                  outlined="true"
+                  (onClick)="addMultiValueFieldValue(field)"
+                  label="{{ 'ADD' | translate }}"
+                ></p-button>
+              </div>
+            </div>
+          } @else if (hasFieldOptions(field)) {
+            <p-select
+              class="w-full"
+              [options]="getFieldOptions(field)"
+              [ngModel]="getFieldValue(field)"
+              (ngModelChange)="setFieldValue(field, $event)"
+              appendTo="body"
+            ></p-select>
+          } @else if (field.fieldType === 'number') {
+            <p-inputNumber
+              inputStyleClass="w-full"
+              styleClass="w-full"
+              [ngModel]="getFieldValue(field)"
+              (ngModelChange)="setFieldValue(field, $event)"
+            ></p-inputNumber>
+          } @else if (field.fieldType === 'textarea') {
+            <textarea
+              pTextarea
+              class="w-full"
+              rows="4"
+              [ngModel]="getFieldValue(field)"
+              (ngModelChange)="setFieldValue(field, $event)"
+            ></textarea>
+          } @else {
+            <input
+              pInputText
+              class="w-full"
+              [ngModel]="getFieldValue(field)"
+              (ngModelChange)="setFieldValue(field, $event)"
+            />
+          }
+        </div>
+      }
+    </div>
+  </div>
+
+  <div class="flex gap-2 justify-end mt-6 pt-4 border-t">
+    <p-button label="{{ 'BACK' | translate }}" (onClick)="previous()"></p-button>
+    <p-button label="{{ 'NEXT' | translate }}" (onClick)="next()" icon="pi pi-angle-right" iconPos="right"></p-button>
+  </div>
+}

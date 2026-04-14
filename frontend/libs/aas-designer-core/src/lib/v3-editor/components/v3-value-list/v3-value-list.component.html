@@ -1,0 +1,40 @@
+<div class="flex flex-col w-full justify-center gap-2">
+  @if (!valueList || valueList.valueReferencePairs.length === 0) {
+    <p-button
+      label="{{ 'ADD' | translate }}"
+      (onClick)="addValueListEntry()"
+      class="aas-add-button"
+      icon="pi pi-plus"
+      size="small"
+      [outlined]="true"
+    ></p-button>
+  }
+
+  @for (valuePair of valueList?.valueReferencePairs ?? []; track valuePair; let i = $index) {
+    <div class="flex flex-row gap-3 justify-start">
+      <div class="flex flex-col w-full">
+        <p-inputgroup>
+          <input pInputText [(ngModel)]="valuePair.value" class="w-full" vwsV3Undo />
+          <p-inputgroup-addon>
+            <p-button icon="pi pi-times" severity="secondary" (onClick)="valuePair.value = ''" />
+          </p-inputgroup-addon>
+        </p-inputgroup>
+        @if (hasContentErrors(valuePair)) {
+          <div class="text-error">
+            {{ 'errorMessages.' + getContentError(valuePair)[0].message | translate }}
+          </div>
+        }
+      </div>
+      <div style="width: 36px">
+        <p-button
+          icon="pi pi-trash"
+          styleClass="p-button-danger p-button-rounded p-button-text"
+          (onClick)="removeValueOption(i)"
+        ></p-button>
+      </div>
+      <div style="width: 36px">
+        <p-button icon="pi pi-plus" (onClick)="addNewValueOption()" [text]="true"></p-button>
+      </div>
+    </div>
+  }
+</div>

@@ -1,0 +1,19 @@
+@if (element != null && element.content) {
+  <div class="flex flex-row w-full gap-2">
+    <lib-help-label tag="CATEGORY" class="w-14rem" class="w-14rem"></lib-help-label>
+    <div class="w-full flex flex-col gap-1">
+      <p-select
+        [options]="categoryOptions"
+        [(ngModel)]="element.content.category"
+        optionLabel="label"
+        optionValue="value"
+        class="w-full"
+        class="w-full"
+        [ngClass]="{ 'border-error': hasCategoryErrors }"
+      ></p-select>
+      @for (error of categoryErrors; track error) {
+        <aas-error-line [errorEntry]="error" [parent]="element.content" [showPath]="false"></aas-error-line>
+      }
+    </div>
+  </div>
+}

@@ -1,0 +1,132 @@
+.generator-file-card {
+  display: grid;
+  gap: 1rem;
+  padding: 1rem;
+  border: 1px solid var(--p-content-border-color);
+  border-radius: var(--aas-radius-md);
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.95) 0%, rgba(248, 250, 255, 0.92) 100%);
+  transition:
+    border-color 0.2s ease,
+    box-shadow 0.2s ease,
+    transform 0.2s ease;
+}
+
+.generator-file-card-drop-active {
+  border-color: color-mix(in srgb, var(--p-primary-color) 45%, var(--p-content-border-color));
+  box-shadow: 0 0 0 0.2rem color-mix(in srgb, var(--p-primary-color) 16%, transparent);
+  transform: translateY(-1px);
+}
+
+.generator-file-card-warning {
+  background: linear-gradient(180deg, rgba(255, 249, 235, 0.96) 0%, rgba(255, 255, 255, 0.94) 100%);
+  border-color: rgba(194, 142, 53, 0.3);
+}
+
+.generator-file-card-hero {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 1rem;
+  align-items: start;
+}
+
+.generator-file-card-copy {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  min-width: 0;
+}
+
+.generator-file-card-label {
+  font-size: 0.875rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+}
+
+.generator-file-card-label-row {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.generator-file-card-filename {
+  font-size: 1rem;
+  font-weight: 600;
+  word-break: break-word;
+}
+
+.generator-file-card-empty {
+  font-size: 0.95rem;
+  color: var(--p-text-muted-color);
+}
+
+.generator-file-card-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: fit-content;
+  max-width: 100%;
+  padding: 0.35rem 0.65rem;
+  border-radius: 999px;
+  border: 1px solid color-mix(in srgb, var(--p-primary-color) 20%, var(--p-content-border-color));
+  background: color-mix(in srgb, var(--p-primary-color) 10%, var(--p-content-background));
+  color: var(--p-primary-color);
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  word-break: break-word;
+}
+
+.generator-file-card-meta {
+  display: grid;
+  gap: 0.75rem;
+}
+
+.generator-file-card-meta-item {
+  display: grid;
+  gap: 0.2rem;
+}
+
+.generator-file-card-meta-label {
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--p-text-muted-color);
+}
+
+.generator-file-card-meta-value {
+  font-size: 0.9rem;
+  word-break: break-word;
+}
+
+.generator-file-card-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+}
+
+.generator-file-card-actions > * {
+  flex: 0 0 auto;
+}
+
+.generator-file-card-message {
+  font-size: 0.95rem;
+  color: var(--aas-warning-text);
+}
+
+.generator-file-card-preview-image {
+  width: 100%;
+  max-height: 18rem;
+  object-fit: contain;
+  border-radius: calc(var(--aas-radius-md) - 0.25rem);
+  background: linear-gradient(135deg, rgba(236, 242, 255, 0.9) 0%, rgba(255, 255, 255, 0.98) 100%);
+  border: 1px solid rgba(108, 137, 184, 0.18);
+}
+
+@media (min-width: 768px) {
+  .generator-file-card-hero {
+    grid-template-columns: minmax(0, 1fr) auto;
+  }
+}

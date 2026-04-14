@@ -1,0 +1,84 @@
+<div class="flex flex-col w-full gap-2" [class.highlight-hit]="isHighlighted()" [attr.data-idshortpath]="idShortPath">
+  @switch (modelType) {
+    @case ('Property') {
+      @if (rowData.value != null && rowData.value !== '') {
+        <aas-property-viewer [property]="rowData" [compact]="formatted"></aas-property-viewer>
+      }
+    }
+    @case ('MultiLanguageProperty') {
+      @if (rowData.value != null && rowData.value !== '') {
+        <aas-multilanguage-property-viewer
+          [properties]="rowData"
+          [compact]="formatted"
+        ></aas-multilanguage-property-viewer>
+      }
+    }
+    @case ('LangStringTextType') {
+      <aas-multilanguage-property-viewer [values]="[rowData]" [compact]="formatted"></aas-multilanguage-property-viewer>
+    }
+    @case ('Submodel') {
+      <aas-submodel-elements-list
+        [elements]="rowData.submodelElements ?? []"
+        [idShortPath]="''"
+        [submodelId]="submodelId"
+      ></aas-submodel-elements-list>
+    }
+    @case ('SubmodelElementCollection') {
+      <aas-smc-viewer-v3
+        [smc]="rowData"
+        [compact]="formatted"
+        [idShortPath]="idShortPath"
+        [submodelId]="submodelId"
+        [idShort]="rowData.idShort"
+        [fallbackLabel]="fallbackLabel"
+      ></aas-smc-viewer-v3>
+    }
+    @case ('SubmodelElementList') {
+      <aas-smc-viewer-v3
+        [smc]="rowData"
+        [withIdShort]="false"
+        [compact]="formatted"
+        [idShortPath]="idShortPath"
+        [submodelId]="submodelId"
+        [idShort]="rowData.idShort"
+        [fallbackLabel]="fallbackLabel"
+      ></aas-smc-viewer-v3>
+    }
+    @case ('File') {
+      <aas-v3-file-viewer
+        [fileObj]="rowData"
+        [idShortPath]="idShortPath"
+        [submodelId]="submodelId"
+        [idShort]="rowData.idShort"
+      ></aas-v3-file-viewer>
+    }
+    @case ('Entity') {
+      <aas-entity-viewer [entity]="rowData"></aas-entity-viewer>
+    }
+    @case ('Operation') {
+      <aas-operation-viewer
+        [operation]="rowData"
+        [idShortPath]="idShortPath"
+        [submodelId]="submodelId"
+      ></aas-operation-viewer>
+    }
+    @case ('RelationshipElement') {
+      <aas-relationship-viewer-v3 [entity]="rowData"></aas-relationship-viewer-v3>
+    }
+    @case ('ReferenceElement') {
+      <aas-reference-element-v3 [element]="rowData"></aas-reference-element-v3>
+    }
+    @case ('Capability') {
+      <aas-capability-element-viewer-v3 [element]="rowData"></aas-capability-element-viewer-v3>
+    }
+    @case ('Range') {
+      <aas-range-viewer [range]="rowData"></aas-range-viewer>
+    }
+    @case ('Blob') {
+      <aas-blob-viewer [blob]="rowData"></aas-blob-viewer>
+    }
+    @default {
+      <div>{{ 'VIEWER_MISSING' | translate }}: {{ modelType }}</div>
+    }
+  }
+</div>

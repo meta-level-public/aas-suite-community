@@ -1,0 +1,29 @@
+#!/bin/sh
+
+export PATH="/opt/homebrew/bin:/usr/local/bin:$HOME/.dotnet/tools:$PATH"
+
+repo_root="$(git rev-parse --show-toplevel)"
+
+cd "$repo_root/frontend" || exit 1
+
+if [ -x "$repo_root/frontend/node_modules/.bin/lint-staged" ]; then
+  pnpm exec lint-staged || exit 1
+else
+  echo "husky - skip frontend lint-staged: run 'pnpm install' in frontend first"
+fi
+
+cd "$repo_root" || exit 1
+
+staged_csharpier_files="$(
+  git diff --cached --name-only --diff-filter=ACMR \
+    | grep '^services/' \
+    | grep -E '\.(cs|csproj|props|targets|xml)$' \
+    | grep -v -E '^services/.*/Migrations/|^services/xsd/' \
+    || true
+)"
+
+if [ -n "$staged_csharpier_files" ]; then
+  dotnet tool restore --tool-manifest .config/dotnet-tools.json >/dev/null || exit 1
+  printf '%s\n' "$staged_csharpier_files" \
+    | xargs dotnet tool run csharpier check --ignore-path .csharpierignore --compilation-errors-as-warnings
+fi

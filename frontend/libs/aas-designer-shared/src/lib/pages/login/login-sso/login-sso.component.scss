@@ -1,0 +1,64 @@
+:host {
+  display: block;
+  --aas-login-panel-border: color-mix(in srgb, var(--p-text-color) 12%, transparent);
+  --aas-login-panel-surface: color-mix(in srgb, var(--p-content-background) 84%, transparent);
+  --aas-login-panel-muted: var(--p-text-muted-color);
+  --aas-login-panel-icon-surface: color-mix(in srgb, var(--p-primary-color) 14%, transparent);
+  --aas-login-panel-icon-color: var(--p-text-color);
+}
+
+:host-context(html.my-app-dark) {
+  --aas-login-panel-border: color-mix(in srgb, var(--p-surface-0) 18%, transparent);
+  --aas-login-panel-surface: color-mix(in srgb, var(--p-surface-900) 72%, transparent);
+  --aas-login-panel-icon-surface: color-mix(in srgb, var(--p-primary-color) 20%, transparent);
+  --aas-login-panel-icon-color: var(--p-surface-0);
+}
+
+.sso-panel {
+  display: grid;
+  gap: 1rem;
+  padding: 1.1rem;
+  border: 1px solid var(--aas-login-panel-border);
+  border-radius: var(--aas-radius-md);
+  background:
+    linear-gradient(180deg, color-mix(in srgb, var(--p-primary-color) 8%, transparent), transparent 72%),
+    var(--aas-login-panel-surface);
+}
+
+.sso-panel-badge {
+  display: inline-flex;
+  width: fit-content;
+  align-items: center;
+  gap: 0.55rem;
+  padding: 0.45rem 0.8rem;
+  border-radius: 999px;
+  background: var(--aas-login-panel-icon-surface);
+  color: var(--aas-login-panel-icon-color);
+  font-size: 0.82rem;
+  font-weight: 600;
+}
+
+.sso-panel-copy {
+  display: grid;
+  gap: 0.45rem;
+}
+
+.sso-panel-title,
+.sso-panel-text {
+  margin: 0;
+}
+
+.sso-panel-title {
+  font-size: 1.15rem;
+  font-weight: 600;
+  color: var(--p-text-color);
+}
+
+.sso-panel-text {
+  color: var(--aas-login-panel-muted);
+  line-height: 1.55;
+}
+
+.sso-panel-actions {
+  padding-top: 0.25rem;
+}

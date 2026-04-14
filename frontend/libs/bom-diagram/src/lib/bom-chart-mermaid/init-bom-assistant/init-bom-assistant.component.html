@@ -1,0 +1,142 @@
+<div class="bom-wizard">
+  <div class="wizard-steps-card">
+    <p-steps [model]="items" [readonly]="true" [(activeIndex)]="active" />
+  </div>
+
+  @switch (active) {
+    @case (0) {
+      <div class="wizard-panel">
+        <aas-select-type (selectedType)="selectedType($event)"></aas-select-type>
+        <div class="wizard-actions">
+          <p-button
+            label="{{ 'CANCEL' | translate }}"
+            icon="pi pi-times"
+            styleClass="p-button-secondary p-button-outlined"
+            (onClick)="cancel()"
+          />
+          <p-button
+            label="{{ 'NEXT' | translate }}"
+            icon="pi pi-angle-right"
+            iconPos="right"
+            (onClick)="next()"
+            [disabled]="archeType() == undefined"
+          />
+        </div>
+      </div>
+    }
+
+    @case (1) {
+      <div class="wizard-panel">
+        <aas-entity-details
+          [editable]="true"
+          [entity]="rootEntity"
+          [relationship]="undefined"
+          [referenceType]="referenceType()"
+          [apiUrl]="apiUrl"
+          [selectAsset]="false"
+          [editAmount]="false"
+          [editEntityType]="false"
+          [editAssetIds]="false"
+          [expectedEntryGlobalAssetId]="assetInformation.globalAssetId"
+          (detailsChanged)="markAsChanged()"
+        ></aas-entity-details>
+        @if (hasExistingEntryNodeWithoutReinitialize()) {
+          <div class="text-sm text-orange-700 mt-2">
+            {{ 'BOM_ENTRY_NODE_ALREADY_EXISTS_REINIT' | translate }}
+          </div>
+        }
+        @if (hasArchetypeConflict()) {
+          <div class="text-sm text-orange-700 mt-2">
+            {{ 'BOM_ARCHETYPE_CONFLICT' | translate }}
+          </div>
+        }
+        @if (hasDuplicateTopLevelIdShort()) {
+          <div class="text-sm text-orange-700 mt-2">
+            {{ 'ID_SHORT_ALREADY_EXISTS_ON_LEVEL' | translate }}
+          </div>
+        }
+        @if (!hasExclusiveAssetReferences()) {
+          <div class="text-sm text-orange-700 mt-2">
+            {{ 'BOM_ENTITY_ASSET_REFERENCE_EXCLUSIVE' | translate }}
+          </div>
+        }
+        @if (hasInvalidBulkCountValues()) {
+          <div class="text-sm text-orange-700 mt-2">
+            {{ 'BULK_COUNT_UNSIGNED_LONG_INVALID' | translate }}
+          </div>
+        }
+        @if (hasBulkCountTypeReferenceConflict()) {
+          <div class="text-sm text-orange-700 mt-2">
+            {{ 'BULK_COUNT_REQUIRES_TYPE_REFERENCE' | translate }}
+          </div>
+        }
+        <div class="wizard-actions">
+          <p-button
+            label="{{ 'CANCEL' | translate }}"
+            icon="pi pi-times"
+            styleClass="p-button-secondary p-button-outlined"
+            (onClick)="cancel()"
+          />
+          <div class="flex flex-row gap-2 justify-end">
+            <p-button label="{{ 'BACK' | translate }}" icon="pi pi-angle-left" iconPos="left" (onClick)="prev()" />
+            <p-button
+              label="{{ 'NEXT' | translate }}"
+              icon="pi pi-angle-right"
+              iconPos="right"
+              (onClick)="next()"
+              [disabled]="!rootEntity.idShort"
+            />
+          </div>
+        </div>
+      </div>
+    }
+
+    @case (2) {
+      <div class="wizard-panel">
+        <aas-entity-details
+          [editable]="true"
+          [entity]="firstChildEntity"
+          [relationship]="undefined"
+          [referenceType]="referenceType()"
+          [apiUrl]="apiUrl"
+          [requireAssetReference]="true"
+          [expectedEntryGlobalAssetId]="assetInformation.globalAssetId"
+          (detailsChanged)="markAsChanged()"
+        ></aas-entity-details>
+        @if (!hasValidSpecificAssetIds()) {
+          <div class="text-sm text-orange-700 mt-2">
+            {{ 'SPECIFIC_ASSET_IDS_INVALID' | translate }}
+          </div>
+        }
+        @if (!hasExclusiveAssetReferences()) {
+          <div class="text-sm text-orange-700 mt-2">
+            {{ 'BOM_ENTITY_ASSET_REFERENCE_EXCLUSIVE' | translate }}
+          </div>
+        }
+        @if (!hasValidFirstChildAssetReference()) {
+          <div class="text-sm text-orange-700 mt-2">
+            {{ 'BOM_CHILD_ENTITY_ASSET_REFERENCE_REQUIRED' | translate }}
+          </div>
+        }
+        <div class="wizard-actions">
+          <p-button
+            label="{{ 'CANCEL' | translate }}"
+            icon="pi pi-times"
+            styleClass="p-button-secondary p-button-outlined"
+            (onClick)="cancel()"
+          />
+          <div class="flex flex-row gap-2 justify-end">
+            <p-button label="{{ 'BACK' | translate }}" icon="pi pi-angle-left" iconPos="left" (onClick)="prev()" />
+            <p-button
+              label="{{ 'FINISH' | translate }}"
+              icon="pi pi-save"
+              iconPos="right"
+              (onClick)="finish()"
+              [disabled]="!canFinish()"
+            />
+          </div>
+        </div>
+      </div>
+    }
+  }
+</div>

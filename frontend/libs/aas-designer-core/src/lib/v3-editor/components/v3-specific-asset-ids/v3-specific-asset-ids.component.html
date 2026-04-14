@@ -1,0 +1,96 @@
+@if (specificAssetIds == null) {
+  <div class="flex flex-col w-full justify-center">
+    <p-button
+      label="{{ 'ADD' | translate }}"
+      (onClick)="addSpecificAssetId()"
+      icon="pi pi-plus"
+      size="small"
+      [outlined]="true"
+    ></p-button>
+  </div>
+}
+
+@if (specificAssetIds != null && specificAssetIds.length == 0) {
+  <div class="flex flex-row justify-between">
+    <p-message
+      severity="info"
+      text="{{ 'NO_VALUES_SET_BUT_EMPTY_OR_AT_LEAST_ONE' | translate }}"
+      class="mr-2"
+    ></p-message>
+    <p-button
+      styleClass="p-button-text p-button-outlined p-button-rounded"
+      icon="pi pi-plus"
+      (onClick)="addSpecificAssetId()"
+    ></p-button>
+    <p-button
+      styleClass="p-button-text p-button-outlined p-button-rounded"
+      icon="pi pi-trash"
+      (onClick)="removeSpecificAssetIdBlock()"
+    ></p-button>
+  </div>
+}
+
+<div class="flex flex-col gap-3">
+  @for (specificAssetId of specificAssetIds ?? []; track specificAssetId; let i = $index) {
+    <div class="flex flex-row gap-2">
+      <div class="flex w-full flex-col gap-2">
+        <div class="flex flex-row gap-2">
+          <lib-help-label class="w-14rem" tag="SPECIFIC_ASSET_ID_NAME"></lib-help-label>
+          <div class="flex flex-col w-full">
+            <input pInputText [(ngModel)]="specificAssetId.name" class="w-full" nullIfEmpty />
+            @if (hasNameErrors(specificAssetId)) {
+              <div class="text-error">
+                {{ 'errorMessages.' + getNameError(specificAssetId)[0].message | translate }}
+              </div>
+            }
+          </div>
+        </div>
+        <div class="flex flex-row w-full gap-2">
+          <lib-help-label class="w-14rem" tag="SPECIFIC_ASSET_ID_VALUE"></lib-help-label>
+          <div class="flex flex-col w-full">
+            <div class="flex flex-row gap-2 w-full items-center">
+              <input pInputText [(ngModel)]="specificAssetId.value" class="w-full" nullIfEmpty />
+              <p-button
+                label="{{ 'GENERATE_IRI' | translate }}"
+                class="w-12rem"
+                (onClick)="generateIri(specificAssetId)"
+                size="small"
+                icon="pi pi-sparkles"
+                [outlined]="true"
+              ></p-button>
+              <p-button
+                label="{{ 'GENERATE_GUID' | translate }}"
+                class="aas-add-button w-14rem"
+                (onClick)="generateGuid(specificAssetId)"
+                size="small"
+                icon="pi pi-sparkles"
+                [outlined]="true"
+              ></p-button>
+            </div>
+            @if (hasValueErrors(specificAssetId)) {
+              <div class="text-error">
+                {{ 'errorMessages.' + getValueError(specificAssetId)[0].message | translate }}
+              </div>
+            }
+          </div>
+        </div>
+      </div>
+      <div style="width: 36px">
+        <p-button
+          icon="pi pi-trash"
+          styleClass="p-button-danger p-button-rounded p-button-text"
+          (onClick)="removeSpecificAssetId(i)"
+          [outlined]="true"
+        ></p-button>
+      </div>
+      <div style="width: 36px">
+        <p-button
+          icon="pi pi-plus"
+          styleClass="p-button-sm p-button-rounded p-button-text"
+          (onClick)="addSpecificAssetId()"
+          [outlined]="true"
+        ></p-button>
+      </div>
+    </div>
+  }
+</div>

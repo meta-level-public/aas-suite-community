@@ -1,0 +1,80 @@
+<div class="pcf-step-card">
+  <!-- CO2 Hero Value -->
+  <div class="co2-hero">
+    <div class="co2-icon">
+      <span>🌳</span>
+    </div>
+    <div class="co2-content">
+      <span class="co2-label">{{ 'PCF_STEP_VIEWER.CO2_EQUIVALENT' | translate }}</span>
+      <span class="co2-value">{{ pcfCO2eq()?.value || ('COMMON.NOT_AVAILABLE' | translate) }}</span>
+      <span class="co2-unit">{{ co2Unit() }}</span>
+    </div>
+  </div>
+
+  <!-- Details Grid -->
+  <div class="details-grid">
+    <div class="detail-card">
+      <i class="pi pi-calculator detail-icon"></i>
+      <div class="detail-content">
+        <span class="detail-label">{{ 'PCF_STEP_VIEWER.CALCULATION_METHODS' | translate }}</span>
+        <span class="detail-value">{{ pcfCalculationMethods()?.idShort || ('COMMON.NOT_AVAILABLE' | translate) }}</span>
+      </div>
+    </div>
+
+    <div class="detail-card">
+      <i class="pi pi-box detail-icon"></i>
+      <div class="detail-content">
+        <span class="detail-label">{{ 'PCF_STEP_VIEWER.REFERENCE_UNIT' | translate }}</span>
+        <span class="detail-value">{{
+          referenceImpactUnitForCalculation()?.value || ('COMMON.NOT_AVAILABLE' | translate)
+        }}</span>
+      </div>
+    </div>
+
+    <div class="detail-card">
+      <i class="pi pi-calendar detail-icon"></i>
+      <div class="detail-content">
+        <span class="detail-label">{{ 'PCF_STEP_VIEWER.PUBLICATION_DATE' | translate }}</span>
+        <span class="detail-value">{{ publicationDateFormatted() | vwsDate: 'SHORT_DATE' }}</span>
+      </div>
+    </div>
+
+    <div class="detail-card">
+      <i class="pi pi-file detail-icon"></i>
+      <div class="detail-content">
+        <span class="detail-label">{{ 'PCF_STEP_VIEWER.EXPLANATORY_STATEMENT' | translate }}</span>
+        <span class="detail-value">{{
+          explanatoryStatement()?.idShort || ('PCF_STEP_VIEWER.AVAILABLE' | translate)
+        }}</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Life Cycle Phases Section -->
+  @if (lifeCyclePhasesValues().length > 0) {
+    <div class="phases-section">
+      <h3 class="section-title">
+        <i class="pi pi-sync"></i>
+        {{ 'PCF_STEP_VIEWER.LIFE_CYCLE_PHASES_DESCRIPTION' | translate }}
+      </h3>
+      <div class="phases-grid">
+        @for (phase of lifeCyclePhasesValues(); track $index) {
+          <div class="phase-badge">
+            <i class="pi pi-check-circle"></i>
+            <span>{{ phase.value }}</span>
+          </div>
+        }
+      </div>
+    </div>
+  } @else {
+    <div class="no-phases">
+      <i class="pi pi-info-circle"></i>
+      <div>
+        <p>{{ 'PCF_STEP_VIEWER.NO_PHASES_AVAILABLE' | translate }}</p>
+        <small>{{ 'PCF_STEP_VIEWER.PHASE_DATA_NOT_LOADED' | translate }}</small>
+      </div>
+    </div>
+  }
+
+  <aas-address-map [steps]="stepList()" [initiallyExpanded]="false"></aas-address-map>
+</div>

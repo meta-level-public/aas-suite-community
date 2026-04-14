@@ -1,0 +1,147 @@
+:host {
+  display: block;
+  --aas-login-contrast-color: var(--p-text-color);
+  --aas-login-muted-color: var(--p-text-muted-color);
+  --aas-login-soft-border: color-mix(in srgb, var(--p-text-color) 14%, transparent);
+  --aas-login-soft-surface: color-mix(in srgb, var(--p-content-background) 72%, transparent);
+  --aas-login-card-surface: color-mix(in srgb, var(--p-content-background) 82%, transparent);
+  --aas-login-card-tint: color-mix(in srgb, var(--p-primary-color) 10%, transparent);
+  --aas-login-icon-surface: color-mix(in srgb, var(--p-primary-color) 18%, transparent);
+  --aas-login-icon-color: var(--p-text-color);
+  --aas-login-button-text: var(--p-text-color);
+}
+
+:host-context(html.my-app-dark) {
+  --aas-login-soft-border: color-mix(in srgb, var(--p-surface-0) 18%, transparent);
+  --aas-login-soft-surface: color-mix(in srgb, var(--p-surface-900) 56%, transparent);
+  --aas-login-card-surface: color-mix(in srgb, var(--p-surface-900) 74%, transparent);
+  --aas-login-card-tint: color-mix(in srgb, var(--p-primary-color) 16%, transparent);
+  --aas-login-icon-color: var(--p-surface-0);
+  --aas-login-button-text: var(--p-surface-0);
+}
+
+.login-empty-state {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 1.5rem;
+  min-height: 100%;
+  max-width: 58rem;
+  margin: 0 auto;
+  text-align: left;
+}
+
+.login-empty-state-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6rem;
+  width: fit-content;
+  padding: 0.55rem 0.9rem;
+  border-radius: 999px;
+  border: 1px solid var(--aas-login-soft-border);
+  background: var(--aas-login-soft-surface);
+  color: var(--aas-login-contrast-color);
+  font-size: 0.9rem;
+  font-weight: 600;
+}
+
+.login-empty-state-header {
+  display: grid;
+  gap: 0.75rem;
+}
+
+.login-empty-state-title {
+  margin: 0;
+  font-size: clamp(2rem, 3vw, 3rem);
+  font-weight: 700;
+  line-height: 1.05;
+}
+
+.login-empty-state-subtitle {
+  margin: 0;
+  max-width: 44rem;
+  color: var(--aas-login-muted-color);
+  font-size: 1.05rem;
+  line-height: 1.6;
+}
+
+.login-empty-state-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 1rem;
+}
+
+.login-empty-state-card {
+  display: flex;
+  flex-direction: column;
+  gap: 0.85rem;
+  padding: 1.35rem;
+  border-radius: var(--aas-radius-md);
+  border: 1px solid var(--aas-login-soft-border);
+  background: linear-gradient(180deg, var(--aas-login-card-tint), transparent 72%), var(--aas-login-card-surface);
+
+  h3 {
+    margin: 0;
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: var(--aas-login-contrast-color);
+  }
+
+  p {
+    margin: 0;
+    color: var(--aas-login-muted-color);
+    line-height: 1.55;
+  }
+}
+
+.login-empty-state-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.75rem;
+  height: 2.75rem;
+  border-radius: 0.9rem;
+  background: var(--aas-login-icon-surface);
+  color: var(--aas-login-icon-color);
+  font-size: 1.2rem;
+}
+
+.login-empty-state-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.75rem;
+
+  ::ng-deep .login-empty-state-contact-action.p-button {
+    color: var(--aas-login-button-text);
+
+    &:enabled:hover {
+      background: var(--aas-login-soft-surface);
+    }
+  }
+}
+
+@media (max-width: 1024px) {
+  .login-empty-state-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 640px) {
+  .login-empty-state {
+    gap: 1rem;
+  }
+
+  .login-empty-state-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .login-empty-state-actions {
+    align-items: stretch;
+
+    ::ng-deep .p-button {
+      width: 100%;
+      justify-content: center;
+    }
+  }
+}

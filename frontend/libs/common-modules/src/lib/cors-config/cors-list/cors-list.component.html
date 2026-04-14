@@ -1,0 +1,172 @@
+<div class="flex flex-col flex-auto overflow-auto">
+  <div class="hero-section">
+    <div class="hero-content">
+      <h1 class="hero-title">{{ 'CORS_CONFIG' | translate }}</h1>
+      <div class="hero-actions">
+        <p-button
+          label="{{ 'RELOAD' | translate }}"
+          icon="pi pi-refresh"
+          severity="success"
+          (onClick)="loadData()"
+        ></p-button>
+        <p-button label="{{ 'ADD' | translate }}" icon="pi pi-plus" (onClick)="showCreateDialog()"></p-button>
+      </div>
+    </div>
+  </div>
+
+  <div class="flex-auto h-0">
+    <div style="position: relative; height: 100%">
+      <div style="position: absolute; height: 100%; width: 100%">
+        <p-table
+          #dt
+          [value]="configs"
+          responsiveLayout="scroll"
+          [rows]="10"
+          [paginator]="true"
+          [rowsPerPageOptions]="[5, 10, 25, 50]"
+          [showCurrentPageReport]="true"
+          currentPageReportTemplate="{{ 'SHOW_FROM_TO_OF_TOTAL' | translate }}"
+          [rowHover]="true"
+          dataKey="id"
+          [loading]="loading"
+          size="small"
+          [scrollable]="true"
+          scrollDirection="both"
+          scrollHeight="flex"
+          sortField="aenderungsDatum"
+          [sortOrder]="-1"
+        >
+          <ng-template pTemplate="caption">
+            {{ 'CORS_CONFIG_EXPL' | translate }}
+          </ng-template>
+          <ng-template #header>
+            <tr>
+              <th scope="col" style="width: 5%; min-width: 1rem"></th>
+              <th scope="col" pSortableColumn="corsString" style="width: 25%; min-width: 10rem">
+                {{ 'CORS_STRING' | translate }}<p-sortIcon field="corsString"></p-sortIcon>
+              </th>
+              <th scope="col" pSortableColumn="notice" style="width: 45%; min-width: 10rem">
+                {{ 'BESCHREIBUNG_INTERNAL' | translate }}<p-sortIcon field="notice"></p-sortIcon>
+              </th>
+              <th scope="col" pSortableColumn="anlageDatum" style="width: 10%; min-width: 10rem">
+                {{ 'ANGELEGT' | translate }}<p-sortIcon field="anlageDatum"></p-sortIcon>
+              </th>
+              <th scope="col" pSortableColumn="aenderungsDatum" style="width: 10%; min-width: 10rem">
+                {{ 'GEAENDERT' | translate }}<p-sortIcon field="aenderungsDatum"></p-sortIcon>
+              </th>
+            </tr>
+            <tr>
+              <th scope="col" style="width: 5%; min-width: 1rem"></th>
+              <th scope="col" style="width: 15%; min-width: 10rem">
+                <p-columnFilter type="text" field="corsString"></p-columnFilter>
+              </th>
+              <th scope="col" style="width: 15%; min-width: 10rem">
+                <p-columnFilter type="text" field="notice"></p-columnFilter>
+              </th>
+              <th scope="col" style="width: 10%; min-width: 10rem">
+                <p-columnFilter type="date" field="anlageDatum"></p-columnFilter>
+              </th>
+              <th scope="col" style="width: 10%; min-width: 10rem">
+                <p-columnFilter type="date" field="aenderungsDatum"></p-columnFilter>
+              </th>
+            </tr>
+          </ng-template>
+          <ng-template pTemplate="body" let-entry>
+            <tr>
+              <td style="width: 5%; min-width: 1rem">
+                <p-button
+                  icon="pi pi-ellipsis-v"
+                  styleClass="p-button-text p-button-secondary"
+                  (onClick)="menu.toggle($event)"
+                ></p-button>
+                <p-menu
+                  appendTo="body"
+                  (onShow)="onShowActions(entry)"
+                  #menu
+                  [popup]="true"
+                  [model]="menuItems"
+                ></p-menu>
+              </td>
+              <td style="width: 25%; min-width: 10rem">
+                {{ entry.corsString }}
+              </td>
+              <td style="width: 45%; min-width: 10rem">
+                {{ entry.notice }}
+              </td>
+              <td style="width: 10%; min-width: 10rem">
+                {{ entry.anlageDatum | vwsDate: 'SHORT_DATE_TIME' }}
+              </td>
+              <td style="width: 10%; min-width: 10rem">
+                {{ entry.aenderungsDatum | vwsDate: 'SHORT_DATE_TIME' }}
+              </td>
+            </tr>
+          </ng-template>
+          <ng-template pTemplate="emptymessage">
+            <tr>
+              <td colspan="8" style="width: 100%">{{ 'NO_DATA_FOUND' | translate }}</td>
+            </tr>
+          </ng-template>
+        </p-table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<p-dialog
+  [(visible)]="displayEditDialog"
+  [breakpoints]="{ '960px': '75vw', '640px': '100vw' }"
+  [style]="{ width: '50vw' }"
+>
+  <ng-template #header>
+    <div class="font-bold text-xl">{{ 'CORS_CONFIG' | translate }}</div>
+  </ng-template>
+  <div class="mb-4">
+    <label for="name">{{ 'ENTER_DATA_FOR_CORS_CONFIG' | translate }}</label>
+  </div>
+  <form #updateForm="ngForm">
+    @if (editConfig) {
+      <div class="mb-4">
+        <label for="name">{{ 'CORS_STRING' | translate }}</label>
+        <input
+          type="text"
+          pInputText
+          id="name"
+          name="name"
+          class="w-full"
+          [(ngModel)]="editConfig.corsString"
+          required
+        />
+      </div>
+    }
+    @if (editConfig) {
+      <div class="mb-4">
+        <label for="name">{{ 'BESCHREIBUNG_INTERNAL' | translate }}</label>
+        <textarea
+          pTextarea
+          id="notice"
+          name="notice"
+          class="w-full"
+          [(ngModel)]="editConfig.notice"
+          required
+        ></textarea>
+      </div>
+    }
+  </form>
+  <ng-template pTemplate="footer">
+    <p-button
+      pRipple
+      label="{{ 'CANCEL' | translate }}"
+      icon="pi pi-times"
+      styleClass="p-button-secondary"
+      (onClick)="displayEditDialog = false"
+    ></p-button>
+    <p-button
+      pRipple
+      label="{{ 'SAVE' | translate }}"
+      icon="pi pi-save"
+      styleClass="p-button-success"
+      (onClick)="doEdit()"
+      [disabled]="!updateForm.valid"
+    ></p-button>
+  </ng-template>
+</p-dialog>

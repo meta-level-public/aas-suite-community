@@ -1,0 +1,48 @@
+:host {
+  display: block;
+}
+
+:host ::ng-deep .p-fieldset {
+  border-radius: var(--aas-radius-md, 0.75rem);
+  border: 1px solid var(--p-content-border-color, #d1d5db);
+}
+
+:host ::ng-deep .p-fieldset .p-fieldset-legend {
+  font-weight: 700;
+}
+
+:host ::ng-deep .p-fieldset .p-fieldset-content {
+  padding-top: 1rem;
+}
+
+:host .w-14rem {
+  width: 16rem !important;
+  min-width: 16rem;
+  font-weight: 600;
+  color: var(--p-text-color, #374151);
+}
+
+:host .flex.flex-row.w-full.gap-2 {
+  align-items: flex-start;
+  margin-bottom: 0.25rem;
+}
+
+:host ::ng-deep input.p-inputtext,
+:host ::ng-deep .p-select {
+  min-height: 2.6rem;
+}
+
+:host ::ng-deep .p-message {
+  font-size: 0.95rem;
+}
+
+@media (max-width: 900px) {
+  :host .w-14rem {
+    width: auto !important;
+    min-width: 0;
+  }
+
+  :host .flex.flex-row.w-full.gap-2 {
+    flex-direction: column;
+  }
+}

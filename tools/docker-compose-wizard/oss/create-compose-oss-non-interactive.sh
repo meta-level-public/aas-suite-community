@@ -1,0 +1,870 @@
+#!/usr/bin/env bash
+
+set -euo pipefail
+
+CURRENT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+# shellcheck source=../lib/common.sh
+source "$CURRENT_DIR/../lib/common.sh"
+
+show_help() {
+  cat <<'HELP'
+Usage:
+  create-compose-oss-non-interactive.sh [options] [KEY=VALUE ...]
+
+Options:
+  --input FILE              Optional .env style input file with values
+  --state-file FILE         Optional state file (default: ../state/oss.defaults.env)
+  --image-source SOURCE     remote|local (default: remote)
+  --output-dir DIR          Override output stack directory
+  --start-only              Start existing stack from saved compose/env and exit
+  --run-config-check yes|no Run docker compose config (default: no)
+  --run-stack-start yes|no  Run docker compose up -d (default: yes)
+  -h, --help                Show help
+HELP
+}
+
+main() {
+  wizard_banner "OSS" "non-interactive"
+
+  local state_file="$CURRENT_DIR/../state/oss.defaults.env"
+  local input_file=""
+  local opt_output_dir=""
+  local opt_image_source=""
+  local opt_run_config_check=""
+  local opt_run_stack_start=""
+  local start_only="no"
+  local default_stack_dir=""
+
+  local cli_overrides=()
+
+  while [[ $# -gt 0 ]]; do
+    case "$1" in
+      --input)
+        input_file="$2"
+        shift 2
+        ;;
+      --state-file)
+        state_file="$2"
+        shift 2
+        ;;
+      --output-dir)
+        opt_output_dir="$2"
+        shift 2
+        ;;
+      --image-source)
+        opt_image_source="$2"
+        shift 2
+        ;;
+      --run-config-check)
+        opt_run_config_check="$2"
+        shift 2
+        ;;
+      --run-stack-start)
+        opt_run_stack_start="$2"
+        shift 2
+        ;;
+      --start-only)
+        start_only="yes"
+        shift
+        ;;
+      -h|--help)
+        show_help
+        exit 0
+        ;;
+      *=*)
+        cli_overrides+=("$1")
+        shift
+        ;;
+      *)
+        die "Unbekanntes Argument: $1"
+        ;;
+    esac
+  done
+
+  load_state_file "$state_file"
+  load_env_file "$input_file"
+  migrate_legacy_frontend_base_urls
+  apply_standard_container_ports
+  default_stack_dir="$(default_generated_stack_dir)"
+
+  local item key value
+  has_cli_override() {
+    local override_key="$1"
+    local entry
+    for entry in "${cli_overrides[@]-}"; do
+      case "$entry" in
+        "$override_key="*) return 0 ;;
+      esac
+    done
+    return 1
+  }
+
+  for item in "${cli_overrides[@]-}"; do
+    [ -n "$item" ] || continue
+    case "$item" in
+      *=*) ;;
+      *) die "Ungültige Zuweisung: $item" ;;
+    esac
+    key="${item%%=*}"
+    value="${item#*=}"
+    eval "$key=\"$value\""
+  done
+
+  migrate_legacy_frontend_base_urls
+  apply_standard_container_ports
+
+  if [ -n "$opt_output_dir" ]; then STACK_DIR="$opt_output_dir"; fi
+  if [ -n "$opt_image_source" ]; then IMAGE_SOURCE="$opt_image_source"; fi
+  if [ -n "$opt_run_config_check" ]; then RUN_CONFIG_CHECK="$opt_run_config_check"; fi
+  if [ -n "$opt_run_stack_start" ]; then RUN_STACK_START="$opt_run_stack_start"; fi
+
+  if [ -n "$opt_image_source" ]; then
+    has_cli_override DESIGNER_BACKEND_IMAGE_REPO || DESIGNER_BACKEND_IMAGE_REPO=""
+    has_cli_override DESIGNER_BACKEND_IMAGE_TAG || DESIGNER_BACKEND_IMAGE_TAG=""
+    has_cli_override GATEWAY_IMAGE_REPO || GATEWAY_IMAGE_REPO=""
+    has_cli_override GATEWAY_IMAGE_TAG || GATEWAY_IMAGE_TAG=""
+    has_cli_override FRONTEND_IMAGE_REPO || FRONTEND_IMAGE_REPO=""
+    has_cli_override FRONTEND_IMAGE_TAG || FRONTEND_IMAGE_TAG=""
+  fi
+
+  if [ "$start_only" = "yes" ]; then
+    set_default_if_empty IMAGE_SOURCE "remote"
+    set_default_if_empty PROJECT_NAME "aas-suite"
+    set_default_if_empty STACK_DIR "$default_stack_dir"
+    COMPOSE_FILE="$(default_generated_compose_file "$STACK_DIR")"
+    ENV_FILE="$(default_generated_env_file "$STACK_DIR")"
+    [ -f "$COMPOSE_FILE" ] || die "Compose-Datei nicht gefunden: $COMPOSE_FILE"
+    [ -f "$ENV_FILE" ] || die "Env-Datei nicht gefunden: $ENV_FILE"
+    prepare_postgres_init_assets "$COMPOSE_FILE"
+    info "Starte vorhandenen Stack mit gespeicherten Werten ..."
+    docker compose -p "$PROJECT_NAME" --env-file "$ENV_FILE" -f "$COMPOSE_FILE" config >/dev/null
+    pull_compose_images "$COMPOSE_FILE" "$ENV_FILE" "$PROJECT_NAME" "$IMAGE_SOURCE"
+    docker compose -p "$PROJECT_NAME" --env-file "$ENV_FILE" -f "$COMPOSE_FILE" up -d
+    docker compose -p "$PROJECT_NAME" --env-file "$ENV_FILE" -f "$COMPOSE_FILE" ps
+    info "Fertig."
+    info "Compose: $COMPOSE_FILE"
+    info "Env: $ENV_FILE"
+    exit 0
+  fi
+
+  set_default_if_empty PROJECT_NAME "aas-suite"
+  set_default_if_empty STACK_DIR "$default_stack_dir"
+  set_default_if_empty NETWORK_NAME "aas-network"
+  set_default_if_empty IMAGE_SOURCE "remote"
+  COMPOSE_FILE="$(default_generated_compose_file "$STACK_DIR")"
+  ENV_FILE="$(default_generated_env_file "$STACK_DIR")"
+
+  if [ "$IMAGE_SOURCE" != "remote" ] && [ "$IMAGE_SOURCE" != "local" ]; then
+    die "IMAGE_SOURCE muss remote oder local sein"
+  fi
+
+  local designer_backend_repo_default="gitea.meta-level.de/aas-suite/aas-designer-backend-community"
+  local designer_backend_tag_default="latest"
+  local gateway_repo_default="gitea.meta-level.de/aas-suite/aas-designer-gateway"
+  local gateway_tag_default="latest"
+  local frontend_repo_default="gitea.meta-level.de/aas-suite/aas-designer-frontend-community"
+  local frontend_tag_default="latest"
+  if [ "$IMAGE_SOURCE" = "local" ]; then
+    designer_backend_repo_default="aas-suite/aas-designer-backend-community"
+    designer_backend_tag_default="local"
+    gateway_repo_default="aas-suite/aas-designer-gateway"
+    gateway_tag_default="local"
+    frontend_repo_default="aas-suite/aas-designer-frontend-community"
+    frontend_tag_default="local"
+  fi
+
+  set_default_if_empty DESIGNER_BACKEND_IMAGE_REPO "$designer_backend_repo_default"
+  set_default_if_empty DESIGNER_BACKEND_IMAGE_TAG "$designer_backend_tag_default"
+  set_default_if_empty DESIGNER_BACKEND_CONTAINER_PORT "8080"
+
+  set_default_if_empty GATEWAY_IMAGE_REPO "$gateway_repo_default"
+  set_default_if_empty GATEWAY_IMAGE_TAG "$gateway_tag_default"
+  set_default_if_empty GATEWAY_HOST_PORT "8081"
+  set_default_if_empty GATEWAY_CONTAINER_PORT "8080"
+
+  set_default_if_empty FRONTEND_IMAGE_REPO "$frontend_repo_default"
+  set_default_if_empty FRONTEND_IMAGE_TAG "$frontend_tag_default"
+  set_default_if_empty FRONTEND_CONTAINER_PORT "80"
+  set_default_if_empty BASE_URL "http://localhost:${GATEWAY_HOST_PORT}"
+  migrate_legacy_frontend_base_urls
+
+  set_default_if_empty POSTGRES_IMAGE_REPO "postgres"
+  set_default_if_empty POSTGRES_IMAGE_TAG "16-alpine"
+  set_default_if_empty POSTGRES_CONTAINER_PORT "5432"
+  set_default_if_empty POSTGRES_DB "aas_designer"
+  set_default_if_empty POSTGRES_USER "aas_user"
+  set_default_if_empty POSTGRES_VOLUME "postgres-data"
+  set_default_if_empty BASYX_POSTGRES_DB "basyx_core"
+  set_default_if_empty KEYCLOAK_POSTGRES_DB "keycloak"
+
+  set_default_if_empty KEYCLOAK_MODE "install"
+  set_default_if_empty BASYX_MODE "install"
+  set_default_if_empty BASYX_HANDLE_AS_INTERNAL ""
+  set_default_if_empty BASYX_AAS_REPOSITORY_CONTAINER ""
+  set_default_if_empty BASYX_AAS_REPOSITORY_CONTAINER_PORT ""
+  set_default_if_empty BASYX_AAS_REPOSITORY_HC_URL ""
+  set_default_if_empty BASYX_SUBMODEL_REPOSITORY_CONTAINER ""
+  set_default_if_empty BASYX_SUBMODEL_REPOSITORY_CONTAINER_PORT ""
+  set_default_if_empty BASYX_SUBMODEL_REPOSITORY_HC_URL ""
+  set_default_if_empty BASYX_CONCEPT_DESCRIPTION_REPOSITORY_CONTAINER ""
+  set_default_if_empty BASYX_CONCEPT_DESCRIPTION_REPOSITORY_CONTAINER_PORT ""
+  set_default_if_empty BASYX_CONCEPT_DESCRIPTION_REPOSITORY_HC_URL ""
+  set_default_if_empty BASYX_AAS_REGISTRY_CONTAINER ""
+  set_default_if_empty BASYX_AAS_REGISTRY_CONTAINER_PORT ""
+  set_default_if_empty BASYX_AAS_REGISTRY_HC_URL ""
+  set_default_if_empty BASYX_SUBMODEL_REGISTRY_CONTAINER ""
+  set_default_if_empty BASYX_SUBMODEL_REGISTRY_CONTAINER_PORT ""
+  set_default_if_empty BASYX_SUBMODEL_REGISTRY_HC_URL ""
+  set_default_if_empty BASYX_AAS_DISCOVERY_CONTAINER ""
+  set_default_if_empty BASYX_AAS_DISCOVERY_CONTAINER_PORT ""
+  set_default_if_empty BASYX_AAS_DISCOVERY_HC_URL ""
+
+  set_default_if_empty INITIAL_ORGANISATION_ADMIN_EMAIL "admin@initial.orga"
+  set_default_if_empty INITIAL_ORGANISATION_ADMIN_NAME "Admin"
+  set_default_if_empty INITIAL_ORGANISATION_ADMIN_VORNAME "Demo"
+  set_default_if_empty INITIAL_ORGANISATION_ADMIN_PASSWORD "secret-pass"
+  set_default_if_empty SMTP_SERVER "smtp.company.com"
+  set_default_if_empty SMTP_PORT "587"
+  set_default_if_empty SMTP_USE_SSL "false"
+  set_default_if_empty SMTP_USE_TLS "true"
+  set_default_if_empty SMTP_NEEDS_AUTHENTICATION "false"
+  set_default_if_empty SENDER_ADDRESS "noreply@company.com"
+  set_default_if_empty SENDER_USER ""
+  set_default_if_empty SENDER_PASSWORD ""
+  set_default_if_empty NEW_ORGA_NOTIFICATION_ADDRESS "admin@company.com"
+  set_default_if_empty SUBJECT_PREFIX ""
+
+  set_default_if_empty RUN_CONFIG_CHECK "no"
+  set_default_if_empty RUN_STACK_START "yes"
+
+  is_db_identifier "$POSTGRES_DB" || die "POSTGRES_DB darf nur Buchstaben, Zahlen und _ enthalten"
+  is_db_identifier "$BASYX_POSTGRES_DB" || die "BASYX_POSTGRES_DB darf nur Buchstaben, Zahlen und _ enthalten"
+  is_db_identifier "$KEYCLOAK_POSTGRES_DB" || die "KEYCLOAK_POSTGRES_DB darf nur Buchstaben, Zahlen und _ enthalten"
+
+  require_non_empty POSTGRES_PASSWORD
+
+  require_non_empty DESIGNER_BACKEND_IMAGE_REPO
+  require_non_empty DESIGNER_BACKEND_IMAGE_TAG
+  require_non_empty GATEWAY_IMAGE_REPO
+  require_non_empty GATEWAY_IMAGE_TAG
+  require_non_empty FRONTEND_IMAGE_REPO
+  require_non_empty FRONTEND_IMAGE_TAG
+  if ! is_number "$GATEWAY_HOST_PORT" || ! is_number "$GATEWAY_CONTAINER_PORT"; then
+    die "GATEWAY_HOST_PORT/CONTAINER_PORT müssen numerisch sein"
+  fi
+  if ! is_number "$POSTGRES_CONTAINER_PORT"; then
+    die "POSTGRES_CONTAINER_PORT muss numerisch sein"
+  fi
+
+  local KEYCLOAK_CLUSTER_URL="${KEYCLOAK_CLUSTER_URL-}"
+
+  if [ "$KEYCLOAK_MODE" = "existing" ]; then
+    require_non_empty KEYCLOAK_CLUSTER_URL
+    require_non_empty KEYCLOAK_ISSUER
+    require_non_empty KEYCLOAK_WELLKNOWN_URL
+    require_non_empty KEYCLOAK_PUBLIC_ISSUER
+    require_non_empty KEYCLOAK_PUBLIC_WELLKNOWN_URL
+    require_non_empty KEYCLOAK_CLIENT_ID
+    set_default_if_empty KEYCLOAK_AUDIENCE "$KEYCLOAK_CLIENT_ID"
+    set_default_if_empty KEYCLOAK_SCOPES "openid profile email roles"
+    set_default_if_empty KEYCLOAK_RESOURCE_ACCESS_NAME "$KEYCLOAK_CLIENT_ID"
+    set_default_if_empty KEYCLOAK_ADMIN_REALM "master"
+    set_default_if_empty KEYCLOAK_ADMIN_CLIENT_ID "admin-cli"
+    set_default_if_empty KEYCLOAK_ADMIN_CLIENT_SECRET ""
+    require_non_empty KEYCLOAK_ADMIN_USERNAME
+    require_non_empty KEYCLOAK_ADMIN_PASSWORD
+  elif [ "$KEYCLOAK_MODE" = "install" ]; then
+    set_default_if_empty KEYCLOAK_IMAGE_REPO "quay.io/keycloak/keycloak"
+    set_default_if_empty KEYCLOAK_IMAGE_TAG "26.0"
+    set_default_if_empty KEYCLOAK_HOST_PORT "8088"
+    set_default_if_empty KEYCLOAK_REALM "aas-local"
+    set_default_if_empty KEYCLOAK_CLIENT_ID "aas-designer-local"
+    set_default_if_empty KEYCLOAK_AUDIENCE "$KEYCLOAK_CLIENT_ID"
+    set_default_if_empty KEYCLOAK_SCOPES "openid profile email roles"
+    set_default_if_empty KEYCLOAK_RESOURCE_ACCESS_NAME "$KEYCLOAK_CLIENT_ID"
+    set_default_if_empty KEYCLOAK_ADMIN_REALM "master"
+    set_default_if_empty KEYCLOAK_ADMIN_CLIENT_ID "admin-cli"
+    set_default_if_empty KEYCLOAK_ADMIN_CLIENT_SECRET ""
+    set_default_if_empty KEYCLOAK_REALM_FILE "../stack-assets/keycloak/aas-local-realm.json"
+    set_default_if_empty KEYCLOAK_THEMES_PATH "../stack-assets/keycloak/themes"
+    set_default_if_empty PUBLIC_GATEWAY_URL "$BASE_URL"
+
+    require_non_empty KEYCLOAK_ADMIN_USERNAME
+    require_non_empty KEYCLOAK_ADMIN_PASSWORD
+    local resolved_keycloak_realm_file
+    local resolved_keycloak_themes_path
+    resolved_keycloak_realm_file="$(resolve_path_from_dir "$CURRENT_DIR" "$KEYCLOAK_REALM_FILE")"
+    resolved_keycloak_themes_path="$(resolve_path_from_dir "$CURRENT_DIR" "$KEYCLOAK_THEMES_PATH")"
+    [ -f "$resolved_keycloak_realm_file" ] || die "Realm-JSON muss eine existierende Datei sein: $KEYCLOAK_REALM_FILE"
+    [ -d "$resolved_keycloak_themes_path" ] || die "Keycloak Themes muss ein existierendes Verzeichnis sein: $KEYCLOAK_THEMES_PATH"
+
+    KEYCLOAK_CLUSTER_URL="http://keycloak:8080"
+    KEYCLOAK_ISSUER="http://keycloak:8080/realms/${KEYCLOAK_REALM}"
+    KEYCLOAK_WELLKNOWN_URL="${KEYCLOAK_ISSUER}/.well-known/openid-configuration"
+    KEYCLOAK_PUBLIC_ISSUER="${PUBLIC_GATEWAY_URL}/realms/${KEYCLOAK_REALM}"
+    KEYCLOAK_PUBLIC_WELLKNOWN_URL="${KEYCLOAK_PUBLIC_ISSUER}/.well-known/openid-configuration"
+  else
+    die "KEYCLOAK_MODE muss existing oder install sein"
+  fi
+
+  set_default_if_empty BASYX_AAS_REPOSITORY_URL ""
+  set_default_if_empty BASYX_SUBMODEL_REPOSITORY_URL ""
+  set_default_if_empty BASYX_CONCEPT_DESCRIPTION_REPOSITORY_URL ""
+  set_default_if_empty BASYX_AAS_REGISTRY_URL ""
+  set_default_if_empty BASYX_SUBMODEL_REGISTRY_URL ""
+  set_default_if_empty BASYX_AAS_DISCOVERY_URL ""
+  set_default_if_empty BASYX_REPO_CORS_ALLOWEDORIGINS "${AASREPO_CORS_ALLOWEDORIGINS-*}"
+  set_default_if_empty BASYX_REPO_CORS_ALLOWEDHEADERS "${AASREPO_CORS_ALLOWEDHEADERS-*}"
+  set_default_if_empty BASYX_REPO_CORS_ALLOWEDCREDENTIALS "${AASREPO_CORS_ALLOWEDCREDENTIALS-true}"
+  set_default_if_empty BASYX_REPO_CORS_ALLOWEDMETHODS "${AASREPO_CORS_ALLOWEDMETHODS-GET,POST,PUT,PATCH,DELETE,OPTIONS}"
+  set_default_if_empty BASYX_REPO_SERVER_PORT "${AASREPO_SERVER_PORT-8080}"
+  set_default_if_empty BASYX_REPO_POSTGRES_HOST "${AASREPO_POSTGRES_HOST-postgres}"
+  set_default_if_empty BASYX_REPO_POSTGRES_PORT "${AASREPO_POSTGRES_PORT-5432}"
+  set_default_if_empty BASYX_REPO_POSTGRES_USER "${AASREPO_POSTGRES_USER-${POSTGRES_USER}}"
+  set_default_if_empty BASYX_REPO_POSTGRES_PASSWORD "${AASREPO_POSTGRES_PASSWORD-${POSTGRES_PASSWORD}}"
+  set_default_if_empty BASYX_REPO_POSTGRES_DBNAME "${BASYX_POSTGRES_DB}"
+  set_default_if_empty BASYX_REPO_POSTGRES_MAXOPENCONNECTIONS "${AASREPO_POSTGRES_MAXOPENCONNECTIONS-500}"
+  set_default_if_empty BASYX_REPO_POSTGRES_MAXIDLECONNECTIONS "${AASREPO_POSTGRES_MAXIDLECONNECTIONS-500}"
+  set_default_if_empty BASYX_REPO_POSTGRES_CONNMAXLIFETIMEMINUTES "${AASREPO_POSTGRES_CONNMAXLIFETIMEMINUTES-5}"
+  set_default_if_empty BASYX_REPO_ABAC_ENABLED "${AASREPO_ABAC_ENABLED-false}"
+  set_default_if_empty BASYX_REPO_ABAC_MODELPATH "${AASREPO_ABAC_MODELPATH-/security_env/access-rules.json}"
+  set_default_if_empty BASYX_REPO_OIDC_TRUSTLISTPATH "${AASREPO_OIDC_TRUSTLISTPATH-/security_env/trustlist.json}"
+  set_default_if_empty BASYX_SMREPO_JWS_PRIVATEKEYPATH "${SMREPO_JWS_PRIVATEKEYPATH-}"
+  set_default_if_empty AASREG_CORS_ALLOWEDORIGINS "*"
+  set_default_if_empty AASREG_CORS_ALLOWEDHEADERS "*"
+  set_default_if_empty AASREG_CORS_ALLOWEDCREDENTIALS "true"
+  set_default_if_empty AASREG_CORS_ALLOWEDMETHODS "GET,POST,PUT,PATCH,DELETE,OPTIONS"
+  set_default_if_empty AASREG_SERVER_PORT "8082"
+  set_default_if_empty AASREG_VIRTUAL_PORT "${AASREG_SERVER_PORT}"
+  set_default_if_empty AASREG_POSTGRES_HOST "postgres"
+  set_default_if_empty AASREG_POSTGRES_PORT "5432"
+  set_default_if_empty AASREG_POSTGRES_USER "${POSTGRES_USER}"
+  set_default_if_empty AASREG_POSTGRES_PASSWORD "${POSTGRES_PASSWORD}"
+  set_default_if_empty AASREG_POSTGRES_DBNAME "${BASYX_POSTGRES_DB}"
+  set_default_if_empty AASREG_POSTGRES_MAXOPENCONNECTIONS "500"
+  set_default_if_empty AASREG_POSTGRES_MAXIDLECONNECTIONS "500"
+  set_default_if_empty AASREG_POSTGRES_CONNMAXLIFETIMEMINUTES "5"
+  set_default_if_empty AASREG_ABAC_ENABLED "false"
+  set_default_if_empty AASREG_ABAC_MODELPATH "/security_env/access-rules.json"
+  set_default_if_empty AASREG_OIDC_TRUSTLISTPATH "/security_env/trustlist.json"
+  set_default_if_empty SMREG_CORS_ALLOWEDORIGINS "*"
+  set_default_if_empty SMREG_CORS_ALLOWEDHEADERS "*"
+  set_default_if_empty SMREG_CORS_ALLOWEDCREDENTIALS "true"
+  set_default_if_empty SMREG_CORS_ALLOWEDMETHODS "GET,POST,PUT,PATCH,DELETE,OPTIONS"
+  set_default_if_empty SMREG_SERVER_PORT "8083"
+  set_default_if_empty SMREG_VIRTUAL_PORT "${SMREG_SERVER_PORT}"
+  set_default_if_empty SMREG_POSTGRES_HOST "postgres"
+  set_default_if_empty SMREG_POSTGRES_PORT "5432"
+  set_default_if_empty SMREG_POSTGRES_USER "${POSTGRES_USER}"
+  set_default_if_empty SMREG_POSTGRES_PASSWORD "${POSTGRES_PASSWORD}"
+  set_default_if_empty SMREG_POSTGRES_DBNAME "${BASYX_POSTGRES_DB}"
+  set_default_if_empty SMREG_POSTGRES_MAXOPENCONNECTIONS "500"
+  set_default_if_empty SMREG_POSTGRES_MAXIDLECONNECTIONS "500"
+  set_default_if_empty SMREG_POSTGRES_CONNMAXLIFETIMEMINUTES "5"
+  set_default_if_empty SMREG_ABAC_ENABLED "false"
+  set_default_if_empty SMREG_ABAC_MODELPATH "/security_env/access-rules.json"
+  set_default_if_empty SMREG_OIDC_TRUSTLISTPATH "/security_env/trustlist.json"
+  set_default_if_empty AASDISC_CORS_ALLOWEDORIGINS "*"
+  set_default_if_empty AASDISC_CORS_ALLOWEDHEADERS "*"
+  set_default_if_empty AASDISC_CORS_ALLOWEDCREDENTIALS "true"
+  set_default_if_empty AASDISC_CORS_ALLOWEDMETHODS "GET,POST,PUT,PATCH,DELETE,OPTIONS"
+  set_default_if_empty AASDISC_SERVER_PORT "8081"
+  set_default_if_empty AASDISC_VIRTUAL_PORT "${AASDISC_SERVER_PORT}"
+  set_default_if_empty AASDISC_POSTGRES_HOST "postgres"
+  set_default_if_empty AASDISC_POSTGRES_PORT "5432"
+  set_default_if_empty AASDISC_POSTGRES_USER "${POSTGRES_USER}"
+  set_default_if_empty AASDISC_POSTGRES_PASSWORD "${POSTGRES_PASSWORD}"
+  set_default_if_empty AASDISC_POSTGRES_DBNAME "${BASYX_POSTGRES_DB}"
+  set_default_if_empty AASDISC_POSTGRES_MAXOPENCONNECTIONS "500"
+  set_default_if_empty AASDISC_POSTGRES_MAXIDLECONNECTIONS "500"
+  set_default_if_empty AASDISC_POSTGRES_CONNMAXLIFETIMEMINUTES "5"
+  set_default_if_empty AASDISC_ABAC_ENABLED "false"
+  set_default_if_empty AASDISC_ABAC_MODELPATH "/security_env/access-rules.json"
+  set_default_if_empty AASDISC_OIDC_TRUSTLISTPATH "/security_env/trustlist.json"
+  BASYX_REPO_POSTGRES_DBNAME="${BASYX_POSTGRES_DB}"
+  AASREG_POSTGRES_DBNAME="${BASYX_POSTGRES_DB}"
+  SMREG_POSTGRES_DBNAME="${BASYX_POSTGRES_DB}"
+  AASDISC_POSTGRES_DBNAME="${BASYX_POSTGRES_DB}"
+
+  if [ "$BASYX_MODE" = "existing" ]; then
+    BASYX_HANDLE_AS_INTERNAL="false"
+    set_default_if_empty AAS_REPOSITORY_IMAGE_TAG "-"
+    set_default_if_empty SUBMODEL_REPOSITORY_IMAGE_TAG "-"
+    set_default_if_empty CONCEPT_DESCRIPTION_REPOSITORY_IMAGE_TAG "-"
+    set_default_if_empty AAS_REGISTRY_IMAGE_TAG "-"
+    set_default_if_empty SUBMODEL_REGISTRY_IMAGE_TAG "-"
+    set_default_if_empty AAS_DISCOVERY_IMAGE_TAG "-"
+    require_non_empty BASYX_AAS_REPOSITORY_URL
+    require_non_empty BASYX_SUBMODEL_REPOSITORY_URL
+    require_non_empty BASYX_CONCEPT_DESCRIPTION_REPOSITORY_URL
+    require_non_empty BASYX_AAS_REGISTRY_URL
+    require_non_empty BASYX_SUBMODEL_REGISTRY_URL
+    require_non_empty BASYX_AAS_DISCOVERY_URL
+  elif [ "$BASYX_MODE" = "install" ]; then
+    BASYX_HANDLE_AS_INTERNAL="true"
+    set_default_if_empty AAS_REPOSITORY_IMAGE_REPO "eclipsebasyx/aasrepository-go"
+    set_default_if_empty AAS_REPOSITORY_IMAGE_TAG "1.0.0"
+    set_default_if_empty AAS_REPOSITORY_HOST_PORT "5081"
+    set_default_if_empty SUBMODEL_REPOSITORY_IMAGE_REPO "eclipsebasyx/submodelrepository-go"
+    set_default_if_empty SUBMODEL_REPOSITORY_IMAGE_TAG "1.0.0"
+    set_default_if_empty SUBMODEL_REPOSITORY_HOST_PORT "5085"
+    set_default_if_empty CONCEPT_DESCRIPTION_REPOSITORY_IMAGE_REPO "eclipsebasyx/conceptdescriptionrepository-go"
+    set_default_if_empty CONCEPT_DESCRIPTION_REPOSITORY_IMAGE_TAG "1.0.0"
+    set_default_if_empty CONCEPT_DESCRIPTION_REPOSITORY_HOST_PORT "5086"
+
+    set_default_if_empty AAS_REGISTRY_IMAGE_REPO "eclipsebasyx/aasregistry-go"
+    set_default_if_empty AAS_REGISTRY_IMAGE_TAG "1.0.0"
+    set_default_if_empty AAS_REGISTRY_HOST_PORT "5082"
+
+    set_default_if_empty SUBMODEL_REGISTRY_IMAGE_REPO "eclipsebasyx/submodelregistry-go"
+    set_default_if_empty SUBMODEL_REGISTRY_IMAGE_TAG "1.0.0"
+    set_default_if_empty SUBMODEL_REGISTRY_HOST_PORT "5083"
+
+    set_default_if_empty AAS_DISCOVERY_IMAGE_REPO "eclipsebasyx/aasdiscovery-go"
+    set_default_if_empty AAS_DISCOVERY_IMAGE_TAG "1.0.0"
+    set_default_if_empty AAS_DISCOVERY_HOST_PORT "5084"
+
+    BASYX_AAS_REPOSITORY_CONTAINER="${PROJECT_NAME}-aasrepository-go"
+    BASYX_AAS_REPOSITORY_CONTAINER_PORT="${BASYX_REPO_SERVER_PORT}"
+    BASYX_AAS_REPOSITORY_URL="http://${BASYX_AAS_REPOSITORY_CONTAINER}:${BASYX_AAS_REPOSITORY_CONTAINER_PORT}"
+    BASYX_AAS_REPOSITORY_HC_URL="${BASYX_AAS_REPOSITORY_URL}/health"
+    BASYX_SUBMODEL_REPOSITORY_CONTAINER="${PROJECT_NAME}-submodelrepository-go"
+    BASYX_SUBMODEL_REPOSITORY_CONTAINER_PORT="${BASYX_REPO_SERVER_PORT}"
+    BASYX_SUBMODEL_REPOSITORY_URL="http://${BASYX_SUBMODEL_REPOSITORY_CONTAINER}:${BASYX_SUBMODEL_REPOSITORY_CONTAINER_PORT}"
+    BASYX_SUBMODEL_REPOSITORY_HC_URL="${BASYX_SUBMODEL_REPOSITORY_URL}/health"
+    BASYX_CONCEPT_DESCRIPTION_REPOSITORY_CONTAINER="${PROJECT_NAME}-conceptdescriptionrepository-go"
+    BASYX_CONCEPT_DESCRIPTION_REPOSITORY_CONTAINER_PORT="${BASYX_REPO_SERVER_PORT}"
+    AASREPO_CORS_ALLOWEDORIGINS="${BASYX_REPO_CORS_ALLOWEDORIGINS}"
+    AASREPO_CORS_ALLOWEDHEADERS="${BASYX_REPO_CORS_ALLOWEDHEADERS}"
+    AASREPO_CORS_ALLOWEDCREDENTIALS="${BASYX_REPO_CORS_ALLOWEDCREDENTIALS}"
+    AASREPO_CORS_ALLOWEDMETHODS="${BASYX_REPO_CORS_ALLOWEDMETHODS}"
+    AASREPO_SERVER_PORT="${BASYX_REPO_SERVER_PORT}"
+    AASREPO_POSTGRES_HOST="${BASYX_REPO_POSTGRES_HOST}"
+    AASREPO_POSTGRES_PORT="${BASYX_REPO_POSTGRES_PORT}"
+    AASREPO_POSTGRES_USER="${BASYX_REPO_POSTGRES_USER}"
+    AASREPO_POSTGRES_PASSWORD="${BASYX_REPO_POSTGRES_PASSWORD}"
+    AASREPO_POSTGRES_DBNAME="${BASYX_REPO_POSTGRES_DBNAME}"
+    AASREPO_POSTGRES_MAXOPENCONNECTIONS="${BASYX_REPO_POSTGRES_MAXOPENCONNECTIONS}"
+    AASREPO_POSTGRES_MAXIDLECONNECTIONS="${BASYX_REPO_POSTGRES_MAXIDLECONNECTIONS}"
+    AASREPO_POSTGRES_CONNMAXLIFETIMEMINUTES="${BASYX_REPO_POSTGRES_CONNMAXLIFETIMEMINUTES}"
+    AASREPO_ABAC_ENABLED="${BASYX_REPO_ABAC_ENABLED}"
+    AASREPO_ABAC_MODELPATH="${BASYX_REPO_ABAC_MODELPATH}"
+    AASREPO_OIDC_TRUSTLISTPATH="${BASYX_REPO_OIDC_TRUSTLISTPATH}"
+    SMREPO_CORS_ALLOWEDORIGINS="${BASYX_REPO_CORS_ALLOWEDORIGINS}"
+    SMREPO_CORS_ALLOWEDHEADERS="${BASYX_REPO_CORS_ALLOWEDHEADERS}"
+    SMREPO_CORS_ALLOWEDCREDENTIALS="${BASYX_REPO_CORS_ALLOWEDCREDENTIALS}"
+    SMREPO_CORS_ALLOWEDMETHODS="${BASYX_REPO_CORS_ALLOWEDMETHODS}"
+    SMREPO_SERVER_PORT="${BASYX_REPO_SERVER_PORT}"
+    SMREPO_POSTGRES_HOST="${BASYX_REPO_POSTGRES_HOST}"
+    SMREPO_POSTGRES_PORT="${BASYX_REPO_POSTGRES_PORT}"
+    SMREPO_POSTGRES_USER="${BASYX_REPO_POSTGRES_USER}"
+    SMREPO_POSTGRES_PASSWORD="${BASYX_REPO_POSTGRES_PASSWORD}"
+    SMREPO_POSTGRES_DBNAME="${BASYX_REPO_POSTGRES_DBNAME}"
+    SMREPO_POSTGRES_MAXOPENCONNECTIONS="${BASYX_REPO_POSTGRES_MAXOPENCONNECTIONS}"
+    SMREPO_POSTGRES_MAXIDLECONNECTIONS="${BASYX_REPO_POSTGRES_MAXIDLECONNECTIONS}"
+    SMREPO_POSTGRES_CONNMAXLIFETIMEMINUTES="${BASYX_REPO_POSTGRES_CONNMAXLIFETIMEMINUTES}"
+    SMREPO_ABAC_ENABLED="${BASYX_REPO_ABAC_ENABLED}"
+    SMREPO_ABAC_MODELPATH="${BASYX_REPO_ABAC_MODELPATH}"
+    SMREPO_OIDC_TRUSTLISTPATH="${BASYX_REPO_OIDC_TRUSTLISTPATH}"
+    SMREPO_JWS_PRIVATEKEYPATH="${BASYX_SMREPO_JWS_PRIVATEKEYPATH}"
+    CDREPO_CORS_ALLOWEDORIGINS="${BASYX_REPO_CORS_ALLOWEDORIGINS}"
+    CDREPO_CORS_ALLOWEDHEADERS="${BASYX_REPO_CORS_ALLOWEDHEADERS}"
+    CDREPO_CORS_ALLOWEDCREDENTIALS="${BASYX_REPO_CORS_ALLOWEDCREDENTIALS}"
+    CDREPO_CORS_ALLOWEDMETHODS="${BASYX_REPO_CORS_ALLOWEDMETHODS}"
+    CDREPO_SERVER_PORT="${BASYX_REPO_SERVER_PORT}"
+    CDREPO_POSTGRES_HOST="${BASYX_REPO_POSTGRES_HOST}"
+    CDREPO_POSTGRES_PORT="${BASYX_REPO_POSTGRES_PORT}"
+    CDREPO_POSTGRES_USER="${BASYX_REPO_POSTGRES_USER}"
+    CDREPO_POSTGRES_PASSWORD="${BASYX_REPO_POSTGRES_PASSWORD}"
+    CDREPO_POSTGRES_DBNAME="${BASYX_REPO_POSTGRES_DBNAME}"
+    CDREPO_POSTGRES_MAXOPENCONNECTIONS="${BASYX_REPO_POSTGRES_MAXOPENCONNECTIONS}"
+    CDREPO_POSTGRES_MAXIDLECONNECTIONS="${BASYX_REPO_POSTGRES_MAXIDLECONNECTIONS}"
+    CDREPO_POSTGRES_CONNMAXLIFETIMEMINUTES="${BASYX_REPO_POSTGRES_CONNMAXLIFETIMEMINUTES}"
+    CDREPO_ABAC_ENABLED="${BASYX_REPO_ABAC_ENABLED}"
+    CDREPO_ABAC_MODELPATH="${BASYX_REPO_ABAC_MODELPATH}"
+    CDREPO_OIDC_TRUSTLISTPATH="${BASYX_REPO_OIDC_TRUSTLISTPATH}"
+    AASREG_CORS_ALLOWEDORIGINS="${BASYX_REPO_CORS_ALLOWEDORIGINS}"
+    AASREG_CORS_ALLOWEDHEADERS="${BASYX_REPO_CORS_ALLOWEDHEADERS}"
+    AASREG_CORS_ALLOWEDCREDENTIALS="${BASYX_REPO_CORS_ALLOWEDCREDENTIALS}"
+    AASREG_CORS_ALLOWEDMETHODS="${BASYX_REPO_CORS_ALLOWEDMETHODS}"
+    AASREG_POSTGRES_HOST="${BASYX_REPO_POSTGRES_HOST}"
+    AASREG_POSTGRES_PORT="${BASYX_REPO_POSTGRES_PORT}"
+    AASREG_POSTGRES_USER="${BASYX_REPO_POSTGRES_USER}"
+    AASREG_POSTGRES_PASSWORD="${BASYX_REPO_POSTGRES_PASSWORD}"
+    AASREG_POSTGRES_DBNAME="${BASYX_REPO_POSTGRES_DBNAME}"
+    AASREG_POSTGRES_MAXOPENCONNECTIONS="${BASYX_REPO_POSTGRES_MAXOPENCONNECTIONS}"
+    AASREG_POSTGRES_MAXIDLECONNECTIONS="${BASYX_REPO_POSTGRES_MAXIDLECONNECTIONS}"
+    AASREG_POSTGRES_CONNMAXLIFETIMEMINUTES="${BASYX_REPO_POSTGRES_CONNMAXLIFETIMEMINUTES}"
+    AASREG_ABAC_ENABLED="${BASYX_REPO_ABAC_ENABLED}"
+    AASREG_ABAC_MODELPATH="${BASYX_REPO_ABAC_MODELPATH}"
+    AASREG_OIDC_TRUSTLISTPATH="${BASYX_REPO_OIDC_TRUSTLISTPATH}"
+    SMREG_CORS_ALLOWEDORIGINS="${BASYX_REPO_CORS_ALLOWEDORIGINS}"
+    SMREG_CORS_ALLOWEDHEADERS="${BASYX_REPO_CORS_ALLOWEDHEADERS}"
+    SMREG_CORS_ALLOWEDCREDENTIALS="${BASYX_REPO_CORS_ALLOWEDCREDENTIALS}"
+    SMREG_CORS_ALLOWEDMETHODS="${BASYX_REPO_CORS_ALLOWEDMETHODS}"
+    SMREG_POSTGRES_HOST="${BASYX_REPO_POSTGRES_HOST}"
+    SMREG_POSTGRES_PORT="${BASYX_REPO_POSTGRES_PORT}"
+    SMREG_POSTGRES_USER="${BASYX_REPO_POSTGRES_USER}"
+    SMREG_POSTGRES_PASSWORD="${BASYX_REPO_POSTGRES_PASSWORD}"
+    SMREG_POSTGRES_DBNAME="${BASYX_REPO_POSTGRES_DBNAME}"
+    SMREG_POSTGRES_MAXOPENCONNECTIONS="${BASYX_REPO_POSTGRES_MAXOPENCONNECTIONS}"
+    SMREG_POSTGRES_MAXIDLECONNECTIONS="${BASYX_REPO_POSTGRES_MAXIDLECONNECTIONS}"
+    SMREG_POSTGRES_CONNMAXLIFETIMEMINUTES="${BASYX_REPO_POSTGRES_CONNMAXLIFETIMEMINUTES}"
+    SMREG_ABAC_ENABLED="${BASYX_REPO_ABAC_ENABLED}"
+    SMREG_ABAC_MODELPATH="${BASYX_REPO_ABAC_MODELPATH}"
+    SMREG_OIDC_TRUSTLISTPATH="${BASYX_REPO_OIDC_TRUSTLISTPATH}"
+    AASDISC_CORS_ALLOWEDORIGINS="${BASYX_REPO_CORS_ALLOWEDORIGINS}"
+    AASDISC_CORS_ALLOWEDHEADERS="${BASYX_REPO_CORS_ALLOWEDHEADERS}"
+    AASDISC_CORS_ALLOWEDCREDENTIALS="${BASYX_REPO_CORS_ALLOWEDCREDENTIALS}"
+    AASDISC_CORS_ALLOWEDMETHODS="${BASYX_REPO_CORS_ALLOWEDMETHODS}"
+    AASDISC_POSTGRES_HOST="${BASYX_REPO_POSTGRES_HOST}"
+    AASDISC_POSTGRES_PORT="${BASYX_REPO_POSTGRES_PORT}"
+    AASDISC_POSTGRES_USER="${BASYX_REPO_POSTGRES_USER}"
+    AASDISC_POSTGRES_PASSWORD="${BASYX_REPO_POSTGRES_PASSWORD}"
+    AASDISC_POSTGRES_DBNAME="${BASYX_REPO_POSTGRES_DBNAME}"
+    AASDISC_POSTGRES_MAXOPENCONNECTIONS="${BASYX_REPO_POSTGRES_MAXOPENCONNECTIONS}"
+    AASDISC_POSTGRES_MAXIDLECONNECTIONS="${BASYX_REPO_POSTGRES_MAXIDLECONNECTIONS}"
+    AASDISC_POSTGRES_CONNMAXLIFETIMEMINUTES="${BASYX_REPO_POSTGRES_CONNMAXLIFETIMEMINUTES}"
+    AASDISC_ABAC_ENABLED="${BASYX_REPO_ABAC_ENABLED}"
+    AASDISC_ABAC_MODELPATH="${BASYX_REPO_ABAC_MODELPATH}"
+    AASDISC_OIDC_TRUSTLISTPATH="${BASYX_REPO_OIDC_TRUSTLISTPATH}"
+    BASYX_CONCEPT_DESCRIPTION_REPOSITORY_URL="http://${BASYX_CONCEPT_DESCRIPTION_REPOSITORY_CONTAINER}:${BASYX_CONCEPT_DESCRIPTION_REPOSITORY_CONTAINER_PORT}"
+    BASYX_CONCEPT_DESCRIPTION_REPOSITORY_HC_URL="${BASYX_CONCEPT_DESCRIPTION_REPOSITORY_URL}/health"
+    BASYX_AAS_REGISTRY_CONTAINER="${PROJECT_NAME}-aasregistry-go"
+    BASYX_AAS_REGISTRY_CONTAINER_PORT="${AASREG_SERVER_PORT}"
+    BASYX_AAS_REGISTRY_URL="http://${BASYX_AAS_REGISTRY_CONTAINER}:${BASYX_AAS_REGISTRY_CONTAINER_PORT}"
+    BASYX_AAS_REGISTRY_HC_URL="${BASYX_AAS_REGISTRY_URL}/health"
+    BASYX_SUBMODEL_REGISTRY_CONTAINER="${PROJECT_NAME}-submodelregistry-go"
+    BASYX_SUBMODEL_REGISTRY_CONTAINER_PORT="${SMREG_SERVER_PORT}"
+    BASYX_SUBMODEL_REGISTRY_URL="http://${BASYX_SUBMODEL_REGISTRY_CONTAINER}:${BASYX_SUBMODEL_REGISTRY_CONTAINER_PORT}"
+    BASYX_SUBMODEL_REGISTRY_HC_URL="${BASYX_SUBMODEL_REGISTRY_URL}/health"
+    BASYX_AAS_DISCOVERY_CONTAINER="${PROJECT_NAME}-aasdiscovery-go"
+    BASYX_AAS_DISCOVERY_CONTAINER_PORT="${AASDISC_SERVER_PORT}"
+    BASYX_AAS_DISCOVERY_URL="http://${BASYX_AAS_DISCOVERY_CONTAINER}:${BASYX_AAS_DISCOVERY_CONTAINER_PORT}"
+    BASYX_AAS_DISCOVERY_HC_URL="${BASYX_AAS_DISCOVERY_URL}/health"
+  else
+    die "BASYX_MODE muss existing oder install sein"
+  fi
+
+  local ports=()
+  ports+=("$GATEWAY_HOST_PORT")
+  if [ "$KEYCLOAK_MODE" = "install" ]; then
+    ports+=("$KEYCLOAK_HOST_PORT")
+  fi
+  if [ "$BASYX_MODE" = "install" ]; then
+    ports+=("$AAS_REPOSITORY_HOST_PORT" "$SUBMODEL_REPOSITORY_HOST_PORT" "$CONCEPT_DESCRIPTION_REPOSITORY_HOST_PORT" "$AAS_REGISTRY_HOST_PORT" "$SUBMODEL_REGISTRY_HOST_PORT" "$AAS_DISCOVERY_HOST_PORT")
+  fi
+  assert_unique_ports "${ports[@]}"
+
+  init_output_files "$COMPOSE_FILE" "$ENV_FILE"
+  if [ "$KEYCLOAK_MODE" = "install" ]; then
+    prepare_keycloak_assets "$COMPOSE_FILE" "$resolved_keycloak_realm_file" "$resolved_keycloak_themes_path" "$PUBLIC_GATEWAY_URL"
+  fi
+  if [ "$BASYX_MODE" = "install" ]; then
+    prepare_security_env_assets "$COMPOSE_FILE"
+  fi
+
+  write_env "$ENV_FILE" "PROJECT_NAME" "$PROJECT_NAME"
+  write_env "$ENV_FILE" "DESIGNER_BACKEND_IMAGE_REPO" "$DESIGNER_BACKEND_IMAGE_REPO"
+  write_env "$ENV_FILE" "DESIGNER_BACKEND_IMAGE_TAG" "$DESIGNER_BACKEND_IMAGE_TAG"
+  write_env "$ENV_FILE" "GATEWAY_IMAGE_REPO" "$GATEWAY_IMAGE_REPO"
+  write_env "$ENV_FILE" "GATEWAY_IMAGE_TAG" "$GATEWAY_IMAGE_TAG"
+  write_env "$ENV_FILE" "FRONTEND_IMAGE_REPO" "$FRONTEND_IMAGE_REPO"
+  write_env "$ENV_FILE" "FRONTEND_IMAGE_TAG" "$FRONTEND_IMAGE_TAG"
+  write_env "$ENV_FILE" "BASE_URL" "$BASE_URL"
+  write_env "$ENV_FILE" "FRONTEND_API_BASE_URL" "$FRONTEND_API_BASE_URL"
+  write_env "$ENV_FILE" "FRONTEND_FEEDMAPPING_BASE_URL" "$FRONTEND_FEEDMAPPING_BASE_URL"
+  write_env "$ENV_FILE" "POSTGRES_IMAGE_REPO" "$POSTGRES_IMAGE_REPO"
+  write_env "$ENV_FILE" "POSTGRES_IMAGE_TAG" "$POSTGRES_IMAGE_TAG"
+  write_env "$ENV_FILE" "POSTGRES_DB" "$POSTGRES_DB"
+  write_env "$ENV_FILE" "POSTGRES_USER" "$POSTGRES_USER"
+  write_env "$ENV_FILE" "POSTGRES_PASSWORD" "$POSTGRES_PASSWORD"
+  write_env "$ENV_FILE" "BASYX_POSTGRES_DB" "$BASYX_POSTGRES_DB"
+  write_env "$ENV_FILE" "KEYCLOAK_POSTGRES_DB" "$KEYCLOAK_POSTGRES_DB"
+  write_env "$ENV_FILE" "BASYX_MODE" "$BASYX_MODE"
+  write_env "$ENV_FILE" "KEYCLOAK_MODE" "$KEYCLOAK_MODE"
+
+  write_env "$ENV_FILE" "KEYCLOAK_ISSUER" "$KEYCLOAK_ISSUER"
+  write_env "$ENV_FILE" "KEYCLOAK_WELLKNOWN_URL" "$KEYCLOAK_WELLKNOWN_URL"
+  write_env "$ENV_FILE" "KEYCLOAK_PUBLIC_ISSUER" "$KEYCLOAK_PUBLIC_ISSUER"
+  write_env "$ENV_FILE" "KEYCLOAK_PUBLIC_WELLKNOWN_URL" "$KEYCLOAK_PUBLIC_WELLKNOWN_URL"
+  write_env "$ENV_FILE" "KEYCLOAK_CLIENT_ID" "$KEYCLOAK_CLIENT_ID"
+  write_env "$ENV_FILE" "KEYCLOAK_AUDIENCE" "$KEYCLOAK_AUDIENCE"
+  write_env "$ENV_FILE" "KEYCLOAK_SCOPES" "$KEYCLOAK_SCOPES"
+  write_env "$ENV_FILE" "KEYCLOAK_RESOURCE_ACCESS_NAME" "$KEYCLOAK_RESOURCE_ACCESS_NAME"
+  write_env "$ENV_FILE" "KEYCLOAK_ADMIN_REALM" "$KEYCLOAK_ADMIN_REALM"
+  write_env "$ENV_FILE" "KEYCLOAK_ADMIN_CLIENT_ID" "$KEYCLOAK_ADMIN_CLIENT_ID"
+  write_env "$ENV_FILE" "KEYCLOAK_ADMIN_CLIENT_SECRET" "$KEYCLOAK_ADMIN_CLIENT_SECRET"
+  write_env "$ENV_FILE" "KEYCLOAK_ADMIN_USERNAME" "$KEYCLOAK_ADMIN_USERNAME"
+  write_env "$ENV_FILE" "KEYCLOAK_ADMIN_PASSWORD" "$KEYCLOAK_ADMIN_PASSWORD"
+  write_env "$ENV_FILE" "INITIAL_ORGANISATION_ADMIN_EMAIL" "$INITIAL_ORGANISATION_ADMIN_EMAIL"
+  write_env "$ENV_FILE" "INITIAL_ORGANISATION_ADMIN_NAME" "$INITIAL_ORGANISATION_ADMIN_NAME"
+  write_env "$ENV_FILE" "INITIAL_ORGANISATION_ADMIN_VORNAME" "$INITIAL_ORGANISATION_ADMIN_VORNAME"
+  write_env "$ENV_FILE" "INITIAL_ORGANISATION_ADMIN_PASSWORD" "$INITIAL_ORGANISATION_ADMIN_PASSWORD"
+  write_env "$ENV_FILE" "SMTP_SERVER" "$SMTP_SERVER"
+  write_env "$ENV_FILE" "SMTP_PORT" "$SMTP_PORT"
+  write_env "$ENV_FILE" "SMTP_USE_SSL" "$SMTP_USE_SSL"
+  write_env "$ENV_FILE" "SMTP_USE_TLS" "$SMTP_USE_TLS"
+  write_env "$ENV_FILE" "SMTP_NEEDS_AUTHENTICATION" "$SMTP_NEEDS_AUTHENTICATION"
+  write_env "$ENV_FILE" "SENDER_ADDRESS" "$SENDER_ADDRESS"
+  write_env "$ENV_FILE" "SENDER_USER" "$SENDER_USER"
+  write_env "$ENV_FILE" "SENDER_PASSWORD" "$SENDER_PASSWORD"
+  write_env "$ENV_FILE" "NEW_ORGA_NOTIFICATION_ADDRESS" "$NEW_ORGA_NOTIFICATION_ADDRESS"
+  write_env "$ENV_FILE" "SUBJECT_PREFIX" "$SUBJECT_PREFIX"
+
+  write_env "$ENV_FILE" "BASYX_AAS_REPOSITORY_URL" "$BASYX_AAS_REPOSITORY_URL"
+  write_env "$ENV_FILE" "BASYX_SUBMODEL_REPOSITORY_URL" "$BASYX_SUBMODEL_REPOSITORY_URL"
+  write_env "$ENV_FILE" "BASYX_CONCEPT_DESCRIPTION_REPOSITORY_URL" "$BASYX_CONCEPT_DESCRIPTION_REPOSITORY_URL"
+  write_env "$ENV_FILE" "BASYX_AAS_REGISTRY_URL" "$BASYX_AAS_REGISTRY_URL"
+  write_env "$ENV_FILE" "BASYX_SUBMODEL_REGISTRY_URL" "$BASYX_SUBMODEL_REGISTRY_URL"
+  write_env "$ENV_FILE" "BASYX_AAS_DISCOVERY_URL" "$BASYX_AAS_DISCOVERY_URL"
+  write_env "$ENV_FILE" "AAS_REPOSITORY_IMAGE_TAG" "$AAS_REPOSITORY_IMAGE_TAG"
+  write_env "$ENV_FILE" "SUBMODEL_REPOSITORY_IMAGE_TAG" "$SUBMODEL_REPOSITORY_IMAGE_TAG"
+  write_env "$ENV_FILE" "CONCEPT_DESCRIPTION_REPOSITORY_IMAGE_TAG" "$CONCEPT_DESCRIPTION_REPOSITORY_IMAGE_TAG"
+  write_env "$ENV_FILE" "AAS_REGISTRY_IMAGE_TAG" "$AAS_REGISTRY_IMAGE_TAG"
+  write_env "$ENV_FILE" "SUBMODEL_REGISTRY_IMAGE_TAG" "$SUBMODEL_REGISTRY_IMAGE_TAG"
+  write_env "$ENV_FILE" "AAS_DISCOVERY_IMAGE_TAG" "$AAS_DISCOVERY_IMAGE_TAG"
+  write_env "$ENV_FILE" "BASYX_HANDLE_AS_INTERNAL" "$BASYX_HANDLE_AS_INTERNAL"
+  write_env "$ENV_FILE" "BASYX_AAS_REPOSITORY_CONTAINER" "$BASYX_AAS_REPOSITORY_CONTAINER"
+  write_env "$ENV_FILE" "BASYX_AAS_REPOSITORY_CONTAINER_PORT" "$BASYX_AAS_REPOSITORY_CONTAINER_PORT"
+  write_env "$ENV_FILE" "BASYX_AAS_REPOSITORY_HC_URL" "$BASYX_AAS_REPOSITORY_HC_URL"
+  write_env "$ENV_FILE" "BASYX_SUBMODEL_REPOSITORY_CONTAINER" "$BASYX_SUBMODEL_REPOSITORY_CONTAINER"
+  write_env "$ENV_FILE" "BASYX_SUBMODEL_REPOSITORY_CONTAINER_PORT" "$BASYX_SUBMODEL_REPOSITORY_CONTAINER_PORT"
+  write_env "$ENV_FILE" "BASYX_SUBMODEL_REPOSITORY_HC_URL" "$BASYX_SUBMODEL_REPOSITORY_HC_URL"
+  write_env "$ENV_FILE" "BASYX_CONCEPT_DESCRIPTION_REPOSITORY_CONTAINER" "$BASYX_CONCEPT_DESCRIPTION_REPOSITORY_CONTAINER"
+  write_env "$ENV_FILE" "BASYX_CONCEPT_DESCRIPTION_REPOSITORY_CONTAINER_PORT" "$BASYX_CONCEPT_DESCRIPTION_REPOSITORY_CONTAINER_PORT"
+  write_env "$ENV_FILE" "BASYX_CONCEPT_DESCRIPTION_REPOSITORY_HC_URL" "$BASYX_CONCEPT_DESCRIPTION_REPOSITORY_HC_URL"
+  write_env "$ENV_FILE" "BASYX_AAS_REGISTRY_CONTAINER" "$BASYX_AAS_REGISTRY_CONTAINER"
+  write_env "$ENV_FILE" "BASYX_AAS_REGISTRY_CONTAINER_PORT" "$BASYX_AAS_REGISTRY_CONTAINER_PORT"
+  write_env "$ENV_FILE" "BASYX_AAS_REGISTRY_HC_URL" "$BASYX_AAS_REGISTRY_HC_URL"
+  write_env "$ENV_FILE" "BASYX_SUBMODEL_REGISTRY_CONTAINER" "$BASYX_SUBMODEL_REGISTRY_CONTAINER"
+  write_env "$ENV_FILE" "BASYX_SUBMODEL_REGISTRY_CONTAINER_PORT" "$BASYX_SUBMODEL_REGISTRY_CONTAINER_PORT"
+  write_env "$ENV_FILE" "BASYX_SUBMODEL_REGISTRY_HC_URL" "$BASYX_SUBMODEL_REGISTRY_HC_URL"
+  write_env "$ENV_FILE" "BASYX_AAS_DISCOVERY_CONTAINER" "$BASYX_AAS_DISCOVERY_CONTAINER"
+  write_env "$ENV_FILE" "BASYX_AAS_DISCOVERY_CONTAINER_PORT" "$BASYX_AAS_DISCOVERY_CONTAINER_PORT"
+  write_env "$ENV_FILE" "BASYX_AAS_DISCOVERY_HC_URL" "$BASYX_AAS_DISCOVERY_HC_URL"
+  write_env "$ENV_FILE" "AASREPO_CORS_ALLOWEDORIGINS" "$AASREPO_CORS_ALLOWEDORIGINS"
+  write_env "$ENV_FILE" "AASREPO_CORS_ALLOWEDHEADERS" "$AASREPO_CORS_ALLOWEDHEADERS"
+  write_env "$ENV_FILE" "AASREPO_CORS_ALLOWEDCREDENTIALS" "$AASREPO_CORS_ALLOWEDCREDENTIALS"
+  write_env "$ENV_FILE" "AASREPO_CORS_ALLOWEDMETHODS" "$AASREPO_CORS_ALLOWEDMETHODS"
+  write_env "$ENV_FILE" "AASREPO_SERVER_PORT" "$AASREPO_SERVER_PORT"
+  write_env "$ENV_FILE" "AASREPO_POSTGRES_HOST" "$AASREPO_POSTGRES_HOST"
+  write_env "$ENV_FILE" "AASREPO_POSTGRES_PORT" "$AASREPO_POSTGRES_PORT"
+  write_env "$ENV_FILE" "AASREPO_POSTGRES_USER" "$AASREPO_POSTGRES_USER"
+  write_env "$ENV_FILE" "AASREPO_POSTGRES_PASSWORD" "$AASREPO_POSTGRES_PASSWORD"
+  write_env "$ENV_FILE" "AASREPO_POSTGRES_DBNAME" "$AASREPO_POSTGRES_DBNAME"
+  write_env "$ENV_FILE" "AASREPO_POSTGRES_MAXOPENCONNECTIONS" "$AASREPO_POSTGRES_MAXOPENCONNECTIONS"
+  write_env "$ENV_FILE" "AASREPO_POSTGRES_MAXIDLECONNECTIONS" "$AASREPO_POSTGRES_MAXIDLECONNECTIONS"
+  write_env "$ENV_FILE" "AASREPO_POSTGRES_CONNMAXLIFETIMEMINUTES" "$AASREPO_POSTGRES_CONNMAXLIFETIMEMINUTES"
+  write_env "$ENV_FILE" "AASREPO_ABAC_ENABLED" "$AASREPO_ABAC_ENABLED"
+  write_env "$ENV_FILE" "AASREPO_ABAC_MODELPATH" "$AASREPO_ABAC_MODELPATH"
+  write_env "$ENV_FILE" "AASREPO_OIDC_TRUSTLISTPATH" "$AASREPO_OIDC_TRUSTLISTPATH"
+  write_env "$ENV_FILE" "SMREPO_CORS_ALLOWEDORIGINS" "$SMREPO_CORS_ALLOWEDORIGINS"
+  write_env "$ENV_FILE" "SMREPO_CORS_ALLOWEDHEADERS" "$SMREPO_CORS_ALLOWEDHEADERS"
+  write_env "$ENV_FILE" "SMREPO_CORS_ALLOWEDCREDENTIALS" "$SMREPO_CORS_ALLOWEDCREDENTIALS"
+  write_env "$ENV_FILE" "SMREPO_CORS_ALLOWEDMETHODS" "$SMREPO_CORS_ALLOWEDMETHODS"
+  write_env "$ENV_FILE" "SMREPO_SERVER_PORT" "$SMREPO_SERVER_PORT"
+  write_env "$ENV_FILE" "SMREPO_POSTGRES_HOST" "$SMREPO_POSTGRES_HOST"
+  write_env "$ENV_FILE" "SMREPO_POSTGRES_PORT" "$SMREPO_POSTGRES_PORT"
+  write_env "$ENV_FILE" "SMREPO_POSTGRES_USER" "$SMREPO_POSTGRES_USER"
+  write_env "$ENV_FILE" "SMREPO_POSTGRES_PASSWORD" "$SMREPO_POSTGRES_PASSWORD"
+  write_env "$ENV_FILE" "SMREPO_POSTGRES_DBNAME" "$SMREPO_POSTGRES_DBNAME"
+  write_env "$ENV_FILE" "SMREPO_POSTGRES_MAXOPENCONNECTIONS" "$SMREPO_POSTGRES_MAXOPENCONNECTIONS"
+  write_env "$ENV_FILE" "SMREPO_POSTGRES_MAXIDLECONNECTIONS" "$SMREPO_POSTGRES_MAXIDLECONNECTIONS"
+  write_env "$ENV_FILE" "SMREPO_POSTGRES_CONNMAXLIFETIMEMINUTES" "$SMREPO_POSTGRES_CONNMAXLIFETIMEMINUTES"
+  write_env "$ENV_FILE" "SMREPO_ABAC_ENABLED" "$SMREPO_ABAC_ENABLED"
+  write_env "$ENV_FILE" "SMREPO_ABAC_MODELPATH" "$SMREPO_ABAC_MODELPATH"
+  write_env "$ENV_FILE" "SMREPO_OIDC_TRUSTLISTPATH" "$SMREPO_OIDC_TRUSTLISTPATH"
+  write_env "$ENV_FILE" "SMREPO_JWS_PRIVATEKEYPATH" "$SMREPO_JWS_PRIVATEKEYPATH"
+  write_env "$ENV_FILE" "CDREPO_CORS_ALLOWEDORIGINS" "$CDREPO_CORS_ALLOWEDORIGINS"
+  write_env "$ENV_FILE" "CDREPO_CORS_ALLOWEDHEADERS" "$CDREPO_CORS_ALLOWEDHEADERS"
+  write_env "$ENV_FILE" "CDREPO_CORS_ALLOWEDCREDENTIALS" "$CDREPO_CORS_ALLOWEDCREDENTIALS"
+  write_env "$ENV_FILE" "CDREPO_CORS_ALLOWEDMETHODS" "$CDREPO_CORS_ALLOWEDMETHODS"
+  write_env "$ENV_FILE" "CDREPO_SERVER_PORT" "$CDREPO_SERVER_PORT"
+  write_env "$ENV_FILE" "CDREPO_POSTGRES_HOST" "$CDREPO_POSTGRES_HOST"
+  write_env "$ENV_FILE" "CDREPO_POSTGRES_PORT" "$CDREPO_POSTGRES_PORT"
+  write_env "$ENV_FILE" "CDREPO_POSTGRES_USER" "$CDREPO_POSTGRES_USER"
+  write_env "$ENV_FILE" "CDREPO_POSTGRES_PASSWORD" "$CDREPO_POSTGRES_PASSWORD"
+  write_env "$ENV_FILE" "CDREPO_POSTGRES_DBNAME" "$CDREPO_POSTGRES_DBNAME"
+  write_env "$ENV_FILE" "CDREPO_POSTGRES_MAXOPENCONNECTIONS" "$CDREPO_POSTGRES_MAXOPENCONNECTIONS"
+  write_env "$ENV_FILE" "CDREPO_POSTGRES_MAXIDLECONNECTIONS" "$CDREPO_POSTGRES_MAXIDLECONNECTIONS"
+  write_env "$ENV_FILE" "CDREPO_POSTGRES_CONNMAXLIFETIMEMINUTES" "$CDREPO_POSTGRES_CONNMAXLIFETIMEMINUTES"
+  write_env "$ENV_FILE" "CDREPO_ABAC_ENABLED" "$CDREPO_ABAC_ENABLED"
+  write_env "$ENV_FILE" "CDREPO_ABAC_MODELPATH" "$CDREPO_ABAC_MODELPATH"
+  write_env "$ENV_FILE" "CDREPO_OIDC_TRUSTLISTPATH" "$CDREPO_OIDC_TRUSTLISTPATH"
+  write_env "$ENV_FILE" "AASREG_CORS_ALLOWEDORIGINS" "$AASREG_CORS_ALLOWEDORIGINS"
+  write_env "$ENV_FILE" "AASREG_CORS_ALLOWEDHEADERS" "$AASREG_CORS_ALLOWEDHEADERS"
+  write_env "$ENV_FILE" "AASREG_CORS_ALLOWEDCREDENTIALS" "$AASREG_CORS_ALLOWEDCREDENTIALS"
+  write_env "$ENV_FILE" "AASREG_CORS_ALLOWEDMETHODS" "$AASREG_CORS_ALLOWEDMETHODS"
+  write_env "$ENV_FILE" "AASREG_VIRTUAL_PORT" "$AASREG_VIRTUAL_PORT"
+  write_env "$ENV_FILE" "AASREG_SERVER_PORT" "$AASREG_SERVER_PORT"
+  write_env "$ENV_FILE" "AASREG_POSTGRES_HOST" "$AASREG_POSTGRES_HOST"
+  write_env "$ENV_FILE" "AASREG_POSTGRES_PORT" "$AASREG_POSTGRES_PORT"
+  write_env "$ENV_FILE" "AASREG_POSTGRES_USER" "$AASREG_POSTGRES_USER"
+  write_env "$ENV_FILE" "AASREG_POSTGRES_PASSWORD" "$AASREG_POSTGRES_PASSWORD"
+  write_env "$ENV_FILE" "AASREG_POSTGRES_DBNAME" "$AASREG_POSTGRES_DBNAME"
+  write_env "$ENV_FILE" "AASREG_POSTGRES_MAXOPENCONNECTIONS" "$AASREG_POSTGRES_MAXOPENCONNECTIONS"
+  write_env "$ENV_FILE" "AASREG_POSTGRES_MAXIDLECONNECTIONS" "$AASREG_POSTGRES_MAXIDLECONNECTIONS"
+  write_env "$ENV_FILE" "AASREG_POSTGRES_CONNMAXLIFETIMEMINUTES" "$AASREG_POSTGRES_CONNMAXLIFETIMEMINUTES"
+  write_env "$ENV_FILE" "AASREG_ABAC_ENABLED" "$AASREG_ABAC_ENABLED"
+  write_env "$ENV_FILE" "AASREG_ABAC_MODELPATH" "$AASREG_ABAC_MODELPATH"
+  write_env "$ENV_FILE" "AASREG_OIDC_TRUSTLISTPATH" "$AASREG_OIDC_TRUSTLISTPATH"
+  write_env "$ENV_FILE" "SMREG_CORS_ALLOWEDORIGINS" "$SMREG_CORS_ALLOWEDORIGINS"
+  write_env "$ENV_FILE" "SMREG_CORS_ALLOWEDHEADERS" "$SMREG_CORS_ALLOWEDHEADERS"
+  write_env "$ENV_FILE" "SMREG_CORS_ALLOWEDCREDENTIALS" "$SMREG_CORS_ALLOWEDCREDENTIALS"
+  write_env "$ENV_FILE" "SMREG_CORS_ALLOWEDMETHODS" "$SMREG_CORS_ALLOWEDMETHODS"
+  write_env "$ENV_FILE" "SMREG_VIRTUAL_PORT" "$SMREG_VIRTUAL_PORT"
+  write_env "$ENV_FILE" "SMREG_SERVER_PORT" "$SMREG_SERVER_PORT"
+  write_env "$ENV_FILE" "SMREG_POSTGRES_HOST" "$SMREG_POSTGRES_HOST"
+  write_env "$ENV_FILE" "SMREG_POSTGRES_PORT" "$SMREG_POSTGRES_PORT"
+  write_env "$ENV_FILE" "SMREG_POSTGRES_USER" "$SMREG_POSTGRES_USER"
+  write_env "$ENV_FILE" "SMREG_POSTGRES_PASSWORD" "$SMREG_POSTGRES_PASSWORD"
+  write_env "$ENV_FILE" "SMREG_POSTGRES_DBNAME" "$SMREG_POSTGRES_DBNAME"
+  write_env "$ENV_FILE" "SMREG_POSTGRES_MAXOPENCONNECTIONS" "$SMREG_POSTGRES_MAXOPENCONNECTIONS"
+  write_env "$ENV_FILE" "SMREG_POSTGRES_MAXIDLECONNECTIONS" "$SMREG_POSTGRES_MAXIDLECONNECTIONS"
+  write_env "$ENV_FILE" "SMREG_POSTGRES_CONNMAXLIFETIMEMINUTES" "$SMREG_POSTGRES_CONNMAXLIFETIMEMINUTES"
+  write_env "$ENV_FILE" "SMREG_ABAC_ENABLED" "$SMREG_ABAC_ENABLED"
+  write_env "$ENV_FILE" "SMREG_ABAC_MODELPATH" "$SMREG_ABAC_MODELPATH"
+  write_env "$ENV_FILE" "SMREG_OIDC_TRUSTLISTPATH" "$SMREG_OIDC_TRUSTLISTPATH"
+  write_env "$ENV_FILE" "AASDISC_CORS_ALLOWEDORIGINS" "$AASDISC_CORS_ALLOWEDORIGINS"
+  write_env "$ENV_FILE" "AASDISC_CORS_ALLOWEDHEADERS" "$AASDISC_CORS_ALLOWEDHEADERS"
+  write_env "$ENV_FILE" "AASDISC_CORS_ALLOWEDCREDENTIALS" "$AASDISC_CORS_ALLOWEDCREDENTIALS"
+  write_env "$ENV_FILE" "AASDISC_CORS_ALLOWEDMETHODS" "$AASDISC_CORS_ALLOWEDMETHODS"
+  write_env "$ENV_FILE" "AASDISC_VIRTUAL_PORT" "$AASDISC_VIRTUAL_PORT"
+  write_env "$ENV_FILE" "AASDISC_SERVER_PORT" "$AASDISC_SERVER_PORT"
+  write_env "$ENV_FILE" "AASDISC_POSTGRES_HOST" "$AASDISC_POSTGRES_HOST"
+  write_env "$ENV_FILE" "AASDISC_POSTGRES_PORT" "$AASDISC_POSTGRES_PORT"
+  write_env "$ENV_FILE" "AASDISC_POSTGRES_USER" "$AASDISC_POSTGRES_USER"
+  write_env "$ENV_FILE" "AASDISC_POSTGRES_PASSWORD" "$AASDISC_POSTGRES_PASSWORD"
+  write_env "$ENV_FILE" "AASDISC_POSTGRES_DBNAME" "$AASDISC_POSTGRES_DBNAME"
+  write_env "$ENV_FILE" "AASDISC_POSTGRES_MAXOPENCONNECTIONS" "$AASDISC_POSTGRES_MAXOPENCONNECTIONS"
+  write_env "$ENV_FILE" "AASDISC_POSTGRES_MAXIDLECONNECTIONS" "$AASDISC_POSTGRES_MAXIDLECONNECTIONS"
+  write_env "$ENV_FILE" "AASDISC_POSTGRES_CONNMAXLIFETIMEMINUTES" "$AASDISC_POSTGRES_CONNMAXLIFETIMEMINUTES"
+  write_env "$ENV_FILE" "AASDISC_ABAC_ENABLED" "$AASDISC_ABAC_ENABLED"
+  write_env "$ENV_FILE" "AASDISC_ABAC_MODELPATH" "$AASDISC_ABAC_MODELPATH"
+  write_env "$ENV_FILE" "AASDISC_OIDC_TRUSTLISTPATH" "$AASDISC_OIDC_TRUSTLISTPATH"
+
+  if [ "$KEYCLOAK_MODE" = "install" ]; then
+    write_env "$ENV_FILE" "KEYCLOAK_IMAGE_REPO" "$KEYCLOAK_IMAGE_REPO"
+    write_env "$ENV_FILE" "KEYCLOAK_IMAGE_TAG" "$KEYCLOAK_IMAGE_TAG"
+    write_env "$ENV_FILE" "KEYCLOAK_REALM_FILE" "./stack-assets/keycloak/aas-local-realm.json"
+    write_env "$ENV_FILE" "KEYCLOAK_THEMES_PATH" "./stack-assets/keycloak/themes"
+  fi
+
+  if [ "$BASYX_MODE" = "install" ]; then
+    write_env "$ENV_FILE" "AAS_REPOSITORY_IMAGE_REPO" "$AAS_REPOSITORY_IMAGE_REPO"
+    write_env "$ENV_FILE" "AAS_REPOSITORY_HOST_PORT" "$AAS_REPOSITORY_HOST_PORT"
+    write_env "$ENV_FILE" "SUBMODEL_REPOSITORY_IMAGE_REPO" "$SUBMODEL_REPOSITORY_IMAGE_REPO"
+    write_env "$ENV_FILE" "SUBMODEL_REPOSITORY_HOST_PORT" "$SUBMODEL_REPOSITORY_HOST_PORT"
+    write_env "$ENV_FILE" "CONCEPT_DESCRIPTION_REPOSITORY_IMAGE_REPO" "$CONCEPT_DESCRIPTION_REPOSITORY_IMAGE_REPO"
+    write_env "$ENV_FILE" "CONCEPT_DESCRIPTION_REPOSITORY_HOST_PORT" "$CONCEPT_DESCRIPTION_REPOSITORY_HOST_PORT"
+    write_env "$ENV_FILE" "AAS_REGISTRY_IMAGE_REPO" "$AAS_REGISTRY_IMAGE_REPO"
+    write_env "$ENV_FILE" "AAS_REGISTRY_HOST_PORT" "$AAS_REGISTRY_HOST_PORT"
+    write_env "$ENV_FILE" "SUBMODEL_REGISTRY_IMAGE_REPO" "$SUBMODEL_REGISTRY_IMAGE_REPO"
+    write_env "$ENV_FILE" "SUBMODEL_REGISTRY_HOST_PORT" "$SUBMODEL_REGISTRY_HOST_PORT"
+    write_env "$ENV_FILE" "AAS_DISCOVERY_IMAGE_REPO" "$AAS_DISCOVERY_IMAGE_REPO"
+    write_env "$ENV_FILE" "AAS_DISCOVERY_HOST_PORT" "$AAS_DISCOVERY_HOST_PORT"
+  fi
+
+  {
+    printf '# Generiert durch create-compose-oss-non-interactive.sh\n'
+    printf '# Verwenden mit: docker compose --env-file %s -f %s up -d\n\n' "$ENV_FILE" "$COMPOSE_FILE"
+  } >> "$COMPOSE_FILE"
+
+  compose_begin "$COMPOSE_FILE"
+  prepare_postgres_init_assets "$COMPOSE_FILE"
+  append_postgres_service "$COMPOSE_FILE" "$NETWORK_NAME" "$POSTGRES_VOLUME"
+
+  if [ "$KEYCLOAK_MODE" = "install" ]; then
+    append_service_separator "$COMPOSE_FILE"
+    append_keycloak_internal_service "$COMPOSE_FILE" "$NETWORK_NAME" "$KEYCLOAK_HOST_PORT" "$PUBLIC_GATEWAY_URL"
+  fi
+
+  append_service_separator "$COMPOSE_FILE"
+  append_gateway_service "$COMPOSE_FILE" "$NETWORK_NAME" "$GATEWAY_HOST_PORT" "$GATEWAY_CONTAINER_PORT" "$KEYCLOAK_CLUSTER_URL" "http://aas-designer-community:${DESIGNER_BACKEND_CONTAINER_PORT}" "http://frontend:${FRONTEND_CONTAINER_PORT}" "false" "$KEYCLOAK_MODE" "aas-designer-community"
+
+  append_service_separator "$COMPOSE_FILE"
+  append_designer_backend_service "$COMPOSE_FILE" "$NETWORK_NAME" "$DESIGNER_BACKEND_CONTAINER_PORT" "$GATEWAY_CONTAINER_PORT" "$KEYCLOAK_MODE" "aas-designer-community"
+
+  append_service_separator "$COMPOSE_FILE"
+  append_frontend_service "$COMPOSE_FILE" "$NETWORK_NAME" "$FRONTEND_CONTAINER_PORT" "aas-designer-community"
+
+  if [ "$BASYX_MODE" = "install" ]; then
+    append_service_separator "$COMPOSE_FILE"
+    append_basyx_internal_services "$COMPOSE_FILE" "$NETWORK_NAME"
+  fi
+
+  append_networks_block "$COMPOSE_FILE" "$NETWORK_NAME"
+  append_volumes_block "$COMPOSE_FILE" "$POSTGRES_VOLUME"
+
+  run_optional_startup "$COMPOSE_FILE" "$ENV_FILE" "$RUN_CONFIG_CHECK" "$RUN_STACK_START" "$IMAGE_SOURCE" "$PROJECT_NAME"
+
+  save_state_file "$state_file" \
+    PROJECT_NAME STACK_DIR NETWORK_NAME \
+    IMAGE_SOURCE \
+    DESIGNER_BACKEND_IMAGE_REPO DESIGNER_BACKEND_IMAGE_TAG DESIGNER_BACKEND_CONTAINER_PORT \
+    GATEWAY_IMAGE_REPO GATEWAY_IMAGE_TAG GATEWAY_HOST_PORT GATEWAY_CONTAINER_PORT \
+    FRONTEND_IMAGE_REPO FRONTEND_IMAGE_TAG FRONTEND_CONTAINER_PORT BASE_URL \
+    POSTGRES_IMAGE_REPO POSTGRES_IMAGE_TAG POSTGRES_CONTAINER_PORT \
+    POSTGRES_DB POSTGRES_USER POSTGRES_PASSWORD POSTGRES_VOLUME \
+    BASYX_POSTGRES_DB KEYCLOAK_POSTGRES_DB \
+    KEYCLOAK_MODE KEYCLOAK_CLUSTER_URL KEYCLOAK_ISSUER KEYCLOAK_WELLKNOWN_URL KEYCLOAK_PUBLIC_ISSUER KEYCLOAK_PUBLIC_WELLKNOWN_URL \
+    KEYCLOAK_CLIENT_ID KEYCLOAK_AUDIENCE KEYCLOAK_SCOPES KEYCLOAK_RESOURCE_ACCESS_NAME \
+    KEYCLOAK_ADMIN_REALM KEYCLOAK_ADMIN_CLIENT_ID KEYCLOAK_ADMIN_CLIENT_SECRET KEYCLOAK_ADMIN_USERNAME KEYCLOAK_ADMIN_PASSWORD \
+    INITIAL_ORGANISATION_ADMIN_EMAIL INITIAL_ORGANISATION_ADMIN_NAME INITIAL_ORGANISATION_ADMIN_VORNAME INITIAL_ORGANISATION_ADMIN_PASSWORD \
+    SMTP_SERVER SMTP_PORT SMTP_USE_SSL SMTP_USE_TLS SMTP_NEEDS_AUTHENTICATION SENDER_ADDRESS SENDER_USER SENDER_PASSWORD NEW_ORGA_NOTIFICATION_ADDRESS SUBJECT_PREFIX \
+    KEYCLOAK_IMAGE_REPO KEYCLOAK_IMAGE_TAG KEYCLOAK_HOST_PORT KEYCLOAK_REALM_FILE KEYCLOAK_THEMES_PATH \
+    KEYCLOAK_REALM PUBLIC_GATEWAY_URL \
+    BASYX_MODE BASYX_AAS_REPOSITORY_URL BASYX_SUBMODEL_REPOSITORY_URL BASYX_CONCEPT_DESCRIPTION_REPOSITORY_URL BASYX_AAS_REGISTRY_URL BASYX_SUBMODEL_REGISTRY_URL BASYX_AAS_DISCOVERY_URL \
+    BASYX_HANDLE_AS_INTERNAL \
+    BASYX_AAS_REPOSITORY_CONTAINER BASYX_AAS_REPOSITORY_CONTAINER_PORT BASYX_AAS_REPOSITORY_HC_URL \
+    BASYX_SUBMODEL_REPOSITORY_CONTAINER BASYX_SUBMODEL_REPOSITORY_CONTAINER_PORT BASYX_SUBMODEL_REPOSITORY_HC_URL \
+    BASYX_CONCEPT_DESCRIPTION_REPOSITORY_CONTAINER BASYX_CONCEPT_DESCRIPTION_REPOSITORY_CONTAINER_PORT BASYX_CONCEPT_DESCRIPTION_REPOSITORY_HC_URL \
+    BASYX_AAS_REGISTRY_CONTAINER BASYX_AAS_REGISTRY_CONTAINER_PORT BASYX_AAS_REGISTRY_HC_URL \
+    BASYX_SUBMODEL_REGISTRY_CONTAINER BASYX_SUBMODEL_REGISTRY_CONTAINER_PORT BASYX_SUBMODEL_REGISTRY_HC_URL \
+    BASYX_AAS_DISCOVERY_CONTAINER BASYX_AAS_DISCOVERY_CONTAINER_PORT BASYX_AAS_DISCOVERY_HC_URL \
+    AASREPO_CORS_ALLOWEDORIGINS AASREPO_CORS_ALLOWEDHEADERS AASREPO_CORS_ALLOWEDCREDENTIALS AASREPO_CORS_ALLOWEDMETHODS \
+    AASREPO_SERVER_PORT \
+    AASREPO_POSTGRES_HOST AASREPO_POSTGRES_PORT AASREPO_POSTGRES_USER AASREPO_POSTGRES_PASSWORD AASREPO_POSTGRES_DBNAME \
+    AASREPO_POSTGRES_MAXOPENCONNECTIONS AASREPO_POSTGRES_MAXIDLECONNECTIONS AASREPO_POSTGRES_CONNMAXLIFETIMEMINUTES \
+    AASREPO_ABAC_ENABLED AASREPO_ABAC_MODELPATH AASREPO_OIDC_TRUSTLISTPATH \
+    SMREPO_CORS_ALLOWEDORIGINS SMREPO_CORS_ALLOWEDHEADERS SMREPO_CORS_ALLOWEDCREDENTIALS SMREPO_CORS_ALLOWEDMETHODS \
+    SMREPO_SERVER_PORT \
+    SMREPO_POSTGRES_HOST SMREPO_POSTGRES_PORT SMREPO_POSTGRES_USER SMREPO_POSTGRES_PASSWORD SMREPO_POSTGRES_DBNAME \
+    SMREPO_POSTGRES_MAXOPENCONNECTIONS SMREPO_POSTGRES_MAXIDLECONNECTIONS SMREPO_POSTGRES_CONNMAXLIFETIMEMINUTES \
+    SMREPO_ABAC_ENABLED SMREPO_ABAC_MODELPATH SMREPO_OIDC_TRUSTLISTPATH SMREPO_JWS_PRIVATEKEYPATH \
+    CDREPO_CORS_ALLOWEDORIGINS CDREPO_CORS_ALLOWEDHEADERS CDREPO_CORS_ALLOWEDCREDENTIALS CDREPO_CORS_ALLOWEDMETHODS \
+    CDREPO_SERVER_PORT \
+    CDREPO_POSTGRES_HOST CDREPO_POSTGRES_PORT CDREPO_POSTGRES_USER CDREPO_POSTGRES_PASSWORD CDREPO_POSTGRES_DBNAME \
+    CDREPO_POSTGRES_MAXOPENCONNECTIONS CDREPO_POSTGRES_MAXIDLECONNECTIONS CDREPO_POSTGRES_CONNMAXLIFETIMEMINUTES \
+    CDREPO_ABAC_ENABLED CDREPO_ABAC_MODELPATH CDREPO_OIDC_TRUSTLISTPATH \
+    AASREG_CORS_ALLOWEDORIGINS AASREG_CORS_ALLOWEDHEADERS AASREG_CORS_ALLOWEDCREDENTIALS AASREG_CORS_ALLOWEDMETHODS \
+    AASREG_VIRTUAL_PORT AASREG_SERVER_PORT \
+    AASREG_POSTGRES_HOST AASREG_POSTGRES_PORT AASREG_POSTGRES_USER AASREG_POSTGRES_PASSWORD AASREG_POSTGRES_DBNAME \
+    AASREG_POSTGRES_MAXOPENCONNECTIONS AASREG_POSTGRES_MAXIDLECONNECTIONS AASREG_POSTGRES_CONNMAXLIFETIMEMINUTES \
+    AASREG_ABAC_ENABLED AASREG_ABAC_MODELPATH AASREG_OIDC_TRUSTLISTPATH \
+    SMREG_CORS_ALLOWEDORIGINS SMREG_CORS_ALLOWEDHEADERS SMREG_CORS_ALLOWEDCREDENTIALS SMREG_CORS_ALLOWEDMETHODS \
+    SMREG_VIRTUAL_PORT SMREG_SERVER_PORT \
+    SMREG_POSTGRES_HOST SMREG_POSTGRES_PORT SMREG_POSTGRES_USER SMREG_POSTGRES_PASSWORD SMREG_POSTGRES_DBNAME \
+    SMREG_POSTGRES_MAXOPENCONNECTIONS SMREG_POSTGRES_MAXIDLECONNECTIONS SMREG_POSTGRES_CONNMAXLIFETIMEMINUTES \
+    SMREG_ABAC_ENABLED SMREG_ABAC_MODELPATH SMREG_OIDC_TRUSTLISTPATH \
+    AASDISC_CORS_ALLOWEDORIGINS AASDISC_CORS_ALLOWEDHEADERS AASDISC_CORS_ALLOWEDCREDENTIALS AASDISC_CORS_ALLOWEDMETHODS \
+    AASDISC_VIRTUAL_PORT AASDISC_SERVER_PORT \
+    AASDISC_POSTGRES_HOST AASDISC_POSTGRES_PORT AASDISC_POSTGRES_USER AASDISC_POSTGRES_PASSWORD AASDISC_POSTGRES_DBNAME \
+    AASDISC_POSTGRES_MAXOPENCONNECTIONS AASDISC_POSTGRES_MAXIDLECONNECTIONS AASDISC_POSTGRES_CONNMAXLIFETIMEMINUTES \
+    AASDISC_ABAC_ENABLED AASDISC_ABAC_MODELPATH AASDISC_OIDC_TRUSTLISTPATH \
+    AAS_REPOSITORY_IMAGE_REPO AAS_REPOSITORY_IMAGE_TAG AAS_REPOSITORY_HOST_PORT \
+    SUBMODEL_REPOSITORY_IMAGE_REPO SUBMODEL_REPOSITORY_IMAGE_TAG SUBMODEL_REPOSITORY_HOST_PORT \
+    CONCEPT_DESCRIPTION_REPOSITORY_IMAGE_REPO CONCEPT_DESCRIPTION_REPOSITORY_IMAGE_TAG CONCEPT_DESCRIPTION_REPOSITORY_HOST_PORT \
+    AAS_REGISTRY_IMAGE_REPO AAS_REGISTRY_IMAGE_TAG AAS_REGISTRY_HOST_PORT \
+    SUBMODEL_REGISTRY_IMAGE_REPO SUBMODEL_REGISTRY_IMAGE_TAG SUBMODEL_REGISTRY_HOST_PORT \
+    AAS_DISCOVERY_IMAGE_REPO AAS_DISCOVERY_IMAGE_TAG AAS_DISCOVERY_HOST_PORT \
+    RUN_CONFIG_CHECK RUN_STACK_START
+
+  info "Fertig."
+  info "Compose: $COMPOSE_FILE"
+  info "Env: $ENV_FILE"
+  info "Defaults gespeichert: $state_file"
+}
+
+main "$@"

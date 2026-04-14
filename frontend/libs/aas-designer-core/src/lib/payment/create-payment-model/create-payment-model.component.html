@@ -1,0 +1,201 @@
+<form #createForm="ngForm" vwsAutocompleteOff>
+  <div class="grid grid-cols-12 gap-6">
+    <div class="card col-span-12 grid grid-cols-12 gap-6">
+      <div class="col-span-12">
+        <p-toolbar class="mb-2">
+          <div class="p-toolbar-group-start">
+            <div class="text-xl">{{ 'CREATE_PAYMENT_MODEL' | translate }}</div>
+          </div>
+
+          <div class="p-toolbar-group-end flex gap-2">
+            <p-button
+              label="{{ 'CLOSE' | translate }}"
+              icon="pi pi-times"
+              (onClick)="close()"
+              outlined="true"
+              [loading]="loading"
+            ></p-button>
+            <p-button
+              pRipple
+              label="{{ 'SAVE' | translate }}"
+              icon="pi pi-save"
+              styleClass="p-button-success"
+              (onClick)="save()"
+              [loading]="loading"
+              [disabled]="!createForm.valid"
+              type="submit"
+            ></p-button>
+          </div>
+        </p-toolbar>
+      </div>
+      <div class="col-span-12 lg:col-span-6">
+        <div class="mb-4">
+          <label for="paymentName"> {{ 'NAME' | translate }}</label>
+          <input
+            pInputText
+            id="paymentName"
+            type="text"
+            class="inputfield w-full"
+            name="paymentName"
+            [(ngModel)]="paymentModel.name"
+            #paymentName="ngModel"
+            required
+          />
+          @if (!paymentName.valid && paymentName.touched) {
+            <div class="p-error">
+              {{ 'REQUIRED_FIELD' | translate }}
+            </div>
+          }
+        </div>
+
+        <div class="mb-4">
+          <label for="nameLabel"> {{ 'LABEL' | translate }}</label>
+          <input
+            pInputText
+            id="nameLabel"
+            type="text"
+            class="inputfield w-full"
+            name="nameLabel"
+            [(ngModel)]="paymentModel.nameLabel"
+            #nameLabel="ngModel"
+            required
+          />
+          @if (!nameLabel.valid && nameLabel.touched) {
+            <div class="p-error">{{ 'REQUIRED_FIELD' | translate }}</div>
+          }
+        </div>
+
+        <div class="mb-4">
+          <label for="beschreibungInternal"> {{ 'BESCHREIBUNG_INTERNAL' | translate }}</label>
+          <input
+            pInputText
+            id="zip"
+            type="text"
+            class="inputfield w-full"
+            name="zip"
+            [(ngModel)]="paymentModel.beschreibungInternal"
+            #beschreibungInternal="ngModel"
+            required
+          />
+          @if (!beschreibungInternal.valid && beschreibungInternal.touched) {
+            <div class="p-error">
+              {{ 'REQUIRED_FIELD' | translate }}
+            </div>
+          }
+        </div>
+
+        <div class="mb-4">
+          <label for="beschreibungLabel"> {{ 'BESCHREIBUNG_LABEL' | translate }}</label>
+          <input
+            pInputText
+            id="beschreibungLabel"
+            type="text"
+            class="inputfield w-full"
+            name="beschreibungLabel"
+            [(ngModel)]="paymentModel.beschreibungLabel"
+            #beschreibungLabel="ngModel"
+            required
+          />
+          @if (!beschreibungLabel.valid && beschreibungLabel.touched) {
+            <div class="p-error">
+              {{ 'REQUIRED_FIELD' | translate }}
+            </div>
+          }
+        </div>
+      </div>
+      <div class="col-span-12 lg:col-span-6">
+        <div class="mb-4">
+          <label for="anzahlNutzer"> {{ 'ANZAHL_NUTZER' | translate }} </label>
+          <input
+            pInputText
+            id="anzahlNutzer"
+            type="text"
+            class="inputfield w-full"
+            name="anzahlNutzer"
+            [(ngModel)]="paymentModel.anzahlNutzer"
+            #anzahlNutzer="ngModel"
+            required
+          />
+          @if (!anzahlNutzer.valid && anzahlNutzer.touched) {
+            <div class="p-error">
+              {{ 'REQUIRED_FIELD' | translate }}
+            </div>
+          }
+          <div class="mt-2">
+            <p-message severity="info" text="{{ 'ANZAHL_UNLIMITED_INFO' | translate }}"></p-message>
+          </div>
+        </div>
+
+        <div class="mb-4">
+          <label for="preis"> {{ 'PREIS' | translate }} </label>
+          <input
+            pInputText
+            id="preis"
+            type="text"
+            class="inputfield w-full"
+            name="preis"
+            [(ngModel)]="paymentModel.preis"
+            #preis="ngModel"
+            required
+          />
+          @if (!preis.valid && preis.touched) {
+            <div class="p-error">
+              {{ 'REQUIRED_FIELD' | translate }}
+            </div>
+          }
+        </div>
+
+        <div class="mb-4">
+          <label for="paymentPeriod"> {{ 'PAYMENT_PERIOD' | translate }} </label>
+          <div>
+            <p-select
+              id="paymentPeriod"
+              type="text"
+              class="inputfield w-full"
+              name="paymentPeriod"
+              [(ngModel)]="paymentModel.paymentPeriod"
+              #paymentPeriod="ngModel"
+              [options]="paymentPeriodOptions"
+              [required]="true"
+            >
+              <ng-template pTemplate="selectedItem" let-item>
+                <span>{{ item | translate }}</span>
+              </ng-template>
+              <ng-template pTemplate="item" let-item>
+                <span>{{ item | translate }}</span>
+              </ng-template>
+            </p-select>
+          </div>
+          @if (!paymentPeriod.valid && paymentPeriod.touched) {
+            <div class="p-error">
+              {{ 'REQUIRED_FIELD' | translate }}
+            </div>
+          }
+        </div>
+
+        <div class="mb-4">
+          <p-checkbox [(ngModel)]="paymentModel.mehrfachBuchbar" [binary]="true" id="active" name="mehrfachBuchbar">
+          </p-checkbox>
+          <label for="mehrfachBuchbar"> {{ 'MEHRFACH_BUCHBAR' | translate }} </label>
+        </div>
+
+        <div class="mb-4">
+          <p-checkbox [(ngModel)]="paymentModel.exklusivBuchbar" [binary]="true" id="active" name="exklusivBuchbar">
+          </p-checkbox>
+          <label for="exklusivBuchbar"> {{ 'EXKLUSIV_BUCHBAR' | translate }} </label>
+        </div>
+
+        <div class="mb-4">
+          <p-checkbox
+            [(ngModel)]="paymentModel.userSelectable"
+            [binary]="true"
+            id="userSelectable"
+            name="userSelectable"
+          >
+          </p-checkbox>
+          <label for="userSelectable"> {{ 'USER_SELECTABLE' | translate }} </label>
+        </div>
+      </div>
+    </div>
+  </div>
+</form>

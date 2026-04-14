@@ -1,0 +1,4 @@
+@let markingFile = this.markingFile() | async;
+@if (markingFile) {
+  <img [src]="markingFile" height="50px" width="50px" class="scaleImage" alt="marking" />
+}

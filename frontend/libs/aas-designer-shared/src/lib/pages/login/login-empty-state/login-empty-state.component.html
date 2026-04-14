@@ -1,0 +1,61 @@
+<section class="login-empty-state" aria-labelledby="login-empty-state-title">
+  <div class="login-empty-state-badge">
+    <i class="pi pi-compass" aria-hidden="true"></i>
+    <span>{{ 'LOGIN_EMPTY_BADGE' | translate }}</span>
+  </div>
+
+  <div class="login-empty-state-header">
+    <h2 id="login-empty-state-title" class="login-empty-state-title">
+      {{ 'LOGIN_EMPTY_TITLE' | translate }}
+    </h2>
+    <p class="login-empty-state-subtitle">{{ 'LOGIN_EMPTY_SUBTITLE' | translate }}</p>
+  </div>
+
+  <div class="login-empty-state-grid">
+    <article class="login-empty-state-card">
+      <div class="login-empty-state-icon">
+        <i class="pi pi-shield" aria-hidden="true"></i>
+      </div>
+      <h3>{{ 'LOGIN_EMPTY_SSO_TITLE' | translate }}</h3>
+      <p>{{ 'LOGIN_EMPTY_SSO_TEXT' | translate }}</p>
+    </article>
+
+    <article class="login-empty-state-card">
+      <div class="login-empty-state-icon">
+        <i class="pi pi-sitemap" aria-hidden="true"></i>
+      </div>
+      <h3>{{ 'LOGIN_EMPTY_WORKSPACE_TITLE' | translate }}</h3>
+      <p>{{ 'LOGIN_EMPTY_WORKSPACE_TEXT' | translate }}</p>
+    </article>
+
+    <article class="login-empty-state-card">
+      <div class="login-empty-state-icon">
+        <i class="pi pi-headphones" aria-hidden="true"></i>
+      </div>
+      <h3>{{ 'LOGIN_EMPTY_SUPPORT_TITLE' | translate }}</h3>
+      <p>{{ 'LOGIN_EMPTY_SUPPORT_TEXT' | translate }}</p>
+    </article>
+  </div>
+
+  @if (showRegistrationOption() || showContactOption()) {
+    <div class="login-empty-state-actions">
+      @if (showRegistrationOption()) {
+        <p-button
+          icon="pi pi-user-plus"
+          [label]="'REQUEST_REGISTRATION' | translate"
+          (onClick)="registrationRequested.emit()"
+        />
+      }
+
+      @if (showContactOption()) {
+        <p-button
+          icon="pi pi-envelope"
+          [text]="true"
+          [label]="'CONTACT' | translate"
+          styleClass="login-empty-state-contact-action"
+          (onClick)="contactRequested.emit()"
+        />
+      }
+    </div>
+  }
+</section>

@@ -1,0 +1,18 @@
+@if (classificationSystem != null) {
+  <div class="flex flex-row gap-2">
+    <p-select
+      [options]="classificationSystemOptions"
+      [(ngModel)]="selectedClassificationSystem"
+      (ngModelChange)="onClassificationSystemChange()"
+      appendTo="body"
+      class="w-full"
+      class="w-full"
+      optionLabel="label"
+      optionValue="value"
+      placeholder="{{ 'PLEASE_SELECT' | translate }}"
+    ></p-select>
+    @if (selectedClassificationSystem === 'OTHER') {
+      <input pInputText [(ngModel)]="classificationSystem.value" class="w-full" vwsV3Undo nullIfEmpty />
+    }
+  </div>
+}

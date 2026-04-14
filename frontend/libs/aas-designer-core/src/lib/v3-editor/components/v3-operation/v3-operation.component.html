@@ -1,0 +1,319 @@
+@if (operation != null && operation.content != null) {
+  <div class="flex flex-col gap-2">
+    <p-fieldset
+      [toggleable]="true"
+      class="mt-2"
+      [collapsed]="uiStateStore.detailsPanelCollapsed()"
+      (collapsedChange)="uiStateStore.setDetailsPanelCollapsed($event)"
+    >
+      <ng-template #header>
+        <div class="flex items-center gap-2 px-2">
+          <lib-help-label tag="DETAILS" isLabelBold="true"></lib-help-label>
+        </div>
+      </ng-template>
+
+      <div class="flex flex-col gap-2">
+        <aas-v3-id-short [element]="operation" class="w-full" [shellResult]="shellResult"></aas-v3-id-short>
+        <div class="flex flex-row w-full gap-2">
+          <lib-help-label class="w-14rem mt-2" tag="DESCRIPTION"></lib-help-label>
+          <aas-v3-lang-string-list
+            [langStrings]="operation.content.description"
+            [langStringParent]="operation.content"
+            [langStringParentPropertyName]="'description'"
+            class="w-full"
+          ></aas-v3-lang-string-list>
+        </div>
+        <div class="flex flex-row w-full gap-2">
+          <lib-help-label class="w-14rem mt-2" tag="DISPLAY_NAME"></lib-help-label>
+          <aas-v3-lang-string-list
+            [langStrings]="operation.content.displayName"
+            [langStringParent]="operation.content"
+            [langStringParentPropertyName]="'displayName'"
+            class="w-full"
+          ></aas-v3-lang-string-list>
+        </div>
+        <aas-v3-category [element]="operation" class="w-full"></aas-v3-category>
+      </div>
+    </p-fieldset>
+
+    <p-fieldset
+      [toggleable]="true"
+      class="mt-2"
+      [collapsed]="uiStateStore.contentPanelCollapsed()"
+      (collapsedChange)="uiStateStore.setContentPanelCollapsed($event)"
+    >
+      <ng-template #header>
+        <div class="flex items-center gap-2 px-2">
+          <lib-help-label tag="CONTENT" isLabelBold="true"></lib-help-label>
+        </div>
+      </ng-template>
+      <div class="mb-4 mt-2 ml-1 mr-1">
+        <p-accordion [multiple]="true">
+          <p-accordion-panel value="input">
+            <p-accordion-header>
+              {{ 'INPUT_VARIABLES' | translate }} ({{ operation.content.inputVariables?.length ?? 0 }})
+            </p-accordion-header>
+            <p-accordion-content>
+              <p-button
+                label="{{ 'ADD' | translate }}"
+                (onClick)="addTyp('in', 'prop')"
+                class="mr-2"
+                size="small"
+                outlined="true"
+              ></p-button>
+              @for (input of operation.content.inputVariables; track $index) {
+                @if (input.value != null) {
+                  <div class="flex flex-col">
+                    <div class="flex flex-row w-full items-end">
+                      @switch (getType(input)) {
+                        @case ('Property') {
+                          <aas-v3-variable-property [variable]="input" class="w-full"></aas-v3-variable-property>
+                        }
+                        @default {
+                          <div class="w-full">{{ getType(input) }}</div>
+                        }
+                      }
+                      <p-button
+                        styleClass="p-button-text p-button-outlined p-button-rounded mb-3"
+                        icon="pi pi-trash"
+                        (onClick)="deleteVariable(input, 'in')"
+                      ></p-button>
+                    </div>
+                  </div>
+                }
+                <p-divider class="w-full"></p-divider>
+              }
+            </p-accordion-content>
+          </p-accordion-panel>
+
+          <p-accordion-panel value="output">
+            <p-accordion-header>
+              {{ 'OUTPUT_VARIABLES' | translate }} ({{ operation.content.outputVariables?.length ?? 0 }})
+            </p-accordion-header>
+            <p-accordion-content>
+              <p-button
+                label="{{ 'ADD' | translate }}"
+                (onClick)="addTyp('out', 'prop')"
+                class="mr-2"
+                size="small"
+                outlined="true"
+              ></p-button>
+              @for (output of operation.content.outputVariables; track $index) {
+                @if (output.value != null) {
+                  <div class="flex flex-col">
+                    <div class="flex flex-row w-full items-end">
+                      @switch (getType(output)) {
+                        @case ('Property') {
+                          <aas-v3-variable-property [variable]="output" class="w-full"></aas-v3-variable-property>
+                        }
+                        @default {
+                          <div class="w-full">{{ getType(output) }}</div>
+                        }
+                      }
+                      <p-button
+                        styleClass="p-button-text p-button-outlined p-button-rounded mb-3"
+                        icon="pi pi-trash"
+                        (onClick)="deleteVariable(output, 'out')"
+                      ></p-button>
+                    </div>
+                  </div>
+                }
+                <p-divider class="w-full"></p-divider>
+              }
+            </p-accordion-content>
+          </p-accordion-panel>
+
+          <p-accordion-panel value="inout">
+            <p-accordion-header>
+              {{ 'INOUT_VARIABLES' | translate }} ({{ operation.content.inoutputVariables?.length ?? 0 }})
+            </p-accordion-header>
+            <p-accordion-content>
+              <p-button
+                label="{{ 'ADD' | translate }}"
+                (onClick)="addTyp('inout', 'prop')"
+                class="mr-2"
+                size="small"
+                outlined="true"
+              ></p-button>
+              @for (inout of operation.content.inoutputVariables; track $index) {
+                @if (inout.value != null) {
+                  <div class="flex flex-col">
+                    <div class="flex flex-row w-full items-end">
+                      @switch (getType(inout)) {
+                        @case ('Property') {
+                          <aas-v3-variable-property [variable]="inout" class="w-full"></aas-v3-variable-property>
+                        }
+                        @default {
+                          <div class="w-full">{{ getType(inout) }}</div>
+                        }
+                      }
+                      <p-button
+                        styleClass="p-button-text p-button-outlined p-button-rounded mb-3"
+                        icon="pi pi-trash"
+                        (onClick)="deleteVariable(inout, 'inout')"
+                      ></p-button>
+                    </div>
+                  </div>
+                }
+              }
+            </p-accordion-content>
+          </p-accordion-panel>
+        </p-accordion>
+      </div>
+    </p-fieldset>
+
+    <p-fieldset
+      [toggleable]="true"
+      class="mt-2"
+      [collapsed]="uiStateStore.executionPanelCollapsed()"
+      (collapsedChange)="uiStateStore.setExecutionPanelCollapsed($event)"
+    >
+      <ng-template #header>
+        <div class="flex items-center gap-2 px-2">
+          <lib-help-label tag="EXECUTION" isLabelBold="true"></lib-help-label>
+        </div>
+      </ng-template>
+
+      <div class="mb-4 mt-2 ml-1 mr-1">
+        <p-accordion [multiple]="true">
+          <p-accordion-panel value="input">
+            <p-accordion-header>
+              {{ 'INPUT_VARIABLES' | translate }} ({{ operation.content.inputVariables?.length ?? 0 }})
+            </p-accordion-header>
+            <p-accordion-content>
+              @for (input of inputVariables(); track $index) {
+                @if (input.value != null) {
+                  <div class="flex flex-col">
+                    <div class="flex flex-row w-full items-center gap-5">
+                      <span class="font-semibold">{{ input.idShort }}</span>
+                      <input pInputText class="w-full" [(ngModel)]="input.value" nullIfEmpty />
+                    </div>
+                  </div>
+                }
+                <p-divider class="w-full"></p-divider>
+              }
+            </p-accordion-content>
+          </p-accordion-panel>
+          <p-accordion-panel value="output">
+            <p-accordion-header>
+              {{ 'OUTPUT_VARIABLES' | translate }} ({{ operation.content.outputVariables?.length ?? 0 }})
+            </p-accordion-header>
+            <p-accordion-content>
+              @for (output of outputVariables(); track $index) {
+                @if (output.value != null) {
+                  <div class="flex flex-col">
+                    <div class="flex flex-row w-full items-center gap-5">
+                      <span class="font-semibold">{{ output.idShort }}</span>
+                      <input pInputText class="w-full" [(ngModel)]="output.value" nullIfEmpty />
+                    </div>
+                  </div>
+                }
+                <p-divider class="w-full"></p-divider>
+              }
+            </p-accordion-content>
+          </p-accordion-panel>
+          <p-accordion-panel value="inout">
+            <p-accordion-header>
+              {{ 'INOUT_VARIABLES' | translate }} ({{ operation.content.inoutputVariables?.length ?? 0 }})
+            </p-accordion-header>
+            <p-accordion-content>
+              @for (inout of inoutputVariables(); track $index) {
+                @if (inout.value != null) {
+                  <div class="flex flex-col">
+                    <div class="flex flex-row w-full items-center gap-5">
+                      <span class="font-semibold">{{ inout.idShort }}</span>
+                      <input pInputText class="w-full" [(ngModel)]="inout.value" nullIfEmpty />
+                    </div>
+                  </div>
+                }
+                <p-divider class="w-full"></p-divider>
+              }
+            </p-accordion-content>
+          </p-accordion-panel>
+        </p-accordion>
+      </div>
+      <div class="flex flex-col gap-2">
+        <p-selectButton
+          [(ngModel)]="executeType"
+          [options]="['shell', 'aas-repo', 'sm-repo']"
+          name="ordered"
+          id="ordered"
+          class="w-20rem"
+          (ngModelChange)="calculateUrl()"
+        ></p-selectButton>
+        <div class="flex flex-row gap-2 justify-center">
+          <span class="font-semibold">{{ 'URL' | translate }}</span
+          ><input pInputText [(ngModel)]="executeUrl" class="w-full" nullIfEmpty />
+        </div>
+        <div class="flex flex-row gap-2">
+          <p-button
+            icon="pi pi-arrow-circle-right"
+            (onClick)="execute()"
+            label="{{ 'EXECUTE' | translate }}"
+            [outlined]="true"
+          ></p-button>
+          <p-button
+            icon="pi pi-arrow-circle-right"
+            (onClick)="executeAsync()"
+            label="{{ 'EXECUTE_ASYNC' | translate }}"
+            [outlined]="true"
+          ></p-button>
+        </div>
+      </div>
+    </p-fieldset>
+    <!-- <p-fieldset legend="{{ 'EXTENSIONS' | translate }}" [toggleable]="true" [collapsed]="true">
+      <aas-v3-extensions
+        [extensions]="operation.content.extensions"
+        [extensionsParent]="operation.content"
+      ></aas-v3-extensions>
+    </p-fieldset> -->
+    <p-fieldset
+      legend="{{ 'SEMANTIC_ID' | translate }}"
+      [toggleable]="true"
+      [collapsed]="uiStateStore.semanticIdPanelCollapsed()"
+      (collapsedChange)="uiStateStore.setSemanticIdPanelCollapsed($event)"
+      [ngClass]="{ 'border-error': hasSemanticErrors }"
+    >
+      <ng-template #header>
+        <div class="flex items-center gap-2 px-2">
+          <lib-help-label tag="SEMANTIC_ID" isLabelBold="true"></lib-help-label>
+        </div>
+      </ng-template>
+      <aas-v3-semantic-description
+        [semanticId]="operation.content.semanticId"
+        [supplemantalSemanticIds]="operation.content.supplementalSemanticIds"
+        [referenceParent]="operation.content"
+        [referenceParentPropertyName]="'semanticId'"
+        [shellResult]="shellResult"
+      ></aas-v3-semantic-description>
+    </p-fieldset>
+    <p-fieldset
+      [toggleable]="true"
+      [collapsed]="uiStateStore.qualifiersPanelCollapsed()"
+      (collapsedChange)="uiStateStore.setQualifiersPanelCollapsed($event)"
+    >
+      <ng-template #header>
+        <div class="flex items-center gap-2 px-2">
+          <lib-help-label tag="QUALIFIERS" isLabelBold="true"></lib-help-label>
+        </div>
+      </ng-template>
+      <aas-v3-qualifiers
+        [qualifiers]="operation.content.qualifiers"
+        [qualifiersParent]="operation.content"
+      ></aas-v3-qualifiers>
+    </p-fieldset>
+
+    <p-fieldset
+      [toggleable]="true"
+      [collapsed]="uiStateStore.endpointUrlPanelCollapsed()"
+      (collapsedChange)="uiStateStore.setEndpointUrlPanelCollapsed($event)"
+    >
+      <ng-template #header>
+        <div class="flex items-center gap-2 px-2">
+          <lib-help-label tag="ENDPOINT_URL" isLabelBold="true"></lib-help-label>
+        </div>
+      </ng-template>
+      <aas-endpoint-url [element]="operation" [shellResult]="shellResult"></aas-endpoint-url>
+    </p-fieldset>
+  </div>
+}

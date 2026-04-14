@@ -1,0 +1,74 @@
+[
+  {
+    "title": "Identification",
+    "descriptionEn": "Identification",
+    "descriptionDe": "Identifikation",
+    "value": "01-01"
+  },
+  {
+    "title": "Technical specification",
+    "descriptionEn": "Documentation of tests and inspections",
+    "descriptionDe": "Dokumentation von Prüfungen und Inspektionen",
+    "value": "02-01"
+  },
+  {
+    "title": "Drawings, plans",
+    "descriptionEn": "Drawings, plans",
+    "descriptionDe": "Zeichnungen, Pläne",
+    "value": "02-02"
+  },
+  {
+    "title": "Assemblies",
+    "descriptionEn": "Assemblies",
+    "descriptionDe": "Bauteile",
+    "value": "02-03"
+  },
+  {
+    "title": "Certificates, declarations",
+    "descriptionEn": "Certificates, declarations",
+    "descriptionDe": "Zeugnisse, Zertifikate, Bescheinigungen",
+    "value": "02-04"
+  },
+  {
+    "title": "Commissioning, de-commissioning",
+    "descriptionEn": "Commissioning, de-commissioning ",
+    "descriptionDe": "Montage, Demontage",
+    "value": "03-01"
+  },
+  {
+    "title": "Operation",
+    "descriptionEn": "Operation",
+    "descriptionDe": "Bedienung",
+    "value": "03-02"
+  },
+  {
+    "title": "General safety",
+    "descriptionEn": "General safety",
+    "descriptionDe": "Allgemeine Sicherheit",
+    "value": "03-03"
+  },
+  {
+    "title": "Inspection, maintenance, testing",
+    "descriptionEn": "Inspection, maintenance, testing",
+    "descriptionDe": "Inspektion, Wartung, Prüfung",
+    "value": "03-04"
+  },
+  {
+    "title": "Repair",
+    "descriptionEn": "Repair",
+    "descriptionDe": "Instandsetzung",
+    "value": "03-05"
+  },
+  {
+    "title": "Spare Parts",
+    "descriptionEn": "Ersatzteile",
+    "descriptionDe": "Spare parts",
+    "value": "03-06"
+  },
+  {
+    "title": "Contract Documents",
+    "descriptionEn": "Contract documents ",
+    "descriptionDe": "Vertragsunterlagen",
+    "value": "04-01"
+  }
+]

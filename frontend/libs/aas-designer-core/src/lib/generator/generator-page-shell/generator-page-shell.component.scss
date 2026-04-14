@@ -1,0 +1,11 @@
+@use '../submodel-editor-layout';
+
+.generator-shell-subtitle {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.generator-shell-subtitle-icon {
+  color: var(--p-primary-color);
+}

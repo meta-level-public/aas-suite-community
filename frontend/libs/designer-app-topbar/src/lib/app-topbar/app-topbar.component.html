@@ -1,0 +1,127 @@
+<div class="flex flex-row items-center justify-between gap-4 m-2 app-topbar-blur">
+  <div class="flex flex-row items-center gap-3">
+    <div routerLink="/login" class="layout-topbar-logo">
+      <a routerLink="/login" class="topbar-logo-badge">
+        <img class="logo" src="{{ logoPath }}" alt="aas-logo" />
+      </a>
+    </div>
+    <div class="text-sm text-500 font-semibold">
+      {{ versionInfo.edition }}
+    </div>
+  </div>
+
+  <div class="flex-1 flex justify-center items-center min-w-0 gap-4">
+    @if (hasCustomerLogo) {
+      <div class="customer-logo shrink-0"></div>
+    }
+    @for (topbarComponent of topbarCenterComponents; track topbarComponent) {
+      <ng-container *ngComponentOutlet="topbarComponent"></ng-container>
+    }
+  </div>
+
+  <div class="flex flex-row gap-1 items-center">
+    @if (portalService.loggedIn) {
+      <p-button
+        label="{{ portalService.currentLanguage.toUpperCase() }}"
+        icon="pi pi-globe"
+        (onClick)="opLang.toggle($event)"
+        [rounded]="true"
+        class="topbar-button text-0 mr-2"
+        iconPos="right"
+      ></p-button>
+    }
+    <p-popover #opLang>
+      <div class="flex flex-col gap-2">
+        <span class="font-medium text-900 block mb-2">{{ 'PLEASE_SELECT_A_LANGUAGE' | translate }}</span>
+        @if (portalService.currentLanguage !== 'de') {
+          <p-button label="DE" (onClick)="setLang('de')" [rounded]="true" class="w-full"></p-button>
+        }
+        @if (portalService.currentLanguage !== 'en') {
+          <p-button label="EN" (onClick)="setLang('en')" [rounded]="true" class="w-full"></p-button>
+        }
+      </div>
+    </p-popover>
+    @if (portalService.loggedIn && orgaSettings.length <= 1) {
+      <p-button
+        class="topbar-button text-0"
+        [rounded]="true"
+        [pTooltip]="orgaFullName"
+        tooltipPosition="bottom"
+        iconPos="right"
+      >
+        @if (orgaLogo) {
+          <img [src]="orgaLogo" class="mr-2" height="30" alt="{{ 'ORGA_ICON' | translate }}" />
+        }
+        @if (!orgaLogo) {
+          {{ orgaInitials }}
+          <i class="mr-2 pi pi-building"></i>
+        }
+      </p-button>
+    }
+
+    @if (portalService.loggedIn && orgaSettings.length > 1) {
+      <p-button
+        class="topbar-button text-0"
+        [label]="orgaInitials"
+        [rounded]="true"
+        (onClick)="opOrga.toggle($event)"
+        [pTooltip]="orgaFullName"
+        tooltipPosition="bottom"
+      >
+        @if (orgaLogo) {
+          <img [src]="orgaLogo" class="mr-2" height="30" alt="{{ 'ORGA_ICON' | translate }}" />
+        }
+        @if (!orgaLogo) {
+          {{ orgaInitials }}
+          <i class="mr-2 pi pi-building"></i>
+        }
+      </p-button>
+    }
+    <p-popover #opOrga>
+      <div class="flex flex-col gap-2">
+        <span class="font-medium text-900 block mb-2">{{ 'CHOOSE_ORGA' | translate }}</span>
+        @for (orga of orgaSettings; track $index) {
+          @if (orga.orgaId != currentOrgaId) {
+            <p-button
+              label="{{ orga.orgaName }}"
+              (onClick)="selectOrga(orga)"
+              [rounded]="true"
+              class="w-full"
+            ></p-button>
+          }
+        }
+      </div>
+    </p-popover>
+    @if (!portalService.user?.profilbildBase64) {
+      <p-avatar
+        [icon]="portalService.loggedIn ? 'pi pi-user' : 'pi pi-bars'"
+        class="mr-2 cursor-pointer"
+        size="large"
+        shape="circle"
+        [style]="{ 'background-color': '#ece9fc', color: '#2a1261' }"
+        (click)="userMenu.toggle($event)"
+      ></p-avatar>
+    }
+    @if (portalService.user?.profilbildBase64 ?? '') {
+      <p-avatar
+        [image]="portalService.user?.profilbildBase64 ?? ''"
+        shape="circle"
+        size="large"
+        [style]="{ 'background-color': '#ece9fc', color: '#2a1261' }"
+        (click)="userMenu.toggle($event)"
+      ></p-avatar>
+    }
+    <p-menu
+      appendTo="body"
+      styleClass="topbar-user-menu"
+      (onShow)="onShowUserActions()"
+      #userMenu
+      [popup]="true"
+      [model]="userMenuItems()"
+    ></p-menu>
+  </div>
+</div>
+
+@for (topbarComponent of topbarAfterComponents; track topbarComponent) {
+  <ng-container *ngComponentOutlet="topbarComponent"></ng-container>
+}

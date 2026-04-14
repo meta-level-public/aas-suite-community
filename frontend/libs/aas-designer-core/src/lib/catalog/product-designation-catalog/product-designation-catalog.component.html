@@ -1,0 +1,234 @@
+<div class="flex flex-col flex-auto">
+  <div class="hero-section">
+    <div class="hero-content">
+      <h1 class="hero-title">
+        {{ 'PRODUCT_DESIGNATIONS' | translate }}
+      </h1>
+      <div class="hero-actions">
+        <p-button label="{{ 'ADD' | translate }}" icon="pi pi-plus" (onClick)="createAddress()"></p-button>
+      </div>
+    </div>
+  </div>
+
+  <div class="flex-auto h-0">
+    <div style="position: relative; height: 100%">
+      <div style="position: absolute; height: 100%; width: 100%">
+        <p-table
+          #dt1
+          [value]="productDesignations()"
+          groupRowsBy="name"
+          sortField="name"
+          sortMode="single"
+          [paginator]="true"
+          [rowsPerPageOptions]="[5, 10, 15, 20, 25, 30, 100]"
+          [showCurrentPageReport]="true"
+          currentPageReportTemplate="{{ 'SHOW_FROM_TO_OF_TOTAL' | translate }}"
+          [rowHover]="true"
+          [scrollable]="true"
+          scrollHeight="flex"
+          scrollDirection="both"
+          [rows]="10"
+          [loading]="loading"
+        >
+          <ng-template #header>
+            <tr>
+              <th style="width: 10%"></th>
+              <th pSortableColumn="name">
+                <div class="inline-flex items-center gap-2">
+                  <i class="pi pi-tag text-sm" style="color: var(--p-text-muted-color)"></i>
+                  <span>{{ 'NAME' | translate }}</span>
+                  <p-sortIcon field="name"></p-sortIcon>
+                </div>
+              </th>
+              <th pSortableColumn="anlageDatum" style="width: 14rem; min-width: 14rem">
+                <div class="inline-flex items-center gap-2">
+                  <i class="pi pi-calendar-plus text-sm" style="color: var(--p-text-muted-color)"></i>
+                  <span>{{ 'ANGELEGT' | translate }}</span>
+                  <p-sortIcon field="anlageDatum"></p-sortIcon>
+                </div>
+              </th>
+              <th pSortableColumn="aenderungsDatum" style="width: 14rem; min-width: 14rem">
+                <div class="inline-flex items-center gap-2">
+                  <i class="pi pi-calendar text-sm" style="color: var(--p-text-muted-color)"></i>
+                  <span>{{ 'GEAENDERT' | translate }}</span>
+                  <p-sortIcon field="aenderungsDatum"></p-sortIcon>
+                </div>
+              </th>
+            </tr>
+          </ng-template>
+          <ng-template pTemplate="body" let-productDesignation>
+            <tr>
+              <td>
+                <p-button
+                  icon="pi pi-ellipsis-v"
+                  styleClass="p-button-text p-button-secondary"
+                  (onClick)="menu.toggle($event)"
+                ></p-button>
+                <p-menu
+                  appendTo="body"
+                  (onShow)="onShowActions(productDesignation)"
+                  #menu
+                  [popup]="true"
+                  [model]="menuItems"
+                ></p-menu>
+              </td>
+              <td>
+                <div class="flex items-center gap-2">
+                  <i class="pi pi-bookmark text-sm" style="color: var(--aas-info-text)"></i>
+                  <span class="font-medium">{{ productDesignation.name }}</span>
+                </div>
+              </td>
+              <td style="width: 14rem; min-width: 14rem">
+                <div class="flex items-center gap-2">
+                  <i class="pi pi-clock text-xs" style="color: var(--p-text-muted-color)"></i>
+                  <span class="text-sm whitespace-nowrap">
+                    {{ productDesignation.anlageDatum | vwsDate: 'SHORT_DATE_TIME' }}
+                  </span>
+                </div>
+              </td>
+              <td style="width: 14rem; min-width: 14rem">
+                <div class="flex items-center gap-2">
+                  <i class="pi pi-clock text-xs" style="color: var(--p-text-muted-color)"></i>
+                  <span class="text-sm whitespace-nowrap">
+                    {{ productDesignation.aenderungsDatum | vwsDate: 'SHORT_DATE_TIME' }}
+                  </span>
+                </div>
+              </td>
+            </tr>
+          </ng-template>
+          <ng-template pTemplate="emptymessage" let-productDesignation>
+            <tr>
+              <td [attr.colspan]="4" class="text-center">
+                {{ 'NO_DATA_FOUND' | translate }}
+              </td>
+            </tr>
+          </ng-template>
+        </p-table>
+
+        <!-- Add new Address -->
+        @if (displayproductDesignationModal) {
+          <p-dialog header="Title" [(visible)]="displayproductDesignationModal" [style]="{ width: '60vw' }">
+            <ng-template #header>
+              @if (productDesignationModalOption === 'new') {
+                <div class="flex flex-col">
+                  <div class="flex items-center gap-3 mb-2">
+                    <div
+                      class="flex items-center justify-center w-12 h-12 rounded-full"
+                      style="background: var(--aas-info-surface)"
+                    >
+                      <i class="pi pi-tag text-xl" style="color: var(--aas-info-text)"></i>
+                    </div>
+                    <div class="font-semibold" style="font-size: var(--aas-title-md)">
+                      {{ 'ADD_PRODUCT_DESIGNATION' | translate }}
+                    </div>
+                  </div>
+                  <p class="text-sm ml-15" style="color: var(--p-text-muted-color)">
+                    {{ 'PRODUCT_DESIGNATION_CREATE_DESCRIPTION' | translate }}
+                  </p>
+                </div>
+              }
+              @if (productDesignationModalOption === 'update') {
+                <div class="flex flex-col">
+                  <div class="flex items-center gap-3 mb-2">
+                    <div
+                      class="flex items-center justify-center w-12 h-12 rounded-full"
+                      style="background: var(--aas-info-surface)"
+                    >
+                      <i class="pi pi-pencil text-xl" style="color: var(--aas-info-text)"></i>
+                    </div>
+                    <div class="font-semibold" style="font-size: var(--aas-title-md)">
+                      {{ 'EDIT_PRODUCT_DESIGNATION' | translate }}
+                    </div>
+                  </div>
+                  <p class="text-sm ml-15" style="color: var(--p-text-muted-color)">
+                    {{ 'PRODUCT_DESIGNATION_EDIT_DESCRIPTION' | translate }}
+                  </p>
+                </div>
+              }
+            </ng-template>
+
+            <div class="flex flex-col gap-6 py-4">
+              <!-- Name Section -->
+              <div
+                class="p-4 rounded-lg border"
+                style="background: var(--aas-surface-subtle); border-color: var(--p-content-border-color)"
+              >
+                <div class="flex items-center gap-2 mb-3">
+                  <i class="pi pi-key" style="color: var(--p-text-muted-color)"></i>
+                  <div class="font-semibold text-base">
+                    {{ 'NAME' | translate }}
+                    <span class="ml-1" style="color: var(--aas-danger-icon)">*</span>
+                  </div>
+                </div>
+                <p class="text-sm mb-3" style="color: var(--p-text-muted-color)">
+                  {{ 'PRODUCT_DESIGNATION_NAME_HELP' | translate }}
+                </p>
+                <input
+                  pInputText
+                  id="NAME"
+                  type="text"
+                  class="inputfield w-full"
+                  name="NAME"
+                  [(ngModel)]="productDesignationDialogEntry.name"
+                  placeholder="z.B. ABC-123"
+                  required
+                />
+              </div>
+
+              <!-- Multilingual Section -->
+              <div
+                class="p-4 rounded-lg border"
+                style="background: var(--aas-info-surface); border-color: var(--aas-info-border)"
+              >
+                <div class="flex items-center gap-2 mb-3">
+                  <i class="pi pi-globe" style="color: var(--aas-info-text)"></i>
+                  <div class="font-semibold text-base">
+                    {{ 'MULTILINGUAL_DESIGNATIONS' | translate }}
+                    <span class="ml-1" style="color: var(--aas-danger-icon)">*</span>
+                  </div>
+                </div>
+                <p class="text-sm mb-4" style="color: var(--p-text-muted-color)">
+                  {{ 'MULTILINGUAL_DESIGNATIONS_HELP' | translate }}
+                </p>
+                <aas-v3-lang-string-list
+                  [langStrings]="productDesignationDialogEntry.mlpKeyValues ?? []"
+                  [langStringParent]="productDesignationDialogEntry"
+                  [langStringParentPropertyName]="'mlpKeyValues'"
+                  class="w-full"
+                  [doValidation]="false"
+                  [mlpKeyValueMode]="true"
+                  [removeBlockAllowed]="false"
+                ></aas-v3-lang-string-list>
+              </div>
+            </div>
+
+            <ng-template pTemplate="footer">
+              <footer class="mt-4 pt-4 border-t">
+                <div class="flex flex-row gap-2 justify-end">
+                  <p-button
+                    label="{{ 'CANCEL' | translate }}"
+                    icon="pi pi-times"
+                    severity="danger"
+                    outlined="true"
+                    (onClick)="displayproductDesignationModal = false"
+                    [loading]="loading"
+                  ></p-button>
+                  <p-button
+                    label="{{ 'SAVE' | translate }}"
+                    icon="pi pi-save"
+                    severity="success"
+                    [disabled]="dataValid() === false"
+                    (onClick)="saveNewproductDesignation()"
+                    [loading]="loading"
+                  ></p-button>
+                </div>
+              </footer>
+            </ng-template>
+          </p-dialog>
+        }
+
+        <aas-confirm-dialog></aas-confirm-dialog>
+      </div>
+    </div>
+  </div>
+</div>

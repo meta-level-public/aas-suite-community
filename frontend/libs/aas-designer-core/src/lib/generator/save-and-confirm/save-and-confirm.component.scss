@@ -1,0 +1,20 @@
+:host ::ng-deep .save-confirm-card {
+  width: 100%;
+}
+
+:host ::ng-deep .save-confirm-card.battery-editor-content {
+  height: auto;
+  max-height: none;
+  overflow: visible;
+}
+
+:host ::ng-deep .save-confirm-card .generator-step-card-body {
+  overflow: visible;
+}
+
+:host ::ng-deep .save-confirm-card .generator-step-card-actions {
+  position: sticky;
+  bottom: 0;
+  z-index: 2;
+  background: var(--p-content-background);
+}

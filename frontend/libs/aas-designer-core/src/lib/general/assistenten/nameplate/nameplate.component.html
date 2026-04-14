@@ -1,0 +1,190 @@
+<aas-generator-page-shell
+  [title]="'Digital Nameplate'"
+  [subtitle]="nameplateSemanticId"
+  [showSidebar]="navNodes.length > 0"
+>
+  <p generator-shell-intro class="text-lg battery-editor-page-copy mb-0" style="color: var(--p-text-muted-color)">
+    {{ 'NAMEPLATE_EXPLANATION' | translate }}
+  </p>
+
+  @if (isNonConform) {
+    <p-message generator-shell-intro severity="warn" styleClass="battery-editor-page-copy">
+      <ng-template pTemplate>
+        <div class="grid grid-cols-12 gap-3">
+          <div class="col-span-12 flex items-start gap-3">
+            <em class="pi pi-exclamation-triangle text-2xl"></em>
+            <div>{{ 'NON_CONFORM_IDTA_NAMEPLATE_WARNING' | translate }}</div>
+          </div>
+          @if (canTryConvert) {
+            <div class="col-span-12">{{ 'HSU_NAMEPLATE_FOUND' | translate }}</div>
+          }
+          @if (canTryConvert) {
+            <div class="col-span-12">
+              <p-button label="{{ 'TRY_CONVERT_NAMEPLATE' | translate }}"></p-button>
+            </div>
+          }
+        </div>
+      </ng-template>
+    </p-message>
+  }
+
+  <div generator-shell-main>
+    @if (activeField != null) {
+      <div class="battery-editor-step-header">
+        <div class="battery-editor-step-heading">
+          <div class="battery-editor-step-index">{{ activeStepLabel }}</div>
+          <div>
+            <h2 class="text-2xl font-bold mb-2">{{ activeField.label }}</h2>
+            @if (activeField.description !== '') {
+              <p class="text-sm mb-0" style="color: var(--p-text-muted-color)">{{ activeField.description }}</p>
+            }
+          </div>
+        </div>
+      </div>
+
+      @if (getUnknownDebugJson(); as unknownDebugJson) {
+        <div class="generator-debug-card mb-4">
+          <div class="generator-debug-card-title">{{ 'UNKNOWN_ELEMENT_DEBUG' | translate }}</div>
+          <pre class="generator-debug-card-content">{{ unknownDebugJson }}</pre>
+        </div>
+      }
+
+      @switch (activeField.type) {
+        @case ('AddressSelection') {
+          <em>{{ 'MANUFACTURER_EXPL' | translate }}</em>
+
+          <div class="w-full flex flex-row gap-2">
+            <p-select
+              id="herstellerSelect"
+              name="herstellerSelect"
+              [options]="herstellerCandidates"
+              class="w-full"
+              [(ngModel)]="selectedHersteller"
+              optionLabel="name"
+              placeholder="{{ 'PLEASE_SELECT' | translate }}"
+            >
+              <ng-template pTemplate="selectedItem">
+                @if (selectedHersteller) {
+                  <div class="flex flex-col">
+                    <div class="mr-2">{{ selectedHersteller.name }},</div>
+                    <div class="mr-2">{{ selectedHersteller.strasse }},</div>
+                    <div class="mr-2">{{ selectedHersteller.plz }} {{ selectedHersteller.ort }},</div>
+                    <div class="mr-2">{{ selectedHersteller.bundesland }},</div>
+                    <div class="mr-2">{{ selectedHersteller.laenderCode }}</div>
+                  </div>
+                }
+              </ng-template>
+              <ng-template let-hersteller pTemplate="item">
+                <div class="flex flex-col">
+                  <div class="mr-2">{{ hersteller.name }},</div>
+                  <div class="mr-2">{{ hersteller.strasse }},</div>
+                  <div class="mr-2">{{ hersteller.plz }} {{ hersteller.ort }},</div>
+                  <div class="mr-2">{{ hersteller.bundesland }},</div>
+                  <div>{{ hersteller.laenderCode }}</div>
+                </div>
+              </ng-template>
+            </p-select>
+            <p-button label="{{ 'APPLY' | translate }}" (onClick)="applyManufacturer()" styleClass="w-20rem"></p-button>
+          </div>
+
+          <p-divider type="solid">
+            <b>{{ 'OR' | translate }}</b>
+          </p-divider>
+
+          <div class="flex flex-col gap-4">
+            @for (childField of activeField.children ?? []; track childField.fileKey) {
+              <div class="battery-submodel-field-card">
+                <div class="font-bold mb-2">{{ childField.label }}</div>
+                @if (childField.description !== '') {
+                  <div class="text-sm mb-3" style="color: var(--p-text-muted-color)">{{ childField.description }}</div>
+                }
+
+                @if (childField.type === 'MultiLanguageProperty') {
+                  <aas-multilanguage-property
+                    [propList]="childField.element.value"
+                    [preferredLanguages]="['en', 'de']"
+                    [editableNode]="childField.element"
+                    [id]="getFieldDomId(childField)"
+                    [syncGermanToEnglishOnEdit]="true"
+                  ></aas-multilanguage-property>
+                } @else {
+                  <aas-battery-editor-shared-field
+                    [field]="childField"
+                    [fieldId]="getFieldDomId(childField)"
+                    [referenceTypeOptions]="referenceTypeOptions"
+                    [keyTypeOptions]="keyTypeOptions"
+                    [conceptDescriptions]="currentConceptDescriptions"
+                    (fieldChanged)="onFieldChanged(childField)"
+                  ></aas-battery-editor-shared-field>
+                }
+              </div>
+            }
+          </div>
+        }
+
+        @case ('Markings') {
+          @if (currentMarkingsTreeItem != null) {
+            <aas-v3-markings-editor
+              [markingsTreeItem]="currentMarkingsTreeItem"
+              [shellResult]="markingsShellResult"
+              [indexed]="false"
+              [idShortPath]="''"
+              [submodelIdentifier]="currentNameplateSubmodelIdentifier"
+              [parentSml]="false"
+            ></aas-v3-markings-editor>
+          }
+        }
+
+        @case ('File') {
+          <aas-generator-file-upload-card
+            [state]="getFileUploadCardState(activeField)"
+            (fileSelected)="onFileSelected(activeField, $event)"
+            (removeRequested)="removeFileSelection(activeField)"
+          ></aas-generator-file-upload-card>
+        }
+
+        @case ('MultiLanguageProperty') {
+          <aas-multilanguage-property
+            [propList]="activeField.element.value"
+            [preferredLanguages]="['en', 'de']"
+            [editableNode]="activeField.element"
+            [id]="getFieldDomId(activeField)"
+            [syncGermanToEnglishOnEdit]="activeField.idShort === 'ManufacturerName'"
+          ></aas-multilanguage-property>
+        }
+
+        @default {
+          <aas-battery-editor-shared-field
+            [field]="activeField"
+            [fieldId]="getFieldDomId(activeField)"
+            [referenceTypeOptions]="referenceTypeOptions"
+            [keyTypeOptions]="keyTypeOptions"
+            [conceptDescriptions]="currentConceptDescriptions"
+            (fieldChanged)="onFieldChanged(activeField)"
+          ></aas-battery-editor-shared-field>
+        }
+      }
+    }
+  </div>
+
+  <div class="battery-editor-nav" generator-shell-sidebar-nav>
+    <aas-sidebar-tree-nav
+      [items]="navNodes"
+      [selectedKey]="activeItemKey"
+      [appearance]="'step-list'"
+      [showFilter]="false"
+      (nodeSelected)="selectNode($event)"
+    ></aas-sidebar-tree-nav>
+  </div>
+
+  <div class="battery-editor-nav-actions" generator-shell-sidebar-actions>
+    <p-button [fluid]="true" label="{{ 'BACK' | translate }}" (onClick)="prev()" icon="pi pi-angle-left"></p-button>
+    <p-button
+      [fluid]="true"
+      [label]="getLabel() | translate"
+      (onClick)="next()"
+      icon="pi pi-angle-right"
+      iconPos="right"
+    ></p-button>
+  </div>
+</aas-generator-page-shell>

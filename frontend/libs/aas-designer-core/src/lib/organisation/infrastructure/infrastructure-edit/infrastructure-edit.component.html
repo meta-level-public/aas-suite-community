@@ -1,0 +1,357 @@
+<div class="flex flex-col gap-2">
+  <p-fieldset legend="{{ 'DETAILS' | translate }}" class="w-full">
+    <div class="mb-4">
+      <label for="name"> {{ 'NAME' | translate }} </label>
+      <input
+        pInputText
+        id="name"
+        name="name"
+        type="text"
+        class="w-full"
+        [(ngModel)]="settings().name"
+        required
+        [disabled]="editDisabled()"
+      />
+    </div>
+    <div class="mb-4">
+      <label for="description"> {{ 'DESCRIPTION' | translate }} </label>
+      <textarea
+        pTextarea
+        id="description"
+        name="description"
+        type="text"
+        class="w-full"
+        [(ngModel)]="settings().description"
+        required
+        [disabled]="editDisabled()"
+      ></textarea>
+    </div>
+    <div class="flex flex-row gap-5 items-center">
+      <div class="mb-4 flex items-center">
+        <label for="isActive"> {{ 'ACTIVE' | translate }} </label>
+        <p-toggleswitch
+          id="isActive"
+          name="isActive"
+          class="ml-5"
+          [(ngModel)]="settings().isActive"
+          [disabled]="editDisabled()"
+        />
+      </div>
+      <div class="mb-4 flex items-center">
+        <label for="isReadonly"> {{ 'READONLY' | translate }} </label>
+        <p-toggleswitch
+          id="isReadonly"
+          name="isReadonly"
+          class="ml-5"
+          [(ngModel)]="settings().isReadonly"
+          [disabled]="editDisabled()"
+        />
+      </div>
+    </div>
+  </p-fieldset>
+  <div class="grid grid-cols-1 xl:grid-cols-2 gap-4">
+    <p-fieldset legend="{{ 'URLS' | translate }}">
+      <div class="mb-4">
+        <label for="aasDiscoveryUrl"> {{ 'AAS_DISCOVERY_URL' | translate }} </label>
+        <input
+          pInputText
+          id="aasDiscoveryUrl"
+          name="aasDiscoveryUrl"
+          type="text"
+          class="w-full"
+          [(ngModel)]="settings().aasDiscoveryUrl"
+          required
+          [disabled]="editDisabled()"
+        />
+      </div>
+      <div class="mb-4">
+        <div class="flex flex-row items-center">
+          <label for="aasDiscoveryHcUrl"> {{ 'HEALTH_CHECK' | translate }} </label>
+          <p-toggleswitch
+            id="aasDiscoveryHcEnabled"
+            name="aasDiscoveryHcEnabled"
+            class="ml-5"
+            [(ngModel)]="settings().aasDiscoveryHcEnabled"
+            [disabled]="editDisabled()"
+          />
+        </div>
+        <input
+          pInputText
+          id="aasDiscoveryHcUrl"
+          name="aasDiscoveryHcUrl"
+          type="text"
+          class="w-full"
+          [(ngModel)]="settings().aasDiscoveryHcUrl"
+          [required]="settings().aasDiscoveryHcEnabled === true"
+          [disabled]="editDisabled()"
+        />
+      </div>
+
+      <p-divider />
+      <div class="mb-4">
+        <label for="aasRegistryUrl"> {{ 'AAS_REGISTRY_URL' | translate }} </label>
+        <input
+          pInputText
+          id="aasRegistryUrl"
+          name="aasRegistryUrl"
+          type="text"
+          [(ngModel)]="settings().aasRegistryUrl"
+          class="w-full"
+          required
+          [disabled]="editDisabled()"
+        />
+      </div>
+      <div class="mb-4">
+        <div class="flex flex-row items-center">
+          <label for="aasRegistryHcUrl"> {{ 'HEALTH_CHECK' | translate }} </label>
+          <p-toggleswitch
+            id="aasRegistryHcEnabled"
+            name="aasRegistryHcEnabled"
+            class="ml-5"
+            [(ngModel)]="settings().aasRegistryHcEnabled"
+            [disabled]="editDisabled()"
+          />
+        </div>
+        <input
+          pInputText
+          id="aasRegistryHcUrl"
+          name="aasRegistryHcUrl"
+          type="text"
+          class="w-full"
+          [(ngModel)]="settings().aasRegistryHcUrl"
+          [required]="settings().aasRegistryHcEnabled === true"
+          [disabled]="editDisabled()"
+        />
+      </div>
+
+      <p-divider />
+      <div class="mb-4">
+        <label for="aasRepositoryUrl"> {{ 'AAS_REPOSITORY_URL' | translate }} </label>
+        <input
+          pInputText
+          id="aasRepositoryUrl"
+          name="aasRepositoryUrl"
+          type="text"
+          [(ngModel)]="settings().aasRepositoryUrl"
+          class="w-full"
+          required
+          [disabled]="editDisabled()"
+        />
+      </div>
+      <div class="mb-4">
+        <div class="flex flex-row items-center">
+          <label for="aasRepositoryHcUrl"> {{ 'HEALTH_CHECK' | translate }} </label>
+          <p-toggleswitch
+            id="readonly"
+            name="readonly"
+            class="ml-5"
+            [(ngModel)]="settings().aasRepositoryHcEnabled"
+            [disabled]="editDisabled()"
+          />
+        </div>
+        <input
+          pInputText
+          id="aasRepositoryHcUrl"
+          name="aasRepositoryHcUrl"
+          type="text"
+          class="w-full"
+          [(ngModel)]="settings().aasRepositoryHcUrl"
+          [required]="settings().aasRepositoryHcEnabled === true"
+          [disabled]="editDisabled()"
+        />
+      </div>
+
+      <p-divider />
+      <div class="mb-4">
+        <label for="submodelRegistryUrl"> {{ 'SUBMODEL_REGISTRY_URL' | translate }} </label>
+        <input
+          pInputText
+          id="submodelRegistryUrl"
+          name="submodelRegistryUrl"
+          type="text"
+          [(ngModel)]="settings().submodelRegistryUrl"
+          class="w-full"
+          required
+          [disabled]="editDisabled()"
+        />
+      </div>
+      <div class="mb-4">
+        <div class="flex flex-row items-center">
+          <label for="submodelRegistryHcUrl"> {{ 'HEALTH_CHECK' | translate }} </label>
+          <p-toggleswitch
+            id="submodelRegistryHcEnabled"
+            name="submodelRegistryHcEnabled"
+            class="ml-5"
+            [(ngModel)]="settings().submodelRegistryHcEnabled"
+            [disabled]="editDisabled()"
+          />
+        </div>
+        <input
+          pInputText
+          id="submodelRegistryHcUrl"
+          name="submodelRegistryHcUrl"
+          type="text"
+          class="w-full"
+          [(ngModel)]="settings().submodelRegistryHcUrl"
+          [required]="settings().submodelRegistryHcEnabled === true"
+          [disabled]="editDisabled()"
+        />
+      </div>
+
+      <p-divider />
+      <div class="mb-4">
+        <label for="submodelRepositoryUrl"> {{ 'SUBMODEL_REPOSITORY_URL' | translate }} </label>
+        <input
+          pInputText
+          id="submodelRepositoryUrl"
+          name="submodelRepositoryUrl"
+          type="text"
+          [(ngModel)]="settings().submodelRepositoryUrl"
+          class="w-full"
+          required
+          [disabled]="editDisabled()"
+        />
+      </div>
+      <div class="mb-4">
+        <div class="flex flex-row items-center">
+          <label for="submodelRepositoryHcUrl"> {{ 'HEALTH_CHECK' | translate }} </label>
+          <p-toggleswitch
+            id="submodelRepositoryHcEnabled"
+            name="submodelRepositoryHcEnabled"
+            class="ml-5"
+            [(ngModel)]="settings().submodelRepositoryHcEnabled"
+            [disabled]="editDisabled()"
+          />
+        </div>
+        <input
+          pInputText
+          id="submodelRepositoryHcUrl"
+          name="submodelRepositoryHcUrl"
+          type="text"
+          class="w-full"
+          [(ngModel)]="settings().submodelRepositoryHcUrl"
+          [required]="settings().submodelRepositoryHcEnabled === true"
+          [disabled]="editDisabled()"
+        />
+      </div>
+
+      <p-divider />
+      <div class="mb-4">
+        <label for="submodelRepositoryUrl"> {{ 'CONCEPT_DESCRIPTION_REPOSITORY_URL' | translate }} </label>
+        <input
+          pInputText
+          id="conceptDescriptionRepositoryUrl"
+          name="conceptDescriptionRepositoryUrl"
+          type="text"
+          [(ngModel)]="settings().conceptDescriptionRepositoryUrl"
+          class="w-full"
+          required
+          [disabled]="editDisabled()"
+        />
+      </div>
+      <div class="mb-4">
+        <div class="flex flex-row items-center">
+          <label for="conceptDescriptionRepositoryHcUrl"> {{ 'HEALTH_CHECK' | translate }} </label>
+          <p-toggleswitch
+            id="conceptDescriptionRepositoryHcEnabled"
+            name="conceptDescriptionRepositoryHcEnabled"
+            class="ml-5"
+            [(ngModel)]="settings().conceptDescriptionRepositoryHcEnabled"
+            [disabled]="editDisabled()"
+          />
+        </div>
+        <input
+          pInputText
+          id="conceptDescriptionRepositoryHcUrl"
+          name="conceptDescriptionRepositoryHcUrl"
+          type="text"
+          class="w-full"
+          [(ngModel)]="settings().conceptDescriptionRepositoryHcUrl"
+          [required]="settings().conceptDescriptionRepositoryHcEnabled === true"
+          [disabled]="editDisabled()"
+        />
+      </div>
+    </p-fieldset>
+    @if (!editDisabled() && !settings().isInternal) {
+      <p-fieldset legend="{{ 'SECURITY' | translate }}" class="w-full">
+        <div class="flex flex-col gap-2">
+          <div class="flex flex-row items-end">
+            <p-button
+              label="{{ 'ADD_HEADER_PARAM' | translate }}"
+              class="w-full"
+              (onClick)="addHeaderRow()"
+              icon="pi pi-plus"
+            ></p-button>
+          </div>
+          <p-message text="{{ 'ADD_HEADER_PARAM_EXPL' | translate }}" severity="info"></p-message>
+
+          @for (headerParam of settings().headerParameters; track $index; let indx = $index) {
+            <div class="grid grid-cols-1 md:grid-cols-12 gap-2 items-end">
+              <div class="mb-4 md:col-span-5 min-w-0">
+                <label for="headerName{{ indx }}"> {{ 'NAME' | translate }} </label>
+                <input
+                  pInputText
+                  id="headerName{{ indx }}"
+                  name="headerName{{ indx }}"
+                  type="text"
+                  [(ngModel)]="headerParam.name"
+                  class="w-full"
+                  required
+                />
+              </div>
+              <div class="mb-4 md:col-span-5 min-w-0">
+                <label for="headerValue{{ indx }}"> {{ 'VALUE' | translate }} </label>
+                <input
+                  pInputText
+                  id="headerValue{{ indx }}"
+                  name="headerName{{ indx }}"
+                  type="text"
+                  [(ngModel)]="headerParam.value"
+                  class="w-full"
+                  required
+                />
+              </div>
+              <div class="mb-4 md:col-span-2">
+                <p-button
+                  icon="pi pi-trash"
+                  [outlined]="true"
+                  severity="danger"
+                  class="w-full"
+                  (onClick)="removeHeaderRow(headerParam)"
+                ></p-button>
+              </div>
+            </div>
+          }
+          <div class="flex flex-col mt-5">
+            <div class="mb-4">
+              <label for="certificate"> {{ 'CERTIFICATE_FILE' | translate }} </label>
+              <p-fileUpload
+                #uploader
+                chooseIcon="pi pi-upload"
+                accept=".pfx,"
+                [auto]="false"
+                chooseLabel="{{ 'CHOOSE_FILE' | translate }}"
+                [customUpload]="true"
+                (onSelect)="setCertificateFile($event)"
+              >
+                <ng-template pTemplate="content" let-files>
+                  <em> {{ 'EXCHANGE_CHOOSE_OR_SELECT_TEXT' | translate }} </em>
+                </ng-template>
+              </p-fileUpload>
+            </div>
+            <div class="mb-4">
+              <label for="certificatePassword"> {{ 'PASSWORD' | translate }} </label>
+              <p-password
+                [(ngModel)]="settings().certificatePassword"
+                type="text"
+                class="w-full"
+                required
+                name="certPass"
+              />
+            </div>
+          </div>
+        </div>
+      </p-fieldset>
+    }
+  </div>
+</div>

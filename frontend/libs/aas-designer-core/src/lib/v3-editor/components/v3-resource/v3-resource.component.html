@@ -1,0 +1,29 @@
+@if (resource != null) {
+  <div class="flex flex-col w-full gap-2">
+    <div class="flex flex-row gap-2">
+      <lib-help-label class="w-14rem" tag="FILE_PATH"></lib-help-label>
+      <input pInputText [(ngModel)]="resource.path" class="w-full" [readOnly]="true" />
+    </div>
+    <div class="flex flex-row gap-2">
+      <lib-help-label class="w-14rem" tag="CONTENT_TYPE"></lib-help-label>
+      <input pInputText [(ngModel)]="resource.contentType" class="w-full" />
+    </div>
+    <aas-file-content-editor
+      [shellResult]="shellResult"
+      [fileValueIncoming]="resource.path"
+      (fileValueOutgoing)="resource.path = $event ?? ''"
+      [fileContentTypeIncoming]="resource.contentType ?? ''"
+      (fileContentTypeOutgoing)="resource.contentType = $event"
+      [semanticId]="null"
+      [thumbnailEditor]="true"
+    ></aas-file-content-editor>
+  </div>
+} @else {
+  <p-button
+    label="{{ 'ADD' | translate }}"
+    (onClick)="addResource()"
+    icon="pi pi-plus"
+    size="small"
+    [outlined]="true"
+  ></p-button>
+}

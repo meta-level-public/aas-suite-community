@@ -1,0 +1,1033 @@
+<div class="flex flex-col flex-auto overflow-auto">
+  <div class="hero-section">
+    <div class="hero-content">
+      <h1 class="hero-title">{{ 'STATE' | translate }}</h1>
+      <div class="hero-actions">
+        <p-button
+          label="{{ 'RELOAD' | translate }}"
+          icon="pi pi-refresh"
+          (onClick)="reload()"
+          severity="success"
+        ></p-button>
+      </div>
+    </div>
+  </div>
+  <div class="flex-auto overflow-auto">
+    @let list = infrastructureStatusEntries() | async;
+
+    <p-table
+      [value]="list ?? []"
+      sortMode="single"
+      sortField="isActive"
+      responsiveLayout="scroll"
+      [rows]="10"
+      [paginator]="true"
+      [rowsPerPageOptions]="[5, 10, 15, 20, 25, 30, 100]"
+      [showCurrentPageReport]="true"
+      currentPageReportTemplate="{{ 'SHOW_FROM_TO_OF_TOTAL' | translate }}"
+      [rowHover]="true"
+      dataKey="infrastructureId"
+      size="small"
+      [scrollable]="true"
+      scrollHeight="flex"
+      [loading]="loading()"
+      selectionMode="multiple"
+      [(selection)]="selectedEntries"
+    >
+      <ng-template #header>
+        <tr>
+          <th></th>
+          <th></th>
+          <th></th>
+          <th></th>
+          <th colspan="5" style="background: var(--aas-success-icon); color: var(--p-surface-0)">
+            <div class="flex justify-center">{{ 'DISCOVERY' | translate }}</div>
+          </th>
+          <th colspan="5">
+            <div class="flex justify-center">{{ 'AAS_ENVIRONMENT_SHORT' | translate }}</div>
+          </th>
+          <th colspan="5">
+            <div class="flex justify-center">{{ 'AAS_REGISTRY' | translate }}</div>
+          </th>
+          <th colspan="5">
+            <div class="flex justify-center">{{ 'SM_REGISTRY' | translate }}</div>
+          </th>
+          <th colspan="5">
+            <div class="flex justify-center">{{ 'MONGO' | translate }}</div>
+          </th>
+          <th colspan="5">
+            <div class="flex justify-center">{{ 'MQTT' | translate }}</div>
+          </th>
+        </tr>
+        <tr>
+          <th></th>
+          <th pSortableColumn="infrastructureId">
+            {{ 'INFRA_ID_SHORT' | translate }} <p-sortIcon field="infrastructureId" />
+          </th>
+          <th pSortableColumn="orgaName">{{ 'ORGA_NAME' | translate }} <p-sortIcon field="orgaName" /></th>
+          <th pSortableColumn="isActive">{{ 'IS_ACTIVE_SHORT' | translate }} <p-sortIcon field="isActive" /></th>
+          <th pSortableColumn="discoveryContainerName">
+            {{ 'NAME' | translate }} <p-sortIcon field="discoveryContainerName" />
+          </th>
+          <th pSortableColumn="discoveryStatus">{{ 'STATUS' | translate }} <p-sortIcon field="discoveryStatus" /></th>
+          <th pSortableColumn="discoveryStatusMem">
+            {{ 'MEMORY_SHORT' | translate }} <p-sortIcon field="discoveryStatusMem" />
+          </th>
+          <th pSortableColumn="discoveryStatusMaxMem">
+            {{ 'MAX_MEMORY_SHORT' | translate }} <p-sortIcon field="discoveryStatusMaxMem" />
+          </th>
+          <th pSortableColumn="discoveryStatusMaxMem">
+            {{ 'MEMORY_SWAP_SHORT' | translate }} <p-sortIcon field="discoveryStatusMaxMem" />
+          </th>
+          <th pSortableColumn="aasEnvContainerName">
+            {{ 'AAS_ENVIRONMENT_SHORT' | translate }} <p-sortIcon field="aasEnvContainerName" />
+          </th>
+          <th pSortableColumn="aasEnvStatus">{{ 'STATUS' | translate }} <p-sortIcon field="aasEnvStatus" /></th>
+          <th pSortableColumn="aasEnvMem">{{ 'MEMORY_SHORT' | translate }} <p-sortIcon field="aasEnvMem" /></th>
+          <th pSortableColumn="aasEnvMem">{{ 'MAX_MEMORY_SHORT' | translate }} <p-sortIcon field="aasEnvMaxMem" /></th>
+          <th pSortableColumn="aasEnvMem">
+            {{ 'MEMORY_SWAP_SHORT' | translate }} <p-sortIcon field="aasEnvMemSwap" />
+          </th>
+          <th pSortableColumn="aasRegistryContainerName">
+            {{ 'AAS_REGISTRY_SHORT' | translate }} <p-sortIcon field="aasRegistryContainerName" />
+          </th>
+          <th pSortableColumn="aasRegistryStatus">
+            {{ 'STATUS' | translate }} <p-sortIcon field="aasRegistryStatus" />
+          </th>
+          <th pSortableColumn="aasRegistryMem">
+            {{ 'MEMORY_SHORT' | translate }} <p-sortIcon field="aasRegistryMem" />
+          </th>
+          <th pSortableColumn="aasRegistryMaxMem">
+            {{ 'MAX_MEMORY_SHORT' | translate }} <p-sortIcon field="aasRegistryMaxMem" />
+          </th>
+          <th pSortableColumn="aasRegistryMaxMem">
+            {{ 'MEMORY_SWAP_SHORT' | translate }} <p-sortIcon field="aasRegistryMemSwap" />
+          </th>
+          <th pSortableColumn="smRegistryContainerName">
+            {{ 'SM_REGISTRY_SHORT' | translate }} <p-sortIcon field="smRegistryContainerName" />
+          </th>
+          <th pSortableColumn="smRegistryStatus">{{ 'STATUS' | translate }} <p-sortIcon field="smRegistryStatus" /></th>
+          <th pSortableColumn="smRegistryMem">{{ 'MEMORY_SHORT' | translate }} <p-sortIcon field="smRegistryMem" /></th>
+          <th pSortableColumn="smRegistryMaxMem">
+            {{ 'MAX_MEMORY_SHORT' | translate }} <p-sortIcon field="smRegistryMaxMem" />
+          </th>
+          <th pSortableColumn="smRegistryMaxMem">
+            {{ 'MEMORY_SWAP_SHORT' | translate }} <p-sortIcon field="smRegistryMemSwap" />
+          </th>
+          <th pSortableColumn="mongoContainerName">
+            {{ 'MONGO' | translate }} <p-sortIcon field="mongoContainerName" />
+          </th>
+          <th pSortableColumn="mongoStatus">{{ 'STATUS' | translate }} <p-sortIcon field="mongoStatus" /></th>
+          <th pSortableColumn="mongoMem">{{ 'MEMORY_SHORT' | translate }} <p-sortIcon field="mongoMem" /></th>
+          <th pSortableColumn="mongoMaxMem">{{ 'MAX_MEMORY_SHORT' | translate }} <p-sortIcon field="mongoMaxMem" /></th>
+          <th pSortableColumn="mongoMaxMem">
+            {{ 'MEMORY_SWAP_SHORT' | translate }} <p-sortIcon field="mongoMemSwap" />
+          </th>
+          <th pSortableColumn="mqttContainerName">{{ 'MQTT' | translate }} <p-sortIcon field="mqttContainerName" /></th>
+          <th pSortableColumn="mqttStatus">{{ 'STATUS' | translate }} <p-sortIcon field="mqttStatus" /></th>
+          <th pSortableColumn="mqttMem">{{ 'MEMORY_SHORT' | translate }} <p-sortIcon field="mqttMem" /></th>
+          <th pSortableColumn="mqttMaxMem">{{ 'MAX_MEMORY_SHORT' | translate }} <p-sortIcon field="mqttMaxMem" /></th>
+          <th pSortableColumn="mqttMaxMem">{{ 'MEMORY_SWAP_SHORT' | translate }} <p-sortIcon field="mqttMemSwap" /></th>
+        </tr>
+        <tr>
+          <th>
+            <div class="flex flex-col gap-2 items-center">
+              <p-tableHeaderCheckbox />
+              <p-button
+                (onClick)="recreateAll()"
+                icon="pi pi-refresh"
+                [disabled]="selectedEntries()?.length == 0"
+                size="small"
+                severity="success"
+              ></p-button>
+            </div>
+          </th>
+          <th></th>
+          <th></th>
+          <th></th>
+          <th></th>
+          <th></th>
+          <th></th>
+          <th>
+            <div class="flex flex-col gap-2 items-center">
+              <p-inputnumber
+                [(ngModel)]="memoryLimitDiscovery"
+                [showButtons]="true"
+                buttonLayout="horizontal"
+                inputId="horizontal"
+                spinnerMode="horizontal"
+                [step]="1"
+                inputStyleClass="w-5rem"
+                size="small"
+              >
+                <ng-template #incrementbuttonicon>
+                  <span class="pi pi-plus"></span>
+                </ng-template>
+                <ng-template #decrementbuttonicon>
+                  <span class="pi pi-minus"></span>
+                </ng-template>
+              </p-inputnumber>
+              <p-button
+                (onClick)="setMemoryLimit('discovery')"
+                icon="pi pi-check"
+                label="{{ 'APPLY_TO_ALL' | translate }}"
+                size="small"
+              ></p-button>
+            </div>
+          </th>
+          <th>
+            <div class="flex flex-col gap-2 items-center">
+              <p-inputnumber
+                [(ngModel)]="memorySwapDiscovery"
+                [showButtons]="true"
+                buttonLayout="horizontal"
+                inputId="horizontal"
+                spinnerMode="horizontal"
+                [step]="1"
+                inputStyleClass="w-5rem"
+                size="small"
+              >
+                <ng-template #incrementbuttonicon>
+                  <span class="pi pi-plus"></span>
+                </ng-template>
+                <ng-template #decrementbuttonicon>
+                  <span class="pi pi-minus"></span>
+                </ng-template>
+              </p-inputnumber>
+              <p-button
+                (onClick)="setMemorySwap('discovery')"
+                icon="pi pi-check"
+                label="{{ 'APPLY_TO_ALL' | translate }}"
+                size="small"
+              ></p-button>
+            </div>
+          </th>
+          <th></th>
+          <th></th>
+          <th></th>
+          <th>
+            <div class="flex flex-col gap-2 items-center">
+              <p-inputnumber
+                [(ngModel)]="memoryLimitAasEnv"
+                [showButtons]="true"
+                buttonLayout="horizontal"
+                inputId="horizontal"
+                spinnerMode="horizontal"
+                [step]="1"
+                inputStyleClass="w-5rem"
+                size="small"
+              >
+                <ng-template #incrementbuttonicon>
+                  <span class="pi pi-plus"></span>
+                </ng-template>
+                <ng-template #decrementbuttonicon>
+                  <span class="pi pi-minus"></span>
+                </ng-template>
+              </p-inputnumber>
+              <p-button
+                (onClick)="setMemoryLimit('aasEnv')"
+                icon="pi pi-check"
+                label="{{ 'APPLY_TO_ALL' | translate }}"
+                size="small"
+              ></p-button>
+            </div>
+          </th>
+          <th>
+            <div class="flex flex-col gap-2 items-center">
+              <p-inputnumber
+                [(ngModel)]="memorySwapAasEnv"
+                [showButtons]="true"
+                buttonLayout="horizontal"
+                inputId="horizontal"
+                spinnerMode="horizontal"
+                [step]="1"
+                inputStyleClass="w-5rem"
+                size="small"
+              >
+                <ng-template #incrementbuttonicon>
+                  <span class="pi pi-plus"></span>
+                </ng-template>
+                <ng-template #decrementbuttonicon>
+                  <span class="pi pi-minus"></span>
+                </ng-template>
+              </p-inputnumber>
+              <p-button
+                (onClick)="setMemorySwap('aasEnv')"
+                icon="pi pi-check"
+                label="{{ 'APPLY_TO_ALL' | translate }}"
+                size="small"
+              ></p-button>
+            </div>
+          </th>
+          <th></th>
+          <th></th>
+          <th></th>
+          <th>
+            <div class="flex flex-col gap-2 items-center">
+              <p-inputnumber
+                [(ngModel)]="memoryLimitAasRegistry"
+                [showButtons]="true"
+                buttonLayout="horizontal"
+                inputId="horizontal"
+                spinnerMode="horizontal"
+                [step]="1"
+                inputStyleClass="w-5rem"
+                size="small"
+              >
+                <ng-template #incrementbuttonicon>
+                  <span class="pi pi-plus"></span>
+                </ng-template>
+                <ng-template #decrementbuttonicon>
+                  <span class="pi pi-minus"></span>
+                </ng-template>
+              </p-inputnumber>
+              <p-button
+                (onClick)="setMemoryLimit('aasRegistry')"
+                icon="pi pi-check"
+                label="{{ 'APPLY_TO_ALL' | translate }}"
+                size="small"
+              ></p-button>
+            </div>
+          </th>
+          <th>
+            <div class="flex flex-col gap-2 items-center">
+              <p-inputnumber
+                [(ngModel)]="memorySwapAasRegistry"
+                [showButtons]="true"
+                buttonLayout="horizontal"
+                inputId="horizontal"
+                spinnerMode="horizontal"
+                [step]="1"
+                inputStyleClass="w-5rem"
+                size="small"
+              >
+                <ng-template #incrementbuttonicon>
+                  <span class="pi pi-plus"></span>
+                </ng-template>
+                <ng-template #decrementbuttonicon>
+                  <span class="pi pi-minus"></span>
+                </ng-template>
+              </p-inputnumber>
+              <p-button
+                (onClick)="setMemorySwap('aasRegistry')"
+                icon="pi pi-check"
+                label="{{ 'APPLY_TO_ALL' | translate }}"
+                size="small"
+              ></p-button>
+            </div>
+          </th>
+          <th></th>
+          <th></th>
+          <th></th>
+          <th>
+            <div class="flex flex-col gap-2 items-center">
+              <p-inputnumber
+                [(ngModel)]="memoryLimitSmRegistry"
+                [showButtons]="true"
+                buttonLayout="horizontal"
+                inputId="horizontal"
+                spinnerMode="horizontal"
+                [step]="1"
+                inputStyleClass="w-5rem"
+                size="small"
+              >
+                <ng-template #incrementbuttonicon>
+                  <span class="pi pi-plus"></span>
+                </ng-template>
+                <ng-template #decrementbuttonicon>
+                  <span class="pi pi-minus"></span>
+                </ng-template>
+              </p-inputnumber>
+              <p-button
+                (onClick)="setMemoryLimit('smRegistry')"
+                icon="pi pi-check"
+                label="{{ 'APPLY_TO_ALL' | translate }}"
+                size="small"
+              ></p-button>
+            </div>
+          </th>
+          <th>
+            <div class="flex flex-col gap-2 items-center">
+              <p-inputnumber
+                [(ngModel)]="memorySwapSmRegistry"
+                [showButtons]="true"
+                buttonLayout="horizontal"
+                inputId="horizontal"
+                spinnerMode="horizontal"
+                [step]="1"
+                inputStyleClass="w-5rem"
+                size="small"
+              >
+                <ng-template #incrementbuttonicon>
+                  <span class="pi pi-plus"></span>
+                </ng-template>
+                <ng-template #decrementbuttonicon>
+                  <span class="pi pi-minus"></span>
+                </ng-template>
+              </p-inputnumber>
+              <p-button
+                (onClick)="setMemorySwap('smRegistry')"
+                icon="pi pi-check"
+                label="{{ 'APPLY_TO_ALL' | translate }}"
+                size="small"
+              ></p-button>
+            </div>
+          </th>
+          <th></th>
+          <th></th>
+          <th></th>
+          <th>
+            <div class="flex flex-col gap-2 items-center">
+              <p-inputnumber
+                [(ngModel)]="memoryLimitMongo"
+                [showButtons]="true"
+                buttonLayout="horizontal"
+                inputId="horizontal"
+                spinnerMode="horizontal"
+                [step]="1"
+                inputStyleClass="w-5rem"
+                size="small"
+              >
+                <ng-template #incrementbuttonicon>
+                  <span class="pi pi-plus"></span>
+                </ng-template>
+                <ng-template #decrementbuttonicon>
+                  <span class="pi pi-minus"></span>
+                </ng-template>
+              </p-inputnumber>
+              <p-button
+                (onClick)="setMemoryLimit('mongo')"
+                icon="pi pi-check"
+                label="{{ 'APPLY_TO_ALL' | translate }}"
+                size="small"
+              ></p-button>
+            </div>
+          </th>
+          <th>
+            <div class="flex flex-col gap-2 items-center">
+              <p-inputnumber
+                [(ngModel)]="memorySwapMongo"
+                [showButtons]="true"
+                buttonLayout="horizontal"
+                inputId="horizontal"
+                spinnerMode="horizontal"
+                [step]="1"
+                inputStyleClass="w-5rem"
+                size="small"
+              >
+                <ng-template #incrementbuttonicon>
+                  <span class="pi pi-plus"></span>
+                </ng-template>
+                <ng-template #decrementbuttonicon>
+                  <span class="pi pi-minus"></span>
+                </ng-template>
+              </p-inputnumber>
+              <p-button
+                (onClick)="setMemorySwap('mongo')"
+                icon="pi pi-check"
+                label="{{ 'APPLY_TO_ALL' | translate }}"
+                size="small"
+              ></p-button>
+            </div>
+          </th>
+          <th></th>
+          <th></th>
+          <th></th>
+          <th>
+            <div class="flex flex-col gap-2 items-center">
+              <p-inputnumber
+                [(ngModel)]="memoryLimitMqtt"
+                [showButtons]="true"
+                buttonLayout="horizontal"
+                inputId="horizontal"
+                spinnerMode="horizontal"
+                [step]="1"
+                inputStyleClass="w-5rem"
+                size="small"
+              >
+                <ng-template #incrementbuttonicon>
+                  <span class="pi pi-plus"></span>
+                </ng-template>
+                <ng-template #decrementbuttonicon>
+                  <span class="pi pi-minus"></span>
+                </ng-template>
+              </p-inputnumber>
+              <p-button
+                (onClick)="setMemoryLimit('mqtt')"
+                icon="pi pi-check"
+                label="{{ 'APPLY_TO_ALL' | translate }}"
+                size="small"
+              ></p-button>
+            </div>
+          </th>
+          <th>
+            <div class="flex flex-col gap-2 items-center">
+              <p-inputnumber
+                [(ngModel)]="memorySwapMqtt"
+                [showButtons]="true"
+                buttonLayout="horizontal"
+                inputId="horizontal"
+                spinnerMode="horizontal"
+                [step]="1"
+                inputStyleClass="w-5rem"
+                size="small"
+              >
+                <ng-template #incrementbuttonicon>
+                  <span class="pi pi-plus"></span>
+                </ng-template>
+                <ng-template #decrementbuttonicon>
+                  <span class="pi pi-minus"></span>
+                </ng-template>
+                <p-button
+                  (onClick)="setMemorySwap('mqtt')"
+                  icon="pi pi-check"
+                  label="{{ 'APPLY_TO_ALL' | translate }}"
+                  size="small"
+                ></p-button>
+              </p-inputnumber>
+            </div>
+          </th>
+        </tr>
+      </ng-template>
+      <ng-template #body let-entry>
+        <tr>
+          <td>
+            <div class="flex flex-col gap-2 items-center">
+              <p-tableCheckbox [value]="entry"></p-tableCheckbox>
+              <p-button (onClick)="recreate(entry)" icon="pi pi-refresh" size="small" severity="success"></p-button>
+              <p-button
+                (onClick)="remove(entry.infrastructureId)"
+                icon="pi pi-trash"
+                size="small"
+                severity="danger"
+              ></p-button>
+            </div>
+          </td>
+          <td>{{ entry.infrastructureId }}</td>
+          <td>{{ entry.orgaName }}</td>
+          <td>
+            <div class="flex flex-col gap-2 items-center">
+              <p-tag [value]="entry.isActive" [severity]="entry.isActive == true ? 'success' : 'danger'"></p-tag>
+            </div>
+          </td>
+          <!-- Discovery -->
+          <td>
+            <div class="w-12rem">{{ entry.discoveryContainerName }}</div>
+          </td>
+          <td>
+            <div class="flex flex-col gap-2 items-center">
+              <p-tag [value]="entry.discoveryStatus" [severity]="getTagSeverity(entry.discoveryStatus)"></p-tag>
+              @if (entry.discoveryStatus === 'Running') {
+                <p-button
+                  (onClick)="stop(entry.discoveryContainerName)"
+                  icon="pi pi-stop-circle"
+                  size="small"
+                  [text]="true"
+                ></p-button>
+              } @else {
+                <p-button
+                  (onClick)="start(entry.discoveryContainerName)"
+                  icon="pi pi-play-circle"
+                  size="small"
+                  [text]="true"
+                ></p-button>
+              }
+            </div>
+          </td>
+          <td>
+            @if (entry.discoveryMaxMem - entry.discoveryMem < 50 * 1000 * 1000) {
+              <div
+                class="w-6rem flex flex-col items-center"
+                style="background-color: var(--aas-danger-surface); border-radius: var(--aas-radius-xs)"
+              >
+                <div>{{ entry.discoveryMem | filesize }}</div>
+                <!-- anzeige in % -->
+                <div>({{ (entry.discoveryMem / entry.discoveryMaxMem) * 100 | number: '1.0-0' }}%)</div>
+              </div>
+            } @else {
+              <div class="w-6rem flex flex-col items-center">
+                <div>{{ entry.discoveryMem | filesize }}</div>
+                <!-- anzeige in % -->
+                <div>({{ (entry.discoveryMem / entry.discoveryMaxMem) * 100 | number: '1.0-0' }}%)</div>
+              </div>
+            }
+          </td>
+          <td>
+            <div class="flex flex-col gap-2 items-center">
+              {{ entry.discoveryMaxMem | filesize }}
+              <p-inputnumber
+                [(ngModel)]="entry.discoveryMaxMemSetting"
+                [showButtons]="true"
+                buttonLayout="horizontal"
+                inputId="horizontal"
+                spinnerMode="horizontal"
+                [step]="1"
+                inputStyleClass="w-5rem"
+                size="small"
+              >
+                <ng-template #incrementbuttonicon>
+                  <span class="pi pi-plus"></span>
+                </ng-template>
+                <ng-template #decrementbuttonicon>
+                  <span class="pi pi-minus"></span>
+                </ng-template>
+              </p-inputnumber>
+            </div>
+          </td>
+          <td>
+            <div class="flex flex-col gap-2 items-center">
+              {{ entry.discoveryMemSwap | filesize }}
+              <p-inputnumber
+                [(ngModel)]="entry.discoveryMemSwapSetting"
+                [showButtons]="true"
+                buttonLayout="horizontal"
+                inputId="horizontal"
+                spinnerMode="horizontal"
+                [step]="1"
+                inputStyleClass="w-5rem"
+                size="small"
+              >
+                <ng-template #incrementbuttonicon>
+                  <span class="pi pi-plus"></span>
+                </ng-template>
+                <ng-template #decrementbuttonicon>
+                  <span class="pi pi-minus"></span>
+                </ng-template>
+              </p-inputnumber>
+            </div>
+          </td>
+          <!-- AasEnv -->
+          <td>
+            <div class="w-16rem">{{ entry.aasEnvContainerName }}</div>
+          </td>
+          <td>
+            <div class="flex flex-col gap-2 items-center">
+              <p-tag [value]="entry.aasEnvStatus" [severity]="getTagSeverity(entry.aasEnvStatus)"></p-tag>
+              @if (entry.aasEnvStatus === 'Running') {
+                <p-button
+                  (onClick)="stop(entry.aasEnvContainerName)"
+                  icon="pi pi-stop-circle"
+                  size="small"
+                  [text]="true"
+                ></p-button>
+              } @else {
+                <p-button
+                  (onClick)="start(entry.aasEnvContainerName)"
+                  icon="pi pi-play-circle"
+                  size="small"
+                  [text]="true"
+                ></p-button>
+              }
+            </div>
+          </td>
+          <td>
+            @if (entry.aasEnvMaxMem - entry.aasEnvMem < 50 * 1000 * 1000) {
+              <div
+                class="w-6rem flex flex-col items-center"
+                style="background-color: var(--aas-danger-surface); border-radius: var(--aas-radius-xs)"
+              >
+                <div>{{ entry.aasEnvMem | filesize }}</div>
+                <!-- anzeige in % -->
+                <div>({{ (entry.aasEnvMem / entry.aasEnvMaxMem) * 100 | number: '1.0-0' }}%)</div>
+              </div>
+            } @else {
+              <div class="w-6rem flex flex-col items-center">
+                <div>{{ entry.aasEnvMem | filesize }}</div>
+                <!-- anzeige in % -->
+                <div>({{ (entry.aasEnvMem / entry.aasEnvMaxMem) * 100 | number: '1.0-0' }}%)</div>
+              </div>
+            }
+          </td>
+          <td>
+            <div class="flex flex-col gap-2 items-center">
+              {{ entry.aasEnvMaxMem | filesize }}
+              <p-inputnumber
+                [(ngModel)]="entry.aasEnvMaxMemSetting"
+                [showButtons]="true"
+                buttonLayout="horizontal"
+                inputId="horizontal"
+                spinnerMode="horizontal"
+                [step]="1"
+                inputStyleClass="w-5rem"
+                size="small"
+              >
+                <ng-template #incrementbuttonicon>
+                  <span class="pi pi-plus"></span>
+                </ng-template>
+                <ng-template #decrementbuttonicon>
+                  <span class="pi pi-minus"></span>
+                </ng-template>
+              </p-inputnumber>
+            </div>
+          </td>
+          <td>
+            <div class="flex flex-col gap-2 items-center">
+              {{ entry.aasEnvMemSwap | filesize }}
+              <p-inputnumber
+                [(ngModel)]="entry.aasEnvMemSwapSetting"
+                [showButtons]="true"
+                buttonLayout="horizontal"
+                inputId="horizontal"
+                spinnerMode="horizontal"
+                [step]="1"
+                inputStyleClass="w-5rem"
+                size="small"
+              >
+                <ng-template #incrementbuttonicon>
+                  <span class="pi pi-plus"></span>
+                </ng-template>
+                <ng-template #decrementbuttonicon>
+                  <span class="pi pi-minus"></span>
+                </ng-template>
+              </p-inputnumber>
+            </div>
+          </td>
+          <!-- AasRegistry -->
+          <td>
+            <div class="w-16rem">{{ entry.aasRegistryContainerName }}</div>
+          </td>
+          <td>
+            <div class="flex flex-col gap-2 items-center">
+              <p-tag [value]="entry.aasRegistryStatus" [severity]="getTagSeverity(entry.aasRegistryStatus)"></p-tag>
+              @if (entry.aasRegistryStatus === 'Running') {
+                <p-button
+                  (onClick)="stop(entry.aasRegistryContainerName)"
+                  icon="pi pi-stop-circle"
+                  size="small"
+                  [text]="true"
+                ></p-button>
+              } @else {
+                <p-button
+                  (onClick)="start(entry.aasRegistryContainerName)"
+                  icon="pi pi-play-circle"
+                  size="small"
+                  [text]="true"
+                ></p-button>
+              }
+            </div>
+          </td>
+          <td>
+            @if (entry.aasRegistryMaxMem - entry.aasRegistryMem < 50 * 1000 * 1000) {
+              <div
+                class="w-6rem flex flex-col items-center"
+                style="background-color: var(--aas-danger-surface); border-radius: var(--aas-radius-xs)"
+              >
+                <div>{{ entry.aasRegistryMem | filesize }}</div>
+                <!-- anzeige in % -->
+                <div>({{ (entry.aasRegistryMem / entry.aasRegistryMaxMem) * 100 | number: '1.0-0' }}%)</div>
+              </div>
+            } @else {
+              <div class="w-6rem flex flex-col items-center">
+                <div>{{ entry.aasRegistryMem | filesize }}</div>
+                <!-- anzeige in % -->
+                <div>({{ (entry.aasRegistryMem / entry.aasRegistryMaxMem) * 100 | number: '1.0-0' }}%)</div>
+              </div>
+            }
+          </td>
+          <td>
+            <div class="flex flex-col gap-2 items-center">
+              {{ entry.aasRegistryMaxMem | filesize }}
+              <p-inputnumber
+                [(ngModel)]="entry.aasRegistryMaxMemSetting"
+                [showButtons]="true"
+                buttonLayout="horizontal"
+                inputId="horizontal"
+                spinnerMode="horizontal"
+                [step]="1"
+                inputStyleClass="w-5rem"
+                size="small"
+              >
+                <ng-template #incrementbuttonicon>
+                  <span class="pi pi-plus"></span>
+                </ng-template>
+                <ng-template #decrementbuttonicon>
+                  <span class="pi pi-minus"></span>
+                </ng-template>
+              </p-inputnumber>
+            </div>
+          </td>
+          <td>
+            <div class="flex flex-col gap-2 items-center">
+              {{ entry.aasRegistryMemSwap | filesize }}
+              <p-inputnumber
+                [(ngModel)]="entry.aasRegistryMemSwapSetting"
+                [showButtons]="true"
+                buttonLayout="horizontal"
+                inputId="horizontal"
+                spinnerMode="horizontal"
+                [step]="1"
+                inputStyleClass="w-5rem"
+                size="small"
+              >
+                <ng-template #incrementbuttonicon>
+                  <span class="pi pi-plus"></span>
+                </ng-template>
+                <ng-template #decrementbuttonicon>
+                  <span class="pi pi-minus"></span>
+                </ng-template>
+              </p-inputnumber>
+            </div>
+          </td>
+          <!-- SmRegistry -->
+          <td>
+            <div class="w-16rem">{{ entry.smRegistryContainerName }}</div>
+          </td>
+          <td>
+            <div class="flex flex-col gap-2 items-center">
+              <p-tag [value]="entry.smRegistryStatus" [severity]="getTagSeverity(entry.smRegistryStatus)"></p-tag>
+              @if (entry.smRegistryStatus === 'Running') {
+                <p-button
+                  (onClick)="stop(entry.smRegistryContainerName)"
+                  icon="pi pi-stop-circle"
+                  size="small"
+                  [text]="true"
+                ></p-button>
+              } @else {
+                <p-button
+                  (onClick)="start(entry.smRegistryContainerName)"
+                  icon="pi pi-play-circle"
+                  size="small"
+                  [text]="true"
+                ></p-button>
+              }
+            </div>
+          </td>
+          <td>
+            @if (entry.smRegistryMaxMem - entry.smRegistryMem < 50 * 1000 * 1000) {
+              <div
+                class="w-6rem flex flex-col items-center"
+                style="background-color: var(--aas-danger-surface); border-radius: var(--aas-radius-xs)"
+              >
+                <div>{{ entry.smRegistryMem | filesize }}</div>
+                <!-- anzeige in % -->
+                <div>({{ (entry.smRegistryMem / entry.smRegistryMaxMem) * 100 | number: '1.0-0' }}%)</div>
+              </div>
+            } @else {
+              <div class="w-6rem flex flex-col items-center">
+                <div>{{ entry.smRegistryMem | filesize }}</div>
+                <!-- anzeige in % -->
+                <div>({{ (entry.smRegistryMem / entry.smRegistryMaxMem) * 100 | number: '1.0-0' }}%)</div>
+              </div>
+            }
+          </td>
+          <td>
+            <div class="flex flex-col gap-2 items-center">
+              {{ entry.smRegistryMaxMem | filesize }}
+              <p-inputnumber
+                [(ngModel)]="entry.smRegistryMaxMemSetting"
+                [showButtons]="true"
+                buttonLayout="horizontal"
+                inputId="horizontal"
+                spinnerMode="horizontal"
+                [step]="1"
+                inputStyleClass="w-5rem"
+                size="small"
+              >
+                <ng-template #incrementbuttonicon>
+                  <span class="pi pi-plus"></span>
+                </ng-template>
+                <ng-template #decrementbuttonicon>
+                  <span class="pi pi-minus"></span>
+                </ng-template>
+              </p-inputnumber>
+            </div>
+          </td>
+          <td>
+            <div class="flex flex-col gap-2 items-center">
+              {{ entry.smRegistryMemSwap | filesize }}
+              <p-inputnumber
+                [(ngModel)]="entry.smRegistryMemSwapSetting"
+                [showButtons]="true"
+                buttonLayout="horizontal"
+                inputId="horizontal"
+                spinnerMode="horizontal"
+                [step]="1"
+                inputStyleClass="w-5rem"
+                size="small"
+              >
+                <ng-template #incrementbuttonicon>
+                  <span class="pi pi-plus"></span>
+                </ng-template>
+                <ng-template #decrementbuttonicon>
+                  <span class="pi pi-minus"></span>
+                </ng-template>
+              </p-inputnumber>
+            </div>
+          </td>
+          <!-- Mongo -->
+          <td>
+            <div class="w-16rem">{{ entry.mongoContainerName }}</div>
+          </td>
+          <td>
+            <div class="flex flex-col gap-2 items-center">
+              <p-tag [value]="entry.mongoStatus" [severity]="getTagSeverity(entry.mongoStatus)"></p-tag>
+              @if (entry.mongoStatus === 'Running') {
+                <p-button
+                  (onClick)="stop(entry.mongoContainerName)"
+                  icon="pi pi-stop-circle"
+                  size="small"
+                  [text]="true"
+                ></p-button>
+              } @else {
+                <p-button
+                  (onClick)="start(entry.mongoContainerName)"
+                  icon="pi pi-play-circle"
+                  size="small"
+                  [text]="true"
+                ></p-button>
+              }
+            </div>
+          </td>
+          <td>
+            @if (entry.mongoMaxMem - entry.mongoMem < 50 * 1000 * 1000) {
+              <div
+                class="w-6rem flex flex-col items-center"
+                style="background-color: var(--aas-danger-surface); border-radius: var(--aas-radius-xs)"
+              >
+                <div>{{ entry.mongoMem | filesize }}</div>
+                <!-- anzeige in % -->
+                <div>({{ (entry.mongoMem / entry.mongoMaxMem) * 100 | number: '1.0-0' }}%)</div>
+              </div>
+            } @else {
+              <div class="w-6rem flex flex-col items-center">
+                <div>{{ entry.mongoMem | filesize }}</div>
+                <!-- anzeige in % -->
+                <div>({{ (entry.mongoMem / entry.mongoMaxMem) * 100 | number: '1.0-0' }}%)</div>
+              </div>
+            }
+          </td>
+          <td>
+            <div class="flex flex-col gap-2 items-center">
+              {{ entry.mongoMaxMem | filesize }}
+              <p-inputnumber
+                [(ngModel)]="entry.mongoMaxMemSetting"
+                [showButtons]="true"
+                buttonLayout="horizontal"
+                inputId="horizontal"
+                spinnerMode="horizontal"
+                [step]="1"
+                inputStyleClass="w-5rem"
+                size="small"
+              >
+                <ng-template #incrementbuttonicon>
+                  <span class="pi pi-plus"></span>
+                </ng-template>
+                <ng-template #decrementbuttonicon>
+                  <span class="pi pi-minus"></span>
+                </ng-template>
+              </p-inputnumber>
+            </div>
+          </td>
+          <td>
+            {{ entry.mongoMemSwap | filesize }}
+            <div class="flex flex-col gap-2 items-center">
+              <p-inputnumber
+                [(ngModel)]="entry.mongoMemSwapSetting"
+                [showButtons]="true"
+                buttonLayout="horizontal"
+                inputId="horizontal"
+                spinnerMode="horizontal"
+                [step]="1"
+                inputStyleClass="w-5rem"
+                size="small"
+              >
+                <ng-template #incrementbuttonicon>
+                  <span class="pi pi-plus"></span>
+                </ng-template>
+                <ng-template #decrementbuttonicon>
+                  <span class="pi pi-minus"></span>
+                </ng-template>
+              </p-inputnumber>
+            </div>
+          </td>
+          <!-- Mqtt -->
+          <td>
+            <div class="w-16rem">{{ entry.mqttContainerName }}</div>
+          </td>
+          <td>
+            <div class="flex flex-col gap-2 items-center">
+              <p-tag [value]="entry.mqttStatus" [severity]="getTagSeverity(entry.mqttStatus)"></p-tag>
+              @if (entry.mqttStatus === 'Running') {
+                <p-button
+                  (onClick)="stop(entry.mqttContainerName)"
+                  icon="pi pi-stop-circle"
+                  size="small"
+                  [text]="true"
+                ></p-button>
+              } @else {
+                <p-button
+                  (onClick)="start(entry.mqttContainerName)"
+                  icon="pi pi-play-circle"
+                  size="small"
+                  [text]="true"
+                ></p-button>
+              }
+            </div>
+          </td>
+          <td>
+            @if (entry.mqttMaxMem - entry.mqttMem < 50 * 1000 * 1000) {
+              <div
+                class="w-6rem flex flex-col items-center"
+                style="background-color: var(--aas-danger-surface); border-radius: var(--aas-radius-xs)"
+              >
+                <div>{{ entry.mqttMem | filesize }}</div>
+                <!-- anzeige in % -->
+                <div>({{ (entry.mqttMem / entry.mqttMaxMem) * 100 | number: '1.0-0' }}%)</div>
+              </div>
+            } @else {
+              <div class="w-6rem flex flex-col items-center">
+                <div>{{ entry.mqttMem | filesize }}</div>
+                <!-- anzeige in % -->
+                <div>({{ (entry.mqttMem / entry.mqttMaxMem) * 100 | number: '1.0-0' }}%)</div>
+              </div>
+            }
+          </td>
+          <td>
+            <div class="flex flex-col gap-2 items-center">
+              {{ entry.mqttMaxMem | filesize }}
+              <p-inputnumber
+                [(ngModel)]="entry.mqttMaxMemSetting"
+                [showButtons]="true"
+                buttonLayout="horizontal"
+                inputId="horizontal"
+                spinnerMode="horizontal"
+                [step]="1"
+                inputStyleClass="w-5rem"
+                size="small"
+              >
+                <ng-template #incrementbuttonicon>
+                  <span class="pi pi-plus"></span>
+                </ng-template>
+                <ng-template #decrementbuttonicon>
+                  <span class="pi pi-minus"></span>
+                </ng-template>
+              </p-inputnumber>
+            </div>
+          </td>
+          <td>
+            <div class="flex flex-col justify-end">
+              {{ entry.mqttMemSwap | filesize }}
+              <p-inputnumber
+                [(ngModel)]="entry.mqttMemSwapSetting"
+                [showButtons]="true"
+                buttonLayout="horizontal"
+                inputId="horizontal"
+                spinnerMode="horizontal"
+                [step]="1"
+                inputStyleClass="w-5rem"
+                size="small"
+              >
+                <ng-template #incrementbuttonicon>
+                  <span class="pi pi-plus"></span>
+                </ng-template>
+                <ng-template #decrementbuttonicon>
+                  <span class="pi pi-minus"></span>
+                </ng-template>
+              </p-inputnumber>
+            </div>
+          </td>
+        </tr>
+      </ng-template>
+    </p-table>
+  </div>
+</div>

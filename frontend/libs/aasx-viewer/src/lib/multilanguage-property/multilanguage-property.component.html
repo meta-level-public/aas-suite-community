@@ -1,0 +1,19 @@
+<p-table [value]="properties.value" size="small" stripedRows>
+  <ng-template #header>
+    <tr>
+      <th scope="col" style="width: 35%">{{ 'LANGUAGE' | translate }}</th>
+      <th scope="col" style="width: 65%">{{ 'VALUE' | translate }}</th>
+    </tr>
+  </ng-template>
+  <ng-template pTemplate="body" let-property>
+    <tr>
+      <td style="width: 35%">{{ property.language }}</td>
+      <td style="width: 65%">{{ property.text }}</td>
+    </tr>
+  </ng-template>
+  <ng-template pTemplate="emptymessage">
+    <tr>
+      <td colspan="2">{{ 'NO_DATA_FOUND' | translate }}</td>
+    </tr>
+  </ng-template>
+</p-table>

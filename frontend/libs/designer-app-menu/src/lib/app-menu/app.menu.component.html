@@ -1,0 +1,31 @@
+@if (portalService.loggedIn) {
+  <aside class="app-sidebar" [class.expanded]="sidebarExpanded()">
+    <div class="sidebar-header">
+      <button
+        pButton
+        [icon]="sidebarExpanded() ? 'pi pi-chevron-left' : 'pi pi-bars'"
+        class="p-button-text sidebar-toggle"
+        (click)="toggleSidebar()"
+        [pTooltip]="sidebarExpanded() ? ('COLLAPSE' | translate) : ('EXPAND' | translate)"
+        tooltipPosition="right"
+      ></button>
+    </div>
+
+    <nav class="sidebar-nav">
+      @for (tab of tabs; track tab.routerLink) {
+        <a
+          [routerLink]="tab.routerLink"
+          class="sidebar-item"
+          [class.active]="isActive(tab)"
+          [pTooltip]="!sidebarExpanded() ? tab.label : ''"
+          tooltipPosition="right"
+        >
+          <i [class]="tab.icon" class="sidebar-icon"></i>
+          @if (sidebarExpanded()) {
+            <span class="sidebar-label">{{ tab.label }}</span>
+          }
+        </a>
+      }
+    </nav>
+  </aside>
+}

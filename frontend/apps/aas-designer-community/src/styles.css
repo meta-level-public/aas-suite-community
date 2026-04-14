@@ -1,0 +1,4 @@
+/* You can add global styles to this file, and also import other style files */
+
+@import '../../../libs/aas-designer-assets/src/lib/base-styles.css';
+@import 'prismjs/themes/prism-coy.css';

@@ -1,0 +1,435 @@
+<div class="nameplate-container">
+  <div class="section-card">
+    <h3 class="section-title"><i class="fa-solid fa-cube"></i> Software Product</h3>
+    <div class="flex flex-col gap-2">
+      @if (manufacturerName != '') {
+        <p-inputgroup>
+          <p-inputgroup-addon class="font-bold w-48">
+            <lib-help-label tag="MANUFACTURER" [showLabel]="false"></lib-help-label>
+            {{ 'MANUFACTURER' | translate }}
+          </p-inputgroup-addon>
+          <input pInputText type="text" [value]="manufacturerName" readonly />
+        </p-inputgroup>
+      }
+      @if (manufacturerProductDesignation != '') {
+        <p-inputgroup>
+          <p-inputgroup-addon class="font-bold w-48">
+            <lib-help-label tag="PRODUCT_DESIGNATION" [showLabel]="false"></lib-help-label>
+            {{ 'PRODUCT_DESIGNATION' | translate }}
+          </p-inputgroup-addon>
+          <input pInputText type="text" [value]="manufacturerProductDesignation" readonly />
+        </p-inputgroup>
+      }
+      @if (manufacturerProductDescription != '') {
+        <p-inputgroup>
+          <p-inputgroup-addon class="font-bold w-48">
+            <lib-help-label tag="PRODUCT_DESCRIPTION" [showLabel]="false"></lib-help-label>
+            {{ 'PRODUCT_DESCRIPTION' | translate }}
+          </p-inputgroup-addon>
+          <input pInputText type="text" [value]="manufacturerProductDescription" readonly />
+        </p-inputgroup>
+      }
+      @if (manufacturerProductFamily != '') {
+        <p-inputgroup>
+          <p-inputgroup-addon class="font-bold w-48">
+            <lib-help-label tag="PRODUCT_FAMILY" [showLabel]="false"></lib-help-label>
+            {{ 'PRODUCT_FAMILY' | translate }}
+          </p-inputgroup-addon>
+          <input pInputText type="text" [value]="manufacturerProductFamily" readonly />
+        </p-inputgroup>
+      }
+      @if (manufacturerProductType != '') {
+        <p-inputgroup>
+          <p-inputgroup-addon class="font-bold w-48">Product Type</p-inputgroup-addon>
+          <input pInputText type="text" [value]="manufacturerProductType" readonly />
+        </p-inputgroup>
+      }
+      @if (softwareType != '') {
+        <p-inputgroup>
+          <p-inputgroup-addon class="font-bold w-48">Software Type</p-inputgroup-addon>
+          <input pInputText type="text" [value]="softwareType" readonly />
+        </p-inputgroup>
+      }
+      @if (uriOfTheProduct != '') {
+        <p-inputgroup>
+          <p-inputgroup-addon class="font-bold w-48">
+            <lib-help-label tag="URI_OF_PRODUCT" [showLabel]="false"></lib-help-label>
+            {{ 'URI_OF_PRODUCT' | translate }}
+          </p-inputgroup-addon>
+          <input pInputText type="text" [value]="uriOfTheProduct" readonly />
+          @if (isLink(uriOfTheProduct)) {
+            <p-inputgroup-addon class="w-auto">
+              <a [href]="uriOfTheProduct" target="_blank" rel="noopener noreferrer">
+                <i class="pi pi-external-link"></i>
+              </a>
+            </p-inputgroup-addon>
+          }
+        </p-inputgroup>
+      }
+    </div>
+  </div>
+
+  @if (
+    version != '' ||
+    versionName != '' ||
+    versionInfo != '' ||
+    releaseDate != '' ||
+    buildDate != '' ||
+    releaseInformation != '' ||
+    releaseNotes != '' ||
+    installationURI != '' ||
+    installationFile != '' ||
+    installerType != '' ||
+    installationChecksum != ''
+  ) {
+    <div class="section-grid-2">
+      @if (
+        version != '' ||
+        versionName != '' ||
+        versionInfo != '' ||
+        releaseDate != '' ||
+        buildDate != '' ||
+        releaseInformation != '' ||
+        releaseNotes != ''
+      ) {
+        <div class="section-card">
+          <h3 class="section-title"><i class="fa-solid fa-code-branch"></i> Release</h3>
+          <div class="flex flex-col gap-2">
+            @if (version != '' || versionName != '') {
+              <p-inputgroup>
+                <p-inputgroup-addon class="font-bold min-w-32">
+                  <lib-help-label tag="VERSION" [showLabel]="false"></lib-help-label>
+                  {{ 'VERSION' | translate }}
+                </p-inputgroup-addon>
+                <input pInputText type="text" [value]="version" readonly />
+                <p-inputgroup-addon class="font-bold min-w-40">Version Name</p-inputgroup-addon>
+                <input pInputText type="text" [value]="versionName" readonly />
+              </p-inputgroup>
+            }
+            @if (versionInfo != '') {
+              <p-inputgroup>
+                <p-inputgroup-addon class="font-bold w-48">Version Info</p-inputgroup-addon>
+                <input pInputText type="text" [value]="versionInfo" readonly />
+              </p-inputgroup>
+            }
+            @if (releaseDate != '') {
+              <p-inputgroup>
+                <p-inputgroup-addon class="font-bold w-48">Release Date</p-inputgroup-addon>
+                <input pInputText type="text" [value]="releaseDate" readonly />
+              </p-inputgroup>
+            }
+            @if (buildDate != '') {
+              <p-inputgroup>
+                <p-inputgroup-addon class="font-bold w-48">Build Date</p-inputgroup-addon>
+                <input pInputText type="text" [value]="buildDate" readonly />
+              </p-inputgroup>
+            }
+            @if (releaseInformation != '') {
+              <p-inputgroup>
+                <p-inputgroup-addon class="font-bold w-48">Release Info</p-inputgroup-addon>
+                <input pInputText type="text" [value]="releaseInformation" readonly />
+              </p-inputgroup>
+            }
+            @if (releaseNotes != '') {
+              <p-inputgroup>
+                <p-inputgroup-addon class="font-bold w-48">Release Notes</p-inputgroup-addon>
+                <input pInputText type="text" [value]="releaseNotes" readonly />
+              </p-inputgroup>
+            }
+          </div>
+        </div>
+      }
+
+      @if (installationURI != '' || installationFile != '' || installerType != '' || installationChecksum != '') {
+        <div class="section-card">
+          <h3 class="section-title"><i class="fa-solid fa-download"></i> Installation Package</h3>
+          <div class="flex flex-col gap-2">
+            @if (installationURI != '') {
+              <p-inputgroup>
+                <p-inputgroup-addon class="font-bold w-48">Installation URI</p-inputgroup-addon>
+                <input pInputText type="text" [value]="installationURI" readonly />
+                @if (isLink(installationURI)) {
+                  <p-inputgroup-addon class="w-auto">
+                    <a [href]="installationURI" target="_blank" rel="noopener noreferrer">
+                      <i class="pi pi-external-link"></i>
+                    </a>
+                  </p-inputgroup-addon>
+                }
+              </p-inputgroup>
+            }
+            @if (installationFile != '') {
+              <p-inputgroup>
+                <p-inputgroup-addon class="font-bold w-48">Installation File</p-inputgroup-addon>
+                <input pInputText type="text" [value]="installationFile" readonly />
+              </p-inputgroup>
+            }
+            @if (installerType != '') {
+              <p-inputgroup>
+                <p-inputgroup-addon class="font-bold w-48">Installer Type</p-inputgroup-addon>
+                <input pInputText type="text" [value]="installerType" readonly />
+              </p-inputgroup>
+            }
+            @if (installationChecksum != '') {
+              <p-inputgroup>
+                <p-inputgroup-addon class="font-bold w-48">Checksum</p-inputgroup-addon>
+                <input pInputText type="text" [value]="installationChecksum" readonly />
+              </p-inputgroup>
+            }
+          </div>
+        </div>
+      }
+    </div>
+  }
+
+  @if (
+    serialNumber != '' ||
+    inventoryTag != '' ||
+    instanceName != '' ||
+    installedVersion != '' ||
+    installationDate != '' ||
+    installationPath != '' ||
+    installationSource != '' ||
+    installedOnArchitecture != '' ||
+    installedOnOS != '' ||
+    installedOnHost != '' ||
+    slaInformation != ''
+  ) {
+    <div class="section-card">
+      <h3 class="section-title"><i class="fa-solid fa-desktop"></i> Installed Instance</h3>
+      <div class="flex flex-col gap-2">
+        @if (serialNumber != '') {
+          <p-inputgroup>
+            <p-inputgroup-addon class="font-bold w-48">
+              <lib-help-label tag="SERIAL_NUMBER" [showLabel]="false"></lib-help-label>
+              {{ 'SERIAL_NUMBER' | translate }}
+            </p-inputgroup-addon>
+            <input pInputText type="text" [value]="serialNumber" readonly />
+          </p-inputgroup>
+        }
+        @if (inventoryTag != '') {
+          <p-inputgroup>
+            <p-inputgroup-addon class="font-bold w-48">Inventory Tag</p-inputgroup-addon>
+            <input pInputText type="text" [value]="inventoryTag" readonly />
+          </p-inputgroup>
+        }
+        @if (instanceName != '') {
+          <p-inputgroup>
+            <p-inputgroup-addon class="font-bold w-48">Instance Name</p-inputgroup-addon>
+            <input pInputText type="text" [value]="instanceName" readonly />
+          </p-inputgroup>
+        }
+        @if (installedVersion != '') {
+          <p-inputgroup>
+            <p-inputgroup-addon class="font-bold w-48">Installed Version</p-inputgroup-addon>
+            <input pInputText type="text" [value]="installedVersion" readonly />
+          </p-inputgroup>
+        }
+        @if (installationDate != '') {
+          <p-inputgroup>
+            <p-inputgroup-addon class="font-bold w-48">Installation Date</p-inputgroup-addon>
+            <input pInputText type="text" [value]="installationDate" readonly />
+          </p-inputgroup>
+        }
+        @if (installationPath != '' || installationSource != '') {
+          <p-inputgroup>
+            <p-inputgroup-addon class="font-bold min-w-32">Path</p-inputgroup-addon>
+            <input pInputText type="text" [value]="installationPath" readonly />
+            <p-inputgroup-addon class="font-bold min-w-32">Source</p-inputgroup-addon>
+            <input pInputText type="text" [value]="installationSource" readonly />
+          </p-inputgroup>
+        }
+        @if (installedOnArchitecture != '' || installedOnOS != '' || installedOnHost != '') {
+          <p-inputgroup>
+            <p-inputgroup-addon class="font-bold min-w-32">Architecture</p-inputgroup-addon>
+            <input pInputText type="text" [value]="installedOnArchitecture" readonly />
+            <p-inputgroup-addon class="font-bold min-w-24">OS</p-inputgroup-addon>
+            <input pInputText type="text" [value]="installedOnOS" readonly />
+            <p-inputgroup-addon class="font-bold min-w-32">Host</p-inputgroup-addon>
+            <input pInputText type="text" [value]="installedOnHost" readonly />
+          </p-inputgroup>
+        }
+        @if (slaInformation != '') {
+          <p-inputgroup>
+            <p-inputgroup-addon class="font-bold w-48">SLA Information</p-inputgroup-addon>
+            <input pInputText type="text" [value]="slaInformation" readonly />
+          </p-inputgroup>
+        }
+      </div>
+    </div>
+  }
+
+  @if (installedModules.length > 0 || configurationPaths.length > 0) {
+    <div class="section-grid-2">
+      @if (installedModules.length > 0) {
+        <div class="section-card">
+          <h3 class="section-title"><i class="fa-solid fa-puzzle-piece"></i> Installed Modules</h3>
+          <p-table [value]="installedModules" stripedRows size="small">
+            <ng-template pTemplate="body" let-module>
+              <tr>
+                <td class="font-bold">{{ module }}</td>
+              </tr>
+            </ng-template>
+          </p-table>
+        </div>
+      }
+
+      @if (configurationPaths.length > 0) {
+        <div class="section-card">
+          <h3 class="section-title"><i class="fa-solid fa-folder-tree"></i> Configuration Paths</h3>
+          <p-table [value]="configurationPaths" stripedRows size="small">
+            <ng-template pTemplate="header">
+              <tr>
+                <th>URI</th>
+                <th>Type</th>
+              </tr>
+            </ng-template>
+            <ng-template pTemplate="body" let-path>
+              <tr>
+                <td>
+                  @if (isLink(path.uri)) {
+                    <a [href]="path.uri" target="_blank" rel="noopener noreferrer">{{ path.uri }}</a>
+                  } @else {
+                    {{ path.uri }}
+                  }
+                </td>
+                <td class="font-bold">{{ path.type }}</td>
+              </tr>
+            </ng-template>
+          </p-table>
+        </div>
+      }
+    </div>
+  }
+
+  @if (
+    contactName != '' || contactFirstName != '' || contactCompany != '' || contactEmail != '' || contactTelephone != ''
+  ) {
+    <div class="section-grid-12">
+      <div class="span-7">
+        <div class="section-card">
+          <h3 class="section-title"><i class="fa-solid fa-address-card"></i> Contact</h3>
+          <div class="flex flex-col gap-2">
+            @if (contactRole != '') {
+              <p-inputgroup>
+                <p-inputgroup-addon class="font-bold w-40">Role</p-inputgroup-addon>
+                <input pInputText type="text" [value]="contactRole" readonly />
+              </p-inputgroup>
+            }
+            @if (contactName != '' || contactFirstName != '') {
+              <p-inputgroup>
+                <p-inputgroup-addon class="font-bold w-40">Name</p-inputgroup-addon>
+                <input pInputText type="text" [value]="(contactName + ' ' + contactFirstName).trim()" readonly />
+              </p-inputgroup>
+            }
+            @if (contactDepartment != '') {
+              <p-inputgroup>
+                <p-inputgroup-addon class="font-bold w-40">
+                  <lib-help-label tag="DEPARTMENT" [showLabel]="false"></lib-help-label>
+                  {{ 'DEPARTMENT' | translate }}
+                </p-inputgroup-addon>
+                <input pInputText type="text" [value]="contactDepartment" readonly />
+              </p-inputgroup>
+            }
+            @if (contactCompany != '') {
+              <p-inputgroup>
+                <p-inputgroup-addon class="font-bold w-40">
+                  <lib-help-label tag="COMPANY" [showLabel]="false"></lib-help-label>
+                  {{ 'COMPANY' | translate }}
+                </p-inputgroup-addon>
+                <input pInputText type="text" [value]="contactCompany" readonly />
+              </p-inputgroup>
+            }
+            @if (contactStreet != '') {
+              <p-inputgroup>
+                <p-inputgroup-addon class="font-bold w-40">
+                  <lib-help-label tag="STREET" [showLabel]="false"></lib-help-label>
+                  {{ 'STREET' | translate }}
+                </p-inputgroup-addon>
+                <input pInputText type="text" [value]="contactStreet" readonly />
+              </p-inputgroup>
+            }
+            @if (contactCountryCode != '' || contactZip != '' || contactCity != '') {
+              <p-inputgroup>
+                <p-inputgroup-addon class="font-bold w-40">
+                  <lib-help-label tag="CITY_TOWN" [showLabel]="false"></lib-help-label>
+                  {{ 'CITY_TOWN' | translate }}
+                </p-inputgroup-addon>
+                <input
+                  pInputText
+                  type="text"
+                  [value]="contactCountryCode + ' ' + contactZip + ' ' + contactCity"
+                  readonly
+                />
+              </p-inputgroup>
+            }
+            @if (contactState != '') {
+              <p-inputgroup>
+                <p-inputgroup-addon class="font-bold w-40">State/County</p-inputgroup-addon>
+                <input pInputText type="text" [value]="contactState" readonly />
+              </p-inputgroup>
+            }
+            @if (contactEmail != '') {
+              <p-inputgroup>
+                <p-inputgroup-addon class="font-bold w-40">
+                  <lib-help-label tag="EMAIL" [showLabel]="false"></lib-help-label>
+                  {{ 'EMAIL' | translate }}
+                </p-inputgroup-addon>
+                <input pInputText type="text" [value]="contactEmail" readonly />
+              </p-inputgroup>
+            }
+            @if (contactTelephone != '') {
+              <p-inputgroup>
+                <p-inputgroup-addon class="font-bold w-40">
+                  <lib-help-label tag="PHONE" [showLabel]="false"></lib-help-label>
+                  {{ 'PHONE' | translate }}
+                </p-inputgroup-addon>
+                <input pInputText type="text" [value]="contactTelephone" readonly />
+              </p-inputgroup>
+            }
+            @if (contactFax != '') {
+              <p-inputgroup>
+                <p-inputgroup-addon class="font-bold w-40">
+                  <lib-help-label tag="FAX" [showLabel]="false"></lib-help-label>
+                  {{ 'FAX' | translate }}
+                </p-inputgroup-addon>
+                <input pInputText type="text" [value]="contactFax" readonly />
+              </p-inputgroup>
+            }
+            @if (contactLanguage != '' || contactTimeZone != '') {
+              <p-inputgroup>
+                <p-inputgroup-addon class="font-bold min-w-40">
+                  <lib-help-label tag="LANGUAGE" [showLabel]="false"></lib-help-label>
+                  {{ 'LANGUAGE' | translate }}
+                </p-inputgroup-addon>
+                <input pInputText type="text" [value]="contactLanguage" readonly />
+                <p-inputgroup-addon class="font-bold min-w-32">Time Zone</p-inputgroup-addon>
+                <input pInputText type="text" [value]="contactTimeZone" readonly />
+              </p-inputgroup>
+            }
+            @if (contactLink != '') {
+              <p-inputgroup>
+                <p-inputgroup-addon class="font-bold w-40">Link</p-inputgroup-addon>
+                <input pInputText type="text" [value]="contactLink" readonly />
+              </p-inputgroup>
+            }
+            @if (contactFurtherDetails != '') {
+              <p-inputgroup>
+                <p-inputgroup-addon class="font-bold w-40">Details</p-inputgroup-addon>
+                <input pInputText type="text" [value]="contactFurtherDetails" readonly />
+              </p-inputgroup>
+            }
+          </div>
+        </div>
+      </div>
+      <div class="span-5">
+        <div class="section-card">
+          <h3 class="section-title"><i class="fa-solid fa-map-location-dot"></i> Map</h3>
+          <aas-contact-information-map
+            [contactInformation]="mapContact"
+            [showLayer]="showContactMap"
+          ></aas-contact-information-map>
+        </div>
+      </div>
+    </div>
+  }
+</div>

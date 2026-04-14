@@ -1,0 +1,46 @@
+<p-dialog
+  [visible]="visible()"
+  (visibleChange)="visible.set($event)"
+  (onHide)="onHide()"
+  [closeOnEscape]="true"
+  [closable]="true"
+  header="{{ 'SAVE_AS_JSON' | translate }}"
+  [style]="{ width: '50vw' }"
+>
+  <div class="col-span-12">
+    <label class="flex items-center mt-2 mb-2" for="name">{{ 'DESCRIPTION' | translate }}</label>
+    <textarea
+      pTextarea
+      class="w-full"
+      id="description"
+      name="description"
+      rows="15"
+      [(ngModel)]="jsonText"
+      (ngModelChange)="jsonTextChange.emit($event)"
+    ></textarea>
+  </div>
+
+  <ng-template pTemplate="footer">
+    <div class="flex flex-row gap-2 justify-end">
+      <p-button
+        (onClick)="action.set('copy')"
+        label="{{ 'COPY' | translate }}"
+        icon="pi pi-copy"
+        severity="secondary"
+      ></p-button>
+      <p-button
+        label="{{ 'CANCEL' | translate }}"
+        icon="pi pi-times"
+        severity="secondary"
+        [outlined]="true"
+        (onClick)="action.set('cancel'); visible.set(false)"
+      ></p-button>
+      <p-button
+        label="{{ 'DOWNLOAD' | translate }}"
+        icon="pi pi-download"
+        (onClick)="action.set('download')"
+        severity="success"
+      ></p-button>
+    </div>
+  </ng-template>
+</p-dialog>

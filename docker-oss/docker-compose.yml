@@ -1,0 +1,190 @@
+services:
+  # PostgreSQL Database
+  postgres:
+    image: postgres:16-alpine
+    container_name: aas-suite-postgres
+    environment:
+      POSTGRES_DB: aas_designer
+      POSTGRES_USER: aas_user
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-changeme}
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    networks:
+      - aas-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U aas_user -d aas_designer"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+
+  # Keycloak Database
+  keycloak-postgres:
+    image: postgres:16-alpine
+    container_name: aas-suite-keycloak-postgres
+    environment:
+      POSTGRES_USER: keycloak
+      POSTGRES_PASSWORD: ${KEYCLOAK_DB_PASSWORD:-keycloak}
+      POSTGRES_DB: keycloak
+    volumes:
+      - keycloak-postgres-data:/var/lib/postgresql/data
+    networks:
+      - aas-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U keycloak -d keycloak"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+
+  # Keycloak Service
+  keycloak:
+    image: quay.io/keycloak/keycloak:26.0
+    container_name: aas-suite-keycloak
+    command: start-dev --http-port=8080 --import-realm --spi-theme-cache-themes=false --spi-theme-cache-templates=false
+    environment:
+      KC_DB: postgres
+      KC_DB_URL_HOST: keycloak-postgres
+      KC_DB_URL_DATABASE: keycloak
+      KC_DB_USERNAME: keycloak
+      KC_DB_PASSWORD: ${KEYCLOAK_DB_PASSWORD:-keycloak}
+      KC_BOOTSTRAP_ADMIN_USERNAME: ${KEYCLOAK_ADMIN_USERNAME:-admin}
+      KC_BOOTSTRAP_ADMIN_PASSWORD: ${KEYCLOAK_ADMIN_PASSWORD:-admin}
+    ports:
+      - "8088:8080"
+    volumes:
+      - ../docker-oss/keycloak/aas-local-realm.json:/opt/keycloak/data/import/aas-local-realm.json:ro
+      - ../docker-oss/keycloak/themes:/opt/keycloak/themes:ro
+    networks:
+      - aas-network
+    depends_on:
+      keycloak-postgres:
+        condition: service_healthy
+    restart: unless-stopped
+
+  # Gateway Service
+  gateway:
+    image: ${REGISTRY_HOST:-gitea.meta-level.de}/${IMAGE_NAMESPACE:-aas-suite}/aas-designer-gateway:${IMAGE_TAG:-latest}
+    container_name: aas-suite-gateway
+    build:
+      context: ..
+      dockerfile: services/gateway/Dockerfile
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Production
+      - ASPNETCORE_URLS=http://+:8080
+      - Session__Postgres__ConnectionString=Host=postgres;Port=5432;Database=aas_designer;Username=aas_user;Password=${POSTGRES_PASSWORD:-changeme}
+      - Session__Postgres__SchemaName=public
+      - Session__Postgres__TableName=gateway_session_cache
+      - Session__Postgres__CreateIfNotExists=true
+      - Session__Postgres__ExpiredItemsDeletionInterval=00:30:00
+      - Session__Postgres__DefaultSlidingExpiration=08:00:00
+      - ReverseProxy__Clusters__keycloak-cluster__Destinations__destination1__Address=http://keycloak:8080
+      - ReverseProxy__Clusters__aas-designer-cluster__Destinations__destination1__Address=http://aas-designer-community:8080
+      - ReverseProxy__Clusters__frontend-cluster__Destinations__destination1__Address=http://frontend:80
+    ports:
+      - "8081:8080"
+    networks:
+      - aas-network
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:8080/health || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+      keycloak:
+        condition: service_started
+
+  # Designer Backend Service
+  aas-designer-community:
+    image: ${REGISTRY_HOST:-gitea.meta-level.de}/${IMAGE_NAMESPACE:-aas-suite}/aas-designer-backend-community:${IMAGE_TAG:-latest}
+    container_name: aas-suite-designer-community
+    build:
+      context: ..
+      dockerfile: services/aas-designer/Dockerfile.community
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Production
+      - ASPNETCORE_URLS=http://+:8080
+      - ConnectionStrings__DefaultConnection=Host=postgres;Database=aas_designer;Username=aas_user;Password=${POSTGRES_PASSWORD:-changeme}
+      - AppSettings__JwtSecret=${JWT_SECRET:-your-secret-key-min-32-chars-long-please-change}
+      - AppSettings__FileStoragePath=/app/storage
+      - Gateway__Url=http://gateway:8080
+      - AppSettings__KeycloakEnabled=true
+      - AppSettings__KeycloakSsoSourceName=keycloak
+      - AppSettings__KeycloakIssuer=http://keycloak:8080/realms/aas-local
+      - AppSettings__KeycloakWellKnownUrl=http://keycloak:8080/realms/aas-local/.well-known/openid-configuration
+      - AppSettings__KeycloakPublicIssuer=http://localhost:8081/realms/aas-local
+      - AppSettings__KeycloakPublicWellKnownUrl=http://localhost:8081/realms/aas-local/.well-known/openid-configuration
+      - AppSettings__KeycloakClientId=aas-designer-local
+      - AppSettings__KeycloakAudience=aas-designer-local
+      - AppSettings__KeycloakScopes=openid profile email roles
+      - AppSettings__KeycloakResourceAccessName=aas-designer-local
+      - AppSettings__KeycloakEmailClaimName=email
+      - AppSettings__KeycloakFirstNameClaimName=given_name
+      - AppSettings__KeycloakLastNameClaimName=family_name
+      - AppSettings__KeycloakAdminRealm=master
+      - AppSettings__KeycloakAdminClientId=admin-cli
+      - AppSettings__KeycloakAdminClientSecret=
+      - AppSettings__KeycloakAdminUsername=${KEYCLOAK_ADMIN_USERNAME:-admin}
+      - AppSettings__KeycloakAdminPassword=${KEYCLOAK_ADMIN_PASSWORD:-admin}
+    volumes:
+      - designer-storage:/app/storage
+    ports:
+      - "8080:8080"
+    networks:
+      - aas-network
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:8080/health || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+      gateway:
+        condition: service_healthy
+      keycloak:
+        condition: service_started
+
+  # Frontend Service
+  frontend:
+    image: ${REGISTRY_HOST:-gitea.meta-level.de}/${IMAGE_NAMESPACE:-aas-suite}/aas-designer-frontend-community:${IMAGE_TAG:-latest}
+    container_name: aas-suite-frontend
+    build:
+      context: ..
+      dockerfile: docker-oss/frontend.Dockerfile
+    environment:
+      - API_URL=http://aas-designer-community:8080
+      - GATEWAY_URL=http://gateway:8080
+    ports:
+      - "80:80"
+      - "443:443"
+    networks:
+      - aas-network
+    healthcheck:
+      test: ["CMD-SHELL", "wget --quiet --tries=1 --spider http://localhost:80/ || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+    restart: unless-stopped
+    depends_on:
+      aas-designer-community:
+        condition: service_healthy
+
+networks:
+  aas-network:
+    driver: bridge
+
+volumes:
+  postgres-data:
+    driver: local
+  designer-storage:
+    driver: local
+  keycloak-postgres-data:
+    driver: local

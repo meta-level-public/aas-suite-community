@@ -1,0 +1,19 @@
+<div class="flex flex-col w-full">
+  @if (submodelData.semanticId.keys[0].value === 'http://admin-shell.io/sandbox/technical-data-flat/sm') {
+    <aas-smc-viewer
+      [conceptDescriptions]="conceptDescriptions"
+      [smc]="submodelData.submodelElements"
+      [aasId]="aasId"
+    ></aas-smc-viewer>
+  }
+  @if (submodelData.semanticId.keys[0].value !== 'http://admin-shell.io/sandbox/technical-data-flat/sm') {
+    @for (item of submodelData.submodelElements; track item) {
+      <aas-sme-viewer
+        [conceptDescriptions]="conceptDescriptions"
+        [sme]="item"
+        [aasId]="aasId"
+        [apiUrl]="apiUrl"
+      ></aas-sme-viewer>
+    }
+  }
+</div>

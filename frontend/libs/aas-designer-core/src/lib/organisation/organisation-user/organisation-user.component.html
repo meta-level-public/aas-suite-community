@@ -1,0 +1,59 @@
+<div class="flex flex-col gap-2">
+  <div class="hero-section">
+    <div class="hero-content">
+      <h1 class="hero-title">{{ 'USERS' | translate }}</h1>
+      <div class="hero-actions">
+        @if (mode() === 'list') {
+          @if (!moreUsersAllowed) {
+            <div
+              pTooltip="{{ 'NO_MORE_USERS_ALLOWED' | translate }}"
+              tooltipPosition="left"
+              style="display: inline-block"
+            >
+              <p-button
+                label="{{ 'ADD_USER' | translate }}"
+                icon="pi pi-plus"
+                [disabled]="true"
+                [loading]="loading()"
+              ></p-button>
+            </div>
+          }
+          @if (moreUsersAllowed) {
+            <p-button
+              label="{{ 'ADD_USER' | translate }}"
+              icon="pi pi-plus"
+              [loading]="loading()"
+              (onClick)="startAddUser()"
+            ></p-button>
+          }
+        }
+        @if (mode() === 'create') {
+          <p-button
+            label="{{ 'CANCEL' | translate }}"
+            icon="pi pi-times"
+            [loading]="loading()"
+            (onClick)="cancelAddUser()"
+            outlined="true"
+          ></p-button>
+          <p-button
+            label="{{ 'SAVE' | translate }}"
+            icon="pi pi-save"
+            [loading]="loading()"
+            (onClick)="saveAddUser()"
+            [disabled]="!canSaveAddUser()"
+          ></p-button>
+        }
+      </div>
+    </div>
+  </div>
+
+  @if (mode() === 'create') {
+    <aas-organisation-user-create [invitation]="invitation()" #userCreateComponent></aas-organisation-user-create>
+  } @else {
+    <aas-organisation-user-list
+      [users]="users()"
+      [userSeatStats]="userSeatStats()"
+      (reloadRequested)="loadData()"
+    ></aas-organisation-user-list>
+  }
+</div>

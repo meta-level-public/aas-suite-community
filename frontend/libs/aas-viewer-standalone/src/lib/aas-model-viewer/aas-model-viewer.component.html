@@ -1,0 +1,48 @@
+@let submodel = viewerStore.currentSubmodel() ?? undefined;
+
+@if (submodel != null) {
+  @if (selectedViewMode === 'formatted') {
+    <aas-submodel-specialized-viewer
+      [submodel]="submodel"
+      [currentLanguage]="currentLanguage"
+      [navigateInBom]="navigateInBom"
+      (reloadData)="reloadData()"
+    ></aas-submodel-specialized-viewer>
+  } @else if (selectedViewMode === 'plain') {
+    <p-card class="w-full">
+      <aas-generic-viewer
+        class="w-full"
+        [rowData]="submodel"
+        [formatted]="false"
+        [idShortPath]="''"
+        [submodelId]="submodel.id"
+      ></aas-generic-viewer>
+    </p-card>
+  } @else {
+    <p-card class="w-full">
+      <p-tabs [value]="0">
+        <p-tablist>
+          <p-tab [value]="0">{{ 'RAW_VIEW' | translate }}</p-tab>
+          <p-tab [value]="1">{{ 'OBJECT_VIEW' | translate }}</p-tab>
+        </p-tablist>
+        <p-tabpanels>
+          <p-tabpanel [value]="0">
+            <div class="flex flex-row justify-end">
+              <p-button
+                icon="pi pi-copy"
+                [rounded]="true"
+                [text]="true"
+                [outlined]="true"
+                (onClick)="copyToClipboard()"
+              ></p-button>
+            </div>
+            <pre class="diff" [innerHTML]="submodelString()"></pre>
+          </p-tabpanel>
+          <p-tabpanel [value]="1">
+            <ngx-json-viewer [json]="submodel" [expanded]="false"></ngx-json-viewer>
+          </p-tabpanel>
+        </p-tabpanels>
+      </p-tabs>
+    </p-card>
+  }
+}

@@ -1,0 +1,33 @@
+<div class="flex flex-col gap-2 w-full">
+  <div class="mb-4">
+    <lib-help-label tag="PCN_BROKER_URL"></lib-help-label>
+    <p-select [options]="brokerUrls()" [(ngModel)]="pcnBrokerUrl" class="w-full"></p-select>
+  </div>
+  <div class="mb-4">
+    <lib-help-label tag="PCN_BROKER_TOPIC"></lib-help-label>
+    <input type="text" pInputText id="pcnBrokerTopic" class="w-full" [(ngModel)]="pcnBrokerTopic" />
+  </div>
+  <div class="mb-4">
+    <lib-help-label tag="PCN_BROKER_USER"></lib-help-label>
+    <input type="text" pInputText id="pcnBrokerUser" class="w-full" [(ngModel)]="pcnBrokerUsername" />
+  </div>
+  <div class="mb-4">
+    <lib-help-label tag="PCN_BROKER_PASSWORD"></lib-help-label>
+    <p-password
+      type="text"
+      id="pcnBrokerUser"
+      inputStyleClass="w-full"
+      class="w-full"
+      [(ngModel)]="pcnBrokerPassword"
+      toggleMask="true"
+      showClear="true"
+      [feedback]="false"
+    />
+  </div>
+  <p-button
+    label="{{ 'REGISTER_PCN' | translate }}"
+    icon="pi pi-sign-in"
+    (onClick)="registerPcn()"
+    [outlined]="true"
+  ></p-button>
+</div>

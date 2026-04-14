@@ -1,0 +1,22 @@
+<div class="captcha-wrapper flex flex-col gap-2 w-full">
+  @if (!verified()) {
+    <p>{{ instruction() }}</p>
+    <div class="captcha-wrapper flex flex-row gap-4 w-full justify-center">
+      <div
+        class="draggable-box"
+        [ngStyle]="{ 'background-color': selectedColor().value }"
+        draggable="true"
+        (dragstart)="dragStart($event)"
+      ></div>
+      <div
+        class="drop-circle"
+        [class.hovered]="dropTargetHovered()"
+        (dragover)="allowDrop($event)"
+        (dragleave)="clearHover()"
+        (drop)="onDrop($event)"
+      ></div>
+    </div>
+  } @else {
+    <p>✅ {{ 'VERIFIED' | translate }}</p>
+  }
+</div>

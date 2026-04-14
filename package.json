@@ -1,0 +1,10 @@
+{
+  "name": "vws-portal",
+  "private": true,
+  "scripts": {
+    "format:services": "dotnet csharpier format services --ignore-path .csharpierignore",
+    "format:services:check": "dotnet csharpier check services --ignore-path .csharpierignore --compilation-errors-as-warnings",
+    "prepare": "./frontend/node_modules/.bin/husky .husky"
+  },
+  "packageManager": "pnpm@10.30.1"
+}

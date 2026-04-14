@@ -1,0 +1,16 @@
+@if (item != null) {
+  <p-inputGroup class="w-full">
+    <input class="w-full" type="text" pInputText [(ngModel)]="item.text" nullIfEmpty />
+    <p-inputGroupAddon class="whitespace-nowrap"> &#64; {{ item.language }}</p-inputGroupAddon>
+  </p-inputGroup>
+}
+@if (item == null) {
+  <div class="flex flex-row gap-2">
+    <p-message severity="info" text="{{ 'NO_MLP_VALUE_IN_CURRENT_LANGUAGE' | translate }}"></p-message>
+    <p-button
+      styleClass="p-button-text p-button-outlined p-button-rounded"
+      icon="pi pi-plus"
+      (onClick)="addCurrentLang()"
+    ></p-button>
+  </div>
+}

@@ -1,0 +1,103 @@
+<div class="bom-entity-dialog">
+  <p-toolbar styleClass="dialog-toolbar">
+    <div class="p-toolbar-group-start">
+      <p-button
+        icon="pi pi-info-circle"
+        class="mr-2"
+        label="{{ 'DETAILS' | translate }}"
+        [styleClass]="mode() === 'details' ? 'mode-button' : 'mode-button p-button-outlined p-button-secondary'"
+        (onClick)="mode.set('details')"
+      />
+      @if (editable) {
+        <p-button
+          icon="pi pi-plus"
+          class="mr-2"
+          label="{{ 'ADD_CHILD_NODE' | translate }}"
+          [styleClass]="mode() === 'add-child' ? 'mode-button' : 'mode-button p-button-outlined p-button-secondary'"
+          (onClick)="mode.set('add-child')"
+          [disabled]="!canAddChild()"
+          pTooltip="{{ !canAddChild() ? addChildDisabledHint() : '' }}"
+          tooltipPosition="top"
+        />
+      }
+      @if (editable) {
+        <p-button
+          icon="pi pi-trash"
+          class="mr-2"
+          label="{{ 'REMOVE_ELEMENT' | translate }}"
+          styleClass="p-button-outlined p-button-danger"
+          (onClick)="deleteElement()"
+          [disabled]="!canDeleteCurrentEntity()"
+          pTooltip="{{ !canDeleteCurrentEntity() ? ('BOM_REMOVE_HINT_ENTRYNODE_ONLY_REINIT' | translate) : '' }}"
+          tooltipPosition="top"
+        />
+      }
+    </div>
+    <div class="p-toolbar-group-center">
+      @if (editable && isRootNode && !isEntryAssetValid() && assetInformation.globalAssetId) {
+        <p-button
+          icon="pi pi-copy"
+          class="mr-2"
+          label="{{ 'ADOPT_CURRENT_AAS_GLOBAL_ASSET_ID' | translate }}"
+          styleClass="p-button-outlined"
+          (onClick)="adoptCurrentAasGlobalAssetId()"
+        />
+      }
+      @if (isAssetIdSet) {
+        <p-button
+          icon="pi pi-external-link"
+          class="mr-2"
+          label="{{ 'SEARCH_SHELL' | translate }}"
+          [styleClass]="mode() === 'aas-search' ? 'mode-button' : 'mode-button p-button-outlined p-button-secondary'"
+          (onClick)="mode.set('aas-search')"
+        />
+      }
+    </div>
+    <div class="p-toolbar-group-end">
+      <p-button
+        icon="pi pi-times"
+        label="{{ 'CLOSE' | translate }}"
+        styleClass="p-button-outlined p-button-secondary"
+        (onClick)="close()"
+      />
+    </div>
+  </p-toolbar>
+  <div class="dialog-content">
+    @switch (mode()) {
+      @case ('details') {
+        <aas-entity-details
+          [entity]="entity"
+          [relationship]="relationship"
+          (detailsChanged)="detailsChanged()"
+          [editable]="editable"
+          [apiUrl]="apiUrl"
+          [referenceType]="referenceType()"
+          [selectAsset]="false"
+          [requireAssetReference]="!isRootNode"
+          [isEntryAssetValid]="isEntryAssetValid()"
+          [isEntryAssetTypeValid]="isEntryAssetTypeValid()"
+          [expectedEntryGlobalAssetId]="assetInformation.globalAssetId"
+          [siblingIdShorts]="siblingIdShorts()"
+        ></aas-entity-details>
+      }
+      @case ('add-child') {
+        <aas-create-child-entity
+          [submodel]="submodel"
+          [parentEntity]="entity"
+          [parentRelationship]="relationship"
+          [apiUrl]="apiUrl"
+          (childCreated)="childCreated()"
+          [referenceType]="referenceType()"
+          [showSave]="true"
+        ></aas-create-child-entity>
+      }
+      @case ('aas-search') {
+        <aas-aas-result-list
+          [globalAssetId]="entity.globalAssetId"
+          [specificAssetIds]="entity.specificAssetIds"
+          [apiUrl]="apiUrl"
+        ></aas-aas-result-list>
+      }
+    }
+  </div>
+</div>

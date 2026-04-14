@@ -1,0 +1,34 @@
+<div class="mb-4">
+  <label for="typ" class="flex items-center mt-2 mb-2">{{ 'TYPE' | translate }}</label>
+  <div class="flex flex-row">
+    <p-select
+      [options]="addressList"
+      [(ngModel)]="selectedAddress"
+      class="w-full"
+      class="w-full"
+      placeholder="{{ 'SELECT_ADDRESS' | translate }}"
+    >
+      <ng-template pTemplate="selectedItem">
+        @if (selectedAddress) {
+          <div class="flex flex-row">
+            <div class="font-bold">{{ selectedAddress.name }}</div>
+            : {{ selectedAddress.strasse }},{{ selectedAddress.plz }}
+            {{ selectedAddress.ort }}
+          </div>
+        }
+      </ng-template>
+      <ng-template let-address pTemplate="item">
+        <div class="flex flex-row">
+          <div class="font-bold">{{ address.name }}</div>
+          : {{ address.strasse }},{{ address.plz }} {{ address.ort }}
+        </div>
+      </ng-template>
+    </p-select>
+    <p-button
+      label="{{ 'APPLY' | translate }}"
+      styleClass="ml-5 p-button-outlined w-20rem"
+      (onClick)="applyAddress()"
+    ></p-button>
+  </div>
+  <p-divider>{{ 'OR' | translate }}</p-divider>
+</div>

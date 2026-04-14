@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<lxdb8:LXDBWizardProject xmlns:xs="http://www.w3.org/2001/XMLSchema-instance" xmlns:lxdb8="http://www.liquid-technologies.com/LTWizProjectLib8" ProjectVersion="20.4.2.12285" UseRelativePaths="true">
+	<lxdb8:Schema FullPathName=".\aas.xsd" SelectedSchemaType="XSD" XDRAllowAdditionalAttributes="false" XDRIgnoreSimpleElements="false" WSDLGenerateClientInterface="false" WSDLAutoFilterElements="false" SelectedLanguage="CS">
+		<lxdb8:CPP CollectionMapping="Original" OutputPath=".\aas.xsd.Output\SourceCodeCPP" DocumentationOutputPath=".\aas.xsd.Output\DocumentationCPP" SampleAppOutputPath=".\aas.xsd.Output\SampleAppCPP" MappingFilePath=".\aas.xsd_NameMapping.cpp.xml" DefaultClassNamespace="aasLib"/>
+		<lxdb8:CSharp CollectionMapping="Original" OutputPath=".\aas.xsd.Output\SourceCodeCS" DocumentationOutputPath=".\aas.xsd.Output\DocumentationCS" SampleAppOutputPath=".\aas.xsd.Output\SampleAppCS" MappingFilePath=".\aas.xsd_NameMapping.cs.xml" DefaultClassNamespace="AasSchema" BaseNamespace="">
+			<lxdb8:PermProperty>
+				<lxdb8:Name>SolutionGUID</lxdb8:Name>
+				<lxdb8:Value>{F326E0BD-2FD7-4281-AC4C-4652DB9520E2}</lxdb8:Value>
+			</lxdb8:PermProperty>
+			<lxdb8:PermProperty>
+				<lxdb8:Name>ProjectGUID</lxdb8:Name>
+				<lxdb8:Value>{54C2EE71-3A93-4FC3-A741-11C050ADFFFC}</lxdb8:Value>
+			</lxdb8:PermProperty>
+			<lxdb8:PermProperty>
+				<lxdb8:Name>COMGUID</lxdb8:Name>
+				<lxdb8:Value>{2AFB7DBA-DD3A-4B7A-ACCD-2E334A2223DB}</lxdb8:Value>
+			</lxdb8:PermProperty>
+			<lxdb8:DotNetPlatformOptions>
+				<lxdb8:DotNetDevEnv>VS2022</lxdb8:DotNetDevEnv>
+				<lxdb8:DotNetPlatform>Net60</lxdb8:DotNetPlatform>
+			</lxdb8:DotNetPlatformOptions>
+		</lxdb8:CSharp>
+		<lxdb8:Java CollectionMapping="Original" OutputPath=".\aas.xsd.Output\SourceCodeJava" DocumentationOutputPath=".\aas.xsd.Output\DocumentationJava" SampleAppOutputPath=".\aas.xsd.Output\SampleAppJava" MappingFilePath=".\aas.xsd_NameMapping.java.xml" DefaultPackageName="aasLib" BasePackage="">
+			<lxdb8:JavaPlatformOptions>
+				<lxdb8:JDK>JDK8</lxdb8:JDK>
+			</lxdb8:JavaPlatformOptions>
+		</lxdb8:Java>
+		<lxdb8:VBNet CollectionMapping="Original" OutputPath=".\aas.xsd.Output\SourceCodeVBNet" DocumentationOutputPath=".\aas.xsd.Output\DocumentationVBNet" SampleAppOutputPath=".\aas.xsd.Output\SampleAppVBNet" MappingFilePath=".\aas.xsd_NameMapping.vbnet.xml" DefaultClassNamespace="aasLib" BaseNamespace="">
+			<lxdb8:DotNetPlatformOptions>
+				<lxdb8:DotNetDevEnv>VS2022</lxdb8:DotNetDevEnv>
+				<lxdb8:DotNetPlatform>DotNet472</lxdb8:DotNetPlatform>
+			</lxdb8:DotNetPlatformOptions>
+		</lxdb8:VBNet>
+		<lxdb8:VB6 CollectionMapping="Original" OutputPath=".\aas.xsd.Output\SourceCodeVB" DocumentationOutputPath=".\aas.xsd.Output\DocumentationVB" SampleAppOutputPath=".\aas.xsd.Output\SampleAppVB" MappingFilePath=".\aas.xsd_NameMapping.vb6.xml" ComponentName="aasLib" Description="" MajorVersion="1" MinorVersion="0" Revision="0" ProductName=""/>
+	</lxdb8:Schema>
+	<lxdb8:Output CreateDocumentation="true" CreateSampleApplication="false" OutputDateInHeaderBlock="false" OutputSchemaPathInHeaderBlock="true" OutputVersionInHeaderBlock="true" OutputProjectFiles="true" OutputFastInfosetTables="false" OutputPropertyEvents="false" OutputElmRefAsInterface="true" OutputPrimitiveClassesAsTextProperty="false" OutputXmlSchemaProviderAttribute="false" OutputNullableSimpleTypes="true" IgnoreOptionalElementDefaults="false">
+		<lxdb8:SelectedWsdlPort Port="" Service=""/>
+		<lxdb8:ProjectReferenceInclude/>
+		<lxdb8:ProjectCompileInclude/>
+		<lxdb8:ProjectNoneInclude/>
+		<lxdb8:ProjectStrongNameKeyFile/>
+	</lxdb8:Output>
+	<lxdb8:PostBuild BuildHelp="false" OpenHelp="false" OpenProject="false"/>
+</lxdb8:LXDBWizardProject>

@@ -1,0 +1,446 @@
+[
+  {
+    "title": "Documentation describing documents",
+    "descriptionEn": "Documentation describing documents",
+    "descriptionDe": "Dokumentationsbeschreibende Dokumente",
+    "value": "A"
+  },
+  {
+    "title": "Administrative documents",
+    "descriptionEn": "Administrative documents",
+    "descriptionDe": "Verwaltungstechnische Dokumente",
+    "value": "AA"
+  },
+  {
+    "title": "Lists (regarding documents)",
+    "descriptionEn": "Lists (regarding documents)",
+    "descriptionDe": "Listen (Dokumente betreffend)",
+    "value": "AB"
+  },
+  {
+    "title": "Explanatory documents (regarding documents)",
+    "descriptionEn": "Explanatory documents (regarding documents)",
+    "descriptionDe": "Erläuternde Dokumente (Dokument betreffend)",
+    "value": "AC"
+  },
+  {
+    "title": "Management documents",
+    "descriptionEn": "Management documents",
+    "descriptionDe": "Managementdokumente",
+    "value": "B"
+  },
+  {
+    "title": "Reports",
+    "descriptionEn": "Reports",
+    "descriptionDe": "Berichte",
+    "value": "BB"
+  },
+  {
+    "title": "Correspondence",
+    "descriptionEn": "Correspondence",
+    "descriptionDe": "Schriftwechsel",
+    "value": "BC"
+  },
+  {
+    "title": "Project control documents",
+    "descriptionEn": "Project control documents",
+    "descriptionDe": "Projektleitungsdokumente",
+    "value": "BD"
+  },
+  {
+    "title": "Resource planning documents",
+    "descriptionEn": "Resource planning documents",
+    "descriptionDe": "Ressourcenplanungsdokumente",
+    "value": "BE"
+  },
+  {
+    "title": "Dispatch, storage and transport documents",
+    "descriptionEn": "Dispatch, storage and transport documents",
+    "descriptionDe": "Versand-, Lager- und Transportdokumente",
+    "value": "BF"
+  },
+  {
+    "title": "Site planning and site organization documents",
+    "descriptionEn": "Site planning and site organization documents",
+    "descriptionDe": "Standortplanungs- und Standortorganisationsdokumente",
+    "value": "BG"
+  },
+  {
+    "title": "Documents regarding changes",
+    "descriptionEn": "Documents regarding changes",
+    "descriptionDe": "Dokumente zum Änderungswesen",
+    "value": "BH"
+  },
+  {
+    "title": "Security documents",
+    "descriptionEn": "Security documents",
+    "descriptionDe": "Objektschutzdokumente",
+    "value": "BS"
+  },
+  {
+    "title": "Training specific documents",
+    "descriptionEn": "Training specific documents",
+    "descriptionDe": "Schulungsdokumente",
+    "value": "BT"
+  },
+  {
+    "title": "Contractual and non-technical documents",
+    "descriptionEn": "Contractual and non-technical documents",
+    "descriptionDe": "Vertragliche und nicht-technische Dokumente",
+    "value": "C"
+  },
+  {
+    "title": "Inquiry, calculation and offer documents",
+    "descriptionEn": "Inquiry, calculation and offer documents",
+    "descriptionDe": "Anfrage-, Kalkulations- und Angebotsdokumente",
+    "value": "CA"
+  },
+  {
+    "title": "Approval documents",
+    "descriptionEn": "Approval documents",
+    "descriptionDe": "Genehmigungsdokumente",
+    "value": "CB"
+  },
+  {
+    "title": "Contractual documents",
+    "descriptionEn": "Contractual documents",
+    "descriptionDe": "Vertragliche Dokumente",
+    "value": "CC"
+  },
+  {
+    "title": "Order and delivery documents",
+    "descriptionEn": "Order and delivery documents",
+    "descriptionDe": "Bestell- und Lieferdokumente",
+    "value": "CD"
+  },
+  {
+    "title": "Invoice documents",
+    "descriptionEn": "Invoice documents",
+    "descriptionDe": "Rechnungsdokumente",
+    "value": "CE"
+  },
+  {
+    "title": "Insurance documents",
+    "descriptionEn": "Insurance documents",
+    "descriptionDe": "Versicherungsdokumente",
+    "value": "CF"
+  },
+  {
+    "title": "Warranty documents",
+    "descriptionEn": "Warranty documents",
+    "descriptionDe": "Gewährleistungsdokumente",
+    "value": "CG"
+  },
+  {
+    "title": "Expertises",
+    "descriptionEn": "Expertises",
+    "descriptionDe": "Gutachten",
+    "value": "CH"
+  },
+  {
+    "title": "General technical information documents",
+    "descriptionEn": "General technical information documents",
+    "descriptionDe": "Dokumente mit allgemeiner technischer Information",
+    "value": "D"
+  },
+  {
+    "title": "Data sheets",
+    "descriptionEn": "Data sheets",
+    "descriptionDe": "Datenblätter",
+    "value": "DA"
+  },
+  {
+    "title": "Explanatory documents",
+    "descriptionEn": "Explanatory documents",
+    "descriptionDe": "Erläuternde Dokumente",
+    "value": "DB"
+  },
+  {
+    "title": "Instructions and manuals",
+    "descriptionEn": "Instructions and manuals",
+    "descriptionDe": "Anleitungen und Handbücher",
+    "value": "DC"
+  },
+  {
+    "title": "Technical reports",
+    "descriptionEn": "Technical reports",
+    "descriptionDe": "Technische Berichte",
+    "value": "DD"
+  },
+  {
+    "title": "Catalogues Advertising documents",
+    "descriptionEn": "Catalogues Advertising documents",
+    "descriptionDe": "Kataloge, Werbeschriften",
+    "value": "DE"
+  },
+  {
+    "title": "Technical publications",
+    "descriptionEn": "Technical publications",
+    "descriptionDe": "Technische Veröffentlichungen",
+    "value": "DF"
+  },
+  {
+    "title": "Technical requirement and dimensioning documents",
+    "descriptionEn": "Technical requirement and dimensioning documents",
+    "descriptionDe": "Dokumente für technische Anforderungen und Auslegung",
+    "value": "E"
+  },
+  {
+    "title": "Legal requirement documents",
+    "descriptionEn": "Legal requirement documents",
+    "descriptionDe": "Dokumente über gesetzliche Anforderungen",
+    "value": "EA"
+  },
+  {
+    "title": "Standards and regulations",
+    "descriptionEn": "Standards and regulations",
+    "descriptionDe": "Normen und Richtlinien",
+    "value": "EB"
+  },
+  {
+    "title": "Technical specification / requirement documents",
+    "descriptionEn": "Technical specification / requirement documents",
+    "descriptionDe": "Technische Spezifikations- / Anforderungsdokumente",
+    "value": "EC"
+  },
+  {
+    "title": "Dimensioning documents",
+    "descriptionEn": "Dimensioning documents",
+    "descriptionDe": "Dimensionierungsdokumente",
+    "value": "ED"
+  },
+  {
+    "title": "Function describing documents",
+    "descriptionEn": "Function describing documents",
+    "descriptionDe": "Funktionsbeschreibende Dokumente",
+    "value": "F"
+  },
+  {
+    "title": "Functional overview documents",
+    "descriptionEn": "Functional overview documents",
+    "descriptionDe": "Funktionsübersichtsdokumente",
+    "value": "FA"
+  },
+  {
+    "title": "Flow diagrams",
+    "descriptionEn": "Flow diagrams",
+    "descriptionDe": "Fließschemata",
+    "value": "FB"
+  },
+  {
+    "title": "MMI layout documents",
+    "descriptionEn": "MMI layout documents",
+    "descriptionDe": "Dokumente der MMS-Gestaltung (Mensch-Maschine-Schnittstelle)",
+    "value": "FC"
+  },
+  {
+    "title": "Function descriptions",
+    "descriptionEn": "Function descriptions",
+    "descriptionDe": "Funktionsbeschreibungen",
+    "value": "FE"
+  },
+  {
+    "title": "Function diagrams",
+    "descriptionEn": "Function diagrams",
+    "descriptionDe": "Funktionsschaltpläne",
+    "value": "FF"
+  },
+  {
+    "title": "Signal descriptions",
+    "descriptionEn": "Signal descriptions",
+    "descriptionDe": "Signalbeschreibungen",
+    "value": "FP"
+  },
+  {
+    "title": "Setting value documents",
+    "descriptionEn": "Setting value documents",
+    "descriptionDe": "Einstellwertdokumente",
+    "value": "FQ"
+  },
+  {
+    "title": "Circuitry documents",
+    "descriptionEn": "Circuitry documents",
+    "descriptionDe": "Schaltkreisdokumente",
+    "value": "FS"
+  },
+  {
+    "title": "Software specific documents",
+    "descriptionEn": "Software specific documents",
+    "descriptionDe": "Softwarespezifische Dokumente",
+    "value": "FT"
+  },
+  {
+    "title": "Location documents",
+    "descriptionEn": "Location documents",
+    "descriptionDe": "Ortsbeschreibende Dokumente",
+    "value": "L"
+  },
+  {
+    "title": "Exploitation and survey documents",
+    "descriptionEn": "Exploitation and survey documents",
+    "descriptionDe": "Erschließungs- und Vermessungsdokumente",
+    "value": "LA"
+  },
+  {
+    "title": "Earthwork and foundation work documents",
+    "descriptionEn": "Earthwork and foundation work documents",
+    "descriptionDe": "Erdbau- und Fundamentbaudokumente",
+    "value": "LB"
+  },
+  {
+    "title": "Building carcass documents",
+    "descriptionEn": "Building carcass documents",
+    "descriptionDe": "Rohbaudokumente",
+    "value": "LC"
+  },
+  {
+    "title": "On-site location documents",
+    "descriptionEn": "On-site location documents",
+    "descriptionDe": "Dokumente, die Orte an Standorten beschreiben",
+    "value": "LD"
+  },
+  {
+    "title": "In-building location documents",
+    "descriptionEn": "In-building location documents",
+    "descriptionDe": "Orte in Gebäuden (Schiffen, Flugzeugen, etc.) beschreibende Dokumente",
+    "value": "LH"
+  },
+  {
+    "title": "In/on-equipment location documents",
+    "descriptionEn": "In/on-equipment location documents",
+    "descriptionDe": "Orte in/auf Einrichtungen beschreibende Dokumente",
+    "value": "LU"
+  },
+  {
+    "title": "Connection describing documents",
+    "descriptionEn": "Connection describing documents",
+    "descriptionDe": "Verbindungsbeschreibende Dokumente",
+    "value": "M"
+  },
+  {
+    "title": "Connection documents",
+    "descriptionEn": "Connection documents",
+    "descriptionDe": "Verbindungsbezogene Dokumente",
+    "value": "MA"
+  },
+  {
+    "title": "Cabling or piping documents",
+    "descriptionEn": "Cabling or piping documents",
+    "descriptionDe": "Verkabelungs- und Rohrleitungsdokumente",
+    "value": "MB"
+  },
+  {
+    "title": "Object listings",
+    "descriptionEn": "Object listings",
+    "descriptionDe": "Objektlisten",
+    "value": "P"
+  },
+  {
+    "title": "Material lists",
+    "descriptionEn": "Material lists",
+    "descriptionDe": "Materiallisten",
+    "value": "PA"
+  },
+  {
+    "title": "Parts lists",
+    "descriptionEn": "Parts lists",
+    "descriptionDe": "Teilelisten",
+    "value": "PB"
+  },
+  {
+    "title": "Item lists",
+    "descriptionEn": "Item lists",
+    "descriptionDe": "Stücklisten",
+    "value": "PC"
+  },
+  {
+    "title": "Product lists and product type lists",
+    "descriptionEn": "Product lists and product type lists",
+    "descriptionDe": "Produktlisten und Produkttypenlisten",
+    "value": "PD"
+  },
+  {
+    "title": "Function lists",
+    "descriptionEn": "Function lists",
+    "descriptionDe": "Funktionslisten",
+    "value": "PF"
+  },
+  {
+    "title": "Location lists",
+    "descriptionEn": "Location lists",
+    "descriptionDe": "Ortslisten",
+    "value": "PL"
+  },
+  {
+    "title": "Quality management documents; safety-describing documents",
+    "descriptionEn": "Quality management documents; safety-describing documents",
+    "descriptionDe": "Qualitätsmanagementdokumente und sicherheitsbeschreibende Dokumente",
+    "value": "Q"
+  },
+  {
+    "title": "Quality management documents",
+    "descriptionEn": "Quality management documents",
+    "descriptionDe": "Qualitätsmanagementdokumente",
+    "value": "QA"
+  },
+  {
+    "title": "Safety-describing documents",
+    "descriptionEn": "Safety-describing documents",
+    "descriptionDe": "Sicherheitsbeschreibende Dokumente",
+    "value": "QB"
+  },
+  {
+    "title": "Quality verifying documents",
+    "descriptionEn": "Quality verifying documents",
+    "descriptionDe": "Qualitätsnachweisdokumente",
+    "value": "QC"
+  },
+  {
+    "title": "Geometry-related documents",
+    "descriptionEn": "Geometry-related documents",
+    "descriptionDe": "Dokumente zur Beschreibung geometrischer Formen",
+    "value": "T"
+  },
+  {
+    "title": "Planning drawings",
+    "descriptionEn": "Planning drawings",
+    "descriptionDe": "Entwurfszeichnung",
+    "value": "TA"
+  },
+  {
+    "title": "Construction drawings",
+    "descriptionEn": "Construction drawings",
+    "descriptionDe": "Konstruktionszeichnungen",
+    "value": "TB"
+  },
+  {
+    "title": "Manufacturing and erection drawings",
+    "descriptionEn": "Manufacturing and erection drawings",
+    "descriptionDe": "Fertigungs- und Errichtungszeichnungen",
+    "value": "TC"
+  },
+  {
+    "title": "Arrangement documents",
+    "descriptionEn": "Arrangement documents",
+    "descriptionDe": "Anordnungszeichnung",
+    "value": "TL"
+  },
+  {
+    "title": "Operation records",
+    "descriptionEn": "Operation records",
+    "descriptionDe": "Betriebliche Protokolle und Aufzeichnungen",
+    "value": "W"
+  },
+  {
+    "title": "Set point documents",
+    "descriptionEn": "Set point documents",
+    "descriptionDe": "Einstellwertdokumente",
+    "value": "WA"
+  },
+  {
+    "title": "Logbooks",
+    "descriptionEn": "Logbooks",
+    "descriptionDe": "Logbücher",
+    "value": "WT"
+  }
+]

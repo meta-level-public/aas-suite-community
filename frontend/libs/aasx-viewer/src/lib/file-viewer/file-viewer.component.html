@@ -1,0 +1,26 @@
+@if (FilenameHelper.isPreviewable(value)) {
+  @if (fileUrl && FilenameHelper.isImage(value)) {
+    <img class="h-10rem" [src]="fileUrl" style="object-fit: scale-down" alt="imagePreview" />
+  }
+  @if (fileUrl && FilenameHelper.isPdf(value)) {
+    <object class="h-20rem" [data]="fileUrl" style="object-fit: scale-down"></object>
+  }
+  @if (fileUrl && FilenameHelper.isVideo(value)) {
+    <video class="h-20rem" [src]="fileUrl" controls muted autoplay></video>
+  }
+  @if (this.treeFile?.length !== 0) {
+    <div class="w-full">
+      <p-tree [value]="treeFile"></p-tree>
+    </div>
+  }
+}
+@if (!FilenameHelper.isPreviewable(value) && value) {
+  {{ 'NO_PREVIEW_AVAILABLE_FOR_THIS_TYPE' | translate }} ({{ value }})
+}
+@if (!value) {
+  {{ 'NO_FILE_GIVEN' | translate }}
+}
+
+@if (loading) {
+  <p-skeleton shape="square" height="10rem" width="20rem"></p-skeleton>
+}

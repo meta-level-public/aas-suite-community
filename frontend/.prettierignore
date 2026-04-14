@@ -1,0 +1,8 @@
+**/node_modules/**/*
+**/themes/**/*
+**/docker/**
+**/Mail/Templates/**/*
+.angular
+
+/.nx/cache
+/.nx/workspace-data

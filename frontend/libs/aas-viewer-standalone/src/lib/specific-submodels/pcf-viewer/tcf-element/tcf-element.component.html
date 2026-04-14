@@ -1,0 +1,27 @@
+<div class="flex flex-col gap-2">
+  <p-table [value]="[' ']" size="small" stripedRows>
+    <ng-template pTemplate="body">
+      <tr>
+        <td style="width: 50%">{{ 'TCF_CALCULATION_METHOD' | translate }}</td>
+        <td class="font-bold">{{ calculationMethod }}</td>
+      </tr>
+      <tr>
+        <td style="width: 50%">{{ 'TCFCO2_EQ' | translate }}</td>
+        <td class="font-bold">{{ tcfCo2Eq }} kg</td>
+      </tr>
+      <tr>
+        <td style="width: 50%">{{ 'TCF_REFERENCE_VALUE_FOR_CALCULATION' | translate }}</td>
+        <td class="font-bold">{{ tcfReferenceValueForCalculation }}</td>
+      </tr>
+      <tr>
+        <td style="width: 50%">{{ 'TCF_QUANTITY_OF_MEASURE_FOR_CALCULATION' | translate }}</td>
+        <td class="font-bold">{{ tcfQuantityOfMeasureForCalculation }}</td>
+      </tr>
+      <tr>
+        <td style="width: 50%">{{ 'TCF_PROCESSES_FOR_GREENHOUSE_GAS_EMISSION_IN_A_TRANSPORT_SERVICE' | translate }}</td>
+        <td class="font-bold">{{ tcfProcessesForGreenhouseGasEmissionInATransportService }}</td>
+      </tr>
+    </ng-template>
+  </p-table>
+  <aas-tcf-address [handoverAddress]="tcfHandoverAddress" [takeoverAddress]="tcfTakeoverAddress"></aas-tcf-address>
+</div>

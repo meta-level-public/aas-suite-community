@@ -1,0 +1,182 @@
+@if (relationship != null && relationship.content != null) {
+  <div class="flex flex-col gap-4 p-2">
+    <p-fieldset
+      [toggleable]="true"
+      [collapsed]="uiStateStore.detailsPanelCollapsed()"
+      (collapsedChange)="uiStateStore.setDetailsPanelCollapsed($event)"
+      class="compact-fieldset"
+    >
+      <ng-template #header>
+        <div class="flex items-center gap-1.5">
+          <div
+            class="flex items-center justify-center w-6 h-6 rounded-full"
+            style="background: var(--aas-info-surface)"
+          >
+            <i class="pi pi-info-circle text-xs" style="color: var(--aas-info-text)"></i>
+          </div>
+          <lib-help-label tag="DETAILS" isLabelBold="true"></lib-help-label>
+        </div>
+      </ng-template>
+      <div class="flex flex-col gap-3 p-3">
+        <aas-v3-id-short [element]="relationship" class="w-full" [shellResult]="shellResult"></aas-v3-id-short>
+        <div class="flex flex-row w-full gap-2">
+          <lib-help-label class="w-48" tag="DESCRIPTION"></lib-help-label>
+          <aas-v3-lang-string-list
+            [langStrings]="relationship.content.description"
+            [langStringParent]="relationship.content"
+            [langStringParentPropertyName]="'description'"
+            class="w-full"
+          ></aas-v3-lang-string-list>
+        </div>
+        <div class="flex flex-row w-full gap-2">
+          <lib-help-label class="w-48" tag="DISPLAY_NAME"></lib-help-label>
+          <aas-v3-lang-string-list
+            [langStrings]="relationship.content.displayName"
+            [langStringParent]="relationship.content"
+            [langStringParentPropertyName]="'displayName'"
+            class="w-full"
+          ></aas-v3-lang-string-list>
+        </div>
+      </div>
+    </p-fieldset>
+
+    <p-fieldset
+      [toggleable]="true"
+      [collapsed]="uiStateStore.contentPanelCollapsed()"
+      (collapsedChange)="uiStateStore.setContentPanelCollapsed($event)"
+      class="compact-fieldset"
+    >
+      <ng-template #header>
+        <div class="flex items-center gap-1.5">
+          <div
+            class="flex items-center justify-center w-6 h-6 rounded-full"
+            style="background: var(--aas-info-surface)"
+          >
+            <i class="pi pi-sitemap text-xs" style="color: var(--aas-info-text)"></i>
+          </div>
+          <lib-help-label tag="CONTENT" isLabelBold="true"></lib-help-label>
+        </div>
+      </ng-template>
+      <div class="flex flex-col gap-3 p-3">
+        <p-message severity="info" text="{{ 'CAPABILITY_RELATION_INTERNAL_HINT' | translate }}"></p-message>
+        <div class="flex flex-row w-full gap-2">
+          <lib-help-label class="w-48 mt-2" tag="FIRST_REFERENCE_ELEMENT"></lib-help-label>
+          <aas-v3-reference
+            [reference]="relationship.content.first"
+            [referenceParent]="relationship.content"
+            [referenceParentField]="'first'"
+            [shellResult]="shellResult"
+            [defaultReferenceType]="refType.ModelReference"
+            class="w-full"
+          ></aas-v3-reference>
+        </div>
+
+        <p-message severity="info" text="{{ 'CAPABILITY_RELATION_EXTERNAL_HINT' | translate }}"></p-message>
+        <div class="flex flex-row w-full gap-2">
+          <lib-help-label class="w-48 mt-2" tag="SECOND_REFERENCE_ELEMENT"></lib-help-label>
+          <aas-v3-reference
+            [reference]="relationship.content.second"
+            [referenceParent]="relationship.content"
+            [referenceParentField]="'second'"
+            [shellResult]="shellResult"
+            [defaultReferenceType]="refType.ExternalReference"
+            class="w-full"
+          ></aas-v3-reference>
+        </div>
+      </div>
+    </p-fieldset>
+    <!-- <p-fieldset legend="{{ 'EXTENSIONS' | translate }}" [toggleable]="true" [collapsed]="true">
+      <aas-v3-extensions
+      [extensions]="relationship.content.extensions"
+      [extensionsParent]="relationship.content"
+      ></aas-v3-extensions>
+    </p-fieldset> -->
+    <p-fieldset
+      [toggleable]="true"
+      [collapsed]="uiStateStore.semanticIdPanelCollapsed()"
+      (collapsedChange)="uiStateStore.setSemanticIdPanelCollapsed($event)"
+      class="compact-fieldset"
+    >
+      <ng-template #header>
+        <div class="flex items-center gap-1.5">
+          <div
+            class="flex items-center justify-center w-6 h-6 rounded-full"
+            style="background: var(--aas-success-surface)"
+          >
+            <i class="pi pi-bookmark text-xs" style="color: var(--aas-success-text)"></i>
+          </div>
+          <lib-help-label tag="SEMANTIC_ID" isLabelBold="true"></lib-help-label>
+        </div>
+      </ng-template>
+      <div class="flex flex-col gap-2">
+        <aas-v3-semantic-description
+          [shellResult]="shellResult"
+          [semanticId]="relationship.content.semanticId"
+          [supplemantalSemanticIds]="relationship.content.supplementalSemanticIds"
+          [referenceParent]="relationship.content"
+          [referenceParentPropertyName]="'semanticId'"
+        ></aas-v3-semantic-description>
+      </div>
+    </p-fieldset>
+    <p-fieldset
+      [toggleable]="true"
+      [collapsed]="uiStateStore.qualifiersPanelCollapsed()"
+      (collapsedChange)="uiStateStore.setQualifiersPanelCollapsed($event)"
+      class="compact-fieldset"
+    >
+      <ng-template #header>
+        <div class="flex items-center gap-1.5">
+          <div
+            class="flex items-center justify-center w-6 h-6 rounded-full"
+            style="background: var(--aas-success-surface)"
+          >
+            <i class="pi pi-check-circle text-xs" style="color: var(--aas-success-text)"></i>
+          </div>
+          <lib-help-label tag="QUALIFIERS" isLabelBold="true"></lib-help-label>
+        </div>
+      </ng-template>
+      <aas-v3-qualifiers
+        [qualifiers]="relationship.content.qualifiers"
+        [qualifiersParent]="relationship.content"
+      ></aas-v3-qualifiers>
+    </p-fieldset>
+    <p-fieldset
+      [toggleable]="true"
+      [collapsed]="uiStateStore.embeddedDataspecPanelCollapsed()"
+      (collapsedChange)="uiStateStore.setEmbeddedDataspecPanelCollapsed($event)"
+      class="compact-fieldset"
+    >
+      <ng-template #header>
+        <div class="flex items-center gap-1.5">
+          <div
+            class="flex items-center justify-center w-6 h-6 rounded-full"
+            style="background: var(--aas-warning-surface)"
+          >
+            <i class="pi pi-database text-xs" style="color: var(--aas-warning-text)"></i>
+          </div>
+          <lib-help-label tag="EMBEDDED_DATA_SPECIFICATIONS" isLabelBold="true"></lib-help-label>
+        </div>
+      </ng-template>
+      <aas-v3-embedded-data-specification
+        [dataSpecification]="relationship.content.embeddedDataSpecifications"
+        [dataSpecificationParent]="relationship.content"
+        [shellResult]="shellResult"
+      ></aas-v3-embedded-data-specification>
+    </p-fieldset>
+
+    <p-fieldset
+      [toggleable]="true"
+      [collapsed]="uiStateStore.endpointUrlPanelCollapsed()"
+      (collapsedChange)="uiStateStore.setEndpointUrlPanelCollapsed($event)"
+    >
+      <ng-template #header>
+        <div class="flex items-center gap-2 px-2">
+          <lib-help-label tag="ENDPOINT_URL" isLabelBold="true"></lib-help-label>
+        </div>
+      </ng-template>
+      <aas-endpoint-url [element]="relationship" [shellResult]="shellResult"></aas-endpoint-url>
+    </p-fieldset>
+  </div>
+}
+
+<!-- Selection dialog removed: aas-v3-reference provides key management -->

@@ -1,0 +1,183 @@
+<div content>
+  <span>
+    <p-button
+      type="button"
+      styleClass="add-button"
+      label="{{ 'ADD_NEWS' | translate }}"
+      icon="pi pi-plus"
+      (onClick)="addNews()"
+    ></p-button>
+  </span>
+
+  <p-table
+    #dt
+    [value]="newsItemList"
+    dataKey="date"
+    sortField="date"
+    [sortOrder]="-1"
+    [rows]="5"
+    [rowsPerPageOptions]="[5, 10]"
+    [paginator]="true"
+    [filterDelay]="0"
+    size="small"
+  >
+    <ng-template #header>
+      <tr>
+        <th id="menu" style="width: 1rem"></th>
+        <th pSortableColumn="date" id="date">{{ 'DATUM' | translate }}<p-sortIcon field="date"></p-sortIcon></th>
+        <th id="description">{{ 'TITEL' | translate }}</th>
+        <th id="description">{{ 'IS_PUBLIC' | translate }}</th>
+        <th id="icon" style="width: 8rem">{{ 'VISIBILITY' | translate }}</th>
+      </tr>
+    </ng-template>
+    <ng-template pTemplate="body" let-newsItem>
+      <tr>
+        <td>
+          <p-button
+            icon="pi pi-ellipsis-v"
+            styleClass="p-button-text p-button-secondary"
+            (onClick)="menu.toggle($event)"
+          ></p-button>
+          <p-menu appendTo="body" (onShow)="onShowActions(newsItem)" #menu [popup]="true" [model]="menuItems"></p-menu>
+        </td>
+        <td>{{ newsItem.date | vwsDate: 'SHORT_DATE' }}</td>
+        <td>{{ newsItem.description }}</td>
+        <td>
+          <p-tag
+            [value]="newsItem.isPublic ? ('IS_PUBLIC' | translate) : ('IS_NOT_PUBLIC' | translate)"
+            [severity]="newsItem.isPublic ? 'success' : 'warn'"
+          ></p-tag>
+        </td>
+        <td style="width: 8rem">
+          <div class="flex flex-col items-center w-full">
+            @if (newsItem.visible == false) {
+              <em class="pi pi-eye-slash"></em>
+            }
+            @if (newsItem.visible == true) {
+              <em class="pi pi-eye"></em>
+            }
+          </div>
+        </td>
+      </tr>
+    </ng-template>
+  </p-table>
+
+  <!-- Edit News -->
+  @if (displayNewsModal && newsModalOption === 'update') {
+    <p-dialog
+      [(visible)]="displayNewsModal"
+      [style]="{ width: '50vw', height: '70vh' }"
+      header="{{ 'EDIT_NEWS' | translate }}"
+      [maximizable]="true"
+      appendTo="body"
+    >
+      <ng-template p-Template="header">
+        @if (newsModalOption === 'update') {
+          <h1>{{ 'EDIT_NEWS' | translate }}</h1>
+        }
+      </ng-template>
+      <div class="mb-4">
+        <label class="flex items-center mt-2 mb-2" for="description">{{ 'BESCHREIBUNG' | translate }}: </label>
+        <input
+          pInputText
+          id="description"
+          type="text"
+          class="inputfield w-full"
+          name="description"
+          [(ngModel)]="newsDialogEntry.description"
+          required
+        />
+      </div>
+      <div class="mb-4">
+        <label class="flex items-center mt-2 mb-2" for="description">{{ 'CONTENT' | translate }}: </label>
+        <p-editor [(ngModel)]="newsDialogEntry.text" [style]="{ height: '25vh' }" [modules]="modules"></p-editor>
+      </div>
+      <div class="mb-4">
+        <label class="flex items-center mt-2 mb-2" for="date">{{ 'DATUM' | translate }}: </label>
+        <p-datepicker
+          id="date"
+          name="date"
+          [showIcon]="true"
+          appendTo="body"
+          [(ngModel)]="newsDialogEntry.date"
+        ></p-datepicker>
+      </div>
+      <div class="mb-4">
+        <label class="flex items-center mt-2 mb-2" for="date">{{ 'IS_PUBLIC' | translate }}: </label>
+        <p-checkbox [(ngModel)]="newsDialogEntry.isPublic" [binary]="true"></p-checkbox>
+      </div>
+      <ng-template pTemplate="footer">
+        <footer class="mt-2">
+          <p-button
+            pRipple
+            label="{{ 'SAVE' | translate }}"
+            icon="pi pi-save"
+            styleClass="p-button-success mr-2"
+            (onClick)="saveNewsItem()"
+            [loading]="loading"
+          ></p-button>
+        </footer>
+      </ng-template>
+    </p-dialog>
+  }
+
+  <!-- Add News -->
+  @if (displayNewsModal && newsModalOption === 'new') {
+    <p-dialog
+      [(visible)]="displayNewsModal"
+      [style]="{ width: '50vw', height: '70vh' }"
+      header="{{ 'ADD_NEWS' | translate }}"
+      [maximizable]="true"
+      appendTo="body"
+    >
+      <ng-template p-Template="header">
+        @if (newsModalOption === 'new') {
+          <h1>{{ 'ADD_NEWS' | translate }}</h1>
+        }
+      </ng-template>
+      <div class="mb-4">
+        <label class="flex items-center mt-2 mb-2" for="description">{{ 'BESCHREIBUNG' | translate }}: </label>
+        <input
+          pInputText
+          id="description"
+          type="text"
+          class="inputfield w-full"
+          name="description"
+          [(ngModel)]="newsDialogEntry.description"
+          required
+        />
+      </div>
+      <div class="mb-4">
+        <label class="flex items-center mt-2 mb-2" for="description">{{ 'CONTENT' | translate }}: </label>
+        <p-editor [(ngModel)]="newsDialogEntry.text" [style]="{ height: '25vh' }" [modules]="modules"></p-editor>
+      </div>
+      <div class="mb-4">
+        <label class="flex items-center mt-2 mb-2" for="date">{{ 'DATUM' | translate }}: </label>
+        <p-datepicker
+          id="date"
+          class="w-full"
+          name="date"
+          [showIcon]="true"
+          appendTo="body"
+          [(ngModel)]="newsDialogEntry.date"
+        ></p-datepicker>
+      </div>
+      <div class="mb-4">
+        <label class="flex items-center mt-2 mb-2" for="date">{{ 'IS_PUBLIC' | translate }}: </label>
+        <p-checkbox [(ngModel)]="newsDialogEntry.isPublic" [binary]="true"></p-checkbox>
+      </div>
+      <ng-template pTemplate="footer">
+        <footer class="mt-2">
+          <p-button
+            pRipple
+            label="{{ 'SAVE' | translate }}"
+            icon="pi pi-save"
+            styleClass="p-button-success mr-2"
+            (onClick)="saveNewsItem()"
+            [loading]="loading"
+          ></p-button>
+        </footer>
+      </ng-template>
+    </p-dialog>
+  }
+</div>

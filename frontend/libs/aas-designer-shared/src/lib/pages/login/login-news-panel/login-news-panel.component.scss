@@ -1,0 +1,186 @@
+:host {
+  display: block;
+  min-width: 0;
+  min-height: 100%;
+  height: 100%;
+}
+
+.brand-section {
+  display: grid;
+  min-width: 0;
+  min-height: 100%;
+  height: 100%;
+  padding: 2rem;
+  color: white;
+  position: relative;
+  overflow: hidden;
+  background: var(--aas-surface-glass);
+  backdrop-filter: blur(10px);
+  border-radius: var(--aas-radius-md);
+
+  &::before {
+    content: '';
+    position: absolute;
+    inset: -50%;
+    width: 200%;
+    height: 200%;
+    background: radial-gradient(circle, color-mix(in srgb, var(--p-surface-0) 12%, transparent) 0%, transparent 70%);
+    animation: pulse 8s ease-in-out infinite;
+  }
+}
+
+.brand-content {
+  position: relative;
+  z-index: 1;
+  text-align: center;
+  width: 100%;
+  min-height: 0;
+  overflow: auto;
+}
+
+.news-header-section {
+  display: grid;
+  gap: 0.35rem;
+  margin-bottom: 1.5rem;
+  text-align: left;
+}
+
+.news-title {
+  margin: 0;
+  font-size: 1.9rem;
+  font-weight: 700;
+}
+
+.news-subtitle {
+  margin: 0;
+  color: color-mix(in srgb, var(--p-surface-0) 76%, transparent);
+}
+
+.news-display {
+  width: 100%;
+}
+
+.news-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+  padding-bottom: 0.75rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+  gap: 1rem;
+}
+
+.news-item-title {
+  font-size: 1.5rem;
+  font-weight: 600;
+  margin: 0;
+  flex: 1;
+  text-align: left;
+}
+
+.news-date-time {
+  font-size: 0.9rem;
+  opacity: 0.8;
+  white-space: nowrap;
+}
+
+.news-viewer {
+  --ql-editor-color: white;
+}
+
+.news-viewer ::ng-deep .p-editor-toolbar {
+  display: none;
+}
+
+.news-viewer ::ng-deep .p-editor-content {
+  border: none;
+  background: var(--aas-surface-overlay-strong);
+  border-radius: var(--aas-radius-md);
+  padding: 0.5rem;
+}
+
+.news-viewer ::ng-deep .ql-editor {
+  padding: 0.75rem;
+  min-height: 100px;
+  color: var(--p-text-color);
+}
+
+.news-viewer ::ng-deep .ql-editor * {
+  color: var(--p-text-color);
+}
+
+.news-viewer ::ng-deep :is(p, ul, ol) {
+  margin-bottom: 0.5rem;
+}
+
+.news-navigation {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 1rem;
+  margin-top: 1rem;
+  padding-top: 1rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.news-counter {
+  font-size: 0.9rem;
+  opacity: 0.9;
+  min-width: 60px;
+  text-align: center;
+}
+
+.news-navigation ::ng-deep .p-button {
+  color: white;
+}
+
+.news-navigation ::ng-deep .p-button:enabled:hover {
+  background: color-mix(in srgb, var(--p-surface-0) 10%, transparent);
+}
+
+.news-navigation ::ng-deep .p-button:disabled {
+  opacity: 0.3;
+}
+
+.news-fade-in {
+  animation: news-fade-in 0.35s ease;
+}
+
+:host-context(html.my-app-dark) .news-viewer ::ng-deep .p-editor-content {
+  background: color-mix(in srgb, var(--p-surface-900) 92%, transparent);
+}
+
+:host-context(html.my-app-dark) .news-viewer ::ng-deep :is(.ql-editor, .ql-editor *) {
+  color: var(--p-surface-0);
+}
+
+@keyframes pulse {
+  0%,
+  100% {
+    transform: scale(1);
+    opacity: 0.3;
+  }
+
+  50% {
+    transform: scale(1.1);
+    opacity: 0.5;
+  }
+}
+
+@keyframes news-fade-in {
+  from {
+    opacity: 0;
+    transform: translateY(0.5rem);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@media (max-width: 1024px) {
+  :host {
+    display: none;
+  }
+}

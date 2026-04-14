@@ -1,0 +1,30 @@
+@use '../../../generator/_submodel-editor-layout';
+
+.battery-editor-layout {
+  margin-top: 1.5rem;
+}
+
+.battery-editor-content {
+  min-width: 0;
+}
+
+:host ::ng-deep .nameplate-guided-card {
+  width: 100%;
+}
+
+:host ::ng-deep .nameplate-guided-card.battery-editor-content {
+  height: auto;
+  max-height: none;
+  overflow: visible;
+}
+
+:host ::ng-deep .nameplate-guided-card .generator-step-card-body {
+  overflow: visible;
+}
+
+:host ::ng-deep .nameplate-guided-card .generator-step-card-actions {
+  position: sticky;
+  bottom: 0;
+  z-index: 2;
+  background: var(--p-content-background);
+}

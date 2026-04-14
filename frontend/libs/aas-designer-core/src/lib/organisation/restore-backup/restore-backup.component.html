@@ -1,0 +1,68 @@
+<p-dialog
+  [(visible)]="dialogVisible"
+  header="{{ 'RESTORE_BACKUP' | translate }}"
+  [style]="{ width: '50vw' }"
+  [closable]="false"
+>
+  <p-fileUpload
+    name="myfile"
+    [multiple]="false"
+    accept=".zip"
+    [showCancelButton]="false"
+    [showUploadButton]="false"
+    (onSelect)="onSelectFile($event)"
+    (onRemove)="onRemoveFile()"
+    (uploadHandler)="handleUpload($event)"
+    [customUpload]="true"
+    #uploader
+  >
+    <ng-template pTemplate="toolbar">
+      <div class="py-3">{{ 'CHOOSE_BACKUP_FILE' | translate }}</div>
+    </ng-template>
+
+    <ng-template pTemplate="content" let-files>
+      <div>
+        <p-message severity="error">
+          <ng-template pTemplate>
+            <i
+              class="pi pi-exclamation-triangle"
+              style="font-size: var(--aas-title-xl); color: var(--aas-danger-icon)"
+            ></i>
+            <div class="ml-2">{{ 'WARNING_RESTORE' | translate }}</div>
+          </ng-template>
+        </p-message>
+      </div>
+    </ng-template>
+  </p-fileUpload>
+
+  @if (loading == true && importing == false) {
+    <div class="">{{ 'PLEASE_WAIT_UPLOAD' | translate }}</div>
+  }
+  @if (loading == true && importing == false) {
+    <p-progressBar [value]="uploadProgress" [style]="{ height: '20px' }"></p-progressBar>
+  }
+  @if (loading == true && importing == true) {
+    <div class="">{{ 'PLEASE_WAIT_RESTORE' | translate }}</div>
+  }
+  @if (loading == true && importing == true) {
+    <p-progressBar mode="indeterminate" [style]="{ height: '20px' }"></p-progressBar>
+  }
+
+  <ng-template pTemplate="footer">
+    <div class="flex gap-2 justify-end">
+      <p-button
+        label="{{ 'CANCEL' | translate }}"
+        (onClick)="close()"
+        icon="pi pi-times"
+        styleClass="p-button-secondary"
+      ></p-button>
+      <p-button
+        label="{{ 'RESTORE_BACKUP' | translate }}"
+        icon="pi pi-download"
+        iconPos="right"
+        [disabled]="uploadFile == null"
+        (onClick)="uploader.upload()"
+      ></p-button>
+    </div>
+  </ng-template>
+</p-dialog>

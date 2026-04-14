@@ -1,0 +1,31 @@
+<div class="flex flex-col w-full">
+  <p-floatlabel variant="in">
+    <textarea
+      pTextarea
+      id="over_label"
+      [(ngModel)]="comment"
+      rows="5"
+      cols="30"
+      style="resize: none"
+      class="h-full w-full"
+    ></textarea>
+    <label for="in_label">{{ 'COMMENT' | translate }}</label>
+  </p-floatlabel>
+
+  <div class="flex w-full gap-2 justify-end mt-4">
+    <p-button
+      label="{{ 'CANCEL' | translate }}"
+      icon="pi pi-times"
+      (onClick)="closeDialog(null)"
+      outlined="true"
+    ></p-button>
+    <p-button
+      label="{{ 'SAVE' | translate }}"
+      icon="pi pi-save"
+      severity="success"
+      (onClick)="closeDialog(comment())"
+      [disabled]="comment() === ''"
+    ></p-button>
+  </div>
+  `
+</div>

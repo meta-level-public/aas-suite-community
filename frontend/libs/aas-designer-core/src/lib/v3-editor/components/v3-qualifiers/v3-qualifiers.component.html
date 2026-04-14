@@ -1,0 +1,93 @@
+<div class="flex flex-row mb-5 justify-start">
+  <p-button
+    icon="pi pi-plus"
+    (onClick)="menu.toggle($event)"
+    label="{{ 'ADD' | translate }}"
+    size="small"
+    [outlined]="true"
+  ></p-button>
+  <p-tieredMenu #menu [model]="addItems" [popup]="true" appendTo="body"></p-tieredMenu>
+</div>
+<div class="flex flex-col">
+  @for (qualifier of qualifiers; track qualifier) {
+    <div class="grid grid-cols-12 gap-2">
+      <div class="col-span-11 flex gap-2">
+        <div class="flex-1 flex items-center gap-2">
+          <lib-help-label tag="QUALIFIER_KIND" for="qualifierKind" width="w-20"></lib-help-label>
+          <p-select [(ngModel)]="qualifier.kind" [options]="qualifierKindOptions" class="flex-1"></p-select>
+        </div>
+        <div class="flex-1 flex flex-col gap-1">
+          <div class="flex items-center gap-2">
+            <lib-help-label tag="QUALIFIER_TYPE" for="qualifierType" width="w-20"></lib-help-label>
+            <input pInputText [(ngModel)]="qualifier.type" class="flex-1" id="qualifierType" nullIfEmpty />
+          </div>
+          @if (hasTypeErrors(qualifier)) {
+            <div class="text-error ml-20">
+              {{ 'errorMessages.' + getTypeError(qualifier)[0].message | translate }}
+            </div>
+          }
+        </div>
+        @if (qualifier.type !== 'Multiplicity' && qualifier.type !== 'Cardinality') {
+          <div class="flex-1 flex items-center gap-2">
+            <lib-help-label tag="DATA_TYPE" for="valueType" width="w-24"></lib-help-label>
+            <p-select
+              class="flex-1"
+              class="flex-1"
+              id="valueType"
+              name="valueType"
+              [(ngModel)]="qualifier.valueType"
+              [options]="valueTypeOptions"
+              vwsV3Undo
+            >
+            </p-select>
+          </div>
+        }
+        <div class="flex-1 flex flex-col gap-1">
+          <div class="flex items-center gap-2">
+            <lib-help-label tag="VALUE" for="valueType" width="w-16"></lib-help-label>
+            <div class="flex-1">
+              @if (qualifier.type !== 'Multiplicity' && qualifier.type !== 'Cardinality') {
+                <input class="w-full" pInputText id="value" name="value" [(ngModel)]="qualifier.value" nullIfEmpty />
+              }
+              @if (qualifier.type === 'Multiplicity' || qualifier.type === 'Cardinality') {
+                <p-select
+                  class="w-full"
+                  class="w-full"
+                  id="value"
+                  name="value"
+                  [(ngModel)]="qualifier.value"
+                  [options]="multiplicityOptions"
+                >
+                </p-select>
+              }
+            </div>
+          </div>
+          @if (hasValueErrors(qualifier)) {
+            <div class="text-error ml-16">
+              {{ 'errorMessages.' + getValueError(qualifier)[0].message | translate }}
+            </div>
+          }
+        </div>
+      </div>
+      <div class="col-span-1 flex items-center justify-center">
+        <p-button
+          icon="pi pi-trash"
+          styleClass="p-button-rounded p-button-danger p-button-text"
+          (onClick)="removeQualifier(qualifier)"
+        ></p-button>
+      </div>
+    </div>
+  }
+  <!-- {{ qualifiers | json }} -->
+  @if (qualifiers != null) {
+    <div class="flex flex-row w-full justify-start mt-2 gap-2">
+      <p-button
+        label="{{ 'REMOVE_BLOCK' | translate }}"
+        (onClick)="removeQualifiersBlock()"
+        icon="pi pi-trash"
+        size="small"
+        [outlined]="true"
+      ></p-button>
+    </div>
+  }
+</div>

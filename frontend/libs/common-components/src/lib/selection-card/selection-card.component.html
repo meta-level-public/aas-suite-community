@@ -1,0 +1,28 @@
+<div
+  class="selection-card flex flex-col h-full w-full"
+  [style.--selection-card-accent]="topBorderColor()"
+  [style.--selection-card-surface]="iconSurface()"
+  [style.--selection-card-color]="iconColor()"
+  [style.--selection-card-tint]="cardTint()"
+>
+  <div class="selection-card__icon-wrap flex items-center justify-center">
+    <div class="selection-card__icon flex items-center justify-center">
+      <i class="pi text-3xl" [ngClass]="icon()"></i>
+    </div>
+  </div>
+
+  <div class="selection-card__body text-center">
+    <h3 class="selection-card__title">{{ title() }}</h3>
+    <p class="selection-card__description">{{ description() }}</p>
+  </div>
+
+  <p-button
+    pRipple
+    [label]="buttonLabel()"
+    styleClass="p-3 w-full mt-auto"
+    [severity]="severity() === 'warn' ? 'warn' : severity()"
+    [disabled]="disabled()"
+    [loading]="loading()"
+    (onClick)="choose.emit()"
+  ></p-button>
+</div>

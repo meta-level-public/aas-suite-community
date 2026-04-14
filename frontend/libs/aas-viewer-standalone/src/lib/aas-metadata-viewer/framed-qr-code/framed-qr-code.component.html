@@ -1,0 +1,17 @@
+<div class="qr-container">
+  <div class="qr-frame-container" [style.width.px]="totalSize" [style.height.px]="totalSize">
+    <canvas #frameCanvas [width]="totalSize" [height]="totalSize"></canvas>
+    <div class="qr-code-wrapper" [style.top.px]="qrOffset" [style.left.px]="qrOffset">
+      <qrcode
+        #qrcode
+        [qrdata]="qrdata"
+        [width]="width"
+        [errorCorrectionLevel]="errorCorrectionLevel"
+        (qrCodeURL)="onQrCodeGenerated($event)"
+      ></qrcode>
+    </div>
+    <button class="download-button" (click)="downloadQrCode()" title="QR-Code herunterladen">
+      <i class="pi pi-download"></i>
+    </button>
+  </div>
+</div>

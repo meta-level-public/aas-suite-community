@@ -1,0 +1,139 @@
+<aas-generator-page-shell
+  [titleKey]="'PRODUCT_CARBON_FOOTPRINT'"
+  [subtitle]="carbonFootprintSemanticId"
+  [showActions]="editingEntry == null"
+>
+  @if (editingEntry == null) {
+    <p generator-shell-intro class="text-lg battery-editor-page-copy mb-0" style="color: var(--p-text-muted-color)">
+      {{ 'DPP_PCF_OVERVIEW_EXPL' | translate }}
+    </p>
+  }
+
+  <div generator-shell-main>
+    @if (editingEntry == null) {
+      <div class="flex flex-col gap-6">
+        <div class="dpp-pcf-list-card">
+          <div class="flex items-start justify-between gap-4 mb-5">
+            <div>
+              <h3 class="text-2xl font-bold mb-2">{{ 'DPP_PCF_TYPE_PRODUCT' | translate }}</h3>
+              <p class="text-sm mb-0" style="color: var(--p-text-muted-color)">
+                {{ 'DPP_PCF_TYPE_PRODUCT_EXPL' | translate }}
+              </p>
+            </div>
+            <p-button
+              label="{{ 'DPP_PCF_ADD_PRODUCT_ENTRY' | translate }}"
+              icon="pi pi-plus"
+              (onClick)="startAdd('product-carbon-footprint')"
+            ></p-button>
+          </div>
+
+          @if (productEntries.length === 0) {
+            <div class="dpp-pcf-empty-state">{{ 'DPP_PCF_LIST_EMPTY' | translate }}</div>
+          } @else {
+            <div class="flex flex-col gap-3">
+              @for (entry of productEntries; track entry.id; let index = $index) {
+                <div class="dpp-pcf-entry-card">
+                  <div>
+                    <div class="font-bold">{{ getEntryTitle(entry, index) }}</div>
+                    <div class="text-sm" style="color: var(--p-text-muted-color)">
+                      {{ 'DPP_PCF_ENTRY_PRODUCT_HINT' | translate }}
+                    </div>
+                  </div>
+                  <div class="flex gap-2">
+                    <p-button
+                      label="{{ 'EDIT' | translate }}"
+                      severity="secondary"
+                      (onClick)="editEntry('product-carbon-footprint', index)"
+                    ></p-button>
+                    <p-button
+                      label="{{ 'DELETE' | translate }}"
+                      severity="danger"
+                      outlined="true"
+                      (onClick)="deleteEntry('product-carbon-footprint', index)"
+                    ></p-button>
+                  </div>
+                </div>
+              }
+            </div>
+          }
+        </div>
+
+        @if (!isBatteryPassportPcfMode) {
+          <div class="dpp-pcf-list-card">
+            <div class="flex items-start justify-between gap-4 mb-5">
+              <div>
+                <h3 class="text-2xl font-bold mb-2">{{ 'DPP_PCF_TYPE_PRODUCT_OR_SECTOR' | translate }}</h3>
+                <p class="text-sm mb-0" style="color: var(--p-text-muted-color)">
+                  {{ 'DPP_PCF_TYPE_PRODUCT_OR_SECTOR_EXPL' | translate }}
+                </p>
+              </div>
+              <p-button
+                label="{{ 'DPP_PCF_ADD_PRODUCT_OR_SECTOR_ENTRY' | translate }}"
+                icon="pi pi-plus"
+                (onClick)="startAdd('product-or-sector-specific-carbon-footprint')"
+              ></p-button>
+            </div>
+
+            @if (sectorEntries.length === 0) {
+              <div class="dpp-pcf-empty-state">{{ 'DPP_PCF_LIST_EMPTY' | translate }}</div>
+            } @else {
+              <div class="flex flex-col gap-3">
+                @for (entry of sectorEntries; track entry.id; let index = $index) {
+                  <div class="dpp-pcf-entry-card">
+                    <div>
+                      <div class="font-bold">{{ getEntryTitle(entry, index) }}</div>
+                      <div class="text-sm" style="color: var(--p-text-muted-color)">
+                        {{ 'DPP_PCF_ENTRY_SECTOR_HINT' | translate }}
+                      </div>
+                    </div>
+                    <div class="flex gap-2">
+                      <p-button
+                        label="{{ 'EDIT' | translate }}"
+                        severity="secondary"
+                        (onClick)="editEntry('product-or-sector-specific-carbon-footprint', index)"
+                      ></p-button>
+                      <p-button
+                        label="{{ 'DELETE' | translate }}"
+                        severity="danger"
+                        outlined="true"
+                        (onClick)="deleteEntry('product-or-sector-specific-carbon-footprint', index)"
+                      ></p-button>
+                    </div>
+                  </div>
+                }
+              </div>
+            }
+          </div>
+        }
+      </div>
+    } @else if (editingEntry != null && editingType != null) {
+      <aas-pcf-entry-assistant
+        [entryType]="editingType"
+        [entry]="editingEntry"
+        [submodels]="generatorService.additionalV3Submodels"
+        [conceptDescriptions]="generatorService.additionalV3ConceptDescriptions"
+        (saveEntry)="saveEntry($event)"
+        (cancelled)="cancelEdit()"
+      ></aas-pcf-entry-assistant>
+    }
+  </div>
+
+  @if (editingEntry == null) {
+    <p-button
+      generator-shell-actions
+      label="{{ 'BACK' | translate }}"
+      (onClick)="prevStep()"
+      icon="pi pi-angle-left"
+    ></p-button>
+  }
+
+  @if (editingEntry == null) {
+    <p-button
+      generator-shell-actions
+      label="{{ 'NEXT' | translate }}"
+      (onClick)="nextStep()"
+      icon="pi pi-angle-right"
+      iconPos="right"
+    ></p-button>
+  }
+</aas-generator-page-shell>

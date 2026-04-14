@@ -1,0 +1,53 @@
+<div class="flex flex-col gap-2 w-full">
+  <div class="range-min-max-grid">
+    <p-inputgroup class="w-full">
+      <p-inputgroup-addon class="font-bold min-w-48">
+        <i class="fa-solid fa-arrow-down mr-2"></i>
+        <lib-help-label tag="MIN" [showLabel]="false"></lib-help-label>
+        {{ 'MIN' | translate }}
+      </p-inputgroup-addon>
+      <input pInputText type="text" [value]="formattedMinValue" readonly class="flex-1" />
+      @if (symbol || unit) {
+        <p-inputgroup-addon class="w-auto">
+          @if (symbol) {
+            <span>{{ symbol }} ({{ unit }})</span>
+          } @else {
+            <span>{{ unit }}</span>
+          }
+        </p-inputgroup-addon>
+      }
+    </p-inputgroup>
+
+    <p-inputgroup class="w-full">
+      <p-inputgroup-addon class="font-bold min-w-48">
+        <i class="fa-solid fa-arrow-up mr-2"></i>
+        <lib-help-label tag="MAX" [showLabel]="false"></lib-help-label>
+        {{ 'MAX' | translate }}
+      </p-inputgroup-addon>
+      <input pInputText type="text" [value]="formattedMaxValue" readonly class="flex-1" />
+      @if (symbol || unit) {
+        <p-inputgroup-addon class="w-auto">
+          @if (symbol) {
+            <span>{{ symbol }} ({{ unit }})</span>
+          } @else {
+            <span>{{ unit }}</span>
+          }
+        </p-inputgroup-addon>
+      }
+    </p-inputgroup>
+  </div>
+
+  @if (range != null) {
+    <p-inputgroup class="w-full">
+      <p-inputgroup-addon class="font-bold min-w-48">
+        <i class="fa-solid fa-tag mr-2"></i>
+        <lib-help-label tag="LABEL" [showLabel]="false"></lib-help-label>
+        {{ 'LABEL' | translate }}
+      </p-inputgroup-addon>
+      <input pInputText type="text" [value]="getLabel(range)" readonly class="flex-1" />
+      <p-inputgroup-addon class="w-auto">
+        <aas-semantic-description-popup [semanticId]="semanticId()"></aas-semantic-description-popup>
+      </p-inputgroup-addon>
+    </p-inputgroup>
+  }
+</div>

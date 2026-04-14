@@ -1,0 +1,102 @@
+<div class="search-dialog">
+  <div class="search-header">
+    <h3>{{ 'SEARCH_FOR_SHELLS' | translate }}</h3>
+    <p>{{ 'SHELL_SEARCH_FILTER_HINT' | translate }}</p>
+  </div>
+
+  <div class="search-grid">
+    <div class="field">
+      <label for="idShort">{{ 'ID_SHORT' | translate }}</label>
+      <input
+        id="idShort"
+        type="text"
+        pInputText
+        placeholder="{{ 'SHELL_SEARCH_ID_SHORT_PLACEHOLDER' | translate }}"
+        [(ngModel)]="idShort"
+        class="w-full"
+        (keydown.enter)="search()"
+      />
+    </div>
+
+    <div class="field">
+      <label for="globalAssetId">{{ 'GLOBAL_ASSET_ID' | translate }}</label>
+      <input
+        id="globalAssetId"
+        type="text"
+        pInputText
+        placeholder="{{ 'SHELL_SEARCH_GLOBAL_ASSET_ID_PLACEHOLDER' | translate }}"
+        [(ngModel)]="globalAssetId"
+        class="w-full"
+        (keydown.enter)="search()"
+      />
+    </div>
+  </div>
+
+  @if (errorMessage() !== '') {
+    <div class="status error">{{ errorMessage() }}</div>
+  }
+
+  @if (lastHitCount() !== null && errorMessage() === '') {
+    <div class="status success">{{ 'SHELL_SEARCH_HITS_FOUND' | translate: { count: lastHitCount() } }}</div>
+  }
+
+  @if (inlineResults().length > 0) {
+    <div class="inline-result-list">
+      @for (shell of inlineResults(); track shell.id) {
+        <div class="inline-result-item">
+          <div class="inline-result-main">
+            <div class="inline-idshort">{{ shell.idShort || '-' }}</div>
+            <div class="inline-id">{{ shell.id }}</div>
+            @if (shell.globalAssetId) {
+              <div class="inline-global-id">{{ shell.globalAssetId }}</div>
+            }
+          </div>
+          <div class="inline-result-actions">
+            <p-button
+              label="{{ 'SHOW' | translate }}"
+              icon="pi pi-eye"
+              severity="secondary"
+              [outlined]="true"
+              (onClick)="openShell(shell, 'view')"
+            ></p-button>
+            @if (canEdit()) {
+              <p-button
+                label="{{ 'EDIT' | translate }}"
+                icon="pi pi-pencil"
+                (onClick)="openShell(shell, 'edit')"
+              ></p-button>
+            }
+          </div>
+        </div>
+      }
+    </div>
+  }
+
+  <div class="actions">
+    <p-button
+      label="{{ 'RESET' | translate }}"
+      icon="pi pi-undo"
+      severity="secondary"
+      [outlined]="true"
+      (onClick)="reset()"
+      [disabled]="loading()"
+    ></p-button>
+    <p-button
+      label="{{ 'SEARCH' | translate }}"
+      icon="pi pi-search"
+      (onClick)="search()"
+      [loading]="loading()"
+      [disabled]="!hasCriteria() || loading()"
+    ></p-button>
+    @if ((lastResult()?.shells?.length ?? 0) > 0) {
+      <p-button
+        label="{{ 'SHELL_SEARCH_RESULT_LIST' | translate }}"
+        icon="pi pi-list"
+        severity="contrast"
+        [outlined]="true"
+        (onClick)="showAllFound()"
+        [disabled]="loading()"
+      ></p-button>
+    }
+  </div>
+</div>

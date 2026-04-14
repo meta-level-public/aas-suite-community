@@ -1,0 +1,276 @@
+<div class="flex flex-col flex-auto overflow-auto">
+  <div class="hero-section">
+    <div class="hero-content">
+      <h1 class="hero-title">{{ 'MAIL_SETTINGS' | translate }}</h1>
+      <div class="hero-actions">
+        <p-button
+          label="{{ 'RELOAD' | translate }}"
+          icon="pi pi-refresh"
+          severity="secondary"
+          [disabled]="loading()"
+          (onClick)="loadData()"
+        ></p-button>
+        <p-button
+          label="{{ 'SAVE' | translate }}"
+          icon="pi pi-save"
+          [loading]="loading()"
+          (onClick)="save()"
+        ></p-button>
+      </div>
+    </div>
+  </div>
+
+  @if (mailSettings(); as settings) {
+    <div class="grid grid-cols-1 gap-6">
+      <div class="grid grid-cols-1 gap-2">
+        <h2 class="text-xl font-semibold">{{ 'MAIL_SETTINGS_APPLICATION' | translate }}</h2>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <p-inputgroup>
+            <p-inputgroup-addon class="font-bold w-56">
+              <i class="pi pi-server mr-2"></i>
+              {{ 'SMTP_SERVER' | translate }}
+            </p-inputgroup-addon>
+            <input pInputText [(ngModel)]="settings.application.smtpServer" />
+          </p-inputgroup>
+
+          <p-inputgroup>
+            <p-inputgroup-addon class="font-bold w-56">
+              <i class="pi pi-hashtag mr-2"></i>
+              {{ 'SMTP_PORT' | translate }}
+            </p-inputgroup-addon>
+            <input pInputText type="number" min="1" [(ngModel)]="settings.application.smtpPort" />
+          </p-inputgroup>
+
+          <p-inputgroup>
+            <p-inputgroup-addon class="font-bold w-56">
+              <i class="pi pi-envelope mr-2"></i>
+              {{ 'SENDER_ADDRESS' | translate }}
+            </p-inputgroup-addon>
+            <input pInputText [(ngModel)]="settings.application.senderAddress" />
+          </p-inputgroup>
+
+          <p-inputgroup>
+            <p-inputgroup-addon class="font-bold w-56">
+              <i class="pi pi-user mr-2"></i>
+              {{ 'SENDER_USERNAME' | translate }}
+            </p-inputgroup-addon>
+            <input pInputText [(ngModel)]="settings.application.senderUsername" />
+          </p-inputgroup>
+
+          <p-inputgroup>
+            <p-inputgroup-addon class="font-bold w-56">
+              <i class="pi pi-key mr-2"></i>
+              {{ 'PASSWORD' | translate }}
+            </p-inputgroup-addon>
+            <p-password
+              [(ngModel)]="settings.application.senderPassword"
+              [feedback]="false"
+              [toggleMask]="true"
+              styleClass="w-full"
+              inputStyleClass="w-full"
+            ></p-password>
+          </p-inputgroup>
+
+          <p-inputgroup>
+            <p-inputgroup-addon class="font-bold w-56">
+              <i class="pi pi-bell mr-2"></i>
+              {{ 'NEW_ORGA_NOTIFICATION_ADDRESS' | translate }}
+            </p-inputgroup-addon>
+            <input pInputText [(ngModel)]="settings.application.newOrgaNotificationAddress" />
+          </p-inputgroup>
+
+          <div class="md:col-span-2">
+            <p-inputgroup>
+              <p-inputgroup-addon class="font-bold w-56">
+                <i class="pi pi-tag mr-2"></i>
+                {{ 'SUBJECT_PREFIX' | translate }}
+              </p-inputgroup-addon>
+              <input pInputText [(ngModel)]="settings.application.subjectPrefix" />
+            </p-inputgroup>
+          </div>
+        </div>
+
+        <div class="flex flex-wrap gap-6 pt-2">
+          <div class="flex items-center gap-2">
+            <p-checkbox [(ngModel)]="settings.application.smtpNeedsAuthentication" [binary]="true"></p-checkbox>
+            <span>{{ 'SMTP_NEEDS_AUTHENTICATION' | translate }}</span>
+          </div>
+          <div class="flex items-center gap-2">
+            <p-checkbox [(ngModel)]="settings.application.smtpUseSsl" [binary]="true"></p-checkbox>
+            <span>{{ 'SMTP_USE_SSL' | translate }}</span>
+          </div>
+          <div class="flex items-center gap-2">
+            <p-checkbox [(ngModel)]="settings.application.smtpUseTls" [binary]="true"></p-checkbox>
+            <span>{{ 'SMTP_USE_TLS' | translate }}</span>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-[minmax(0,1fr)_auto] gap-4 pt-4 items-end">
+          <p-inputgroup>
+            <p-inputgroup-addon class="font-bold w-56">
+              <i class="pi pi-send mr-2"></i>
+              {{ 'MAIL_SETTINGS_TEST_TARGET' | translate }}
+            </p-inputgroup-addon>
+            <input
+              pInputText
+              [ngModel]="applicationTestEmail()"
+              (ngModelChange)="applicationTestEmail.set($event)"
+              [placeholder]="'MAIL_SETTINGS_TEST_TARGET_PLACEHOLDER' | translate"
+              [disabled]="applicationTestLoading() || saving() || loading()"
+            />
+          </p-inputgroup>
+
+          <p-button
+            label="{{ 'MAIL_SETTINGS_TEST_APPLICATION' | translate }}"
+            icon="pi pi-envelope"
+            [loading]="applicationTestLoading()"
+            [disabled]="!applicationTestEmail() || saving() || loading()"
+            (onClick)="sendApplicationTestMail()"
+          ></p-button>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-1 gap-2">
+        <h2 class="text-xl font-semibold">{{ 'MAIL_SETTINGS_KEYCLOAK' | translate }}</h2>
+
+        @if (!settings.keycloakEnabled) {
+          <p>{{ 'MAIL_SETTINGS_KEYCLOAK_DISABLED' | translate }}</p>
+        } @else if (!settings.canManageKeycloakMailSettings) {
+          <p>{{ 'MAIL_SETTINGS_KEYCLOAK_UNAVAILABLE' | translate }}</p>
+        }
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <p-inputgroup>
+            <p-inputgroup-addon class="font-bold w-56">
+              <i class="pi pi-server mr-2"></i>
+              {{ 'SMTP_SERVER' | translate }}
+            </p-inputgroup-addon>
+            <input pInputText [(ngModel)]="settings.keycloak.host" [disabled]="!settings.canManageKeycloakMailSettings" />
+          </p-inputgroup>
+
+          <p-inputgroup>
+            <p-inputgroup-addon class="font-bold w-56">
+              <i class="pi pi-hashtag mr-2"></i>
+              {{ 'SMTP_PORT' | translate }}
+            </p-inputgroup-addon>
+            <input pInputText [(ngModel)]="settings.keycloak.port" [disabled]="!settings.canManageKeycloakMailSettings" />
+          </p-inputgroup>
+
+          <p-inputgroup>
+            <p-inputgroup-addon class="font-bold w-56">
+              <i class="pi pi-envelope mr-2"></i>
+              {{ 'MAIL_FROM' | translate }}
+            </p-inputgroup-addon>
+            <input pInputText [(ngModel)]="settings.keycloak.from" [disabled]="!settings.canManageKeycloakMailSettings" />
+          </p-inputgroup>
+
+          <p-inputgroup>
+            <p-inputgroup-addon class="font-bold w-56">
+              <i class="pi pi-id-card mr-2"></i>
+              {{ 'MAIL_FROM_DISPLAY_NAME' | translate }}
+            </p-inputgroup-addon>
+            <input pInputText [(ngModel)]="settings.keycloak.fromDisplayName" [disabled]="!settings.canManageKeycloakMailSettings" />
+          </p-inputgroup>
+
+          <p-inputgroup>
+            <p-inputgroup-addon class="font-bold w-56">
+              <i class="pi pi-reply mr-2"></i>
+              {{ 'MAIL_REPLY_TO' | translate }}
+            </p-inputgroup-addon>
+            <input pInputText [(ngModel)]="settings.keycloak.replyTo" [disabled]="!settings.canManageKeycloakMailSettings" />
+          </p-inputgroup>
+
+          <p-inputgroup>
+            <p-inputgroup-addon class="font-bold w-56">
+              <i class="pi pi-id-card mr-2"></i>
+              {{ 'MAIL_REPLY_TO_DISPLAY_NAME' | translate }}
+            </p-inputgroup-addon>
+            <input
+              pInputText
+              [(ngModel)]="settings.keycloak.replyToDisplayName"
+              [disabled]="!settings.canManageKeycloakMailSettings"
+            />
+          </p-inputgroup>
+
+          <p-inputgroup>
+            <p-inputgroup-addon class="font-bold w-56">
+              <i class="pi pi-user mr-2"></i>
+              {{ 'SENDER_USERNAME' | translate }}
+            </p-inputgroup-addon>
+            <input pInputText [(ngModel)]="settings.keycloak.user" [disabled]="!settings.canManageKeycloakMailSettings" />
+          </p-inputgroup>
+
+          <p-inputgroup>
+            <p-inputgroup-addon class="font-bold w-56">
+              <i class="pi pi-key mr-2"></i>
+              {{ 'PASSWORD' | translate }}
+            </p-inputgroup-addon>
+            <p-password
+              [(ngModel)]="settings.keycloak.password"
+              [feedback]="false"
+              [toggleMask]="true"
+              styleClass="w-full"
+              inputStyleClass="w-full"
+              [disabled]="!settings.canManageKeycloakMailSettings"
+            ></p-password>
+          </p-inputgroup>
+        </div>
+
+        <div class="flex flex-wrap gap-6 pt-2">
+          <div class="flex items-center gap-2">
+            <p-checkbox
+              [(ngModel)]="settings.keycloak.auth"
+              [binary]="true"
+              [disabled]="!settings.canManageKeycloakMailSettings"
+            ></p-checkbox>
+            <span>{{ 'MAIL_KEYCLOAK_AUTH' | translate }}</span>
+          </div>
+          <div class="flex items-center gap-2">
+            <p-checkbox
+              [(ngModel)]="settings.keycloak.startTls"
+              [binary]="true"
+              [disabled]="!settings.canManageKeycloakMailSettings"
+            ></p-checkbox>
+            <span>{{ 'MAIL_KEYCLOAK_STARTTLS' | translate }}</span>
+          </div>
+          <div class="flex items-center gap-2">
+            <p-checkbox
+              [(ngModel)]="settings.keycloak.ssl"
+              [binary]="true"
+              [disabled]="!settings.canManageKeycloakMailSettings"
+            ></p-checkbox>
+            <span>{{ 'MAIL_KEYCLOAK_SSL' | translate }}</span>
+          </div>
+        </div>
+
+        <p class="pt-4 text-sm text-[var(--p-text-muted-color)]">
+          {{ 'MAIL_SETTINGS_TEST_KEYCLOAK_HINT' | translate }}
+        </p>
+
+        <div class="grid grid-cols-1 md:grid-cols-[minmax(0,1fr)_auto] gap-4 items-end">
+          <p-inputgroup>
+            <p-inputgroup-addon class="font-bold w-56">
+              <i class="pi pi-send mr-2"></i>
+              {{ 'MAIL_SETTINGS_TEST_TARGET' | translate }}
+            </p-inputgroup-addon>
+            <input
+              pInputText
+              [ngModel]="keycloakTestEmail()"
+              (ngModelChange)="keycloakTestEmail.set($event)"
+              [placeholder]="'MAIL_SETTINGS_TEST_TARGET_PLACEHOLDER' | translate"
+              [disabled]="!settings.canManageKeycloakMailSettings || keycloakTestLoading() || saving() || loading()"
+            />
+          </p-inputgroup>
+
+          <p-button
+            label="{{ 'MAIL_SETTINGS_TEST_KEYCLOAK' | translate }}"
+            icon="pi pi-lock"
+            [loading]="keycloakTestLoading()"
+            [disabled]="!settings.canManageKeycloakMailSettings || !keycloakTestEmail() || saving() || loading()"
+            (onClick)="sendKeycloakTestMail()"
+          ></p-button>
+        </div>
+      </div>
+    </div>
+  }
+</div>

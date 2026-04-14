@@ -1,0 +1,11 @@
+<div class="flex flex-row gap-2 w-full items-center">
+  <input pInputText [(ngModel)]="content.globalAssetId" class="w-full" vwsV3Undo nullIfEmpty />
+  <p-button
+    label="{{ 'GENERATE_IRI' | translate }}"
+    class="aas-add-button w-12rem"
+    size="small"
+    (onClick)="generateIri()"
+    icon="pi pi-sparkles"
+    [outlined]="true"
+  ></p-button>
+</div>

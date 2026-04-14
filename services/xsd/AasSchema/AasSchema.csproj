@@ -1,0 +1,60 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <Version>1.0.0</Version>
+    <Authors>Christina Borntraeger</Authors>
+    <Description>An object model providing strongly typed classes that can be serialized/deserializsed to XML.</Description>
+    <RootNamespace>AasSchema</RootNamespace>
+    <DocumentationFile>AasSchema.xml</DocumentationFile>
+    <LangVersion>latest</LangVersion>
+    <Nullable>enable</Nullable>
+    <AssemblyTitle>XML serialization class library. Runtime for .NET 10</AssemblyTitle>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="LiquidTechnologies.XmlObjects.Runtime" />
+    <PackageReference Include="System.Security.Cryptography.Xml" />
+    <PackageReference Include="System.Drawing.Common" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Update="Schemas\SchemaData.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+    </EmbeddedResource>
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Update="aas.cs">
+      <DesignTime>true</DesignTime>
+      <AutoGen>true</AutoGen>
+      <DependentUpon>aas.xsd</DependentUpon>
+    </Compile>
+  </ItemGroup>
+  <ItemGroup>
+    <None Update="aas.xsd">
+      <Generator>LxCodeGenerator</Generator>
+      <LastGenOutput>aas.cs</LastGenOutput>
+      <Lx-XsdValidationClassName>AasValidator</Lx-XsdValidationClassName>
+      <Lx-XsdValidationCodeFolder>AasResources</Lx-XsdValidationCodeFolder>
+      <Lx-GenerationModel>Simple</Lx-GenerationModel>
+      <Lx-GenerateUnprocessedNodeHandlers>True</Lx-GenerateUnprocessedNodeHandlers>
+      <Lx-RaiseChangeEvents>False</Lx-RaiseChangeEvents>
+      <Lx-CollectionNaming>Pluralize</Lx-CollectionNaming>
+      <Lx-WriteDefaultValuesForOptionalAttributes>True</Lx-WriteDefaultValuesForOptionalAttributes>
+      <Lx-WriteDefaultValuesForOptionalElements>False</Lx-WriteDefaultValuesForOptionalElements>
+      <Lx-MixedContentHandling>TreatAsAny</Lx-MixedContentHandling>
+      <Lx-AllClassName>All</Lx-AllClassName>
+      <Lx-AllPropertyName>All</Lx-AllPropertyName>
+      <Lx-EmptyAnyElementNameValue></Lx-EmptyAnyElementNameValue>
+      <Lx-ChoiceClassName>Chc</Lx-ChoiceClassName>
+      <Lx-ChoicePropertyName>Chc</Lx-ChoicePropertyName>
+      <Lx-SequenceClassName>Seq</Lx-SequenceClassName>
+      <Lx-SequencePropertyName>Seq</Lx-SequencePropertyName>
+      <Lx-BaseClassName>LxBase</Lx-BaseClassName>
+      <CustomToolNamespace>AasSchema</CustomToolNamespace>
+      <Lx-GenerateCommonBaseClass>False</Lx-GenerateCommonBaseClass>
+      <Lx-GenerateXsdValidationCode>True</Lx-GenerateXsdValidationCode>
+      <Lx-NullableReferenceTypes>True</Lx-NullableReferenceTypes>
+    </None>
+  </ItemGroup>
+</Project>

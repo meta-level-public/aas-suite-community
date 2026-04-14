@@ -1,0 +1,85 @@
+<div class="flex flex-col flex-auto overflow-auto">
+  <div class="hero-section">
+    <div class="hero-content">
+      <h1 class="hero-title">{{ 'LEGAL_LINK_SETTINGS' | translate }}</h1>
+      <div class="hero-actions">
+        <p-button
+          label="{{ 'RELOAD' | translate }}"
+          icon="pi pi-refresh"
+          severity="secondary"
+          [disabled]="loading() || saving()"
+          (onClick)="loadData()"
+        ></p-button>
+        <p-button
+          label="{{ 'SAVE' | translate }}"
+          icon="pi pi-save"
+          [loading]="saving()"
+          [disabled]="loading()"
+          (onClick)="save()"
+        ></p-button>
+      </div>
+    </div>
+  </div>
+
+  <p class="pb-4 text-sm text-[var(--p-text-muted-color)]">{{ 'LEGAL_LINK_SETTINGS_EXPL' | translate }}</p>
+
+  @if (legalLinksSettings(); as settings) {
+    <div class="flex flex-col gap-4">
+      <p-inputgroup>
+        <p-inputgroup-addon class="font-bold w-72">
+          <i class="pi pi-shield mr-2"></i>
+          {{ 'PRIVACY' | translate }} ({{ 'DEUTSCH' | translate }})
+        </p-inputgroup-addon>
+        <input pInputText [(ngModel)]="settings.datenschutzLinkDe" />
+      </p-inputgroup>
+
+      <p-inputgroup>
+        <p-inputgroup-addon class="font-bold w-72">
+          <i class="pi pi-shield mr-2"></i>
+          {{ 'PRIVACY' | translate }} ({{ 'ENGLISCH' | translate }})
+        </p-inputgroup-addon>
+        <input pInputText [(ngModel)]="settings.datenschutzLinkEn" />
+      </p-inputgroup>
+
+      <p-inputgroup>
+        <p-inputgroup-addon class="font-bold w-72">
+          <i class="pi pi-file-edit mr-2"></i>
+          {{ 'AGB' | translate }} ({{ 'DEUTSCH' | translate }})
+        </p-inputgroup-addon>
+        <input pInputText [(ngModel)]="settings.agbLinkDe" />
+      </p-inputgroup>
+
+      <p-inputgroup>
+        <p-inputgroup-addon class="font-bold w-72">
+          <i class="pi pi-file-edit mr-2"></i>
+          {{ 'AGB' | translate }} ({{ 'ENGLISCH' | translate }})
+        </p-inputgroup-addon>
+        <input pInputText [(ngModel)]="settings.agbLinkEn" />
+      </p-inputgroup>
+
+      <p-inputgroup>
+        <p-inputgroup-addon class="font-bold w-72">
+          <i class="pi pi-file-check mr-2"></i>
+          {{ 'AVV_SHORT' | translate }} ({{ 'DEUTSCH' | translate }})
+        </p-inputgroup-addon>
+        <input pInputText [(ngModel)]="settings.avvLinkDe" />
+      </p-inputgroup>
+
+      <p-inputgroup>
+        <p-inputgroup-addon class="font-bold w-72">
+          <i class="pi pi-file-check mr-2"></i>
+          {{ 'AVV_SHORT' | translate }} ({{ 'ENGLISCH' | translate }})
+        </p-inputgroup-addon>
+        <input pInputText [(ngModel)]="settings.avvLinkEn" />
+      </p-inputgroup>
+
+      <p-inputgroup>
+        <p-inputgroup-addon class="font-bold w-72">
+          <i class="pi pi-id-card mr-2"></i>
+          {{ 'IMPRINT' | translate }}
+        </p-inputgroup-addon>
+        <input pInputText [(ngModel)]="settings.imprintLink" />
+      </p-inputgroup>
+    </div>
+  }
+</div>

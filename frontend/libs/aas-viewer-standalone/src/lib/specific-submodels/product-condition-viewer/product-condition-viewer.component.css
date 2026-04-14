@@ -1,0 +1,114 @@
+.product-condition-container {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  width: 100%;
+}
+
+.section-grid-2 {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1rem;
+}
+
+.section-card {
+  padding: 1rem;
+  border: 1px solid var(--p-content-border-color);
+  background: var(--p-content-background);
+  border-radius: var(--aas-radius-md);
+}
+
+.section-title {
+  margin: 0 0 0.75rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 1.05rem;
+}
+
+.section-title .fa-solid {
+  color: var(--p-primary-color);
+}
+
+.section-meta {
+  margin-bottom: 0.75rem;
+  color: var(--p-text-muted-color);
+  font-size: 0.92rem;
+}
+
+.metric-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1rem;
+}
+
+.compact-grid {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.power-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1rem;
+}
+
+.metric-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.metric-card,
+.detail-card {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  padding: 0.9rem;
+  border-radius: var(--aas-radius-sm);
+  background: color-mix(in srgb, var(--p-content-background) 92%, var(--p-primary-color) 8%);
+  border: 1px solid color-mix(in srgb, var(--p-content-border-color) 84%, var(--p-primary-color) 16%);
+}
+
+.compact-card {
+  padding: 0.8rem;
+}
+
+.metric-label {
+  font-weight: 600;
+  color: var(--p-text-color);
+}
+
+.metric-addon {
+  width: 10.5rem;
+  min-width: 10.5rem;
+  white-space: nowrap;
+}
+
+.section-list {
+  margin: 0;
+  padding-left: 1.25rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.empty-state {
+  margin: 0;
+  color: var(--p-text-muted-color);
+}
+
+@media (max-width: 960px) {
+  .section-grid-2,
+  .metric-grid,
+  .compact-grid,
+  .power-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 768px) {
+  .metric-addon {
+    width: 9rem;
+    min-width: 9rem;
+  }
+}

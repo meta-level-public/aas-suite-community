@@ -1,0 +1,286 @@
+@if (range != null && range.content != null) {
+  <div class="flex flex-col gap-2">
+    <p-fieldset
+      [toggleable]="true"
+      class="mt-2"
+      [collapsed]="uiStateStore.detailsPanelCollapsed()"
+      (collapsedChange)="uiStateStore.setDetailsPanelCollapsed($event)"
+    >
+      <ng-template #header>
+        <div class="flex items-center gap-2 px-2">
+          <lib-help-label tag="DETAILS" isLabelBold="true"></lib-help-label>
+        </div>
+      </ng-template>
+      <div class="flex flex-col gap-2">
+        <aas-v3-id-short [element]="range" class="w-full" [shellResult]="shellResult"></aas-v3-id-short>
+        <div class="flex flex-row w-full gap-2">
+          <lib-help-label class="w-14rem mt-2" tag="DESCRIPTION"></lib-help-label>
+          <aas-v3-lang-string-list
+            [langStrings]="range.content.description"
+            [langStringParent]="range.content"
+            [langStringParentPropertyName]="'description'"
+            class="w-full"
+          ></aas-v3-lang-string-list>
+        </div>
+        <div class="flex flex-row w-full gap-2">
+          <lib-help-label class="w-14rem mt-2" tag="DISPLAY_NAME"></lib-help-label>
+          <aas-v3-lang-string-list
+            [langStrings]="range.content.displayName"
+            [langStringParent]="range.content"
+            [langStringParentPropertyName]="'displayName'"
+            class="w-full"
+          ></aas-v3-lang-string-list>
+        </div>
+        <aas-v3-category [element]="range" class="w-full"></aas-v3-category>
+      </div>
+    </p-fieldset>
+    <p-fieldset
+      [toggleable]="true"
+      class="mt-2"
+      [collapsed]="uiStateStore.contentPanelCollapsed()"
+      (collapsedChange)="uiStateStore.setContentPanelCollapsed($event)"
+    >
+      <ng-template #header>
+        <div class="flex items-center gap-2 px-2">
+          <lib-help-label tag="CONTENT" isLabelBold="true"></lib-help-label>
+        </div>
+      </ng-template>
+      <div class="flex flex-col gap-2">
+        <div class="mb-4 w-full">
+          <lib-help-label class="w-14rem mt-2" tag="DATA_TYPE"></lib-help-label>
+          <p-select
+            class="w-full"
+            class="w-full"
+            [options]="valueTypeOptions"
+            optionLabel="label"
+            optionValue="value"
+            [(ngModel)]="range.content.valueType"
+            appendTo="body"
+            vwsUndo
+            placeholder="{{ 'PLEASE_SELECT' | translate }}"
+          ></p-select>
+        </div>
+
+        <div class="flex flex-col gap-4">
+          <div class="w-full">
+            <lib-help-label class="mb-2" tag="MIN"></lib-help-label>
+            @switch (range.content.valueType) {
+              @case (dataType.Boolean) {
+                <p-checkbox
+                  id="minField"
+                  name="minField"
+                  [(ngModel)]="range.content.min"
+                  [binary]="true"
+                  vwsV3Undo
+                ></p-checkbox>
+              }
+              @case (dataType.DateTime) {
+                <p-datepicker
+                  [showTime]="true"
+                  id="minField"
+                  name="minField"
+                  [(ngModel)]="dateValueMin"
+                  [showIcon]="true"
+                  appendTo="body"
+                  vwsV3Undo
+                  (ngModelChange)="onDateTimeMinSelect($event)"
+                ></p-datepicker>
+                <div class="mt-2">
+                  <lib-help-label class="inline-block" tag="RAW_DATA"></lib-help-label> {{ range.content.min }}
+                </div>
+              }
+              @case (dataType.Date) {
+                <p-datepicker
+                  [showTime]="false"
+                  id="minField"
+                  name="minField"
+                  [(ngModel)]="dateValueMin"
+                  [showIcon]="true"
+                  appendTo="body"
+                  vwsV3Undo
+                  (ngModelChange)="onDateMinSelect($event)"
+                ></p-datepicker>
+                <div class="mt-2">
+                  <lib-help-label class="inline-block" tag="RAW_DATA"></lib-help-label> {{ range.content.min }}
+                </div>
+              }
+              @case (dataType.Time) {
+                <p-datepicker
+                  [showTime]="true"
+                  [timeOnly]="true"
+                  id="minField"
+                  name="minField"
+                  [(ngModel)]="dateValueMin"
+                  [showIcon]="true"
+                  appendTo="body"
+                  vwsV3Undo
+                  (ngModelChange)="onTimeMinSelect($event)"
+                ></p-datepicker>
+                <div class="mt-2">
+                  <lib-help-label class="inline-block" tag="RAW_DATA"></lib-help-label> {{ range.content.min }}
+                </div>
+              }
+              @default {
+                <input
+                  pInputText
+                  class="w-full"
+                  id="minField"
+                  name="minField"
+                  [(ngModel)]="range.content.min"
+                  #inputEl
+                  vwsV3Undo
+                  nullIfEmpty
+                />
+              }
+            }
+            @if (hasMinValueErrors) {
+              <div class="text-error">
+                {{ 'errorMessages.' + minValueError[0].message | translate }}
+              </div>
+            }
+          </div>
+          <div class="w-full">
+            <lib-help-label class="mb-2" tag="MAX"></lib-help-label>
+            @switch (range.content.valueType) {
+              @case (dataType.Boolean) {
+                <p-checkbox
+                  id="maxField"
+                  name="maxField"
+                  [(ngModel)]="range.content.max"
+                  [binary]="true"
+                  vwsV3Undo
+                ></p-checkbox>
+              }
+              @case (dataType.DateTime) {
+                <p-datepicker
+                  [showTime]="true"
+                  id="maxField"
+                  name="maxField"
+                  [(ngModel)]="range.content.max"
+                  [showIcon]="true"
+                  appendTo="body"
+                  vwsV3Undo
+                  (ngModelChange)="onDateTimeMaxSelect($event)"
+                ></p-datepicker>
+                <div class="mt-2">
+                  <lib-help-label class="inline-block" tag="RAW_DATA"></lib-help-label> {{ range.content.max }}
+                </div>
+              }
+              @case (dataType.Date) {
+                <p-datepicker
+                  [showTime]="false"
+                  id="maxField"
+                  name="maxField"
+                  [(ngModel)]="dateValueMax"
+                  [showIcon]="true"
+                  appendTo="body"
+                  vwsV3Undo
+                  (ngModelChange)="onDateMaxSelect($event)"
+                ></p-datepicker>
+                <div class="mt-2">
+                  <lib-help-label class="inline-block" tag="RAW_DATA"></lib-help-label> {{ range.content.max }}
+                </div>
+              }
+              @case (dataType.Time) {
+                <p-datepicker
+                  [showTime]="true"
+                  [timeOnly]="true"
+                  id="maxField"
+                  name="maxField"
+                  [(ngModel)]="dateValueMax"
+                  [showIcon]="true"
+                  appendTo="body"
+                  vwsV3Undo
+                  (ngModelChange)="onTimeMaxSelect($event)"
+                ></p-datepicker>
+                <div class="mt-2">
+                  <lib-help-label class="inline-block" tag="RAW_DATA"></lib-help-label> {{ range.content.max }}
+                </div>
+              }
+              @default {
+                <input
+                  pInputText
+                  class="w-full"
+                  id="maxField"
+                  name="maxField"
+                  [(ngModel)]="range.content.max"
+                  #inputEl
+                  vwsV3Undo
+                  nullIfEmpty
+                />
+              }
+            }
+            @if (hasMaxValueErrors) {
+              <div class="text-error">
+                {{ 'errorMessages.' + maxValueError[0].message | translate }}
+              </div>
+            }
+          </div>
+        </div>
+      </div>
+    </p-fieldset>
+    <!-- <p-fieldset legend="{{ 'EXTENSIONS' | translate }}" [toggleable]="true" [collapsed]="true">
+    <aas-v3-extensions [extensions]="range.content.extensions" [extensionsParent]="range.content"></aas-v3-extensions>
+  </p-fieldset> -->
+    <p-fieldset
+      [toggleable]="true"
+      [collapsed]="uiStateStore.semanticIdPanelCollapsed()"
+      (collapsedChange)="uiStateStore.setSemanticIdPanelCollapsed($event)"
+      [ngClass]="{ 'border-error': hasSemanticErrors }"
+    >
+      <ng-template #header>
+        <div class="flex items-center gap-2 px-2">
+          <lib-help-label tag="SEMANTIC_ID" isLabelBold="true"></lib-help-label>
+        </div>
+      </ng-template>
+      <aas-v3-semantic-description
+        [semanticId]="range.content.semanticId"
+        [supplemantalSemanticIds]="range.content.supplementalSemanticIds"
+        [referenceParent]="range.content"
+        [referenceParentPropertyName]="'semanticId'"
+        [shellResult]="shellResult"
+      ></aas-v3-semantic-description>
+    </p-fieldset>
+    <p-fieldset
+      [toggleable]="true"
+      [collapsed]="uiStateStore.qualifiersPanelCollapsed()"
+      (collapsedChange)="uiStateStore.setQualifiersPanelCollapsed($event)"
+    >
+      <ng-template #header>
+        <div class="flex items-center gap-2 px-2">
+          <lib-help-label tag="QUALIFIERS" isLabelBold="true"></lib-help-label>
+        </div>
+      </ng-template>
+      <aas-v3-qualifiers [qualifiers]="range.content.qualifiers" [qualifiersParent]="range.content"></aas-v3-qualifiers>
+    </p-fieldset>
+    <p-fieldset
+      [toggleable]="true"
+      [collapsed]="uiStateStore.embeddedDataspecPanelCollapsed()"
+      (collapsedChange)="uiStateStore.setEmbeddedDataspecPanelCollapsed($event)"
+    >
+      <ng-template #header>
+        <div class="flex items-center gap-2 px-2">
+          <lib-help-label tag="EMBEDDED_DATA_SPECIFICATIONS" isLabelBold="true"></lib-help-label>
+        </div>
+      </ng-template>
+      <aas-v3-embedded-data-specification
+        [dataSpecification]="range.content.embeddedDataSpecifications"
+        [dataSpecificationParent]="range.content"
+        [shellResult]="shellResult"
+      ></aas-v3-embedded-data-specification>
+    </p-fieldset>
+
+    <p-fieldset
+      [toggleable]="true"
+      [collapsed]="uiStateStore.endpointUrlPanelCollapsed()"
+      (collapsedChange)="uiStateStore.setEndpointUrlPanelCollapsed($event)"
+    >
+      <ng-template #header>
+        <div class="flex items-center gap-2 px-2">
+          <lib-help-label tag="ENDPOINT_URL" isLabelBold="true"></lib-help-label>
+        </div>
+      </ng-template>
+      <aas-endpoint-url [element]="range" [shellResult]="shellResult"></aas-endpoint-url>
+    </p-fieldset>
+  </div>
+}

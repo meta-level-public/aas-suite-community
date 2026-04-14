@@ -1,0 +1,17 @@
+<div class="flex flex-row gap-5">
+  @for (marking of markings(); track $index) {
+    @if (indexed()) {
+      <aas-single-marking [marking]="marking" [idShortPath]="idShortPath() + '[' + $index + ']'"></aas-single-marking>
+    } @else {
+      <aas-single-marking
+        [marking]="marking"
+        [idShortPath]="idShortPath() + '.' + marking.idShort"
+      ></aas-single-marking>
+    }
+  } @empty {
+    <div class="flex flex-col">
+      <em class="fa-solid fa-circle-question text-2xl"></em>
+      <div>{{ 'NO_MARKINGS_FOUND' | translate }}</div>
+    </div>
+  }
+</div>

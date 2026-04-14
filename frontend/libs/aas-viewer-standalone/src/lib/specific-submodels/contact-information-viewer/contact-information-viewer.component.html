@@ -1,0 +1,150 @@
+<div class="contact-info-container">
+  <div class="contact-info-card">
+    <p-accordion [multiple]="true" (valueChange)="accordionTabValueChange($event)" class="contact-accordion">
+      @for (contact of contactInfos(); track $index) {
+        <p-accordion-panel [value]="contact.id">
+          <p-accordion-header>{{ contact.id }}</p-accordion-header>
+          <p-accordion-content>
+            <div class="contact-content-grid">
+              <div class="contact-fields">
+                @if (contact.department) {
+                  <p-inputgroup>
+                    <p-inputgroup-addon class="font-bold contact-label-addon">
+                      <i class="fa-solid fa-building-user mr-2"></i>
+                      <lib-help-label tag="DEPARTMENT" [showLabel]="false"></lib-help-label>
+                      {{ 'DEPARTMENT' | translate }}
+                    </p-inputgroup-addon>
+                    <input pInputText type="text" [value]="contact.department" readonly />
+                  </p-inputgroup>
+                }
+
+                @if (contact.name != null && contact.name.trim() !== '') {
+                  <p-inputgroup>
+                    <p-inputgroup-addon class="font-bold contact-label-addon">
+                      <i class="fa-solid fa-signature mr-2"></i>
+                      <lib-help-label tag="NAME" [showLabel]="false"></lib-help-label>
+                      {{ 'NAME' | translate }}
+                    </p-inputgroup-addon>
+                    <input pInputText type="text" [value]="contact.name" readonly />
+                  </p-inputgroup>
+                }
+
+                @if (contact.company) {
+                  <p-inputgroup>
+                    <p-inputgroup-addon class="font-bold contact-label-addon">
+                      <i class="fa-solid fa-industry mr-2"></i>
+                      <lib-help-label tag="COMPANY" [showLabel]="false"></lib-help-label>
+                      {{ 'COMPANY' | translate }}
+                    </p-inputgroup-addon>
+                    <input pInputText type="text" [value]="contact.company" readonly />
+                  </p-inputgroup>
+                }
+
+                @if (contact.street) {
+                  <p-inputgroup>
+                    <p-inputgroup-addon class="font-bold contact-label-addon">
+                      <i class="fa-solid fa-road mr-2"></i>
+                      <lib-help-label tag="STREET" [showLabel]="false"></lib-help-label>
+                      {{ 'STREET' | translate }}
+                    </p-inputgroup-addon>
+                    <input pInputText type="text" [value]="contact.street" readonly />
+                  </p-inputgroup>
+                }
+
+                @if (contact.countryCode || contact.zip || contact.city) {
+                  <p-inputgroup>
+                    <p-inputgroup-addon class="font-bold contact-label-addon">
+                      <i class="fa-solid fa-location-pin mr-2"></i>
+                      <lib-help-label tag="CITY_TOWN" [showLabel]="false"></lib-help-label>
+                      {{ 'CITY_TOWN' | translate }}
+                    </p-inputgroup-addon>
+                    <input
+                      pInputText
+                      type="text"
+                      [value]="(contact.countryCode || '') + ' ' + (contact.zip || '') + ' ' + (contact.city || '')"
+                      readonly
+                    />
+                  </p-inputgroup>
+                }
+
+                @if (contact.ipcom) {
+                  <p-inputgroup>
+                    <p-inputgroup-addon class="font-bold contact-label-addon">
+                      <i class="pi pi-external-link mr-2"></i>
+                      <lib-help-label tag="URL" [showLabel]="false"></lib-help-label>
+                      {{ 'URL' | translate }}
+                    </p-inputgroup-addon>
+                    <input pInputText type="text" [value]="contact.ipcom" readonly />
+                    <p-inputgroup-addon class="w-auto">
+                      <a
+                        [href]="contact.ipcom"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        class="text-primary hover:underline"
+                      >
+                        <i class="fa-solid fa-up-right-from-square"></i>
+                      </a>
+                    </p-inputgroup-addon>
+                  </p-inputgroup>
+                }
+
+                @if (contact.email) {
+                  <p-inputgroup>
+                    <p-inputgroup-addon class="font-bold contact-label-addon">
+                      <i class="fa-solid fa-at mr-2"></i>
+                      <lib-help-label tag="EMAIL" [showLabel]="false"></lib-help-label>
+                      {{ 'EMAIL' | translate }}
+                    </p-inputgroup-addon>
+                    <input pInputText type="text" [value]="contact.email" readonly />
+                  </p-inputgroup>
+                }
+
+                @if (contact.phone) {
+                  <p-inputgroup>
+                    <p-inputgroup-addon class="font-bold contact-label-addon">
+                      <i class="fa-solid fa-phone mr-2"></i>
+                      <lib-help-label tag="PHONE" [showLabel]="false"></lib-help-label>
+                      {{ 'PHONE' | translate }}
+                    </p-inputgroup-addon>
+                    <input pInputText type="text" [value]="contact.phone" readonly />
+                  </p-inputgroup>
+                }
+
+                @if (contact.fax) {
+                  <p-inputgroup>
+                    <p-inputgroup-addon class="font-bold contact-label-addon">
+                      <i class="fa-solid fa-fax mr-2"></i>
+                      <lib-help-label tag="FAX" [showLabel]="false"></lib-help-label>
+                      {{ 'FAX' | translate }}
+                    </p-inputgroup-addon>
+                    <input pInputText type="text" [value]="contact.fax" readonly />
+                  </p-inputgroup>
+                }
+
+                @if (contact.language) {
+                  <p-inputgroup>
+                    <p-inputgroup-addon class="font-bold contact-label-addon">
+                      <i class="fa-solid fa-globe mr-2"></i>
+                      <lib-help-label tag="LANGUAGE" [showLabel]="false"></lib-help-label>
+                      {{ 'LANGUAGE' | translate }}
+                    </p-inputgroup-addon>
+                    <input pInputText type="text" [value]="contact.language" readonly />
+                  </p-inputgroup>
+                }
+              </div>
+
+              @if (contact.street || contact.city || contact.zip) {
+                <div class="contact-map-shell">
+                  <aas-contact-information-map
+                    [contactInformation]="contact"
+                    [showLayer]="contact.showLayer"
+                  ></aas-contact-information-map>
+                </div>
+              }
+            </div>
+          </p-accordion-content>
+        </p-accordion-panel>
+      }
+    </p-accordion>
+  </div>
+</div>

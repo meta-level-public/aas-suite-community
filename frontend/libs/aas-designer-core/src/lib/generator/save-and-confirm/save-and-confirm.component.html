@@ -1,0 +1,150 @@
+<aas-generator-page-shell [titleKey]="'SUMMARY'" [showActions]="true" [contentCardClass]="'save-confirm-card'">
+  <p generator-shell-intro class="text-lg battery-editor-page-copy mb-0" style="color: var(--p-text-muted-color)">
+    {{ 'SUMMARY_EXPL' | translate }}
+  </p>
+
+  <div generator-shell-main>
+    <p-treeTable [value]="data" class="p-treetable-sm">
+      <ng-template #header let-columns>
+        <tr>
+          <th scope="col" style="min-width: 15rem; max-width: 15rem">{{ 'ELEMENT' | translate }}</th>
+          <th scope="col" style="width: 80%">{{ 'DATA' | translate }}</th>
+        </tr>
+      </ng-template>
+
+      <ng-template pTemplate="body" let-rowNode let-rowData="rowData" let-columns="columns">
+        <tr>
+          <td style="min-width: 15rem; max-width: 15rem">
+            <p-treeTableToggler [rowNode]="rowNode"></p-treeTableToggler>
+            {{ rowData.label }}
+          </td>
+          <td>
+            @switch (rowData.type) {
+              @case ('Nameplate') {}
+              @case ('Image') {
+                <p-image [src]="rowData.value" width="50" [preview]="true"></p-image>
+              }
+              @case ('DocumentItem') {
+                <div class="grid grid-cols-12">
+                  <div class="col-6">
+                    {{ rowData.value.vdi2770Title }}
+                  </div>
+                  <div class="col-6">
+                    {{ rowData.value.vdi2770FileFileName }}
+                  </div>
+                </div>
+              }
+              @case ('MLP') {
+                @for (mlp of rowData.value; track mlp) {
+                  <div>{{ mlp.language }}: {{ mlp.text }}</div>
+                }
+              }
+              @case ('GENERIC_SubmodelElementCollection') {}
+              @case ('GENERIC_Submodel') {}
+              @case ('GENERIC_Property') {
+                {{ rowData.value.value }}
+              }
+              @case ('GENERIC_File') {
+                {{ rowData.value.value }} / {{ rowData.value.mimeType }}
+              }
+              @case ('GENERIC_MultilanguageProperty') {
+                @for (mlp of rowData.value; track mlp) {
+                  <div>{{ mlp.language }}: {{ mlp.text }}</div>
+                }
+              }
+              @case ('') {
+                {{ rowData.value }}
+              }
+              @case (null) {
+                {{ rowData.value }}
+              }
+              @case ('Text') {
+                {{ rowData.value }}
+              }
+              @default {
+                {{ rowData.value }}
+              }
+            }
+          </td>
+        </tr>
+      </ng-template>
+    </p-treeTable>
+  </div>
+
+  <p-button
+    generator-shell-actions
+    label="{{ 'BACK' | translate }}"
+    (onClick)="prev()"
+    icon="pi pi-angle-left"
+    [loading]="loading"
+  ></p-button>
+  <p-button
+    generator-shell-actions
+    label="Debug: AAS validieren"
+    (onClick)="debugValidateGeneratedAas()"
+    icon="pi pi-check-circle"
+    severity="secondary"
+    [loading]="loading"
+  ></p-button>
+  <p-button
+    generator-shell-actions
+    label="{{ 'GENERATOR_APPLY_TEMPLATE_FIXES' | translate }}"
+    (onClick)="applyCurrentExportFixes()"
+    icon="pi pi-wrench"
+    severity="secondary"
+    [loading]="loading"
+  ></p-button>
+  <p-button
+    generator-shell-actions
+    label="{{ 'SAVE' | translate }}"
+    (onClick)="saveAndContinueV3()"
+    icon="pi pi-save"
+    [loading]="loading"
+  ></p-button>
+</aas-generator-page-shell>
+
+<p-dialog
+  header="{{ 'VALIDATION_RESULT' | translate: { errors: validationErrors().length } }}"
+  [(visible)]="displayValidationResult"
+  [modal]="true"
+  [maximizable]="true"
+  appendTo="body"
+  [style]="{ width: '75vw' }"
+  [contentStyle]="{ height: '50vh' }"
+>
+  <div class="mb-3 flex items-center justify-end gap-2">
+    <label for="save-confirm-validation-advanced">{{ 'ADVANCED' | translate }}</label>
+    <input id="save-confirm-validation-advanced" type="checkbox" [(ngModel)]="advanced" class="h-4 w-4" />
+  </div>
+
+  <p-table [value]="validationErrors()" size="small" [stripedRows]="true" [scrollable]="true" scrollHeight="flex">
+    <ng-template #header>
+      <tr>
+        <th scope="col" style="min-width: 50px">#</th>
+        <th scope="col">{{ 'VALIDATION_ERROR_MESSAGE' | translate }}</th>
+        @if (advanced) {
+          <th scope="col" style="min-width: 220px">{{ 'OBJECT_PATH' | translate }}</th>
+        }
+        @if (advanced) {
+          <th scope="col" style="min-width: 160px">{{ 'CONSTRAINT' | translate }}</th>
+        }
+      </tr>
+    </ng-template>
+    <ng-template #body let-error>
+      <tr>
+        <td style="min-width: 50px">{{ error.number }}</td>
+        <td>{{ error.messageTranslated }}</td>
+        @if (advanced) {
+          <td style="min-width: 220px">{{ error.path }}</td>
+        }
+        @if (advanced) {
+          <td style="min-width: 160px">
+            @if (error.constraint !== '' && error.constraint != null) {
+              <p-tag [value]="error.constraint" severity="secondary" />
+            }
+          </td>
+        }
+      </tr>
+    </ng-template>
+  </p-table>
+</p-dialog>

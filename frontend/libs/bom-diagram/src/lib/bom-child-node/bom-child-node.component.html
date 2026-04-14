@@ -1,0 +1,31 @@
+<p-table [value]="[' ']" size="small" stripedRows>
+  <ng-template pTemplate="body">
+    <tr>
+      <td>
+        <div class="flex flex-row gap-2">
+          <div>{{ 'ASSET' | translate }}</div>
+          <div class="font-bold">{{ node?.idShort }}</div>
+        </div>
+      </td>
+      <td>
+        <div class="flex flex-row gap-2">
+          <div>{{ 'TYPE' | translate }}</div>
+          <div class="font-bold">{{ relType }}</div>
+        </div>
+      </td>
+      <td class="font-bold">
+        <div class="flex flex-row justify-between">
+          {{ node?.globalAssetId }}
+        </div>
+      </td>
+    </tr>
+    @if (childNodes.length > 0) {
+      @for (node of childNodes; track node) {
+        <tr>
+          <td></td>
+          <td colspan="2"><aas-bom-child-node [node]="node"></aas-bom-child-node></td>
+        </tr>
+      }
+    }
+  </ng-template>
+</p-table>

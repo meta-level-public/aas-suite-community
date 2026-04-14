@@ -1,0 +1,141 @@
+<div class="flex flex-row gap-2 chart-toolbar mt-4">
+  <span class="mode-badge" [class.mode-badge-edit]="editable" [class.mode-badge-view]="!editable">
+    {{ modeLabel }}
+  </span>
+  @if (isInitialized) {
+    <p-button
+      icon="pi pi-refresh"
+      label="{{ 'BOM_DIAGRAM_REFRESH' | translate }}"
+      styleClass="p-button-outlined"
+      (onClick)="renderChart()"
+      pTooltip="{{ 'BOM_DIAGRAM_REFRESH' | translate }}"
+      tooltipPosition="top"
+    ></p-button>
+    <p-button
+      icon="pi pi-arrows-h"
+      label="{{ 'BOM_DIAGRAM_ORIENTATION' | translate }}"
+      styleClass="p-button-outlined"
+      (onClick)="toggleOrientation()"
+      pTooltip="{{ 'BOM_DIAGRAM_ORIENTATION' | translate }}"
+      tooltipPosition="top"
+    ></p-button>
+    <p-button
+      icon="pi pi-palette"
+      label="{{ 'BOM_DIAGRAM_THEME' | translate }}"
+      styleClass="p-button-outlined"
+      (onClick)="cycleTheme()"
+      pTooltip="{{ 'BOM_DIAGRAM_THEME' | translate }}"
+      tooltipPosition="top"
+    ></p-button>
+    @if (showReinitializeAction) {
+      <span class="toolbar-separator" aria-hidden="true"></span>
+      <p-button
+        icon="pi pi-exclamation-triangle"
+        label="{{ 'BOM_REINITIALIZE' | translate }}"
+        styleClass="p-button-warning"
+        (onClick)="onReinitializeAction()"
+        pTooltip="{{ 'BOM_REINITIALIZE' | translate }}"
+        tooltipPosition="top"
+      ></p-button>
+    }
+    <p-button
+      icon="pi pi-download"
+      label="{{ 'BOM_DIAGRAM_DOWNLOAD' | translate }}"
+      styleClass="p-button-outlined"
+      (onClick)="exportSvg()"
+      pTooltip="{{ 'BOM_DIAGRAM_DOWNLOAD' | translate }}"
+      tooltipPosition="top"
+    ></p-button>
+  } @else {
+    <p-button
+      icon="fa-solid fa-diagram-project"
+      label="{{ 'INITIALIZE' | translate }}"
+      (onClick)="createRootEntity()"
+    />
+  }
+</div>
+
+@if (isInitialized && isEntryNodeOnly && editable) {
+  <div class="p-3 border-1 border-yellow-300 bg-yellow-50 border-round mt-2 mb-2">
+    <div class="font-semibold mb-2">{{ 'BOM_REINITIALIZE_TITLE' | translate }}</div>
+    <div class="text-sm mb-3">{{ 'BOM_REINITIALIZE_HINT' | translate }}</div>
+    <div class="flex gap-2">
+      <p-button
+        icon="pi pi-refresh"
+        styleClass="p-button-warning"
+        label="{{ 'BOM_REINITIALIZE' | translate }}"
+        (onClick)="reinitializeBom()"
+      ></p-button>
+    </div>
+  </div>
+}
+
+@if (chartVisible === true) {
+  <div class="chart-wrapper">
+    <div #chartContainer class="cy-container"></div>
+
+    @if (editable && selectedItem && selectedItemReparentHandleAnchor) {
+      <button
+        type="button"
+        class="reparent-handle"
+        [class.reparent-handle-armed]="isReparentArmedForSelected"
+        [style.left.px]="selectedItemReparentHandleAnchor.left"
+        [style.top.px]="selectedItemReparentHandleAnchor.top"
+        (mousedown)="armReparentForSelected($event)"
+        pTooltip="{{ 'BOM_REPARENT_HANDLE_HINT' | translate }}"
+        tooltipPosition="top"
+      >
+        <i class="pi pi-share-alt"></i>
+      </button>
+    }
+
+    @if (selectedItem && selectedItemActionAnchor) {
+      <div
+        class="floating-node-actions"
+        [style.left.px]="selectedItemActionAnchor.left"
+        [style.top.px]="selectedItemActionAnchor.top"
+      >
+        <div class="floating-node-actions-row">
+          <p-button
+            icon="pi pi-info-circle"
+            label="{{ 'DETAILS' | translate }}"
+            styleClass="p-button-sm"
+            (onClick)="openSelectedDetails()"
+          ></p-button>
+          @if (editable) {
+            <p-button
+              icon="pi pi-plus"
+              label="{{ 'ADD_CHILD_NODE' | translate }}"
+              styleClass="p-button-sm p-button-outlined"
+              (onClick)="openSelectedAddChild()"
+              [disabled]="!canAddChildOnSelectedItem"
+            ></p-button>
+            <p-button
+              icon="pi pi-trash"
+              label="{{ 'REMOVE_ELEMENT' | translate }}"
+              styleClass="p-button-sm p-button-danger p-button-outlined"
+              (onClick)="openSelectedRemove()"
+              [disabled]="!canRemoveSelectedItem"
+            ></p-button>
+          }
+          <p-button icon="pi pi-times" styleClass="p-button-sm p-button-text" (onClick)="clearSelection()"></p-button>
+        </div>
+        @if (editable && addChildDisabledHint) {
+          <div class="floating-node-actions-hint">
+            {{ addChildDisabledHint }}
+          </div>
+        }
+        @if (editable && removeDisabledHint) {
+          <div class="floating-node-actions-hint">
+            {{ removeDisabledHint }}
+          </div>
+        }
+        @if (editable && isReparentArmedForSelected) {
+          <div class="floating-node-actions-hint">
+            {{ 'BOM_REPARENT_ARMED_HINT' | translate }}
+          </div>
+        }
+      </div>
+    }
+  </div>
+}

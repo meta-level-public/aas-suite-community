@@ -1,0 +1,17 @@
+@use '../submodel-editor-layout';
+
+.battery-submodel-meta {
+  background: linear-gradient(180deg, var(--p-surface-50), var(--p-surface-0));
+  border: 1px solid var(--p-content-border-color);
+}
+
+.battery-submodel-card {
+  border: 1px solid var(--p-content-border-color);
+  box-shadow: var(--aas-shadow-sm);
+}
+
+.battery-submodel-field-card {
+  border: 1px solid var(--p-content-border-color);
+  border-radius: var(--aas-radius-md);
+  padding: 1rem;
+}

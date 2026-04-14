@@ -1,0 +1,85 @@
+<p-table
+  #dt
+  class="w-full mt-5"
+  size="small"
+  class="col-span-12"
+  [value]="files?.content ?? []"
+  responsiveLayout="scroll"
+  scrollHeight="flex"
+  [globalFilterFields]="['fileName', 'filePath', 'isThumbnail', 'isLocal']"
+  [rows]="10"
+  [paginator]="false"
+  [rowHover]="true"
+  sortField="fileName"
+>
+  <ng-template pTemplate="caption">
+    <div class="flex items-center justify-content"></div>
+  </ng-template>
+  <ng-template #header>
+    <tr>
+      <th scope="col" pSortableColumn="fileName">
+        {{ 'FILENAME' | translate }}
+        <p-sortIcon field="fileName"></p-sortIcon>
+      </th>
+      <!-- <th scope="col" pSortableColumn="filePath">
+      {{ 'FILE_PATH' | translate }}
+      <p-sortIcon field="filePath"></p-sortIcon>
+    </th> -->
+      <th scope="col" pSortableColumn="contentType">
+        {{ 'CONTENT_TYPE' | translate }}
+        <p-sortIcon field="contentType"></p-sortIcon>
+      </th>
+      <th scope="col" pSortableColumn="isLocal" class="flex-auto">
+        <div class="flex items-center justify-center">
+          {{ 'IS_LOCAL' | translate }}
+          <p-sortIcon field="isLocal"></p-sortIcon>
+        </div>
+      </th>
+      <th scope="col" pSortableColumn="isThumbnail" class="flex-auto">
+        <div class="flex items-center justify-center">
+          {{ 'IS_THUMBNAIL' | translate }}
+          <p-sortIcon field="isLocal"></p-sortIcon>
+        </div>
+      </th>
+    </tr>
+    <tr>
+      <th scope="col">
+        <p-columnFilter type="text" field="fileName" matchMode="contains" [showMenu]="false"></p-columnFilter>
+      </th>
+      <th scope="col">
+        <p-columnFilter type="text" field="filePath" matchMode="contains" [showMenu]="false"></p-columnFilter>
+      </th>
+      <th scope="col"></th>
+      <th scope="col"></th>
+    </tr>
+  </ng-template>
+
+  <ng-template pTemplate="body" let-file let-rowIndex="rowIndex">
+    <tr>
+      <td field="fileName">{{ file.filename }}</td>
+      <td field="contentType">{{ file.contentType }}</td>
+      <!-- <td field="filePath">{{ file.path ?? file.fileApiUrl }}</td> -->
+
+      <td field="isLocal" class="flex-auto">
+        @if (file.isLocal) {
+          <div class="flex items-center justify-center">
+            <em class="pi pi-check-square"></em>
+          </div>
+        }
+      </td>
+      <td field="isThumbnail" class="flex-auto">
+        @if (file.isThumbnail) {
+          <div class="flex items-center justify-center">
+            <em class="pi pi-check-square"></em>
+          </div>
+        }
+      </td>
+    </tr>
+  </ng-template>
+
+  <ng-template pTemplate="emptymessage">
+    <tr>
+      <td colspan="5">{{ 'NO_DATA_FOUND' | translate }}</td>
+    </tr>
+  </ng-template>
+</p-table>

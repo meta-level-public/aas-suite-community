@@ -1,0 +1,39 @@
+.pcf-container {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+  width: 100%;
+}
+
+/* Hero Section - Using central styles from common-components.css */
+
+/* Steps Grid */
+.steps-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+/* Map Section */
+.map-section {
+  background: var(--p-content-background);
+  border: 1px solid var(--p-content-border-color);
+  border-radius: var(--aas-radius-md);
+  padding: 1.5rem;
+  box-shadow: 0 2px 8px color-mix(in srgb, var(--p-primary-900) 5%, transparent);
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .pcf-container {
+    width: 100%;
+  }
+
+  .map-section {
+    padding: 1rem;
+  }
+
+  .section-title {
+    font-size: 1.25rem;
+  }
+}

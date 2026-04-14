@@ -1,0 +1,102 @@
+.aas-confirm-headless {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.9rem;
+  padding: 1.75rem 1.5rem 1.35rem;
+  border-radius: var(--aas-radius-md);
+  background: var(--p-overlay-modal-background, var(--p-surface-0));
+  overflow: visible;
+  box-shadow: var(--aas-shadow-md);
+}
+
+.aas-confirm-headless::before {
+  content: '';
+  position: absolute;
+  top: -1px;
+  left: 0;
+  right: 0;
+  height: 5px;
+  background: var(--aas-danger-icon);
+  border-top-left-radius: var(--aas-radius-md);
+  border-top-right-radius: var(--aas-radius-md);
+}
+
+.aas-confirm-icon-wrap {
+  margin-top: -2.4rem;
+  width: 3rem;
+  height: 3rem;
+  border-radius: var(--aas-radius-pill);
+  background: var(--aas-danger-icon);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: var(--aas-shadow-sm);
+}
+
+.aas-confirm-icon {
+  color: var(--p-surface-0);
+  font-size: 1.15rem;
+}
+
+.aas-confirm-title {
+  margin-top: 0.15rem;
+  font-size: 2rem;
+  line-height: 1.1;
+  font-weight: 800;
+  color: var(--p-text-color);
+  text-align: center;
+}
+
+.aas-confirm-message {
+  margin: 0;
+  font-size: 1.05rem;
+  line-height: 1.45;
+  color: var(--p-text-muted-color);
+  text-align: center;
+}
+
+.aas-confirm-actions {
+  display: flex;
+  justify-content: center;
+  gap: 0.75rem;
+  margin-top: 0.2rem;
+}
+
+:host ::ng-deep .aas-confirm-btn-secondary,
+:host ::ng-deep .aas-confirm-btn-primary {
+  min-width: 8.5rem;
+}
+
+:host ::ng-deep .p-confirmdialog .p-dialog {
+  border: 0 !important;
+  border-radius: var(--aas-radius-md);
+  overflow: visible;
+}
+
+:host ::ng-deep .p-confirmdialog .p-dialog-content {
+  padding: 0;
+  border-radius: var(--aas-radius-md);
+  background: var(--p-overlay-modal-background, var(--p-surface-0));
+}
+
+@media (max-width: 640px) {
+  .aas-confirm-headless {
+    padding: 1.5rem 1.1rem 1.2rem;
+  }
+
+  .aas-confirm-title {
+    font-size: 1.7rem;
+  }
+
+  .aas-confirm-actions {
+    width: 100%;
+  }
+
+  :host ::ng-deep .aas-confirm-btn-secondary,
+  :host ::ng-deep .aas-confirm-btn-primary {
+    flex: 1 1 0;
+    min-width: 0;
+  }
+}

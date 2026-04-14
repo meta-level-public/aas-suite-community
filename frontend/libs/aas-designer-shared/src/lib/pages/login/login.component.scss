@@ -1,0 +1,267 @@
+:host {
+  display: block;
+  --aas-login-contrast-color: var(--p-text-color);
+  --aas-login-muted-color: var(--p-text-muted-color);
+  --aas-login-panel-surface: color-mix(in srgb, var(--p-content-background) 88%, transparent);
+  --aas-login-panel-border: color-mix(in srgb, var(--p-text-color) 14%, transparent);
+  --aas-login-footer-surface: color-mix(in srgb, var(--p-content-background) 78%, transparent);
+  --aas-login-footer-link: var(--p-text-color);
+  --aas-login-footer-separator: var(--p-text-muted-color);
+  --aas-login-soft-border: color-mix(in srgb, var(--p-text-color) 14%, transparent);
+  --aas-login-soft-surface: color-mix(in srgb, var(--p-content-background) 72%, transparent);
+  --aas-login-card-surface: color-mix(in srgb, var(--p-content-background) 82%, transparent);
+  --aas-login-card-tint: color-mix(in srgb, var(--p-primary-color) 10%, transparent);
+  --aas-login-icon-surface: color-mix(in srgb, var(--p-primary-color) 18%, transparent);
+  --aas-login-icon-color: var(--p-text-color);
+  --aas-login-button-text: var(--p-text-color);
+  width: 100%;
+  min-height: 100%;
+  height: 100%;
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  background-attachment: fixed;
+  overflow: auto;
+  position: relative;
+
+  &::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: color-mix(in srgb, var(--p-primary-color) 10%, transparent);
+    pointer-events: none;
+  }
+}
+
+:host-context(html.my-app-dark) {
+  --aas-login-panel-surface: color-mix(in srgb, var(--p-surface-900) 80%, transparent);
+  --aas-login-panel-border: color-mix(in srgb, var(--p-surface-0) 18%, transparent);
+  --aas-login-footer-surface: color-mix(in srgb, var(--p-surface-900) 68%, transparent);
+  --aas-login-footer-link: var(--p-surface-0);
+  --aas-login-footer-separator: color-mix(in srgb, var(--p-surface-0) 70%, transparent);
+  --aas-login-soft-border: color-mix(in srgb, var(--p-surface-0) 18%, transparent);
+  --aas-login-soft-surface: color-mix(in srgb, var(--p-surface-900) 56%, transparent);
+  --aas-login-card-surface: color-mix(in srgb, var(--p-surface-900) 74%, transparent);
+  --aas-login-card-tint: color-mix(in srgb, var(--p-primary-color) 16%, transparent);
+  --aas-login-icon-color: var(--p-surface-0);
+  --aas-login-button-text: var(--p-surface-0);
+}
+
+.login-container {
+  display: flex;
+  flex-direction: column;
+  height: calc(100% - 1rem);
+  min-height: calc(100% - 1rem);
+  width: calc(100% - 1rem);
+  gap: 2rem;
+  padding: 0;
+  margin: 0.5rem;
+}
+
+.login-content {
+  display: grid;
+  flex: 1 1 auto;
+  height: 100%;
+  min-height: 100%;
+  grid-template-columns: minmax(24rem, 34rem) minmax(0, 1fr);
+  gap: 2rem;
+  align-items: stretch;
+}
+
+.brand-column {
+  display: grid;
+  grid-template-rows: minmax(0, 1fr) auto;
+  min-width: 0;
+  min-height: 100%;
+  height: 100%;
+  gap: 1rem;
+}
+
+.form-section {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  align-items: stretch;
+  background: transparent;
+  min-width: 0;
+  min-height: 100%;
+  height: 100%;
+  position: relative;
+
+  &.form-section-full {
+    max-width: 100%;
+    grid-column: 1 / -1;
+  }
+}
+
+.form-card {
+  background: var(--aas-login-panel-surface);
+  backdrop-filter: blur(10px);
+  border-radius: var(--aas-radius-md);
+  padding: 2rem;
+  border: 1px solid var(--aas-login-panel-border);
+  width: 100%;
+  max-width: none;
+  min-height: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+
+  &,
+  ::ng-deep * {
+    color: var(--p-text-color);
+  }
+
+  &.form-card-full {
+    max-width: 100%;
+  }
+}
+
+.form-wrapper {
+  display: flex;
+  flex: 1;
+  align-items: center;
+}
+
+.contact-panel {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  max-width: none;
+  align-self: stretch;
+}
+
+.auth-panel {
+  display: grid;
+  gap: 1.25rem;
+  max-width: 26rem;
+}
+
+.auth-support-panel {
+  display: grid;
+  gap: 0.85rem;
+  padding: 1rem 0 0;
+  border-top: 1px solid var(--p-content-border-color);
+}
+
+.auth-support-copy {
+  margin: 0;
+  color: var(--p-text-muted-color);
+  font-size: 0.95rem;
+  line-height: 1.5;
+}
+
+.auth-support-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  align-items: center;
+
+  ::ng-deep .auth-support-contact.p-button {
+    color: var(--p-text-color);
+  }
+}
+
+.form-wrapper > * {
+  width: 100%;
+}
+
+.disclaimer-footer {
+  flex: 0 0 auto;
+  padding: 0.5rem 1rem;
+  text-align: center;
+  width: 100%;
+  background: var(--aas-login-footer-surface);
+  backdrop-filter: blur(10px);
+  border-radius: var(--aas-radius-md);
+  border: 1px solid var(--aas-login-panel-border);
+  margin-bottom: 0.5rem;
+
+  ::ng-deep {
+    a {
+      color: var(--aas-login-footer-link);
+      text-decoration: none;
+      margin: 0 0.75rem;
+      font-size: 0.9rem;
+
+      &:hover {
+        color: var(--p-primary-color);
+        text-decoration: underline;
+      }
+    }
+
+    span {
+      color: var(--aas-login-footer-separator);
+      margin: 0 0.25rem;
+    }
+  }
+}
+
+.welcome-header {
+  text-align: center;
+  margin-bottom: 2rem;
+}
+
+.welcome-title {
+  font-size: 2.5rem;
+  font-weight: 700;
+  color: var(--p-text-color);
+  margin: 0 0 0.5rem;
+}
+
+.welcome-subtitle {
+  font-size: 1.25rem;
+  font-weight: 300;
+  color: var(--p-text-muted-color);
+  margin: 0;
+}
+
+@media (max-width: 1024px) {
+  .login-content {
+    grid-template-columns: 1fr;
+  }
+
+  .form-section {
+    max-width: 100%;
+  }
+
+  .form-card:not(.form-card-full) {
+    max-width: 42rem;
+    margin-inline: auto;
+  }
+
+  .auth-panel {
+    max-width: none;
+  }
+}
+
+@media (max-width: 640px) {
+  .login-container {
+    margin: 0.25rem;
+  }
+
+  .form-section {
+    padding: 1rem;
+  }
+
+  .form-card {
+    padding: 1.5rem;
+  }
+
+  .welcome-title {
+    font-size: 2rem;
+  }
+
+  .welcome-subtitle {
+    font-size: 1rem;
+  }
+
+  .auth-support-actions {
+    align-items: stretch;
+
+    ::ng-deep .p-button {
+      width: 100%;
+      justify-content: center;
+    }
+  }
+}

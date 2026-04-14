@@ -1,0 +1,21 @@
+@if (element) {
+  <div class="flex flex-col gap-2">
+    <p-inputgroup>
+      <p-inputgroup-addon class="font-bold w-48">
+        <i class="fa-solid fa-cog mr-2"></i>
+        <lib-help-label tag="TYPE" [showLabel]="false"></lib-help-label>
+        {{ 'TYPE' | translate }}
+      </p-inputgroup-addon>
+      <input pInputText type="text" [value]="'CAPABILITY_ELEMENT' | translate" readonly />
+    </p-inputgroup>
+
+    <p-inputgroup>
+      <p-inputgroup-addon class="font-bold w-48">
+        <i class="fa-solid fa-tag mr-2"></i>
+        <lib-help-label tag="ID_SHORT" [showLabel]="false"></lib-help-label>
+        {{ 'ID_SHORT' | translate }}
+      </p-inputgroup-addon>
+      <input pInputText type="text" [value]="element.idShort" readonly />
+    </p-inputgroup>
+  </div>
+}

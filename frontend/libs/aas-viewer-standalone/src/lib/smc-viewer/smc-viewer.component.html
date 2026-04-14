@@ -1,0 +1,25 @@
+@if (smc != null) {
+  <p-accordion [value]="isExpanded() ? 'smc_' + (smc.idShort || 'default') : ''">
+    <p-accordion-panel [value]="'smc_' + (smc.idShort || 'default')">
+      <p-accordion-header>
+        <div class="flex items-center gap-2 w-full">
+          <i class="fa-solid fa-folder-open"></i>
+          <span class="font-semibold">{{ getLabel(smc) }}</span>
+          <span class="text-sm text-gray-500 ml-auto">{{ (smc.value ?? []).length }} {{ 'ELEMENTS' | translate }}</span>
+          <aas-semantic-description-popup [semanticId]="semanticId()"></aas-semantic-description-popup>
+        </div>
+      </p-accordion-header>
+      <p-accordion-content>
+        <div class="flex flex-col gap-2">
+          <aas-submodel-elements-list
+            [elements]="smc.value ?? []"
+            [idShortPath]="idShortPath"
+            [submodelId]="submodelId"
+            [withIdShort]="withIdShort"
+            [fallbackLabel]="'Element'"
+          ></aas-submodel-elements-list>
+        </div>
+      </p-accordion-content>
+    </p-accordion-panel>
+  </p-accordion>
+}

@@ -1,0 +1,269 @@
+@if (documents.length > 0) {
+  <div class="handover-container">
+    <!-- File Groups Grid -->
+    @if (fileGroups.length === 0) {
+      <div class="empty-state">
+        <i class="pi pi-folder-open empty-icon"></i>
+        <p class="empty-text">{{ 'NO_FILES' | translate }}</p>
+      </div>
+    } @else {
+      <div class="file-groups-grid">
+        @for (group of fileGroups; track group.groupId) {
+          <div class="file-group-card">
+            <!-- Preview Section -->
+            <div class="preview-section">
+              @if (group.previewLoading) {
+                <p-skeleton width="100%" height="100%"></p-skeleton>
+              } @else if (group.previewUrl && !group.previewError) {
+                @if (group.previewType === 'pdf') {
+                  <object
+                    [data]="group.previewSafeUrl || group.previewUrl"
+                    type="application/pdf"
+                    title="preview"
+                    class="preview-object"
+                    (load)="group.previewLoading = false"
+                    (error)="group.previewError = true; group.previewLoading = false"
+                  ></object>
+                } @else {
+                  <img
+                    [src]="group.previewUrl"
+                    alt="preview"
+                    class="preview-image"
+                    loading="lazy"
+                    (load)="group.previewLoading = false"
+                    (error)="group.previewError = true; group.previewUrl = undefined; group.previewLoading = false"
+                  />
+                }
+              } @else {
+                <div class="preview-placeholder">
+                  <i class="pi pi-image"></i>
+                  <span>{{ 'NO_PREVIEW_FILE_SET' | translate }}</span>
+                </div>
+              }
+            </div>
+
+            <!-- Group Header -->
+            <div class="group-header">
+              <div class="group-title">
+                <i class="pi pi-paperclip"></i>
+                <h3>{{ group.title }}</h3>
+              </div>
+              <div class="group-meta">
+                <span class="file-count">{{ group.files.length }} {{ 'ITEMS' | translate }}</span>
+                <p-button
+                  type="button"
+                  styleClass="p-button-text p-button-sm context-btn"
+                  (onClick)="openDocumentPanelFor(group)"
+                  [label]="'SHOW_IN_CONTEXT' | translate"
+                  icon="pi pi-arrow-down"
+                ></p-button>
+              </div>
+            </div>
+
+            <!-- Files List -->
+            <div class="files-list">
+              @for (f of group.files; track f.value) {
+                <div class="file-item">
+                  <span class="file-name" [title]="f.name">{{ f.name }}</span>
+                  <div class="file-actions">
+                    @if (f.isExternal) {
+                      <p-button
+                        type="button"
+                        (onClick)="openExternal(f, $event)"
+                        styleClass="p-button-text p-button-sm"
+                        icon="pi pi-external-link"
+                        [pTooltip]="'OPEN' | translate"
+                      ></p-button>
+                    } @else {
+                      @if (canPreview(f)) {
+                        <p-button
+                          type="button"
+                          (onClick)="openPreview(f, $event)"
+                          styleClass="p-button-text p-button-sm"
+                          icon="pi pi-eye"
+                          [pTooltip]="'PREVIEW' | translate"
+                        ></p-button>
+                      }
+                      <p-button
+                        type="button"
+                        (onClick)="downloadFile(f, $event)"
+                        styleClass="p-button-text p-button-sm"
+                        icon="pi pi-download"
+                        [pTooltip]="'DOWNLOAD' | translate"
+                      ></p-button>
+                    }
+                  </div>
+                </div>
+              }
+            </div>
+          </div>
+        }
+      </div>
+    }
+
+    <!-- Documents Section -->
+    @if (documents.length > 0) {
+      <div class="documents-section">
+        <h2 class="section-title">
+          <i class="pi pi-file"></i>
+          {{ 'DOCUMENTS' | translate }}
+        </h2>
+        <p-accordion [multiple]="true" class="modern-accordion" [value]="expandedPanels()">
+          @for (doc of documents; track $index) {
+            <p-accordion-panel [value]="$index" [attr.id]="'doc-panel-' + $index">
+              <p-accordion-header>
+                <div class="accordion-header-content">
+                  <i class="pi pi-file"></i>
+                  <span>{{ docHeaderTitle($index, doc) }}</span>
+                </div>
+              </p-accordion-header>
+              <p-accordion-content>
+                <p-accordion [multiple]="true" class="nested-accordion" [value]="nestedExpandedPanels()[$index]">
+                  <p-accordion-panel value="ident">
+                    <p-accordion-header>
+                      <div class="accordion-header-content">
+                        <i class="pi pi-id-card"></i>
+                        <span>{{ 'DOCUMENT_IDENTIFICATION' | translate }}</span>
+                      </div>
+                    </p-accordion-header>
+                    <p-accordion-content>
+                      <aas-handover-doc-identification
+                        [document]="doc"
+                        [submodelVersion]="submodelVersion()"
+                        [mode]="structureMode()"
+                      ></aas-handover-doc-identification>
+                    </p-accordion-content>
+                  </p-accordion-panel>
+                  <p-accordion-panel value="class">
+                    <p-accordion-header>
+                      <div class="accordion-header-content">
+                        <i class="pi pi-tags"></i>
+                        <span>{{ 'DOCUMENT_CLASSIFICATIONS' | translate }}</span>
+                      </div>
+                    </p-accordion-header>
+                    <p-accordion-content>
+                      <aas-handover-doc-classifications
+                        [document]="doc"
+                        [submodelVersion]="submodelVersion()"
+                        [mode]="structureMode()"
+                      ></aas-handover-doc-classifications>
+                    </p-accordion-content>
+                  </p-accordion-panel>
+                  <p-accordion-panel value="versions">
+                    <p-accordion-header>
+                      <div class="accordion-header-content">
+                        <i class="pi pi-list"></i>
+                        <span>{{ 'DOCUMENT_VERSIONS' | translate }}</span>
+                      </div>
+                    </p-accordion-header>
+                    <p-accordion-content>
+                      <aas-handover-doc-versions
+                        [document]="doc"
+                        [submodelVersion]="submodelVersion()"
+                        [mode]="structureMode()"
+                      ></aas-handover-doc-versions>
+                    </p-accordion-content>
+                  </p-accordion-panel>
+                </p-accordion>
+              </p-accordion-content>
+            </p-accordion-panel>
+          }
+        </p-accordion>
+      </div>
+    }
+  </div>
+} @else {
+  <div class="empty-state">
+    <i class="pi pi-inbox empty-icon"></i>
+    <p class="empty-text">{{ 'NO_DOCUMENTS_FOUND' | translate }}</p>
+  </div>
+}
+
+@if (previewData(); as pd) {
+  <p-dialog
+    [visible]="previewVisible()"
+    [modal]="true"
+    [style]="{ width: '70vw', maxWidth: '1000px' }"
+    [draggable]="false"
+    [resizable]="true"
+    [baseZIndex]="10000"
+    [dismissableMask]="true"
+    (onHide)="closePreview()"
+    [closable]="false"
+  >
+    <ng-template #header>
+      <div class="flex items-center gap-2">
+        <i
+          class="pi"
+          [ngClass]="
+            pd.type === 'pdf'
+              ? 'pi-file-pdf text-danger'
+              : pd.type === 'image'
+                ? 'pi-image text-primary'
+                : pd.type === 'json'
+                  ? 'pi-code text-primary'
+                  : 'pi-code text-primary'
+          "
+        ></i>
+        <span class="font-medium text-sm">{{ pd.name }}</span>
+      </div>
+    </ng-template>
+    <div class="preview-container" style="min-height: 60vh">
+      @if (pd.type === 'image') {
+        <img [src]="pd.url" [alt]="pd.name" class="w-full h-full" style="object-fit: contain; max-height: 70vh" />
+      } @else if (pd.type === 'pdf') {
+        <iframe [src]="pd.safeUrl || pd.url" title="pdf" style="border: 0; width: 100%; height: 70vh"></iframe>
+      } @else if (pd.type === 'xml') {
+        <div class="w-full" style="max-height: 70vh; overflow: auto">
+          <markdown class="w-full h-full flex flex-col overflow-scroll" style="min-height: 100%">
+            ```xml
+            {{ pd.xmlContent }}
+          </markdown>
+        </div>
+      } @else if (pd.type === 'json') {
+        <div class="w-full" style="max-height: 70vh; overflow: auto">
+          <markdown class="w-full h-full flex flex-col overflow-scroll" style="min-height: 100%">
+            ```json
+            {{ pd.jsonContent }}
+          </markdown>
+        </div>
+      } @else if (pd.type === 'csv') {
+        <div class="w-full" style="max-height: 70vh; overflow: auto">
+          <markdown class="w-full h-full flex flex-col overflow-scroll" style="min-height: 100%">
+            ```csv
+            {{ pd.csvContent }}
+          </markdown>
+        </div>
+      }
+    </div>
+    <ng-template pTemplate="footer">
+      <div class="flex justify-end gap-2 w-full">
+        <p-button
+          type="button"
+          styleClass="p-button-text"
+          (onClick)="closePreview()"
+          [label]="'CLOSE' | translate"
+        ></p-button>
+        <p-button
+          type="button"
+          styleClass="p-button-text"
+          (onClick)="openExternal({ value: pd.url }, $event)"
+          [label]="'OPEN_NEW_TAB' | translate"
+          icon="pi pi-external-link"
+        ></p-button>
+        <p-button
+          type="button"
+          styleClass="p-button-text"
+          (onClick)="
+            downloadFile(
+              { value: pd.originalValue || pd.url, name: pd.name, idPath: pd.idPath, isExternal: pd.isExternal },
+              $event
+            )
+          "
+          [label]="'DOWNLOAD' | translate"
+          icon="pi pi-download"
+        ></p-button>
+      </div>
+    </ng-template>
+  </p-dialog>
+}

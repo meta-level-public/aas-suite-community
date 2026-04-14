@@ -1,0 +1,21 @@
+<section class="sso-panel">
+  <div class="sso-panel-badge">
+    <i class="pi pi-building-columns" aria-hidden="true"></i>
+    <span>{{ 'LOGIN_SSO' | translate }}</span>
+  </div>
+
+  <div class="sso-panel-copy">
+    <p class="sso-panel-title">{{ 'LOGIN_SSO' | translate }}</p>
+    <p class="sso-panel-text">{{ 'LOGIN_SSO_INFO' | translate }}</p>
+  </div>
+
+  <div class="sso-panel-actions">
+    <p-button
+      type="button"
+      styleClass="w-full sso-login-button"
+      label="{{ 'LOGIN' | translate }}"
+      (onClick)="startSsoLogin()"
+      [loading]="loading()"
+    ></p-button>
+  </div>
+</section>

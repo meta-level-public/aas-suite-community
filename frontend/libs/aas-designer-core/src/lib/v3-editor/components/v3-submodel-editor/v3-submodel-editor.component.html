@@ -1,0 +1,238 @@
+@if (submodel != null && submodel.content != null) {
+  <div class="flex flex-col gap-4 p-2">
+    <p-fieldset
+      [toggleable]="true"
+      [ngClass]="{ 'border-error': hasDetailErrors }"
+      [collapsed]="uiStateStore.detailsPanelCollapsed()"
+      (collapsedChange)="uiStateStore.setDetailsPanelCollapsed($event)"
+      class="compact-fieldset"
+    >
+      <ng-template #header>
+        <div class="flex items-center gap-1.5">
+          <div
+            class="flex items-center justify-center w-6 h-6 rounded-full"
+            style="background: var(--aas-info-surface)"
+          >
+            <i class="pi pi-info-circle text-xs" style="color: var(--aas-info-text)"></i>
+          </div>
+          <lib-help-label tag="DETAILS" isLabelBold="true"></lib-help-label>
+        </div>
+      </ng-template>
+      <div class="flex flex-col gap-3 p-3">
+        <aas-v3-id [element]="submodel" class="w-full" [shellResult]="shellResult"></aas-v3-id>
+        <aas-v3-id-short [element]="submodel" class="w-full" [shellResult]="shellResult"></aas-v3-id-short>
+
+        <div class="flex flex-row w-full gap-2">
+          <lib-help-label tag="MODELING_KIND" class="w-48" class="w-48"></lib-help-label>
+          <p-select
+            [options]="modelingTypes"
+            [(ngModel)]="submodel.content.kind"
+            optionLabel="label"
+            optionValue="value"
+            class="w-full"
+            class="w-full"
+            vwsV3Undo
+            placeholder="{{ 'PLEASE_SELECT' | translate }}"
+          ></p-select>
+        </div>
+        <div class="flex flex-row w-full gap-2">
+          <lib-help-label class="w-48" tag="DESCRIPTION"></lib-help-label>
+          <aas-v3-lang-string-list
+            [langStrings]="submodel.content.description"
+            [langStringParent]="submodel.content"
+            [langStringParentPropertyName]="'description'"
+            class="w-full"
+          ></aas-v3-lang-string-list>
+        </div>
+        <div class="flex flex-row w-full gap-2">
+          <lib-help-label class="w-48" tag="DISPLAY_NAME"></lib-help-label>
+          <aas-v3-lang-string-list
+            [langStrings]="submodel.content.displayName"
+            [langStringParent]="submodel.content"
+            [langStringParentPropertyName]="'displayName'"
+            class="w-full"
+          ></aas-v3-lang-string-list>
+        </div>
+        <aas-v3-category [element]="submodel" class="w-full"></aas-v3-category>
+      </div>
+    </p-fieldset>
+    <p-fieldset
+      [toggleable]="true"
+      [collapsed]="uiStateStore.administrativeInformationPanelCollapsed()"
+      (collapsedChange)="uiStateStore.setAdministrativeInformationPanelCollapsed($event)"
+      [ngClass]="{ 'border-error': hasAdministrationErrors }"
+      class="compact-fieldset"
+    >
+      <ng-template #header>
+        <div class="flex items-center gap-1.5">
+          <div
+            class="flex items-center justify-center w-6 h-6 rounded-full"
+            style="background: color-mix(in srgb, var(--p-primary-50) 84%, var(--p-surface-0))"
+          >
+            <i class="pi pi-shield text-xs" style="color: var(--p-primary-700)"></i>
+          </div>
+          <lib-help-label tag="ADMINISTRATTIVE_INFORMATION" isLabelBold="true"></lib-help-label>
+        </div>
+      </ng-template>
+      <aas-v3-administration
+        [administration]="submodel.content.administration"
+        [administrationParent]="submodel.content"
+      ></aas-v3-administration>
+    </p-fieldset>
+    <!-- <p-fieldset legend="{{ 'EXTENSIONS' | translate }}" [toggleable]="true" [collapsed]="true">
+    <aas-v3-extensions
+      [extensions]="submodel.content.extensions"
+      [extensionsParent]="submodel.content"
+    ></aas-v3-extensions>
+  </p-fieldset> -->
+    <p-fieldset
+      [toggleable]="true"
+      [collapsed]="uiStateStore.semanticIdPanelCollapsed()"
+      (collapsedChange)="uiStateStore.setSemanticIdPanelCollapsed($event)"
+      [ngClass]="{ 'border-error': hasSemanticErrors }"
+      class="compact-fieldset"
+    >
+      <ng-template #header>
+        <div class="flex items-center gap-1.5">
+          <div
+            class="flex items-center justify-center w-6 h-6 rounded-full"
+            style="background: var(--aas-success-surface)"
+          >
+            <i class="pi pi-bookmark text-xs" style="color: var(--aas-success-text)"></i>
+          </div>
+          <lib-help-label tag="SEMANTIC_ID" isLabelBold="true"></lib-help-label>
+        </div>
+      </ng-template>
+      <div class="flex flex-col gap-2">
+        <aas-v3-semantic-description
+          [semanticId]="submodel.content.semanticId"
+          [supplemantalSemanticIds]="submodel.content.supplementalSemanticIds"
+          [referenceParent]="submodel.content"
+          [referenceParentPropertyName]="'semanticId'"
+          [shellResult]="shellResult"
+        ></aas-v3-semantic-description>
+      </div>
+    </p-fieldset>
+    <p-fieldset
+      [toggleable]="true"
+      [collapsed]="uiStateStore.embeddedDataspecPanelCollapsed()"
+      (collapsedChange)="uiStateStore.setEmbeddedDataspecPanelCollapsed($event)"
+      class="compact-fieldset"
+    >
+      <ng-template #header>
+        <div class="flex items-center gap-1.5">
+          <div
+            class="flex items-center justify-center w-6 h-6 rounded-full"
+            style="background: var(--aas-warning-surface)"
+          >
+            <i class="pi pi-database text-xs" style="color: var(--aas-warning-text)"></i>
+          </div>
+          <lib-help-label tag="EMBEDDED_DATA_SPECIFICATIONS" isLabelBold="true"></lib-help-label>
+        </div>
+      </ng-template>
+      <aas-v3-embedded-data-specification
+        [dataSpecification]="submodel.content.embeddedDataSpecifications"
+        [dataSpecificationParent]="submodel.content"
+        [shellResult]="shellResult"
+      ></aas-v3-embedded-data-specification>
+    </p-fieldset>
+    <p-fieldset
+      [toggleable]="true"
+      [collapsed]="uiStateStore.qualifiersPanelCollapsed()"
+      (collapsedChange)="uiStateStore.setQualifiersPanelCollapsed($event)"
+      [ngClass]="{ 'border-error': hasQualifierErrors }"
+      class="compact-fieldset"
+    >
+      <ng-template #header>
+        <div class="flex items-center gap-1.5">
+          <div
+            class="flex items-center justify-center w-6 h-6 rounded-full"
+            style="background: var(--aas-success-surface)"
+          >
+            <i class="pi pi-check-circle text-xs" style="color: var(--aas-success-text)"></i>
+          </div>
+          <lib-help-label tag="QUALIFIERS" isLabelBold="true"></lib-help-label>
+        </div>
+      </ng-template>
+      <aas-v3-qualifiers
+        [qualifiers]="submodel.content.qualifiers"
+        [qualifiersParent]="submodel.content"
+      ></aas-v3-qualifiers>
+    </p-fieldset>
+    @if (isBomSubmodel()) {
+      <p-fieldset
+        [toggleable]="true"
+        [ngClass]="{ 'border-error': hasQualifierErrors }"
+        [collapsed]="uiStateStore.bomPanelCollapsed()"
+        (collapsedChange)="uiStateStore.setBomPanelCollapsed($event)"
+        class="compact-fieldset"
+      >
+        <ng-template #header>
+          <div class="flex items-center gap-1.5">
+            <div
+              class="flex items-center justify-center w-6 h-6 rounded-full"
+              style="background: var(--aas-info-surface)"
+            >
+              <i class="pi pi-sitemap text-xs" style="color: var(--aas-info-text)"></i>
+            </div>
+            <lib-help-label tag="BOM" isLabelBold="true"></lib-help-label>
+          </div>
+        </ng-template>
+        <!-- <aas-bom-chart [entryNode]="entryNode" [apiUrl]="appConfigService.config.apiPath"></aas-bom-chart> -->
+        @defer (on viewport) {
+          <aas-bom-hierarchy-chart
+            [entryNode]="entryNode"
+            [apiUrl]="currentRegistry"
+            [submodel]="submodel.content"
+            [editable]="true"
+            [assetInformation]="assetInformation()"
+            [idShort]="idShort()"
+            [reinitializeRequestId]="bomReinitializeRequestId"
+          ></aas-bom-hierarchy-chart>
+        } @placeholder {
+          <div class="p-3 text-sm text-color-secondary">{{ 'LOADING' | translate }}...</div>
+        }
+      </p-fieldset>
+    }
+    @if (isAasDesignerChangelog()) {
+      <p-fieldset
+        legend="{{ 'CHANGELOG' | translate }}"
+        [toggleable]="true"
+        [collapsed]="uiStateStore.changelogPanelCollapsed()"
+        (collapsedChange)="uiStateStore.setChangelogPanelCollapsed($event)"
+      >
+        <aas-aas-designer-changelog [changelogCollection]="changelogCollection()"></aas-aas-designer-changelog>
+      </p-fieldset>
+    }
+    @if (isPcnSubmodel()) {
+      <p-fieldset
+        legend="{{ 'PRODUCT_CHANGE_NOTIFICATION' | translate }}"
+        [toggleable]="true"
+        [collapsed]="uiStateStore.pcnPanelCollapsed()"
+        (collapsedChange)="uiStateStore.setPcnPanelCollapsed($event)"
+      >
+        <aas-pcn-handling [pcnSubmodel]="submodel"></aas-pcn-handling>
+      </p-fieldset>
+    }
+    <p-fieldset
+      [toggleable]="true"
+      [collapsed]="uiStateStore.endpointUrlPanelCollapsed()"
+      (collapsedChange)="uiStateStore.setEndpointUrlPanelCollapsed($event)"
+      class="compact-fieldset"
+    >
+      <ng-template #header>
+        <div class="flex items-center gap-1.5">
+          <div
+            class="flex items-center justify-center w-6 h-6 rounded-full"
+            style="background: var(--aas-info-surface)"
+          >
+            <i class="pi pi-link text-xs" style="color: var(--aas-info-text)"></i>
+          </div>
+          <lib-help-label tag="ENDPOINT_URL" isLabelBold="true"></lib-help-label>
+        </div>
+      </ng-template>
+
+      <aas-endpoint-url [element]="submodel" [shellResult]="shellResult"></aas-endpoint-url>
+    </p-fieldset>
+  </div>
+}

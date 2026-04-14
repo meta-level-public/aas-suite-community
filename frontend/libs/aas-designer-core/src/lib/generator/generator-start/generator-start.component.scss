@@ -1,0 +1,58 @@
+:host ::ng-deep .generator-main-steps {
+  width: 100%;
+  overflow-x: auto;
+  overflow-y: hidden;
+  padding-bottom: 0.5rem;
+}
+
+:host ::ng-deep .generator-main-steps .p-steps {
+  display: block;
+  width: 100%;
+}
+
+:host ::ng-deep .generator-main-steps .p-steps-list {
+  display: flex;
+  flex-wrap: nowrap;
+  min-width: 100%;
+}
+
+:host ::ng-deep .generator-main-steps .p-steps-item {
+  flex: 1 0 12rem;
+  min-width: 12rem;
+}
+
+:host ::ng-deep .generator-main-steps .p-steps-title {
+  white-space: normal;
+  text-align: center;
+  line-height: 1.2;
+}
+
+.generator-route-host {
+  overflow: hidden;
+}
+
+.generator-route-host-inner {
+  overflow: hidden;
+}
+
+:host ::ng-deep .generator-route-host router-outlet + * {
+  display: flex;
+  flex: 1 1 auto;
+  min-height: 0;
+  flex-direction: column;
+}
+
+@media (max-width: 768px) {
+  .generator-route-host {
+    overflow: auto;
+  }
+
+  .generator-route-host-inner {
+    overflow: visible;
+  }
+
+  :host ::ng-deep .generator-main-steps .p-steps-item {
+    flex-basis: 10rem;
+    min-width: 10rem;
+  }
+}

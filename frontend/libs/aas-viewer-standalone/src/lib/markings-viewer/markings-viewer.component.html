@@ -1,0 +1,39 @@
+<p-table
+  #dt
+  [value]="markings"
+  responsiveLayout="scroll"
+  [paginator]="false"
+  [showCurrentPageReport]="false"
+  [rowHover]="true"
+>
+  <ng-template #header>
+    <tr>
+      <th scope="col">
+        {{ 'TYP' | translate }}
+      </th>
+      <th scope="col">
+        {{ 'FILE_PATH' | translate }}
+      </th>
+      <th scope="col">
+        {{ 'FILE' | translate }}
+      </th>
+      <th scope="col">
+        {{ 'ADDITIONAL_TEXT' | translate }}
+      </th>
+    </tr>
+  </ng-template>
+  <ng-template pTemplate="body" let-marking let-editing="editing">
+    <tr>
+      <td style="width: 15%; min-width: 10rem">{{ getMarkingText(marking, 'MarkingName') }}</td>
+      <td style="width: 25%; min-width: 10rem">
+        {{ getMarkingFilename(marking) }}
+      </td>
+      <td style="width: 15%; min-width: 10rem">
+        <p-image [src]="fileMap.get(getMarkingFilename(marking)) ?? ''" width="50" [preview]="true"></p-image>
+      </td>
+      <td style="width: 15%; min-width: 10rem">
+        {{ getMarkingAdditionalText(marking) }}
+      </td>
+    </tr>
+  </ng-template>
+</p-table>

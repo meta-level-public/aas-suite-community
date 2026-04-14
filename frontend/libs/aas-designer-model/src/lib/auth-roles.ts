@@ -1,0 +1,6 @@
+export enum AuthRoles {
+  'SYSTEM_ADMIN' = 'SYSTEM_ADMIN',
+  'ORGA_ADMIN' = 'ORGA_ADMIN',
+  'BENUTZER' = 'BENUTZER',
+  'FEED_MAPPING_USER' = 'FEED_MAPPING_USER',
+}

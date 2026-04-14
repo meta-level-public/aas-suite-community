@@ -1,0 +1,107 @@
+@if (document()) {
+  <div class="flex flex-col md:flex-row gap-4">
+    <div class="w-full md:flex-1 flex flex-col gap-2">
+      @if (language()) {
+        <p-inputgroup>
+          <p-inputGroupAddon class="w-24rem font-bold justify-start">{{ 'LANGUAGE' | translate }}</p-inputGroupAddon>
+          <input pInputText type="text" [value]="language()" readonly />
+        </p-inputgroup>
+      }
+      @if (title()) {
+        <p-inputgroup>
+          <p-inputGroupAddon class="w-24rem font-bold justify-start">{{ 'TITLE' | translate }}</p-inputGroupAddon>
+          <input pInputText type="text" [value]="title()" readonly />
+        </p-inputgroup>
+      }
+      @if (summary()) {
+        <p-inputgroup>
+          <p-inputGroupAddon class="w-24rem font-bold justify-start" [style]="{ 'min-width': '24rem' }">{{
+            'SUMMARY' | translate
+          }}</p-inputGroupAddon>
+          <textarea pTextarea type="text" class="w-full" [value]="summary()" [autoResize]="true" readonly></textarea>
+        </p-inputgroup>
+      }
+      @if (keyWords()) {
+        <p-inputgroup>
+          <p-inputGroupAddon class="w-24rem font-bold justify-start" [style]="{ 'min-width': '24rem' }">{{
+            'KEYWORDS' | translate
+          }}</p-inputGroupAddon>
+          <textarea pTextarea type="text" class="w-full" [value]="keyWords()" [autoResize]="true" readonly></textarea>
+        </p-inputgroup>
+      }
+      @if (version()) {
+        <p-inputgroup>
+          <p-inputGroupAddon class="w-24rem font-bold justify-start">{{ 'VERSION' | translate }}</p-inputGroupAddon>
+          <input pInputText type="text" [value]="version()" readonly />
+        </p-inputgroup>
+      }
+      <p-accordion multiple="true" [value]="expandedClassificationPanels()">
+        @for (classification of classifications; track $index) {
+          <p-accordion-panel [value]="$index">
+            <p-accordion-header>{{ 'CLASSIFICATION' | translate }} {{ $index }}</p-accordion-header>
+            <p-accordion-content>
+              <div class="flex flex-col gap-2">
+                <p-inputgroup>
+                  <p-inputGroupAddon class="w-24rem font-bold justify-start">{{
+                    'CLASSIFICATION_SYSTEM' | translate
+                  }}</p-inputGroupAddon>
+                  <input pInputText type="text" [value]="getClassificationSystem(classification)" readonly />
+                </p-inputgroup>
+                <p-inputgroup>
+                  <p-inputGroupAddon class="w-24rem font-bold justify-start">{{
+                    'CLASS_NAME' | translate
+                  }}</p-inputGroupAddon>
+                  <input pInputText type="text" [value]="getClassificationName(classification)" readonly />
+                </p-inputgroup>
+                <p-inputgroup>
+                  <p-inputGroupAddon class="w-24rem font-bold justify-start">{{
+                    'CLASS_ID' | translate
+                  }}</p-inputGroupAddon>
+                  <input pInputText type="text" [value]="getClassificationId(classification)" readonly />
+                </p-inputgroup>
+              </div>
+            </p-accordion-content>
+          </p-accordion-panel>
+        }
+      </p-accordion>
+      <p-accordion multiple="true" [value]="expandedDocumentIdPanels()">
+        @for (classification of classifications; track $index) {
+          <p-accordion-panel [value]="$index">
+            <p-accordion-header>{{ 'DOCUMENT_ID' | translate }} {{ $index }}</p-accordion-header>
+            <p-accordion-content>
+              <div class="flex flex-col gap-2">
+                <p-inputgroup>
+                  <p-inputGroupAddon class="w-24rem font-bold justify-start">{{
+                    'DOCUMENT_DOMAIN_ID' | translate
+                  }}</p-inputGroupAddon>
+                  <input pInputText type="text" [value]="getClassificationSystem(classification)" readonly />
+                </p-inputgroup>
+                <p-inputgroup>
+                  <p-inputGroupAddon class="w-24rem font-bold justify-start">{{
+                    'IS_PRIMARY' | translate
+                  }}</p-inputGroupAddon>
+                  @if (documentIsPrimary()) {
+                    <input pInputText type="text" value="{{ 'YES' | translate }}" readonly />
+                  } @else {
+                    <input pInputText type="text" value="{{ 'NO' | translate }}" readonly />
+                  }
+                </p-inputgroup>
+              </div>
+            </p-accordion-content>
+          </p-accordion-panel>
+        }
+      </p-accordion>
+    </div>
+    <div class="flex w-full lg:w-1/2">
+      <aas-handover-documentation-file
+        [documentFiles]="documentFiles.get(document()?.idShort ?? '') ?? []"
+        [fileMap]="fileMap"
+        [fileDataMap]="fileDataMap"
+        class="w-full"
+        (loadPreview)="loadPreview($event)"
+        (download)="download($event)"
+        #fileViewer
+      ></aas-handover-documentation-file>
+    </div>
+  </div>
+}

@@ -1,0 +1,183 @@
+<div class="create-invited-page card flex flex-col flex-auto">
+  <p-toolbar class="mb-2">
+    <div class="p-toolbar-group-start">
+      <div class="text-xl">{{ 'CREATE_INVITED_ACCOUNT' | translate }}</div>
+    </div>
+  </p-toolbar>
+
+  @if (invitation != null) {
+    <div class="create-invited-layout">
+      <div class="create-invited-main">
+        <p-fieldset legend="{{ 'REQUEST' | translate }}">
+          <form #contactForm="ngForm" vwsAutocompleteOff>
+            <div class="form-grid">
+              <section class="form-column">
+                <h3 class="section-title">{{ 'ANSPRECHPARTNER' | translate }}</h3>
+
+                <div class="field-row">
+                  <label for="firstname">{{ 'FIRSTNAME' | translate }}</label>
+                  <input
+                    pInputText
+                    id="firstname"
+                    type="text"
+                    class="inputfield w-full"
+                    name="firstname"
+                    [(ngModel)]="invitation.vorname"
+                    #firstname="ngModel"
+                    required
+                  />
+                  @if (!firstname.valid && firstname.touched) {
+                    <div class="p-error">{{ 'REQUIRED_FIELD' | translate }}</div>
+                  }
+                </div>
+
+                <div class="field-row">
+                  <label for="lastname">{{ 'LASTNAME' | translate }}</label>
+                  <input
+                    pInputText
+                    id="lastname"
+                    type="text"
+                    class="inputfield w-full"
+                    name="lastname"
+                    [(ngModel)]="invitation.name"
+                    #lastname="ngModel"
+                    required
+                  />
+                  @if (!lastname.valid && lastname.touched) {
+                    <div class="p-error">{{ 'REQUIRED_FIELD' | translate }}</div>
+                  }
+                </div>
+
+                <div class="field-row">
+                  <label for="email">{{ 'EMAIL' | translate }}</label>
+                  <input
+                    #adminemail="ngModel"
+                    pInputText
+                    id="email"
+                    name="email"
+                    [(ngModel)]="invitation.email"
+                    class="w-full"
+                    readonly
+                    disabled
+                  />
+                </div>
+
+                <div class="password-grid">
+                  <div class="field-row">
+                    <label for="password">{{ 'PASSWORD' | translate }}</label>
+                    <p-password
+                      #pass="ngModel"
+                      id="password"
+                      name="password"
+                      [(ngModel)]="password"
+                      [toggleMask]="true"
+                      [feedback]="false"
+                      styleClass="w-full"
+                      inputStyleClass="w-full"
+                    />
+                  </div>
+
+                  <div class="field-row">
+                    <label for="passwordRepeat">{{ 'PASSWORD_REPEAT' | translate }}</label>
+                    <p-password
+                      #passRepeat="ngModel"
+                      id="passwordRepeat"
+                      name="passwordRepeat"
+                      [toggleMask]="true"
+                      [feedback]="false"
+                      [(ngModel)]="password2"
+                      styleClass="w-full"
+                      inputStyleClass="w-full"
+                    />
+                    @if (password != password2) {
+                      <div class="p-error">{{ 'PASSWORD_MISMATCH' | translate }}</div>
+                    }
+                  </div>
+                </div>
+              </section>
+
+              <section class="form-column">
+                <div class="consent-list">
+                  <div class="consent-item">
+                    <div class="consent-checkbox-row">
+                      <p-checkbox
+                        [(ngModel)]="privacy"
+                        [binary]="true"
+                        inputId="privacy"
+                        name="privacy"
+                        [required]="true"
+                      ></p-checkbox>
+                      <label for="privacy">{{ 'PRIVACY_CB' | translate }}</label>
+                    </div>
+                    @if (portalService.currentLanguage === 'de') {
+                      <a target="_blank" [href]="appConfigService.config.datenschutzLinkDe">
+                        {{ 'PRIVACY_OPEN' | translate }} <em class="pi pi-external-link"></em>
+                      </a>
+                    } @else {
+                      <a target="_blank" [href]="appConfigService.config.datenschutzLinkEn">
+                        {{ 'PRIVACY_OPEN' | translate }} <em class="pi pi-external-link"></em>
+                      </a>
+                    }
+                  </div>
+
+                  <div class="consent-item">
+                    <div class="consent-checkbox-row">
+                      <p-checkbox
+                        [(ngModel)]="agb"
+                        [binary]="true"
+                        inputId="agb"
+                        name="agb"
+                        [required]="true"
+                      ></p-checkbox>
+                      <label for="agb">{{ 'AGB_CB' | translate }}</label>
+                    </div>
+                    @if (portalService.currentLanguage === 'de') {
+                      <a target="_blank" [href]="appConfigService.config.agbLinkDe">
+                        {{ 'AGB_OPEN' | translate }} <em class="pi pi-external-link"></em>
+                      </a>
+                    } @else {
+                      <a target="_blank" [href]="appConfigService.config.agbLinkEn">
+                        {{ 'AGB_OPEN' | translate }} <em class="pi pi-external-link"></em>
+                      </a>
+                    }
+                  </div>
+
+                  <div class="consent-item">
+                    <div class="consent-checkbox-row">
+                      <p-checkbox
+                        [(ngModel)]="contact"
+                        [binary]="true"
+                        inputId="contact"
+                        name="contact"
+                        [required]="true"
+                      ></p-checkbox>
+                      <label for="contact">{{ 'ACCEPT_TO_GET_CONTACTED' | translate }}</label>
+                    </div>
+                  </div>
+                </div>
+              </section>
+
+              <div class="action-row">
+                <p-button
+                  type="submit"
+                  [disabled]="!contactForm.valid || !valid || password !== password2"
+                  label="{{ 'CREATE_INVITED_ACCOUNT' | translate }}"
+                  [loading]="loading"
+                  icon="pi pi-envelope"
+                  styleClass="p-button-primary"
+                  (onClick)="send()"
+                ></p-button>
+              </div>
+            </div>
+          </form>
+        </p-fieldset>
+      </div>
+
+      <aside class="create-invited-aside">
+        <p-fieldset legend="{{ 'WEITERE_INFORMATIONEN' | translate }}">
+          <aas-disclaimer direction="vertical"></aas-disclaimer>
+        </p-fieldset>
+      </aside>
+    </div>
+  }
+</div>

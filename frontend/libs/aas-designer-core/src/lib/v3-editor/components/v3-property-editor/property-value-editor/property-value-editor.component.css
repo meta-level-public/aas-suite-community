@@ -1,0 +1,15 @@
+:host {
+  display: block;
+  width: 100%;
+}
+
+:host ::ng-deep .p-inputgroup,
+:host ::ng-deep .p-select,
+:host ::ng-deep .p-selectbutton,
+:host ::ng-deep .p-datepicker {
+  width: 100%;
+}
+
+:host ::ng-deep .p-inputtext {
+  min-height: 2.1rem;
+}

@@ -1,0 +1,161 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "infra-up-local",
+            "type": "process",
+            "command": "docker",
+            "args": [
+                "compose",
+                "-p",
+                "aas-dev",
+                "-f",
+                "docker-compose.local.yml",
+                "up",
+                "-d",
+                "--remove-orphans"
+            ],
+            "options": {
+                "cwd": "${workspaceFolder}/docker-oss"
+            },
+            "problemMatcher": []
+        },
+        {
+            "label": "infra-down-local",
+            "type": "process",
+            "command": "docker",
+            "args": [
+                "compose",
+                "-p",
+                "aas-dev",
+                "-f",
+                "docker-compose.local.yml",
+                "down",
+                "--remove-orphans"
+            ],
+            "options": {
+                "cwd": "${workspaceFolder}/docker-oss"
+            },
+            "problemMatcher": []
+        },
+        {
+            "label": "build aas-designer-community (backend, local infra)",
+            "dependsOrder": "sequence",
+            "dependsOn": [
+                "infra-up-local",
+                "build aas-designer-community (backend)"
+            ],
+            "problemMatcher": []
+        },
+        {
+            "label": "build backendGenerator (solution)",
+            "command": "dotnet",
+            "type": "process",
+            "args": [
+                "build",
+                "${workspaceFolder}/services/aas-designer/backendGenerator.sln",
+                "/property:GenerateFullPaths=true",
+                "/consoleloggerparameters:NoSummary"
+            ],
+            "problemMatcher": "$msCompile",
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            }
+        },
+        {
+            "label": "publish aas-designer-community (backend)",
+            "command": "dotnet",
+            "type": "process",
+            "args": [
+                "publish",
+                "${workspaceFolder}/services/aas-designer/AasDesignerApi.Community/AasDesignerApi.Community.csproj",
+                "/property:GenerateFullPaths=true",
+                "/consoleloggerparameters:NoSummary"
+            ],
+            "problemMatcher": "$msCompile"
+        },
+        {
+            "label": "watch aas-designer-community (backend)",
+            "command": "dotnet",
+            "type": "process",
+            "args": [
+                "watch",
+                "run",
+                "--project",
+                "${workspaceFolder}/services/aas-designer/AasDesignerApi.Community/AasDesignerApi.Community.csproj"
+            ],
+            "problemMatcher": "$msCompile"
+        },
+        {
+            "label": "build aas-designer-community (backend)",
+            "command": "dotnet",
+            "type": "process",
+            "args": [
+                "build",
+                "${workspaceFolder}/services/aas-designer/AasDesignerApi.Community/AasDesignerApi.Community.csproj",
+                "/property:GenerateFullPaths=true",
+                "/consoleloggerparameters:NoSummary"
+            ],
+            "problemMatcher": "$msCompile"
+        },
+        {
+            "label": "build gateway (backend)",
+            "command": "dotnet",
+            "type": "process",
+            "args": [
+                "build",
+                "${workspaceFolder}/services/gateway/gateway.csproj",
+                "/property:GenerateFullPaths=true",
+                "/consoleloggerparameters:NoSummary"
+            ],
+            "problemMatcher": "$msCompile"
+        },
+        {
+            "label": "infra-up-dev",
+            "dependsOrder": "sequence",
+            "dependsOn": [
+                "infra-up-local"
+            ],
+            "problemMatcher": []
+        },
+        {
+            "label": "build aas-designer-community (smoke i18n)",
+            "type": "shell",
+            "command": "npx nx build aas-designer-community --skip-nx-cache",
+            "isBackground": false,
+            "problemMatcher": [
+                "$tsc"
+            ],
+            "group": "build",
+            "options": {
+                "cwd": "${workspaceFolder}/frontend"
+            }
+        },
+        {
+            "label": "build aas-designer-community (nav/highlight)",
+            "type": "shell",
+            "command": "npx nx build aas-designer-community --skip-nx-cache",
+            "isBackground": false,
+            "problemMatcher": [
+                "$tsc"
+            ],
+            "group": "build",
+            "options": {
+                "cwd": "${workspaceFolder}/frontend"
+            }
+        },
+        {
+            "label": "serve aas-designer-community (dev)",
+            "type": "shell",
+            "command": "npx nx serve aas-designer-community",
+            "isBackground": true,
+            "problemMatcher": [
+                "$tsc-watch"
+            ],
+            "options": {
+                "cwd": "${workspaceFolder}/frontend"
+            }
+        }
+    ]
+}

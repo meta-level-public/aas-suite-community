@@ -1,0 +1,170 @@
+@if (property?.content != null) {
+  <div class="flex flex-col w-full gap-2">
+    @if (property?.content?.valueId == null || property?.content?.valueId?.keys?.length == 0) {
+      <p-button
+        label="{{ 'ADD' | translate }}"
+        class="aas-add-button"
+        icon="pi pi-plus"
+        (onClick)="addValueId()"
+        size="small"
+        [outlined]="true"
+      ></p-button>
+    }
+    @for (valueId of property?.content?.valueId?.keys ?? []; track valueId; let i = $index) {
+      <div class="flex flex-col">
+        <div class="flex flex-row gap-2">
+          <p-inputgroup>
+            <input pInputText [(ngModel)]="valueId.value" class="w-full" vwsV3Undo nullIfEmpty #valueId />
+            @if (valueId.value != null && valueId.value !== '' && valueId.value.startsWith('http')) {
+              <p-inputgroup-addon>
+                <p-button icon="pi pi-external-link" severity="secondary" (onClick)="openLink(valueId.value)" />
+              </p-inputgroup-addon>
+            }
+            @if (valueId.value != null && UrlHelper.isEclassId(valueId.value)) {
+              <p-inputgroup-addon>
+                <p-button
+                  icon="pi pi-external-link"
+                  severity="secondary"
+                  (onClick)="UrlHelper.openEclass(valueId.value)"
+                />
+              </p-inputgroup-addon>
+            }
+            @if (valueId.value != null && UrlHelper.isIecCddId(valueId.value)) {
+              <p-inputgroup-addon>
+                <p-button
+                  icon="pi pi-external-link"
+                  severity="secondary"
+                  (onClick)="UrlHelper.openIecCdd(valueId.value)"
+                />
+              </p-inputgroup-addon>
+            }
+          </p-inputgroup>
+          <p-button
+            icon="pi pi-trash"
+            styleClass="p-button-danger p-button-rounded p-button-text"
+            (onClick)="removeValueId(i)"
+          ></p-button>
+          <p-button
+            styleClass="p-button-danger p-button-rounded p-button-text"
+            icon="pi pi-search"
+            (onClick)="showEclassSearch = true"
+          ></p-button>
+          <p-button
+            styleClass="p-button-danger p-button-rounded p-button-text"
+            icon="pi pi-plus"
+            (onClick)="addValueId()"
+          ></p-button>
+        </div>
+        @if (hasValueIdErrors(i)) {
+          <div class="text-error">
+            {{ 'errorMessages.' + valueIdError(i)[0].message | translate }}
+          </div>
+        }
+      </div>
+    }
+
+    @if (
+      property != null &&
+      property.content != null &&
+      property.content.valueId != null &&
+      property.content.valueId.referredSemanticId != null
+    ) {
+      <div class="flex flex-row gap-2 items-center">
+        <lib-help-label class="w-14rem" tag="REF_ID" for="refId"></lib-help-label>
+        <div class="flex flex-col w-full gap-2">
+          <p-inputgroup>
+            <input pInputText [(ngModel)]="property.content.valueId.referredSemanticId.keys[0].value" class="w-full" />
+            <p-inputgroup-addon>
+              <p-button
+                icon="pi pi-times"
+                severity="secondary"
+                (onClick)="property.content.valueId.referredSemanticId = null"
+              />
+            </p-inputgroup-addon>
+            <p-inputgroup-addon>
+              <p-button
+                icon="pi pi-external-link"
+                severity="secondary"
+                (onClick)="openLink(property.content.valueId.referredSemanticId.keys[0].value)"
+                [disabled]="property.content.valueId.referredSemanticId.keys[0].value === ''"
+              />
+            </p-inputgroup-addon>
+          </p-inputgroup>
+          @if (hasValueIdRefErrors()) {
+            @for (valueIdRefError of valueIdRefErrors(); track $index) {
+              <div class="text-error">
+                {{ 'errorMessages.' + valueIdRefError.message | translate }}
+              </div>
+            }
+          }
+        </div>
+      </div>
+    } @else if (
+      property != null &&
+      property.content != null &&
+      property.content.valueId != null &&
+      property.content.valueId.referredSemanticId == null
+    ) {
+      <p-button
+        label="{{ 'ADD_REFERRED_SEMANTIC_ID' | translate }}"
+        icon="pi pi-plus"
+        (onClick)="addRefId()"
+        size="small"
+        [outlined]="true"
+      ></p-button>
+    }
+  </div>
+}
+<p-dialog
+  [(visible)]="showEclassSearch"
+  [style]="{ width: '75vw' }"
+  [resizable]="false"
+  [modal]="true"
+  [maximizable]="true"
+  appendTo="body"
+  [contentStyle]="{ height: '50vh' }"
+>
+  <ng-template #header>
+    <p-tabs [(value)]="source">
+      <p-tablist>
+        <p-tab [value]="'eclass'"> {{ 'TAB_ECLASS' | translate }} </p-tab>
+        <p-tab [value]="'vec'"> {{ 'TAB_VEC' | translate }} </p-tab>
+        <p-tab [value]="'other'"> {{ 'OTHER' | translate }} </p-tab>
+      </p-tablist>
+    </p-tabs>
+
+    @if (source() === 'eclass') {
+      <div class="flex flex-row gap-5 mb-3">
+        <aas-eclass-logo></aas-eclass-logo>
+        <div class="text-2xl">{{ 'ECLASS_SEARCH' | translate }}</div>
+      </div>
+    }
+    @if (source() === 'vec') {
+      <div class="flex flex-row gap-5 mb-3">
+        <aas-vec-logo></aas-vec-logo>
+        <div class="text-2xl">{{ 'VEC_LOOKUP' | translate }}</div>
+      </div>
+    }
+    @if (source() === 'other') {
+      <div class="flex flex-row gap-5 mb-3">
+        <div class="text-2xl">{{ 'OTHER' | translate }}</div>
+      </div>
+    }
+  </ng-template>
+  @if (source() === 'eclass') {
+    <aas-eclass-search
+      (selectedItem)="selectEclass($event)"
+      katalog="properties"
+      [withoutValueLists]="true"
+    ></aas-eclass-search>
+  }
+  @if (source() === 'vec') {
+    <aas-vec-lookup (selectedItem)="selectVec($event)"></aas-vec-lookup>
+  }
+  @if (source() === 'other') {
+    <aas-additional-lookup-sources (closeClicked)="showEclassSearch = false"></aas-additional-lookup-sources>
+  }
+  <ng-template #footer>
+    <p-button label="{{ 'CLOSE' | translate }}" icon="pi pi-check" (onClick)="showEclassSearch = false" />
+  </ng-template>
+</p-dialog>

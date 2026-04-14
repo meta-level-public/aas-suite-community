@@ -1,0 +1,26 @@
+@if (element != null) {
+  <div class="flex flex-row w-full gap-2">
+    <lib-help-label tag="ID_SHORT" class="w-14rem" class="w-14rem"></lib-help-label>
+    <div class="flex flex-col gap-2 w-full">
+      <p-inputgroup>
+        <input
+          pInputText
+          [(ngModel)]="element.content.idShort"
+          class="w-full"
+          [required]="isRequired"
+          nullIfEmpty
+          (ngModelChange)="onIdShortChange()"
+        />
+        <!-- [pKeyFilter]="idShortRegex" -->
+        <p-inputgroup-addon>
+          <p-button icon="pi pi-times" severity="secondary" (onClick)="element.content.idShort = null" />
+        </p-inputgroup-addon>
+      </p-inputgroup>
+      @if (hasErrors(element.content)) {
+        <div class="text-error">
+          {{ 'errorMessages.' + getError(element.content)[0].message | translate }}
+        </div>
+      }
+    </div>
+  </div>
+}

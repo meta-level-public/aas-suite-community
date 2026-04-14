@@ -1,0 +1,61 @@
+<div class="handover-documents-step">
+  <div class="battery-editor-step-header">
+    <div class="battery-editor-step-heading">
+      <div class="battery-editor-step-index">{{ stepIndex + 1 }}</div>
+      <div>
+        <h2 class="text-2xl font-bold mb-2">{{ stepTitle | translate }}</h2>
+        <p class="text-sm mb-0 handover-documents-step-description">{{ stepDescription | translate }}</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="handover-documents-panel">
+    <div class="handover-documents-panel-header">
+      <div>
+        <div class="handover-documents-title-row mb-2">
+          <h4 class="text-xl font-bold mb-0">{{ 'DOCUMENTS' | translate }}</h4>
+          <span class="handover-documents-count">{{ documentCount }}</span>
+        </div>
+        <p class="text-sm mb-0 handover-documents-step-description">
+          {{ 'BATTERY_PASSPORT_HANDOVER_DOCUMENTS_EXPL' | translate }}
+        </p>
+      </div>
+      <p-button label="{{ 'ADD_DOCUMENT' | translate }}" icon="pi pi-plus" (onClick)="add()"></p-button>
+    </div>
+
+    @if (documents.length === 0) {
+      <div class="handover-documents-empty-state">{{ 'BATTERY_PASSPORT_HANDOVER_DOCUMENTS_EMPTY' | translate }}</div>
+    } @else {
+      <div class="handover-documents-list">
+        @for (document of documents; track $index; let index = $index) {
+          <div class="handover-document-card">
+            <div>
+              <div class="font-bold">{{ getDocumentLabel(document, index) }}</div>
+              @if (showIdShort && document.idShort.trim() !== '') {
+                <div class="text-sm handover-documents-step-description">{{ document.idShort }}</div>
+              }
+              @if (getDocumentSubtitle(document); as subtitle) {
+                <div class="text-sm handover-documents-step-description">{{ subtitle }}</div>
+              }
+              @if (getDocumentFileName(document); as fileName) {
+                <div class="text-sm mt-1">
+                  <span class="font-medium">{{ 'CURRENT_DOCUMENT' | translate }}:</span>
+                  {{ fileName }}
+                </div>
+              }
+            </div>
+            <div class="flex gap-2">
+              <p-button label="{{ 'EDIT' | translate }}" severity="secondary" (onClick)="edit(index)"></p-button>
+              <p-button
+                label="{{ 'DELETE' | translate }}"
+                severity="danger"
+                [outlined]="true"
+                (onClick)="delete(index)"
+              ></p-button>
+            </div>
+          </div>
+        }
+      </div>
+    }
+  </div>
+</div>

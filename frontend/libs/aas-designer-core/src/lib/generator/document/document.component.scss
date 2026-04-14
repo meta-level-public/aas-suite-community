@@ -1,0 +1,13 @@
+:host ::ng-deep .document-guided-card {
+  width: 100%;
+}
+
+:host ::ng-deep .document-guided-card.battery-editor-content {
+  height: auto;
+  max-height: none;
+  overflow: visible;
+}
+
+:host ::ng-deep .document-guided-card .generator-step-card-body {
+  overflow: visible;
+}

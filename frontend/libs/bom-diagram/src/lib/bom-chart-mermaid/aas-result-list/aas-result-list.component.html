@@ -1,0 +1,73 @@
+<div class="flex flex-col gap-2">
+  <p-fieldset legend="{{ 'SEARCH_FOR_SHELLS' | translate }}" [toggleable]="true" class="mt-2">
+    <div class="flex flex-col gap-2">
+      <div class="flex flex-row w-full gap-2">
+        <div class="w-14rem">
+          <label for="idShort">{{ 'REPOSITORY' | translate }}</label>
+        </div>
+        <div class="flex flex-col gap-2 w-full">
+          <p-select
+            [options]="sourceOptions()"
+            [(ngModel)]="selectedSource"
+            class="w-full"
+            class="w-full"
+            appendTo="body"
+            optionLabel="label"
+            (ngModelChange)="loadAssetAdministrationShells()"
+          ></p-select>
+        </div>
+      </div>
+      @if (selectedSource?.url === 'custom') {
+        <div class="flex flex-row w-full gap-2">
+          <div class="w-14rem">
+            <label for="idShort">{{ 'CUSTOM_REPOSITORY' | translate }}</label>
+          </div>
+          <div class="flex flex-col gap-2 w-full">
+            <input pInputText [(ngModel)]="selectedCustomSource" />
+          </div>
+          <p-button
+            icon="pi pi-search"
+            (onClick)="loadAssetAdministrationShells()"
+            label="{{ 'LOAD' | translate }}"
+            [disabled]="selectedCustomSource == null || selectedCustomSource === ''"
+          ></p-button>
+        </div>
+      }
+
+      <p-table [value]="aasResults()" [loading]="loading()">
+        <ng-template #header>
+          <tr>
+            <th scope="col">{{ 'AAS_ID' | translate }}</th>
+            <th scope="col"></th>
+          </tr>
+        </ng-template>
+        <ng-template pTemplate="body" let-result>
+          <tr>
+            <td>{{ result.id }}</td>
+            <td>
+              <p-button icon="pi pi-eye" label="{{ 'VIEW' | translate }}" (onClick)="openViewer(result)"></p-button>
+            </td>
+          </tr>
+        </ng-template>
+        <ng-template pTemplate="emptymessage">
+          <td colspan="2">{{ 'NO_DATA_FOUND' | translate }}</td>
+        </ng-template>
+      </p-table>
+      @if (hasExternalLink()) {
+        <p-fieldset legend="{{ 'EXTERNAL_LINK' | translate }}" [toggleable]="true" class="mt-2">
+          <div class="flex flex-row w-full gap-2">
+            <div class="flex flex-col gap-2 w-full">
+              <p-button
+                [label]="getExternalLink()"
+                (onClick)="navigateToExternalLink()"
+                class="w-full"
+                [link]="true"
+                icon="pi pi-external-link"
+              ></p-button>
+            </div>
+          </div>
+        </p-fieldset>
+      }
+    </div>
+  </p-fieldset>
+</div>

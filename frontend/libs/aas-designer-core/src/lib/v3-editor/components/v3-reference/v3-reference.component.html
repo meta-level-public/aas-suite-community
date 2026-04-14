@@ -1,0 +1,316 @@
+@if (reference == null) {
+  <div class="flex flex-col w-full justify-center">
+    <p-button
+      label="{{ 'ADD' | translate }}"
+      (onClick)="addReference()"
+      icon="pi pi-plus"
+      size="small"
+      [outlined]="true"
+    ></p-button>
+  </div>
+} @else {
+  <div class="flex flex-col gap-2" [ngClass]="{ 'border-error p-2 rounded': hasErrors }">
+    <div class="flex flex-row w-full gap-2">
+      <lib-help-label class="w-56 mt-2" tag="REFERENCE_TYPE"></lib-help-label>
+      <p-select
+        [options]="refTypes"
+        [(ngModel)]="reference.type"
+        optionLabel="label"
+        optionValue="value"
+        class="w-full"
+        styleClass="w-full"
+        vwsV3Undo
+        [disabled]="!referenceTypeEditable"
+      ></p-select>
+    </div>
+
+    @if (reference.type == refType.ExternalReference) {
+      <div class="flex flex-col w-full gap-2 justify-center">
+        <div class="flex flex-row flex-wrap gap-2">
+          <p-button
+            label="{{ 'ADD_KEY' | translate }}"
+            (onClick)="addKey()"
+            icon="pi pi-plus"
+            size="small"
+            [outlined]="true"
+          ></p-button>
+          <p-button
+            label="{{ 'CREATE_FROM_URL' | translate }}"
+            (onClick)="openExternalUrlDialog()"
+            icon="pi pi-link"
+            size="small"
+            [outlined]="true"
+          ></p-button>
+          @if (externalReferenceUrl) {
+            <p-button
+              label="{{ 'OPEN' | translate }}"
+              (onClick)="openExternalReference()"
+              icon="pi pi-external-link"
+              size="small"
+              [outlined]="true"
+              pTooltip="{{ externalReferenceUrl }}"
+              tooltipPosition="bottom"
+            ></p-button>
+          }
+        </div>
+        @for (key of reference.keys; track $index) {
+          <div class="flex flex-col gap-3 justify-start">
+            <div class="grid grid-cols-12 w-full gap-2">
+              <div class="col-span-12 md:col-span-6 flex flex-row gap-2">
+                <lib-help-label class="w-32 mt-2" tag="KEY_TYPE"></lib-help-label>
+                <p-select
+                  [options]="keyTypeOptions"
+                  [(ngModel)]="key.type"
+                  optionLabel="label"
+                  optionValue="value"
+                  styleClass="w-full"
+                  class="vws-concept-description flex w-full"
+                  appendTo="body"
+                  vwsV3Undo
+                  [disabled]="!typeEditable"
+                ></p-select>
+              </div>
+              <div class="col-span-12 md:col-span-6 flex flex-row gap-2 items-center">
+                <lib-help-label class="w-32 mt-2" tag="VALUE"></lib-help-label>
+                <input pInputText [(ngModel)]="key.value" class="flex-1" nullIfEmpty />
+                <p-button
+                  icon="pi pi-trash"
+                  size="small"
+                  severity="danger"
+                  text="true"
+                  (onClick)="removeKey($index)"
+                  [disabled]="reference.keys.length === 1"
+                  pTooltip="{{ 'REMOVE' | translate }}"
+                  tooltipPosition="left"
+                ></p-button>
+              </div>
+            </div>
+          </div>
+        }
+      </div>
+    }
+
+    @if (reference.type == refType.ModelReference) {
+      <div class="flex flex-col w-full gap-2 justify-center">
+        <div class="flex flex-row flex-wrap gap-2">
+          <p-button
+            label="{{ 'ADD_KEY' | translate }}"
+            (onClick)="addKey()"
+            icon="pi pi-plus"
+            size="small"
+            [outlined]="true"
+          ></p-button>
+          <p-button
+            label="{{ 'SELECT_FROM_SAME_AAS' | translate }}"
+            (onClick)="showSelectionDialog()"
+            icon="pi pi-search"
+            size="small"
+            [outlined]="true"
+          ></p-button>
+          @if (reference && reference.keys.length) {
+            <p-button
+              label="{{ 'JUMP_TO_TARGET' | translate }}"
+              (onClick)="jump()"
+              icon="pi pi-arrow-right"
+              size="small"
+              [outlined]="true"
+              [disabled]="!canJump"
+            ></p-button>
+          }
+        </div>
+        @for (key of reference.keys; track $index) {
+          <div class="flex flex-col gap-3 justify-start">
+            <div class="grid grid-cols-12 w-full gap-2">
+              <div class="col-span-12 md:col-span-6 flex flex-row gap-2">
+                <lib-help-label class="w-32 mt-2" tag="KEY_TYPE"></lib-help-label>
+                <p-select
+                  [options]="keyTypeOptions"
+                  [(ngModel)]="key.type"
+                  optionLabel="label"
+                  optionValue="value"
+                  styleClass="w-full"
+                  class="vws-concept-description flex w-full"
+                  appendTo="body"
+                  vwsV3Undo
+                  [disabled]="!typeEditable"
+                ></p-select>
+              </div>
+              <div class="col-span-12 md:col-span-6 flex flex-row gap-2 items-center">
+                <lib-help-label class="w-32 mt-2" tag="VALUE"></lib-help-label>
+                <input pInputText [(ngModel)]="key.value" class="flex-1" nullIfEmpty />
+                <p-button
+                  icon="pi pi-trash"
+                  size="small"
+                  severity="danger"
+                  text="true"
+                  (onClick)="removeKey($index)"
+                  [disabled]="reference.keys.length === 1"
+                  pTooltip="{{ 'REMOVE' | translate }}"
+                  tooltipPosition="left"
+                ></p-button>
+              </div>
+            </div>
+          </div>
+        }
+      </div>
+    }
+
+    <p-dialog
+      header="{{ 'PLEASE_SELECT' | translate }}"
+      [(visible)]="showSelection"
+      [modal]="true"
+      [style]="{ width: '80rem' }"
+    >
+      <div class="p-4 flex flex-col gap-3">
+        <div class="grid grid-cols-12 gap-2">
+          <div class="col-span-12 md:col-span-4">
+            <lib-help-label tag="SEARCH"></lib-help-label>
+            <input pInputText class="w-full mt-2" [(ngModel)]="selectionSearch" (input)="applySelectionFilters()" />
+          </div>
+          <div class="col-span-12 md:col-span-4">
+            <lib-help-label tag="SUBMODEL"></lib-help-label>
+            <p-select
+              class="w-full mt-2"
+              styleClass="w-full"
+              [options]="selectionSubmodelOptions"
+              [(ngModel)]="selectionSubmodelFilter"
+              optionLabel="label"
+              optionValue="value"
+              (onChange)="applySelectionFilters()"
+            ></p-select>
+          </div>
+          <div class="col-span-12 md:col-span-4">
+            <lib-help-label tag="TYPE"></lib-help-label>
+            <p-select
+              class="w-full mt-2"
+              styleClass="w-full"
+              [options]="selectionTypeOptions"
+              [(ngModel)]="selectionTypeFilter"
+              optionLabel="label"
+              optionValue="value"
+              (onChange)="applySelectionFilters()"
+            ></p-select>
+          </div>
+        </div>
+
+        <div class="flex justify-end">
+          <p-button
+            label="{{ 'RESET_FILTER' | translate }}"
+            icon="pi pi-filter-slash"
+            text="true"
+            size="small"
+            (onClick)="clearSelectionFilters()"
+          ></p-button>
+        </div>
+
+        <div class="grid grid-cols-12 gap-2">
+          <div class="col-span-12 md:col-span-8">
+            <div class="reference-picker-panel reference-picker-tree p-2">
+              <p-tree
+                [value]="filteredCandidateTree"
+                selectionMode="single"
+                [(selection)]="selectedCandidateNode"
+                (onNodeSelect)="selectCandidate($event)"
+              >
+                <ng-template let-node pTemplate="default">
+                  <div class="reference-picker-node" [pTooltip]="node?.data?.candidate?.path" tooltipPosition="right">
+                    <div class="reference-picker-node-main">
+                      <div class="reference-picker-node-label">{{ node.label }}</div>
+                      <div class="reference-picker-node-path">{{ node?.data?.candidate?.path }}</div>
+                    </div>
+                    <span [ngClass]="getTypeBadgeClass(node?.data?.candidate?.type)">
+                      {{ node?.data?.candidate?.type }}
+                    </span>
+                  </div>
+                </ng-template>
+              </p-tree>
+            </div>
+          </div>
+          <div class="col-span-12 md:col-span-4">
+            <div class="reference-picker-panel reference-picker-details p-3 flex flex-col gap-2">
+              <div class="font-semibold">{{ 'SELECTED_REFERENCE' | translate }}</div>
+              @if (selectedCandidate != null) {
+                <div>
+                  <span class="font-medium">{{ 'AAS_PATH' | translate }}:</span>
+                  <span class="reference-picker-value">{{ selectedCandidate.path }}</span>
+                </div>
+                <div>
+                  <span class="font-medium">{{ 'TYPE' | translate }}:</span>
+                  <span class="reference-picker-value">{{ selectedCandidate.type }}</span>
+                </div>
+                <div>
+                  <span class="font-medium">{{ 'ID_SHORT' | translate }}:</span>
+                  <span class="reference-picker-value">{{ selectedCandidate.idShort || '-' }}</span>
+                </div>
+              } @else {
+                <div class="text-color-secondary">{{ 'PLEASE_SELECT' | translate }}</div>
+              }
+            </div>
+          </div>
+        </div>
+
+        <div class="flex justify-end">
+          <p-button
+            label="{{ 'APPLY' | translate }}"
+            (onClick)="apply()"
+            [disabled]="selectedCandidate == null"
+          ></p-button>
+        </div>
+      </div>
+    </p-dialog>
+
+    <p-dialog
+      [(visible)]="showUrlDialog"
+      [modal]="true"
+      header="{{ 'CREATE_FROM_URL' | translate }}"
+      [style]="{ width: '40rem' }"
+    >
+      <div class="flex flex-col gap-3">
+        <div class="text-sm">
+          {{ 'ENTER_EXTERNAL_URL_HELP' | translate }}<br />
+          <i>https://domain.de/file.html#hint</i><br />
+          {{ 'ENTER_EXTERNAL_URL_HELP_FRAGMENT' | translate }}
+        </div>
+        <div class="flex flex-col gap-2">
+          <lib-help-label tag="URL"></lib-help-label>
+          <input
+            id="externalUrlInput"
+            type="text"
+            pInputText
+            [(ngModel)]="externalUrlInput"
+            placeholder="https://..."
+          />
+        </div>
+        <div class="flex flex-row justify-end gap-2 mt-2">
+          <p-button
+            label="{{ 'CANCEL' | translate }}"
+            (onClick)="cancelExternalUrlDialog()"
+            text="true"
+            size="small"
+          ></p-button>
+          <p-button
+            label="{{ 'OK' | translate }}"
+            (onClick)="applyExternalUrl()"
+            icon="pi pi-check"
+            size="small"
+            [disabled]="!externalUrlInput"
+          ></p-button>
+        </div>
+      </div>
+    </p-dialog>
+
+    <div class="flex flex-row w-full justify-start mt-2 mb-2">
+      <p-button
+        label="{{ 'REMOVE_BLOCK' | translate }}"
+        (onClick)="removeReferenceBlock()"
+        icon="pi pi-trash"
+        size="small"
+        [outlined]="true"
+      ></p-button>
+    </div>
+
+    @if (hasErrors) {
+      <aas-error-panel [errorArr]="errors" parent="reference"></aas-error-panel>
+    }
+  </div>
+}

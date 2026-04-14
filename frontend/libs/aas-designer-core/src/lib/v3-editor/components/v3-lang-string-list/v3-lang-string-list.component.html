@@ -1,0 +1,134 @@
+<div class="flex flex-col w-full justify-center gap-2">
+  @if (!langStrings) {
+    <p-button
+      label="{{ 'ADD' | translate }}"
+      (onClick)="addNewDisplayName()"
+      class="aas-add-button"
+      icon="pi pi-plus"
+      size="small"
+      [outlined]="true"
+    ></p-button>
+  }
+
+  @if (langStrings != null && langStrings.length == 0) {
+    <div class="flex flex-row justify-between">
+      <p-message
+        severity="info"
+        text="{{ 'NO_VALUES_SET_BUT_EMPTY_OR_AT_LEAST_ONE' | translate }}"
+        class="mr-2"
+      ></p-message>
+      <p-button
+        styleClass="p-button-text p-button-outlined p-button-rounded"
+        icon="pi pi-plus"
+        (onClick)="addNewDisplayName()"
+      ></p-button>
+      @if (removeBlockAllowed) {
+        <p-button
+          styleClass="p-button-text p-button-outlined p-button-rounded"
+          icon="pi pi-trash"
+          (onClick)="removeLangStringBlock()"
+        ></p-button>
+      }
+    </div>
+  }
+
+  @for (entry of $any(langStrings) ?? []; track entry; let i = $index) {
+    <div class="flex flex-row gap-3 justify-start">
+      <div class="flex flex-col w-20rem">
+        <p-select
+          [options]="isoLanguages"
+          [(ngModel)]="entry.language"
+          optionLabel="languageName"
+          optionValue="iso2Code"
+          optionDisabled="disabled"
+          [filter]="true"
+          [showClear]="true"
+          (onFocus)="setDisabledStatus()"
+          filterBy="languageName,iso2Code"
+          placeholder="{{ 'PLEASE_SELECT_A_LANGUAGE' | translate }}"
+          class="w-20rem"
+          class="w-20rem"
+          vwsV3Undo
+        >
+          <ng-template let-item let-i="index" pTemplate="item">
+            <div class="flex justify-between items-center w-full gap-2">
+              <div class="min-w-0 truncate">{{ item.languageName }}</div>
+              <div class="w-10 text-right flex-shrink-0">{{ item.iso2Code }}</div>
+            </div>
+          </ng-template>
+          <ng-template let-item let-i="index" pTemplate="selectedItem">
+            <div class="flex justify-between items-center w-full gap-2">
+              <div class="min-w-0 truncate">{{ item?.languageName }}</div>
+              <div class="w-10 text-right flex-shrink-0">{{ item?.iso2Code }}</div>
+            </div>
+          </ng-template>
+        </p-select>
+        @if (hasLangErrors(entry)) {
+          <div class="text-error">
+            {{ 'errorMessages.' + getLangError(entry)[0].message | translate }}
+          </div>
+        }
+      </div>
+      <div class="flex flex-col w-full">
+        <p-inputgroup>
+          <textarea
+            pTextarea
+            [(ngModel)]="entry.text"
+            class="w-full"
+            id="displayNameText{{ i }}"
+            name="displayNameText{{ i }}"
+            [rows]="1"
+            [autoResize]="true"
+            vwsV3Undo
+            required="true"
+          ></textarea>
+          <p-inputgroup-addon>
+            <p-button icon="pi pi-times" severity="secondary" (onClick)="removeDisplayName(i)" />
+          </p-inputgroup-addon>
+        </p-inputgroup>
+        @if (hasTextErrors(entry)) {
+          <div class="text-error">
+            @for (errorEntry of getTextError(entry); track $index) {
+              {{ 'errorMessages.' + errorEntry.message | translate }}
+            }
+            <!-- @if (getTextError(entry)[0].message === 'The value must not be empty.') {
+            @if ((langStrings != null && langStrings.length > 1) || deleteAllowed) {
+              {{ 'errorMessages.' + getTextError(entry)[0].message | translate }}
+            } @else {
+              {{ 'errorMessages.VALUE_MUST_NOT_BE_EMPTY' | translate }}
+            }
+          } @else {
+            {{ 'errorMessages.' + getTextError(entry)[0].message | translate }}
+            } -->
+          </div>
+        }
+      </div>
+      <div style="width: 36px">
+        @if (deleteAllowed) {
+          <p-button
+            icon="pi pi-trash"
+            styleClass="p-button-danger p-button-rounded p-button-text"
+            (onClick)="removeDisplayName(i)"
+          ></p-button>
+        }
+      </div>
+      <div style="width: 36px">
+        <p-button icon="pi pi-plus" (onClick)="addNewDisplayName()" [text]="true"></p-button>
+      </div>
+    </div>
+  }
+
+  @if (langStrings != null && langStrings.length >= 1) {
+    <div class="flex flex-row w-full justify-start mb-3">
+      @if (removeBlockAllowed) {
+        <p-button
+          label="{{ 'REMOVE_BLOCK' | translate }}"
+          (onClick)="removeLangStringBlock()"
+          icon="pi pi-trash"
+          size="small"
+          outlined="true"
+        ></p-button>
+      }
+    </div>
+  }
+</div>

@@ -1,0 +1,231 @@
+<div class="flex flex-col gap-2">
+  <div class="hero-section">
+    <div class="hero-content">
+      <h1 class="hero-title">{{ 'ECLASS' | translate }}</h1>
+    </div>
+  </div>
+
+  <p-tabs value="0">
+    <p-tablist>
+      <p-tab value="0">{{ 'ECLASS_CERTIFICATE' | translate }}</p-tab>
+    </p-tablist>
+    <p-tabpanels>
+      <p-tabpanel value="0">
+        <div class="grid grid-cols-12 w-full">
+          @if (eclass != null) {
+            <div class="col-span-12 flex justify-end">
+              <p-button
+                icon="pi pi-trash"
+                styleClass="p-button-danger p-button-sm p-button-outlined"
+                label="{{ 'DELETE' | translate }}"
+                [loading]="loading"
+                (onClick)="removeEclassCert()"
+              ></p-button>
+            </div>
+          }
+          @if (eclass == null) {
+            <div
+              class="col-span-12 p-4 rounded-lg border"
+              style="background: var(--aas-info-surface); border-color: var(--aas-info-border)"
+            >
+              <p class="font-semibold mb-2" style="color: var(--aas-info-text)">
+                {{ 'NO_ECLASS_CERTIFICATE_FOUND' | translate }}
+              </p>
+              <p class="mb-0" style="color: var(--p-text-color)">{{ 'ECLASS_EXPLANATION' | translate }}</p>
+            </div>
+          }
+          @if (eclass == null) {
+            <div class="col-span-12 flex flex-row gap-2">
+              <p-fileUpload
+                #uploader
+                mode="basic"
+                chooseLabel="{{ 'primeng.upload' | translate }}"
+                (onSelect)="onFileChange($event)"
+                (onError)="onError()"
+                [showUploadButton]="false"
+                [showCancelButton]="false"
+                [maxFileSize]="10000000"
+                accept=".pfx"
+                class="p-button-info"
+              >
+              </p-fileUpload>
+              <div class="flex justify-center items-center">
+                @if (loading) {
+                  <em class="pi pi-spin pi-spinner text-2xl" style="color: var(--p-primary-color)"></em>
+                }
+              </div>
+            </div>
+          }
+          @if (eclass != null) {
+            <div class="col-span-12 detail-card">
+              <div class="grid grid-cols-2 gap-4">
+                <p-inputgroup>
+                  <p-inputgroup-addon class="font-bold w-56">
+                    <i class="fa-solid fa-user-tie mr-2"></i>
+                    <lib-help-label tag="ISSUED_BY" [showLabel]="false"></lib-help-label>
+                    {{ 'ISSUED_BY' | translate }}
+                  </p-inputgroup-addon>
+                  <input pInputText [value]="eclass.issuedBy" [readonly]="true" />
+                </p-inputgroup>
+                <p-inputgroup>
+                  <p-inputgroup-addon class="font-bold w-56">
+                    <i class="fa-solid fa-certificate mr-2"></i>
+                    <lib-help-label tag="ISSUING_CERTIFICATE" [showLabel]="false"></lib-help-label>
+                    {{ 'ISSUING_CERTIFICATE' | translate }}
+                  </p-inputgroup-addon>
+                  <input pInputText [value]="eclass.issuingCertificate" [readonly]="true" />
+                </p-inputgroup>
+                <p-inputgroup>
+                  <p-inputgroup-addon class="font-bold w-56">
+                    <i class="fa-solid fa-hashtag mr-2"></i>
+                    <lib-help-label tag="SERIAL_NUMBER" [showLabel]="false"></lib-help-label>
+                    {{ 'SERIAL_NUMBER' | translate }}
+                  </p-inputgroup-addon>
+                  <input pInputText [value]="eclass.serialNumber" [readonly]="true" />
+                </p-inputgroup>
+                <p-inputgroup>
+                  <p-inputgroup-addon class="font-bold w-56">
+                    <i class="fa-solid fa-signature mr-2"></i>
+                    <lib-help-label tag="SIGNATURE" [showLabel]="false"></lib-help-label>
+                    {{ 'SIGNATURE' | translate }}
+                  </p-inputgroup-addon>
+                  <input pInputText [value]="eclass.signature" [readonly]="true" />
+                </p-inputgroup>
+                <p-inputgroup>
+                  <p-inputgroup-addon class="font-bold w-56">
+                    <i class="fa-solid fa-calendar-day mr-2"></i>
+                    <lib-help-label tag="VALID_FROM" [showLabel]="false"></lib-help-label>
+                    {{ 'VALID_FROM' | translate }}
+                  </p-inputgroup-addon>
+                  <input pInputText [value]="validFrom | vwsDate: 'SHORT_DATE_TIME'" [readonly]="true" />
+                </p-inputgroup>
+                <p-inputgroup>
+                  <p-inputgroup-addon class="font-bold w-56">
+                    <i class="fa-solid fa-calendar-check mr-2"></i>
+                    <lib-help-label tag="VALID_TO" [showLabel]="false"></lib-help-label>
+                    {{ 'VALID_TO' | translate }}
+                  </p-inputgroup-addon>
+                  <input pInputText [value]="validTo | vwsDate: 'SHORT_DATE_TIME'" [readonly]="true" />
+                </p-inputgroup>
+              </div>
+            </div>
+          }
+        </div>
+      </p-tabpanel>
+      <!-- <p-tabPanel header="{{ 'ECLASS_CATALOG' | translate }}" >
+      <div class="grid grid-cols-12 w-full">
+        @if (eclass != null) {
+          <div class="col-span-12 flex justify-end">
+          <p-button icon="pi pi-refresh" styleClass="p-button-secondary p-button-sm" label="{{ 'RELOAD' | translate }}" [loading]="loading" (onClick)="checkPendingImport(); getEclassCert(); getEclassImport()"></p-button>
+        </div>
+        }
+        @if (eclass == null) {
+          <div class="col-span-12">
+          <label>{{ 'NO_KATALOG_IMPORTED' | translate }}</label>
+          <label>{{ 'ECLASS_KATALOG_EXPLANATION' | translate }}</label>
+        </div>
+        }
+        <div class="col-span-12 flex flex-row gap-2">
+          <p-fileUpload
+            #uploaderKatalog
+            mode="basic"
+            chooseLabel="{{ 'primeng.upload' | translate }}"
+            (onSelect)="onFileChangeKatalog($event)"
+            (onError)="onError()"
+            [showUploadButton]="false"
+            [showCancelButton]="false"
+            chooseStyleClass="p-button-sm"
+            accept=".zip"
+            class="p-button-info"
+            >
+          </p-fileUpload>
+          @if (loading) {
+            <div class="flex justify-center items-center">
+              <em class="pi pi-spin pi-spinner text-2xl"></em>
+            </div>
+          }
+        </div>
+      </div>
+      <p-table [value]="ownedEclassData" size="small" stripedRows>
+        <ng-template #header>
+          <tr>
+            <th scope="col">{{ 'SCHEMA_VERSION' | translate }}</th>
+            <th scope="col">{{ 'GENERATION_DATE' | translate }}</th>
+            <th scope="col">{{ 'DESCRIPTION' | translate }}</th>
+          </tr>
+        </ng-template>
+        <ng-template pTemplate="body" let-eclass>
+          <tr>
+            <td>{{ eclass.schemaVersion }}</td>
+            <td>{{ eclass.generationDate | vwsDate: 'SHORT_DATE_TIME' }}</td>
+            <td>{{ eclass.contentDescription }}</td>
+          </tr>
+        </ng-template>
+        <ng-template pTemplate="emptymessage">
+          <tr>
+            <td colspan="6">{{ 'NO_DATA_FOUND' | translate }}</td>
+          </tr>
+        </ng-template>
+      </p-table>
+      @if (hasPendingImports) {
+        <p-table [value]="importQueue" size="small" stripedRows>
+        <ng-template #header>
+          <tr>
+            <th scope="col">{{ 'STARTED' | translate }}</th>
+            <th scope="col">{{ 'START_DATE' | translate }}</th>
+            <th scope="col">{{ 'ERROR' | translate }}</th>
+            <th scope="col">{{ 'ERROR_DATE' | translate }}</th>
+            <th scope="col">{{ 'COUNT_FILES' | translate }}</th>
+            <th scope="col"></th>
+          </tr>
+        </ng-template>
+        <ng-template pTemplate="body" let-item>
+          <tr>
+            <td>
+              <div class="flex justify-center">
+                @if (item.started == false) {
+                  <em class="pi pi-stop"></em>
+                }
+                @if (item.started == true) {
+                  <em class="pi pi-check-square"></em>
+                }
+              </div>
+            </td>
+            <td>{{ item.dateStarted | vwsDate: 'SHORT_DATE_TIME' }}</td>
+            <td>
+              <div class="flex justify-center">
+                @if (item.error == false) {
+                  <em class="pi pi-stop"></em>
+                }
+                @if (item.error == true) {
+                  <em class="pi pi-check-square"></em>
+                }
+              </div>
+            </td>
+            <td>{{ item.dateError | vwsDate: 'SHORT_DATE_TIME' }}</td>
+            <td>{{ item.countFilesProcessed }}/{{ item.countFiles }}</td>
+            <td>
+              <div class="flex justify-center items-center">
+                @if (item.started == false || (item.started == true && item.error == true)) {
+                  <p-button
+                    icon="pi pi-trash"
+                    [rounded]="true"
+                    severity="error"
+                    [outlined]="true"
+                    (onClick)="deletePendingItem(item.id)"
+                  ></p-button>
+                }
+                @if (item.started && !item.error) {
+                  <em class="pi pi-spin pi-spinner text-2xl"></em>
+                }
+              </div>
+            </td>
+          </tr>
+            </ng-template>
+          </p-table>
+        }
+        </p-tabPanel> -->
+    </p-tabpanels>
+  </p-tabs>
+  <!-- </p-fieldset> -->
+</div>

@@ -1,0 +1,83 @@
+@if (classification) {
+  <div class="flex w-full min-w-0 flex-col gap-3">
+    <div class="flex w-full min-w-0 flex-col gap-2 md:flex-row md:items-start">
+      <p-select
+        [options]="availableClasses()"
+        [(ngModel)]="selectedClass"
+        [optionLabel]="classLabel()"
+        placeholder="{{ 'PLEASE_SELECT' | translate }}"
+        class="w-full min-w-0 md:flex-1"
+        [filter]="true"
+        [showClear]="true"
+        [filterBy]="classLabel() + ',value'"
+        vwsV3Undo
+      >
+      </p-select>
+      <p-button
+        label="{{ 'APPLY' | translate }}"
+        (onClick)="applyVdiClass()"
+        [disabled]="selectedClass == null"
+        styleClass="w-full md:w-auto"
+      ></p-button>
+    </div>
+    @for (entry of classification.className; track entry; let i = $index) {
+      <div class="flex w-full min-w-0 flex-col gap-2 md:flex-row md:items-start">
+        <div class="w-full md:w-48 md:shrink-0">
+          <p-select
+            [options]="isoLanguages"
+            [(ngModel)]="entry.language"
+            optionLabel="languageName"
+            optionValue="iso2Code"
+            optionDisabled="disabled"
+            [filter]="true"
+            [showClear]="true"
+            (onFocus)="setDisabledStatus()"
+            filterBy="languageName,iso2Code"
+            placeholder="{{ 'PLEASE_SELECT_A_LANGUAGE' | translate }}"
+            class="w-full"
+            vwsV3Undo
+          >
+            <ng-template let-item let-i="index" pTemplate="item">
+              <div class="flex min-w-0 items-center gap-2">
+                <div class="min-w-0 flex-1 truncate">{{ item?.languageName }}</div>
+                <div class="w-10 shrink-0 text-right">{{ item?.iso2Code }}</div>
+              </div>
+            </ng-template>
+            <ng-template let-item let-i="index" pTemplate="selectedItem">
+              <div class="flex min-w-0 items-center gap-2">
+                <div class="min-w-0 flex-1 truncate">{{ item?.languageName }}</div>
+                <div class="w-10 shrink-0 text-right">{{ item?.iso2Code }}</div>
+              </div>
+            </ng-template>
+          </p-select>
+        </div>
+        <div class="w-full min-w-0 flex-1">
+          <textarea
+            pTextarea
+            [(ngModel)]="entry.text"
+            class="w-full"
+            id="displayNameText{{ i }}"
+            name="displayNameText{{ i }}"
+            [rows]="1"
+            [autoResize]="true"
+            vwsV3Undo
+          ></textarea>
+        </div>
+        <div class="flex shrink-0 items-start md:pt-1">
+          <p-button
+            icon="pi pi-trash"
+            styleClass="p-button-danger p-button-rounded p-button-text"
+            (onClick)="removeDisplayName(i)"
+          ></p-button>
+        </div>
+        <div class="flex shrink-0 items-start md:pt-1">
+          <p-button
+            icon="pi pi-plus"
+            styleClass="p-button-sm p-button-rounded p-button-text"
+            (onClick)="addNewDisplayName()"
+          ></p-button>
+        </div>
+      </div>
+    }
+  </div>
+}

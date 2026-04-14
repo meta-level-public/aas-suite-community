@@ -1,0 +1,24 @@
+<p-card class="w-full" header="{{ 'VIEWER_APP_SETUP_CODE' | translate }}">
+  <div class="flex flex-col md:flex-row gap-4 items-center w-full">
+    <div class="flex-1">
+      <lib-help-label tag="VIEWER_APP_SETUP_CODE_DESCRIPTION" class="w-full"></lib-help-label>
+    </div>
+    <div class="flex flex-col gap-2 items-center flex-shrink-0">
+      @let viewerAppConfig = this.viewerAppConfig() | async;
+      @if (viewerAppConfig != null && viewerAppConfig.length > 0) {
+        <qrcode #qrcode [qrdata]="viewerAppConfig" [width]="200" [errorCorrectionLevel]="'M'"> </qrcode>
+        <p-button
+          icon="pi pi-download"
+          (onClick)="downloadQrCode()"
+          [text]="true"
+          [rounded]="true"
+          size="small"
+          title="QR-Code herunterladen"
+        >
+        </p-button>
+      } @else {
+        <p-skeleton width="200px" height="200px"></p-skeleton>
+      }
+    </div>
+  </div>
+</p-card>

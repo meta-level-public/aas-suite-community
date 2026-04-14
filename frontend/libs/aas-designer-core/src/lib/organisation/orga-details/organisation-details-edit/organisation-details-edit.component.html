@@ -1,0 +1,223 @@
+<div class="detail-card">
+  <form #orgaForm="ngForm" vwsAutocompleteOff>
+    <div class="grid grid-cols-2 gap-4">
+      <p-fieldset legend="{{ 'ORGA_DATA' | translate }}">
+        <div class="mb-4">
+          <label for="name"> {{ 'NAME_OF_THE_ORGANIZATION' | translate }}</label>
+          <input
+            pInputText
+            id="name"
+            type="text"
+            class="inputfield w-full"
+            name="name"
+            [(ngModel)]="organisation.name"
+            #organame="ngModel"
+            required
+          />
+          @if (!organame.valid && organame.touched) {
+            <div class="p-error">{{ 'REQUIRED_FIELD' | translate }}</div>
+          }
+        </div>
+
+        <div class="mb-4">
+          <label for="street"> {{ 'STREET' | translate }} </label>
+          <input
+            pInputText
+            id="street"
+            type="text"
+            class="inputfield w-full"
+            name="street"
+            [(ngModel)]="organisation.strasse"
+            #street="ngModel"
+            required
+          />
+          @if (!street.valid && street.touched) {
+            <div class="p-error">{{ 'REQUIRED_FIELD' | translate }}</div>
+          }
+        </div>
+
+        <div class="mb-4">
+          <label for="zip"> {{ 'ZIP' | translate }}</label>
+          <input
+            pInputText
+            id="zip"
+            type="text"
+            class="inputfield w-full"
+            name="zip"
+            [(ngModel)]="organisation.plz"
+            #zip="ngModel"
+            required
+          />
+          @if (!zip.valid && zip.touched) {
+            <div class="p-error">{{ 'REQUIRED_FIELD' | translate }}</div>
+          }
+        </div>
+
+        <div class="mb-4">
+          <label for="city"> {{ 'CITY_TOWN' | translate }} </label>
+          <input
+            pInputText
+            id="city"
+            type="text"
+            class="inputfield w-full"
+            name="city"
+            [(ngModel)]="organisation.ort"
+            #city="ngModel"
+            required
+          />
+          @if (!city.valid && city.touched) {
+            <div class="p-error">{{ 'REQUIRED_FIELD' | translate }}</div>
+          }
+        </div>
+
+        <div class="mb-4">
+          <label for="state"> {{ 'STATE_COUNTY' | translate }} </label>
+          <input
+            pInputText
+            id="state"
+            type="text"
+            class="inputfield w-full"
+            name="state"
+            [(ngModel)]="organisation.bundesland"
+          />
+        </div>
+
+        <div class="mb-4">
+          <label for="countryCode">{{ 'COUNTRY_CODE' | translate }}</label>
+          <div>
+            <aas-country-code
+              [preSelectedCountry]="organisation.laenderCode"
+              (selectedCountry)="setCountryCode($event)"
+              [inputId]="'countryCode'"
+            ></aas-country-code>
+          </div>
+        </div>
+
+        <div class="mb-4">
+          <label for="countryCode">{{ 'ORGA_ICON' | translate }}</label>
+          <div class="flex flex-row gap-2 w-full">
+            <div class="flex w-12rem flex-col gap-2">
+              @if (organisation.logoBase64) {
+                <img [src]="organisation.logoBase64" alt="ORGA_ICON" width="96" />
+                <p-button
+                  (onClick)="onClearOrgaLogo()"
+                  icon="pi pi-trash"
+                  [rounded]="true"
+                  [outlined]="true"
+                  severity="danger"
+                />
+              }
+            </div>
+            <div class="flex w-full">
+              <p-fileUpload
+                accept="image/*,.tif,.tiff"
+                maxFileSize="1000000"
+                [auto]="false"
+                (onSelect)="onSelectOrgaLogo($event)"
+                class="w-full"
+              >
+                <ng-template #header let-files let-chooseCallback="chooseCallback">
+                  <div class="flex flex-wrap justify-between items-center flex-1 gap-2">
+                    <div class="flex gap-2">
+                      <p-button
+                        (onClick)="choose($event, chooseCallback)"
+                        icon="pi pi-images"
+                        [rounded]="true"
+                        [outlined]="true"
+                      />
+                    </div>
+                  </div>
+                </ng-template>
+                <ng-template
+                  pTemplate="content"
+                  let-files
+                  let-uploadedFiles="uploadedFiles"
+                  let-removeFileCallback="removeFileCallback"
+                  let-removeUploadedFileCallback="removeUploadedFileCallback"
+                >
+                  @if (files?.length > 0) {
+                    <div></div>
+                  }
+                </ng-template>
+                <ng-template pTemplate="file">
+                  <div class="flex items-center justify-center flex-row gap-2">
+                    <i class="pi pi-cloud-upload border-1 border-circle p-1 text-xl text-400 border-400"></i>
+                    <p class="mt-2 mb-0">{{ 'DRAG_DROP_LOGO' | translate }}</p>
+                  </div>
+                </ng-template>
+                <ng-template pTemplate="empty">
+                  <div class="flex items-center justify-center flex-row gap-2">
+                    <i class="pi pi-cloud-upload border-1 border-circle p-1 text-xl text-400 border-400"></i>
+                    <p class="mt-2 mb-0">{{ 'DRAG_DROP_LOGO' | translate }}</p>
+                  </div>
+                </ng-template>
+              </p-fileUpload>
+            </div>
+          </div>
+        </div>
+      </p-fieldset>
+      <div class="flex flex-col gap-2">
+        <p-fieldset legend="{{ 'CONTACT_DATA' | translate }}">
+          <div class="mb-4">
+            <label for="email"> {{ 'EMAIL' | translate }} </label>
+            <input
+              #email="ngModel"
+              pInputText
+              id="email"
+              name="email"
+              [(ngModel)]="organisation.email"
+              class="w-full"
+              required
+            />
+            @if (!isValidEmail(organisation.email) && email.touched) {
+              <div class="p-error">
+                {{ 'EMAIL_IS_INVALID' | translate }}
+              </div>
+            }
+          </div>
+
+          <div class="mb-4">
+            <label for="telephone"> {{ 'PHONE' | translate }} </label>
+            <input
+              pInputText
+              id="telephone"
+              type="tel"
+              class="inputfield w-full"
+              name="telephone"
+              [(ngModel)]="organisation.telefon"
+            />
+          </div>
+
+          <div class="mb-4">
+            <label for="fax"> {{ 'FAX' | translate }} </label>
+            <input pInputText id="fax" type="tel" class="inputfield w-full" name="fax" [(ngModel)]="organisation.fax" />
+          </div>
+        </p-fieldset>
+        <p-fieldset legend="{{ 'IRI_PREFIX' | translate }}">
+          <div class="mb-4">
+            <label for="iriPrefix"> {{ 'IRI_PREFIX' | translate }} </label>
+            <input
+              #iriPrefix="ngModel"
+              minlength="1"
+              pInputText
+              id="iriPrefix"
+              name="iriPrefix"
+              type="text"
+              [(ngModel)]="organisation.iriPrefix"
+              [pKeyFilter]="isValidUrl"
+              [pValidateOnly]="true"
+              class="w-full"
+              required
+              placeholder="{{ 'EXAMPLE_IRI_PREFIX' | translate }}"
+            />
+            @if ((!iriPrefix.valid && iriPrefix.touched) || iriPrefix.errors) {
+              <div class="p-error">
+                {{ 'IRI_PREFIX_IS_INVALID' | translate }}
+              </div>
+            }
+          </div>
+        </p-fieldset>
+      </div>
+    </div>
+  </form>
+</div>

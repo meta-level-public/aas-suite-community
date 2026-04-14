@@ -1,0 +1,16 @@
+<p-select
+  [options]="countries"
+  [(ngModel)]="preSelectedCountry"
+  (ngModelChange)="setElectedCountry($event)"
+  optionLabel="countryName"
+  optionValue="iso2Code"
+  [filter]="true"
+  filterBy="countryName"
+  placeholder="{{ 'PLEASE_SELECT_A_COUNTRY' | translate }}"
+  [name]="inputId"
+  [inputId]="inputId"
+  class="inputfield w-full"
+  class="w-full"
+  appendTo="body"
+  [required]="isRequired"
+></p-select>

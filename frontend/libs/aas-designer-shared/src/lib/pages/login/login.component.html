@@ -1,0 +1,92 @@
+<div class="login-container">
+  <div class="login-content">
+    <div class="form-section" [class.form-section-full]="activeView() === 'contact'">
+      <div class="form-card" [class.form-card-full]="activeView() === 'contact'">
+        <div class="welcome-header">
+          @if (showLogo() && appConfigService.config.logoPath) {
+            <img [src]="appConfigService.config.logoPath" alt="logo" class="h-3rem mb-3 object-contain" />
+          }
+          <h1 class="welcome-title">AAS Designer</h1>
+          <p class="welcome-subtitle">Willkommen zurück!</p>
+        </div>
+
+        <div class="form-wrapper">
+          @if (activeView() === 'contact') {
+            <div class="contact-panel">
+              <p-button
+                [text]="true"
+                icon="pi pi-arrow-left"
+                [label]="'BACK' | translate"
+                (onClick)="backToSso()"
+                class="mb-3"
+              />
+              <aas-contact-form [topic]="topic()"></aas-contact-form>
+            </div>
+          } @else {
+            <div class="auth-panel">
+              <aas-login-sso [systemConfiguration]="systemConfiguration()"></aas-login-sso>
+
+              @if (showRegistrationOption() || showContactOption()) {
+                <section class="auth-support-panel">
+                  @if (showRegistrationOption()) {
+                    <p class="auth-support-copy">{{ 'NOT_REGISTERED_Q' | translate }}</p>
+                  }
+
+                  <div class="auth-support-actions">
+                    @if (showRegistrationOption()) {
+                      <p-button
+                        [outlined]="true"
+                        icon="pi pi-user-plus"
+                        [label]="'REQUEST_REGISTRATION' | translate"
+                        (onClick)="openRegistrationDialog()"
+                        [attr.aria-label]="'REQUEST_REGISTRATION_ARIA' | translate"
+                      />
+                    }
+
+                    @if (showContactOption()) {
+                      <p-button
+                        [text]="true"
+                        icon="pi pi-envelope"
+                        [label]="'CONTACT' | translate"
+                        styleClass="auth-support-contact"
+                        (onClick)="openContactDialog()"
+                        [attr.aria-label]="'CONTACT_ARIA' | translate"
+                      />
+                    }
+                  </div>
+                </section>
+              }
+            </div>
+          }
+        </div>
+      </div>
+    </div>
+
+    @if (activeView() !== 'contact') {
+      <div class="brand-column">
+        <aas-login-news-panel
+          [news]="currentNews()"
+          [isAnimating]="isAnimating()"
+          [hasMultipleNews]="hasMultipleNews()"
+          [currentNewsIndex]="currentNewsIndex()"
+          [totalNewsCount]="newsItems().length"
+          [canNavigateBack]="canNavigateBack()"
+          [canNavigateForward]="canNavigateForward()"
+          [showRegistrationOption]="showRegistrationOption()"
+          [showContactOption]="showContactOption()"
+          (previousRequested)="previousNews()"
+          (nextRequested)="nextNews()"
+          (registrationRequested)="openRegistrationDialog()"
+          (contactRequested)="openContactDialog()"
+        />
+        <aas-login-brand-footer />
+      </div>
+    }
+  </div>
+
+  @if (activeView() === 'contact') {
+    <div class="disclaimer-footer">
+      <aas-disclaimer></aas-disclaimer>
+    </div>
+  }
+</div>

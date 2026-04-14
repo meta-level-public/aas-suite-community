@@ -1,0 +1,72 @@
+<div class="min-h-screen bg-slate-50 px-4 py-8 md:px-8">
+  <div class="mx-auto flex min-h-[calc(100vh-4rem)] max-w-5xl items-center justify-center">
+    <div
+      class="grid w-full overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-2xl md:grid-cols-[22rem_minmax(0,1fr)]"
+    >
+      <div class="flex flex-col justify-between bg-slate-900 px-8 py-10 text-white">
+        <div>
+          <img src="logos/logo_aas-designer.svg" alt="AAS Designer" class="mb-8 h-12 w-auto brightness-0 invert" />
+          <div
+            class="mb-3 inline-flex items-center rounded-full border border-white/20 px-3 py-1 text-xs font-semibold uppercase tracking-[0.18em] text-slate-200"
+          >
+            {{ 'FORBIDDEN_STATUS_CODE' | translate }}
+          </div>
+          <h1 class="mb-3 text-3xl font-semibold leading-tight">{{ 'FORBIDDEN_TITLE' | translate }}</h1>
+          <p class="max-w-xs text-sm leading-6 text-slate-300">
+            {{ 'FORBIDDEN_DESCRIPTION' | translate }}
+          </p>
+        </div>
+
+        <div class="rounded-2xl border border-white/10 bg-white/5 p-4">
+          <div class="mb-2 text-xs font-semibold uppercase tracking-[0.18em] text-slate-300">
+            {{ 'FORBIDDEN_NOTE_LABEL' | translate }}
+          </div>
+          <div class="text-sm leading-6 text-slate-100">
+            {{ 'FORBIDDEN_NOTE_TEXT' | translate }}
+          </div>
+        </div>
+      </div>
+
+      <div class="px-8 py-10 md:px-10">
+        <div class="mb-8 flex items-start justify-between gap-4">
+          <div>
+            <div class="mb-2 text-sm font-semibold uppercase tracking-[0.16em] text-slate-500">
+              {{ 'FORBIDDEN_ACCESS_STATUS' | translate }}
+            </div>
+            <div class="text-2xl font-semibold text-slate-900">{{ 'FORBIDDEN_HEADLINE' | translate }}</div>
+          </div>
+          <div class="rounded-full bg-rose-50 px-3 py-1 text-sm font-semibold text-rose-700">
+            {{ 'FORBIDDEN_BADGE' | translate }}
+          </div>
+        </div>
+
+        <div class="mb-8 rounded-2xl border border-slate-200 bg-slate-50 p-5">
+          <div class="mb-2 text-sm font-semibold text-slate-900">{{ 'FORBIDDEN_REASON_LABEL' | translate }}</div>
+          <p class="m-0 text-sm leading-6 text-slate-700">
+            {{ reason }}
+          </p>
+        </div>
+
+        <div class="mb-8 grid gap-4 md:grid-cols-2">
+          <div class="rounded-2xl border border-slate-200 p-5">
+            <div class="mb-2 text-sm font-semibold text-slate-900">{{ 'FORBIDDEN_WHAT_YOU_CAN_DO' | translate }}</div>
+            <p class="m-0 text-sm leading-6 text-slate-700">
+              {{ 'FORBIDDEN_WHAT_YOU_CAN_DO_TEXT' | translate }}
+            </p>
+          </div>
+          <div class="rounded-2xl border border-slate-200 p-5">
+            <div class="mb-2 text-sm font-semibold text-slate-900">{{ 'FORBIDDEN_TYPICAL_TRIGGER' | translate }}</div>
+            <p class="m-0 text-sm leading-6 text-slate-700">
+              {{ 'FORBIDDEN_TYPICAL_TRIGGER_TEXT' | translate }}
+            </p>
+          </div>
+        </div>
+
+        <div class="flex flex-wrap gap-3">
+          <p-button [label]="'FORBIDDEN_BACK_TO_DASHBOARD' | translate" [routerLink]="['/']"></p-button>
+          <p-button [label]="'BACK' | translate" severity="secondary" [outlined]="true" (onClick)="goBack()"></p-button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

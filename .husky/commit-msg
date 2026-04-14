@@ -1,0 +1,18 @@
+#!/bin/sh
+
+export PATH="/opt/homebrew/bin:/usr/local/bin:$HOME/.dotnet/tools:$PATH"
+
+repo_root="$(git rev-parse --show-toplevel)"
+
+cd "$repo_root/frontend" || exit 1
+
+case "$1" in
+  /*) commit_message_path="$1" ;;
+  *) commit_message_path="../$1" ;;
+esac
+
+if [ -f "$repo_root/frontend/unwanted-commits.mjs" ]; then
+  node ./unwanted-commits.mjs -commitMessage "$commit_message_path"
+else
+  echo "husky - skip commit message validation: frontend/unwanted-commits.mjs not found"
+fi

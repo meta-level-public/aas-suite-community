@@ -1,0 +1,121 @@
+@if (element != null) {
+  <div class="flex flex-row w-full gap-2">
+    <lib-help-label tag="ID" class="w-14rem" class="w-14rem"></lib-help-label>
+    <div class="flex flex-row gap-2 w-full items-center justify-end">
+      <input
+        pInputText
+        [(ngModel)]="element.content.id"
+        class="w-full"
+        [required]="isRequired"
+        (change)="syncId()"
+        [disabled]="readonly"
+        nullIfEmpty
+      />
+      @if (isAasIdentifier) {
+        <p-button
+          label="{{ 'CHANGE_IDENTIFIER' | translate }}"
+          (onClick)="startChangeIdentifier($event, op)"
+          icon="pi pi-pencil"
+          class="w-12rem"
+          [outlined]="true"
+          size="small"
+        ></p-button>
+      }
+      <p-popover #op>
+        <div class="flex flex-col gap-3 w-40rem">
+          <div>
+            <span class="font-medium text-900 block mb-2">{{ 'NEW_IDENTIFIER' | translate }}</span>
+            <p-inputGroup>
+              <input pInputText [(ngModel)]="newAasIdentifier" class="w-25rem" nullIfEmpty />
+              <p-button (onClick)="generateAasIri()" icon="pi pi-sparkles"></p-button>
+            </p-inputGroup>
+          </div>
+          <div class="flex flex-row gap-2"></div>
+          <div class="flex flex-row gap-2 justify-end">
+            <p-button label="{{ 'SAVE' | translate }}" (onClick)="changeIdentifier()" icon="pi pi-save"></p-button>
+            <p-button
+              label="{{ 'CANCEL' | translate }}"
+              (onClick)="op.toggle($event)"
+              [severity]="'secondary'"
+              [outlined]="true"
+              icon="pi pi-times"
+            ></p-button>
+          </div>
+        </div>
+      </p-popover>
+      @if (!readonly) {
+        @if (hasIri) {
+          <p-button
+            label="{{ 'GENERATE_IRI' | translate }}"
+            class="w-13rem"
+            (onClick)="generateIri()"
+            size="small"
+            icon="pi pi-sparkles"
+            [outlined]="true"
+          ></p-button>
+        }
+        @if (hasCustom) {
+          <p-button
+            label="{{ 'GENERATE_GUID' | translate }}"
+            class="w-16rem"
+            (onClick)="generateGuid()"
+            size="small"
+            icon="pi pi-sparkles"
+            [outlined]="true"
+          ></p-button>
+        }
+        @if (hasIrdi) {
+          <p-button
+            label="{{ 'SEARCH' | translate }}"
+            class="w-13rem"
+            (onClick)="searchIrdi()"
+            icon="pi pi-search"
+            [outlined]="true"
+            size="small"
+          ></p-button>
+        }
+      }
+    </div>
+  </div>
+}
+
+<p-dialog
+  [(visible)]="showEclassSearch"
+  [style]="{ width: '75vw' }"
+  [resizable]="false"
+  [modal]="true"
+  [maximizable]="true"
+  appendTo="body"
+  [contentStyle]="{ height: '50vh' }"
+>
+  <ng-template #header>
+    <p-tabs [(value)]="source">
+      <p-tablist>
+        <p-tab [value]="'eclass'"> {{ 'TAB_ECLASS' | translate }} </p-tab>
+        <p-tab [value]="'vec'"> {{ 'TAB_VEC' | translate }} </p-tab>
+      </p-tablist>
+    </p-tabs>
+
+    @if (source() === 'eclass') {
+      <div class="flex flex-row gap-5 mb-3">
+        <aas-eclass-logo></aas-eclass-logo>
+        <div class="text-2xl">{{ 'ECLASS_SEARCH' | translate }}</div>
+      </div>
+    }
+    @if (source() === 'vec') {
+      <div class="flex flex-row gap-5 mb-3">
+        <aas-vec-logo></aas-vec-logo>
+        <div class="text-2xl">{{ 'VEC_LOOKUP' | translate }}</div>
+      </div>
+    }
+  </ng-template>
+  @if (source() === 'eclass') {
+    <aas-eclass-search (selectedItem)="selectEclass($event)" katalog="properties"></aas-eclass-search>
+  }
+  @if (source() === 'vec') {
+    <aas-vec-lookup (selectedItem)="selectVec($event)"></aas-vec-lookup>
+  }
+  <ng-template #footer>
+    <p-button label="{{ 'CLOSE' | translate }}" icon="pi pi-check" (onClick)="showEclassSearch = false" />
+  </ng-template>
+</p-dialog>

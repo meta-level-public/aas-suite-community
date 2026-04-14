@@ -1,0 +1,161 @@
+@let shell = this.shell();
+
+@if (shell != null && shell.content != null) {
+  <div class="flex flex-col gap-4 p-2">
+    <p-fieldset
+      [toggleable]="true"
+      [ngClass]="{ 'border-error': hasDetailErrors() }"
+      [collapsed]="uiStateStore.detailsPanelCollapsed()"
+      (collapsedChange)="uiStateStore.setDetailsPanelCollapsed($event)"
+      class="compact-fieldset"
+    >
+      <ng-template #header>
+        <div class="flex items-center gap-1.5">
+          <div
+            class="flex items-center justify-center w-6 h-6 rounded-full"
+            style="background: var(--aas-info-surface)"
+          >
+            <i class="pi pi-info-circle text-xs" style="color: var(--aas-info-text)"></i>
+          </div>
+          <lib-help-label tag="DETAILS" isLabelBold="true"></lib-help-label>
+        </div>
+      </ng-template>
+      <div class="flex flex-col gap-3 p-3">
+        <aas-v3-id [element]="shell" class="w-full" [shellResult]="shellResult" [readonly]="true"></aas-v3-id>
+        <aas-v3-id-short [element]="shell" class="w-full" [shellResult]="shellResult"></aas-v3-id-short>
+
+        <div class="flex flex-row w-full gap-2">
+          <lib-help-label tag="DESCRIPTION" class="w-48" class="w-48"></lib-help-label>
+          <aas-v3-lang-string-list
+            [langStrings]="shell?.content?.description"
+            [langStringParent]="shell.content"
+            [langStringParentPropertyName]="'description'"
+            class="w-full"
+          ></aas-v3-lang-string-list>
+        </div>
+        <div class="flex flex-row w-full gap-2">
+          <lib-help-label tag="DISPLAY_NAME" class="w-48" class="w-48"></lib-help-label>
+          <aas-v3-lang-string-list
+            [langStrings]="shell.content.displayName"
+            [langStringParent]="shell.content"
+            [langStringParentPropertyName]="'displayName'"
+            class="w-full"
+          ></aas-v3-lang-string-list>
+        </div>
+        <aas-v3-category [element]="shell" class="w-full"></aas-v3-category>
+
+        <aas-error-panel [errorArr]="detailErrors()" [parent]="shell.content"></aas-error-panel>
+      </div>
+    </p-fieldset>
+    <p-fieldset
+      [toggleable]="true"
+      [collapsed]="uiStateStore.administrativeInformationPanelCollapsed()"
+      (collapsedChange)="uiStateStore.setAdministrativeInformationPanelCollapsed($event)"
+      [ngClass]="{ 'border-error': admin.hasErrors }"
+      class="compact-fieldset"
+    >
+      <ng-template #header>
+        <div class="flex items-center gap-1.5">
+          <div
+            class="flex items-center justify-center w-6 h-6 rounded-full"
+            style="background: color-mix(in srgb, var(--p-primary-50) 84%, var(--p-surface-0))"
+          >
+            <i class="pi pi-shield text-xs" style="color: var(--p-primary-700)"></i>
+          </div>
+          <lib-help-label tag="ADMINISTRATTIVE_INFORMATION" isLabelBold="true"></lib-help-label>
+        </div>
+      </ng-template>
+
+      <div class="flex flex-col gap-2">
+        <aas-v3-administration
+          [administration]="shell.content.administration"
+          [administrationParent]="shell.content"
+          class="w-full"
+          #admin
+        ></aas-v3-administration>
+      </div>
+    </p-fieldset>
+    <p-fieldset [toggleable]="true" [collapsed]="true" class="compact-fieldset">
+      <ng-template #header>
+        <div class="flex items-center gap-1.5">
+          <div
+            class="flex items-center justify-center w-6 h-6 rounded-full"
+            style="background: var(--aas-warning-surface)"
+          >
+            <i class="pi pi-arrows-alt text-xs" style="color: var(--aas-warning-text)"></i>
+          </div>
+          <lib-help-label tag="DERIVATION" isLabelBold="true"></lib-help-label>
+        </div>
+      </ng-template>
+      <aas-v3-reference
+        [reference]="shell.content.derivedFrom"
+        [referenceParent]="shell.content"
+        [referenceParentField]="'derivedFrom'"
+        [type]="shellType"
+        [typeEditable]="false"
+        class="w-full"
+        [shellResult]="shellResult"
+      ></aas-v3-reference>
+    </p-fieldset>
+    <!-- TODO: DataSPecifictaion vielleicht besser im Baum unterbringen! oder als tabellarische darstellung? -->
+    <!-- <p-fieldset legend="{{ 'DATA_SPECIFICATION' | translate }}" [toggleable]="true" class="mt-2" [collapsed]="true">
+    <aas-v3-embedded-data-specification
+      class="w-full"
+      [dataSpecification]="shell.content.embeddedDataSpecifications"
+      [dataSpecificationParent]="shell.content"
+    ></aas-v3-embedded-data-specification>
+  </p-fieldset> -->
+    <p-fieldset
+      [toggleable]="true"
+      [ngClass]="{ 'border-error': hasAssetErrors() }"
+      [collapsed]="uiStateStore.assetPanelCollapsed()"
+      (collapsedChange)="uiStateStore.setAssetPanelCollapsed($event)"
+      class="compact-fieldset"
+    >
+      <ng-template #header>
+        <div class="flex items-center gap-1.5">
+          <div
+            class="flex items-center justify-center w-6 h-6 rounded-full"
+            style="background: var(--aas-success-surface)"
+          >
+            <i class="pi pi-box text-xs" style="color: var(--aas-success-text)"></i>
+          </div>
+          <lib-help-label tag="ASSET" isLabelBold="true"></lib-help-label>
+        </div>
+      </ng-template>
+      <div class="flex flex-col gap-2">
+        <aas-v3-asset
+          class="w-full"
+          [asset]="shell.content.assetInformation"
+          [assetParent]="shell.content"
+          [shellResult]="shellResult"
+        ></aas-v3-asset>
+
+        <aas-error-panel [errorArr]="assetErrors()" [parent]="shell.content.assetInformation"></aas-error-panel>
+      </div>
+    </p-fieldset>
+    <!-- <p-fieldset legend="{{ 'EXTENSIONS' | translate }}" [toggleable]="true" [collapsed]="true">
+    <aas-v3-extensions [extensions]="shell.content.extensions" [extensionsParent]="shell.content"></aas-v3-extensions>
+  </p-fieldset> -->
+
+    <p-fieldset
+      [toggleable]="true"
+      [collapsed]="uiStateStore.endpointUrlPanelCollapsed()"
+      (collapsedChange)="uiStateStore.setEndpointUrlPanelCollapsed($event)"
+      class="compact-fieldset"
+    >
+      <ng-template #header>
+        <div class="flex items-center gap-1.5">
+          <div
+            class="flex items-center justify-center w-6 h-6 rounded-full"
+            style="background: var(--aas-info-surface)"
+          >
+            <i class="pi pi-link text-xs" style="color: var(--aas-info-text)"></i>
+          </div>
+          <lib-help-label tag="ENDPOINT_URL" isLabelBold="true"></lib-help-label>
+        </div>
+      </ng-template>
+      <aas-endpoint-url [element]="shell" [shellResult]="shellResult"></aas-endpoint-url>
+    </p-fieldset>
+  </div>
+}

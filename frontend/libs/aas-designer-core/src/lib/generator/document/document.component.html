@@ -1,0 +1,51 @@
+<div id="outerDocumentsDiv" class="flex flex-col flex-1 min-h-0">
+  <aas-generator-page-shell
+    [titleKey]="'HANDOVER_DOCUMENTATION'"
+    [subtitle]="handoverSemanticId"
+    [showSidebar]="documentNodes.length > 0"
+    [contentCardClass]="'battery-handover-card document-guided-card'"
+  >
+    <p generator-shell-intro class="text-lg battery-editor-page-copy mb-0" style="color: var(--p-text-muted-color)">
+      {{ pageDescriptionKey | translate }}
+    </p>
+
+    <div generator-shell-main>
+      <aas-handover-documents-step
+        [stepIndex]="activeStepPosition"
+        [stepTitle]="'DOCUMENTS'"
+        [stepDescription]="'BATTERY_PASSPORT_HANDOVER_DOCUMENTS_EXPL'"
+        [documents]="documents"
+        [showIdShort]="true"
+        (addRequested)="add()"
+        (editRequested)="edit(documents[$event])"
+        (deleteRequested)="delete(documents[$event])"
+      ></aas-handover-documents-step>
+    </div>
+
+    <div class="battery-editor-nav" generator-shell-sidebar-nav>
+      <aas-sidebar-tree-nav
+        [items]="documentNodes"
+        [selectedKey]="activeDocumentNodeKey"
+        [appearance]="'step-list'"
+        [showFilter]="false"
+        (nodeSelected)="selectDocumentNode($event)"
+      ></aas-sidebar-tree-nav>
+    </div>
+
+    <div class="battery-editor-nav-actions" generator-shell-sidebar-actions>
+      <p-button
+        [fluid]="true"
+        label="{{ 'BACK' | translate }}"
+        (onClick)="prevPage()"
+        icon="pi pi-angle-left"
+      ></p-button>
+      <p-button
+        [fluid]="true"
+        [label]="nextLabel | translate"
+        (onClick)="nextPage()"
+        icon="pi pi-angle-right"
+        iconPos="right"
+      ></p-button>
+    </div>
+  </aas-generator-page-shell>
+</div>

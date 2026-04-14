@@ -1,0 +1,113 @@
+<p-dialog
+  header="{{ 'INSERT_SUBMODEL' | translate }}"
+  [visible]="visible()"
+  (visibleChange)="visible.set($event)"
+  (onHide)="onHide()"
+  [style]="{ width: '75vw' }"
+  [modal]="true"
+  appendTo="body"
+>
+  <p>{{ 'PLEASE_SELECT_SUBMODEL_TO_INSERT' | translate }}</p>
+  <p-table
+    [value]="availableSubmodels"
+    [globalFilterFields]="['name', 'description']"
+    dataKey="label"
+    size="small"
+    [tableStyle]="{ 'table-layout': 'fixed', width: '100%' }"
+    #groupTable
+    (onRowExpand)="checkForIdtaLive($event)"
+    [loading]="isLoading()"
+  >
+    <ng-template pTemplate="colgroup">
+      <colgroup>
+        <col style="width: 4rem" />
+        <col style="width: 1rem" />
+        <col />
+      </colgroup>
+    </ng-template>
+    <ng-template #body let-element let-expanded="expanded">
+      <tr>
+        <td>
+          <p-button
+            type="button"
+            pRipple
+            [pRowToggler]="element"
+            styleClass="p-button-text p-button-rounded p-button-plain"
+            [icon]="expanded ? 'pi pi-chevron-down' : 'pi pi-chevron-right'"
+          ></p-button>
+        </td>
+        <td></td>
+
+        <td>{{ element.label }}</td>
+      </tr>
+    </ng-template>
+    <ng-template #expandedrow let-element>
+      <tr>
+        <td colspan="3">
+          <p-table
+            [value]="element.submodels"
+            [globalFilterFields]="['translatedLabel', 'label', 'description', 'sourceAasIdShort']"
+            dataKey="id"
+            size="small"
+            stripedRows
+            [rowHover]="true"
+            styleClass="submodel-list-table"
+            [tableStyle]="{ 'table-layout': 'fixed', width: '100%' }"
+            #submodelTable
+          >
+            <ng-template pTemplate="caption">
+              @if (element.submodels.length > 3) {
+                <div class="flex">
+                  <span class="p-input-icon-left ml-auto">
+                    <i class="pi pi-search"></i>
+                    <input
+                      pInputText
+                      type="text"
+                      (input)="submodelTable.filterGlobal(getEventValue($event), 'contains')"
+                      placeholder="{{ 'SEARCH' | translate }}"
+                    />
+                  </span>
+                </div>
+              }
+            </ng-template>
+            <ng-template pTemplate="colgroup">
+              <colgroup>
+                <col style="width: 9rem" />
+                <col style="width: 24rem" />
+                <col style="width: 6rem" />
+                <col />
+              </colgroup>
+            </ng-template>
+            <ng-template pTemplate="body" let-element let-expanded="expanded">
+              <tr class="p-selectable-row">
+                <td class="justify-center">
+                  <p-button label="{{ 'APPLY' | translate }}" (onClick)="onApply(element)" size="small"></p-button>
+                </td>
+                <td class="submodel-name-cell">
+                  <div class="submodel-name-wrapper">
+                    <lib-help-label [tag]="element.label" [width]="'w-full'"></lib-help-label>
+                    @if (getSourceAasIdShort(element); as sourceAasIdShort) {
+                      <span class="submodel-identifier text-sm">({{ sourceAasIdShort }})</span>
+                    }
+                  </div>
+                </td>
+                <td class="submodel-version-cell">
+                  {{ element.submodelVersion }}
+                </td>
+                <td class="text-sm submodel-description-cell">{{ element.description | translate }}</td>
+              </tr>
+            </ng-template>
+          </p-table>
+        </td>
+      </tr>
+    </ng-template>
+  </p-table>
+  <ng-template pTemplate="footer">
+    <p-button
+      icon="pi pi-times"
+      (onClick)="onHide()"
+      label="{{ 'CLOSE' | translate }}"
+      styleClass="p-button-secondary"
+    ></p-button>
+  </ng-template>
+</p-dialog>

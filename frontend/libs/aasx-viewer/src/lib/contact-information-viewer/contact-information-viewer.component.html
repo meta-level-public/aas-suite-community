@@ -1,0 +1,55 @@
+<div class="flex flex-col w-full">
+  <p-table [value]="contactInformation.submodelElements" size="small" stripedRows dataKey="idShort">
+    <ng-template #header>
+      <tr>
+        <th scope="col">
+          <p-table [value]="[' ']" size="small" stripedRows>
+            <ng-template #header>
+              <tr>
+                <td>
+                  {{ 'FIELD' | translate }}
+                </td>
+                <td>
+                  {{ 'VALUE' | translate }}
+                </td>
+              </tr>
+            </ng-template>
+          </p-table>
+        </th>
+      </tr>
+    </ng-template>
+
+    <ng-template pTemplate="body" let-submodelElements let-expanded="expanded">
+      <tr>
+        <td class="font-bold" style="width: 35%; min-width: 5rem">
+          <p-button
+            type="button"
+            pRipple
+            [pRowToggler]="submodelElements"
+            styleClass="p-button-text p-button-rounded p-button-plain"
+            [icon]="expanded ? 'pi pi-chevron-down' : 'pi pi-chevron-right'"
+          ></p-button>
+          <span>{{ submodelElements.idShort }}</span>
+        </td>
+      </tr>
+    </ng-template>
+
+    <ng-template pTemplate="rowexpansion" let-submodelElement>
+      <div class="pl-8">
+        <p-table [value]="submodelElement.value" size="small" stripedRows>
+          <ng-template pTemplate="body" let-contactInformation let-expanded="expanded">
+            @if (disabledByEmptyValue(contactInformation.value)) {
+              <tr>
+                <td class="font-bold" style="width: 65%; min-width: 15rem">
+                  <aas-contact-information-element-viewer
+                    [contactInformation]="contactInformation"
+                  ></aas-contact-information-element-viewer>
+                </td>
+              </tr>
+            }
+          </ng-template>
+        </p-table>
+      </div>
+    </ng-template>
+  </p-table>
+</div>

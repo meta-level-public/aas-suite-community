@@ -1,0 +1,49 @@
+<div class="flex w-full flex-col">
+  <p-fieldset
+    class="w-full"
+    legend="{{ 'DETAILS' | translate }}"
+    [toggleable]="true"
+    [collapsed]="uiStateStore.semanticIdPanelCollapsed()"
+    (collapsedChange)="uiStateStore.setSemanticIdPanelCollapsed($event)"
+  >
+    <div class="mb-4">
+      <label for="typ" class="flex items-center mt-2 mb-2">{{ 'MISSING_REF_EXPL' | translate }}</label>
+      <label for="typ" class="flex items-center mt-2 mb-2">{{ 'MISSING_REF_REFERENCED_ID' | translate }}</label>
+      <div class="flex gap-2">
+        <input pInputText readonly [value]="missingSubmodelReferenceId" class="w-full" nullIfEmpty />
+      </div>
+    </div>
+    <div class="mb-4">
+      <label for="typ" class="flex items-center mt-2 mb-2">{{ 'MISSING_REF_OPTIONS' | translate }}</label>
+      <div class="flex gap-2">
+        <p-button
+          label="{{ 'DELETE_REFERENCE' | translate }}"
+          (onClick)="removeSubmodel()"
+          icon="pi pi-trash"
+        ></p-button>
+        <p-button
+          label="{{ 'IMPORT_FROM_JSON' | translate }}"
+          (onClick)="importJson()"
+          icon="pi pi-file-import"
+        ></p-button>
+      </div>
+    </div>
+    @if (importJsonActive()) {
+      <div class="mb-4">
+        <label for="typ" class="flex items-center mt-2 mb-2">{{ 'PASTE' | translate }}</label>
+        <div class="flex flex-col gap-2">
+          <textarea pTextarea [(ngModel)]="jsonToImport" class="w-full" rows="10"></textarea>
+          <div class="flex gap-2">
+            <p-button label="{{ 'CANCEL' | translate }}" (onClick)="cancelImportJson()" icon="pi pi-trash"></p-button>
+            <p-button
+              label="{{ 'APPLY' | translate }}"
+              (onClick)="doImportJson()"
+              icon="pi pi-file-import"
+              [disabled]="jsonToImport() === ''"
+            ></p-button>
+          </div>
+        </div>
+      </div>
+    }
+  </p-fieldset>
+</div>

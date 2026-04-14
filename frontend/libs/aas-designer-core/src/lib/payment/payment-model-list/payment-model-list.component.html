@@ -1,0 +1,123 @@
+<div class="flex flex-col flex-auto overflow-auto">
+  <div class="hero-section">
+    <div class="hero-content">
+      <h1 class="hero-title">{{ 'PAYMENT_MODELS' | translate }}</h1>
+      <div class="hero-actions">
+        <p-button
+          label="{{ 'RELOAD' | translate }}"
+          icon="pi pi-refresh"
+          (onClick)="loadData()"
+          severity="success"
+        ></p-button>
+        <p-button label="{{ 'ADD' | translate }}" icon="pi pi-plus" routerLink="create"></p-button>
+      </div>
+    </div>
+  </div>
+
+  <div class="flex-auto overflow-auto">
+    <p-table
+      #dt
+      [value]="models"
+      responsiveLayout="scroll"
+      [rows]="10"
+      [paginator]="true"
+      [rowsPerPageOptions]="[5, 10, 25, 50]"
+      [showCurrentPageReport]="true"
+      currentPageReportTemplate="{{ 'SHOW_FROM_TO_OF_TOTAL' | translate }}"
+      [rowHover]="true"
+      dataKey="id"
+      [loading]="loading"
+      size="small"
+      [scrollable]="true"
+      scrollHeight="flex"
+      sortField="name"
+      [sortOrder]="1"
+    >
+      <ng-template #header>
+        <tr>
+          <th scope="col" style="width: 5%; min-width: 1rem"></th>
+          <th scope="col" pSortableColumn="name" style="width: 18%; min-width: 10rem">
+            {{ 'NAME' | translate }}<p-sortIcon field="name"></p-sortIcon>
+          </th>
+          <th scope="col" pSortableColumn="anzahlNutzer" style="width: 10%; min-width: 10rem">
+            {{ 'ANZAHL_NUTZER' | translate }}<p-sortIcon field="anzahlNutzer"></p-sortIcon>
+          </th>
+          <th scope="col" pSortableColumn="preis" style="width: 10%; min-width: 8rem">
+            {{ 'PREIS' | translate }}<p-sortIcon field="preis"></p-sortIcon>
+          </th>
+          <th scope="col" pSortableColumn="mehrfachBuchbar" style="width: 10%; min-width: 12rem">
+            {{ 'MEHRFACH' | translate }}<p-sortIcon field="mehrfachBuchbar"></p-sortIcon>
+          </th>
+          <th scope="col" pSortableColumn="exklusivBuchbar" style="width: 10%; min-width: 12rem">
+            {{ 'EXKLUSIV' | translate }}<p-sortIcon field="exklusivBuchbar"></p-sortIcon>
+          </th>
+          <th scope="col" style="width: 10%; min-width: 11rem">
+            {{ 'ANGELEGT' | translate }}
+            <br />
+            {{ 'GEAENDERT' | translate }}
+          </th>
+        </tr>
+        <tr>
+          <th scope="col" style="width: 5%; min-width: 1rem"></th>
+          <th scope="col" style="width: 18%; min-width: 10rem">
+            <p-columnFilter type="text" field="name"></p-columnFilter>
+          </th>
+          <th scope="col" style="width: 10%; min-width: 10rem">
+            <p-columnFilter type="text" field="anzahlNutzer"></p-columnFilter>
+          </th>
+          <th scope="col" style="width: 10%; min-width: 8rem">
+            <p-columnFilter type="text" field="preis"></p-columnFilter>
+          </th>
+          <th scope="col" style="width: 10%; min-width: 12rem">
+            <p-columnFilter type="text" field="mehrfachBuchbar"></p-columnFilter>
+          </th>
+          <th scope="col" style="width: 10%; min-width: 12rem">
+            <p-columnFilter type="text" field="exklusivBuchbar"></p-columnFilter>
+          </th>
+          <th scope="col" style="width: 10%; min-width: 11rem"></th>
+        </tr>
+      </ng-template>
+      <ng-template pTemplate="body" let-model>
+        <tr>
+          <td style="width: 5%; min-width: 1rem">
+            <p-button
+              icon="pi pi-ellipsis-v"
+              styleClass="p-button-text p-button-secondary"
+              (onClick)="menu.toggle($event)"
+            ></p-button>
+            <p-menu appendTo="body" (onShow)="onShowActions(model)" #menu [popup]="true" [model]="menuItems"></p-menu>
+          </td>
+          <td style="width: 18%; min-width: 10rem">
+            {{ model.name }}
+          </td>
+          <td style="width: 10%; min-width: 10rem">
+            {{ model.anzahlNutzer === -1 ? ('UNLIMITED' | translate) : model.anzahlNutzer }}
+          </td>
+          <td style="width: 10%; min-width: 8rem; text-align: right">
+            <div class="mr-5">
+              {{ model.preis | currency: 'EUR' : 'symbol' : '.2-2' : 'de-DE' }}
+              {{ model.paymentPeriod | translate }}
+              {{ 'MWST_SUFFIX' | translate }}
+            </div>
+          </td>
+          <td style="width: 10%; min-width: 12rem">
+            {{ model.mehrfachBuchbar }}
+          </td>
+          <td style="width: 10%; min-width: 12rem">
+            {{ model.exklusivBuchbar }}
+          </td>
+          <td style="width: 10%; min-width: 11rem">
+            {{ model.anlageDatum | vwsDate: 'SHORT_DATE_TIME' }}
+            <br />
+            {{ model.aenderungsDatum | vwsDate: 'SHORT_DATE_TIME' }}
+          </td>
+        </tr>
+      </ng-template>
+      <ng-template pTemplate="emptymessage">
+        <tr>
+          <td colspan="7" style="width: 100%">{{ 'NO_DATA_FOUND' | translate }}</td>
+        </tr>
+      </ng-template>
+    </p-table>
+  </div>
+</div>

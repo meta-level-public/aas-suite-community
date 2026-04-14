@@ -1,0 +1,130 @@
+<aas-generator-page-shell
+  [titleKey]="'TECHNICAL_DATA'"
+  [subtitle]="technicalDataSemanticId"
+  [showSidebar]="technicalDataNodes.length > 0 && technicalDataFields.length > 0"
+  [contentCardClass]="'technical-data-group-card'"
+>
+  <p generator-shell-intro class="text-lg battery-editor-page-copy mb-0" style="color: var(--p-text-muted-color)">
+    {{ 'BATTERY_PASSPORT_TECHNICAL_DATA_EXPL' | translate }}
+  </p>
+
+  <div generator-shell-intro>
+    @if (technicalDataModels.length === 0) {
+      <div
+        class="p-3 border-round border-1"
+        style="
+          border-color: var(--aas-warning-border);
+          background: var(--aas-warning-surface);
+          color: var(--aas-warning-text);
+        "
+      >
+        {{ 'BATTERY_PASSPORT_TECHNICAL_DATA_MISSING' | translate }}
+      </div>
+    }
+  </div>
+
+  <div generator-shell-intro>
+    @if (technicalDataModels.length > 0 && technicalDataFields.length === 0) {
+      <div
+        class="p-3 border-round border-1"
+        style="
+          border-color: var(--aas-warning-border);
+          background: var(--aas-warning-surface);
+          color: var(--aas-warning-text);
+        "
+      >
+        {{ 'BATTERY_PASSPORT_TECHNICAL_DATA_MISSING' | translate }} Fields missing
+      </div>
+    }
+  </div>
+
+  <div generator-shell-main>
+    @if (technicalDataModels.length > 0 && technicalDataFields.length > 0 && activeItem != null) {
+      <div class="battery-editor-step-header">
+        <div class="battery-editor-step-heading">
+          <div class="battery-editor-step-index">{{ activeStepLabel }}</div>
+          <div>
+            <h2 class="text-2xl font-bold mb-2">{{ activeItem.label }}</h2>
+            @if (activeItem.description !== '') {
+              <p class="text-sm mb-0" style="color: var(--p-text-muted-color)">{{ activeItem.description }}</p>
+            }
+          </div>
+        </div>
+      </div>
+
+      @if (getUnknownDebugJson(); as unknownDebugJson) {
+        <div class="generator-debug-card mb-4">
+          <div class="generator-debug-card-title">{{ 'UNKNOWN_ELEMENT_DEBUG' | translate }}</div>
+          <pre class="generator-debug-card-content">{{ unknownDebugJson }}</pre>
+        </div>
+      }
+
+      @if (activeItem.kind === 'container' && activeFields.length === 0) {
+        <div
+          class="p-3 border-round border-1 mb-4"
+          style="border-color: var(--aas-info-border); background: var(--aas-info-surface); color: var(--aas-info-text)"
+        >
+          {{ 'GUIDED_EDITOR_CONTAINER_EMPTY_HINT' | translate }}
+        </div>
+      }
+
+      <div class="flex flex-col gap-4">
+        @for (field of activeFields; track field.path) {
+          <div class="technical-data-field-card">
+            <div class="font-bold mb-2">{{ field.label }}</div>
+            @if (field.description !== '') {
+              <div class="text-sm mb-3" style="color: var(--p-text-muted-color)">{{ field.description }}</div>
+            }
+
+            @if (field.type === 'File') {
+              <aas-generator-file-upload-card
+                [state]="getFileUploadCardState(field)"
+                (fileSelected)="onFileSelected(field, $event)"
+                (removeRequested)="removeFileSelection(field)"
+              ></aas-generator-file-upload-card>
+            } @else {
+              <aas-battery-editor-shared-field
+                [field]="field"
+                [fieldId]="'td_' + field.path"
+                [referenceTypeOptions]="referenceTypeOptions"
+                [keyTypeOptions]="keyTypeOptions"
+                [conceptDescriptions]="generatorService.additionalV3ConceptDescriptions"
+                (fieldChanged)="onFieldChanged()"
+              ></aas-battery-editor-shared-field>
+            }
+          </div>
+        }
+      </div>
+    }
+  </div>
+
+  <div class="battery-editor-nav" generator-shell-sidebar-nav>
+    @if (technicalDataModels.length > 0 && technicalDataFields.length > 0) {
+      <aas-sidebar-tree-nav
+        [items]="technicalDataNodes"
+        [selectedKey]="activeItemKey"
+        [appearance]="'step-list'"
+        [showFilter]="false"
+        (nodeSelected)="selectNode($event)"
+      ></aas-sidebar-tree-nav>
+    }
+  </div>
+
+  <div class="battery-editor-nav-actions" generator-shell-sidebar-actions>
+    @if (technicalDataModels.length > 0 && technicalDataFields.length > 0) {
+      <p-button
+        [fluid]="true"
+        label="{{ 'BACK' | translate }}"
+        (onClick)="prevGroup()"
+        icon="pi pi-angle-left"
+      ></p-button>
+      <p-button
+        [fluid]="true"
+        label="{{ getNextLabel() | translate }}"
+        (onClick)="nextGroup()"
+        icon="pi pi-angle-right"
+        iconPos="right"
+      ></p-button>
+    }
+  </div>
+</aas-generator-page-shell>

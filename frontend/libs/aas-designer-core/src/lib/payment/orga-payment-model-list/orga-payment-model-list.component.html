@@ -1,0 +1,315 @@
+@if (systemConfiguration()?.singleTenantMode !== true) {
+  <div class="flex flex-col gap-2">
+    <p-toolbar class="mb-2">
+      <div class="p-toolbar-group-start gap-2">
+        <div class="text-xl">{{ 'PAYMENT_MODEL' | translate }}</div>
+      </div>
+    </p-toolbar>
+
+    <p-table
+      #dt
+      [value]="bezahlmodelle"
+      responsiveLayout="scroll"
+      [rows]="10"
+      [paginator]="false"
+      [rowHover]="true"
+      dataKey="id"
+      [loading]="loading"
+    >
+      <ng-template #header>
+        <tr>
+          @if (showMenu) {
+            <th scope="col"></th>
+          }
+          <th scope="col"></th>
+          <th scope="col">{{ 'NAME' | translate }}</th>
+          <th scope="col">{{ 'ANZAHL_NUTZER' | translate }}</th>
+          <th scope="col">{{ 'PREIS' | translate }}</th>
+          <th scope="col">{{ 'BOOKING_DATE' | translate }}</th>
+          <th scope="col">{{ 'END_DATE' | translate }}</th>
+        </tr>
+      </ng-template>
+      <ng-template pTemplate="body" let-bezahlmodell>
+        <tr>
+          @if (showMenu) {
+            <td style="width: 3rem">
+              <p-button
+                icon="pi pi-ellipsis-v"
+                styleClass="p-button-text p-button-secondary"
+                (onClick)="menu.toggle($event)"
+              ></p-button>
+              <p-menu
+                appendTo="body"
+                (onShow)="onShowActions(bezahlmodell)"
+                #menu
+                [popup]="true"
+                [model]="menuItems"
+              ></p-menu>
+            </td>
+          }
+          <td style="width: 2%; min-width: 1rem">
+            @if (bezahlmodell.endDate != null && isInvalid(bezahlmodell)) {
+              <em
+                class="pi pi-exclamation-triangle text-3xl"
+                style="color: var(--aas-danger-icon)"
+                pTooltip="{{ 'PAYMENT_MODEL_EXPIRED' | translate }}"
+              ></em>
+            }
+          </td>
+          <td style="width: 25%; min-width: 10rem">
+            {{ bezahlmodell.paymentModel.nameLabel | translate }}
+          </td>
+          <td style="width: 15%; min-width: 10rem">
+            {{
+              bezahlmodell.paymentModel.anzahlNutzer === -1
+                ? ('UNLIMITED' | translate)
+                : bezahlmodell.paymentModel.anzahlNutzer
+            }}
+          </td>
+          <td style="width: 10%; min-width: 10rem">
+            {{ bezahlmodell.paymentModel.preis | currency: 'EUR' : 'symbol' : '.2-2' : 'de-DE' }}
+            {{ bezahlmodell.paymentModel.paymentPeriod | translate }}
+            {{ 'MWST_SUFFIX' | translate }}
+          </td>
+          <td style="width: 20%; min-width: 10rem">
+            {{ bezahlmodell.anlageDatum | vwsDate: 'SHORT_DATE' }}
+          </td>
+          <td style="width: 20%; min-width: 10rem">
+            {{ bezahlmodell.endDate | vwsDate: 'SHORT_DATE' }}
+          </td>
+        </tr>
+      </ng-template>
+      <ng-template pTemplate="footer">
+        @if (bezahlmodelle.length > 0) {
+          <tr>
+            @if (showMenu) {
+              <td style="width: 3rem"></td>
+            }
+            <td style="width: 3rem"></td>
+            <td style="width: 25%; min-width: 10rem"></td>
+            <td style="width: 15%; min-width: 10rem">
+              @if (hasUnlimitedUsers) {
+                {{ 'UNLIMITED' | translate }}
+              } @else {
+                {{ sumNutzer }}
+              }
+              ({{ userSeatStats?.activeUserSeatsCount }} {{ 'IN_USE' | translate }})
+            </td>
+            <td style="width: 20%; min-width: 10rem"></td>
+            <td style="width: 20%; min-width: 10rem"></td>
+            <td style="width: 20%; min-width: 10rem"></td>
+          </tr>
+        }
+      </ng-template>
+      <ng-template pTemplate="emptymessage">
+        <tr>
+          <td [attr.colspan]="showMenu ? 7 : 6">{{ 'NO_DATA_FOUND' | translate }}</td>
+        </tr>
+      </ng-template>
+    </p-table>
+
+    <p-dialog
+      header="{{ 'ADD_PAYMENT_MODEL' | translate }}"
+      [(visible)]="displayAddBezahlmodell"
+      [style]="{ width: '50vw' }"
+    >
+      <div class="mb-4">
+        <label for="new-password">{{ 'PAYMENT_MODEL' | translate }} </label>
+        <p-select
+          [options]="paymentModelOptions"
+          [(ngModel)]="selectedPaymentModel"
+          class="w-full"
+          class="w-full"
+          placeholder="{{ 'PLEASE_SELECT' | translate }}"
+          appendTo="body"
+        >
+          <ng-template pTemplate="selectedItem">
+            @if (selectedPaymentModel) {
+              <div class="flex flex-row">
+                {{ selectedPaymentModel.nameLabel | translate }}
+              </div>
+            }
+          </ng-template>
+          <ng-template let-paymentModel pTemplate="item">
+            <div class="flex flex-row">
+              {{ paymentModel.nameLabel | translate }}
+            </div>
+          </ng-template>
+        </p-select>
+      </div>
+
+      @if (selectedPaymentModel) {
+        <p-table [value]="[' ']" size="small" stripedRows>
+          <ng-template pTemplate="body">
+            <tr>
+              <td>{{ 'NAME' | translate }}</td>
+              <td class="font-bold">{{ selectedPaymentModel.nameLabel | translate }}</td>
+            </tr>
+            <tr>
+              <td>{{ 'ANZAHL_NUTZER' | translate }}</td>
+              <td class="font-bold">
+                {{
+                  selectedPaymentModel.anzahlNutzer === -1
+                    ? ('UNLIMITED' | translate)
+                    : selectedPaymentModel.anzahlNutzer
+                }}
+              </td>
+            </tr>
+            <tr>
+              <td>{{ 'PREIS' | translate }}</td>
+              <td class="font-bold">
+                {{ selectedPaymentModel.preis | currency: 'EUR' : 'symbol' : '.2-2' : 'de-DE' }}
+                {{ selectedPaymentModel.paymentPeriod | translate }}
+                {{ 'MWST_SUFFIX' | translate }}
+              </td>
+            </tr>
+          </ng-template>
+        </p-table>
+      }
+      <ng-template pTemplate="footer">
+        <footer class="mt-2">
+          <p-button
+            pRipple
+            label="{{ 'SAVE' | translate }}"
+            icon="pi pi-save"
+            styleClass="p-button-success mr-2"
+            [disabled]="selectedPaymentModel == null"
+            (onClick)="setPaymentModel()"
+            [loading]="loading"
+          ></p-button>
+        </footer>
+      </ng-template>
+    </p-dialog>
+  </div>
+
+  <p-dialog
+    header="{{ 'CHANGE_PAYMENT_MODEL' | translate }}"
+    [(visible)]="displayChangeBezahlmodell"
+    [style]="{ width: '50vw' }"
+  >
+    <div class="mb-4">
+      <label for="new-password">{{ 'PAYMENT_MODEL' | translate }} </label>
+      <p-select
+        [options]="paymentModelOptions"
+        [(ngModel)]="selectedPaymentModel"
+        optionLabel="nameLabel"
+        class="w-full"
+        class="w-full"
+        placeholder="{{ 'PLEASE_SELECT' | translate }}"
+        appendTo="body"
+      >
+        <ng-template pTemplate="selectedItem">
+          @if (selectedPaymentModel) {
+            <div class="flex flex-row">
+              {{ selectedPaymentModel.nameLabel | translate }}
+            </div>
+          }
+        </ng-template>
+        <ng-template let-paymentModel pTemplate="item">
+          <div class="flex flex-row">
+            {{ paymentModel.nameLabel | translate }}
+          </div>
+        </ng-template>
+      </p-select>
+    </div>
+
+    @if (currentPaymentModel) {
+      <p-table [value]="[' ']" size="small" stripedRows>
+        <ng-template pTemplate="body">
+          <tr>
+            <td></td>
+            <td class="font-bold">{{ 'ALT' | translate }}</td>
+            <td class="font-bold">{{ 'NEU' | translate }}</td>
+          </tr>
+          <tr>
+            <td>{{ 'NAME' | translate }}</td>
+            <td class="font-bold">{{ currentPaymentModel.nameLabel | translate }}</td>
+            <td class="font-bold">{{ selectedPaymentModel?.nameLabel ?? '' | translate }}</td>
+          </tr>
+          <tr>
+            <td>{{ 'ANZAHL_NUTZER' | translate }}</td>
+            <td class="font-bold">{{ currentPaymentModel.anzahlNutzer }}</td>
+            <td class="font-bold">{{ selectedPaymentModel?.anzahlNutzer }}</td>
+          </tr>
+          <tr>
+            <td>{{ 'PREIS' | translate }}</td>
+            <td class="font-bold">
+              {{ currentPaymentModel.preis | currency: 'EUR' : 'symbol' : '.2-2' : 'de-DE' }}
+              {{ 'PER_MONTH' | translate }}
+              {{ 'MWST_SUFFIX' | translate }}
+            </td>
+            <td class="font-bold">
+              {{ selectedPaymentModel?.preis | currency: 'EUR' : 'symbol' : '.2-2' : 'de-DE' }}
+              {{ selectedPaymentModel?.paymentPeriod ?? '' | translate }}
+              {{ 'MWST_SUFFIX' | translate }}
+            </td>
+          </tr>
+          <tr>
+            <td>
+              <label for="endDate"> {{ 'END_DATE' | translate }} </label>
+            </td>
+            <td>{{ previousEndDate | vwsDate: 'SHORT_DATE' }}</td>
+            <td>
+              <p-datepicker
+                id="endDate"
+                class="inputfield w-full"
+                name="endDate"
+                [(ngModel)]="endDate"
+                appendTo="body"
+                [showTime]="false"
+                class="w-full"
+                [showIcon]="true"
+              />
+            </td>
+          </tr>
+        </ng-template>
+      </p-table>
+    }
+    <ng-template pTemplate="footer">
+      <footer class="mt-2">
+        <p-button
+          pRipple
+          label="{{ 'SAVE' | translate }}"
+          icon="pi pi-save"
+          styleClass="p-button-success mr-2"
+          [disabled]="nothingChanged"
+          (onClick)="updatePaymentModel()"
+          [loading]="loading"
+        ></p-button>
+      </footer>
+    </ng-template>
+  </p-dialog>
+}
+
+<p-dialog
+  header="{{ 'CHANGE_PAYMENT_MODEL' | translate }}"
+  [(visible)]="updateEndDateDialogVisible"
+  [style]="{ width: '50vw' }"
+>
+  <div class="mb-4">
+    <label for="new-password">{{ 'END_DATE' | translate }} </label>
+
+    <p-datepicker
+      id="endDate"
+      class="inputfield w-full"
+      name="endDate"
+      [(ngModel)]="endDate"
+      appendTo="body"
+      [showTime]="false"
+      class="w-full"
+      [showIcon]="true"
+    />
+  </div>
+  <ng-template pTemplate="footer">
+    <footer class="mt-2">
+      <p-button
+        pRipple
+        label="{{ 'SAVE' | translate }}"
+        icon="pi pi-save"
+        styleClass="p-button-success mr-2"
+        (onClick)="updatePaymentModelEndDate()"
+        [loading]="loading"
+      ></p-button>
+    </footer>
+  </ng-template>
+</p-dialog>

@@ -1,0 +1,118 @@
+:host {
+  display: block;
+}
+.chart-toolbar {
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.mode-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 5.25rem;
+  padding: 0.35rem 0.6rem;
+  border-radius: 999px;
+  font-size: 0.82rem;
+  font-weight: 700;
+  border: 1px solid transparent;
+}
+
+.mode-badge-edit {
+  color: #9d174d;
+  background: #fce7f3;
+  border-color: #f9a8d4;
+}
+
+.mode-badge-view {
+  color: #334155;
+  background: #e2e8f0;
+  border-color: #cbd5e1;
+}
+
+.toolbar-separator {
+  width: 1px;
+  height: 1.75rem;
+  background: var(--surface-border);
+  margin: 0 0.25rem;
+}
+
+.chart-wrapper {
+  position: relative;
+  overflow: auto;
+  border: 1px solid var(--surface-border);
+  border-radius: 4px;
+  padding: 0.75rem;
+  background: var(--surface-card, #fff);
+  min-height: 320px;
+}
+
+.cy-container {
+  width: 100%;
+  min-height: 520px;
+}
+
+.reparent-handle {
+  position: absolute;
+  width: 1.4rem;
+  height: 1.4rem;
+  border: 1px solid #94a3b8;
+  border-radius: 999px;
+  background: #ffffff;
+  color: #334155;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 2px 8px rgba(15, 23, 42, 0.16);
+  z-index: 5;
+  cursor: grab;
+}
+
+.reparent-handle:active {
+  cursor: grabbing;
+}
+
+.reparent-handle-armed {
+  color: #ffffff;
+  background: #db2777;
+  border-color: #be185d;
+}
+
+.floating-node-actions {
+  position: absolute;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.5rem;
+  padding: 0.45rem 0.55rem;
+  border: 1px solid #cbd5e1;
+  border-radius: 10px;
+  background: #ffffff;
+  box-shadow: 0 10px 24px rgba(15, 23, 42, 0.16);
+  z-index: 4;
+}
+
+.floating-node-actions-row {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.floating-node-actions :global(.p-button) {
+  font-size: 0.82rem;
+  min-height: 2rem;
+}
+
+.floating-node-actions :global(.p-button-label) {
+  font-weight: 600;
+}
+
+.floating-node-actions-hint {
+  font-size: 0.78rem;
+  color: #7c2d12;
+  background: #fff7ed;
+  border: 1px solid #fed7aa;
+  border-radius: 6px;
+  padding: 0.3rem 0.45rem;
+  max-width: 22rem;
+}

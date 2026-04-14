@@ -1,0 +1,46 @@
+<div class="flex flex-col gap-2">
+  <div class="hero-section">
+    <div class="hero-content">
+      <h1 class="hero-title">{{ 'ORGANIZATION_DETAILS' | translate }}</h1>
+      <div class="hero-actions">
+        @if (accessService.isAllowed('ORGA_ADMIN')) {
+          @if (mode() === 'list') {
+            <p-button
+              pRipple
+              label="{{ 'EDIT' | translate }}"
+              icon="pi pi-pencil"
+              [loading]="loading()"
+              (onClick)="startEditing()"
+            ></p-button>
+          }
+          @if (mode() === 'edit') {
+            <p-button
+              label="{{ 'CANCEL' | translate }}"
+              icon="pi pi-times"
+              [loading]="loading()"
+              (onClick)="cancelEditing()"
+              severity="secondary"
+            ></p-button>
+            <p-button
+              label="{{ 'SAVE' | translate }}"
+              icon="pi pi-save"
+              [loading]="loading()"
+              (onClick)="save()"
+              [disabled]="!canSave()"
+            ></p-button>
+          }
+        }
+      </div>
+    </div>
+  </div>
+  @if (organisation()) {
+    @if (mode() === 'edit') {
+      <aas-organisation-details-edit
+        [organisationId]="organisation()!.id ?? -1"
+        #editComponent
+      ></aas-organisation-details-edit>
+    } @else {
+      <aas-organisation-details-list [organisation]="organisation()!"></aas-organisation-details-list>
+    }
+  }
+</div>

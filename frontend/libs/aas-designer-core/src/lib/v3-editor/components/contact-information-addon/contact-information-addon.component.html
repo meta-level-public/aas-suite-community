@@ -1,0 +1,129 @@
+<div class="contact-information-addon p-4">
+  <p-fieldset [legend]="'CONTACT_INFORMATION' | translate" class="mb-4">
+    <div class="w-full">
+      <!-- Company Information Section -->
+      <div class="mb-4">
+        <h5 class="text-primary mb-3">{{ 'CONTACT_ADDON.COMPANY_INFORMATION' | translate }}</h5>
+        <div class="grid grid-cols-12">
+          <div class="col-span-12">
+            <label for="company" class="font-semibold"
+              >{{ 'CONTACT_ADDON.COMPANY_NAME' | translate }} <span class="text-red-500">*</span></label
+            >
+            <input
+              id="company"
+              type="text"
+              pInputText
+              [(ngModel)]="contactInfo().company"
+              [placeholder]="'CONTACT_ADDON.ENTER_COMPANY_NAME' | translate"
+              class="p-inputtext-lg w-full"
+            />
+          </div>
+        </div>
+      </div>
+
+      <!-- Address Information Section -->
+      <div class="mb-4">
+        <h5 class="text-primary mb-3">{{ 'CONTACT_ADDON.ADDRESS_INFORMATION' | translate }}</h5>
+        <div class="grid grid-cols-12">
+          <div class="col-span-12 md:col-span-8">
+            <label for="street" class="font-semibold">{{ 'CONTACT_ADDON.STREET_ADDRESS' | translate }}</label>
+            <input
+              id="street"
+              type="text"
+              pInputText
+              [(ngModel)]="contactInfo().street"
+              [placeholder]="'CONTACT_ADDON.ENTER_STREET_ADDRESS' | translate"
+              class="p-inputtext-lg w-full"
+            />
+          </div>
+
+          <div class="col-span-12 md:col-span-4">
+            <label for="zipCode" class="font-semibold">{{ 'CONTACT_ADDON.ZIP_CODE' | translate }}</label>
+            <input
+              id="zipCode"
+              type="text"
+              pInputText
+              [(ngModel)]="contactInfo().zipCode"
+              [placeholder]="'CONTACT_ADDON.ZIP' | translate"
+              class="p-inputtext-lg w-full"
+            />
+          </div>
+
+          <div class="col-span-12 md:col-span-8">
+            <label for="cityTown" class="font-semibold">{{ 'CONTACT_ADDON.CITY_TOWN' | translate }}</label>
+            <input
+              id="cityTown"
+              type="text"
+              pInputText
+              [(ngModel)]="contactInfo().cityTown"
+              [placeholder]="'CONTACT_ADDON.ENTER_CITY_TOWN' | translate"
+              class="p-inputtext-lg w-full"
+            />
+          </div>
+
+          <div class="col-span-12 md:col-span-4">
+            <label for="nationalCode" class="font-semibold">{{ 'CONTACT_ADDON.COUNTRY_CODE' | translate }}</label>
+            <input
+              id="nationalCode"
+              type="text"
+              pInputText
+              [(ngModel)]="contactInfo().nationalCode"
+              [placeholder]="'CONTACT_ADDON.COUNTRY_CODE_PLACEHOLDER' | translate"
+              class="p-inputtext-lg w-full"
+              maxlength="3"
+            />
+          </div>
+        </div>
+      </div>
+
+      <!-- Contact Information Section -->
+      <div class="mb-4">
+        <h5 class="text-primary mb-3">{{ 'CONTACT_ADDON.CONTACT_DETAILS' | translate }}</h5>
+        <div class="grid grid-cols-12">
+          <div class="col-span-12 md:col-span-6">
+            <label for="telephoneNumber" class="font-semibold">{{
+              'CONTACT_ADDON.TELEPHONE_NUMBER' | translate
+            }}</label>
+            <input
+              id="telephoneNumber"
+              type="tel"
+              pInputText
+              [(ngModel)]="contactInfo().telephoneNumber"
+              [placeholder]="'CONTACT_ADDON.ENTER_TELEPHONE_NUMBER' | translate"
+              class="p-inputtext-lg w-full"
+            />
+          </div>
+
+          <div class="col-span-12 md:col-span-6">
+            <label for="emailAddress" class="font-semibold">{{ 'CONTACT_ADDON.EMAIL_ADDRESS' | translate }}</label>
+            <input
+              id="emailAddress"
+              type="email"
+              pInputText
+              [(ngModel)]="contactInfo().emailAddress"
+              [placeholder]="'CONTACT_ADDON.ENTER_EMAIL_ADDRESS' | translate"
+              class="p-inputtext-lg w-full"
+            />
+          </div>
+        </div>
+      </div>
+
+      <!-- Action Buttons -->
+      <div class="flex justify-end gap-2 mt-4 pt-3 border-top-1 surface-border">
+        <p-button
+          [label]="'CONTACT_ADDON.CANCEL' | translate"
+          icon="pi pi-times"
+          severity="secondary"
+          (onClick)="cancel()"
+          class="p-button-outlined"
+        />
+        <p-button
+          [label]="'CONTACT_ADDON.APPLY' | translate"
+          icon="pi pi-check"
+          severity="primary"
+          (onClick)="apply()"
+        />
+      </div>
+    </div>
+  </p-fieldset>
+</div>

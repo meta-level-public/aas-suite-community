@@ -1,0 +1,35 @@
+<p-table
+  [value]="smc"
+  [customSort]="true"
+  (sortFunction)="customSort($event)"
+  size="small"
+  stripedRows
+  sortField="idShort"
+>
+  @if (idShort) {
+    <ng-template pTemplate="caption">
+      <span class="text-2xl font-bold">{{ idShort }}</span>
+    </ng-template>
+  }
+  <ng-template #header>
+    <tr>
+      <th scope="col" style="max-width: 12rem; width: 12rem" pSortableColumn="idShort">
+        idShort <p-sortIcon field="idShort"></p-sortIcon>
+      </th>
+      <th scope="col">value</th>
+    </tr>
+  </ng-template>
+  <ng-template pTemplate="body" let-item>
+    <tr>
+      <td style="max-width: 12rem; width: 12rem; word-break: break-word">{{ item.idShort }}</td>
+      <td class="font-bold">
+        <aas-generic-viewer
+          [conceptDescriptions]="conceptDescriptions"
+          [rowData]="item"
+          [aasId]="aasId"
+          [apiUrl]="apiUrl"
+        ></aas-generic-viewer>
+      </td>
+    </tr>
+  </ng-template>
+</p-table>

@@ -1,0 +1,39 @@
+@if (extensions == null) {
+  <div>
+    <p-button
+      label="{{ 'ADD' | translate }}"
+      (onClick)="addExtension()"
+      styleClass="aas-add-button"
+      icon="pi pi-plus"
+    ></p-button>
+  </div>
+}
+
+@if (extensions != null) {
+  <div class="flex flex-col w-full gap-2">
+    @for (extension of extensions; track extension) {
+      <div class="flex flex-row gap-2">
+        <span>{{ 'TYPE' | translate }}</span>
+        <!-- <p-select
+        [options]="refTypes"
+        [(ngModel)]="dataSpec.dataSpecification.type"
+        optionLabel="label"
+        optionValue="value"
+      ></p-select> -->
+      </div>
+      <div class="flex flex-row">
+        <span>{{ 'KEYS' | translate }}:</span>
+        <!-- {{ dataSpec.dataSpecification.keys }} -->
+      </div>
+      <div class="flex flex-row">
+        <span>{{ 'REFERRED_SEMANTIC_ID' | translate }}</span>
+        <!-- {{ dataSpec.dataSpecification.referredSemanticId }} -->
+      </div>
+      <!-- <aas-data-specification-content
+    class="flex w-full"
+    [dataSpecificationContent]="dataSpec.dataSpecificationContent"
+  ></aas-data-specification-content> -->
+      {{ extension | json }}
+    }
+  </div>
+}

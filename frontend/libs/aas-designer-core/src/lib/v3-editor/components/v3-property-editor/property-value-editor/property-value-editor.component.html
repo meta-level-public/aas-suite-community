@@ -1,0 +1,129 @@
+@if (property != null) {
+  @if (
+    !isArchetype &&
+    !isDocumentClassification &&
+    !isIecClassId &&
+    !isVdiClassId &&
+    !hasValuelist &&
+    !isEclassProductClassId
+  ) {
+    <div class="flex flex-col gap-2 w-full">
+      @switch (property.valueType) {
+        @case (DataTypeDefXsd.Date) {
+          <div class="flex flex-col md:flex-row gap-2 md:items-center w-full">
+            <p-datepicker
+              [(ngModel)]="dateValue"
+              [showIcon]="true"
+              (ngModelChange)="onDateSelect($event)"
+              [showClear]="true"
+              [showButtonBar]="true"
+              appendTo="body"
+              styleClass="w-full"
+            ></p-datepicker>
+            <div class="text-sm text-color-secondary whitespace-nowrap">
+              <lib-help-label tag="RAW_DATA"></lib-help-label> {{ property.value }}
+            </div>
+          </div>
+        }
+        @case (DataTypeDefXsd.DateTime) {
+          <div class="flex flex-col md:flex-row gap-2 md:items-center w-full">
+            <p-datepicker
+              [(ngModel)]="dateValue"
+              [showIcon]="true"
+              [showTime]="true"
+              [showSeconds]="true"
+              (ngModelChange)="onDateTimeSelect($event)"
+              [showClear]="true"
+              [showButtonBar]="true"
+              appendTo="body"
+              styleClass="w-full"
+            ></p-datepicker>
+            <div class="text-sm text-color-secondary whitespace-nowrap">
+              <lib-help-label tag="RAW_DATA"></lib-help-label> {{ property.value }}
+            </div>
+          </div>
+        }
+        @case (DataTypeDefXsd.Boolean) {
+          <p-selectButton
+            [options]="trueFalseOptions"
+            [(ngModel)]="property.value"
+            optionLabel="label"
+            optionValue="value"
+            id="isPrimary"
+            styleClass="w-full"
+          >
+            <ng-template #item let-item>
+              {{ item.label | translate }}
+            </ng-template>
+          </p-selectButton>
+        }
+        @default {
+          <p-inputgroup class="w-full">
+            <input pInputText [(ngModel)]="property.value" class="w-full" vwsV3Undo nullIfEmpty />
+            <p-inputgroup-addon>
+              <p-button icon="pi pi-times" severity="secondary" (onClick)="property.value = null" />
+            </p-inputgroup-addon>
+          </p-inputgroup>
+        }
+      }
+    </div>
+    @if (hasValueErrors) {
+      <div class="text-error">
+        {{ 'errorMessages.' + valueError[0].message | translate }}
+      </div>
+    }
+  }
+
+  @if (isArchetype) {
+    <p-select
+      [options]="archetypeOptions"
+      [(ngModel)]="property.value"
+      appendTo="body"
+      class="w-full"
+      class="w-full"
+      placeholder="{{ 'PLEASE_SELECT' | translate }}"
+    ></p-select>
+  }
+
+  @if (isDocumentClassification && classificationSystemElement) {
+    <aas-classification-system [classificationSystem]="classificationSystemElement"></aas-classification-system>
+  }
+
+  @if ((isVdiClassId || isIecClassId) && classNameElement && classIdElement) {
+    <aas-class-id
+      [isIecClassId]="isIecClassId"
+      [isVdiClassId]="isVdiClassId"
+      [className]="classNameElement"
+      [classId]="classIdElement"
+    ></aas-class-id>
+  }
+
+  @if (isEclassProductClassId) {
+    <p-inputgroup class="w-full">
+      <input pInputText [(ngModel)]="property.value" class="w-full" />
+      <p-inputgroup-addon>
+        <p-button
+          icon="pi pi-external-link"
+          severity="secondary"
+          (onClick)="openEclassLink(property.value ?? '')"
+          [disabled]="property.value === ''"
+        />
+      </p-inputgroup-addon>
+    </p-inputgroup>
+  }
+
+  @if (hasValuelist) {
+    <p-select [options]="valuelistOptions" [(ngModel)]="property.value" class="w-full" class="w-full" appendTo="body">
+    </p-select>
+    @if (hasValueErrors) {
+      <div class="text-error">
+        {{ 'errorMessages.' + valueError[0].message | translate }}
+      </div>
+      @if (valueError[0].message === 'Value must be consistent with the value type.') {
+        <div class="text-error">
+          {{ 'PLEASE_CHECK_VALUE_LIST_IN_DATADEFINITION' | translate }}
+        </div>
+      }
+    }
+  }
+}

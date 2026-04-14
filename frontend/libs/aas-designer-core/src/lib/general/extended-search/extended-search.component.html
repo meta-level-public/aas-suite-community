@@ -1,0 +1,65 @@
+<p-dialog
+  [(visible)]="visible"
+  header="{{ 'EXTENDED_SEARCH' | translate }}"
+  [breakpoints]="{ '560px': '100vw' }"
+  [style]="{ width: '560px' }"
+>
+  <div class="mb-4">
+    <label for="idShort">{{ 'TYP' | translate }}</label>
+    <p-select
+      [options]="searchOptions"
+      id="catalog"
+      class="w-full"
+      class="w-full"
+      [(ngModel)]="selectedSearchOption"
+      name="katalog"
+      appendTo="body"
+      optionLabel="label"
+      placeholder="{{ 'PLEASE_SELECT' | translate }}"
+    >
+      <ng-template let-option pTemplate="item">
+        {{ option.label | translate }}
+      </ng-template>
+      <ng-template pTemplate="selectedItem">
+        {{ selectedSearchOption?.label ?? '' | translate }}
+      </ng-template>
+    </p-select>
+  </div>
+  <div class="mb-4">
+    <label for="idShort">{{ 'KEYWORD' | translate }}</label>
+    <input pInputText name="idShortKeyword" class="w-full" [(ngModel)]="keyword" (keydown.enter)="searchOrFindNext()" />
+  </div>
+  <div class="flex flex-row gap-2 justify-between">
+    <p-button
+      label="{{ 'SEARCH_IT' | translate }}"
+      (onClick)="searchOrFindNext()"
+      icon="pi pi-search"
+      styleClass="w-full"
+      [disabled]="keyword.length == 0 || selectedSearchOption == null"
+      [loading]="loading"
+    ></p-button>
+    <p-button
+      label="{{ 'NEXT_MATCH' | translate }}"
+      (onClick)="next()"
+      icon="pi pi-arrow-down"
+      styleClass="w-full"
+      [disabled]="currentSearchIndex >= matchingIds.length - 1 || matchingIds.length == 0"
+      loadingIcon="pi pi-spin pi-spinner"
+    ></p-button>
+    <p-button
+      label="{{ 'PREV_MATCH' | translate }}"
+      (onClick)="previous()"
+      icon="pi pi-arrow-up"
+      styleClass="w-full"
+      [disabled]="currentSearchIndex == 0 || matchingIds.length == 0"
+    ></p-button>
+    @if (matchingIds.length > 0) {
+      <div class="flex w-full items-center justify-center">{{ currentSearchIndex + 1 }} / {{ matchingIds.length }}</div>
+    }
+    @if (matchingIds.length == 0) {
+      <div class="flex w-full items-center justify-center">
+        {{ 'NO_RESULTS' | translate }}
+      </div>
+    }
+  </div>
+</p-dialog>

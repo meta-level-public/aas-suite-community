@@ -1,0 +1,13 @@
+@if (loading) {
+  <div class="p-4">{{ 'LOADING' | translate }}...</div>
+} @else if (entry != null) {
+  <aas-pcf-entry-assistant
+    [entryType]="entry.type"
+    [entry]="entry"
+    [submodels]="templateSubmodels"
+    [conceptDescriptions]="templateConceptDescriptions"
+    [saveLabelKey]="'DPP_PCF_SAVE_ENTRY'"
+    (saveEntry)="apply($event)"
+    (cancelled)="cancel()"
+  ></aas-pcf-entry-assistant>
+}

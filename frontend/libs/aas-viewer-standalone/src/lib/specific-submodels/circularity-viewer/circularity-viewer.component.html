@@ -1,0 +1,249 @@
+<div class="circularity-container">
+  @if (hasContent()) {
+    @if (dismantlingDocuments().length > 0 || endOfLifeSections().length > 0) {
+      <div class="section-grid-2">
+        @if (dismantlingDocuments().length > 0) {
+          <div class="section-card">
+            <h3 class="section-title">
+              <i class="fa-solid fa-screwdriver-wrench"></i>
+              {{ 'CIRCULARITY_DISMANTLING_AND_REMOVAL' | translate }}
+            </h3>
+
+            <div class="stacked-sections">
+              @for (document of dismantlingDocuments(); track $index) {
+                @if (document.element) {
+                  <aas-generic-viewer
+                    [rowData]="document.element"
+                    [idShortPath]="document.idShortPath"
+                    [submodelId]="submodel?.id ?? ''"
+                  ></aas-generic-viewer>
+                } @else {
+                  <div class="document-fallback">{{ document.label }}</div>
+                }
+              }
+            </div>
+          </div>
+        }
+
+        @if (endOfLifeSections().length > 0) {
+          <div class="section-card">
+            <h3 class="section-title">
+              <i class="fa-solid fa-recycle"></i>
+              {{ 'CIRCULARITY_END_OF_LIFE_INFORMATION' | translate }}
+            </h3>
+
+            <div class="stacked-sections">
+              @for (section of endOfLifeSections(); track section.titleKey) {
+                <div class="subsection-block">
+                  <h4 class="subsection-title">{{ section.titleKey | translate }}</h4>
+                  <div class="stacked-sections compact-stack">
+                    @for (item of section.items; track $index) {
+                      @if (item.element) {
+                        <aas-generic-viewer
+                          [rowData]="item.element"
+                          [idShortPath]="item.idShortPath"
+                          [submodelId]="submodel?.id ?? ''"
+                        ></aas-generic-viewer>
+                      } @else {
+                        <div class="document-fallback">{{ item.label }}</div>
+                      }
+                    }
+                  </div>
+                </div>
+              }
+            </div>
+          </div>
+        }
+      </div>
+    }
+
+    @if (recycledContentEntries().length > 0 || renewableContent()) {
+      <div class="section-grid-2">
+        @if (recycledContentEntries().length > 0) {
+          <div class="section-card">
+            <h3 class="section-title">
+              <i class="fa-solid fa-arrows-spin"></i>
+              {{ 'CIRCULARITY_RECYCLED_CONTENT' | translate }}
+            </h3>
+
+            <div class="stacked-sections">
+              @for (entry of recycledContentEntries(); track $index) {
+                <div class="detail-card">
+                  @if (entry.recycledMaterial) {
+                    <p-inputgroup>
+                      <p-inputgroup-addon class="font-bold circularity-label-addon">
+                        <i class="fa-solid fa-cubes mr-2"></i>
+                        {{ 'CIRCULARITY_RECYCLED_MATERIAL' | translate }}
+                      </p-inputgroup-addon>
+                      <input pInputText type="text" [value]="entry.recycledMaterial" readonly />
+                    </p-inputgroup>
+                  }
+                  @if (entry.preConsumerShare) {
+                    <p-inputgroup>
+                      <p-inputgroup-addon class="font-bold circularity-label-addon">
+                        <i class="fa-solid fa-industry mr-2"></i>
+                        {{ 'CIRCULARITY_PRE_CONSUMER_SHARE' | translate }}
+                      </p-inputgroup-addon>
+                      <input pInputText type="text" [value]="entry.preConsumerShare" readonly />
+                    </p-inputgroup>
+                  }
+                  @if (entry.postConsumerShare) {
+                    <p-inputgroup>
+                      <p-inputgroup-addon class="font-bold circularity-label-addon">
+                        <i class="fa-solid fa-box-open mr-2"></i>
+                        {{ 'CIRCULARITY_POST_CONSUMER_SHARE' | translate }}
+                      </p-inputgroup-addon>
+                      <input pInputText type="text" [value]="entry.postConsumerShare" readonly />
+                    </p-inputgroup>
+                  }
+                </div>
+              }
+            </div>
+          </div>
+        }
+
+        @if (renewableContent()) {
+          <div class="section-card">
+            <h3 class="section-title">
+              <i class="fa-solid fa-seedling"></i>
+              {{ 'CIRCULARITY_RENEWABLE_CONTENT' | translate }}
+            </h3>
+
+            <p-inputgroup>
+              <p-inputgroup-addon class="font-bold circularity-label-addon">
+                <i class="fa-solid fa-percent mr-2"></i>
+                {{ 'CIRCULARITY_SHARE' | translate }}
+              </p-inputgroup-addon>
+              <input pInputText type="text" [value]="renewableContent()" readonly />
+            </p-inputgroup>
+          </div>
+        }
+      </div>
+    }
+
+    @if (safetyInstructionDocuments().length > 0 || extinguishingAgents().length > 0) {
+      <div class="section-card">
+        <h3 class="section-title">
+          <i class="fa-solid fa-shield-halved"></i>
+          {{ 'CIRCULARITY_SAFETY_MEASURES' | translate }}
+        </h3>
+
+        <div class="section-grid-2">
+          @if (safetyInstructionDocuments().length > 0) {
+            <div class="subsection-block">
+              <h4 class="subsection-title">{{ 'CIRCULARITY_SAFETY_INSTRUCTIONS' | translate }}</h4>
+              <div class="stacked-sections compact-stack">
+                @for (item of safetyInstructionDocuments(); track $index) {
+                  @if (item.element) {
+                    <aas-generic-viewer
+                      [rowData]="item.element"
+                      [idShortPath]="item.idShortPath"
+                      [submodelId]="submodel?.id ?? ''"
+                    ></aas-generic-viewer>
+                  } @else {
+                    <div class="document-fallback">{{ item.label }}</div>
+                  }
+                }
+              </div>
+            </div>
+          }
+
+          @if (extinguishingAgents().length > 0) {
+            <div class="subsection-block">
+              <h4 class="subsection-title">{{ 'CIRCULARITY_EXTINGUISHING_AGENTS' | translate }}</h4>
+              <ul class="section-list compact-list">
+                @for (item of extinguishingAgents(); track item) {
+                  <li>{{ item }}</li>
+                }
+              </ul>
+            </div>
+          }
+        </div>
+      </div>
+    }
+
+    @if (sparePartSuppliers().length > 0) {
+      <div class="section-card">
+        <h3 class="section-title">
+          <i class="fa-solid fa-boxes-packing"></i>
+          {{ 'CIRCULARITY_SPARE_PART_SOURCES' | translate }}
+        </h3>
+
+        <div class="supplier-grid">
+          @for (supplier of sparePartSuppliers(); track $index) {
+            <div class="detail-card supplier-card">
+              @if (supplier.name) {
+                <p-inputgroup>
+                  <p-inputgroup-addon class="font-bold circularity-label-addon">
+                    <i class="fa-solid fa-building mr-2"></i>
+                    {{ 'CIRCULARITY_SUPPLIER' | translate }}
+                  </p-inputgroup-addon>
+                  <input pInputText type="text" [value]="supplier.name" readonly />
+                </p-inputgroup>
+              }
+              @if (supplier.address) {
+                <p-inputgroup>
+                  <p-inputgroup-addon class="font-bold circularity-label-addon">
+                    <i class="fa-solid fa-location-dot mr-2"></i>
+                    {{ 'ADDRESS' | translate }}
+                  </p-inputgroup-addon>
+                  <input pInputText type="text" [value]="supplier.address" readonly />
+                </p-inputgroup>
+              }
+              @if (supplier.email) {
+                <p-inputgroup>
+                  <p-inputgroup-addon class="font-bold circularity-label-addon">
+                    <i class="fa-solid fa-envelope mr-2"></i>
+                    {{ 'EMAIL' | translate }}
+                  </p-inputgroup-addon>
+                  <input pInputText type="text" [value]="supplier.email" readonly />
+                </p-inputgroup>
+              }
+              @if (supplier.web) {
+                <p-inputgroup>
+                  <p-inputgroup-addon class="font-bold circularity-label-addon">
+                    <i class="fa-solid fa-globe mr-2"></i>
+                    {{ 'WEB' | translate }}
+                  </p-inputgroup-addon>
+                  <input pInputText type="text" [value]="supplier.web" readonly />
+                </p-inputgroup>
+              }
+
+              @if (supplier.components.length > 0) {
+                <div class="subsection-block components-block">
+                  <h4 class="subsection-title">{{ 'CIRCULARITY_AVAILABLE_COMPONENTS' | translate }}</h4>
+                  <div class="stacked-sections components-list">
+                    @for (component of supplier.components; track $index) {
+                      <div class="component-row">
+                        @if (component.partName) {
+                          <div class="component-text">
+                            <span class="component-label">{{ 'CIRCULARITY_PART_NAME' | translate }}</span>
+                            <span>{{ component.partName }}</span>
+                          </div>
+                        }
+                        @if (component.partNumber) {
+                          <div class="component-text">
+                            <span class="component-label">{{ 'CIRCULARITY_PART_NUMBER' | translate }}</span>
+                            <span>{{ component.partNumber }}</span>
+                          </div>
+                        }
+                      </div>
+                    }
+                  </div>
+                </div>
+              }
+            </div>
+          }
+        </div>
+      </div>
+    }
+  } @else {
+    <div class="section-card">
+      <h3 class="section-title">
+        <i class="fa-solid fa-circle-info"></i>
+        {{ 'CIRCULARITY_OVERVIEW' | translate }}
+      </h3>
+      <p class="empty-state">{{ 'CIRCULARITY_EMPTY' | translate }}</p>
+    </div>
+  }
+</div>

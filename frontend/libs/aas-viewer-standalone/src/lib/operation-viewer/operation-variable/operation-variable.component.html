@@ -1,0 +1,23 @@
+<p-panel [collapsed]="true" [toggleable]="true" header="{{ title | translate }}">
+  <p-table [value]="variables ?? []">
+    <ng-template #header>
+      <tr>
+        <th scope="col">{{ 'NAME' | translate }}</th>
+        <th scope="col">{{ 'DATA_TYPE' | translate }}</th>
+        <th scope="col">{{ 'VALUE' | translate }}</th>
+      </tr>
+    </ng-template>
+    <ng-template pTemplate="body" let-input>
+      <tr>
+        <td>{{ input.value.idShort }}</td>
+        <td>{{ getDatatypeString(input.value) }}</td>
+        <td>{{ input.value.value }}</td>
+      </tr>
+    </ng-template>
+    <ng-template pTemplate="emptymessage">
+      <tr>
+        <td colspan="3">{{ 'NO_VARIABLES_DEFINED' | translate }}</td>
+      </tr>
+    </ng-template>
+  </p-table>
+</p-panel>

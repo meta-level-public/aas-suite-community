@@ -1,0 +1,15 @@
+<p-listbox
+  [options]="orgaSettings"
+  [(ngModel)]="selectedOrga"
+  optionLabel="name"
+  [listStyle]="{ 'max-height': '250px' }"
+  [style]="{ width: 'w-full' }"
+  [listStyle]="{ 'max-height': '220px' }"
+  (onChange)="selectOrga($event)"
+>
+  <ng-template let-orga pTemplate="item">
+    <div class="flex items-center gap-2">
+      <div>{{ orga.orgaName }}</div>
+    </div>
+  </ng-template>
+</p-listbox>

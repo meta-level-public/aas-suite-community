@@ -1,0 +1,248 @@
+<div class="flex flex-col flex-auto">
+  <div class="hero-section">
+    <div class="hero-content">
+      <h1 class="hero-title">
+        {{ 'SNIPPETS' | translate }}
+      </h1>
+    </div>
+  </div>
+
+  <div class="flex-auto min-h-0">
+    <div style="position: relative; height: 100%">
+      <div style="position: absolute; height: 100%; width: 100%">
+        <p-table
+          #dt1
+          [value]="snippetData"
+          groupRowsBy="name"
+          sortField="name"
+          sortMode="single"
+          [paginator]="true"
+          [rowsPerPageOptions]="[5, 10, 15, 20, 25, 30, 100]"
+          [showCurrentPageReport]="true"
+          currentPageReportTemplate="{{ 'SHOW_FROM_TO_OF_TOTAL' | translate }}"
+          [rowHover]="true"
+          [scrollable]="true"
+          scrollHeight="flex"
+          scrollDirection="both"
+          [rows]="10"
+          [loading]="loading"
+        >
+          <ng-template #header>
+            <tr>
+              <th scope="col" style="width: 5%; min-width: 1rem"></th>
+              <th scope="col" pSortableColumn="name" style="width: 25%; min-width: 18rem">
+                {{ 'NAME' | translate }} <p-sortIcon field="name"></p-sortIcon>
+              </th>
+              <th scope="col" pSortableColumn="typ" style="width: 12%; min-width: 10rem">
+                {{ 'TYP' | translate }} <p-sortIcon field="typ"></p-sortIcon>
+              </th>
+              <th scope="col" pSortableColumn="anlageDatum" style="width: 12%; min-width: 10rem">
+                {{ 'ANGELEGT' | translate }} <p-sortIcon field="anlageDatum"></p-sortIcon>
+              </th>
+              <th scope="col" pSortableColumn="aenderungsDatum" style="width: 12%; min-width: 10rem">
+                {{ 'GEAENDERT' | translate }} <p-sortIcon field="aenderungsDatum"></p-sortIcon>
+              </th>
+              <th scope="col" pSortableColumn="anlageBenutzer" style="width: 12%; min-width: 10rem">
+                {{ 'CREATED_BY' | translate }} <p-sortIcon field="anlageBenutzer"></p-sortIcon>
+              </th>
+              <th scope="col" style="width: 10%; min-width: 3rem"></th>
+            </tr>
+
+            <tr>
+              <th scope="col" style="width: 5%; min-width: 1rem"></th>
+              <th scope="col" style="width: 25%; min-width: 18rem">
+                <p-columnFilter type="text" field="name"></p-columnFilter>
+              </th>
+              <th scope="col" style="width: 12%; min-width: 10rem">
+                <p-columnFilter field="typ" matchMode="in" [showMenu]="false">
+                  <ng-template pTemplate="filter" let-value let-filter="filterCallback">
+                    <p-multiSelect
+                      [ngModel]="value"
+                      [options]="modelTypes"
+                      placeholder="{{ 'ALL' | translate }}"
+                      (onChange)="filter($event.value)"
+                      appendTo="body"
+                    >
+                    </p-multiSelect>
+                  </ng-template>
+                </p-columnFilter>
+              </th>
+              <th scope="col" style="width: 12%; min-width: 10rem">
+                <p-columnFilter type="date" field="anlageDatum"></p-columnFilter>
+              </th>
+              <th scope="col" style="width: 12%; min-width: 10rem">
+                <p-columnFilter type="date" field="aenderungsDatum"></p-columnFilter>
+              </th>
+              <th scope="col" style="width: 12%; min-width: 10rem">
+                <p-columnFilter type="text" field="anlageBenutzer"></p-columnFilter>
+              </th>
+              <th scope="col" style="width: 10%; min-width: 3rem">
+                <p-columnFilter field="freigabeLevel" matchMode="equals" [showMenu]="false">
+                  <ng-template pTemplate="filter" let-value let-filter="filterCallback">
+                    <p-select
+                      [ngModel]="filter"
+                      [options]="['PRIVATE', 'ORGANISATION']"
+                      (onChange)="filter($event.value)"
+                      placeholder="{{ 'ALL' | translate }}"
+                      [showClear]="false"
+                      appendTo="body"
+                      [filterValue]="'PRIVATE'"
+                    >
+                      <ng-template let-option pTemplate="item">
+                        <p-tag [value]="option | translate" [severity]="getTagSeverity(option)"></p-tag>
+                      </ng-template>
+                      <ng-template let-option pTemplate="selectedItem">
+                        <p-tag [value]="option | translate" [severity]="getTagSeverity(option)"></p-tag>
+                      </ng-template>
+                    </p-select>
+                  </ng-template>
+                </p-columnFilter>
+              </th>
+            </tr>
+          </ng-template>
+
+          <ng-template pTemplate="body" let-snippet>
+            <tr>
+              <td style="width: 5%; min-width: 1rem">
+                <p-button
+                  icon="pi pi-ellipsis-v"
+                  styleClass="p-button-text p-button-secondary"
+                  (onClick)="menu.toggle($event)"
+                ></p-button>
+                <p-menu
+                  appendTo="body"
+                  (onShow)="onShowActions(snippet)"
+                  #menu
+                  [popup]="true"
+                  [model]="menuItems"
+                ></p-menu>
+              </td>
+              <td field="name" style="width: 25%; min-width: 18rem; max-width: 18rem">
+                <div class="flex flex-col gap-1">
+                  <p-popover #op>
+                    <div class="p-4 max-w-md">
+                      <div class="flex items-start gap-2 mb-2">
+                        <i class="pi pi-info-circle mt-1" style="color: var(--aas-info-text)"></i>
+                        <div class="font-semibold text-base">{{ 'DESCRIPTION' | translate }}</div>
+                      </div>
+                      <div class="text-sm" style="white-space: pre-wrap; color: var(--p-text-color)">
+                        {{ snippet.description }}
+                      </div>
+                    </div>
+                  </p-popover>
+                  <div class="flex items-center gap-2">
+                    <i class="pi pi-tag text-xs" style="color: var(--p-text-muted-color)"></i>
+                    <span class="font-medium">{{ snippet.name }}</span>
+                  </div>
+                  @if (snippet.description) {
+                    <div
+                      class="flex items-center gap-2 text-sm cursor-pointer transition-colors"
+                      style="
+                        color: var(--p-text-muted-color);
+                        overflow: hidden;
+                        text-overflow: ellipsis;
+                        white-space: nowrap;
+                      "
+                      (click)="op.toggle($event)"
+                    >
+                      <i class="pi pi-align-left text-xs"></i>
+                      <span>{{ snippet.description }}</span>
+                    </div>
+                  }
+                </div>
+              </td>
+              <td field="typ" style="width: 12%; min-width: 10rem">{{ snippet.typ }}</td>
+              <td field="anlageDatum" style="width: 12%; min-width: 10rem">
+                {{ snippet?.anlageDatum | vwsDate: 'SHORT_DATE_TIME' }}
+              </td>
+              <td field="aenderungsDatum" style="width: 12%; min-width: 10rem">
+                {{ snippet?.aenderungsDatum | vwsDate: 'SHORT_DATE_TIME' }}
+              </td>
+              <td field="anlageBenutzer" style="width: 16%; min-width: 10rem">{{ snippet.anlageBenutzer }}</td>
+              <td field="freigabeLevel" style="width: 10%; min-width: 3rem">
+                <p-tag
+                  [value]="snippet.freigabeLevel | translate"
+                  [severity]="getTagSeverity(snippet.freigabeLevel)"
+                ></p-tag>
+              </td>
+            </tr>
+          </ng-template>
+          <ng-template pTemplate="emptymessage" let-snippet>
+            <tr>
+              <td colspan="7" style="width: 100%; min-width: 20rem" class="text-center">
+                {{ emptyText | translate }}
+              </td>
+            </tr>
+          </ng-template>
+        </p-table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<p-dialog [(visible)]="displaySnippetModal" [style]="{ width: '80vw', height: '80vh' }">
+  <ng-template #header>
+    <div class="flex flex-col">
+      <div class="flex items-center gap-3 mb-2">
+        <div
+          class="flex items-center justify-center w-12 h-12 rounded-full"
+          style="background: var(--aas-info-surface)"
+        >
+          <i class="pi pi-eye text-xl" style="color: var(--aas-info-text)"></i>
+        </div>
+        <div class="font-semibold" style="font-size: var(--aas-title-md)">{{ 'SNIPPET_VIEW' | translate }}</div>
+      </div>
+      @if (selectedSnippet?.name) {
+        <p class="text-sm ml-15" style="color: var(--p-text-muted-color)">{{ selectedSnippet?.name }}</p>
+      }
+    </div>
+  </ng-template>
+
+  <div class="flex flex-col gap-4 py-4">
+    @if (selectedSnippet?.description) {
+      <div
+        class="p-4 rounded-lg border"
+        style="background: var(--aas-info-surface); border-color: var(--aas-info-border)"
+      >
+        <div class="flex items-center gap-2 mb-2">
+          <i class="pi pi-info-circle" style="color: var(--aas-info-text)"></i>
+          <div class="font-semibold text-base">{{ 'DESCRIPTION' | translate }}</div>
+        </div>
+        <div class="text-sm" style="white-space: pre-wrap; color: var(--p-text-color)">
+          {{ selectedSnippet?.description }}
+        </div>
+      </div>
+    }
+
+    <div
+      class="p-4 rounded-lg border"
+      style="background: var(--aas-surface-subtle); border-color: var(--p-content-border-color)"
+    >
+      <div class="flex items-center gap-2 mb-3">
+        <i class="pi pi-list" style="color: var(--p-text-muted-color)"></i>
+        <div class="font-semibold text-base">{{ 'CONTENT' | translate }}</div>
+      </div>
+      <p-treeTable [value]="snippedDialogEntry" class="p-treetable-sm">
+        <ng-template #header>
+          <tr>
+            <th scope="col">{{ 'NAME' | translate }}</th>
+            <th scope="col">{{ 'TYPE' | translate }}</th>
+            <th scope="col">{{ 'VALUE' | translate }}</th>
+          </tr>
+        </ng-template>
+        <ng-template pTemplate="body" let-rowNode let-rowData="rowData">
+          <tr>
+            <td>
+              <p-treeTableToggler [rowNode]="rowNode"></p-treeTableToggler>
+              {{ rowData.label }}
+            </td>
+            <td>{{ InstanceHelper.getInstanceName(rowData.content) }}</td>
+            <td>{{ getValue(rowData.content) }}</td>
+          </tr>
+        </ng-template>
+      </p-treeTable>
+    </div>
+  </div>
+</p-dialog>
+
+<aas-confirm-dialog></aas-confirm-dialog>

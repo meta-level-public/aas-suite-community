@@ -1,0 +1,98 @@
+@if (administration == null) {
+  <div class="flex flex-col w-full justify-center">
+    <p-button
+      label="{{ 'ADD' | translate }}"
+      (onClick)="addAdministrativeInformation()"
+      icon="pi pi-plus"
+      size="small"
+      outlined="true"
+    ></p-button>
+  </div>
+}
+
+@if (administration != null) {
+  <div class="flex flex-col w-full gap-2 justify-center">
+    <div class="flex flex-row w-full gap-2">
+      <lib-help-label tag="VERSION" class="w-14rem" class="w-14rem"></lib-help-label>
+      <p-inputgroup>
+        <input pInputText [(ngModel)]="administration.version" class="w-full" nullIfEmpty />
+        <p-inputgroup-addon>
+          <p-button icon="pi pi-times" severity="secondary" (onClick)="administration.version = null" />
+        </p-inputgroup-addon>
+      </p-inputgroup>
+    </div>
+    <div class="flex flex-row w-full gap-2">
+      <lib-help-label tag="REVISION" class="w-14rem" class="w-14rem"></lib-help-label>
+      <p-inputgroup>
+        <input pInputText [(ngModel)]="administration.revision" class="w-full" nullIfEmpty />
+        <p-inputgroup-addon>
+          <p-button icon="pi pi-times" severity="secondary" (onClick)="administration.revision = null" />
+        </p-inputgroup-addon>
+      </p-inputgroup>
+    </div>
+    <div class="flex flex-row w-full gap-2">
+      <lib-help-label tag="CREATOR" class="w-14rem" class="w-14rem"></lib-help-label>
+      @if (
+        administration.creator != null && administration.creator.keys != null && administration.creator.keys.length > 0
+      ) {
+        <div class="flex flex-col w-full gap-2">
+          @for (key of administration.creator.keys; track key) {
+            <div class="flex flex-row w-full">
+              <p-inputgroup>
+                <input pInputText [(ngModel)]="key.value" class="w-full" />
+                <p-inputgroup-addon>
+                  <p-button icon="pi pi-times" severity="secondary" (onClick)="deleteKey(key)" />
+                </p-inputgroup-addon>
+              </p-inputgroup>
+              <p-button icon="pi pi-plus" (onClick)="addKey()" text="true"></p-button>
+              <p-button icon="pi pi-trash" (onClick)="deleteKey(key)" text="true"></p-button>
+            </div>
+          }
+        </div>
+      }
+      @if (administration.creator?.keys == null || administration.creator?.keys?.length === 0) {
+        <div class="flex flex-col w-full">
+          <p-button
+            label="{{ 'ADD' | translate }}"
+            (onClick)="addKey()"
+            icon="pi pi-plus"
+            size="small"
+            outlined="true"
+          ></p-button>
+        </div>
+      }
+    </div>
+    <div class="flex flex-row w-full gap-2">
+      <lib-help-label tag="TEMPLATE_ID" class="w-14rem" class="w-14rem"></lib-help-label>
+      <div class="flex flex-col w-full gap-2">
+        @if (administration != null) {
+          <div class="flex flex-row w-full justify-end mb-2">
+            <p-inputgroup>
+              <input pInputText [(ngModel)]="administration.templateId" class="w-full" nullIfEmpty />
+              <p-inputgroup-addon>
+                <p-button icon="pi pi-times" severity="secondary" (onClick)="administration.templateId = null" />
+              </p-inputgroup-addon>
+            </p-inputgroup>
+          </div>
+        }
+        @if (hasTemplateIdErrors()) {
+          <div class="text-error">
+            {{ 'errorMessages.' + getTemplateIdErrors()[0].message | translate }}
+          </div>
+        }
+      </div>
+    </div>
+    <aas-error-panel [errorArr]="errors" [parent]="administration"></aas-error-panel>
+    @if (administration != null) {
+      <div class="flex flex-row w-full justify-start mb-5">
+        <p-button
+          label="{{ 'REMOVE_BLOCK' | translate }}"
+          (onClick)="removeAdministrativeInformationBlock()"
+          icon="pi pi-trash"
+          size="small"
+          outlined="true"
+        ></p-button>
+      </div>
+    }
+  </div>
+}

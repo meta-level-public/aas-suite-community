@@ -1,0 +1,173 @@
+<p-button
+  label="{{ 'GENERATE_PROPERTIES_FROM_ECLASS' | translate }}"
+  (onClick)="generateTechnicalPropertiesFromEclass()"
+></p-button>
+
+<p-dialog [(visible)]="showCandidates" [style]="{ width: '75vw' }">
+  <ng-template #header>
+    <div class="w-full flex flex-row justify-between">
+      <div class="text-2xl">
+        {{ 'GENERATE_PROPERTIES_FROM_ECLASS' | translate }}
+      </div>
+      <aas-eclass-logo></aas-eclass-logo>
+    </div>
+  </ng-template>
+  @if (loading) {
+    <div class="flex flex-col gap-2">
+      <p-skeleton width="100%" height="40px"></p-skeleton>
+      <p-skeleton width="100%" height="150px"></p-skeleton>
+    </div>
+  }
+  @if (invalidData) {
+    <p>{{ 'INVALID_ECLASS_PROPERTY_DATA' | translate }}</p>
+  } @else {
+    @if (!eclassImported) {
+      <p>{{ 'NO_ECLASS_IMPORT_FOUND' | translate }}</p>
+      <p>{{ 'ECLASS_IMPORT_EXPLANATION' | translate }}</p>
+    } @else {
+      <p-steps
+        [model]="items"
+        [readonly]="false"
+        [activeIndex]="activeIndex"
+        (activeIndexChange)="onActiveIndexChange($event)"
+      ></p-steps>
+      @if (activeIndex == 0) {
+        <p-treeTable [value]="candidateNodes" [styleClass]="'p-treetable-sm mt-2'" [filterMode]="'lenient'" #tt>
+          <ng-template #header let-columns>
+            <tr>
+              <th scope="col" width="60%">
+                {{ 'NAME' | translate }}
+              </th>
+              <th scope="col" width="35%">
+                {{ 'IRDI' | translate }}
+              </th>
+              <th scope="col" width="5%"></th>
+            </tr>
+            <tr>
+              <th scope="col" width="60%">
+                <input
+                  pInputText
+                  type="text"
+                  (input)="tt.filter($any($event.target).value, 'displayName', 'contains')"
+                  class="w-full"
+                />
+              </th>
+              <th scope="col" width="35%">
+                <input
+                  pInputText
+                  type="text"
+                  (input)="tt.filter($any($event.target).value, 'irdi', 'contains')"
+                  class="w-full"
+                />
+              </th>
+              <th scope="col" width="5%"></th>
+            </tr>
+          </ng-template>
+          <ng-template pTemplate="body" let-rowNode let-rowData="rowData">
+            <tr [ttRow]="rowNode">
+              <td>
+                <div class="flex flex-row gap-2">
+                  <p-treeTableToggler [rowNode]="rowNode"></p-treeTableToggler>
+                  @if (rowNode.node.children == null) {
+                    <p-checkbox
+                      name="{{ rowData?.preferredName }}"
+                      value="{{ rowData?.irdi }}"
+                      [(ngModel)]="createTechnicalProperties"
+                    ></p-checkbox>
+                  }
+                  <span>{{ rowData?.displayName }}</span>
+                  @if (rowNode.node.children == null) {
+                    <p-button
+                      icon="pi pi-info"
+                      styleClass="p-button-outlined p-button-rounded p-button-sm"
+                      (onClick)="showDefinition(rowData, opDefinition, $event)"
+                    ></p-button>
+                  }
+
+                  <div class="cursor-pointer" (click)="showInfo(rowData.irdi, op, $event)">
+                    @if (rowData?.hasValueList) {
+                      <p-tag severity="info" value="Valuelist"></p-tag>
+                    }
+                  </div>
+                  @if (rowNode.node.children != null) {
+                    {{ rowNode.node.label }}
+                  }
+                </div>
+              </td>
+              <td>
+                @if (rowNode.node.children == null) {
+                  {{ rowNode.node.label }}
+                }
+              </td>
+              <td>
+                @if (rowData?.source && rowNode.node.children == null) {
+                  <p-tag [severity]="getSourceSeverity(rowData?.source)" [value]="rowData?.source"></p-tag>
+                }
+              </td>
+            </tr>
+          </ng-template>
+        </p-treeTable>
+      }
+
+      @if (candidateNodes == null || candidateNodes.length == 0) {
+        <p class="mt-2">{{ 'NO_CANDIDATES_FOUND' | translate }}</p>
+      }
+      @if (activeIndex == 1) {
+        <p-tree [value]="tree" selectionMode="single" [(selection)]="targetNode">
+          <ng-template let-node pTemplate="default">
+            <div [id]="'tree_' + node.data.id" class="aas-treenode-label" [ngClass]="{ 'text-500': !node.selectable }">
+              &nbsp;{{ getNodeLabel(node) | translate }}
+            </div>
+          </ng-template></p-tree
+        >
+      }
+
+      <p-popover #op>
+        <!-- [showCloseIcon]="true"> -->
+        <p-table [value]="valuelist" [scrollable]="true" scrollHeight="250px" [loading]="infoLoading">
+          <ng-template #header>
+            <tr>
+              <th>{{ 'VALUE_LIST' | translate }}</th>
+            </tr>
+          </ng-template>
+          <ng-template let-value pTemplate="body">
+            <tr>
+              <td>{{ value }}</td>
+            </tr>
+          </ng-template></p-table
+        >
+        @if (infoLoading) {
+          <em class="pi pi-spin pi-spinner text-2xl"></em>
+        }
+      </p-popover>
+      <p-popover #opDefinition>
+        <!-- [showCloseIcon]="true"> -->
+        <p class="w-20rem">{{ 'DEFINITION' | translate }}: {{ definition }}</p>
+      </p-popover>
+    }
+  }
+
+  <ng-template pTemplate="footer">
+    <div class="w-full flex flex-row justify-end gap-2">
+      <p-button
+        label="{{ 'CANCEL' | translate }}"
+        (onClick)="showCandidates = false"
+        styleClass="p-button-secondary"
+      ></p-button>
+      @if (activeIndex == 0 && eclassImported) {
+        <p-button
+          label="{{ 'SELECT_TARGET' | translate }}"
+          (onClick)="activeIndex = activeIndex + 1"
+          [disabled]="createTechnicalProperties == null || createTechnicalProperties.length == 0"
+        ></p-button>
+      }
+      @if (activeIndex == 1 && eclassImported) {
+        <p-button
+          label="{{ 'CREATE_PROPERTIES' | translate }}"
+          (onClick)="addTechnicalPropertiesToCollection()"
+          [disabled]="!targetNode"
+        ></p-button>
+      }
+    </div>
+  </ng-template>
+</p-dialog>

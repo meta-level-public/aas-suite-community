@@ -1,0 +1,80 @@
+<div class="sidebar-tree-nav" [class.sidebar-tree-nav-step-list]="isStepListAppearance()">
+  @if (showFilter()) {
+    <p-iconfield>
+      <p-inputicon class="pi pi-search" />
+      <input
+        type="text"
+        pInputText
+        class="sidebar-tree-filter"
+        [value]="filterQuery()"
+        (input)="setFilter($any($event.target).value)"
+        [placeholder]="placeholder() | translate"
+      />
+    </p-iconfield>
+  }
+
+  <nav class="sidebar-tree-list">
+    @for (entry of visibleNodes(); track entry.node.key ?? $index) {
+      @if (isStepListAppearance()) {
+        <button
+          type="button"
+          class="sidebar-tree-item sidebar-tree-step-item battery-editor-nav-item"
+          [ngClass]="{
+            active: isActive(entry.node),
+            'is-active': isActive(entry.node),
+            'is-disabled': isDisabled(entry.node),
+            branch: entry.hasChildren,
+          }"
+          [disabled]="isDisabled(entry.node)"
+          [attr.aria-disabled]="isDisabled(entry.node) ? 'true' : null"
+          [style.--sidebar-tree-depth]="entry.depth"
+          (click)="onNodeClick(entry.node)"
+        >
+          <span class="sidebar-tree-step-indent" aria-hidden="true"></span>
+          <span class="sidebar-tree-step-index battery-editor-nav-index">{{ entry.indexLabel }}</span>
+          <span class="sidebar-tree-step-copy battery-editor-nav-copy">
+            <span class="sidebar-tree-step-label battery-editor-nav-label">{{ getDisplayLabel(entry.node) }}</span>
+            @if (getDescription(entry.node); as description) {
+              <span class="sidebar-tree-step-description">{{ description }}</span>
+            }
+          </span>
+
+          @if (entry.hasChildren) {
+            <span class="sidebar-tree-step-toggle" (click)="$event.stopPropagation(); toggleNode(entry.node)">
+              <em [ngClass]="entry.node.expanded === true ? 'pi pi-chevron-down' : 'pi pi-chevron-right'"></em>
+            </span>
+          }
+        </button>
+      } @else {
+        <button
+          type="button"
+          class="sidebar-tree-item battery-editor-nav-item"
+          [ngClass]="{
+            active: isActive(entry.node),
+            'is-active': isActive(entry.node),
+            'is-disabled': isDisabled(entry.node),
+            branch: entry.hasChildren,
+          }"
+          [disabled]="isDisabled(entry.node)"
+          [attr.aria-disabled]="isDisabled(entry.node) ? 'true' : null"
+          [style.padding-left.rem]="0.75 + entry.depth * 1.25"
+          (click)="onNodeClick(entry.node)"
+        >
+          @if (entry.hasChildren) {
+            <span class="sidebar-tree-toggle" (click)="$event.stopPropagation(); toggleNode(entry.node)">
+              <em [ngClass]="entry.node.expanded === true ? 'pi pi-chevron-down' : 'pi pi-chevron-right'"></em>
+            </span>
+          } @else {
+            <span class="sidebar-tree-spacer"></span>
+          }
+
+          @if (entry.node.icon) {
+            <em [class]="entry.node.icon" class="sidebar-tree-icon"></em>
+          }
+
+          <span class="sidebar-tree-label">{{ getDisplayLabel(entry.node) }}</span>
+        </button>
+      }
+    }
+  </nav>
+</div>

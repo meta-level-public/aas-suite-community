@@ -1,0 +1,36 @@
+<div
+  class="layout-wrapper flex flex-col aas-flex-auto-relative"
+  (click)="onLayoutClick()"
+  [ngClass]="{
+    'layout-menu-overlay': isOverlay(),
+    'layout-menu-overlay-active': overlayMenuActive,
+    'layout-menu-horizontal': isHorizontal(),
+    'layout-mobile-active': overlayMenuMobileActive,
+    'layout-fullwidth': wrapperMode || isMobile(),
+    'p-input-filled': inputStyle === 'filled',
+    'p-ripple-disabled': !ripple,
+  }"
+  [class]="layout"
+>
+  <div class="layout-content-wrapper aas-flex-auto-relative w-full">
+    <lib-app-topbar
+      [class.logged-in]="portalService.loggedIn"
+      [class.logged-out]="!portalService.loggedIn"
+      [class.sidebar-expanded]="portalService.loggedIn && sidebarExpanded()"
+      [class.sidebar-collapsed]="portalService.loggedIn && !sidebarExpanded()"
+    ></lib-app-topbar>
+    <app-menu (sidebarExpandedChange)="onSidebarExpandedChange($event)"></app-menu>
+
+    <div
+      class="layout-content flex flex-col aas-flex-auto-relative min-h-0"
+      [class.logged-in]="portalService.loggedIn"
+      [class.logged-out]="!portalService.loggedIn"
+      [class.sidebar-expanded]="portalService.loggedIn && sidebarExpanded()"
+      [class.sidebar-collapsed]="portalService.loggedIn && !sidebarExpanded()"
+    >
+      <div class="layout-content-shell">
+        <router-outlet></router-outlet>
+      </div>
+    </div>
+  </div>
+</div>

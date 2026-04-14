@@ -1,0 +1,4 @@
+<div class="flex flex-row w-full justify-between gap-2 items-center">
+  <p-button icon="pi pi-copy" (onClick)="copyToClipboard(endpointUrl())" text="true"></p-button>
+  <markdown class="w-full h-full flex flex-col overflow-scroll" [data]="preEndpointUrl()"> </markdown>
+</div>

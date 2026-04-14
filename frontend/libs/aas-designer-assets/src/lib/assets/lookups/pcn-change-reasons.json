@@ -1,0 +1,254 @@
+[
+  {
+    "title": "Active electronics",
+    "descriptionEn": "Units with active electronics: semiconductors, electronic assemblies",
+    "descriptionDe": "Einheiten mit aktiver Elektronik: Halbleiter, elektronische Baugruppen",
+    "value": "ACEL"
+  },
+  {
+    "title": "Data / Certificate",
+    "descriptionEn": "Data media and digital certificates (such as parameter sets, setting values, databases, security certificates, cryptography keys)",
+    "descriptionDe": "Datenmedien und digitale Zertifikate (wie Parametersätze, Einstellwerte, Datenbanken, Sicherheitszertifikate, Kryptographie-Schlüssel)",
+    "value": "DACE"
+  },
+  {
+    "title": "Service",
+    "descriptionEn": "Services of all kinds (such as logistics, monitoring, cleaning, maintenance)",
+    "descriptionDe": "Dienstleistungen aller Art (wie Logistik, Überwachung, Reinigung, Wartung)",
+    "value": "SERV"
+  },
+  {
+    "title": "Documentation",
+    "descriptionEn": "Documentation (such as data sheets, descriptions, instructions)",
+    "descriptionDe": "Dokumentation (wie Datenblätter, Beschreibungen, Anleitungen)",
+    "value": "DOCU"
+  },
+  {
+    "title": "Electromechanics",
+    "descriptionEn": "Units with electromechanical function (like relays, contactors, switches)",
+    "descriptionDe": "Einheiten mit elektromechanischer Funktion (wie Relais, Schütze, Schalter)",
+    "value": "ELME"
+  },
+  {
+    "title": "Fluid",
+    "descriptionEn": "Fluids of all kinds (such as oils, fuels, hydraulic oil, gases)",
+    "descriptionDe": "Flüssigkeiten aller Art (wie Öle, Brennstoffe, Hydrauliköl, Gase)",
+    "value": "FLUI"
+  },
+  {
+    "title": "Auxiliary material",
+    "descriptionEn": "Auxiliary materials of all kinds (such as chemical substances, operating materials, cleaning agents)",
+    "descriptionDe": "Hilfsstoffe aller Art (wie chemische Substanzen, Betriebsstoffe, Reinigungsmittel)",
+    "value": "AUXM"
+  },
+  {
+    "title": "Hydraulics",
+    "descriptionEn": "Units with hydraulic function (such as hoses, pumps, cylinders)",
+    "descriptionDe": "Einheiten mit hydraulischer Funktion (wie Schläuche, Pumpen, Zylinder)",
+    "value": "HYDR"
+  },
+  {
+    "title": "Mechanics",
+    "descriptionEn": "Units with a purely mechanical function (such as shafts, gears, screws)",
+    "descriptionDe": "Einheiten mit rein mechanischer Funktion (wie Wellen, Zahnräder, Schrauben)",
+    "value": "MECH"
+  },
+  {
+    "title": "Several categories",
+    "descriptionEn": "Not to be assigned to a specific category, affects more than one category, type to be used for the PCN/PDN as a whole when type assignment is specific within the block Item numbers.",
+    "descriptionDe": "Nicht einer bestimmten Kategorie zugeordnet, betrifft mehr als eine Kategorie, Typ soll für die gesamte PCN/PDN verwendet werden, wenn die Typzuweisung innerhalb des Blockes Artikelnummern spezifisch ist.",
+    "value": "MULT"
+  },
+  {
+    "title": "Passive electrics / electronics",
+    "descriptionEn": "Units with passive electrics/electronics, assemblies that do not receive active components.",
+    "descriptionDe": "Einheiten mit passiver Elektrik/Elektronik, Baugruppen, die keine aktiven Komponenten erhalten.",
+    "value": "PAEL"
+  },
+  {
+    "title": "Pneumatics",
+    "descriptionEn": "Units with pneumatic function (such as hoses, pumps, valves, cylinders)",
+    "descriptionDe": "Einheiten mit pneumatischer Funktion (wie Schläuche, Pumpen, Ventile, Zylinder)",
+    "value": "PNEU"
+  },
+  {
+    "title": "Raw material",
+    "descriptionEn": "Raw materials of all types (such as chemical materials, plastic granules, metals, textiles)",
+    "descriptionDe": "Rohstoffe aller Art (wie chemische Materialien, Kunststoffgranulate, Metalle, Textilien)",
+    "value": "RAWM"
+  },
+  {
+    "title": "Software / Firmware",
+    "descriptionEn": "Software including firmware",
+    "descriptionDe": "Software einschließlich Firmware",
+    "value": "SWFW"
+  },
+  {
+    "title": "Other",
+    "descriptionEn": "Other",
+    "descriptionDe": "Andere",
+    "value": "OTHR"
+  },
+  {
+    "title": "Connectors / Cables",
+    "descriptionEn": "Connectors and cables of all kinds, passive connectivity",
+    "descriptionDe": "Steckverbinder und Kabel aller Art, passive Konnektivität",
+    "value": "CCBL"
+  },
+  {
+    "title": "Assembly",
+    "descriptionEn": "Assemblies",
+    "descriptionDe": "Baugruppen",
+    "value": "ASSY"
+  },
+  {
+    "title": "Software",
+    "descriptionEn": "Software (includes programs, applications, and other digital tools)",
+    "descriptionDe": "Software (einschließlich Programme, Anwendungen und andere digitale Werkzeuge)",
+    "value": "SOFTW"
+  },
+  {
+    "title": "Discontinuation",
+    "descriptionEn": "Unit is no longer produced by the original manufacturer according to original specification.",
+    "descriptionDe": "Die Einheit wird nicht mehr vom ursprünglichen Hersteller gemäß der ursprünglichen Spezifikation produziert.",
+    "value": "PDN"
+  },
+  {
+    "title": "Acquisition",
+    "descriptionEn": "Transfer of a unit, portfolio or production from one manufacturer to another.",
+    "descriptionDe": "Übertragung einer Einheit oder eines Portfolios von einem Hersteller zu einem anderen.",
+    "value": "MANAQ"
+  },
+  {
+    "title": "Alarm",
+    "descriptionEn": "The manufacturer warns of changes and restrictions detected in a product.",
+    "descriptionDe": "Warnung des Herstellers über Änderungen und Einschränkungen an einem Produkt.",
+    "value": "ALERT"
+  },
+  {
+    "title": "Change of the software",
+    "descriptionEn": "Change of the software.",
+    "descriptionDe": "Änderung der Software.",
+    "value": "SOFTW"
+  },
+  {
+    "title": "Labeling",
+    "descriptionEn": "Change the labeling of the unit and/or packing.",
+    "descriptionDe": "Änderung der Kennzeichnung der Einheit und/oder Verpackung.",
+    "value": "LABEL"
+  },
+  {
+    "title": "Characteristics",
+    "descriptionEn": "Changes to characteristics such as electrical, mechanical, thermal or other attribute values of the unit.",
+    "descriptionDe": "Änderungen von Merkmalen wie elektrischen, mechanischen, thermischen oder anderen Eigenschaften der Einheit.",
+    "value": "CHARA"
+  },
+  {
+    "title": "Documentation",
+    "descriptionEn": "General summary of changes made, does not change characteristics of the units.",
+    "descriptionDe": "Allgemeine Zusammenfassung der vorgenommenen Änderungen, ohne dass sich die Merkmale der Einheiten geändert haben.",
+    "value": "DOCUM"
+  },
+  {
+    "title": "Restriction of Recommendation for use",
+    "descriptionEn": "Official recommendation to no longer use the unit for new developments.",
+    "descriptionDe": "Offizielle Empfehlung, die Einheit nicht mehr für Neuentwicklungen zu verwenden.",
+    "value": "NRND"
+  },
+  {
+    "title": "Fit",
+    "descriptionEn": "Describes a change in the units of fit with respect to other units connected in the product.",
+    "descriptionDe": "Beschreibt eine Änderung der Passform und der Kompatibilität mit anderen Einheiten im Produkt.",
+    "value": "FIT"
+  },
+  {
+    "title": "Shape and Appearance",
+    "descriptionEn": "Describes a change in the outward appearance of the units, including spatial dimensions, form, colors, and textures.",
+    "descriptionDe": "Beschreibt eine Änderung im äußeren Erscheinungsbild der Einheiten, einschließlich räumlicher Dimensionen, Form, Farben und Texturen.",
+    "value": "FORM"
+  },
+  {
+    "title": "Function",
+    "descriptionEn": "Changes or effects from operation and performance.",
+    "descriptionDe": "Änderungen oder Auswirkungen auf Betrieb und Leistung.",
+    "value": "FUNCT"
+  },
+  {
+    "title": "Insolvency",
+    "descriptionEn": "Insolvency of the manufacturer.",
+    "descriptionDe": "Insolvenz des Herstellers.",
+    "value": "INSOL"
+  },
+  {
+    "title": "Correction",
+    "descriptionEn": "Correction of documentation without change to the unit.",
+    "descriptionDe": "Korrektur der Dokumentation ohne Änderung der Einheit.",
+    "value": "CORR"
+  },
+  {
+    "title": "Delivery",
+    "descriptionEn": "Change of delivery conditions, such as container sizes or delivery routes.",
+    "descriptionDe": "Änderung der Lieferbedingungen, z.B. Containergrößen oder Lieferwege.",
+    "value": "SHIP"
+  },
+  {
+    "title": "Material",
+    "descriptionEn": "Change of the material or substances in the material declaration.",
+    "descriptionDe": "Änderung des Materials oder der Stoffe in der Materialdeklaration.",
+    "value": "MATER"
+  },
+  {
+    "title": "Production start-up",
+    "descriptionEn": "The production of this unit is officially started.",
+    "descriptionDe": "Die Produktion dieser Einheit wird offiziell gestartet.",
+    "value": "PRODS"
+  },
+  {
+    "title": "Production process",
+    "descriptionEn": "Production process is changed.",
+    "descriptionDe": "Änderung des Produktionsprozesses.",
+    "value": "PPROC"
+  },
+  {
+    "title": "Production site",
+    "descriptionEn": "The production site is changed.",
+    "descriptionDe": "Der Produktionsstandort wurde geändert.",
+    "value": "PSITE"
+  },
+  {
+    "title": "Undo PCN",
+    "descriptionEn": "A certain previous PCN will be undone or reversed.",
+    "descriptionDe": "Ein bestimmtes vorheriges PCN wird rückgängig gemacht oder umgekehrt.",
+    "value": "CANCN"
+  },
+  {
+    "title": "Withdrawal PDN",
+    "descriptionEn": "Production of the unit is resumed, PDN loses validity.",
+    "descriptionDe": "Die Produktion der Einheit wird wieder aufgenommen, PDN verliert seine Gültigkeit.",
+    "value": "CANDN"
+  },
+  {
+    "title": "Recall",
+    "descriptionEn": "The manufacturer recalls the units from the market and explains the reasons and effects.",
+    "descriptionDe": "Der Hersteller ruft die Einheiten vom Markt zurück und erklärt die Gründe und Auswirkungen.",
+    "value": "RECA"
+  },
+  {
+    "title": "Test process",
+    "descriptionEn": "Modification of test processes before, during, and after production.",
+    "descriptionDe": "Änderung der Testprozesse vor, während und nach der Produktion.",
+    "value": "TESTP"
+  },
+  {
+    "title": "Test location",
+    "descriptionEn": "Change of the location where the tests are performed.",
+    "descriptionDe": "Änderung des Standorts, an dem die Tests durchgeführt werden.",
+    "value": "TESTS"
+  },
+  {
+    "title": "Type codes",
+    "descriptionEn": "Accompanying numbers next to the identifying number of the unit are changed, not the identifying number itself.",
+    "descriptionDe": "Begleitende Nummern neben der Identifikationsnummer der Einheit wurden geändert, jedoch nicht die Identifikationsnummer selbst.",
+    "value": "ORCOD"
+  }
+]

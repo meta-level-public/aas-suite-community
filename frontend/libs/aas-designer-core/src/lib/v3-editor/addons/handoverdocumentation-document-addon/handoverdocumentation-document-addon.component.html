@@ -1,0 +1,219 @@
+@if (document != null) {
+  <div class="flex flex-col gap-6 p-2 md:p-4 max-h-[70vh] overflow-auto">
+    <p-fileUpload
+      #uploader
+      chooseIcon="pi pi-upload"
+      [auto]="false"
+      chooseLabel="{{ 'CHOOSE_LABEL' | translate }}"
+      [customUpload]="true"
+      [showCancelButton]="false"
+      [showUploadButton]="false"
+      (onSelect)="setFile($event)"
+    >
+      <ng-template pTemplate="content" let-files>
+        {{ 'UPLOAD_OR_SELECT_TEXT' | translate }}
+      </ng-template>
+    </p-fileUpload>
+
+    @if (document().filePath) {
+      <div
+        class="p-4 rounded-lg text-sm"
+        style="
+          background: var(--aas-surface-subtle);
+          border: 1px solid var(--p-content-border-color);
+          color: var(--p-text-muted-color);
+        "
+      >
+        <span class="font-semibold">{{ 'CURRENT_DOCUMENT' | translate }}:</span>
+        {{ document().vdi2770FileFileName || document().filePath }}
+      </div>
+    }
+
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 items-start">
+      <div class="flex flex-col gap-4 min-w-0">
+        <h3 class="text-xl font-bold flex items-center gap-2" style="color: var(--p-text-color)">
+          <i class="pi pi-file"></i>
+          <lib-help-label tag="DOCUMENT_VERSION" isLabelBold="true" [showLabel]="false"></lib-help-label>
+          {{ 'DOCUMENT_VERSION' | translate }}
+        </h3>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <p-inputgroup>
+            <p-inputgroup-addon class="font-bold text-sm leading-snug w-56 md:w-64">
+              <i class="pi pi-flag mr-2"></i>
+              {{ 'LANGUAGE' | translate }}
+              <span class="text-red-500 ml-1">*</span>
+            </p-inputgroup-addon>
+            <p-select
+              [options]="isoLanguages"
+              [(ngModel)]="document().documentVersion[0].language"
+              optionLabel="languageName"
+              optionValue="iso2Code"
+              optionDisabled="disabled"
+              [filter]="true"
+              [showClear]="true"
+              filterBy="languageName,iso2Code"
+              placeholder="{{ 'PLEASE_SELECT_A_LANGUAGE' | translate }}"
+              class="w-full"
+              vwsV3Undo
+            >
+              <ng-template let-item let-i="index" pTemplate="item">
+                <div class="flex items-center gap-2 min-w-0">
+                  <div class="min-w-0 truncate">{{ item?.languageName }}</div>
+                  <div class="w-10 text-right flex-shrink-0">{{ item?.iso2Code }}</div>
+                </div>
+              </ng-template>
+              <ng-template let-item let-i="index" pTemplate="selectedItem">
+                <div class="flex items-center gap-2 min-w-0 pr-8">
+                  <div class="min-w-0 truncate">{{ item?.languageName }}</div>
+                  <div class="w-10 text-right flex-shrink-0">{{ item?.iso2Code }}</div>
+                </div>
+              </ng-template>
+            </p-select>
+          </p-inputgroup>
+
+          <p-inputgroup>
+            <p-inputgroup-addon class="font-bold text-sm leading-snug w-56 md:w-64">
+              <i class="pi pi-hashtag mr-2"></i>
+              <lib-help-label tag="DOC_VERSION" [showLabel]="false"></lib-help-label>
+              {{ 'DOC_VERSION' | translate }}
+            </p-inputgroup-addon>
+            <input
+              pInputText
+              id="documentVersionId"
+              name="documentVersionId"
+              [(ngModel)]="document().documentVersion[0].documentVersionId"
+            />
+          </p-inputgroup>
+        </div>
+
+        <p-inputgroup>
+          <p-inputgroup-addon class="font-bold text-sm leading-snug w-56 md:w-64">
+            <i class="pi pi-tag mr-2"></i>
+            <lib-help-label tag="DOCUMENT_TITLE" [showLabel]="false"></lib-help-label>
+            {{ 'DOCUMENT_TITLE' | translate }}
+            <span class="text-red-500 ml-1">*</span>
+          </p-inputgroup-addon>
+          <input pInputText id="title" name="title" [(ngModel)]="document().documentVersion[0].title" />
+        </p-inputgroup>
+
+        <p-inputgroup>
+          <p-inputgroup-addon class="font-bold text-sm leading-snug w-56 md:w-64">
+            <i class="pi pi-align-left mr-2"></i>
+            {{ 'DOCUMENT_SUBTITLE' | translate }}
+          </p-inputgroup-addon>
+          <input pInputText id="subtitle" name="subtitle" [(ngModel)]="document().documentVersion[0].subtitle" />
+        </p-inputgroup>
+
+        <p-inputgroup>
+          <p-inputgroup-addon class="font-bold text-sm leading-snug w-56 md:w-64">
+            <i class="pi pi-align-left mr-2"></i>
+            {{ 'DOCUMENT_DESCRIPTION' | translate }}
+          </p-inputgroup-addon>
+          <input pInputText id="description" name="description" [(ngModel)]="document().documentVersion[0].summary" />
+        </p-inputgroup>
+      </div>
+
+      <div class="flex flex-col gap-4 min-w-0">
+        <h3 class="text-xl font-bold mt-2 flex items-center gap-2" style="color: var(--p-text-color)">
+          <i class="pi pi-id-card"></i>
+          <lib-help-label tag="DOCUMENT_ID" isLabelBold="true" [showLabel]="false"></lib-help-label>
+          {{ 'DOCUMENT_ID' | translate }}
+        </h3>
+
+        <p-inputgroup>
+          <p-inputgroup-addon class="font-bold text-sm leading-snug w-56 md:w-64">
+            <i class="pi pi-hashtag mr-2"></i>
+            <lib-help-label tag="VALUE_ID" [showLabel]="false"></lib-help-label>
+            {{ 'VALUE_ID' | translate }}
+            <span class="text-red-500 ml-1">*</span>
+          </p-inputgroup-addon>
+          <input pInputText id="valueId" name="valueId" [(ngModel)]="document().documentId[0].valueId" />
+        </p-inputgroup>
+
+        <p-inputgroup>
+          <p-inputgroup-addon class="font-bold text-sm leading-snug w-56 md:w-64">
+            <i class="pi pi-globe mr-2"></i>
+            <lib-help-label tag="DOCUMENT_DOMAIN_ID" [showLabel]="false"></lib-help-label>
+            {{ 'DOCUMENT_DOMAIN_ID' | translate }}
+            <span class="text-red-500 ml-1">*</span>
+          </p-inputgroup-addon>
+          <input
+            pInputText
+            id="documentDomainId"
+            name="documentDomainId"
+            [(ngModel)]="document().documentId[0].documentDomainId"
+          />
+        </p-inputgroup>
+
+        <h3 class="text-xl font-bold mt-2 flex items-center gap-2" style="color: var(--p-text-color)">
+          <i class="pi pi-bookmark"></i>
+          <lib-help-label tag="DOCUMENT_CLASSIFICATION" isLabelBold="true" [showLabel]="false"></lib-help-label>
+          {{ 'DOCUMENT_CLASSIFICATION' | translate }}
+        </h3>
+
+        <p-inputgroup>
+          <p-inputgroup-addon class="font-bold text-sm leading-snug w-56 md:w-64">
+            <i class="pi pi-sitemap mr-2"></i>
+            <lib-help-label tag="CLASSIFICATION_SYSTEM" [showLabel]="false"></lib-help-label>
+            {{ 'CLASSIFICATION_SYSTEM' | translate }}
+            <span class="text-red-500 ml-1">*</span>
+          </p-inputgroup-addon>
+          <p-select
+            id="classificationSystem"
+            name="classificationSystem"
+            [editable]="true"
+            [(ngModel)]="document().documentClassification[0].classificationSystem"
+            [options]="classificationSystems"
+            class="w-full"
+          ></p-select>
+        </p-inputgroup>
+
+        <p-inputgroup>
+          <p-inputgroup-addon class="font-bold text-sm leading-snug w-56 md:w-64">
+            <i class="pi pi-tag mr-2"></i>
+            <lib-help-label tag="CLASS_NAME" [showLabel]="false"></lib-help-label>
+            {{ 'CLASS_NAME' | translate }}
+            <span class="text-red-500 ml-1">*</span>
+          </p-inputgroup-addon>
+          <input
+            pInputText
+            id="className"
+            name="className"
+            [(ngModel)]="document().documentClassification[0].className[0].text"
+          />
+        </p-inputgroup>
+
+        <p-inputgroup>
+          <p-inputgroup-addon class="font-bold text-sm leading-snug w-56 md:w-64">
+            <i class="pi pi-hashtag mr-2"></i>
+            <lib-help-label tag="CLASS_ID" [showLabel]="false"></lib-help-label>
+            {{ 'CLASS_ID' | translate }}
+            <span class="text-red-500 ml-1">*</span>
+          </p-inputgroup-addon>
+          <input pInputText id="classId" name="classId" [(ngModel)]="document().documentClassification[0].classId" />
+        </p-inputgroup>
+      </div>
+    </div>
+
+    <div class="flex gap-2 justify-end pt-4 border-t">
+      @if (isApplyDisabled()) {
+        <div class="mr-auto flex items-center text-sm" style="color: var(--p-text-muted-color)">
+          <span class="text-red-500 mr-2">*</span>{{ 'REQUIRED_FIELD' | translate }}
+        </div>
+      }
+      <p-button
+        label="{{ 'APPLY' | translate }}"
+        icon="pi pi-check"
+        (onClick)="apply()"
+        [disabled]="isApplyDisabled()"
+      ></p-button>
+      <p-button
+        label="{{ 'CANCEL' | translate }}"
+        icon="pi pi-times"
+        severity="secondary"
+        (onClick)="cancel()"
+      ></p-button>
+    </div>
+  </div>
+}

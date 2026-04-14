@@ -1,0 +1,260 @@
+<div class="aas-page-surface">
+  <div class="hero-section aas-page-header-inset">
+    <div class="flex items-center justify-between gap-4">
+      <h1 class="hero-title">{{ 'CONCEPT_DESCRIPTIONS' | translate }}</h1>
+      <div class="flex items-center gap-2 flex-nowrap">
+        <p-inputgroup>
+          <p-inputgroup-addon>
+            <i class="pi pi-barcode"></i>
+          </p-inputgroup-addon>
+          <input pInputText [(ngModel)]="cdId" placeholder="{{ 'CD_ID' | translate }}" (keydown.enter)="findCd()" />
+          <p-inputgroup-addon>
+            <p-button icon="pi pi-search" severity="secondary" (onClick)="findCd()" />
+          </p-inputgroup-addon>
+        </p-inputgroup>
+        <lib-help-label tag="CD_ID_SEARCH" [showLabel]="false"></lib-help-label>
+
+        <p-select
+          [options]="availableRepositories()"
+          [(ngModel)]="selectedRepository"
+          appendTo="body"
+          (ngModelChange)="setInfrastructure(); loadFirstPage()"
+          optionLabel="name"
+        />
+        <lib-help-label tag="SOURCE_SELECTION" [showLabel]="false"></lib-help-label>
+
+        <p-button icon="pi pi-refresh" (onClick)="loadFirstPage()" [outlined]="true" [loading]="loading()"></p-button>
+        <!-- @if (!PortalService.getCurrentAasInfrastructureSetting()?.isReadonly) {
+        <p-button label="{{ 'ADD' | translate }}" icon="pi pi-plus" (onClick)="menu.toggle($event)" styleClass="w-20rem"></p-button>
+        <p-tieredMenu
+          #menu
+          [model]="splitButtonItems"
+          [popup]="true"
+          appendTo="body"
+          class="w-20rem"
+        ></p-tieredMenu>
+      } -->
+      </div>
+    </div>
+  </div>
+
+  <div class="aas-page-layout w-full">
+    <div class="aas-page-fill">
+      <div class="aas-page-abs-fill">
+        <div class="aas-page-panel aas-page-panel-inset viewer-content-area rounded-lg overflow-hidden">
+          <p-table
+            #dt
+            [value]="cds()"
+            [tableStyle]="{ 'min-width': '50rem' }"
+            [loading]="loading()"
+            responsiveLayout="scroll"
+            [rows]="10"
+            [paginator]="false"
+            [rowsPerPageOptions]="[5, 10, 25, 50]"
+            [showCurrentPageReport]="false"
+            [rowHover]="true"
+            dataKey="id"
+            [scrollable]="true"
+            scrollHeight="flex"
+            sortField="aenderungsDatum"
+            [sortOrder]="-1"
+            [selectionMode]="'multiple'"
+            [(selection)]="selectedCds"
+            stateKey="cds-list"
+            stateStorage="local"
+            sortField="id"
+            [sortOrder]="1"
+            [reorderableColumns]="true"
+            [resizableColumns]="true"
+            [columns]="selectedColumns()"
+          >
+            <ng-template #caption>
+              <div class="flex items-center gap-2">
+                <p-multiselect
+                  display="chip"
+                  [options]="availableColumns()"
+                  [(ngModel)]="selectedColumns"
+                  selectedItemsLabel="{0} columns selected"
+                  [style]="{ 'min-width': '200px' }"
+                  optionLabel="label"
+                >
+                  <ng-template let-column #item>
+                    <div>{{ column.label | translate }}</div>
+                  </ng-template>
+                  <ng-template let-items #selecteditems>
+                    @for (item of items; track $index) {
+                      <p-chip
+                        label="{{ item.label | translate }}"
+                        [removable]="true"
+                        (onRemove)="removeSelectedColumn(item)"
+                      />
+                    }
+                  </ng-template>
+                </p-multiselect>
+              </div>
+            </ng-template>
+            <ng-template #header let-columns>
+              <tr>
+                <th scope="col" pResizableColumn class="w-12">
+                  <div class="flex flex-row items-center">
+                    <!-- <p-tableHeaderCheckbox
+                    [ngClass]="{ tableCheckboxTriStateFake: this.selectedCds.length > 0 }"
+                  ></p-tableHeaderCheckbox> -->
+                    <!-- <p-button icon="pi pi-ellipsis-v" styleClass="p-button-text p-button-secondary" (onClick)="bulkMenu.toggle($event)" [disabled]="this.selectedShells().length === 0"></p-button> -->
+                  </div>
+                  <!-- <p-tieredMenu
+                  appendTo="body"
+                  (onShow)="onShowBulkActions()"
+                  #bulkMenu
+                  [popup]="true"
+                  [model]="menuItems"
+                  class="w-20rem"
+                ></p-tieredMenu> -->
+                </th>
+                @for (col of columns; track $index) {
+                  @if (col.sortable && col.reorderable) {
+                    <th [pSortableColumn]="col.field" pReorderableColumn pResizableColumn>
+                      {{ col.header | translate }} <p-sortIcon [field]="col.field" />
+                    </th>
+                  } @else if (col.sortable) {
+                    <th [pSortableColumn]="col.field" pResizableColumn>
+                      {{ col.header | translate }} <p-sortIcon [field]="col.field" />
+                    </th>
+                  } @else if (col.reorderable) {
+                    <th pReorderableColumn pResizableColumn>{{ col.header | translate }}</th>
+                  } @else {
+                    <th pResizableColumn>{{ col.header | translate }}</th>
+                  }
+                }
+              </tr>
+              <!-- filter aktivieren, sobald basyx das unterstützt -->
+              <!-- <tr>
+              <th scope="col" style="width: 3rem"></th>
+              @for (col of columns; track $index) {
+                @if (col.filterable) {
+                  @if (col.field === 'assetKind') {
+                    <th scope="col"></th>
+                  } @else {
+                    <th scope="col"><input pInputText [(ngModel)]="col.field" (keydown.enter)="loadFirstPage()" /></th>
+                  }
+                } @else {
+                  <th scope="col"></th>
+                }
+              }
+            </tr> -->
+              <!-- erstal lokalen filter aktivieren, damit wenigstens "irgendwas" da ist -->
+              <tr>
+                <th scope="col" class="w-12"></th>
+                @for (col of columns; track $index) {
+                  @if (col.filterable) {
+                    @if (col.field === 'assetKind') {
+                      <th scope="col"></th>
+                    } @else {
+                      <th scope="col"><p-columnFilter [field]="col.field" matchMode="contains"></p-columnFilter></th>
+                    }
+                  } @else {
+                    <th scope="col"></th>
+                  }
+                }
+              </tr>
+            </ng-template>
+            <ng-template #body let-shell let-columns="columns">
+              <tr>
+                <td>
+                  <div class="flex flex-row items-center">
+                    <!-- <p-tableCheckbox [value]="shell"></p-tableCheckbox> -->
+                    <p-button
+                      icon="pi pi-ellipsis-v"
+                      styleClass="p-button-text p-button-secondary"
+                      (onClick)="menu.toggle($event)"
+                    ></p-button>
+                    <p-tieredMenu
+                      appendTo="body"
+                      (onShow)="onShowActions(shell)"
+                      #menu
+                      [popup]="true"
+                      [model]="menuItems"
+                      class="w-20rem"
+                    ></p-tieredMenu>
+                  </div>
+                </td>
+                @for (col of columns; track $index) {
+                  @switch (col.columnTemplate) {
+                    @case ('string') {
+                      <td style="white-space: normal !important; word-wrap: break-word">{{ shell[col.field] }}</td>
+                    }
+
+                    @case ('eds') {
+                      <td style="white-space: normal !important; word-wrap: break-word">
+                        {{ getEdsValue(shell, col.field) }}
+                      </td>
+                    }
+
+                    @case ('edsMlp') {
+                      <td style="white-space: normal !important; word-wrap: break-word">
+                        {{ getEdsMlpValue(shell, col.field) }}
+                      </td>
+                    }
+
+                    @case ('mlp') {
+                      <td style="white-space: normal !important; word-wrap: break-word">
+                        {{ getMlpValue(shell[col.field]) }}
+                      </td>
+                    }
+                    @case ('tag') {
+                      <td>
+                        <p-tag
+                          value="{{ shell[col.field] | translate }}"
+                          [severity]="getAasTagSeverity(shell[col.field])"
+                        ></p-tag>
+                      </td>
+                    }
+                    @default {
+                      <td>
+                        {{ col | json }}
+                      </td>
+                    }
+                  }
+                }
+              </tr>
+            </ng-template>
+            <ng-template pTemplate="emptymessage" let-columns>
+              <tr>
+                <td [attr.colspan]="8">
+                  <p>{{ 'NO_DATA_FOUND' | translate }}</p>
+                </td>
+              </tr>
+            </ng-template>
+            <ng-template pTemplate="footer" let-columns>
+              <tr>
+                <td [attr.colspan]="8">
+                  <div class="flex flex-row gap-2 justify-center">
+                    <p-button
+                      label="{{ 'FIRST' | translate }}"
+                      icon="pi pi-angle-left"
+                      (onClick)="loadFirstPage()"
+                      [disabled]="firstPage()"
+                    ></p-button>
+                    <p-select
+                      [options]="pageOptions"
+                      [(ngModel)]="pageSize"
+                      appendTo="body"
+                      (ngModelChange)="loadFirstPage()"
+                    ></p-select>
+                    <p-button
+                      label="{{ 'NEXT' | translate }}"
+                      icon="pi pi-angle-right"
+                      iconPos="right"
+                      (onClick)="loadNextPage()"
+                      [disabled]="cursor == null"
+                    ></p-button>
+                  </div>
+                </td>
+              </tr>
+            </ng-template>
+          </p-table>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

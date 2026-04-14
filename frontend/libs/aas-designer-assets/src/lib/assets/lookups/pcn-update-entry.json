@@ -1,0 +1,2176 @@
+{
+  "semanticId": {
+    "type": "ExternalReference",
+    "keys": [
+      {
+        "type": "GlobalReference",
+        "value": "0173-10029#01-XFB002#001"
+      }
+    ]
+  },
+  "qualifiers": [
+    {
+      "semanticId": {
+        "type": "ExternalReference",
+        "keys": [
+          {
+            "type": "GlobalReference",
+            "value": "https://admin-shell.io/SubmodelTemplates/Cardinality/1/0"
+          }
+        ]
+      },
+      "kind": "TemplateQualifier",
+      "type": "SMT/Cardinality",
+      "valueType": "xs:string",
+      "value": "ZeroToMany"
+    }
+  ],
+  "value": [
+    {
+      "idShort": "Manufacturer",
+      "semanticId": {
+        "type": "ExternalReference",
+        "keys": [
+          {
+            "type": "GlobalReference",
+            "value": "0173-10029#01-XFB003#001"
+          }
+        ]
+      },
+      "value": [
+        {
+          "idShort": "ManufacturerName",
+          "semanticId": {
+            "type": "ExternalReference",
+            "keys": [
+              {
+                "type": "GlobalReference",
+                "value": "0173-1#02-AAO677#003"
+              }
+            ]
+          },
+          "value": [
+            {
+              "language": "en",
+              "text": "Example company and sons"
+            }
+          ],
+          "modelType": "MultiLanguageProperty"
+        },
+        {
+          "idShort": "AdressInformation",
+          "description": [
+            {
+              "language": "en",
+              "text": "supplementalSemanticId: https://admin-shell.io/smt-dropin/smt-dropin-use/1/0 Note: this set of information is defined by SMT dropin \"Contact Information\""
+            }
+          ],
+          "semanticId": {
+            "type": "ExternalReference",
+            "keys": [
+              {
+                "type": "GlobalReference",
+                "value": "0173-1#02-AAQ832#005"
+              }
+            ]
+          },
+          "supplementalSemanticIds": [
+            {
+              "type": "ExternalReference",
+              "keys": [
+                {
+                  "type": "GlobalReference",
+                  "value": "https://admin-shell.io/smt-dropin/smt-dropin-use/1/0"
+                }
+              ]
+            }
+          ],
+          "modelType": "SubmodelElementCollection"
+        }
+      ],
+      "modelType": "SubmodelElementCollection"
+    },
+    {
+      "idShort": "ManufacturerChangeID",
+      "semanticId": {
+        "type": "ExternalReference",
+        "keys": [
+          {
+            "type": "GlobalReference",
+            "value": "0173-10029#02-ABC507#001"
+          }
+        ]
+      },
+      "qualifiers": [
+        {
+          "semanticId": {
+            "type": "ExternalReference",
+            "keys": [
+              {
+                "type": "GlobalReference",
+                "value": "https://admin-shell.io/SubmodelTemplates/Cardinality/1/0"
+              }
+            ]
+          },
+          "kind": "TemplateQualifier",
+          "type": "SMT/Cardinality",
+          "valueType": "xs:string",
+          "value": "ZeroToOne"
+        }
+      ],
+      "valueType": "xs:string",
+      "value": "CN123456",
+      "modelType": "Property"
+    },
+    {
+      "idShort": "PcnType",
+      "description": [
+        {
+          "language": "en",
+          "text": "Note: Following the VDMA 24903, this mandatory global flag distincts between a PCN and PDN. Use either value PCN or PDN with valueId 0173-10029#07-ABO119#001 (PCN) or 0173-10029#07-ABO120#001 (PDN).\nNote: According this global flag, the PCN milestone (0173-10029#07-ABO119#001) communicates the effective date of the PCN and the EOP milestone (EOP milestone (0173-10029#07-ABO122#001) communicates the end of production date for the PDN in the life cycle data."
+        }
+      ],
+      "semanticId": {
+        "type": "ExternalReference",
+        "keys": [
+          {
+            "type": "GlobalReference",
+            "value": "http://admin-shell.io/VDMA/Fluidics/ProductChangeNotification/PcnType/1/0"
+          }
+        ]
+      },
+      "valueType": "xs:string",
+      "value": "PCN",
+      "valueId": {
+        "type": "ExternalReference",
+        "keys": [
+          {
+            "type": "GlobalReference",
+            "value": "0173-10029#07-ABO119#001"
+          }
+        ]
+      },
+      "modelType": "Property"
+    },
+    {
+      "idShort": "LifeCycleData",
+      "semanticId": {
+        "type": "ExternalReference",
+        "keys": [
+          {
+            "type": "GlobalReference",
+            "value": "http://admin-shell.io/VDMA/Fluidics/ProductChangeNotification/LifeCycleData/List/1/0"
+          }
+        ]
+      },
+      "qualifiers": [
+        {
+          "semanticId": {
+            "type": "ExternalReference",
+            "keys": [
+              {
+                "type": "GlobalReference",
+                "value": "https://admin-shell.io/SubmodelTemplates/Cardinality/1/0"
+              }
+            ]
+          },
+          "kind": "TemplateQualifier",
+          "type": "SMT/Cardinality",
+          "valueType": "xs:string",
+          "value": "ZeroToOne"
+        }
+      ],
+      "orderRelevant": true,
+      "semanticIdListElement": {
+        "type": "ExternalReference",
+        "keys": [
+          {
+            "type": "GlobalReference",
+            "value": "http://admin-shell.io/VDMA/Fluidics/ProductChangeNotification/LifeCycleData/Milestone/1/0"
+          }
+        ]
+      },
+      "typeValueListElement": "SubmodelElementCollection",
+      "value": [
+        {
+          "semanticId": {
+            "type": "ExternalReference",
+            "keys": [
+              {
+                "type": "GlobalReference",
+                "value": "http://admin-shell.io/VDMA/Fluidics/ProductChangeNotification/LifeCycleData/Milestone/1/0"
+              }
+            ]
+          },
+          "qualifiers": [
+            {
+              "semanticId": {
+                "type": "ExternalReference",
+                "keys": [
+                  {
+                    "type": "GlobalReference",
+                    "value": "https://admin-shell.io/SubmodelTemplates/Cardinality/1/0"
+                  }
+                ]
+              },
+              "kind": "TemplateQualifier",
+              "type": "SMT/Cardinality",
+              "valueType": "xs:string",
+              "value": "ZeroToMany"
+            }
+          ],
+          "value": [
+            {
+              "idShort": "MilestoneClassification",
+              "description": [
+                {
+                  "language": "en",
+                  "text": "Note: defined point in time with a specific meaning for life-cycle management (IEC 62890:2020).\nNote: Set value and valueId with one of these: SOP (0173-10029#07-ABO117#001),  NRND (0173-10029#07-ABO118#001),  PCN (0173-10029#07-ABO119#001),  EOS (0173-10029#07-ABO121#001),  EOP (0173-10029#07-ABO122#001),  LTD (0173-10029#07-ABO123#001),  EOSR (0173-10029#07-ABO124#001)\nNote: The PDN milestone is not to be used for this classification. Instead, the global flag PcnType is set with value=PCN and valueId=0173-10029#07-ABO120#001."
+                }
+              ],
+              "semanticId": {
+                "type": "ExternalReference",
+                "keys": [
+                  {
+                    "type": "GlobalReference",
+                    "value": "0173-10029#02-ABC548#001"
+                  }
+                ]
+              },
+              "valueType": "xs:string",
+              "value": "EOS",
+              "valueId": {
+                "type": "ModelReference",
+                "keys": [
+                  {
+                    "type": "ConceptDescription",
+                    "value": "0173-10029#07-ABO121#001"
+                  }
+                ]
+              },
+              "modelType": "Property"
+            },
+            {
+              "idShort": "DateOfValidity",
+              "description": [
+                {
+                  "language": "en",
+                  "text": "Note: Date is in UTC (coordinated universal time)."
+                }
+              ],
+              "semanticId": {
+                "type": "ExternalReference",
+                "keys": [
+                  {
+                    "type": "GlobalReference",
+                    "value": " 0173-1#02-ABF815#002"
+                  }
+                ]
+              },
+              "valueType": "xs:string",
+              "value": "2022-08-01T00:00Z",
+              "modelType": "Property"
+            }
+          ],
+          "modelType": "SubmodelElementCollection"
+        }
+      ],
+      "modelType": "SubmodelElementList"
+    },
+    {
+      "idShort": "ReasonsOfChange",
+      "description": [
+        {
+          "language": "en",
+          "text": "Note: Multiple classification systems might be used.\nConstraint: At least one reason according VDM24903 shall be given."
+        }
+      ],
+      "semanticId": {
+        "type": "ExternalReference",
+        "keys": [
+          {
+            "type": "GlobalReference",
+            "value": "http://admin-shell.io/VDMA/Fluidics/ProductChangeNotification/ReasonOfChange/List/1/0"
+          }
+        ]
+      },
+      "qualifiers": [
+        {
+          "semanticId": {
+            "type": "ExternalReference",
+            "keys": [
+              {
+                "type": "GlobalReference",
+                "value": "https://admin-shell.io/SubmodelTemplates/Cardinality/1/0"
+              }
+            ]
+          },
+          "kind": "TemplateQualifier",
+          "type": "SMT/Cardinality",
+          "valueType": "xs:string",
+          "value": "One"
+        }
+      ],
+      "orderRelevant": true,
+      "semanticIdListElement": {
+        "type": "ExternalReference",
+        "keys": [
+          {
+            "type": "GlobalReference",
+            "value": "0173-10029#01-XFB005#001"
+          }
+        ]
+      },
+      "typeValueListElement": "SubmodelElementCollection",
+      "value": [
+        {
+          "semanticId": {
+            "type": "ExternalReference",
+            "keys": [
+              {
+                "type": "GlobalReference",
+                "value": "0173-10029#01-XFB005#001"
+              }
+            ]
+          },
+          "qualifiers": [
+            {
+              "semanticId": {
+                "type": "ExternalReference",
+                "keys": [
+                  {
+                    "type": "GlobalReference",
+                    "value": "https://admin-shell.io/SubmodelTemplates/Cardinality/1/0"
+                  }
+                ]
+              },
+              "kind": "TemplateQualifier",
+              "type": "SMT/Cardinality",
+              "valueType": "xs:string",
+              "value": "OneToMany"
+            }
+          ],
+          "value": [
+            {
+              "idShort": "ReasonClassificationSystem",
+              "description": [
+                {
+                  "language": "en",
+                  "text": "Note: Examples for common names for classification systems are \"VDMA24903\" or \"ECLASS\"."
+                }
+              ],
+              "semanticId": {
+                "type": "ExternalReference",
+                "keys": [
+                  {
+                    "type": "GlobalReference",
+                    "value": "0173-1#02-ABF813#002"
+                  }
+                ]
+              },
+              "valueType": "xs:string",
+              "value": "VDMA24903",
+              "modelType": "Property"
+            },
+            {
+              "idShort": "VersionOfClassificationSystem",
+              "description": [
+                {
+                  "language": "en",
+                  "text": "Common version identifier of the used classification system, in order to distinguish different version of the property dictionary. \nNote: Casing is to be ignored.\nNote: 4 digit year of publication data of classifcation standard can serve as version."
+                }
+              ],
+              "semanticId": {
+                "type": "ExternalReference",
+                "keys": [
+                  {
+                    "type": "GlobalReference",
+                    "value": "0173-1#02-AAR710#002"
+                  }
+                ]
+              },
+              "qualifiers": [
+                {
+                  "semanticId": {
+                    "type": "ExternalReference",
+                    "keys": [
+                      {
+                        "type": "GlobalReference",
+                        "value": "https://admin-shell.io/SubmodelTemplates/Cardinality/1/0"
+                      }
+                    ]
+                  },
+                  "kind": "TemplateQualifier",
+                  "type": "SMT/Cardinality",
+                  "valueType": "xs:string",
+                  "value": "ZeroToOne"
+                }
+              ],
+              "valueType": "xs:string",
+              "value": "2017",
+              "modelType": "Property"
+            },
+            {
+              "idShort": "ReasonId",
+              "description": [
+                {
+                  "language": "en",
+                  "text": "Note: Ideally, the Property/valueId is used to reference the IRI/ IRDI of the reason id given by ECLASS."
+                }
+              ],
+              "semanticId": {
+                "type": "ExternalReference",
+                "keys": [
+                  {
+                    "type": "GlobalReference",
+                    "value": "0173-10029#02-ABC727#001"
+                  }
+                ]
+              },
+              "valueType": "xs:string",
+              "value": "RAWM",
+              "modelType": "Property"
+            }
+          ],
+          "modelType": "SubmodelElementCollection"
+        }
+      ],
+      "modelType": "SubmodelElementList"
+    },
+    {
+      "idShort": "ItemCategories",
+      "description": [
+        {
+          "language": "en",
+          "text": "Note: Multiple classification systems might be used.\nConstraint: At least one item category according VDM24903 shall be given."
+        }
+      ],
+      "semanticId": {
+        "type": "ExternalReference",
+        "keys": [
+          {
+            "type": "GlobalReference",
+            "value": "http://admin-shell.io/VDMA/Fluidics/ProductChangeNotification/ItemCategory/List/1/0"
+          }
+        ]
+      },
+      "orderRelevant": true,
+      "semanticIdListElement": {
+        "type": "ExternalReference",
+        "keys": [
+          {
+            "type": "GlobalReference",
+            "value": "http://admin-shell.io/VDMA/Fluidics/ProductChangeNotification/ItemCategory/1/0"
+          }
+        ]
+      },
+      "typeValueListElement": "SubmodelElementCollection",
+      "value": [
+        {
+          "semanticId": {
+            "type": "ExternalReference",
+            "keys": [
+              {
+                "type": "GlobalReference",
+                "value": "http://admin-shell.io/VDMA/Fluidics/ProductChangeNotification/ItemCategory/1/0"
+              }
+            ]
+          },
+          "value": [
+            {
+              "idShort": "ItemClassificationSystem",
+              "description": [
+                {
+                  "language": "en",
+                  "text": "Note: Examples for common names for classification systems are \"VDMA24903\"."
+                }
+              ],
+              "semanticId": {
+                "type": "ExternalReference",
+                "keys": [
+                  {
+                    "type": "GlobalReference",
+                    "value": "http://admin-shell.io/VDMA/Fluidics/ProductChangeNotification/ItemCategory/ItemClassificationSystem/1/0"
+                  }
+                ]
+              },
+              "valueType": "xs:string",
+              "value": "VDMA24903",
+              "modelType": "Property"
+            },
+            {
+              "idShort": "VersionOfClassificationSystem",
+              "description": [
+                {
+                  "language": "en",
+                  "text": "Common version identifier of the used classification system, in order to distinguish different version of the property dictionary. \nNote: Casing is to be ignored.\nNote: 4 digit year of publication data of classifcation standard can serve as version."
+                }
+              ],
+              "semanticId": {
+                "type": "ExternalReference",
+                "keys": [
+                  {
+                    "type": "GlobalReference",
+                    "value": "0173-1#02-AAR710#002"
+                  }
+                ]
+              },
+              "qualifiers": [
+                {
+                  "semanticId": {
+                    "type": "ExternalReference",
+                    "keys": [
+                      {
+                        "type": "GlobalReference",
+                        "value": "https://admin-shell.io/SubmodelTemplates/Cardinality/1/0"
+                      }
+                    ]
+                  },
+                  "kind": "TemplateQualifier",
+                  "type": "SMT/Cardinality",
+                  "valueType": "xs:string",
+                  "value": "ZeroToOne"
+                }
+              ],
+              "valueType": "xs:string",
+              "value": "2017",
+              "modelType": "Property"
+            },
+            {
+              "idShort": "ItemCategory",
+              "description": [
+                {
+                  "language": "en",
+                  "text": "Note: Ideally, the Property/valueId is used to reference the IRI/ IRDI of the reason id given by ECLASS."
+                }
+              ],
+              "semanticId": {
+                "type": "ExternalReference",
+                "keys": [
+                  {
+                    "type": "GlobalReference",
+                    "value": "http://admin-shell.io/VDMA/Fluidics/ProductChangeNotification/ItemCategory/ItemCategory/1/0"
+                  }
+                ]
+              },
+              "valueType": "xs:string",
+              "value": "ELME",
+              "modelType": "Property"
+            }
+          ],
+          "modelType": "SubmodelElementCollection"
+        }
+      ],
+      "modelType": "SubmodelElementList"
+    },
+    {
+      "idShort": "AffectedPartNumbers",
+      "description": [
+        {
+          "language": "en",
+          "text": "Constraint: Affected part numbers shall only be listed, if not the full range of part numbers produced for this item (product family and designation) is affected.\nNote: Multiple single part numbers with wildcards or ranges of part numbers are listed."
+        }
+      ],
+      "semanticId": {
+        "type": "ExternalReference",
+        "keys": [
+          {
+            "type": "GlobalReference",
+            "value": "http://admin-shell.io/VDMA/Fluidics/ProductChangeNotification/AffectedPartNumber/List/1/0"
+          }
+        ]
+      },
+      "qualifiers": [
+        {
+          "semanticId": {
+            "type": "ExternalReference",
+            "keys": [
+              {
+                "type": "GlobalReference",
+                "value": "https://admin-shell.io/SubmodelTemplates/Cardinality/1/0"
+              }
+            ]
+          },
+          "kind": "TemplateQualifier",
+          "type": "SMT/Cardinality",
+          "valueType": "xs:string",
+          "value": "ZeroToOne"
+        }
+      ],
+      "orderRelevant": true,
+      "semanticIdListElement": {
+        "type": "ExternalReference",
+        "keys": [
+          {
+            "type": "GlobalReference",
+            "value": "0173-10029#01-XFB005#001"
+          }
+        ]
+      },
+      "typeValueListElement": "Property",
+      "valueTypeListElement": "xs:string",
+      "value": [
+        {
+          "valueType": "xs:string",
+          "modelType": "Property"
+        }
+      ],
+      "modelType": "SubmodelElementList"
+    },
+    {
+      "idShort": "PcnReasonComment",
+      "description": [
+        {
+          "language": "en",
+          "text": "Note: May be substituted by PcnChangeInformation"
+        }
+      ],
+      "semanticId": {
+        "type": "ExternalReference",
+        "keys": [
+          {
+            "type": "GlobalReference",
+            "value": "0173-1#02-ABF814#002"
+          }
+        ]
+      },
+      "qualifiers": [
+        {
+          "semanticId": {
+            "type": "ExternalReference",
+            "keys": [
+              {
+                "type": "GlobalReference",
+                "value": "https://admin-shell.io/SubmodelTemplates/Cardinality/1/0"
+              }
+            ]
+          },
+          "kind": "TemplateQualifier",
+          "type": "SMT/Cardinality",
+          "valueType": "xs:string",
+          "value": "ZeroToOne"
+        }
+      ],
+      "value": [
+        {
+          "language": "en",
+          "text": "End of sales and substitution with superior product with IO Link."
+        }
+      ],
+      "modelType": "MultiLanguageProperty"
+    },
+    {
+      "idShort": "PcnChangeInformation",
+      "semanticId": {
+        "type": "ExternalReference",
+        "keys": [
+          {
+            "type": "GlobalReference",
+            "value": "http://admin-shell.io/VDMA/Fluidics/ProductChangeNotification/PcnChangeInformation/1/0"
+          }
+        ]
+      },
+      "value": [
+        {
+          "idShort": "ChangeTitle",
+          "semanticId": {
+            "type": "ExternalReference",
+            "keys": [
+              {
+                "type": "GlobalReference",
+                "value": "http://admin-shell.io/VDMA/Fluidics/ProductChangeNotification/PcnChangeInformation/ChangeTitle/1/0"
+              }
+            ]
+          },
+          "value": [
+            {
+              "language": "en",
+              "text": "Change of product dimensions because of RoHS"
+            }
+          ],
+          "modelType": "MultiLanguageProperty"
+        },
+        {
+          "idShort": "ChangeDetail",
+          "semanticId": {
+            "type": "ExternalReference",
+            "keys": [
+              {
+                "type": "GlobalReference",
+                "value": "http://admin-shell.io/VDMA/Fluidics/ProductChangeNotification/PcnChangeInformation/ChangeDetail/1/0"
+              }
+            ]
+          },
+          "value": [
+            {
+              "language": "en",
+              "text": "Because of this and that and that the following features changed: A, B, C.."
+            }
+          ],
+          "modelType": "MultiLanguageProperty"
+        }
+      ],
+      "modelType": "SubmodelElementCollection"
+    },
+    {
+      "idShort": "AdditionalInformation",
+      "description": [
+        {
+          "language": "en",
+          "text": "Note: Suppliers are encouraged to add the conventional \"product change information\" documents and further details, e.g. photo-based or geometric change information to the PCN record."
+        }
+      ],
+      "semanticId": {
+        "type": "ExternalReference",
+        "keys": [
+          {
+            "type": "GlobalReference",
+            "value": "http://admin-shell.io/VDMA/Fluidics/ProductChangeNotification/AdditionalInformation/List/1/0"
+          }
+        ]
+      },
+      "qualifiers": [
+        {
+          "semanticId": {
+            "type": "ExternalReference",
+            "keys": [
+              {
+                "type": "GlobalReference",
+                "value": "https://admin-shell.io/SubmodelTemplates/Cardinality/1/0"
+              }
+            ]
+          },
+          "kind": "TemplateQualifier",
+          "type": "SMT/Cardinality",
+          "valueType": "xs:string",
+          "value": "ZeroToOne"
+        }
+      ],
+      "orderRelevant": true,
+      "semanticIdListElement": {
+        "type": "ExternalReference",
+        "keys": [
+          {
+            "type": "GlobalReference",
+            "value": "0173-1#01-ADN356#009"
+          }
+        ]
+      },
+      "typeValueListElement": "File",
+      "value": [
+        {
+          "description": [
+            {
+              "language": "en",
+              "text": "Note: This File element can be used to attach the conventional \"product change information\" already provided by many suppliers or e.g. some detail geometry information."
+            }
+          ],
+          "semanticId": {
+            "type": "ExternalReference",
+            "keys": [
+              {
+                "type": "GlobalReference",
+                "value": "0173-1#01-ADN356#009"
+              }
+            ]
+          },
+          "qualifiers": [
+            {
+              "semanticId": {
+                "type": "ExternalReference",
+                "keys": [
+                  {
+                    "type": "GlobalReference",
+                    "value": "https://admin-shell.io/SubmodelTemplates/Cardinality/1/0"
+                  }
+                ]
+              },
+              "kind": "TemplateQualifier",
+              "type": "SMT/Cardinality",
+              "valueType": "xs:string",
+              "value": "ZeroToMany"
+            }
+          ],
+          "contentType": "",
+          "modelType": "File"
+        }
+      ],
+      "modelType": "SubmodelElementList"
+    },
+    {
+      "idShort": "DateOfRecord",
+      "description": [
+        {
+          "language": "en",
+          "text": "Note: Date is in UTC (coordinated universal time)."
+        }
+      ],
+      "semanticId": {
+        "type": "ExternalReference",
+        "keys": [
+          {
+            "type": "GlobalReference",
+            "value": "0173-1#02-ABF816#002"
+          }
+        ]
+      },
+      "valueType": "xs:string",
+      "value": "2022-07-26T18:27Z",
+      "modelType": "Property"
+    },
+    {
+      "idShort": "ItemOfChange",
+      "semanticId": {
+        "type": "ExternalReference",
+        "keys": [
+          {
+            "type": "GlobalReference",
+            "value": "0173-10029#01-XFB006#001"
+          }
+        ]
+      },
+      "value": [
+        {
+          "idShort": "ManufacturerProductFamily",
+          "description": [
+            {
+              "language": "en",
+              "text": "Note: mandatory property according to EU Machine Directive 2006/42/EC."
+            }
+          ],
+          "semanticId": {
+            "type": "ExternalReference",
+            "keys": [
+              {
+                "type": "GlobalReference",
+                "value": "0173-1#02-AAU731#001"
+              }
+            ]
+          },
+          "value": [
+            {
+              "language": "en",
+              "text": "Pressure sensor"
+            }
+          ],
+          "modelType": "MultiLanguageProperty"
+        },
+        {
+          "idShort": "ManufacturerProductDesignation",
+          "description": [
+            {
+              "language": "en",
+              "text": "Note: mandatory property according to EU Machine Directive 2006/42/EC."
+            }
+          ],
+          "semanticId": {
+            "type": "ExternalReference",
+            "keys": [
+              {
+                "type": "GlobalReference",
+                "value": "0173-1#02-AAW338#001"
+              }
+            ]
+          },
+          "value": [
+            {
+              "language": "en",
+              "text": "SDE3-D10Z-B-HQ4-2N-M8"
+            }
+          ],
+          "modelType": "MultiLanguageProperty"
+        },
+        {
+          "idShort": "OrderCodeOfManufacturer",
+          "description": [
+            {
+              "language": "en",
+              "text": "Note: Optional, as it might not exist for long term used items."
+            }
+          ],
+          "semanticId": {
+            "type": "ExternalReference",
+            "keys": [
+              {
+                "type": "GlobalReference",
+                "value": "0173-1#02-AAO227#002"
+              }
+            ]
+          },
+          "qualifiers": [
+            {
+              "semanticId": {
+                "type": "ExternalReference",
+                "keys": [
+                  {
+                    "type": "GlobalReference",
+                    "value": "https://admin-shell.io/SubmodelTemplates/Cardinality/1/0"
+                  }
+                ]
+              },
+              "kind": "TemplateQualifier",
+              "type": "SMT/Cardinality",
+              "valueType": "xs:string",
+              "value": "ZeroToOne"
+            }
+          ],
+          "value": [
+            {
+              "language": "en",
+              "text": "FMABC1234"
+            }
+          ],
+          "modelType": "MultiLanguageProperty"
+        },
+        {
+          "idShort": "ManufacturerAssetID",
+          "description": [
+            {
+              "language": "en",
+              "text": "Note: This can be used to easily retrieve further information on the described item, such as full technical data, documentation, MCAD or ECAD models and more.."
+            }
+          ],
+          "semanticId": {
+            "type": "ExternalReference",
+            "keys": [
+              {
+                "type": "GlobalReference",
+                "value": "0173-10029#02-ABF978#001"
+              }
+            ]
+          },
+          "qualifiers": [
+            {
+              "semanticId": {
+                "type": "ExternalReference",
+                "keys": [
+                  {
+                    "type": "GlobalReference",
+                    "value": "https://admin-shell.io/SubmodelTemplates/Cardinality/1/0"
+                  }
+                ]
+              },
+              "kind": "TemplateQualifier",
+              "type": "SMT/Cardinality",
+              "valueType": "xs:string",
+              "value": "ZeroToOne"
+            }
+          ],
+          "modelType": "ReferenceElement"
+        },
+        {
+          "idShort": "ProductClassifications",
+          "description": [
+            {
+              "language": "en",
+              "text": "Note: It is encouraged to provide the actual product classficiation, e.g. by ECLASS, in order to ease the identification of relevant items by the industrial user."
+            }
+          ],
+          "semanticId": {
+            "type": "ExternalReference",
+            "keys": [
+              {
+                "type": "GlobalReference",
+                "value": "http://admin-shell.io/VDMA/Fluidics/ProductChangeNotification/ProductClassification/List/1/0"
+              }
+            ]
+          },
+          "qualifiers": [
+            {
+              "semanticId": {
+                "type": "ExternalReference",
+                "keys": [
+                  {
+                    "type": "GlobalReference",
+                    "value": "https://admin-shell.io/SubmodelTemplates/Cardinality/1/0"
+                  }
+                ]
+              },
+              "kind": "TemplateQualifier",
+              "type": "SMT/Cardinality",
+              "valueType": "xs:string",
+              "value": "ZeroToOne"
+            }
+          ],
+          "orderRelevant": true,
+          "semanticIdListElement": {
+            "type": "ExternalReference",
+            "keys": [
+              {
+                "type": "GlobalReference",
+                "value": "0173-10029#01-XFB007#001"
+              }
+            ]
+          },
+          "typeValueListElement": "SubmodelElementCollection",
+          "value": [
+            {
+              "semanticId": {
+                "type": "ExternalReference",
+                "keys": [
+                  {
+                    "type": "GlobalReference",
+                    "value": "0173-10029#01-XFB007#001"
+                  }
+                ]
+              },
+              "qualifiers": [
+                {
+                  "semanticId": {
+                    "type": "ExternalReference",
+                    "keys": [
+                      {
+                        "type": "GlobalReference",
+                        "value": "https://admin-shell.io/SubmodelTemplates/Cardinality/1/0"
+                      }
+                    ]
+                  },
+                  "kind": "TemplateQualifier",
+                  "type": "SMT/Cardinality",
+                  "valueType": "xs:string",
+                  "value": "ZeroToMany"
+                }
+              ],
+              "value": [
+                {
+                  "idShort": "ClassificationSystem",
+                  "semanticId": {
+                    "type": "ExternalReference",
+                    "keys": [
+                      {
+                        "type": "GlobalReference",
+                        "value": "0173-1#02-AAR709#002"
+                      }
+                    ]
+                  },
+                  "valueType": "xs:string",
+                  "value": "ECLASS",
+                  "modelType": "Property"
+                },
+                {
+                  "idShort": "VersionOfClassificationSystem",
+                  "description": [
+                    {
+                      "language": "en",
+                      "text": "Common version identifier of the used classification system, in order to distinguish different version of the property dictionary. \nNote: Casing is to be ignored.\nNote: the SMT \"Technical Data\" refers to this as: [IRI] https://admin-shell.io/ZVEI/TechnicalData/ClassificationSystemVersion/1/1"
+                    }
+                  ],
+                  "semanticId": {
+                    "type": "ExternalReference",
+                    "keys": [
+                      {
+                        "type": "GlobalReference",
+                        "value": "0173-1#02-AAR710#002"
+                      }
+                    ]
+                  },
+                  "valueType": "xs:string",
+                  "value": "14.0 (BASIC)",
+                  "modelType": "Property"
+                },
+                {
+                  "idShort": "ProductClassId",
+                  "description": [
+                    {
+                      "language": "en",
+                      "text": "Note: Ideally, the Property/valueId is used to reference the IRI/ IRDI of the product class.\nNote: the SMT \"Technical Data\" refers to this as: [IRI] https://admin-shell.io/ZVEI/TechnicalData/ProductClassId/1/1"
+                    }
+                  ],
+                  "semanticId": {
+                    "type": "ExternalReference",
+                    "keys": [
+                      {
+                        "type": "GlobalReference",
+                        "value": "0173-10029#02-ABF979#001"
+                      }
+                    ]
+                  },
+                  "valueType": "xs:string",
+                  "value": "27-27-49-01",
+                  "modelType": "Property"
+                }
+              ],
+              "modelType": "SubmodelElementCollection"
+            }
+          ],
+          "modelType": "SubmodelElementList"
+        },
+        {
+          "idShort": "HardwareVersion",
+          "semanticId": {
+            "type": "ExternalReference",
+            "keys": [
+              {
+                "type": "GlobalReference",
+                "value": "0173-1#02-AAN270#002"
+              }
+            ]
+          },
+          "qualifiers": [
+            {
+              "semanticId": {
+                "type": "ExternalReference",
+                "keys": [
+                  {
+                    "type": "GlobalReference",
+                    "value": "https://admin-shell.io/SubmodelTemplates/Cardinality/1/0"
+                  }
+                ]
+              },
+              "kind": "TemplateQualifier",
+              "type": "SMT/Cardinality",
+              "valueType": "xs:string",
+              "value": "ZeroToOne"
+            }
+          ],
+          "valueType": "xs:string",
+          "value": "1.1",
+          "modelType": "Property"
+        },
+        {
+          "idShort": "RemainingAmountAvailable",
+          "description": [
+            {
+              "language": "en",
+              "text": "Note: This is an indicative figure; the manufacturer/ supplier may use a heuristical model to distribute available stock to a forecasted number of industrial users. Useful for industrial users to assess individual need of products against assumed availability."
+            }
+          ],
+          "semanticId": {
+            "type": "ExternalReference",
+            "keys": [
+              {
+                "type": "GlobalReference",
+                "value": "0173-1#02-BAF551#003"
+              }
+            ]
+          },
+          "qualifiers": [
+            {
+              "semanticId": {
+                "type": "ExternalReference",
+                "keys": [
+                  {
+                    "type": "GlobalReference",
+                    "value": "https://admin-shell.io/SubmodelTemplates/Cardinality/1/0"
+                  }
+                ]
+              },
+              "kind": "TemplateQualifier",
+              "type": "SMT/Cardinality",
+              "valueType": "xs:string",
+              "value": "ZeroToOne"
+            }
+          ],
+          "valueType": "xs:positiveInteger",
+          "value": "4500",
+          "modelType": "Property"
+        },
+        {
+          "idShort": "TechnicalData_Changes",
+          "semanticId": {
+            "type": "ExternalReference",
+            "keys": [
+              {
+                "type": "GlobalReference",
+                "value": "http://admin-shell.io/VDMA/Fluidics/ProductChangeNotification/TechnicalData_Changes/List/1/0"
+              }
+            ]
+          },
+          "qualifiers": [
+            {
+              "semanticId": {
+                "type": "ExternalReference",
+                "keys": [
+                  {
+                    "type": "GlobalReference",
+                    "value": "https://admin-shell.io/SubmodelTemplates/Cardinality/1/0"
+                  }
+                ]
+              },
+              "kind": "TemplateQualifier",
+              "type": "SMT/Cardinality",
+              "valueType": "xs:string",
+              "value": "ZeroToOne"
+            }
+          ],
+          "orderRelevant": true,
+          "typeValueListElement": "SubmodelElement",
+          "value": [
+            {
+              "description": [
+                {
+                  "language": "en",
+                  "text": "Note: This SMC can be added to annotate changes in DataElements of existing Submodels (e.g. for technical data) and to provide more specific information to reason and items of a VDMA 24903 change."
+                }
+              ],
+              "semanticId": {
+                "type": "ExternalReference",
+                "keys": [
+                  {
+                    "type": "GlobalReference",
+                    "value": "http://admin-shell.io/VDMA/Fluidics/ProductChangeNotification/TechnicalData_Changes/Change/1/0"
+                  }
+                ]
+              },
+              "qualifiers": [
+                {
+                  "semanticId": {
+                    "type": "ExternalReference",
+                    "keys": [
+                      {
+                        "type": "GlobalReference",
+                        "value": "https://admin-shell.io/SubmodelTemplates/Cardinality/1/0"
+                      }
+                    ]
+                  },
+                  "kind": "TemplateQualifier",
+                  "type": "SMT/Cardinality",
+                  "valueType": "xs:string",
+                  "value": "ZeroToMany"
+                }
+              ],
+              "value": [
+                {
+                  "idShort": "Arbitrary",
+                  "description": [
+                    {
+                      "language": "en",
+                      "text": "Note: An arbitrary Property, MLP, Range-element can be placed in this structure with arbitrary semanticId. It is marked by the supplementalSemanticId for 'new value'."
+                    }
+                  ],
+                  "semanticId": {
+                    "type": "ExternalReference",
+                    "keys": [
+                      {
+                        "type": "GlobalReference",
+                        "value": "https://admin-shell.io/SMT/General/Arbitrary"
+                      }
+                    ]
+                  },
+                  "supplementalSemanticIds": [
+                    {
+                      "type": "ExternalReference",
+                      "keys": [
+                        {
+                          "type": "GlobalReference",
+                          "value": "http://admin-shell.io/VDMA/Fluidics/ProductChangeNotification/TechnicalData_Changes/NewValue/1/0"
+                        }
+                      ]
+                    }
+                  ],
+                  "valueType": "xs:string",
+                  "value": "100 [mA]",
+                  "modelType": "Property"
+                },
+                {
+                  "idShort": "Origin_of_change",
+                  "description": [
+                    {
+                      "language": "en",
+                      "text": "Note: The set of technical data in the definition refers to the Submodel for technical data in the AAS."
+                    }
+                  ],
+                  "semanticId": {
+                    "type": "ExternalReference",
+                    "keys": [
+                      {
+                        "type": "GlobalReference",
+                        "value": "http://admin-shell.io/VDMA/Fluidics/ProductChangeNotification/TechnicalData_Changes/Origin_of_Change/1/0"
+                      }
+                    ]
+                  },
+                  "value": {
+                    "type": "ModelReference",
+                    "keys": [
+                      {
+                        "type": "Submodel",
+                        "value": "https://example.com/sm/12345/"
+                      },
+                      {
+                        "type": "SubmodelElementCollection",
+                        "value": "TechnicalProperties"
+                      },
+                      {
+                        "type": "Property",
+                        "value": "MaxOutputCurrent"
+                      }
+                    ]
+                  },
+                  "modelType": "ReferenceElement"
+                },
+                {
+                  "idShort": "ReasonId",
+                  "description": [
+                    {
+                      "language": "en",
+                      "text": "Note: Ideally, the Property/valueId is used to reference the IRI/ IRDI of the reason id given by ECLASS."
+                    }
+                  ],
+                  "semanticId": {
+                    "type": "ExternalReference",
+                    "keys": [
+                      {
+                        "type": "GlobalReference",
+                        "value": "0173-10029#02-ABC727#001"
+                      }
+                    ]
+                  },
+                  "valueType": "xs:string",
+                  "value": "RAWM",
+                  "modelType": "Property"
+                }
+              ],
+              "modelType": "SubmodelElementCollection"
+            }
+          ],
+          "modelType": "SubmodelElementList"
+        },
+        {
+          "idShort": "TechnicalData_CurrentState",
+          "description": [
+            {
+              "language": "en",
+              "text": "Note: For the recommended items, the technical data elements are individually grouped in fit, form, function, other. As different alternatives might engange different groupings, the respective technical data elements of the item of change are not grouped, at all.\nNote: If possible, technical data elements in the recommended items should find its counterparts here (that is: DataElement with identical semanticId)."
+            }
+          ],
+          "semanticId": {
+            "type": "ExternalReference",
+            "keys": [
+              {
+                "type": "GlobalReference",
+                "value": "http://admin-shell.io/VDMA/Fluidics/ProductChangeNotification/TechnicalData_CurrentState/List/1/0"
+              }
+            ]
+          },
+          "qualifiers": [
+            {
+              "semanticId": {
+                "type": "ExternalReference",
+                "keys": [
+                  {
+                    "type": "GlobalReference",
+                    "value": "https://admin-shell.io/SubmodelTemplates/Cardinality/1/0"
+                  }
+                ]
+              },
+              "kind": "TemplateQualifier",
+              "type": "SMT/Cardinality",
+              "valueType": "xs:string",
+              "value": "ZeroToOne"
+            }
+          ],
+          "value": [
+            {
+              "idShort": "Arbitrary",
+              "description": [
+                {
+                  "language": "en",
+                  "text": "Note: Each DataElement represents a change of a technical data element. DataElements such as Property, MultiLanguageProperty and Range are applicable. To bring about the information, both idShort and semanticId can be set to the resepctive {arbitrary} attribute of the corresponding  technical data element."
+                }
+              ],
+              "semanticId": {
+                "type": "ExternalReference",
+                "keys": [
+                  {
+                    "type": "GlobalReference",
+                    "value": "https://admin-shell.io/SMT/General/Arbitrary"
+                  }
+                ]
+              },
+              "qualifiers": [
+                {
+                  "semanticId": {
+                    "type": "ExternalReference",
+                    "keys": [
+                      {
+                        "type": "GlobalReference",
+                        "value": "https://admin-shell.io/SubmodelTemplates/Cardinality/1/0"
+                      }
+                    ]
+                  },
+                  "kind": "TemplateQualifier",
+                  "type": "SMT/Cardinality",
+                  "valueType": "xs:string",
+                  "value": "ZeroToMany"
+                }
+              ],
+              "valueType": "xs:string",
+              "modelType": "Property"
+            }
+          ],
+          "modelType": "SubmodelElementCollection"
+        }
+      ],
+      "modelType": "SubmodelElementCollection"
+    },
+    {
+      "idShort": "RecommendedItems",
+      "description": [
+        {
+          "language": "en",
+          "text": "Note: The supplier is encoraged to provide recommended items."
+        }
+      ],
+      "semanticId": {
+        "type": "ExternalReference",
+        "keys": [
+          {
+            "type": "GlobalReference",
+            "value": "http://admin-shell.io/VDMA/Fluidics/ProductChangeNotification/RecommendedItem/List/1/0"
+          }
+        ]
+      },
+      "qualifiers": [
+        {
+          "semanticId": {
+            "type": "ExternalReference",
+            "keys": [
+              {
+                "type": "GlobalReference",
+                "value": "https://admin-shell.io/SubmodelTemplates/Cardinality/1/0"
+              }
+            ]
+          },
+          "kind": "TemplateQualifier",
+          "type": "SMT/Cardinality",
+          "valueType": "xs:string",
+          "value": "ZeroToOne"
+        }
+      ],
+      "orderRelevant": true,
+      "semanticIdListElement": {
+        "type": "ExternalReference",
+        "keys": [
+          {
+            "type": "GlobalReference",
+            "value": "http://admin-shell.io/VDMA/Fluidics/ProductChangeNotification/RecommendedItem/1/0"
+          }
+        ]
+      },
+      "typeValueListElement": "SubmodelElementCollection",
+      "value": [
+        {
+          "semanticId": {
+            "type": "ExternalReference",
+            "keys": [
+              {
+                "type": "GlobalReference",
+                "value": "http://admin-shell.io/VDMA/Fluidics/ProductChangeNotification/RecommendedItem/1/0"
+              }
+            ]
+          },
+          "qualifiers": [
+            {
+              "semanticId": {
+                "type": "ExternalReference",
+                "keys": [
+                  {
+                    "type": "GlobalReference",
+                    "value": "https://admin-shell.io/SubmodelTemplates/Cardinality/1/0"
+                  }
+                ]
+              },
+              "kind": "TemplateQualifier",
+              "type": "SMT/Cardinality",
+              "valueType": "xs:string",
+              "value": "ZeroToMany"
+            }
+          ],
+          "value": [
+            {
+              "idShort": "ManufacturerProductFamily",
+              "description": [
+                {
+                  "language": "en",
+                  "text": "Note: mandatory property according to EU Machine Directive 2006/42/EC."
+                }
+              ],
+              "semanticId": {
+                "type": "ExternalReference",
+                "keys": [
+                  {
+                    "type": "GlobalReference",
+                    "value": "0173-1#02-AAU731#001"
+                  }
+                ]
+              },
+              "value": [
+                {
+                  "language": "en",
+                  "text": "Pressure sensor"
+                }
+              ],
+              "modelType": "MultiLanguageProperty"
+            },
+            {
+              "idShort": "ManufacturerProductDesignation",
+              "description": [
+                {
+                  "language": "en",
+                  "text": "Note: mandatory property according to EU Machine Directive 2006/42/EC."
+                }
+              ],
+              "semanticId": {
+                "type": "ExternalReference",
+                "keys": [
+                  {
+                    "type": "GlobalReference",
+                    "value": "0173-1#02-AAW338#001"
+                  }
+                ]
+              },
+              "value": [
+                {
+                  "language": "en",
+                  "text": "SDE3-D10Z-B-HQ4-2N-M8"
+                }
+              ],
+              "modelType": "MultiLanguageProperty"
+            },
+            {
+              "idShort": "OrderCodeOfManufacturer",
+              "description": [
+                {
+                  "language": "en",
+                  "text": "Note: Mandatory, as required to order."
+                }
+              ],
+              "semanticId": {
+                "type": "ExternalReference",
+                "keys": [
+                  {
+                    "type": "GlobalReference",
+                    "value": "0173-1#02-AAO227#002"
+                  }
+                ]
+              },
+              "value": [
+                {
+                  "language": "en",
+                  "text": "FMABC1234"
+                }
+              ],
+              "modelType": "MultiLanguageProperty"
+            },
+            {
+              "idShort": "ProductClassifications",
+              "semanticId": {
+                "type": "ExternalReference",
+                "keys": [
+                  {
+                    "type": "GlobalReference",
+                    "value": "http://admin-shell.io/VDMA/Fluidics/ProductChangeNotification/ProductClassification/List/1/0"
+                  }
+                ]
+              },
+              "qualifiers": [
+                {
+                  "semanticId": {
+                    "type": "ExternalReference",
+                    "keys": [
+                      {
+                        "type": "GlobalReference",
+                        "value": "https://admin-shell.io/SubmodelTemplates/Cardinality/1/0"
+                      }
+                    ]
+                  },
+                  "kind": "TemplateQualifier",
+                  "type": "SMT/Cardinality",
+                  "valueType": "xs:string",
+                  "value": "ZeroToOne"
+                }
+              ],
+              "orderRelevant": true,
+              "semanticIdListElement": {
+                "type": "ExternalReference",
+                "keys": [
+                  {
+                    "type": "GlobalReference",
+                    "value": "0173-10029#01-XFB007#001"
+                  }
+                ]
+              },
+              "typeValueListElement": "SubmodelElementCollection",
+              "value": [
+                {
+                  "semanticId": {
+                    "type": "ExternalReference",
+                    "keys": [
+                      {
+                        "type": "GlobalReference",
+                        "value": "0173-10029#01-XFB007#001"
+                      }
+                    ]
+                  },
+                  "qualifiers": [
+                    {
+                      "semanticId": {
+                        "type": "ExternalReference",
+                        "keys": [
+                          {
+                            "type": "GlobalReference",
+                            "value": "https://admin-shell.io/SubmodelTemplates/Cardinality/1/0"
+                          }
+                        ]
+                      },
+                      "kind": "TemplateQualifier",
+                      "type": "SMT/Cardinality",
+                      "valueType": "xs:string",
+                      "value": "ZeroToMany"
+                    }
+                  ],
+                  "value": [
+                    {
+                      "idShort": "ClassificationSystem",
+                      "semanticId": {
+                        "type": "ExternalReference",
+                        "keys": [
+                          {
+                            "type": "GlobalReference",
+                            "value": "0173-1#02-AAR709#002"
+                          }
+                        ]
+                      },
+                      "valueType": "xs:string",
+                      "value": "ECLASS",
+                      "modelType": "Property"
+                    },
+                    {
+                      "idShort": "VersionOfClassificationSystem",
+                      "description": [
+                        {
+                          "language": "en",
+                          "text": "Common version identifier of the used classification system, in order to distinguish different version of the property dictionary. \nNote: Casing is to be ignored.\nNote: the SMT \"Technical Data\" refers to this as: [IRI] https://admin-shell.io/ZVEI/TechnicalData/ClassificationSystemVersion/1/1"
+                        }
+                      ],
+                      "semanticId": {
+                        "type": "ExternalReference",
+                        "keys": [
+                          {
+                            "type": "GlobalReference",
+                            "value": "0173-1#02-AAR710#002"
+                          }
+                        ]
+                      },
+                      "valueType": "xs:string",
+                      "value": "14.0 (BASIC)",
+                      "modelType": "Property"
+                    },
+                    {
+                      "idShort": "ProductClassId",
+                      "description": [
+                        {
+                          "language": "en",
+                          "text": "Note: Ideally, the Property/valueId is used to reference the IRI/ IRDI of the product class.\nNote: the SMT \"Technical Data\" refers to this as: [IRI] https://admin-shell.io/ZVEI/TechnicalData/ProductClassId/1/1"
+                        }
+                      ],
+                      "semanticId": {
+                        "type": "ExternalReference",
+                        "keys": [
+                          {
+                            "type": "GlobalReference",
+                            "value": "0173-10029#02-ABF979#001"
+                          }
+                        ]
+                      },
+                      "valueType": "xs:string",
+                      "value": "27-27-49-01",
+                      "modelType": "Property"
+                    }
+                  ],
+                  "modelType": "SubmodelElementCollection"
+                }
+              ],
+              "modelType": "SubmodelElementList"
+            },
+            {
+              "idShort": "TechnicalData_Fit",
+              "description": [
+                {
+                  "language": "en",
+                  "text": "Note: it is recommended that the selected property types for the recommended items are matching to the provided properties if the item of change to allow a one-by-one comparison of items.\nNote: the manufacturers are recommended to select only those property types, which support a meaningful comparison of the recommendation with the item of change. To many property types are considered to increase the signal/ noise ratio of information."
+                }
+              ],
+              "semanticId": {
+                "type": "ExternalReference",
+                "keys": [
+                  {
+                    "type": "GlobalReference",
+                    "value": "0173-10029#01-XFB008#001"
+                  }
+                ]
+              },
+              "qualifiers": [
+                {
+                  "semanticId": {
+                    "type": "ExternalReference",
+                    "keys": [
+                      {
+                        "type": "GlobalReference",
+                        "value": "https://admin-shell.io/SubmodelTemplates/Cardinality/1/0"
+                      }
+                    ]
+                  },
+                  "kind": "TemplateQualifier",
+                  "type": "SMT/Cardinality",
+                  "valueType": "xs:string",
+                  "value": "ZeroToOne"
+                }
+              ],
+              "value": [
+                {
+                  "idShort": "TargetEstimate",
+                  "description": [
+                    {
+                      "language": "en",
+                      "text": "Note: It is the suppliers role to assess the provided technical data elements of the recommended item with respect to the actual item of change. A percentage is given between 0% (totally not suitable at all) and 100% (equal performance to the actual item of change)."
+                    }
+                  ],
+                  "semanticId": {
+                    "type": "ExternalReference",
+                    "keys": [
+                      {
+                        "type": "GlobalReference",
+                        "value": "0173-10029#02-ABF980#001"
+                      }
+                    ]
+                  },
+                  "qualifiers": [
+                    {
+                      "semanticId": {
+                        "type": "ExternalReference",
+                        "keys": [
+                          {
+                            "type": "GlobalReference",
+                            "value": "https://admin-shell.io/SubmodelTemplates/Cardinality/1/0"
+                          }
+                        ]
+                      },
+                      "kind": "TemplateQualifier",
+                      "type": "SMT/Cardinality",
+                      "valueType": "xs:string",
+                      "value": "ZeroToOne"
+                    }
+                  ],
+                  "valueType": "xs:float",
+                  "value": "0.7",
+                  "modelType": "Property"
+                },
+                {
+                  "idShort": "Arbitrary",
+                  "description": [
+                    {
+                      "language": "en",
+                      "text": "Arbitrary Property, MLP or Range elements with specific semanticIds might be added."
+                    }
+                  ],
+                  "semanticId": {
+                    "type": "ExternalReference",
+                    "keys": [
+                      {
+                        "type": "GlobalReference",
+                        "value": "https://admin-shell.io/SMT/General/Arbitrary"
+                      }
+                    ]
+                  },
+                  "valueType": "xs:string",
+                  "modelType": "Property"
+                }
+              ],
+              "modelType": "SubmodelElementCollection"
+            },
+            {
+              "idShort": "TechnicalData_Form",
+              "description": [
+                {
+                  "language": "en",
+                  "text": "Note: it is recommended that the selected property types for the recommended items are matching to the provided properties if the item of change to allow a one-by-one comparison of items.\nNote: the manufacturers are recommended to select only those property types, which support a meaningful comparison of the recommendation with the item of change. To many property types are considered to increase the signal/ noise ratio of information."
+                }
+              ],
+              "semanticId": {
+                "type": "ExternalReference",
+                "keys": [
+                  {
+                    "type": "GlobalReference",
+                    "value": "0173-10029#01-XFB009#001"
+                  }
+                ]
+              },
+              "qualifiers": [
+                {
+                  "semanticId": {
+                    "type": "ExternalReference",
+                    "keys": [
+                      {
+                        "type": "GlobalReference",
+                        "value": "https://admin-shell.io/SubmodelTemplates/Cardinality/1/0"
+                      }
+                    ]
+                  },
+                  "kind": "TemplateQualifier",
+                  "type": "SMT/Cardinality",
+                  "valueType": "xs:string",
+                  "value": "ZeroToOne"
+                }
+              ],
+              "value": [
+                {
+                  "idShort": "TargetEstimate",
+                  "description": [
+                    {
+                      "language": "en",
+                      "text": "Note: It is the suppliers role to assess the provided technical data elements of the recommended item with respect to the actual item of change. A percentage is given between 0% (totally not suitable at all) and 100% (equal performance to the actual item of change)."
+                    }
+                  ],
+                  "semanticId": {
+                    "type": "ExternalReference",
+                    "keys": [
+                      {
+                        "type": "GlobalReference",
+                        "value": "0173-10029#02-ABF980#001"
+                      }
+                    ]
+                  },
+                  "qualifiers": [
+                    {
+                      "semanticId": {
+                        "type": "ExternalReference",
+                        "keys": [
+                          {
+                            "type": "GlobalReference",
+                            "value": "https://admin-shell.io/SubmodelTemplates/Cardinality/1/0"
+                          }
+                        ]
+                      },
+                      "kind": "TemplateQualifier",
+                      "type": "SMT/Cardinality",
+                      "valueType": "xs:string",
+                      "value": "ZeroToOne"
+                    }
+                  ],
+                  "valueType": "xs:float",
+                  "value": "0.4",
+                  "modelType": "Property"
+                },
+                {
+                  "idShort": "Arbitrary",
+                  "description": [
+                    {
+                      "language": "en",
+                      "text": "Arbitrary Property, MLP or Range elements with specific semanticIds might be added."
+                    }
+                  ],
+                  "semanticId": {
+                    "type": "ExternalReference",
+                    "keys": [
+                      {
+                        "type": "GlobalReference",
+                        "value": "https://admin-shell.io/SMT/General/Arbitrary"
+                      }
+                    ]
+                  },
+                  "valueType": "xs:string",
+                  "modelType": "Property"
+                }
+              ],
+              "modelType": "SubmodelElementCollection"
+            },
+            {
+              "idShort": "TechnicalData_Function",
+              "description": [
+                {
+                  "language": "en",
+                  "text": "Note: it is recommended that the selected property types for the recommended items are matching to the provided properties if the item of change to allow a one-by-one comparison of items.\nNote: the manufacturers are recommended to select only those property types, which support a meaningful comparison of the recommendation with the item of change. To many property types are considered to increase the signal/ noise ratio of information."
+                }
+              ],
+              "semanticId": {
+                "type": "ExternalReference",
+                "keys": [
+                  {
+                    "type": "GlobalReference",
+                    "value": "0173-10029#01-XFB010#001"
+                  }
+                ]
+              },
+              "qualifiers": [
+                {
+                  "semanticId": {
+                    "type": "ExternalReference",
+                    "keys": [
+                      {
+                        "type": "GlobalReference",
+                        "value": "https://admin-shell.io/SubmodelTemplates/Cardinality/1/0"
+                      }
+                    ]
+                  },
+                  "kind": "TemplateQualifier",
+                  "type": "SMT/Cardinality",
+                  "valueType": "xs:string",
+                  "value": "ZeroToOne"
+                }
+              ],
+              "value": [
+                {
+                  "idShort": "TargetEstimate",
+                  "description": [
+                    {
+                      "language": "en",
+                      "text": "Note: It is the suppliers role to assess the provided technical data elements of the recommended item with respect to the actual item of change. A percentage is given between 0% (totally not suitable at all) and 100% (equal performance to the actual item of change)."
+                    }
+                  ],
+                  "semanticId": {
+                    "type": "ExternalReference",
+                    "keys": [
+                      {
+                        "type": "GlobalReference",
+                        "value": "0173-10029#02-ABF980#001"
+                      }
+                    ]
+                  },
+                  "qualifiers": [
+                    {
+                      "semanticId": {
+                        "type": "ExternalReference",
+                        "keys": [
+                          {
+                            "type": "GlobalReference",
+                            "value": "https://admin-shell.io/SubmodelTemplates/Cardinality/1/0"
+                          }
+                        ]
+                      },
+                      "kind": "TemplateQualifier",
+                      "type": "SMT/Cardinality",
+                      "valueType": "xs:string",
+                      "value": "ZeroToOne"
+                    }
+                  ],
+                  "valueType": "xs:float",
+                  "value": "0.87",
+                  "modelType": "Property"
+                },
+                {
+                  "idShort": "Arbitrary",
+                  "description": [
+                    {
+                      "language": "en",
+                      "text": "Arbitrary Property, MLP or Range elements with specific semanticIds might be added."
+                    }
+                  ],
+                  "semanticId": {
+                    "type": "ExternalReference",
+                    "keys": [
+                      {
+                        "type": "GlobalReference",
+                        "value": "https://admin-shell.io/SMT/General/Arbitrary"
+                      }
+                    ]
+                  },
+                  "valueType": "xs:string",
+                  "modelType": "Property"
+                }
+              ],
+              "modelType": "SubmodelElementCollection"
+            },
+            {
+              "idShort": "TechnicalData_Other",
+              "description": [
+                {
+                  "language": "en",
+                  "text": "Note: the manufacturers are recommended to select only those property types, which support a meaningful comparison of the recommendation with the item of change. To many property types are considered to increase the signal/ noise ratio of information.\nNote: the SMC TechnicalData_Other is supposed to comprise meaningful property instances, which do not fit into the categorries fit, form, function."
+                }
+              ],
+              "semanticId": {
+                "type": "ExternalReference",
+                "keys": [
+                  {
+                    "type": "GlobalReference",
+                    "value": "0173-10029#01-XFB011#001"
+                  }
+                ]
+              },
+              "value": [
+                {
+                  "idShort": "TargetEstimate",
+                  "description": [
+                    {
+                      "language": "en",
+                      "text": "Note: It is the suppliers role to assess the provided technical data elements of the recommended item with respect to the actual item of change. A percentage is given between 0% (totally not suitable at all) and 100% (equal performance to the actual item of change)."
+                    }
+                  ],
+                  "semanticId": {
+                    "type": "ExternalReference",
+                    "keys": [
+                      {
+                        "type": "GlobalReference",
+                        "value": "0173-10029#02-ABF980#001"
+                      }
+                    ]
+                  },
+                  "valueType": "xs:float",
+                  "value": "0.95",
+                  "modelType": "Property"
+                },
+                {
+                  "idShort": "Arbitrary",
+                  "description": [
+                    {
+                      "language": "en",
+                      "text": "Arbitrary Property, MLP or Range elements with specific semanticIds might be added."
+                    }
+                  ],
+                  "semanticId": {
+                    "type": "ExternalReference",
+                    "keys": [
+                      {
+                        "type": "GlobalReference",
+                        "value": "https://admin-shell.io/SMT/General/Arbitrary"
+                      }
+                    ]
+                  },
+                  "valueType": "xs:string",
+                  "modelType": "Property"
+                }
+              ],
+              "modelType": "SubmodelElementCollection"
+            },
+            {
+              "idShort": "IncotermCode",
+              "description": [
+                {
+                  "language": "en",
+                  "text": "Note: see https://en.wikipedia.org/wiki/Incoterms"
+                }
+              ],
+              "semanticId": {
+                "type": "ExternalReference",
+                "keys": [
+                  {
+                    "type": "GlobalReference",
+                    "value": "0173-1#02-AAO280#003"
+                  }
+                ]
+              },
+              "qualifiers": [
+                {
+                  "semanticId": {
+                    "type": "ExternalReference",
+                    "keys": [
+                      {
+                        "type": "GlobalReference",
+                        "value": "https://admin-shell.io/SubmodelTemplates/Cardinality/1/0"
+                      }
+                    ]
+                  },
+                  "kind": "TemplateQualifier",
+                  "type": "SMT/Cardinality",
+                  "valueType": "xs:string",
+                  "value": "ZeroToOne"
+                }
+              ],
+              "valueType": "xs:string",
+              "value": "DAT",
+              "modelType": "Property"
+            },
+            {
+              "idShort": "DeliveryTimeClassOtherRegion",
+              "semanticId": {
+                "type": "ExternalReference",
+                "keys": [
+                  {
+                    "type": "GlobalReference",
+                    "value": "0173-10029#02-ABF982#001"
+                  }
+                ]
+              },
+              "qualifiers": [
+                {
+                  "semanticId": {
+                    "type": "ExternalReference",
+                    "keys": [
+                      {
+                        "type": "GlobalReference",
+                        "value": "https://admin-shell.io/SubmodelTemplates/Cardinality/1/0"
+                      }
+                    ]
+                  },
+                  "kind": "TemplateQualifier",
+                  "type": "SMT/Cardinality",
+                  "valueType": "xs:string",
+                  "value": "ZeroToOne"
+                }
+              ],
+              "valueType": "xs:int",
+              "value": "5",
+              "modelType": "Property"
+            },
+            {
+              "idShort": "DeliveryTimeClassSameRegion",
+              "semanticId": {
+                "type": "ExternalReference",
+                "keys": [
+                  {
+                    "type": "GlobalReference",
+                    "value": "0173-10029#02-ABF981#001"
+                  }
+                ]
+              },
+              "qualifiers": [
+                {
+                  "semanticId": {
+                    "type": "ExternalReference",
+                    "keys": [
+                      {
+                        "type": "GlobalReference",
+                        "value": "https://admin-shell.io/SubmodelTemplates/Cardinality/1/0"
+                      }
+                    ]
+                  },
+                  "kind": "TemplateQualifier",
+                  "type": "SMT/Cardinality",
+                  "valueType": "xs:string",
+                  "value": "ZeroToOne"
+                }
+              ],
+              "valueType": "xs:int",
+              "value": "2",
+              "modelType": "Property"
+            },
+            {
+              "idShort": "ConformityDeclarations",
+              "semanticId": {
+                "type": "ExternalReference",
+                "keys": [
+                  {
+                    "type": "GlobalReference",
+                    "value": "0173-10029#01-XFB012#001"
+                  }
+                ]
+              },
+              "qualifiers": [
+                {
+                  "semanticId": {
+                    "type": "ExternalReference",
+                    "keys": [
+                      {
+                        "type": "GlobalReference",
+                        "value": "https://admin-shell.io/SubmodelTemplates/Cardinality/1/0"
+                      }
+                    ]
+                  },
+                  "kind": "TemplateQualifier",
+                  "type": "SMT/Cardinality",
+                  "valueType": "xs:string",
+                  "value": "ZeroToOne"
+                }
+              ],
+              "modelType": "SubmodelElementCollection"
+            }
+          ],
+          "modelType": "SubmodelElementCollection"
+        }
+      ],
+      "modelType": "SubmodelElementList"
+    }
+  ],
+  "modelType": "SubmodelElementCollection"
+}

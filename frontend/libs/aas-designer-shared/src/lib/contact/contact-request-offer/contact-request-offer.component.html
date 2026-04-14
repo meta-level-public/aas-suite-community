@@ -1,0 +1,346 @@
+<form #offerForm="ngForm" vwsAutocompleteOff>
+  @if (
+    request != null &&
+    request.requestForOffer != null &&
+    request.requestForOffer != null &&
+    request.requestForOffer.organisation != null
+  ) {
+    <div class="grid grid-cols-12">
+      <div class="col-span-12 md:col-span-6">
+        <div class="mb-4">
+          <label for="firstname"
+            ><div class="font-bold">{{ 'ORGA_DATA' | translate }}</div></label
+          >
+        </div>
+        <div class="mb-4">
+          <label for="name"> {{ 'NAME_OF_THE_ORGANIZATION' | translate }}</label>
+          <input
+            pInputText
+            id="name"
+            type="text"
+            class="inputfield w-full"
+            name="name"
+            [(ngModel)]="request.requestForOffer.organisation.name"
+            #organame="ngModel"
+            required
+          />
+          @if (!organame.valid && organame.touched) {
+            <div class="p-error">{{ 'REQUIRED_FIELD' | translate }}</div>
+          }
+        </div>
+        <div class="mb-4">
+          <label for="street"> {{ 'STREET' | translate }}</label>
+          <input
+            pInputText
+            id="street"
+            type="text"
+            class="inputfield w-full"
+            name="street"
+            [(ngModel)]="request.requestForOffer.organisation.strasse"
+            #street="ngModel"
+            required
+          />
+          @if (!street.valid && street.touched) {
+            <div class="p-error">{{ 'REQUIRED_FIELD' | translate }}</div>
+          }
+        </div>
+        <div class="mb-4">
+          <label for="zip"> {{ 'ZIP' | translate }}</label>
+          <input
+            pInputText
+            id="zip"
+            type="text"
+            class="inputfield w-full"
+            name="zip"
+            [(ngModel)]="request.requestForOffer.organisation.plz"
+            #zip="ngModel"
+            required
+          />
+          @if (!zip.valid && zip.touched) {
+            <div class="p-error">{{ 'REQUIRED_FIELD' | translate }}</div>
+          }
+        </div>
+        <div class="mb-4">
+          <label for="city"> {{ 'CITY_TOWN' | translate }}</label>
+          <input
+            pInputText
+            id="city"
+            type="text"
+            class="inputfield w-full"
+            name="city"
+            [(ngModel)]="request.requestForOffer.organisation.ort"
+            #city="ngModel"
+            required
+          />
+          @if (!city.valid && city.touched) {
+            <div class="p-error">{{ 'REQUIRED_FIELD' | translate }}</div>
+          }
+        </div>
+        <div class="mb-4">
+          <label for="countryCode">
+            {{ 'COUNTRY' | translate }}
+          </label>
+          <div class="w-full">
+            <aas-country-code
+              class="w-full"
+              [preSelectedCountry]="request.requestForOffer.organisation.laenderCode"
+              (selectedCountry)="setCountryCode($event)"
+              [inputId]="'countryCode'"
+            ></aas-country-code>
+          </div>
+        </div>
+        <div class="mb-4">
+          <label for="email"> {{ 'EMAIL' | translate }}</label>
+          <input
+            #orgaemail="ngModel"
+            pInputText
+            id="email"
+            name="email"
+            [(ngModel)]="request.requestForOffer.organisation.email"
+            class="w-full"
+            required
+          />
+          @if (!isValidEmail(request.requestForOffer.organisation.email) && orgaemail.touched) {
+            <div class="p-error">
+              {{ 'EMAIL_IS_INVALID' | translate }}
+            </div>
+          }
+        </div>
+        <div class="mb-4">
+          <label for="telephone"> {{ 'PHONE' | translate }} </label>
+          <input
+            pInputText
+            id="telephone"
+            type="tel"
+            class="inputfield w-full"
+            name="telephone"
+            [(ngModel)]="request.requestForOffer.organisation.telefon"
+          />
+        </div>
+      </div>
+      <div class="col-span-12 md:col-span-6">
+        <div class="mb-4">
+          <label for="firstname"
+            ><div class="font-bold">{{ 'ANSPRECHPARTNER' | translate }}</div></label
+          >
+        </div>
+        <div class="mb-4">
+          <label for="firstname"> {{ 'FIRSTNAME' | translate }}</label>
+          <input
+            pInputText
+            id="firstname"
+            type="text"
+            class="inputfield w-full"
+            name="firstname"
+            [(ngModel)]="request.requestForOffer.firstname"
+            #firstname="ngModel"
+            required
+          />
+          @if (!firstname.valid && firstname.touched) {
+            <div class="p-error">
+              {{ 'REQUIRED_FIELD' | translate }}
+            </div>
+          }
+        </div>
+        <div class="mb-4">
+          <label for="lastname"> {{ 'LASTNAME' | translate }}</label>
+          <input
+            pInputText
+            id="lastname"
+            type="text"
+            class="inputfield w-full"
+            name="lastname"
+            [(ngModel)]="request.requestForOffer.name"
+            #lastname="ngModel"
+            required
+          />
+          @if (!lastname.valid && lastname.touched) {
+            <div class="p-error">{{ 'REQUIRED_FIELD' | translate }}</div>
+          }
+        </div>
+        <div class="mb-4 mb-6">
+          <label for="adminmail"> {{ 'EMAIL' | translate }}</label>
+          <input
+            #adminemail="ngModel"
+            pInputText
+            id="email"
+            name="email"
+            [(ngModel)]="request.requestForOffer.email"
+            class="w-full"
+            required
+          />
+          @if (!isValidEmail(request.requestForOffer.email) && adminemail.touched) {
+            <div class="p-error">
+              {{ 'EMAIL_IS_INVALID' | translate }}
+            </div>
+          }
+        </div>
+        <div class="mb-4 mt-6">
+          <label for="firstname"
+            ><div class="font-bold">{{ 'LICENCES' | translate }}</div></label
+          >
+        </div>
+        <div class="mb-4">
+          <p-select
+            id="numberOfLicences"
+            class="w-full"
+            name="topic"
+            [(ngModel)]="selectedNumberOfLicences"
+            #numberOfLicences="ngModel"
+            [required]="true"
+            [options]="numberOfLicencesOptions"
+            optionLabel="label"
+            placeholder="{{ 'PLEASE_SELECT' | translate }}"
+            (ngModelChange)="numberOfLicencesChanged()"
+          >
+            <ng-template pTemplate="selectedItem">
+              @if (selectedNumberOfLicences) {
+                <div class="flex flex-col">
+                  @if (selectedNumberOfLicences.label === 'INDIVIDUAL') {
+                    {{ 'INDIVIDUAL_OFFER' | translate }}
+                  } @else {
+                    {{ selectedNumberOfLicences.value }} {{ 'USERS' | translate }}:
+                    {{ selectedNumberOfLicences.price }} €
+                    {{ 'PLUS_VAT' | translate }}
+                  }
+                </div>
+              }
+            </ng-template>
+            <ng-template let-item pTemplate="item">
+              @if (item) {
+                <div class="flex flex-col">
+                  @if (item.label === 'INDIVIDUAL') {
+                    {{ 'INDIVIDUAL_OFFER' | translate }}
+                  } @else {
+                    {{ item.value }} {{ 'USERS' | translate }}: {{ item.price }} €
+                    {{ 'PLUS_VAT' | translate }}
+                  }
+                </div>
+              }
+            </ng-template>
+          </p-select>
+          @if (!numberOfLicences.valid && numberOfLicences.touched) {
+            <div class="p-error">
+              {{ 'REQUIRED_FIELD' | translate }}
+            </div>
+          }
+        </div>
+        @if (selectedNumberOfLicences?.label === 'INDIVIDUAL') {
+          <div class="mb-4">
+            <label for="message"> {{ 'NUMBER_OF_USERS' | translate }}</label>
+            <textarea
+              pTextarea
+              class="w-full"
+              [autoResize]="true"
+              [(ngModel)]="request.requestForOffer.numberOfLicences"
+              name="message"
+              [rows]="4"
+              (ngModelChange)="request.requestForOffer.numberOfLicences = $event"
+            ></textarea>
+          </div>
+        }
+        <div class="mb-4 mt-6">
+          <label for="firstname"
+            ><div class="font-bold">{{ 'PAYMENT' | translate }}</div></label
+          >
+        </div>
+        <div class="mb-4">
+          <p-select
+            id="paymentKind"
+            class="w-full"
+            name="selectedPaymentPeriod"
+            [(ngModel)]="selectedPaymentPeriod"
+            #paymentPeriod="ngModel"
+            [required]="true"
+            [options]="paymentPeriodOptions"
+            optionLabel="label"
+            placeholder="{{ 'PLEASE_SELECT' | translate }}"
+            (ngModelChange)="paymentPeriodChanged()"
+          >
+            <ng-template pTemplate="selectedItem">
+              @if (selectedPaymentPeriod) {
+                <div class="flex flex-col">
+                  {{ selectedPaymentPeriod.label | translate }}
+                </div>
+              }
+            </ng-template>
+            <ng-template let-item pTemplate="item">
+              @if (item) {
+                <div class="flex flex-col">{{ item.label | translate }}</div>
+              }
+            </ng-template>
+          </p-select>
+          @if (!paymentPeriod.valid && paymentPeriod.touched) {
+            <div class="p-error">
+              {{ 'REQUIRED_FIELD' | translate }}
+            </div>
+          }
+        </div>
+        <div class="mb-4 mt-4">
+          <label for="firstname"
+            ><div class="flex flex-row">{{ 'MINIMUM_CONTRACT_TERM' | translate }}: 12 {{ 'MONTHS' | translate }}</div>
+          </label>
+        </div>
+      </div>
+      <div class="col-span-12 md:col-span-6">
+        <div class="mb-4">
+          <label for="message"> {{ 'MESSAGE' | translate }}</label>
+          <textarea
+            pTextarea
+            class="w-full"
+            [autoResize]="true"
+            [(ngModel)]="request.message"
+            name="message"
+            [rows]="7"
+          ></textarea>
+        </div>
+      </div>
+      <div class="col-span-12 md:col-span-6">
+        <div class="mb-4">
+          <p-checkbox [(ngModel)]="privacy" [binary]="true" inputId="privacy" name="privacy" [required]="true">
+          </p-checkbox>
+          <label for="privacy"> {{ 'PRIVACY_CB' | translate }} </label>
+        </div>
+        <div class="mb-4">
+          @if (portalService.currentLanguage === 'de') {
+            <a target="_blank" [href]="appConfigService.config.datenschutzLinkDe"
+              >{{ 'PRIVACY_OPEN' | translate }}<em class="pi pi-external"></em
+            ></a>
+          }
+          @if (portalService.currentLanguage !== 'de') {
+            <a target="_blank" [href]="appConfigService.config.datenschutzLinkEn">{{ 'PRIVACY_OPEN' | translate }}</a>
+          }
+        </div>
+        <div class="mb-4">
+          <p-checkbox [(ngModel)]="agb" [binary]="true" inputId="agb" name="agb" [required]="true"> </p-checkbox>
+          <label for="agb"> {{ 'AGB_CB' | translate }} </label>
+        </div>
+        <div class="mb-4">
+          @if (portalService.currentLanguage === 'de') {
+            <a target="_blank" [href]="appConfigService.config.agbLinkDe"
+              >{{ 'AGB_OPEN' | translate }}<em class="pi pi-external"></em
+            ></a>
+          }
+          @if (portalService.currentLanguage !== 'de') {
+            <a target="_blank" [href]="appConfigService.config.agbLinkEn"
+              >{{ 'AGB_OPEN' | translate }}<em class="pi pi-external"></em
+            ></a>
+          }
+        </div>
+        <div class="mb-4">
+          <p-checkbox [(ngModel)]="contact" [binary]="true" inputId="contact" name="contact" [required]="true">
+          </p-checkbox>
+          <label for="contact">
+            {{ 'ACCEPT_TO_GET_CONTACTED' | translate }}
+          </label>
+        </div>
+      </div>
+    </div>
+  }
+  <div style="position: absolute; left: -9999px">
+    <label>
+      {{ 'BOT_CHECK_HINT' | translate }}
+      <input type="text" name="botField" [(ngModel)]="invisibleFieldValue" autocomplete="off" />
+    </label>
+  </div>
+</form>

@@ -1,0 +1,36 @@
+@use '../submodel-editor-layout';
+
+.battery-handover-meta,
+.battery-handover-card,
+.battery-handover-field-card,
+.battery-handover-document-card,
+.battery-handover-empty-state {
+  background: var(--p-content-background);
+}
+
+.battery-handover-document-card,
+.battery-handover-empty-state {
+  border: 1px solid var(--p-content-border-color);
+  border-radius: 1rem;
+  padding: 1rem;
+}
+
+.battery-handover-documents-title-row {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+}
+
+.battery-handover-documents-count {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 1.75rem;
+  height: 1.75rem;
+  padding: 0 0.5rem;
+  border-radius: 999px;
+  background: var(--p-content-border-color);
+  color: var(--p-text-color);
+  font-size: 0.875rem;
+  font-weight: 600;
+}

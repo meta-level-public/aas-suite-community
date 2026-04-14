@@ -1,0 +1,55 @@
+:host {
+  display: block;
+  width: 100%;
+}
+
+.contact-info-container {
+  width: 100%;
+}
+
+.contact-info-card {
+  width: 100%;
+  border: 1px solid var(--p-content-border-color);
+  background: var(--p-content-background);
+  border-radius: var(--aas-radius-md);
+  padding: 1rem;
+}
+
+.contact-content-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 2fr) minmax(320px, 1fr);
+  gap: 1rem;
+  align-items: start;
+}
+
+.contact-fields {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.contact-label-addon {
+  width: 16rem;
+  min-width: 16rem;
+  white-space: nowrap;
+}
+
+.contact-map-shell {
+  border: 1px solid var(--p-content-border-color);
+  border-radius: var(--aas-radius-sm);
+  background: var(--p-content-background);
+  padding: 0.5rem;
+}
+
+@media (max-width: 1200px) {
+  .contact-content-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 768px) {
+  .contact-label-addon {
+    width: 13rem;
+    min-width: 13rem;
+  }
+}

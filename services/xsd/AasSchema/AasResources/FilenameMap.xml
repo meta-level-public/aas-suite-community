@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-16"?>
+<SchemaMap
+  xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  Compressed="true"
+>
+  <SchemaEntry
+    OriginalSchemaUri="C:\_DEV\aas-produkt\xsd\aas.xsd"
+    ResourceSchemaUri="Schema1.zxsd"
+    TargetNamespaceUri="https://admin-shell.io/aas/3/0"
+    ExplicitlyLoad="true"
+  />
+</SchemaMap>

@@ -1,0 +1,101 @@
+@if (fileObj != null) {
+  <p-accordion [value]="'file_' + fileObj.idShort">
+    <p-accordion-panel [value]="'file_' + fileObj.idShort">
+      <p-accordion-header>
+        {{ fileObj != null ? getLabel(fileObj) : '' }}
+      </p-accordion-header>
+      <p-accordion-content>
+        <div class="flex flex-col gap-2">
+          <p-inputgroup>
+            <p-inputGroupAddon class="w-24rem font-bold justify-start justify-start">
+              {{ 'VALUE' | translate }}</p-inputGroupAddon
+            >
+            <input pInputText type="text" [ngModel]="fileObj.value" readonly />
+            <p-inputGroupAddon class="w-8rem">
+              <!--
+              <aas-semantic-description-popup [semanticId]="semanticId()"></aas-semantic-description-popup>
+              -->
+              <p-button
+                [icon]="showPreview ? 'pi pi-eye-slash' : 'pi pi-eye'"
+                (onClick)="togglePreview()"
+                text="true"
+              ></p-button>
+            </p-inputGroupAddon>
+          </p-inputgroup>
+
+          @if (loading) {
+            <p-skeleton shape="square" height="10rem" width="20rem"></p-skeleton>
+          }
+
+          @if (showPreview) {
+            @if (fileUrl == null) {
+              @if (fileObj.value !== '') {
+                <p-message severity="warn" text="{{ 'NO_PREVIEW_FILE_SET' | translate }}"></p-message>
+              }
+            } @else {
+              <div class="flex flex-col h-full gap-2">
+                @if (FilenameHelper.isImage(fileObj.value)) {
+                  <img
+                    class="w-full"
+                    [src]="fileUrl"
+                    style="object-fit: contain"
+                    alt="imageContent"
+                    (error)="objectLoadError()"
+                  />
+                }
+                @if (FilenameHelper.isPdf(fileObj.value)) {
+                  <object
+                    class="w-full"
+                    [data]="fileUrl"
+                    style="object-fit: contain"
+                    height="500px"
+                    (error)="objectLoadError()"
+                    type="application/pdf"
+                  ></object>
+                }
+                @if (FilenameHelper.isVideo(fileObj.value)) {
+                  <video class="w-full" [src]="fileUrl" controls muted autoplay (error)="objectLoadError()"></video>
+                }
+                @if (FilenameHelper.isXmlType(fileObj.value) && xmlString != null) {
+                  <markdown class="w-full h-full flex flex-col overflow-scroll">
+                    ```xml
+                    {{ xmlString }}
+                  </markdown>
+                }
+                @if (fileObj.value?.startsWith('http')) {
+                  <a class="text-xs" [href]="fileObj.value" target="_blank">
+                    {{ 'SOURCE' | translate }}: {{ fileObj.value }}
+                  </a>
+                }
+                @if (
+                  !FilenameHelper.isVideo(fileObj.value) &&
+                  !FilenameHelper.isPdf(fileObj.value) &&
+                  !FilenameHelper.isImage(fileObj.value) &&
+                  !FilenameHelper.isXmlType(fileObj.value) &&
+                  fileObj.value !== ''
+                ) {
+                  <p-message severity="warn" text="{{ 'NO_PREVIEW_AVAILABLE_FOR_THIS_TYPE' | translate }}"></p-message>
+                }
+                @if (fileObj.value === '') {
+                  <p-message severity="warn" text="{{ 'NO_PREVIEW_FILE_SET' | translate }}"></p-message>
+                }
+                @if (fileObj.value?.startsWith('http') && loadError) {
+                  <p-message severity="error" text="{{ 'ERROR_LOADING_ERXTERNAL_FILE' | translate }}"></p-message>
+                }
+              </div>
+            }
+          }
+
+          <p-inputgroup>
+            <p-inputGroupAddon class="w-24rem font-bold justify-start"> {{ 'TYPE' | translate }}</p-inputGroupAddon>
+            <input pInputText type="text" [ngModel]="fileObj.contentType" readonly />
+            <p-inputGroupAddon class="w-8rem">
+              <!-- <aas-semantic-description-popup [semanticId]="semanticId()"></aas-semantic-description-popup> -->
+              <p-button text="true"></p-button>
+            </p-inputGroupAddon>
+          </p-inputgroup>
+        </div>
+      </p-accordion-content>
+    </p-accordion-panel>
+  </p-accordion>
+}

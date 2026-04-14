@@ -1,0 +1,64 @@
+<div class="flex flex-col gap-6">
+  <div>
+    <h2 class="font-bold mb-3" style="font-size: var(--aas-title-lg)">{{ 'CHOOSE_TYPE' | translate }}</h2>
+    <p style="font-size: var(--aas-text-lg); color: var(--p-text-muted-color)">{{ 'CHOOSE_TYPE_EXPL' | translate }}</p>
+  </div>
+
+  <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+    <div class="flex">
+      <aas-selection-card
+        [title]="'INSTANCE_VWS' | translate"
+        [description]="'INSTANCE_EXPL' | translate"
+        icon="pi-box"
+        severity="info"
+        [buttonLabel]="'CHOOSE' | translate"
+        [disabled]="loading"
+        [loading]="loading"
+        (choose)="nextPage('instanz')"
+      ></aas-selection-card>
+    </div>
+
+    <div class="flex">
+      <aas-selection-card
+        [title]="'TYPE_VWS' | translate"
+        [description]="'TYPE_VWS_EXPL' | translate"
+        icon="pi-tags"
+        severity="success"
+        [buttonLabel]="'CHOOSE' | translate"
+        [disabled]="loading"
+        [loading]="loading"
+        (choose)="nextPage('typ')"
+      ></aas-selection-card>
+    </div>
+
+    <div class="flex">
+      <aas-selection-card
+        [title]="'CHOOSE_NON_GUIDED_EMPTY' | translate"
+        [description]="'CHOOSE_NON_GUIDED_EMPTY_EXPL' | translate"
+        icon="pi-file-edit"
+        severity="danger"
+        [buttonLabel]="'CHOOSE' | translate"
+        [disabled]="loading"
+        [loading]="loading"
+        (choose)="nextPage('unguided')"
+      ></aas-selection-card>
+    </div>
+  </div>
+
+  <div class="mt-2">
+    <h3 class="font-bold mb-2" style="font-size: var(--aas-title-md)">{{ 'SPECIALIZED_ASSISTANTS' | translate }}</h3>
+    <p class="mb-4" style="color: var(--p-text-muted-color)">{{ 'SPECIALIZED_ASSISTANTS_EXPL' | translate }}</p>
+  </div>
+
+  <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+    <div class="flex">
+      <lib-battery-passport-assistant
+        [loading]="loading"
+        (chooseAssistant)="nextPage('battery-passport')"
+      ></lib-battery-passport-assistant>
+    </div>
+    <div class="flex">
+      <lib-dpp-core-assistant [loading]="loading" (chooseAssistant)="nextPage('dpp-core')"></lib-dpp-core-assistant>
+    </div>
+  </div>
+</div>
