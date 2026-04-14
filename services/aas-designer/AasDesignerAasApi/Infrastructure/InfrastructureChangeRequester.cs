@@ -10,30 +10,21 @@ public class InfrastructureChangeRequester
     {
         var containerInfos = new ContainerInfos { Guid = guid, Action = "disable" };
 
-        // Infodatei schreiben
-        var infoString = JsonSerializer.Serialize(containerInfos);
-        var path = Path.Combine(containerInboxPath, $"containerInfos-{Guid.NewGuid()}.json");
-        File.WriteAllText(path, infoString);
+        WriteRequestFile(containerInboxPath, containerInfos);
     }
 
     public static void RequestInfrastructureEnabling(string guid, string containerInboxPath)
     {
         var containerInfos = new ContainerInfos { Guid = guid, Action = "enable" };
 
-        // Infodatei schreiben
-        var infoString = JsonSerializer.Serialize(containerInfos);
-        var path = Path.Combine(containerInboxPath, $"containerInfos-{Guid.NewGuid()}.json");
-        File.WriteAllText(path, infoString);
+        WriteRequestFile(containerInboxPath, containerInfos);
     }
 
     public static void RequestInfrastructureRemoval(string guid, string containerInboxPath)
     {
         var containerInfos = new ContainerInfos { Guid = guid, Action = "delete" };
 
-        // Infodatei schreiben
-        var infoString = JsonSerializer.Serialize(containerInfos);
-        var path = Path.Combine(containerInboxPath, $"containerInfos-{Guid.NewGuid()}.json");
-        File.WriteAllText(path, infoString);
+        WriteRequestFile(containerInboxPath, containerInfos);
     }
 
     public static void RequestInfrastructureChange(
@@ -80,8 +71,18 @@ public class InfrastructureChangeRequester
             ExternalUrl = externalUrl,
         };
 
+        WriteRequestFile(containerInboxPath, containerInfos);
+    }
+
+    private static void WriteRequestFile(string containerInboxPath, ContainerInfos containerInfos)
+    {
         // Infodatei schreiben
         var infoString = JsonSerializer.Serialize(containerInfos);
+        if (!string.IsNullOrWhiteSpace(containerInboxPath))
+        {
+            Directory.CreateDirectory(containerInboxPath);
+        }
+
         var path = Path.Combine(containerInboxPath, $"containerInfos-{Guid.NewGuid()}.json");
         File.WriteAllText(path, infoString);
     }

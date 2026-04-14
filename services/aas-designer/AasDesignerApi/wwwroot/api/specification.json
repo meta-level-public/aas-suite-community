@@ -4756,6 +4756,9 @@
         "type": "object",
         "additionalProperties": false,
         "properties": {
+          "sourceFileName": {
+            "type": "string"
+          },
           "aasId": {
             "type": "string"
           },

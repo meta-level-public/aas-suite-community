@@ -2,6 +2,7 @@ namespace AasDesignerAasApi.Package.Commands;
 
 public class SingleImportResult
 {
+    public string SourceFileName { get; set; } = string.Empty;
     public string AasId { get; set; } = string.Empty;
     public bool Success { get; set; }
     public string ErrorMessage { get; set; } = string.Empty;

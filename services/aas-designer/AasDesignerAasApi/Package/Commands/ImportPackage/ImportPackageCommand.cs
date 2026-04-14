@@ -210,7 +210,12 @@ public class ImportPackageCommandHandler
                     );
 
                     result.OkImport.Add(
-                        new SingleImportResult { AasId = saveResult.AasId, Success = true }
+                        new SingleImportResult
+                        {
+                            SourceFileName = currentFileName,
+                            AasId = saveResult.AasId,
+                            Success = true,
+                        }
                     );
 
                     progressReporter.Report(
@@ -255,6 +260,7 @@ public class ImportPackageCommandHandler
                     result.NokImport.Add(
                         new SingleImportResult
                         {
+                            SourceFileName = currentFileName,
                             ErrorMessage =
                                 failedSubmodels.FirstOrDefault()?.ErrorMessage ?? exception.Message,
                             RequiresConfirmation = true,
@@ -287,6 +293,7 @@ public class ImportPackageCommandHandler
                     result.NokImport.Add(
                         new SingleImportResult
                         {
+                            SourceFileName = currentFileName,
                             ErrorMessage = exception.Message,
                             RequiresConfirmation = true,
                             CanImportPartially = true,
@@ -318,7 +325,11 @@ public class ImportPackageCommandHandler
                 catch (Exception exception)
                 {
                     result.NokImport.Add(
-                        new SingleImportResult { ErrorMessage = exception.Message }
+                        new SingleImportResult
+                        {
+                            SourceFileName = currentFileName,
+                            ErrorMessage = exception.Message,
+                        }
                     );
 
                     progressReporter.Report(
@@ -336,6 +347,7 @@ public class ImportPackageCommandHandler
                 result.NokImport.Add(
                     new SingleImportResult
                     {
+                        SourceFileName = currentFileName,
                         ErrorMessage = $"Error reading AASX. ({exception.Message})",
                     }
                 );

@@ -2,7 +2,7 @@ import { ImportProgressMessage, SelectionCardComponent, SseNotificationService }
 import { FileSizePipe } from '@aas/common-pipes';
 import { AppConfigService, NotificationService, PortalService } from '@aas/common-services';
 import { ApiException } from '@aas/jwt-auth';
-import { ImportPackageResult } from '@aas/webapi-client';
+import { ImportPackageResult, SingleImportResult } from '@aas/webapi-client';
 import { HttpClient, HttpEventType, HttpHeaders } from '@angular/common/http';
 import { Component, effect, EventEmitter, inject, input, Output, signal, ViewChild } from '@angular/core';
 import { FormsModule } from '@angular/forms';
@@ -32,6 +32,8 @@ import { GeneratorService } from '../../generator/generator.service';
   templateUrl: './upload-aas-dialog.component.html',
 })
 export class UploadAasDialogComponent {
+  private readonly unnamedFileLabel = 'File';
+
   @Output() loadData: EventEmitter<boolean> = new EventEmitter();
   @ViewChild('uploader') uploader?: FileUpload;
 
@@ -85,6 +87,22 @@ export class UploadAasDialogComponent {
         }>;
       }
     | undefined;
+  bulkImportIssues:
+    | Array<{
+        sourceFileName: string;
+        failedSubmodels: Array<{
+          submodelId?: string;
+          idShort?: string;
+          errorMessage?: string;
+          summary?: string;
+          technicalDetails?: string;
+        }>;
+        importableSubmodels: Array<{
+          submodelId?: string;
+          idShort?: string;
+        }>;
+      }>
+    | undefined;
   showTechnicalDetails = false;
 
   show() {
@@ -119,6 +137,7 @@ export class UploadAasDialogComponent {
 
   cancelPartialImport() {
     this.pendingPartialImport = undefined;
+    this.bulkImportIssues = undefined;
     this.showTechnicalDetails = false;
   }
 
@@ -143,6 +162,8 @@ export class UploadAasDialogComponent {
     this.processingMessage = '';
     this.currentProcessingFileName = '';
     this.pendingPartialImport = undefined;
+    this.bulkImportIssues = undefined;
+    this.showTechnicalDetails = false;
     this.isBulk = this.selectedFiles.length > 1;
     this.currentOperationId = globalThis.crypto?.randomUUID?.() ?? `${Date.now()}`;
     this.subscribeToImportProgress();
@@ -228,7 +249,9 @@ export class UploadAasDialogComponent {
         if (hasSuccess) {
           this.loadData.emit(true);
         }
-        this.showImportError(res);
+        if (!this.tryPrepareBulkImportIssues(res)) {
+          this.showImportError(res);
+        }
       } else {
         this.notificationService.showMessageAlways('SUCCESS_IMPORTING_MULTIPLE_AAS', 'SUCCESS', 'success', false);
         this.loadData.emit(true);
@@ -254,6 +277,7 @@ export class UploadAasDialogComponent {
     this.resetLoading();
     this.displayUploadDialog = true;
     this.pendingPartialImport = undefined;
+    this.bulkImportIssues = undefined;
     this.showTechnicalDetails = false;
 
     if (err instanceof ApiException && err.exceptionType === 'UploadFailedException') {
@@ -264,10 +288,10 @@ export class UploadAasDialogComponent {
         true,
       );
       return;
-    } else {
-      const message = err instanceof ApiException ? err.message : `${err?.message ?? err}`;
-      this.notificationService.showMessageAlways(this.messageFormatter(message), 'ERROR', 'error', true);
     }
+
+    const message = err instanceof ApiException ? err.message : `${err?.message ?? err}`;
+    this.notificationService.showMessageAlways(this.messageFormatter(message), 'ERROR', 'error', true);
   }
 
   resetLoading() {
@@ -290,8 +314,16 @@ export class UploadAasDialogComponent {
       return 'IMPORT_CONFLICT_OVERWRITE_HINT';
     }
 
+    if (this.isBulk && nokImport.some((item: any) => this.isRecoverablePartialImport(item))) {
+      return 'IMPORT_WITHOUT_SUBMODELS_BULK_HINT';
+    }
+
     const backendErrorMessage = nokImport.find((item: any) => !!item?.errorMessage)?.errorMessage;
     if (backendErrorMessage) {
+      if (this.isBulk && this.isSubmodelImportError(backendErrorMessage)) {
+        return this.formatSubmodelImportError(backendErrorMessage).summary;
+      }
+
       return backendErrorMessage;
     }
 
@@ -304,18 +336,40 @@ export class UploadAasDialogComponent {
     this.notificationService.showMessageAlways(errorMessage, 'ERROR', 'error', showAsBigErrorDialog);
   }
 
+  private tryPrepareBulkImportIssues(res: ImportPackageResult | undefined): boolean {
+    if (!this.isBulk) {
+      return false;
+    }
+
+    const recoverableImports = (res?.nokImport ?? []).filter((item) => this.isRecoverablePartialImport(item));
+    if (recoverableImports.length === 0) {
+      return false;
+    }
+
+    this.bulkImportIssues = recoverableImports.map((item, index) => ({
+      sourceFileName: this.resolveSourceFileName(item, index),
+      failedSubmodels: (item.failedSubmodels ?? []).map((submodel) => {
+        const formatted = this.formatSubmodelImportError(submodel?.errorMessage);
+        return {
+          ...submodel,
+          summary: formatted.summary,
+          technicalDetails: formatted.technicalDetails,
+        };
+      }),
+      importableSubmodels: item.importableSubmodels ?? [],
+    }));
+    this.pendingPartialImport = undefined;
+    this.showTechnicalDetails = false;
+
+    return true;
+  }
+
   private tryPreparePartialImport(res: any): boolean {
     if (this.isBulk) {
       return false;
     }
 
-    const recoverableImport = (res?.nokImport ?? []).find(
-      (item: any) =>
-        item?.requiresConfirmation &&
-        item?.canImportPartially &&
-        Array.isArray(item?.excludedSubmodelIds) &&
-        item.excludedSubmodelIds.length > 0,
-    );
+    const recoverableImport = (res?.nokImport ?? []).find((item: any) => this.isRecoverablePartialImport(item));
 
     if (!recoverableImport) {
       return false;
@@ -333,6 +387,7 @@ export class UploadAasDialogComponent {
       }),
       importableSubmodels: recoverableImport.importableSubmodels ?? [],
     };
+    this.bulkImportIssues = undefined;
     this.showTechnicalDetails = false;
 
     return true;
@@ -344,6 +399,10 @@ export class UploadAasDialogComponent {
 
   protected get isPartialImportConfirmation(): boolean {
     return !!this.pendingPartialImport;
+  }
+
+  protected get isBulkImportIssueSummary(): boolean {
+    return (this.bulkImportIssues?.length ?? 0) > 0;
   }
 
   protected get partialImportAffectedCount(): number {
@@ -366,6 +425,31 @@ export class UploadAasDialogComponent {
     technicalDetails?: string;
   }> {
     return this.pendingPartialImport?.failedSubmodels ?? [];
+  }
+
+  protected get bulkIssueAffectedFileCount(): number {
+    return this.bulkImportIssues?.length ?? 0;
+  }
+
+  protected get bulkIssueAffectedSubmodelCount(): number {
+    return this.bulkImportIssues?.reduce((sum, item) => sum + item.failedSubmodels.length, 0) ?? 0;
+  }
+
+  protected get bulkIssueFiles(): Array<{
+    sourceFileName: string;
+    failedSubmodels: Array<{
+      submodelId?: string;
+      idShort?: string;
+      errorMessage?: string;
+      summary?: string;
+      technicalDetails?: string;
+    }>;
+    importableSubmodels: Array<{
+      submodelId?: string;
+      idShort?: string;
+    }>;
+  }> {
+    return this.bulkImportIssues ?? [];
   }
 
   protected get importablePartialImportSubmodels(): Array<{
@@ -437,6 +521,28 @@ export class UploadAasDialogComponent {
     return !!errorMessage && /\b409\b/.test(errorMessage);
   }
 
+  private isRecoverablePartialImport(item: any): boolean {
+    return (
+      item?.requiresConfirmation &&
+      item?.canImportPartially &&
+      Array.isArray(item?.excludedSubmodelIds) &&
+      item.excludedSubmodelIds.length > 0
+    );
+  }
+
+  private isSubmodelImportError(errorMessage: string | undefined): boolean {
+    return !!errorMessage && /Saving submodel/i.test(errorMessage);
+  }
+
+  private resolveSourceFileName(item: SingleImportResult | any, index: number): string {
+    const sourceFileName = item?.sourceFileName?.trim();
+    if (sourceFileName) {
+      return sourceFileName;
+    }
+
+    return this.selectedFiles[index]?.name ?? `${this.unnamedFileLabel} ${index + 1}`;
+  }
+
   private messageFormatter(message: string): string {
     return message.replace(/&quot;/gm, '"');
   }
@@ -477,6 +583,7 @@ export class UploadAasDialogComponent {
   private resetDialogState() {
     this.selectedFiles = [];
     this.pendingPartialImport = undefined;
+    this.bulkImportIssues = undefined;
     this.showTechnicalDetails = false;
     this.importMode = undefined;
     this.overwrite = false;

@@ -156,10 +156,13 @@ namespace AasDesignerApi.Orga
 
             // Infodatei schreiben
             var infoString = JsonSerializer.Serialize(containerInfos);
-            var path = Path.Combine(
-                _appsSettings.ContainerManagerInboxDirectory,
-                $"containerInfos-{Guid.NewGuid().ToString()}.json"
-            );
+            var inboxDirectory = _appsSettings.ContainerManagerInboxDirectory;
+            if (!string.IsNullOrWhiteSpace(inboxDirectory))
+            {
+                Directory.CreateDirectory(inboxDirectory);
+            }
+
+            var path = Path.Combine(inboxDirectory, $"containerInfos-{Guid.NewGuid()}.json");
             System.IO.File.WriteAllText(path, infoString);
 
             _logger.LogInformation("ContainerInfos written to {Path}", path);

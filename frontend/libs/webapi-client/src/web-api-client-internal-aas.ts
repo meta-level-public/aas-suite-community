@@ -10727,6 +10727,7 @@ export interface IImportPackageResult {
 }
 
 export class SingleImportResult implements ISingleImportResult {
+  sourceFileName?: string;
   aasId?: string;
   success?: boolean;
   errorMessage?: string;
@@ -10746,6 +10747,7 @@ export class SingleImportResult implements ISingleImportResult {
 
   init(_data?: any) {
     if (_data) {
+      this.sourceFileName = _data['sourceFileName'];
       this.aasId = _data['aasId'];
       this.success = _data['success'];
       this.errorMessage = _data['errorMessage'];
@@ -10776,6 +10778,7 @@ export class SingleImportResult implements ISingleImportResult {
 
   toJSON(data?: any) {
     data = typeof data === 'object' ? data : {};
+    data['sourceFileName'] = this.sourceFileName;
     data['aasId'] = this.aasId;
     data['success'] = this.success;
     data['errorMessage'] = this.errorMessage;
@@ -10798,6 +10801,7 @@ export class SingleImportResult implements ISingleImportResult {
 }
 
 export interface ISingleImportResult {
+  sourceFileName?: string;
   aasId?: string;
   success?: boolean;
   errorMessage?: string;

@@ -52,7 +52,7 @@ services:
     restart: unless-stopped
 
   aasregistry-go:
-    image: eclipsebasyx/aasregistry-go:1.0.0
+    image: eclipsebasyx/aasregistry-go:SNAPSHOT
     container_name: aasregistry-go
     ports:
       - "5082:8082"
@@ -82,7 +82,7 @@ services:
         condition: service_healthy
 
   submodelregistry-go:
-    image: eclipsebasyx/submodelregistry-go:1.0.0
+    image: eclipsebasyx/submodelregistry-go:SNAPSHOT
     container_name: submodelregistry-go
     ports:
       - "5083:8083"
@@ -112,7 +112,7 @@ services:
         condition: service_healthy
 
   aasdiscovery-go:
-    image: eclipsebasyx/aasdiscovery-go:1.0.0
+    image: eclipsebasyx/aasdiscovery-go:SNAPSHOT
     container_name: aasdiscovery-go
     ports:
       - "5084:8081"
@@ -142,7 +142,7 @@ services:
         condition: service_healthy
 
   aasrepository-go:
-    image: eclipsebasyx/aasrepository-go:1.0.0
+    image: eclipsebasyx/aasrepository-go:SNAPSHOT
     container_name: aasrepository-go
     ports:
       - "5081:8081"
@@ -171,7 +171,7 @@ services:
         condition: service_healthy
 
   submodelrepository-go:
-    image: eclipsebasyx/submodelrepository-go:1.0.0
+    image: eclipsebasyx/submodelrepository-go:SNAPSHOT
     container_name: submodelrepository-go
     ports:
       - "5085:8081"
@@ -201,7 +201,7 @@ services:
         condition: service_healthy
 
   conceptdescriptionrepository-go:
-    image: eclipsebasyx/conceptdescriptionrepository-go:1.0.0
+    image: eclipsebasyx/conceptdescriptionrepository-go:SNAPSHOT
     container_name: conceptdescriptionrepository-go
     ports:
       - "5086:8081"

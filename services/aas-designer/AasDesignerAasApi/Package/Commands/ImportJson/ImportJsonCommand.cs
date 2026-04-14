@@ -172,7 +172,12 @@ public class ImportJsonCommandHandler : IRequestHandler<ImportJsonCommand, Impor
                 );
 
                 result.OkImport.Add(
-                    new SingleImportResult { AasId = saveResult.AasId, Success = true }
+                    new SingleImportResult
+                    {
+                        SourceFileName = currentFileName,
+                        AasId = saveResult.AasId,
+                        Success = true,
+                    }
                 );
 
                 progressReporter.Report(
@@ -189,6 +194,7 @@ public class ImportJsonCommandHandler : IRequestHandler<ImportJsonCommand, Impor
                 result.NokImport.Add(
                     new SingleImportResult
                     {
+                        SourceFileName = currentFileName,
                         ErrorMessage = $"Error saving Json. ({exception.Message})",
                     }
                 );
