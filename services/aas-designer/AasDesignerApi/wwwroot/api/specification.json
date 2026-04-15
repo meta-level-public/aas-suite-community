@@ -3798,6 +3798,29 @@
         }
       }
     },
+    "/system-management-api/SystemManagement/GetDeleteProtocols": {
+      "get": {
+        "tags": [
+          "SystemManagement"
+        ],
+        "operationId": "SystemManagement_GetDeleteProtocols",
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/DeleteProtocolDto"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/system-management-api/SystemManagement/GetMailSettings": {
       "get": {
         "tags": [
@@ -7735,6 +7758,102 @@
           },
           "isBuiltIn": {
             "type": "boolean"
+          }
+        }
+      },
+      "DeleteProtocolDto": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "deleteType": {
+            "$ref": "#/components/schemas/DeleteType"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "createdBy": {
+            "type": "string"
+          },
+          "additionalData": {
+            "type": "string"
+          },
+          "organisation": {
+            "nullable": true,
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/OrganisationDeleteProtocolDto"
+              }
+            ]
+          },
+          "userAccount": {
+            "nullable": true,
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/UserAccountDeleteProtocolDto"
+              }
+            ]
+          },
+          "infrastructure": {
+            "nullable": true,
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/InfrastructureDeleteProtocolDto"
+              }
+            ]
+          }
+        }
+      },
+      "DeleteType": {
+        "type": "integer",
+        "description": "",
+        "x-enumNames": [
+          "Unknown",
+          "Organisation",
+          "UserAccount",
+          "Infrastructure"
+        ],
+        "enum": [
+          0,
+          1,
+          2,
+          3
+        ]
+      },
+      "OrganisationDeleteProtocolDto": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "email": {
+            "type": "string"
+          }
+        }
+      },
+      "UserAccountDeleteProtocolDto": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "email": {
+            "type": "string"
+          }
+        }
+      },
+      "InfrastructureDeleteProtocolDto": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "infraName": {
+            "type": "string"
+          },
+          "infraGuid": {
+            "type": "string"
           }
         }
       },

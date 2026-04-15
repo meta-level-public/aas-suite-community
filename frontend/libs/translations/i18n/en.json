@@ -944,6 +944,12 @@
   "DELETE_USER_FROM_ORGA": "Should the user really be removed from the organization?",
   "DELETE_USER_MOVE_PACKAGE_QUESTION": "Do you really want to remove the user from your organization?",
   "DELETE_USER_NOT_ALLOWED": "No authorization to delete the user",
+  "DELETE_PROTOCOL": "Deletion log",
+  "DELETE_PROTOCOL_EXPL": "This view shows system-wide logged deletion events for organizations, user accounts, and infrastructures.",
+  "DELETE_PROTOCOL_INFRASTRUCTURES": "Infrastructures",
+  "DELETE_PROTOCOL_ORGANISATIONS": "Organizations",
+  "DELETE_PROTOCOL_OTHER": "Other entries",
+  "DELETE_PROTOCOL_USER_ACCOUNTS": "User accounts",
   "DELETE_VWS_Q": "Do you really want to delete the Asset Administration Shell?",
   "DEPARTMENT": "Department",
   "DERIVATION": "Derivation",
@@ -1334,6 +1340,7 @@
   "HAS_PART_AND_IS_PART_ERROR": "Either \"HasPart\" or \"IsPartOf\" must be used, not both.",
   "HAS_PNC_SUBSCRIBE_Q": "The submodel for the product change notification was found. Would you like to receive updates for this product? You can change this change again later.",
   "HEALTH_CHECK": "Health Check",
+  "GUID": "GUID",
   "HELP_INFO": {
     "ASSET_INFORMATION_GLOBAL_ASSET_ID": "globalAssetId",
     "ASSET_INFORMATION_GLOBAL_ASSET_ID_EXPL": "As soon as the Asset Administration Shell is \"released\" for production or operation, a globalAssetId should be assigned. \nAn Asset ID may be retrieved e.g., by a QR code on the asset, by an RFID for the asset, from the firmware of the asset, or from an asset database. IEC 61406 (formerly DIN SPEC 91406) defines the format of such Asset IDs.",
@@ -2119,6 +2126,7 @@
     "TYPE": "Reference"
   },
   "REFERENCE_TYPE": "Reference type",
+  "REFERENCED_IN": "Referenced in",
   "REFRESH_INTERVAL": "Refresh interval",
   "REF_DESC": "A reference element is a data element that defines a logical reference to another element within the same or another Asset Administration Shell or a reference to an external object or entity.",
   "REF_ID": "ReferenceID",
@@ -2129,6 +2137,9 @@
   "REGISTER_READY": "Registration successful",
   "REGISTER_READY_EXPL1": "You have received an email at the address provided. Please confirm your user account.",
   "REGISTER_SUCCESS": "The user account has been created and the activation email has been sent to the specified address. Please confirm the registration.",
+  "SUPPLEMENTAL_FILE": {
+    "NO_REFERENCES": "This file is currently not referenced by any file element"
+  },
   "REGISTRY": "AAS Registry",
   "REGISTRY_CORRECTION_ADMINISTRATION": "Administration",
   "REGISTRY_CORRECTION_ASSET_KIND": "Asset kind",

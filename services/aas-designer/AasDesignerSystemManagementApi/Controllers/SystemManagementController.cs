@@ -13,6 +13,7 @@ using AasDesignerSystemManagementApi.SystemManagement.Command.UpdateMailSettings
 using AasDesignerSystemManagementApi.SystemManagement.Command.UpsertThemeDefinition;
 using AasDesignerSystemManagementApi.SystemManagement.Model;
 using AasDesignerSystemManagementApi.SystemManagement.Queries.GetConfiguration;
+using AasDesignerSystemManagementApi.SystemManagement.Queries.GetDeleteProtocols;
 using AasDesignerSystemManagementApi.SystemManagement.Queries.GetHelpInformation;
 using AasDesignerSystemManagementApi.SystemManagement.Queries.GetLegalLinksSettings;
 using AasDesignerSystemManagementApi.SystemManagement.Queries.GetMailSettings;
@@ -130,6 +131,15 @@ public class SystemManagementController : InternalApiBaseController
     {
         var mediator = new Mediator(_serviceProvider);
         var query = new GetThemeDefinitionsQuery();
+        return await mediator.Send(query);
+    }
+
+    [HttpGet]
+    [AasDesignerAuthorize(RequiredRoles = [AuthRoles.SYSTEM_ADMIN])]
+    public async Task<List<DeleteProtocolDto>> GetDeleteProtocols()
+    {
+        var mediator = new Mediator(_serviceProvider);
+        var query = new GetDeleteProtocolsQuery();
         return await mediator.Send(query);
     }
 

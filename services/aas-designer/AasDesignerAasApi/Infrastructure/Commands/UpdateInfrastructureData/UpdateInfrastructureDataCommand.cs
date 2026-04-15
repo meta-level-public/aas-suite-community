@@ -122,8 +122,6 @@ public class UpdateInfrastructureDataHandler
             infrastructure.CertificatePassword = string.Empty;
         }
 
-        infrastructure.ApplyInternalServiceUrls();
-
         _context.SaveChanges();
 
         return true;

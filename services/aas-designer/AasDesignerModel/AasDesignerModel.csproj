@@ -35,6 +35,7 @@
     <PackageReference Include="LettuceEncrypt" />
     <PackageReference Include="QRCoder" />
     <PackageReference Include="LiquidTechnologies.XmlObjects.Runtime" />
+    <PackageReference Include="System.Security.Cryptography.Xml" />
   </ItemGroup>
 
   <ItemGroup>

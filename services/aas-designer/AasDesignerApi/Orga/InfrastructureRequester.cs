@@ -136,8 +136,6 @@ namespace AasDesignerApi.Orga
                 OrganisationId = organisation.Id,
             };
 
-            infra.ApplyInternalServiceUrls();
-
             _logger.LogInformation(
                 "Requesting infrastructure for organisation {OrganisationId} with GUID {Guid}",
                 organisation.Id,

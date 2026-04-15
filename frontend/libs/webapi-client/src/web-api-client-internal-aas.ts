@@ -8,10 +8,10 @@
 /* eslint-disable */
 // ReSharper disable InconsistentNaming
 
-import { mergeMap as _observableMergeMap, catchError as _observableCatch } from 'rxjs/operators';
-import { Observable, throwError as _observableThrow, of as _observableOf } from 'rxjs';
-import { Injectable, Inject, Optional, InjectionToken } from '@angular/core';
 import { HttpClient, HttpHeaders, HttpResponse, HttpResponseBase } from '@angular/common/http';
+import { Inject, Injectable, InjectionToken, Optional } from '@angular/core';
+import { Observable, of as _observableOf, throwError as _observableThrow } from 'rxjs';
+import { catchError as _observableCatch, mergeMap as _observableMergeMap } from 'rxjs/operators';
 
 export const API_BASE_URL = new InjectionToken<string>('API_BASE_URL');
 
@@ -8562,6 +8562,7 @@ export interface ISystemManagementClient {
   systemManagement_ExportHelpTexts(): Observable<FileResponse>;
   systemManagement_ImportHelpTexts(helpUpdate: HelpUpdate): Observable<boolean>;
   systemManagement_GetThemeDefinitions(): Observable<ThemeDefinitionDto[]>;
+  systemManagement_GetDeleteProtocols(): Observable<DeleteProtocolDto[]>;
   systemManagement_GetMailSettings(): Observable<MailSettingsDto>;
   systemManagement_UpdateMailSettings(settings: MailSettingsDto): Observable<MailSettingsDto>;
   systemManagement_GetLegalLinksSettings(): Observable<LegalLinksSettingsDto>;
@@ -8989,6 +8990,77 @@ export class SystemManagementClient implements ISystemManagementClient {
           if (Array.isArray(resultData200)) {
             result200 = [] as any;
             for (let item of resultData200) result200!.push(ThemeDefinitionDto.fromJS(item));
+          } else {
+            result200 = <any>null;
+          }
+          return _observableOf(result200);
+        }),
+      );
+    } else if (status !== 200 && status !== 204) {
+      return blobToText(responseBlob).pipe(
+        _observableMergeMap((_responseText: string) => {
+          return throwException('An unexpected server error occurred.', status, _responseText, _headers);
+        }),
+      );
+    }
+    return _observableOf(null as any);
+  }
+
+  systemManagement_GetDeleteProtocols(): Observable<DeleteProtocolDto[]> {
+    let url_ = this.baseUrl + '/system-management-api/SystemManagement/GetDeleteProtocols';
+    url_ = url_.replace(/[?&]$/, '');
+
+    let options_: any = {
+      observe: 'response',
+      responseType: 'blob',
+      headers: new HttpHeaders({
+        Accept: 'application/json',
+      }),
+    };
+
+    return this.http
+      .request('get', url_, options_)
+      .pipe(
+        _observableMergeMap((response_: any) => {
+          return this.processSystemManagement_GetDeleteProtocols(response_);
+        }),
+      )
+      .pipe(
+        _observableCatch((response_: any) => {
+          if (response_ instanceof HttpResponseBase) {
+            try {
+              return this.processSystemManagement_GetDeleteProtocols(response_ as any);
+            } catch (e) {
+              return _observableThrow(e) as any as Observable<DeleteProtocolDto[]>;
+            }
+          } else return _observableThrow(response_) as any as Observable<DeleteProtocolDto[]>;
+        }),
+      );
+  }
+
+  protected processSystemManagement_GetDeleteProtocols(response: HttpResponseBase): Observable<DeleteProtocolDto[]> {
+    const status = response.status;
+    const responseBlob =
+      response instanceof HttpResponse
+        ? response.body
+        : (response as any).error instanceof Blob
+          ? (response as any).error
+          : undefined;
+
+    let _headers: any = {};
+    if (response.headers) {
+      for (let key of response.headers.keys()) {
+        _headers[key] = response.headers.get(key);
+      }
+    }
+    if (status === 200) {
+      return blobToText(responseBlob).pipe(
+        _observableMergeMap((_responseText: string) => {
+          let result200: any = null;
+          let resultData200 = _responseText === '' ? null : JSON.parse(_responseText, this.jsonParseReviver);
+          if (Array.isArray(resultData200)) {
+            result200 = [] as any;
+            for (let item of resultData200) result200!.push(DeleteProtocolDto.fromJS(item));
           } else {
             result200 = <any>null;
           }
@@ -16030,6 +16102,195 @@ export interface IThemeDefinitionDto {
   darkBorderRadius?: string;
   darkInheritFromLight?: boolean;
   isBuiltIn?: boolean;
+}
+
+export class DeleteProtocolDto implements IDeleteProtocolDto {
+  id?: number;
+  deleteType?: DeleteType;
+  createdAt?: Date;
+  createdBy?: string;
+  additionalData?: string;
+  organisation?: OrganisationDeleteProtocolDto | undefined;
+  userAccount?: UserAccountDeleteProtocolDto | undefined;
+  infrastructure?: InfrastructureDeleteProtocolDto | undefined;
+
+  constructor(data?: IDeleteProtocolDto) {
+    if (data) {
+      for (var property in data) {
+        if (data.hasOwnProperty(property)) (<any>this)[property] = (<any>data)[property];
+      }
+    }
+  }
+
+  init(_data?: any) {
+    if (_data) {
+      this.id = _data['id'];
+      this.deleteType = _data['deleteType'];
+      this.createdAt = _data['createdAt'] ? new Date(_data['createdAt'].toString()) : <any>undefined;
+      this.createdBy = _data['createdBy'];
+      this.additionalData = _data['additionalData'];
+      this.organisation = _data['organisation']
+        ? OrganisationDeleteProtocolDto.fromJS(_data['organisation'])
+        : <any>undefined;
+      this.userAccount = _data['userAccount']
+        ? UserAccountDeleteProtocolDto.fromJS(_data['userAccount'])
+        : <any>undefined;
+      this.infrastructure = _data['infrastructure']
+        ? InfrastructureDeleteProtocolDto.fromJS(_data['infrastructure'])
+        : <any>undefined;
+    }
+  }
+
+  static fromJS(data: any): DeleteProtocolDto {
+    data = typeof data === 'object' ? data : {};
+    let result = new DeleteProtocolDto();
+    result.init(data);
+    return result;
+  }
+
+  toJSON(data?: any) {
+    data = typeof data === 'object' ? data : {};
+    data['id'] = this.id;
+    data['deleteType'] = this.deleteType;
+    data['createdAt'] = this.createdAt ? this.createdAt.toISOString() : <any>undefined;
+    data['createdBy'] = this.createdBy;
+    data['additionalData'] = this.additionalData;
+    data['organisation'] = this.organisation ? this.organisation.toJSON() : <any>undefined;
+    data['userAccount'] = this.userAccount ? this.userAccount.toJSON() : <any>undefined;
+    data['infrastructure'] = this.infrastructure ? this.infrastructure.toJSON() : <any>undefined;
+    return data;
+  }
+}
+
+export interface IDeleteProtocolDto {
+  id?: number;
+  deleteType?: DeleteType;
+  createdAt?: Date;
+  createdBy?: string;
+  additionalData?: string;
+  organisation?: OrganisationDeleteProtocolDto | undefined;
+  userAccount?: UserAccountDeleteProtocolDto | undefined;
+  infrastructure?: InfrastructureDeleteProtocolDto | undefined;
+}
+
+export enum DeleteType {
+  Unknown = 0,
+  Organisation = 1,
+  UserAccount = 2,
+  Infrastructure = 3,
+}
+
+export class OrganisationDeleteProtocolDto implements IOrganisationDeleteProtocolDto {
+  name?: string;
+  email?: string;
+
+  constructor(data?: IOrganisationDeleteProtocolDto) {
+    if (data) {
+      for (var property in data) {
+        if (data.hasOwnProperty(property)) (<any>this)[property] = (<any>data)[property];
+      }
+    }
+  }
+
+  init(_data?: any) {
+    if (_data) {
+      this.name = _data['name'];
+      this.email = _data['email'];
+    }
+  }
+
+  static fromJS(data: any): OrganisationDeleteProtocolDto {
+    data = typeof data === 'object' ? data : {};
+    let result = new OrganisationDeleteProtocolDto();
+    result.init(data);
+    return result;
+  }
+
+  toJSON(data?: any) {
+    data = typeof data === 'object' ? data : {};
+    data['name'] = this.name;
+    data['email'] = this.email;
+    return data;
+  }
+}
+
+export interface IOrganisationDeleteProtocolDto {
+  name?: string;
+  email?: string;
+}
+
+export class UserAccountDeleteProtocolDto implements IUserAccountDeleteProtocolDto {
+  email?: string;
+
+  constructor(data?: IUserAccountDeleteProtocolDto) {
+    if (data) {
+      for (var property in data) {
+        if (data.hasOwnProperty(property)) (<any>this)[property] = (<any>data)[property];
+      }
+    }
+  }
+
+  init(_data?: any) {
+    if (_data) {
+      this.email = _data['email'];
+    }
+  }
+
+  static fromJS(data: any): UserAccountDeleteProtocolDto {
+    data = typeof data === 'object' ? data : {};
+    let result = new UserAccountDeleteProtocolDto();
+    result.init(data);
+    return result;
+  }
+
+  toJSON(data?: any) {
+    data = typeof data === 'object' ? data : {};
+    data['email'] = this.email;
+    return data;
+  }
+}
+
+export interface IUserAccountDeleteProtocolDto {
+  email?: string;
+}
+
+export class InfrastructureDeleteProtocolDto implements IInfrastructureDeleteProtocolDto {
+  infraName?: string;
+  infraGuid?: string;
+
+  constructor(data?: IInfrastructureDeleteProtocolDto) {
+    if (data) {
+      for (var property in data) {
+        if (data.hasOwnProperty(property)) (<any>this)[property] = (<any>data)[property];
+      }
+    }
+  }
+
+  init(_data?: any) {
+    if (_data) {
+      this.infraName = _data['infraName'];
+      this.infraGuid = _data['infraGuid'];
+    }
+  }
+
+  static fromJS(data: any): InfrastructureDeleteProtocolDto {
+    data = typeof data === 'object' ? data : {};
+    let result = new InfrastructureDeleteProtocolDto();
+    result.init(data);
+    return result;
+  }
+
+  toJSON(data?: any) {
+    data = typeof data === 'object' ? data : {};
+    data['infraName'] = this.infraName;
+    data['infraGuid'] = this.infraGuid;
+    return data;
+  }
+}
+
+export interface IInfrastructureDeleteProtocolDto {
+  infraName?: string;
+  infraGuid?: string;
 }
 
 export class MailSettingsDto implements IMailSettingsDto {
