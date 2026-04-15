@@ -173,11 +173,11 @@ jobs:
         with:
           images: ${{ env.REGISTRY }}/${{ env.IMAGE_PREFIX }}/aas-designer-frontend-community
           tags: |
-            type=ref,event=branch
-            type=ref,event=pr
-            type=semver,pattern={{version}}
-            type=semver,pattern={{major}}.{{minor}}
-            type=sha,prefix={{branch}}-
+            type=ref,event=branch,enable=${{ github.event_name == 'push' && github.ref_type == 'branch' }}
+            type=ref,event=pr,enable=${{ github.event_name == 'pull_request' }}
+            type=semver,pattern={{version}},enable=${{ github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v') }}
+            type=semver,pattern={{major}}.{{minor}},enable=${{ github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v') }}
+            type=sha,prefix=sha-
 
       - name: Build and push Frontend
         uses: docker/build-push-action@v7
@@ -219,11 +219,11 @@ jobs:
         with:
           images: ${{ env.REGISTRY }}/${{ env.IMAGE_PREFIX }}/aas-designer-backend-community
           tags: |
-            type=ref,event=branch
-            type=ref,event=pr
-            type=semver,pattern={{version}}
-            type=semver,pattern={{major}}.{{minor}}
-            type=sha,prefix={{branch}}-
+            type=ref,event=branch,enable=${{ github.event_name == 'push' && github.ref_type == 'branch' }}
+            type=ref,event=pr,enable=${{ github.event_name == 'pull_request' }}
+            type=semver,pattern={{version}},enable=${{ github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v') }}
+            type=semver,pattern={{major}}.{{minor}},enable=${{ github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v') }}
+            type=sha,prefix=sha-
 
       - name: Build and push Community Backend
         uses: docker/build-push-action@v7
@@ -265,11 +265,11 @@ jobs:
         with:
           images: ${{ env.REGISTRY }}/${{ env.IMAGE_PREFIX }}/aas-designer-gateway
           tags: |
-            type=ref,event=branch
-            type=ref,event=pr
-            type=semver,pattern={{version}}
-            type=semver,pattern={{major}}.{{minor}}
-            type=sha,prefix={{branch}}-
+            type=ref,event=branch,enable=${{ github.event_name == 'push' && github.ref_type == 'branch' }}
+            type=ref,event=pr,enable=${{ github.event_name == 'pull_request' }}
+            type=semver,pattern={{version}},enable=${{ github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v') }}
+            type=semver,pattern={{major}}.{{minor}},enable=${{ github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v') }}
+            type=sha,prefix=sha-
 
       - name: Build and push Gateway
         uses: docker/build-push-action@v7
