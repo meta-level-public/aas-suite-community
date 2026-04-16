@@ -1,8 +1,9 @@
+import * as aas from '@aas-core-works/aas-core3.1-typescript';
 import { HelpLabelComponent } from '@aas/common-components';
 import { FilenameHelper } from '@aas/helpers';
 import { ShellResult, SupplementalFile } from '@aas/model';
 import { HttpClient } from '@angular/common/http';
-import { Component, Input, OnChanges } from '@angular/core';
+import { Component, Input, OnChanges, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { DomSanitizer } from '@angular/platform-browser';
 import { TranslateModule } from '@ngx-translate/core';
@@ -12,9 +13,18 @@ import { Fieldset } from 'primeng/fieldset';
 import { InputText } from 'primeng/inputtext';
 import { lastValueFrom } from 'rxjs';
 import { V3TreeItem } from '../../model/v3-tree-item';
+import { V3TreeService } from '../../v3-tree/v3-tree.service';
 import { V3ComponentBase } from '../v3-component-base';
 
 type PreviewType = 'image' | 'pdf' | 'video' | 'xml' | 'unknown';
+
+type ReferencingFileEntry = {
+  fileElement: aas.types.File;
+  submodelLabel: string;
+  fileLabel: string;
+  nestedPath: string | null;
+  locationLabel: string;
+};
 
 @Component({
   selector: 'aas-v3-supplemental-file',
@@ -32,7 +42,10 @@ export class V3SupplementalFileComponent extends V3ComponentBase implements OnCh
   previewText: string | null = null;
 
   supplementalFile: SupplementalFile | undefined;
+  referencingElements: ReferencingFileEntry[] = [];
   loading: boolean = false;
+
+  private treeService = inject(V3TreeService);
 
   constructor(
     private http: HttpClient,
@@ -43,8 +56,13 @@ export class V3SupplementalFileComponent extends V3ComponentBase implements OnCh
 
   ngOnChanges(): void {
     this.supplementalFile = this.resolveSupplementalFile();
+    this.referencingElements = this.resolveReferencingElements();
     this.showPreview = false;
     this.previewText = null;
+  }
+
+  jumpToReferencingElement(entry: ReferencingFileEntry) {
+    this.treeService.selectNodeByElement(entry.fileElement);
   }
 
   async loadFile() {
@@ -100,6 +118,10 @@ export class V3SupplementalFileComponent extends V3ComponentBase implements OnCh
     return this.getPreviewType() !== 'unknown';
   }
 
+  hasReferencingElements(): boolean {
+    return this.referencingElements.length > 0;
+  }
+
   previewAvailable(): boolean {
     return this.getPreviewType() === 'xml' ? this.previewText != null : this.supplementalFile?.fileUrl != null;
   }
@@ -131,6 +153,118 @@ export class V3SupplementalFileComponent extends V3ComponentBase implements OnCh
     return this.shellResult?.supplementalFiles.find(
       (supplementalFile) => supplementalFile.path === path || supplementalFile.fileApiUrl === fileApiUrl,
     );
+  }
+
+  private resolveReferencingElements(): ReferencingFileEntry[] {
+    const normalizedCandidates = this.getReferenceCandidates();
+    if (normalizedCandidates.length === 0) {
+      return [];
+    }
+
+    const matches: ReferencingFileEntry[] = [];
+    this.shellResult?.v3Shell?.submodels?.forEach((submodel) => {
+      const submodelLabel = submodel.idShort ?? submodel.id ?? 'Submodel';
+      this.collectReferencingElements(submodel, submodelLabel, normalizedCandidates, matches);
+    });
+
+    return matches;
+  }
+
+  private collectReferencingElements(
+    current: any,
+    currentPath: string,
+    normalizedCandidates: string[],
+    matches: ReferencingFileEntry[],
+  ) {
+    if (current instanceof aas.types.File && this.isMatchingReference(current.value, normalizedCandidates)) {
+      const fileLabel = current.idShort ?? current.value ?? 'File';
+      matches.push({
+        fileElement: current,
+        submodelLabel: this.resolveSubmodelLabel(currentPath),
+        fileLabel,
+        nestedPath: this.resolveNestedPath(currentPath, fileLabel),
+        locationLabel: this.buildLocationLabel(currentPath, fileLabel),
+      });
+    }
+
+    if (current instanceof aas.types.Submodel) {
+      current.submodelElements?.forEach((element) => {
+        this.collectReferencingElements(
+          element,
+          this.appendPath(currentPath, element?.idShort),
+          normalizedCandidates,
+          matches,
+        );
+      });
+      return;
+    }
+
+    if (current instanceof aas.types.SubmodelElementCollection || current instanceof aas.types.SubmodelElementList) {
+      current.value?.forEach((element, index) => {
+        this.collectReferencingElements(
+          element,
+          this.appendPath(currentPath, this.resolveElementSegment(element, index)),
+          normalizedCandidates,
+          matches,
+        );
+      });
+    }
+  }
+
+  private getReferenceCandidates(): string[] {
+    const candidates = [this.supplementalFile?.path, this.supplementalFile?.filename, this.file?.content?.path]
+      .filter((value): value is string => value != null && value !== '')
+      .map((value) => this.normalizeReferencePath(value));
+
+    return [...new Set(candidates)];
+  }
+
+  private isMatchingReference(fileValue: string | null, normalizedCandidates: string[]): boolean {
+    if (fileValue == null || fileValue === '') {
+      return false;
+    }
+
+    return normalizedCandidates.includes(this.normalizeReferencePath(fileValue));
+  }
+
+  private normalizeReferencePath(path: string): string {
+    return FilenameHelper.replaceFileUri(path)?.trim() ?? path.trim();
+  }
+
+  private buildLocationLabel(currentPath: string, fileLabel: string): string {
+    return `${currentPath} -> ${fileLabel}`;
+  }
+
+  private resolveSubmodelLabel(currentPath: string): string {
+    return currentPath.split(' / ')[0] ?? 'Submodel';
+  }
+
+  private resolveNestedPath(currentPath: string, fileLabel: string): string | null {
+    const segments = currentPath.split(' / ');
+    const nestedSegments = segments.slice(1, -1);
+
+    if (nestedSegments.length > 0) {
+      return nestedSegments.join(' / ');
+    }
+
+    const trailingSegment = segments.at(-1);
+    if (segments.length > 1 && trailingSegment != null && trailingSegment !== fileLabel) {
+      return trailingSegment;
+    }
+
+    return null;
+  }
+
+  private appendPath(basePath: string, segment: string | null | undefined): string {
+    if (segment == null || segment === '') {
+      return basePath;
+    }
+
+    return `${basePath} / ${segment}`;
+  }
+
+  private resolveElementSegment(element: any, index: number): string {
+    return element?.idShort ?? `${element?.constructor?.name ?? 'Element'} ${index + 1}`;
   }
 
   private async resolveFileBlob(): Promise<Blob | File | null> {

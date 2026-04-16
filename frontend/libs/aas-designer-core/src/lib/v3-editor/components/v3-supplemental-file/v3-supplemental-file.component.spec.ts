@@ -1,3 +1,4 @@
+import * as aas from '@aas-core-works/aas-core3.1-typescript';
 import { FilenameHelper } from '@aas/helpers';
 import { SupplementalFile } from '@aas/model';
 import { HttpClient } from '@angular/common/http';
@@ -5,6 +6,7 @@ import { TestBed } from '@angular/core/testing';
 import { saveAs } from 'file-saver-es';
 import { of } from 'rxjs';
 import { V3EditorUiStateStoreService } from '../../v3-editor-ui-state-store.service';
+import { V3TreeService } from '../../v3-tree/v3-tree.service';
 import { V3SupplementalFileComponent } from './v3-supplemental-file.component';
 
 vi.mock('file-saver-es', () => ({
@@ -12,6 +14,10 @@ vi.mock('file-saver-es', () => ({
 }));
 
 describe('V3SupplementalFileComponent', () => {
+  const treeService = {
+    selectNodeByElement: vi.fn(),
+  };
+
   const sanitizer = {
     bypassSecurityTrustResourceUrl: (value: string) => value,
   };
@@ -20,6 +26,7 @@ describe('V3SupplementalFileComponent', () => {
     TestBed.resetTestingModule();
     vi.restoreAllMocks();
     vi.mocked(saveAs).mockClear();
+    treeService.selectNodeByElement.mockClear();
   });
 
   function createComponent(http?: Partial<{ get: (url: string, options?: unknown) => unknown }>) {
@@ -40,6 +47,10 @@ describe('V3SupplementalFileComponent', () => {
             setDetailsPanelCollapsed: vi.fn(),
             setContentPanelCollapsed: vi.fn(),
           },
+        },
+        {
+          provide: V3TreeService,
+          useValue: treeService,
         },
       ],
     });
@@ -66,6 +77,14 @@ describe('V3SupplementalFileComponent', () => {
       id: null,
       ...overrides,
     };
+  }
+
+  function createAasFile(idShort: string, value: string): aas.types.File {
+    const file = new aas.types.File();
+    file.idShort = idShort;
+    file.value = value;
+    file.contentType = 'application/pdf';
+    return file;
   }
 
   it('creates an image preview URL for local supplemental files', async () => {
@@ -163,5 +182,70 @@ describe('V3SupplementalFileComponent', () => {
       responseType: 'blob' as 'json',
     });
     expect(saveAs).toHaveBeenCalledWith(downloadedBlob, 'test-file.pdf');
+  });
+
+  it('collects all file elements referencing the supplemental file', () => {
+    const supplementalFile = createSupplementalFile({
+      path: '/aasx/files/test-file.pdf',
+      filename: '/aasx/files/test-file.pdf',
+      contentType: 'application/pdf',
+    });
+    const firstFile = createAasFile('Manual', 'file:///aasx/files/test-file.pdf');
+    const secondFile = createAasFile('Datasheet', '/aasx/files/test-file.pdf');
+    const unrelatedFile = createAasFile('Other', '/aasx/files/other.pdf');
+    const collection = new aas.types.SubmodelElementCollection();
+    collection.idShort = 'Documents';
+    collection.value = [secondFile, unrelatedFile];
+    const submodel = new aas.types.Submodel('urn:test:technical-data');
+    submodel.idShort = 'TechnicalData';
+    submodel.submodelElements = [firstFile, collection];
+    const component = createComponent();
+
+    component.file = {
+      content: {
+        path: supplementalFile.path,
+        contentType: supplementalFile.contentType,
+        fileApiUrl: supplementalFile.fileApiUrl,
+      },
+    } as never;
+    component.shellResult = {
+      supplementalFiles: [supplementalFile],
+      v3Shell: {
+        submodels: [submodel],
+      },
+    } as never;
+
+    component.ngOnChanges();
+
+    expect(component.referencingElements).toHaveLength(2);
+    expect(component.referencingElements[0]).toMatchObject({
+      submodelLabel: 'TechnicalData',
+      fileLabel: 'Manual',
+      nestedPath: null,
+    });
+    expect(component.referencingElements[1]).toMatchObject({
+      submodelLabel: 'TechnicalData',
+      fileLabel: 'Datasheet',
+      nestedPath: 'Documents',
+    });
+    expect(component.referencingElements.map((entry) => entry.locationLabel)).toEqual([
+      'TechnicalData / Manual -> Manual',
+      'TechnicalData / Documents / Datasheet -> Datasheet',
+    ]);
+  });
+
+  it('jumps to the selected referencing file element', () => {
+    const fileElement = createAasFile('Manual', '/aasx/files/test-file.pdf');
+    const component = createComponent();
+
+    component.jumpToReferencingElement({
+      fileElement,
+      submodelLabel: 'TechnicalData',
+      fileLabel: 'Manual',
+      nestedPath: null,
+      locationLabel: 'TechnicalData / Manual -> Manual',
+    });
+
+    expect(treeService.selectNodeByElement).toHaveBeenCalledWith(fileElement);
   });
 });

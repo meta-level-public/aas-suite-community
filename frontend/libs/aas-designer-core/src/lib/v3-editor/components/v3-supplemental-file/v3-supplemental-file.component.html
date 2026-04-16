@@ -47,6 +47,42 @@
           readonly
         />
       </div>
+      <div class="mb-1">
+        <lib-help-label class="w-14rem mt-2" tag="REFERENCED_IN"></lib-help-label>
+      </div>
+      @if (hasReferencingElements()) {
+        <div class="flex flex-col gap-2">
+          @for (entry of referencingElements; track entry.locationLabel) {
+            <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-2 surface-ground border-round p-3">
+              <div class="flex flex-col gap-1 min-w-0">
+                <span class="font-semibold break-all">{{ entry.fileLabel }}</span>
+                <div class="flex flex-wrap gap-2 text-xs text-color-secondary">
+                  <span class="border-round surface-border border px-2 py-1">
+                    {{ 'SUBMODEL' | translate }}: {{ entry.submodelLabel }}
+                  </span>
+                  <span class="border-round surface-border border px-2 py-1">
+                    {{ 'ELEMENT' | translate }}: {{ entry.fileLabel }}
+                  </span>
+                </div>
+                @if (entry.nestedPath != null) {
+                  <span class="text-sm text-color-secondary break-all">{{ entry.nestedPath }}</span>
+                }
+              </div>
+              <p-button
+                label="{{ 'JUMP_TO_TARGET' | translate }}"
+                (onClick)="jumpToReferencingElement(entry)"
+                icon="pi pi-arrow-right"
+                size="small"
+                [outlined]="true"
+              ></p-button>
+            </div>
+          }
+        </div>
+      } @else {
+        <div class="surface-ground border-round p-3 text-color-secondary">
+          {{ 'SUPPLEMENTAL_FILE.NO_REFERENCES' | translate }}
+        </div>
+      }
     </p-fieldset>
     <p-fieldset
       class="w-full mt-2"

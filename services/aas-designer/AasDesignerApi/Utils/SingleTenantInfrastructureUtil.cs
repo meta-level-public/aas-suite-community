@@ -90,9 +90,6 @@ namespace AasDesignerApi.Utils
                 }
             );
 
-            var infrastructure = orga.AasInfrastructureSettings.Last();
-            infrastructure.ApplyInternalServiceUrls();
-
             context.SaveChanges();
         }
 
@@ -132,24 +129,30 @@ namespace AasDesignerApi.Utils
 
             foreach (var infra in infraSettings)
             {
-                infra.IsInternal = true;
+                infra.IsInternal = appSettings.HandleInitialInfrastructureAsInternal;
                 infra.HandleAsInternal = false;
-                infra.ApplyInternalServiceUrls();
+                infra.AasDiscoveryUrl = appSettings.InitialAasDiscoveryUrl;
                 infra.AasDiscoveryVersion = discoveryVersion;
                 infra.AasDiscoveryHcUrl = discoveryHcUrl;
                 infra.AasDiscoveryHcEnabled = true;
+                infra.AasRegistryUrl = appSettings.InitialAasRegistryUrl;
                 infra.AasRegistryVersion = registryVersion;
                 infra.AasRegistryHcUrl = registryHcUrl;
                 infra.AasRegistryHcEnabled = true;
+                infra.AasRepositoryUrl = appSettings.InitialAasRepositoryUrl;
                 infra.AasRepositoryVersion = repositoryVersion;
                 infra.AasRepositoryHcUrl = repositoryHcUrl;
                 infra.AasRepositoryHcEnabled = true;
+                infra.SubmodelRegistryUrl = appSettings.InitialSubmodelRegistryUrl;
                 infra.SubmodelRegistryVersion = submodelRegistryVersion;
                 infra.SubmodelRegistryHcUrl = submodelRegistryHcUrl;
                 infra.SubmodelRegistryHcEnabled = true;
+                infra.SubmodelRepositoryUrl = appSettings.InitialSubmodelRepositoryUrl;
                 infra.SubmodelRepositoryVersion = submodelRepositoryVersion;
                 infra.SubmodelRepositoryHcUrl = submodelRepositoryHcUrl;
                 infra.SubmodelRepositoryHcEnabled = true;
+                infra.ConceptDescriptionRepositoryUrl =
+                    appSettings.InitialConceptDescriptionRepositoryUrl;
                 infra.ConceptDescriptionRepositoryVersion = conceptDescriptionVersion;
                 infra.ConceptDescriptionRepositoryHcUrl = conceptDescriptionHcUrl;
                 infra.ConceptDescriptionRepositoryHcEnabled = true;

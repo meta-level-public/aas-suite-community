@@ -952,6 +952,12 @@
   "DELETE_USER_MOVE_PACKAGE_QUESTION": "Soll der Benutzer wirklich aus Ihrer Organisation entfernt werden?",
   "DELETE_USER_NOT_ALLOWED": "Keine Berechtigung, zum Löschen des Benutzers",
   "DELETE_USER_Q": "Soll der Benutzer wirklich gelöscht werden?",
+  "DELETE_PROTOCOL": "Löschprotokoll",
+  "DELETE_PROTOCOL_EXPL": "Hier sehen Sie systemweit protokollierte Löschvorgänge für Organisationen, Benutzerkonten und Infrastrukturen.",
+  "DELETE_PROTOCOL_INFRASTRUCTURES": "Infrastrukturen",
+  "DELETE_PROTOCOL_ORGANISATIONS": "Organisationen",
+  "DELETE_PROTOCOL_OTHER": "Weitere Einträge",
+  "DELETE_PROTOCOL_USER_ACCOUNTS": "Benutzerkonten",
   "DELETE_VWS_Q": "Wollen Sie die Verwaltungsschale wirklich löschen?",
   "DEPARTMENT": "Abteilung",
   "DERIVATION": "Ableitung",
@@ -1338,6 +1344,7 @@
   "GLOBAL_TEXT": "Globaler Text",
   "GREEN": "grün",
   "GREETING": "Hallo {{username}}",
+  "GUID": "GUID",
   "GROESSE_ASC": "Größe aufsteigend",
   "GROESSE_DESC": "Größe Absteigend",
   "GROSS_WEIGHT": "Bruttogewicht",
@@ -2146,6 +2153,7 @@
     "TYPE": "Referenz"
   },
   "REFERENCE_TYPE": "Referenztyp",
+  "REFERENCED_IN": "Referenziert in",
   "REFRESH_INTERVAL": "Aktualisierungsintervall",
   "REF_DESC": "Ein Referenzelement ist ein Datenelement, das einen logischen Verweis auf ein anderes Element innerhalb derselben oder einer anderen Asset Administration Shell oder einen Verweis auf ein externes Objekt oder eine externe Einheit definiert.",
   "REF_ID": "ReferenzID",
@@ -2157,6 +2165,9 @@
   "REGISTER_READY": "Registrierung erfolgreich",
   "REGISTER_READY_EXPL1": "Sie haben eine Email an die angegebene Adresse erhalten. Bitte Bestätigen Sie Ihren Nutzeraccount.",
   "REGISTER_SUCCESS": "Der Benutzeraccount wurde angelegt und die Aktivierungsmail an die angegebene Adresse geschickt. Bitte bestätigen Sie die Anmeldung.",
+  "SUPPLEMENTAL_FILE": {
+    "NO_REFERENCES": "Diese Datei wird aktuell von keinem File-Element referenziert"
+  },
   "REGISTRY": "AAS Registry",
   "REGISTRY_CORRECTION_ADMINISTRATION": "Administration",
   "REGISTRY_CORRECTION_ASSET_KIND": "Asset-Kind",
