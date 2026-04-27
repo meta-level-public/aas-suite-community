@@ -12,6 +12,7 @@ using AasDesignerApi.Import;
 using AasDesignerApi.Instantiation;
 using AasDesignerApi.Invoice;
 using AasDesignerApi.Jobs;
+using AasDesignerApi.Jobs.Markt;
 using AasDesignerApi.LegalLinks;
 using AasDesignerApi.Localization;
 using AasDesignerApi.Mail;
@@ -296,6 +297,7 @@ builder.Services.AddHostedService<PeriodicOrganisationDeleter>();
 builder.Services.AddHostedService<PeriodicInfrastructureDeleter>();
 builder.Services.AddHostedService<IdtaCrawler>();
 builder.Services.AddHostedService<PcnUpdateListener>();
+builder.Services.AddHostedService<MarktRegexSyncJob>();
 builder.Services.AddHostedService<QueuedHostedService>();
 builder.Services.AddSingleton<IBackgroundTaskQueue>(_ =>
 {
@@ -411,6 +413,7 @@ static class WebApplicationExtensions
             };
             b.BenutzerRollen.Add(AuthRoles.SYSTEM_ADMIN);
             b.BenutzerRollen.Add(AuthRoles.ORGA_ADMIN);
+            b.BenutzerRollen.Add(AuthRoles.SYSTEM_HELP_EDITOR);
             dbContext.Add(b);
 
             Benutzer sys = new()
@@ -422,9 +425,7 @@ static class WebApplicationExtensions
                 IsSystemUser = true,
                 BenutzerRollen = [AuthRoles.SYSTEM_ADMIN, AuthRoles.SYSTEM_HELP_EDITOR],
             };
-            b.BenutzerRollen.Add(AuthRoles.INTERNAL_SYSTEM_USER);
-            dbContext.Add(sys);
-
+            sys.BenutzerRollen.Add(AuthRoles.INTERNAL_SYSTEM_USER);
             var benutzerOrga = new BenutzerOrganisation
             {
                 Benutzer = b,
@@ -435,6 +436,7 @@ static class WebApplicationExtensions
                     AuthRoles.ORGA_ADMIN,
                     AuthRoles.FEED_MAPPING_USER,
                     AuthRoles.ORGA_HELP_EDITOR,
+                    AuthRoles.MARKT_PUBLISHER,
                 ],
                 AccountAktiv = true,
             };

@@ -91,6 +91,33 @@
                       }}
                     </div>
                   }
+                  @if (issue.hasConflict) {
+                    <div
+                      class="flex items-start gap-2 rounded-xl border border-yellow-200 bg-yellow-50 px-4 py-3 text-sm text-yellow-800"
+                    >
+                      <i class="pi pi-exclamation-circle mt-0.5 shrink-0"></i>
+                      <span>{{ 'IMPORT_CONFLICT_OVERWRITE_HINT' | translate }}</span>
+                    </div>
+                  }
+                  @if (issue.importableSubmodels.length > 0) {
+                    <div class="flex items-center justify-between gap-3">
+                      <div class="flex items-center gap-2">
+                        <p-checkbox [(ngModel)]="issue.overwrite" [binary]="true" [inputId]="'overwrite-' + issue.sourceFileName" />
+                        <label [for]="'overwrite-' + issue.sourceFileName" class="text-sm cursor-pointer">
+                          {{ 'OVERWRITE_IF_EXISTING_AAS' | translate }}
+                        </label>
+                      </div>
+                      <p-button
+                        [label]="'IMPORT_WITHOUT_SUBMODELS_ACTION' | translate"
+                        icon="pi pi-upload"
+                        severity="secondary"
+                        size="small"
+                        [loading]="isImportingBulkFile(issue.sourceFileName)"
+                        [disabled]="isImportingBulkFile(issue.sourceFileName)"
+                        (onClick)="importBulkFilePartially(issue)"
+                      />
+                    </div>
+                  }
                 </div>
               }
             </div>

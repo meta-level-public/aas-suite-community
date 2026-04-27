@@ -79,6 +79,11 @@ export function getSystemManagementRoutes(): Routes {
             import('../request-for-offer/request-for-offer.routes').then((m) => m.REQUEST_FOR_OFFER_ROUTES),
           canActivate: [() => canActivate([AuthRoles.SYSTEM_ADMIN])],
         },
+        {
+          path: 'job-settings',
+          loadChildren: () => import('./job-settings/job-settings.routes').then((m) => m.JOB_SETTINGS_ROUTES),
+          canActivate: [() => canActivate([AuthRoles.SYSTEM_ADMIN])],
+        },
         ...additionalRoutes,
       ],
     },

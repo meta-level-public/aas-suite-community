@@ -14,5 +14,6 @@ export * from './lib/user/user.routes';
 export * from './lib/v3-editor/v3-editor.routes';
 
 // Component exports for cross-library usage
+export * from './lib/general/sidebar-tree-nav/sidebar-tree-nav.component';
 export * from './lib/pcn/pcn-changes/pcn-change-info';
 export * from './lib/pcn/pcn-changes/pcn-changes.component';

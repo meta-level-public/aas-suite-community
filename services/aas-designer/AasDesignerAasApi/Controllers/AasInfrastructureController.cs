@@ -58,7 +58,12 @@ public class AasInfrastructureController : InternalApiBaseController
 
     [HttpGet]
     [AasDesignerAuthorize(
-        RequiredRoles = [AuthRoles.ORGA_ADMIN, AuthRoles.BENUTZER, AuthRoles.SYSTEM_ADMIN]
+        RequiredRoles = [
+            AuthRoles.ORGA_ADMIN,
+            AuthRoles.BENUTZER,
+            AuthRoles.SYSTEM_ADMIN,
+            AuthRoles.MARKT_PUBLISHER,
+        ]
     )]
     public async Task<List<AvailableInfastructure>> GetAllSavedInfrastructures()
     {

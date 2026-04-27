@@ -1,5 +1,6 @@
 using System.Text.Json.Nodes;
 using AasDesignerAasApi.ServerSentEvent;
+using AasDesignerApi.Model;
 using AasDesignerModel;
 using AasDesignerModel.Model;
 using AasShared.Configuration;
@@ -25,14 +26,45 @@ namespace AasDesignerApi.Jobs
         private readonly IServiceProvider _provider;
         private readonly PcnUpdateMessageStore _pcnUpdateMessageStore;
         private Timer? _timer = null;
+        private CancellationTokenSource? _settingsCts;
 
         private Dictionary<string, IMqttClient> mqttClients = [];
 
         public Task StartAsync(CancellationToken cancellationToken)
         {
             _logger.LogInformation("PcnUpdateListener is starting.");
+            _settingsCts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
+            _ = Task.Run(() => RunSettingsLoopAsync(_settingsCts.Token), _settingsCts.Token);
             _timer = new Timer(DoWork, null, TimeSpan.Zero, TimeSpan.FromMinutes(1));
             return Task.CompletedTask;
+        }
+
+        private async Task RunSettingsLoopAsync(CancellationToken cancellationToken)
+        {
+            using var timer = new PeriodicTimer(TimeSpan.FromMinutes(1));
+            while (await timer.WaitForNextTickAsync(cancellationToken))
+            {
+                PcnUpdateListenerSettingsDto settings;
+                try
+                {
+                    using var scope = _provider.CreateScope();
+                    var db = scope.ServiceProvider.GetRequiredService<IApplicationDbContext>();
+                    settings = await PcnUpdateListenerSettingsStore.LoadAsync(
+                        db,
+                        cancellationToken
+                    );
+                }
+                catch
+                {
+                    continue;
+                }
+
+                var newInterval = TimeSpan.FromMinutes(settings.IntervalMinutes);
+                if (!settings.IsEnabled)
+                    _timer?.Change(Timeout.Infinite, 0);
+                else
+                    _timer?.Change(newInterval, newInterval);
+            }
         }
 
         private void DoWork(object? state)
@@ -306,6 +338,9 @@ namespace AasDesignerApi.Jobs
         public Task StopAsync(CancellationToken cancellationToken)
         {
             _logger.LogInformation("PcnUpdateListener is stopping.");
+            _settingsCts?.Cancel();
+            _timer?.Change(Timeout.Infinite, 0);
+            _timer?.Dispose();
             return Task.CompletedTask;
         }
     }

@@ -63,6 +63,13 @@ namespace AasDesignerApi.Model
         public DbSet<DeleteProtocol> DeleteProtocols { get; set; }
         public DbSet<PersistentSetting> PersistentSettings { get; set; }
 
+        public DbSet<MarktListing> MarktListings { get; set; } = null!;
+        public DbSet<MarktListingSubmodel> MarktListingSubmodels { get; set; } = null!;
+        public DbSet<MarktListingSpecificAssetId> MarktListingSpecificAssetIds { get; set; } =
+            null!;
+        public DbSet<MarktRegexFreigabe> MarktRegexFreigaben { get; set; } = null!;
+        public DbSet<MarktListingRuleMatch> MarktListingRuleMatches { get; set; } = null!;
+
         private static IHttpContextAccessor? _context;
         private readonly ILogger<DbContext>? _logger;
 
@@ -465,6 +472,72 @@ namespace AasDesignerApi.Model
                     v => DBJsonConverter.Deserialize<List<MlpKeyValue>>(v)
                 )
                 .Metadata.SetValueComparer(mlpKeyValueListComparer);
+
+            // ---- Markt ----
+            var marktListing = modelBuilder.Entity<MarktListing>();
+            marktListing.ToTable("markt_listings");
+            marktListing.HasKey(e => e.Id);
+            marktListing.HasIndex(e => e.SourceShellId).IsUnique();
+            marktListing.Property(e => e.SourceShellId).HasMaxLength(512).IsRequired();
+            marktListing.Property(e => e.Title).HasMaxLength(256).IsRequired();
+            marktListing.Property(e => e.OrganizationName).HasMaxLength(256).IsRequired();
+            marktListing.Property(e => e.Summary).HasMaxLength(2048).IsRequired();
+            marktListing.Property(e => e.ViewerUrl).HasMaxLength(2048);
+            marktListing.Property(e => e.SourceType).HasMaxLength(64).IsRequired();
+            marktListing.Property(e => e.LastModifiedBy).HasMaxLength(256);
+            marktListing.Property(e => e.ThumbnailContentType).HasMaxLength(100);
+            marktListing.Property(e => e.AssetKind).HasMaxLength(64);
+            marktListing.Property(e => e.GlobalAssetId).HasMaxLength(2048);
+            marktListing
+                .HasMany(l => l.Submodels)
+                .WithOne(s => s.Listing)
+                .HasForeignKey(s => s.ListingId)
+                .OnDelete(DeleteBehavior.Cascade);
+            marktListing
+                .HasMany(l => l.SpecificAssetIds)
+                .WithOne(s => s.Listing)
+                .HasForeignKey(s => s.ListingId)
+                .OnDelete(DeleteBehavior.Cascade);
+            marktListing
+                .HasOne(l => l.AutoManagedByRule)
+                .WithMany(r => r.AutoManagedListings)
+                .HasForeignKey(l => l.AutoManagedByRuleId)
+                .OnDelete(DeleteBehavior.SetNull)
+                .IsRequired(false);
+
+            var marktSubmodel = modelBuilder.Entity<MarktListingSubmodel>();
+            marktSubmodel.ToTable("markt_listing_submodels");
+            marktSubmodel.HasKey(s => s.Id);
+            marktSubmodel.Property(s => s.SemanticId).HasMaxLength(512).IsRequired();
+
+            var marktSpecificAssetId = modelBuilder.Entity<MarktListingSpecificAssetId>();
+            marktSpecificAssetId.ToTable("markt_listing_specific_asset_ids");
+            marktSpecificAssetId.HasKey(s => s.Id);
+            marktSpecificAssetId.Property(s => s.Name).HasMaxLength(256).IsRequired();
+            marktSpecificAssetId.Property(s => s.Value).HasMaxLength(2048).IsRequired();
+
+            var marktRule = modelBuilder.Entity<MarktRegexFreigabe>();
+            marktRule.ToTable("markt_regex_freigaben");
+            marktRule.HasKey(r => r.Id);
+            marktRule.Property(r => r.Label).HasMaxLength(256).IsRequired();
+            marktRule.Property(r => r.SpecificAssetIdName).HasMaxLength(256);
+            marktRule.Property(r => r.RegexPattern).HasMaxLength(1024).IsRequired();
+            marktRule.Property(r => r.CreatedBy).HasMaxLength(256).IsRequired();
+            marktRule.Property(r => r.LastRunResult).HasMaxLength(512);
+            marktRule
+                .HasMany(r => r.ListingMatches)
+                .WithOne(m => m.Rule)
+                .HasForeignKey(m => m.RuleId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            var marktRuleMatch = modelBuilder.Entity<MarktListingRuleMatch>();
+            marktRuleMatch.ToTable("markt_listing_rule_matches");
+            marktRuleMatch.HasKey(m => new { m.ListingId, m.RuleId });
+            marktRuleMatch
+                .HasOne(m => m.Listing)
+                .WithMany(l => l.RuleMatches)
+                .HasForeignKey(m => m.ListingId)
+                .OnDelete(DeleteBehavior.Cascade);
         }
 
         public override Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)

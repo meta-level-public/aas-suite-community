@@ -32,6 +32,8 @@ export const AppRouteSegments = {
   licenseUpdate: 'license-update',
   login: 'login',
   mapping: 'mapping',
+  marktFreigaben: 'markt-freigaben',
+  marktRegexRules: 'markt-regex-rules',
   myOrganization: 'my-organization',
   myPublishedListings: 'my-published-listings',
   mySpace: 'my-space',

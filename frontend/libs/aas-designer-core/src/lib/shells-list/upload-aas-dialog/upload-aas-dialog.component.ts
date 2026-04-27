@@ -90,6 +90,10 @@ export class UploadAasDialogComponent {
   bulkImportIssues:
     | Array<{
         sourceFileName: string;
+        excludedSubmodelIds: string[];
+        originalFile: File | undefined;
+        hasConflict: boolean;
+        overwrite: boolean;
         failedSubmodels: Array<{
           submodelId?: string;
           idShort?: string;
@@ -103,6 +107,7 @@ export class UploadAasDialogComponent {
         }>;
       }>
     | undefined;
+  importingFiles = new Set<string>();
   showTechnicalDetails = false;
 
   show() {
@@ -346,18 +351,25 @@ export class UploadAasDialogComponent {
       return false;
     }
 
-    this.bulkImportIssues = recoverableImports.map((item, index) => ({
-      sourceFileName: this.resolveSourceFileName(item, index),
-      failedSubmodels: (item.failedSubmodels ?? []).map((submodel) => {
-        const formatted = this.formatSubmodelImportError(submodel?.errorMessage);
-        return {
-          ...submodel,
-          summary: formatted.summary,
-          technicalDetails: formatted.technicalDetails,
-        };
-      }),
-      importableSubmodels: item.importableSubmodels ?? [],
-    }));
+    this.bulkImportIssues = recoverableImports.map((item, index) => {
+      const resolvedName = this.resolveSourceFileName(item, index);
+      return {
+        sourceFileName: resolvedName,
+        excludedSubmodelIds: item.excludedSubmodelIds ?? [],
+        originalFile: this.selectedFiles.find((f) => f.name === resolvedName),
+        hasConflict: false,
+        overwrite: false,
+        failedSubmodels: (item.failedSubmodels ?? []).map((submodel) => {
+          const formatted = this.formatSubmodelImportError(submodel?.errorMessage);
+          return {
+            ...submodel,
+            summary: formatted.summary,
+            technicalDetails: formatted.technicalDetails,
+          };
+        }),
+        importableSubmodels: item.importableSubmodels ?? [],
+      };
+    });
     this.pendingPartialImport = undefined;
     this.showTechnicalDetails = false;
 
@@ -395,6 +407,73 @@ export class UploadAasDialogComponent {
 
   protected toggleTechnicalDetails(): void {
     this.showTechnicalDetails = !this.showTechnicalDetails;
+  }
+
+  isImportingBulkFile(fileName: string): boolean {
+    return this.importingFiles.has(fileName);
+  }
+
+  importBulkFilePartially(issue: {
+    sourceFileName: string;
+    excludedSubmodelIds: string[];
+    originalFile: File | undefined;
+    overwrite: boolean;
+  }): void {
+    const file = issue.originalFile ?? this.selectedFiles.find((f) => f.name === issue.sourceFileName);
+    if (!file) {
+      return;
+    }
+
+    this.importingFiles.add(issue.sourceFileName);
+
+    const formData = new FormData();
+    formData.append('file[]', file, file.name);
+    const operationId = globalThis.crypto?.randomUUID?.() ?? `${Date.now()}`;
+    formData.append('operationId', operationId);
+    if (this.sseNotificationService.clientId) {
+      formData.append('sseClientId', this.sseNotificationService.clientId);
+    }
+    formData.append('overwrite', issue.overwrite.toString());
+    formData.append('importMode', this.importMode ?? 'original');
+    formData.append('importType', this.importType());
+    issue.excludedSubmodelIds.forEach((id) => formData.append('excludedSubmodelIds', id));
+
+    const headers = new HttpHeaders().append('ignoreContentType', 'true');
+
+    this.http
+      .post<ImportPackageResult>(`${this.appConfigService.config.aasApiPath}/Packages/import`, formData, {
+        headers,
+        observe: 'response',
+      })
+      .subscribe({
+        next: (response) => {
+          this.importingFiles.delete(issue.sourceFileName);
+          const res = response.body;
+          const nokItems = res?.nokImport ?? [];
+          const conflictItem = nokItems.find((item) => this.containsConflictStatus(item?.errorMessage));
+          if (conflictItem) {
+            const entry = this.bulkImportIssues?.find((i) => i.sourceFileName === issue.sourceFileName);
+            if (entry) {
+              entry.hasConflict = true;
+            }
+            return;
+          }
+          const hasErrors = nokItems.length > 0;
+          if (!hasErrors) {
+            this.bulkImportIssues = this.bulkImportIssues?.filter((i) => i.sourceFileName !== issue.sourceFileName);
+            this.loadData.emit(true);
+            if ((this.bulkImportIssues?.length ?? 0) === 0) {
+              this.closeDialog();
+            }
+          } else {
+            this.notificationService.showMessageAlways('ERROR_IMPORTING_AAS', 'ERROR', 'error', false);
+          }
+        },
+        error: (err: unknown) => {
+          this.importingFiles.delete(issue.sourceFileName);
+          this.handleError(err);
+        },
+      });
   }
 
   protected get isPartialImportConfirmation(): boolean {
@@ -437,6 +516,10 @@ export class UploadAasDialogComponent {
 
   protected get bulkIssueFiles(): Array<{
     sourceFileName: string;
+    excludedSubmodelIds: string[];
+    originalFile: File | undefined;
+    hasConflict: boolean;
+    overwrite: boolean;
     failedSubmodels: Array<{
       submodelId?: string;
       idShort?: string;
@@ -584,6 +667,7 @@ export class UploadAasDialogComponent {
     this.selectedFiles = [];
     this.pendingPartialImport = undefined;
     this.bulkImportIssues = undefined;
+    this.importingFiles.clear();
     this.showTechnicalDetails = false;
     this.importMode = undefined;
     this.overwrite = false;

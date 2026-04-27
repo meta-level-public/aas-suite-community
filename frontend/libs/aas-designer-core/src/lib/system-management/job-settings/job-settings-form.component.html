@@ -1,0 +1,53 @@
+<div class="aas-page-layout">
+  <div class="hero-section">
+    <div class="hero-content">
+      <h1 class="hero-title">{{ titleKey() | translate }}</h1>
+      <div class="hero-actions">
+        <p-button
+          [label]="'SAVE' | translate"
+          icon="pi pi-save"
+          [loading]="saving()"
+          [disabled]="loading()"
+          (onClick)="save()"
+        />
+      </div>
+    </div>
+  </div>
+
+  <div class="aas-page-fill overflow-auto">
+    @if (loading()) {
+      <div class="p-4">{{ 'LOADING' | translate }}</div>
+    } @else {
+      <div class="flex flex-col gap-6 p-4 max-w-lg">
+        <div class="flex flex-col gap-2">
+          <label class="font-semibold">{{ 'JOB_SETTINGS_ENABLED' | translate }}</label>
+          <p-toggleswitch
+            [ngModel]="settings().isEnabled"
+            (ngModelChange)="setEnabled($event)"
+          />
+          <small style="color: var(--p-text-muted-color)">
+            {{ 'JOB_SETTINGS_ENABLED_HINT' | translate }}
+          </small>
+        </div>
+
+        <div class="flex flex-col gap-2">
+          <label class="font-semibold">{{ 'JOB_SETTINGS_INTERVAL' | translate }}</label>
+          <div class="flex items-center gap-2">
+            <p-inputnumber
+              [ngModel]="settings().intervalMinutes"
+              (ngModelChange)="setIntervalMinutes($event)"
+              [min]="1"
+              [max]="maxIntervalMinutes()"
+              [showButtons]="true"
+              [step]="1"
+            />
+            <span>{{ 'JOB_SETTINGS_INTERVAL_UNIT' | translate }}</span>
+          </div>
+          <small style="color: var(--p-text-muted-color)">
+            {{ 'JOB_SETTINGS_INTERVAL_HINT' | translate }}
+          </small>
+        </div>
+      </div>
+    }
+  </div>
+</div>
