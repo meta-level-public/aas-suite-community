@@ -45,7 +45,6 @@
     <PackageReference Include="BaSyx.Utils" />
     <PackageReference Include="BaSyx.Utils.DependencyInjection.Abstractions" />
     <PackageReference Include="BaSyx.Models.Export" />
-    <PackageReference Include="Microsoft.AspNetCore.SpaServices.Extensions" />
     <PackageReference Include="LibGit2Sharp" />
     <PackageReference Include="LettuceEncrypt" />
     <PackageReference Include="QRCoder" />

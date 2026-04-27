@@ -72,7 +72,6 @@ export class OrganisationUserListComponent implements OnInit {
       },
       {
         label: this.translate.instant('EDIT_ROLES'),
-        disabled: this.portalService.user?.id === user.id,
         command: () => {
           this.currentEditUser.set(user);
           this.rolesBackup = [...user.benutzerRollen];
@@ -140,6 +139,10 @@ export class OrganisationUserListComponent implements OnInit {
     } finally {
       this.loading = false;
     }
+  }
+
+  isRoleDisabled(role: string): boolean {
+    return this.portalService.user?.id === this.currentEditUser()?.id && role === 'ORGA_ADMIN';
   }
 
   canSaveEditRoles() {

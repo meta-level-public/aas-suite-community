@@ -66,88 +66,123 @@
 
   <div class="flex justify-between items-center">
     <h4 class="m-0">{{ 'CAPABILITY_PROPERTIES' | translate }}</h4>
-    <p-button icon="pi pi-plus" [text]="true" [label]="'ADD_PROPERTY' | translate" (onClick)="addProperty()"></p-button>
+    <p-button
+      icon="pi pi-plus"
+      [text]="true"
+      [label]="'ADD_PROPERTY_CONTAINER' | translate"
+      (onClick)="addPropertyContainer()"
+    ></p-button>
   </div>
 
-  @for (property of properties; track $index) {
+  @for (container of propertyContainers; track $index; let ci = $index) {
     <p-fieldset [toggleable]="true" styleClass="mb-2 capability-fieldset">
       <ng-template #header>
         <div class="flex items-center w-full">
-          <strong>{{ property.idShort || ('PROPERTY' | translate) + ' ' + ($index + 1) }}</strong>
+          <strong>{{ container.idShort || ('PROPERTY_CONTAINER' | translate) + ' ' + (ci + 1) }}</strong>
           <span class="flex-1"></span>
+          <p-button
+            icon="pi pi-plus"
+            [text]="true"
+            size="small"
+            [label]="'ADD_PROPERTY' | translate"
+            (onClick)="addPropertyToContainer(ci); $event.stopPropagation()"
+          ></p-button>
           <p-button
             icon="pi pi-trash"
             severity="danger"
             [text]="true"
             size="small"
-            (onClick)="removeProperty($index); $event.stopPropagation()"
+            (onClick)="removePropertyContainer(ci); $event.stopPropagation()"
           ></p-button>
         </div>
       </ng-template>
-      <div class="grid grid-cols-12 gap-2">
-        <div class="col-span-12 md:col-span-4">
+      <div class="grid grid-cols-12 gap-2 mb-3">
+        <div class="col-span-12 md:col-span-6">
           <lib-help-label class="block mb-2" tag="ID_SHORT"></lib-help-label>
-          <input pInputText class="w-full" [(ngModel)]="property.idShort" />
+          <input pInputText class="w-full" [(ngModel)]="container.idShort" />
         </div>
-        <div class="col-span-12 md:col-span-4">
-          <lib-help-label class="block mb-2" tag="TYPE"></lib-help-label>
-          <p-select
-            class="w-full"
-            [options]="propertyTypeOptions"
-            optionLabel="label"
-            optionValue="value"
-            [(ngModel)]="property.type"
-          ></p-select>
-        </div>
-        @if (property.type !== 'MultiLanguageProperty') {
-          <div class="col-span-12 md:col-span-4">
-            <lib-help-label class="block mb-2" tag="VALUE_TYPE"></lib-help-label>
-            <p-select
-              class="w-full"
-              [options]="valueTypeOptions"
-              optionLabel="label"
-              optionValue="value"
-              [(ngModel)]="property.valueType"
-            ></p-select>
-          </div>
-        } @else {
-          <div class="col-span-12 md:col-span-4"></div>
-        }
-
-        @if (property.type === 'Range') {
-          <div class="col-span-12 md:col-span-4">
-            <lib-help-label class="block mb-2" tag="MIN"></lib-help-label>
-            <input pInputText class="w-full" [(ngModel)]="property.min" />
-          </div>
-          <div class="col-span-12 md:col-span-4">
-            <lib-help-label class="block mb-2" tag="MAX"></lib-help-label>
-            <input pInputText class="w-full" [(ngModel)]="property.max" />
-          </div>
-        } @else if (property.type === 'MultiLanguageProperty') {
-          <div class="col-span-12">
-            <lib-help-label class="block mb-2" tag="VALUE"></lib-help-label>
-            <aas-v3-lang-string-list
-              [langStrings]="property.mlpValue"
-              [langStringParent]="property"
-              langStringParentPropertyName="mlpValue"
-            ></aas-v3-lang-string-list>
-          </div>
-        } @else {
-          <div class="col-span-12">
-            <lib-help-label class="block mb-2" tag="VALUE"></lib-help-label>
-            <input pInputText class="w-full" [(ngModel)]="property.value" />
-          </div>
-        }
-
         <div class="col-span-12">
           <lib-help-label class="block mb-2" tag="COMMENT"></lib-help-label>
           <aas-v3-lang-string-list
-            [langStrings]="property.commentValue"
-            [langStringParent]="property"
+            [langStrings]="container.commentValue"
+            [langStringParent]="container"
             langStringParentPropertyName="commentValue"
           ></aas-v3-lang-string-list>
         </div>
       </div>
+
+      @for (property of container.properties; track $index; let pi = $index) {
+        <p-fieldset [toggleable]="true" styleClass="mb-2 capability-fieldset">
+          <ng-template #header>
+            <div class="flex items-center w-full">
+              <strong>{{ property.idShort || ('PROPERTY' | translate) + ' ' + (pi + 1) }}</strong>
+              <span class="flex-1"></span>
+              <p-button
+                icon="pi pi-trash"
+                severity="danger"
+                [text]="true"
+                size="small"
+                (onClick)="removePropertyFromContainer(ci, pi); $event.stopPropagation()"
+              ></p-button>
+            </div>
+          </ng-template>
+          <div class="grid grid-cols-12 gap-2">
+            <div class="col-span-12 md:col-span-4">
+              <lib-help-label class="block mb-2" tag="ID_SHORT"></lib-help-label>
+              <input pInputText class="w-full" [(ngModel)]="property.idShort" />
+            </div>
+            <div class="col-span-12 md:col-span-4">
+              <lib-help-label class="block mb-2" tag="TYPE"></lib-help-label>
+              <p-select
+                class="w-full"
+                [options]="propertyTypeOptions"
+                optionLabel="label"
+                optionValue="value"
+                [(ngModel)]="property.type"
+              ></p-select>
+            </div>
+            @if (property.type !== 'MultiLanguageProperty') {
+              <div class="col-span-12 md:col-span-4">
+                <lib-help-label class="block mb-2" tag="VALUE_TYPE"></lib-help-label>
+                <p-select
+                  class="w-full"
+                  [options]="valueTypeOptions"
+                  optionLabel="label"
+                  optionValue="value"
+                  [(ngModel)]="property.valueType"
+                ></p-select>
+              </div>
+            } @else {
+              <div class="col-span-12 md:col-span-4"></div>
+            }
+
+            @if (property.type === 'Range') {
+              <div class="col-span-12 md:col-span-4">
+                <lib-help-label class="block mb-2" tag="MIN"></lib-help-label>
+                <input pInputText class="w-full" [(ngModel)]="property.min" />
+              </div>
+              <div class="col-span-12 md:col-span-4">
+                <lib-help-label class="block mb-2" tag="MAX"></lib-help-label>
+                <input pInputText class="w-full" [(ngModel)]="property.max" />
+              </div>
+            } @else if (property.type === 'MultiLanguageProperty') {
+              <div class="col-span-12">
+                <lib-help-label class="block mb-2" tag="VALUE"></lib-help-label>
+                <aas-v3-lang-string-list
+                  [langStrings]="property.mlpValue"
+                  [langStringParent]="property"
+                  langStringParentPropertyName="mlpValue"
+                ></aas-v3-lang-string-list>
+              </div>
+            } @else {
+              <div class="col-span-12">
+                <lib-help-label class="block mb-2" tag="VALUE"></lib-help-label>
+                <input pInputText class="w-full" [(ngModel)]="property.value" />
+              </div>
+            }
+          </div>
+        </p-fieldset>
+      }
     </p-fieldset>
   }
 

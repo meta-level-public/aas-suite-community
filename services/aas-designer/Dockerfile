@@ -50,8 +50,10 @@ RUN dotnet publish -c Release -o /app/publish /p:RunNSwag=false /p:GenerateDocum
 FROM mcr.microsoft.com/dotnet/aspnet:10.0 AS final
 WORKDIR /app
 
-RUN apt-get update \
+RUN rm -rf /var/lib/apt/lists/* \
+    && apt-get update -o Acquire::Retries=3 \
     && apt-get install -y --no-install-recommends curl libgssapi-krb5-2 \
+    && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
 
 COPY --from=publish /app/publish .

@@ -158,11 +158,11 @@ main() {
     die "IMAGE_SOURCE muss remote oder local sein"
   fi
 
-  local designer_backend_repo_default="gitea.meta-level.de/aas-suite/aas-designer-backend-community"
+  local designer_backend_repo_default="ghcr.io/meta-level/aas-suite/aas-designer-backend-community"
   local designer_backend_tag_default="latest"
-  local gateway_repo_default="gitea.meta-level.de/aas-suite/aas-designer-gateway"
+  local gateway_repo_default="ghcr.io/meta-level/aas-suite/aas-designer-gateway"
   local gateway_tag_default="latest"
-  local frontend_repo_default="gitea.meta-level.de/aas-suite/aas-designer-frontend-community"
+  local frontend_repo_default="ghcr.io/meta-level/aas-suite/aas-designer-frontend-community"
   local frontend_tag_default="latest"
   if [ "$IMAGE_SOURCE" = "local" ]; then
     designer_backend_repo_default="aas-suite/aas-designer-backend-community"
@@ -171,6 +171,9 @@ main() {
     gateway_tag_default="local"
     frontend_repo_default="aas-suite/aas-designer-frontend-community"
     frontend_tag_default="local"
+    warn "Lokale Images werden erwartet. Stelle sicher, dass die Images zuvor mit"
+    warn "  bash tools/docker-compose-wizard/oss/build-local-images-oss.sh"
+    warn "gebaut wurden."
   fi
 
   set_default_if_empty DESIGNER_BACKEND_IMAGE_REPO "$designer_backend_repo_default"
@@ -581,6 +584,7 @@ main() {
   write_env "$ENV_FILE" "POSTGRES_PASSWORD" "$POSTGRES_PASSWORD"
   write_env "$ENV_FILE" "BASYX_POSTGRES_DB" "$BASYX_POSTGRES_DB"
   write_env "$ENV_FILE" "KEYCLOAK_POSTGRES_DB" "$KEYCLOAK_POSTGRES_DB"
+  write_env "$ENV_FILE" "MARKT_POSTGRES_DB" ""
   write_env "$ENV_FILE" "BASYX_MODE" "$BASYX_MODE"
   write_env "$ENV_FILE" "KEYCLOAK_MODE" "$KEYCLOAK_MODE"
 
@@ -781,7 +785,7 @@ main() {
   fi
 
   append_service_separator "$COMPOSE_FILE"
-  append_gateway_service "$COMPOSE_FILE" "$NETWORK_NAME" "$GATEWAY_HOST_PORT" "$GATEWAY_CONTAINER_PORT" "$KEYCLOAK_CLUSTER_URL" "http://aas-designer-community:${DESIGNER_BACKEND_CONTAINER_PORT}" "http://frontend:${FRONTEND_CONTAINER_PORT}" "false" "$KEYCLOAK_MODE" "aas-designer-community"
+  append_gateway_service "$COMPOSE_FILE" "$NETWORK_NAME" "$GATEWAY_HOST_PORT" "$GATEWAY_CONTAINER_PORT" "$KEYCLOAK_CLUSTER_URL" "http://aas-designer-community:${DESIGNER_BACKEND_CONTAINER_PORT}" "http://frontend:${FRONTEND_CONTAINER_PORT}" "false" "false" "$KEYCLOAK_MODE" "aas-designer-community" "" "" "/login"
 
   append_service_separator "$COMPOSE_FILE"
   append_designer_backend_service "$COMPOSE_FILE" "$NETWORK_NAME" "$DESIGNER_BACKEND_CONTAINER_PORT" "$GATEWAY_CONTAINER_PORT" "$KEYCLOAK_MODE" "aas-designer-community"

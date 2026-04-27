@@ -8,7 +8,7 @@
             "args": [
                 "compose",
                 "-p",
-                "aas-dev",
+                "aas-dev-oss",
                 "-f",
                 "docker-compose.local.yml",
                 "up",
@@ -27,7 +27,7 @@
             "args": [
                 "compose",
                 "-p",
-                "aas-dev",
+                "aas-dev-oss",
                 "-f",
                 "docker-compose.local.yml",
                 "down",

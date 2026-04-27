@@ -73,10 +73,10 @@ export class App implements OnInit {
   ngOnInit() {
     this.primeng.ripple.set(true);
 
-    const fontSize = localStorage.getItem('fontSize') || 'small';
+    const fontSize = localStorage.getItem('designer-fontSize') || 'small';
     document.documentElement.style.fontSize = fontSize === 'small' ? '12px' : '14px';
 
-    const darkMode = localStorage.getItem('darkMode') === 'true';
+    const darkMode = localStorage.getItem('designer-darkMode') === 'true';
     if (darkMode) {
       const element = document.querySelector('html');
       element?.classList.add('my-app-dark');

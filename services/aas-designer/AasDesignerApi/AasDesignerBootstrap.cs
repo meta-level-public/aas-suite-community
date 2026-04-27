@@ -12,7 +12,7 @@ namespace AasDesignerApi;
 
 public static class AasDesignerBootstrap
 {
-    public const string MigrationsAssemblyName = "AasDesignerApi";
+    public const string MigrationsAssemblyName = "AasDesignerApi.Host";
     public const string ProxyClientHandlerCategory =
         "System.Net.Http.HttpClient.AspNetCore.Proxy.HttpProxyClient.ClientHandler";
     public const string ProxyLogicalHandlerCategory =

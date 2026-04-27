@@ -15,7 +15,9 @@ public class AccountDeletionNotifier
         ILogger logger
     )
     {
-        var text = File.ReadAllText(Path.Combine("Mail", "Templates", $"tenant_deleted.html"));
+        var text = File.ReadAllText(
+            Path.Combine(AppContext.BaseDirectory, "Mail", "Templates", $"tenant_deleted.html")
+        );
 
         var admins = context
             .BenutzerOrganisations.Include(ou => ou.Benutzer)

@@ -126,6 +126,7 @@
               [(ngModel)]="currentEditUser()!.benutzerRollen"
               class="mt-2"
               inputId="role-{{ $index }}"
+              [disabled]="isRoleDisabled(role)"
             ></p-checkbox>
           </div>
           <div>

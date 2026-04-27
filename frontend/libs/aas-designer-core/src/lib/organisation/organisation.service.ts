@@ -126,6 +126,15 @@ export class OrganisationService {
     );
   }
 
+  async resendInvitation(invitationId: number) {
+    const params = new HttpParams().append('id', invitationId);
+    return lastValueFrom(
+      this.http.post(`${this.appConfigService.config.apiPath}/Benutzer/ResendInvitation`, null, {
+        params,
+      }),
+    );
+  }
+
   async getEclassCertificate() {
     return lastValueFrom(
       this.http.get<EclassCertificate>(`${this.appConfigService.config.apiPath}/Organisation/GetEclassCertificate`),

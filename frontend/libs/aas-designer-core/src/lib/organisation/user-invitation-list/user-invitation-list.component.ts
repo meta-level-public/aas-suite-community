@@ -1,6 +1,8 @@
+import { UserInvitation } from '@aas-designer-model';
+import { AasConfirmationService } from '@aas/aas-designer-shared';
+import { NotificationService } from '@aas/common-services';
 import { ChangeDetectorRef, Component, OnChanges, OnInit, inject } from '@angular/core';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
-import { NotificationService } from '@aas/common-services';
 import { MenuItem } from 'primeng/api';
 import { ButtonModule } from 'primeng/button';
 import { FieldsetModule } from 'primeng/fieldset';
@@ -8,8 +10,6 @@ import { MenuModule } from 'primeng/menu';
 import { TableModule } from 'primeng/table';
 import { TagModule } from 'primeng/tag';
 import { ToolbarModule } from 'primeng/toolbar';
-import { UserInvitation } from '@aas-designer-model';
-import { AasConfirmationService } from '@aas/aas-designer-shared';
 import { OrganisationService } from '../organisation.service';
 
 @Component({
@@ -48,6 +48,12 @@ export class UserInvitationListComponent implements OnChanges, OnInit {
   onShowActions(invitation: UserInvitation) {
     this.menuItems = [
       {
+        label: this.translate.instant('RESEND_INVITATION'),
+        command: () => {
+          this.resendSelectedInvitation(invitation);
+        },
+      },
+      {
         label: this.translate.instant('DELETE'),
         command: () => {
           this.deleteSelectedInvitation(invitation);
@@ -58,6 +64,19 @@ export class UserInvitationListComponent implements OnChanges, OnInit {
 
   isValid(invitation: UserInvitation) {
     return invitation.validUntil && invitation.validUntil > new Date();
+  }
+
+  async resendSelectedInvitation(invitation: UserInvitation) {
+    if (invitation.id !== undefined) {
+      try {
+        this.loading = true;
+        await this.orgaService.resendInvitation(invitation.id);
+        this.notificationService.showMessageAlways('INVITATION_SUCCESS_RESEND', 'SUCCESS', 'success', false);
+        this.loadData();
+      } finally {
+        this.loading = false;
+      }
+    }
   }
 
   async deleteSelectedInvitation(invitation: UserInvitation) {

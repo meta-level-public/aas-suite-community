@@ -18,7 +18,12 @@ public class AccountDeletionIn14DaysWarner
     )
     {
         var text = File.ReadAllText(
-            Path.Combine("Mail", "Templates", $"tenant_deleting_in_14_days.html")
+            Path.Combine(
+                AppContext.BaseDirectory,
+                "Mail",
+                "Templates",
+                $"tenant_deleting_in_14_days.html"
+            )
         );
 
         var admins = context

@@ -33,6 +33,7 @@ export const AppRouteSegments = {
   login: 'login',
   mapping: 'mapping',
   myOrganization: 'my-organization',
+  myPublishedListings: 'my-published-listings',
   mySpace: 'my-space',
   notFound: 'notfound',
   organisations: 'organisations',

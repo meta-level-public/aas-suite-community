@@ -6,7 +6,7 @@ namespace AasDesignerSystemManagementApi.SystemManagement.Command.UpdateLegalLin
 
 public class UpdateLegalLinksSettingsCommand : IRequest<LegalLinksSettingsDto>
 {
-    public LegalLinksSettingsDto Settings { get; set; } = new();
+    public UpdateLegalLinksSettingsRequest Request { get; set; } = new();
 }
 
 public class UpdateLegalLinksSettingsHandler
@@ -22,13 +22,13 @@ public class UpdateLegalLinksSettingsHandler
     }
 
     public async Task<LegalLinksSettingsDto> Handle(
-        UpdateLegalLinksSettingsCommand request,
+        UpdateLegalLinksSettingsCommand command,
         CancellationToken cancellationToken
     )
     {
-        LegalLinksSettingsValidation.ValidateForUpdate(request.Settings);
+        LegalLinksSettingsValidation.ValidateForUpdate(command.Request);
         return await _legalLinksSettingsRuntimeService.UpdateLegalLinksSettingsAsync(
-            LegalLinksSettingsStore.Normalize(request.Settings),
+            command.Request,
             cancellationToken
         );
     }

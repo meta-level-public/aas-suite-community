@@ -35,10 +35,18 @@ Sie unterstützt unter anderem dabei:
 ### Mit Code-Checkout lokal starten
 
 ```bash
-docker compose -f docker-oss/docker-compose.yml up -d
+docker compose -p aas-dev-oss -f docker-oss/docker-compose.local.yml up -d
 ```
 
 Für weitergehende Setups und portable Stacks stehen im Verzeichnis [docker-oss/](docker-oss/) Compose-Vorlagen und Hilfsdateien bereit. Zusätzliche Hinweise finden Sie in [docker-oss/DOCKER_README.md](docker-oss/DOCKER_README.md).
+
+### Lokale Entwicklung mit VS Code
+
+Das Repository enthält ein VS Code-Workspace-Profil unter \`.vscode-oss/\`, das auf die Community-Variante zugeschnitten ist.
+
+1. Das Projekt in VS Code öffnen (Workspace-Root: Repository-Root)
+2. Das Launch-Target **"Launch Community Stack"** starten – dieses startet gleichzeitig den Gateway-Service, die Designer-API (Community) und den Angular Dev-Server der Community-Frontend-App
+3. Sobald alle drei Prozesse laufen, kann das Frontend-Debugging über das Launch-Target **"Debug AAS Designer Community (Chrome)"** gestartet werden
 
 ### Ohne Code-Checkout eine portable Umgebung erzeugen
 

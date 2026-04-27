@@ -1,0 +1,337 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: aas-postgres
+    environment:
+      POSTGRES_USER: localPostgres
+      POSTGRES_PASSWORD: "P@SSworDT!"
+      POSTGRES_DB: designer
+      BASYX_POSTGRES_DB: basyx_core
+    ports:
+      - "5434:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./postgres-init/10-create-basyx-db.sh:/docker-entrypoint-initdb.d/10-create-basyx-db.sh:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U localPostgres -d designer"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+
+  gateway:
+    build:
+      context: ..
+      dockerfile: services/gateway/Dockerfile
+    container_name: aas-gateway
+    ports:
+      - "5050:8080"
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - Session__Postgres__ConnectionString=Host=postgres;Port=5432;Database=designer;Username=localPostgres;Password=P@SSworDT!
+      - Session__Postgres__SchemaName=public
+      - Session__Postgres__TableName=gateway_session_cache
+      - Session__Postgres__CreateIfNotExists=true
+      - Session__Postgres__ExpiredItemsDeletionInterval=00:30:00
+      - Session__Postgres__DefaultSlidingExpiration=08:00:00
+      - ReverseProxy__Clusters__feed-mapping-cluster__Destinations__destination1__Address=http://feed-mapping:8080
+      - ReverseProxy__Clusters__aas-designer-cluster__Destinations__destination1__Address=http://aas-designer:8080
+    depends_on:
+      - postgres
+      - feed-mapping
+      - aas-designer
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  feed-mapping:
+    build:
+      context: ..
+      dockerfile: services/feed-mapping/Dockerfile
+    container_name: aas-feed-mapping
+    ports:
+      - "5051:8080"
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - DatabaseProvider=PostgreSQL
+      - ConnectionStrings__DefaultConnection=Host=postgres;Port=5432;Database=designer;Username=localPostgres;Password=P@SSworDT!
+    depends_on:
+      postgres:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  health-dashboard:
+    build:
+      context: ..
+      dockerfile: services/health-dashboard/Dockerfile
+    container_name: aas-health-dashboard
+    ports:
+      - "5053:8080"
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+    depends_on:
+      - gateway
+      - feed-mapping
+      - aas-designer
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/healthchecks-api"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  aas-designer:
+    build:
+      context: ..
+      dockerfile: services/aas-designer/Dockerfile
+    container_name: aas-designer
+    ports:
+      - "5054:8080"
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ConnectionStrings__PgDatabase=Host=postgres;Port=5432;Database=designer;Username=localPostgres;Password=P@SSworDT!
+      - AppSettings__HandleInitialInfrastructureAsInternal=true
+      - AppSettings__InitialAasDiscoveryUrl=http://aas-discovery-go:8081
+      - AppSettings__InitialAasDiscoveryVersion=SNAPSHOT
+      - AppSettings__InitialAasDiscoveryContainer=aas-discovery-go
+      - AppSettings__InitialAasDiscoveryContainerPort=8081
+      - AppSettings__InitialAasDiscoveryHcUrl=http://aas-discovery-go:8081/health
+      - AppSettings__InitialAasRegistryUrl=http://aasregistry-go:8082
+      - AppSettings__InitialAasRegistryVersion=SNAPSHOT
+      - AppSettings__InitialAasRegistryContainer=aasregistry-go
+      - AppSettings__InitialAasRegistryContainerPort=8082
+      - AppSettings__InitialAasRegistryHcUrl=http://aasregistry-go:8082/health
+      - AppSettings__InitialSubmodelRegistryUrl=http://submodelregistry-go:8083
+      - AppSettings__InitialSubmodelRegistryVersion=SNAPSHOT
+      - AppSettings__InitialSubmodelRegistryContainer=submodelregistry-go
+      - AppSettings__InitialSubmodelRegistryContainerPort=8083
+      - AppSettings__InitialSubmodelRegistryHcUrl=http://submodelregistry-go:8083/health
+      - AppSettings__InitialAasRepositoryUrl=http://aasrepository-go:8081
+      - AppSettings__InitialAasRepositoryVersion=SNAPSHOT
+      - AppSettings__InitialAasRepositoryContainer=aasrepository-go
+      - AppSettings__InitialAasRepositoryContainerPort=8081
+      - AppSettings__InitialAasRepositoryHcUrl=http://aasrepository-go:8081/health
+      - AppSettings__InitialSubmodelRepositoryUrl=http://submodelrepository-go:8081
+      - AppSettings__InitialSubmodelRepositoryVersion=SNAPSHOT
+      - AppSettings__InitialSubmodelRepositoryContainer=submodelrepository-go
+      - AppSettings__InitialSubmodelRepositoryContainerPort=8081
+      - AppSettings__InitialSubmodelRepositoryHcUrl=http://submodelrepository-go:8081/health
+      - AppSettings__InitialConceptDescriptionRepositoryUrl=http://conceptdescriptionrepository-go:8081
+      - AppSettings__InitialConceptDescriptionRepositoryVersion=SNAPSHOT
+      - AppSettings__InitialConceptDescriptionRepositoryContainer=conceptdescriptionrepository-go
+      - AppSettings__InitialConceptDescriptionRepositoryContainerPort=8081
+      - AppSettings__InitialConceptDescriptionRepositoryHcUrl=http://conceptdescriptionrepository-go:8081/health
+    volumes:
+      - ../infrastructures:/infrastructures
+      - ../fileStorage:/fileStorage
+    depends_on:
+      postgres:
+        condition: service_healthy
+      aasregistry-go:
+        condition: service_started
+      submodelregistry-go:
+        condition: service_started
+      aasdiscovery-go:
+        condition: service_started
+      aasrepository-go:
+        condition: service_started
+      submodelrepository-go:
+        condition: service_started
+      conceptdescriptionrepository-go:
+        condition: service_started
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  aasregistry-go:
+    image: eclipsebasyx/aasregistry-go:SNAPSHOT
+    container_name: aasregistry-go
+    ports:
+      - "5082:8082"
+    environment:
+      CORS_ALLOWEDORIGINS: "*"
+      CORS_ALLOWEDHEADERS: "*"
+      CORS_ALLOWEDCREDENTIALS: "true"
+      CORS_ALLOWEDMETHODS: GET,POST,PUT,PATCH,DELETE,OPTIONS
+      VIRTUAL_PORT: 8082
+      SERVER_PORT: 8082
+      POSTGRES_HOST: postgres
+      POSTGRES_PORT: 5432
+      POSTGRES_USER: localPostgres
+      POSTGRES_PASSWORD: P@SSworDT!
+      POSTGRES_DBNAME: basyx_core
+      POSTGRES_MAXOPENCONNECTIONS: 500
+      POSTGRES_MAXIDLECONNECTIONS: 500
+      POSTGRES_CONNMAXLIFETIMEMINUTES: 5
+      ABAC_ENABLED: "false"
+      ABAC_MODELPATH: /security_env/access-rules.json
+      OIDC_TRUSTLISTPATH: /security_env/trustlist.json
+    volumes:
+      - ../tools/docker-compose-wizard/security_env:/security_env:ro
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  submodelregistry-go:
+    image: eclipsebasyx/submodelregistry-go:SNAPSHOT
+    container_name: submodelregistry-go
+    ports:
+      - "5083:8083"
+    environment:
+      CORS_ALLOWEDORIGINS: "*"
+      CORS_ALLOWEDHEADERS: "*"
+      CORS_ALLOWEDCREDENTIALS: "true"
+      CORS_ALLOWEDMETHODS: GET,POST,PUT,PATCH,DELETE,OPTIONS
+      VIRTUAL_PORT: 8083
+      SERVER_PORT: 8083
+      POSTGRES_HOST: postgres
+      POSTGRES_PORT: 5432
+      POSTGRES_USER: localPostgres
+      POSTGRES_PASSWORD: P@SSworDT!
+      POSTGRES_DBNAME: basyx_core
+      POSTGRES_MAXOPENCONNECTIONS: 500
+      POSTGRES_MAXIDLECONNECTIONS: 500
+      POSTGRES_CONNMAXLIFETIMEMINUTES: 5
+      ABAC_ENABLED: "false"
+      ABAC_MODELPATH: /security_env/access-rules.json
+      OIDC_TRUSTLISTPATH: /security_env/trustlist.json
+    volumes:
+      - ../tools/docker-compose-wizard/security_env:/security_env:ro
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  aasdiscovery-go:
+    image: eclipsebasyx/aasdiscovery-go:SNAPSHOT
+    container_name: aasdiscovery-go
+    ports:
+      - "5084:8081"
+    environment:
+      CORS_ALLOWEDORIGINS: "*"
+      CORS_ALLOWEDHEADERS: "*"
+      CORS_ALLOWEDCREDENTIALS: "true"
+      CORS_ALLOWEDMETHODS: GET,POST,PUT,PATCH,DELETE,OPTIONS
+      VIRTUAL_PORT: 8081
+      SERVER_PORT: 8081
+      POSTGRES_HOST: postgres
+      POSTGRES_PORT: 5432
+      POSTGRES_USER: localPostgres
+      POSTGRES_PASSWORD: P@SSworDT!
+      POSTGRES_DBNAME: basyx_core
+      POSTGRES_MAXOPENCONNECTIONS: 500
+      POSTGRES_MAXIDLECONNECTIONS: 500
+      POSTGRES_CONNMAXLIFETIMEMINUTES: 5
+      ABAC_ENABLED: "false"
+      ABAC_MODELPATH: /security_env/access-rules.json
+      OIDC_TRUSTLISTPATH: /security_env/trustlist.json
+    volumes:
+      - ../tools/docker-compose-wizard/security_env:/security_env:ro
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  aasrepository-go:
+    image: eclipsebasyx/aasrepository-go:SNAPSHOT
+    container_name: aasrepository-go
+    ports:
+      - "5081:8081"
+    environment:
+      CORS_ALLOWEDORIGINS: "*"
+      CORS_ALLOWEDHEADERS: "*"
+      CORS_ALLOWEDCREDENTIALS: "true"
+      CORS_ALLOWEDMETHODS: GET,POST,PUT,PATCH,DELETE,OPTIONS
+      SERVER_PORT: 8081
+      POSTGRES_HOST: postgres
+      POSTGRES_PORT: 5432
+      POSTGRES_USER: localPostgres
+      POSTGRES_PASSWORD: P@SSworDT!
+      POSTGRES_DBNAME: basyx_core
+      POSTGRES_MAXOPENCONNECTIONS: 500
+      POSTGRES_MAXIDLECONNECTIONS: 500
+      POSTGRES_CONNMAXLIFETIMEMINUTES: 5
+      ABAC_ENABLED: "false"
+      ABAC_MODELPATH: /security_env/access-rules.json
+      OIDC_TRUSTLISTPATH: /security_env/trustlist.json
+    volumes:
+      - ../tools/docker-compose-wizard/security_env:/security_env:ro
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  submodelrepository-go:
+    image: eclipsebasyx/submodelrepository-go:SNAPSHOT
+    container_name: submodelrepository-go
+    ports:
+      - "5085:8081"
+    environment:
+      CORS_ALLOWEDORIGINS: "*"
+      CORS_ALLOWEDHEADERS: "*"
+      CORS_ALLOWEDCREDENTIALS: "true"
+      CORS_ALLOWEDMETHODS: GET,POST,PUT,PATCH,DELETE,OPTIONS
+      SERVER_PORT: 8081
+      POSTGRES_HOST: postgres
+      POSTGRES_PORT: 5432
+      POSTGRES_USER: localPostgres
+      POSTGRES_PASSWORD: P@SSworDT!
+      POSTGRES_DBNAME: basyx_core
+      POSTGRES_MAXOPENCONNECTIONS: 500
+      POSTGRES_MAXIDLECONNECTIONS: 500
+      POSTGRES_CONNMAXLIFETIMEMINUTES: 5
+      ABAC_ENABLED: "false"
+      ABAC_MODELPATH: /security_env/access-rules.json
+      OIDC_TRUSTLISTPATH: /security_env/trustlist.json
+      JWS_PRIVATEKEYPATH: ""
+    volumes:
+      - ../tools/docker-compose-wizard/security_env:/security_env:ro
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  conceptdescriptionrepository-go:
+    image: eclipsebasyx/conceptdescriptionrepository-go:SNAPSHOT
+    container_name: conceptdescriptionrepository-go
+    ports:
+      - "5086:8081"
+    environment:
+      CORS_ALLOWEDORIGINS: "*"
+      CORS_ALLOWEDHEADERS: "*"
+      CORS_ALLOWEDCREDENTIALS: "true"
+      CORS_ALLOWEDMETHODS: GET,POST,PUT,PATCH,DELETE,OPTIONS
+      SERVER_PORT: 8081
+      POSTGRES_HOST: postgres
+      POSTGRES_PORT: 5432
+      POSTGRES_USER: localPostgres
+      POSTGRES_PASSWORD: P@SSworDT!
+      POSTGRES_DBNAME: basyx_core
+      POSTGRES_MAXOPENCONNECTIONS: 500
+      POSTGRES_MAXIDLECONNECTIONS: 500
+      POSTGRES_CONNMAXLIFETIMEMINUTES: 5
+      ABAC_ENABLED: "false"
+      ABAC_MODELPATH: /security_env/access-rules.json
+      OIDC_TRUSTLISTPATH: /security_env/trustlist.json
+    volumes:
+      - ../tools/docker-compose-wizard/security_env:/security_env:ro
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+volumes:
+  postgres_data:
+    name: vws-portal-postgres-dev
+
+networks:
+  default:
+    name: aas-dev-network

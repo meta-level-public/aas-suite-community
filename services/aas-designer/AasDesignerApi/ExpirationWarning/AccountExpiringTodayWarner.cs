@@ -17,7 +17,12 @@ public class AccountExpiringTodayWarner
     )
     {
         var text = File.ReadAllText(
-            Path.Combine("Mail", "Templates", $"tenant_expiring_today.html")
+            Path.Combine(
+                AppContext.BaseDirectory,
+                "Mail",
+                "Templates",
+                $"tenant_expiring_today.html"
+            )
         );
 
         var admins = context

@@ -2184,6 +2184,36 @@
         }
       }
     },
+    "/aas-viewer-api/raw-descriptor": {
+      "get": {
+        "tags": [
+          "AasViewer"
+        ],
+        "operationId": "AasViewer_GetRawDescriptor",
+        "parameters": [
+          {
+            "name": "aasIdentifier",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            },
+            "x-position": 1
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RawDescriptor"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/Organisation/GetAll": {
       "get": {
         "tags": [
@@ -3893,6 +3923,38 @@
         }
       }
     },
+    "/system-management-api/SystemManagement/GetLegalDocument/{fieldName}": {
+      "get": {
+        "tags": [
+          "SystemManagement"
+        ],
+        "operationId": "SystemManagement_GetLegalDocument",
+        "parameters": [
+          {
+            "name": "fieldName",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "x-position": 1
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/octet-stream": {
+                "schema": {
+                  "type": "string",
+                  "format": "binary"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/system-management-api/SystemManagement/UpdateLegalLinksSettings": {
       "put": {
         "tags": [
@@ -3900,11 +3962,11 @@
         ],
         "operationId": "SystemManagement_UpdateLegalLinksSettings",
         "requestBody": {
-          "x-name": "settings",
+          "x-name": "request",
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/LegalLinksSettingsDto"
+                "$ref": "#/components/schemas/UpdateLegalLinksSettingsRequest"
               }
             }
           },
@@ -5581,6 +5643,50 @@
             "items": {
               "type": "string"
             }
+          }
+        }
+      },
+      "RawDescriptor": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "aasId": {
+            "type": "string"
+          },
+          "aasEndpoint": {
+            "type": "string"
+          },
+          "submodelEndpoints": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "aasInfrastrukturId": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "globalAssetId": {
+            "type": "string",
+            "nullable": true
+          },
+          "specificAssetIds": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/SpecificAssetIdEntry"
+            }
+          }
+        }
+      },
+      "SpecificAssetIdEntry": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "value": {
+            "type": "string"
           }
         }
       },
@@ -7974,6 +8080,175 @@
             "type": "string"
           },
           "imprintLink": {
+            "type": "string"
+          },
+          "datenschutzLinkDeDocument": {
+            "nullable": true,
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/LegalLinksDocumentInfoDto"
+              }
+            ]
+          },
+          "datenschutzLinkEnDocument": {
+            "nullable": true,
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/LegalLinksDocumentInfoDto"
+              }
+            ]
+          },
+          "agbLinkDeDocument": {
+            "nullable": true,
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/LegalLinksDocumentInfoDto"
+              }
+            ]
+          },
+          "agbLinkEnDocument": {
+            "nullable": true,
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/LegalLinksDocumentInfoDto"
+              }
+            ]
+          },
+          "avvLinkDeDocument": {
+            "nullable": true,
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/LegalLinksDocumentInfoDto"
+              }
+            ]
+          },
+          "avvLinkEnDocument": {
+            "nullable": true,
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/LegalLinksDocumentInfoDto"
+              }
+            ]
+          },
+          "imprintLinkDocument": {
+            "nullable": true,
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/LegalLinksDocumentInfoDto"
+              }
+            ]
+          }
+        }
+      },
+      "LegalLinksDocumentInfoDto": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "fileName": {
+            "type": "string"
+          },
+          "contentType": {
+            "type": "string"
+          }
+        }
+      },
+      "UpdateLegalLinksSettingsRequest": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "datenschutzLinkDe": {
+            "type": "string"
+          },
+          "datenschutzLinkEn": {
+            "type": "string"
+          },
+          "agbLinkDe": {
+            "type": "string"
+          },
+          "agbLinkEn": {
+            "type": "string"
+          },
+          "avvLinkDe": {
+            "type": "string"
+          },
+          "avvLinkEn": {
+            "type": "string"
+          },
+          "imprintLink": {
+            "type": "string"
+          },
+          "datenschutzLinkDeDocument": {
+            "nullable": true,
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/LegalLinksDocumentUploadDto"
+              }
+            ]
+          },
+          "datenschutzLinkEnDocument": {
+            "nullable": true,
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/LegalLinksDocumentUploadDto"
+              }
+            ]
+          },
+          "agbLinkDeDocument": {
+            "nullable": true,
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/LegalLinksDocumentUploadDto"
+              }
+            ]
+          },
+          "agbLinkEnDocument": {
+            "nullable": true,
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/LegalLinksDocumentUploadDto"
+              }
+            ]
+          },
+          "avvLinkDeDocument": {
+            "nullable": true,
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/LegalLinksDocumentUploadDto"
+              }
+            ]
+          },
+          "avvLinkEnDocument": {
+            "nullable": true,
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/LegalLinksDocumentUploadDto"
+              }
+            ]
+          },
+          "imprintLinkDocument": {
+            "nullable": true,
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/LegalLinksDocumentUploadDto"
+              }
+            ]
+          },
+          "servingBaseUrl": {
+            "type": "string"
+          }
+        }
+      },
+      "LegalLinksDocumentUploadDto": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "fileName": {
+            "type": "string"
+          },
+          "contentType": {
+            "type": "string"
+          },
+          "contentBase64": {
             "type": "string"
           }
         }
