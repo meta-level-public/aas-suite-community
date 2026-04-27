@@ -3,6 +3,7 @@ using AasDesignerAuthorization;
 using AasDesignerCommon.Utils;
 using AasDesignerDashboardApi.Dashboard.Queries.ExportHelpTexts;
 using AasDesignerDashboardApi.Dashboard.Queries.ImportHelpTexts;
+using AasDesignerModel;
 using AasDesignerSystemManagementApi.SystemManagement.Command.DeleteThemeDefinition;
 using AasDesignerSystemManagementApi.SystemManagement.Command.ExportThemeDefinitions;
 using AasDesignerSystemManagementApi.SystemManagement.Command.ImportThemeDefinitions;
@@ -11,6 +12,7 @@ using AasDesignerSystemManagementApi.SystemManagement.Command.SendKeycloakTestMa
 using AasDesignerSystemManagementApi.SystemManagement.Command.UpdateLegalLinksSettings;
 using AasDesignerSystemManagementApi.SystemManagement.Command.UpdateMailSettings;
 using AasDesignerSystemManagementApi.SystemManagement.Command.UpsertThemeDefinition;
+using AasDesignerSystemManagementApi.SystemManagement.LegalLinks;
 using AasDesignerSystemManagementApi.SystemManagement.Model;
 using AasDesignerSystemManagementApi.SystemManagement.Queries.GetConfiguration;
 using AasDesignerSystemManagementApi.SystemManagement.Queries.GetDeleteProtocols;
@@ -24,6 +26,7 @@ using AasShared.Exceptions;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.StaticFiles;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace AasDesignerSystemManagementApi.Controllers;
 
@@ -170,14 +173,39 @@ public class SystemManagementController : InternalApiBaseController
         return await mediator.Send(query);
     }
 
+    [HttpGet("{fieldName}")]
+    public async Task<IActionResult> GetLegalDocument(string fieldName)
+    {
+        if (!LegalLinksDocumentStore.IsValidFieldName(fieldName))
+            return NotFound();
+
+        var context = HttpContext.RequestServices.GetRequiredService<IApplicationDbContext>();
+        var data = await LegalLinksDocumentStore.LoadAsync(
+            context,
+            fieldName,
+            HttpContext.RequestAborted
+        );
+
+        if (data == null)
+            return NotFound();
+
+        var bytes = Convert.FromBase64String(data.ContentBase64);
+        var safeFileName = data.FileName.Replace("\"", string.Empty);
+        Response.Headers["Content-Disposition"] = $"inline; filename=\"{safeFileName}\"";
+        return File(
+            bytes,
+            string.IsNullOrEmpty(data.ContentType) ? "application/octet-stream" : data.ContentType
+        );
+    }
+
     [HttpPut]
     [AasDesignerAuthorize(RequiredRoles = [AuthRoles.SYSTEM_ADMIN])]
     public async Task<LegalLinksSettingsDto> UpdateLegalLinksSettings(
-        [FromBody] LegalLinksSettingsDto settings
+        [FromBody] UpdateLegalLinksSettingsRequest request
     )
     {
         var mediator = new Mediator(_serviceProvider);
-        var command = new UpdateLegalLinksSettingsCommand { Settings = settings };
+        var command = new UpdateLegalLinksSettingsCommand { Request = request };
         return await mediator.Send(command);
     }
 

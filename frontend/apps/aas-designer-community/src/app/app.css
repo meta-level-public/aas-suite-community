@@ -1,1 +1,5 @@
-/* Empty file - app styles handled in main styles.css */
+:host {
+  display: flex !important;
+  flex-direction: column !important;
+  height: 100% !important;
+}

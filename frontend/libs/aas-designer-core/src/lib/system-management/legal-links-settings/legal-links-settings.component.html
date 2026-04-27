@@ -25,61 +25,88 @@
 
   @if (legalLinksSettings(); as settings) {
     <div class="flex flex-col gap-4">
-      <p-inputgroup>
-        <p-inputgroup-addon class="font-bold w-72">
-          <i class="pi pi-shield mr-2"></i>
-          {{ 'PRIVACY' | translate }} ({{ 'DEUTSCH' | translate }})
-        </p-inputgroup-addon>
-        <input pInputText [(ngModel)]="settings.datenschutzLinkDe" />
-      </p-inputgroup>
+      @for (config of fieldConfigs; track config.field) {
+        <p-inputgroup>
+          <p-inputgroup-addon class="font-bold w-72 shrink-0">
+            <i class="pi {{ config.icon }} mr-2"></i>
+            {{ config.labelKey | translate }}
+            @if (config.langKey) {
+              &nbsp;({{ config.langKey | translate }})
+            }
+          </p-inputgroup-addon>
 
-      <p-inputgroup>
-        <p-inputgroup-addon class="font-bold w-72">
-          <i class="pi pi-shield mr-2"></i>
-          {{ 'PRIVACY' | translate }} ({{ 'ENGLISCH' | translate }})
-        </p-inputgroup-addon>
-        <input pInputText [(ngModel)]="settings.datenschutzLinkEn" />
-      </p-inputgroup>
+          @if (fieldMode()[config.field] === 'url') {
+            <input
+              pInputText
+              class="flex-1 min-w-0"
+              [ngModel]="getUrlValue(settings, config.field)"
+              (ngModelChange)="onUrlChange(config.field, $event)"
+            />
+          } @else {
+            <div
+              class="flex flex-1 items-center gap-2 px-3 bg-[var(--p-inputtext-background)] border border-[var(--p-inputtext-border-color)]"
+            >
+              @if (documentDisplayInfos()?.[config.field]; as docInfo) {
+                <i class="pi pi-file shrink-0 text-[var(--p-text-muted-color)]"></i>
+                <span
+                  class="flex-1 min-w-0 text-sm truncate"
+                  [title]="docInfo.fileName"
+                >{{ docInfo.fileName }}</span>
+                <p-button
+                  icon="pi pi-times"
+                  severity="danger"
+                  [text]="true"
+                  [rounded]="true"
+                  size="small"
+                  [pTooltip]="'LEGAL_LINK_DOCUMENT_REMOVE' | translate"
+                  (onClick)="removeDocument(config.field)"
+                />
+                <input
+                  type="file"
+                  #fileInput
+                  style="display:none"
+                  (change)="onFileSelected($event, config.field)"
+                />
+                <p-button
+                  icon="pi pi-upload"
+                  [label]="'LEGAL_LINK_DOCUMENT_CHANGE' | translate"
+                  severity="secondary"
+                  size="small"
+                  (onClick)="fileInput.click()"
+                />
+              } @else {
+                <span class="flex-1 text-sm text-[var(--p-text-muted-color)]">
+                  {{ 'LEGAL_LINK_NO_DOCUMENT' | translate }}
+                </span>
+                <input
+                  type="file"
+                  #fileInput
+                  style="display:none"
+                  (change)="onFileSelected($event, config.field)"
+                />
+                <p-button
+                  icon="pi pi-folder-open"
+                  [label]="'LEGAL_LINK_DOCUMENT_SELECT' | translate"
+                  severity="secondary"
+                  size="small"
+                  (onClick)="fileInput.click()"
+                />
+              }
+            </div>
+          }
 
-      <p-inputgroup>
-        <p-inputgroup-addon class="font-bold w-72">
-          <i class="pi pi-file-edit mr-2"></i>
-          {{ 'AGB' | translate }} ({{ 'DEUTSCH' | translate }})
-        </p-inputgroup-addon>
-        <input pInputText [(ngModel)]="settings.agbLinkDe" />
-      </p-inputgroup>
-
-      <p-inputgroup>
-        <p-inputgroup-addon class="font-bold w-72">
-          <i class="pi pi-file-edit mr-2"></i>
-          {{ 'AGB' | translate }} ({{ 'ENGLISCH' | translate }})
-        </p-inputgroup-addon>
-        <input pInputText [(ngModel)]="settings.agbLinkEn" />
-      </p-inputgroup>
-
-      <p-inputgroup>
-        <p-inputgroup-addon class="font-bold w-72">
-          <i class="pi pi-file-check mr-2"></i>
-          {{ 'AVV_SHORT' | translate }} ({{ 'DEUTSCH' | translate }})
-        </p-inputgroup-addon>
-        <input pInputText [(ngModel)]="settings.avvLinkDe" />
-      </p-inputgroup>
-
-      <p-inputgroup>
-        <p-inputgroup-addon class="font-bold w-72">
-          <i class="pi pi-file-check mr-2"></i>
-          {{ 'AVV_SHORT' | translate }} ({{ 'ENGLISCH' | translate }})
-        </p-inputgroup-addon>
-        <input pInputText [(ngModel)]="settings.avvLinkEn" />
-      </p-inputgroup>
-
-      <p-inputgroup>
-        <p-inputgroup-addon class="font-bold w-72">
-          <i class="pi pi-id-card mr-2"></i>
-          {{ 'IMPRINT' | translate }}
-        </p-inputgroup-addon>
-        <input pInputText [(ngModel)]="settings.imprintLink" />
-      </p-inputgroup>
+          <p-button
+            [icon]="fieldMode()[config.field] === 'url' ? 'pi pi-file-arrow-up' : 'pi pi-link'"
+            severity="secondary"
+            [pTooltip]="
+              (fieldMode()[config.field] === 'url'
+                ? 'LEGAL_LINK_MODE_SWITCH_TO_DOCUMENT'
+                : 'LEGAL_LINK_MODE_SWITCH_TO_URL') | translate
+            "
+            (onClick)="toggleMode(config.field)"
+          />
+        </p-inputgroup>
+      }
     </div>
   }
 </div>

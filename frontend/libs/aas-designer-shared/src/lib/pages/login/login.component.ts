@@ -51,7 +51,7 @@ export class SharedLoginPageComponent implements OnInit {
   currentNews = computed(() => {
     const items = this.newsItems();
     const index = this.currentNewsIndex();
-    return items.length > 0 ? items[items.length - 1 - index] : null;
+    return items[index] ?? null;
   });
   showRegistrationOption = computed(
     () =>

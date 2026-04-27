@@ -28,4 +28,5 @@ export * from './lib/snippet-verwendung';
 export * from './lib/submodel-template';
 export * from './lib/system-management-addon-config';
 export * from './lib/unser-invitation';
+export * from './lib/user-space-addon-config';
 export * from './lib/verwaltungsschale';

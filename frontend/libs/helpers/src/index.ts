@@ -10,6 +10,7 @@ export * from './instance-helper';
 export * from './intl-date-format';
 export * from './semantic-constants';
 export * from './semantic-id-helper';
+export * from './submodel-display-name';
 export * from './submodel-element-util';
 export * from './tag-helper';
 export * from './url-helper';

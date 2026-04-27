@@ -26,9 +26,14 @@ type CapabilityPropertyDraft = {
   valueId: string;
   value: string;
   mlpValue: aas.types.LangStringTextType[] | null;
-  commentValue: aas.types.LangStringTextType[] | null;
   min: string;
   max: string;
+};
+
+type PropertyContainerDraft = {
+  idShort: string;
+  commentValue: aas.types.LangStringTextType[] | null;
+  properties: CapabilityPropertyDraft[];
 };
 
 type PropertyConstraintDraft = {
@@ -156,7 +161,7 @@ export class CapabilityAddonComponent {
   currentLanguage = 'de';
   currentSubmodelId = '';
 
-  properties: CapabilityPropertyDraft[] = [];
+  propertyContainers: PropertyContainerDraft[] = [];
   propertyConstraints: PropertyConstraintDraft[] = [];
   transitionConstraints: TransitionConstraintDraft[] = [];
 
@@ -194,10 +199,12 @@ export class CapabilityAddonComponent {
       errors.push('CAPABILITY_VALIDATION_ID_SHORT_REQUIRED');
     }
 
-    this.properties.forEach((property) => {
-      if (property.idShort.trim() === '') {
-        errors.push('CAPABILITY_VALIDATION_PROPERTY_ID_SHORT_REQUIRED');
-      }
+    this.propertyContainers.forEach((container) => {
+      container.properties.forEach((property) => {
+        if (property.idShort.trim() === '') {
+          errors.push('CAPABILITY_VALIDATION_PROPERTY_ID_SHORT_REQUIRED');
+        }
+      });
     });
 
     this.propertyConstraints.forEach((constraint) => {
@@ -229,26 +236,46 @@ export class CapabilityAddonComponent {
   }
 
   get propertyReferenceOptions(): string[] {
-    return this.properties.map((p) => p.idShort.trim()).filter((idShort) => idShort !== '');
+    return this.propertyContainers
+      .flatMap((c) => c.properties)
+      .map((p) => p.idShort.trim())
+      .filter((idShort) => idShort !== '');
   }
 
-  addProperty() {
-    this.properties.push({
-      idShort: `Property${this.properties.length.toString().padStart(2, '0')}`,
+  addPropertyContainer() {
+    this.propertyContainers.push({
+      idShort: `PropertyContainer${this.propertyContainers.length.toString().padStart(2, '0')}`,
+      commentValue: null,
+      properties: [this.createDefaultPropertyDraft(0)],
+    });
+  }
+
+  removePropertyContainer(containerIndex: number) {
+    this.propertyContainers.splice(containerIndex, 1);
+  }
+
+  addPropertyToContainer(containerIndex: number) {
+    const container = this.propertyContainers[containerIndex];
+    if (container == null) return;
+    container.properties.push(this.createDefaultPropertyDraft(container.properties.length));
+  }
+
+  removePropertyFromContainer(containerIndex: number, propIndex: number) {
+    this.propertyContainers[containerIndex]?.properties.splice(propIndex, 1);
+  }
+
+  private createDefaultPropertyDraft(index: number): CapabilityPropertyDraft {
+    return {
+      idShort: `Property${index.toString().padStart(2, '0')}`,
       type: 'Property',
       valueType: aas.types.DataTypeDefXsd.String,
       semanticId: '',
       valueId: '',
       value: '',
       mlpValue: null,
-      commentValue: null,
       min: '',
       max: '',
-    });
-  }
-
-  removeProperty(index: number) {
-    this.properties.splice(index, 1);
+    };
   }
 
   addPropertyConstraint() {
@@ -370,14 +397,14 @@ export class CapabilityAddonComponent {
       capabilityContainer.value.push(comment);
     }
 
-    if (this.properties.length > 0) {
+    if (this.propertyContainers.length > 0) {
       const propertySet = new aas.types.SubmodelElementCollection(null, null, 'PropertySet');
       propertySet.semanticId = this.createExternalRef(
         'https://admin-shell.io/idta/CapabilityDescription/PropertySet/1/0',
       );
       propertySet.value = [];
-      this.properties.forEach((draft, index) => {
-        propertySet.value?.push(this.createPropertyContainer(draft, index));
+      this.propertyContainers.forEach((containerDraft, index) => {
+        propertySet.value?.push(this.createPropertyContainer(containerDraft, index));
       });
       capabilityContainer.value.push(propertySet);
     }
@@ -598,19 +625,20 @@ export class CapabilityAddonComponent {
     return qualifier;
   }
 
-  private createPropertyContainer(draft: CapabilityPropertyDraft, index: number): aas.types.SubmodelElementCollection {
+  private createPropertyContainer(draft: PropertyContainerDraft, index: number): aas.types.SubmodelElementCollection {
     const propertyContainer = new aas.types.SubmodelElementCollection(
       null,
       null,
-      `PropertyContainer${index.toString().padStart(2, '0')}`,
+      draft.idShort.trim() || `PropertyContainer${index.toString().padStart(2, '0')}`,
     );
     propertyContainer.semanticId = this.createExternalRef(
       'https://admin-shell.io/idta/CapabilityDescription/PropertyContainer/1/0',
     );
     propertyContainer.value = [];
 
-    const propertyElement = this.createCapabilityPropertyElement(draft);
-    propertyContainer.value.push(propertyElement);
+    draft.properties.forEach((propDraft) => {
+      propertyContainer.value?.push(this.createCapabilityPropertyElement(propDraft));
+    });
 
     const normalizedComments =
       (draft.commentValue ?? [])
@@ -755,7 +783,7 @@ export class CapabilityAddonComponent {
     const propertySet = elements.find((el) =>
       this.hasSemanticId(el, 'https://admin-shell.io/idta/CapabilityDescription/PropertySet/1/0'),
     ) as aas.types.SubmodelElementCollection | undefined;
-    this.properties = this.readPropertyDrafts(propertySet);
+    this.propertyContainers = this.readPropertyContainerDrafts(propertySet);
 
     const relations = elements.find((el) =>
       this.hasSemanticId(el, 'https://admin-shell.io/idta/CapabilityDescription/CapabilityRelations/1/0'),
@@ -773,71 +801,83 @@ export class CapabilityAddonComponent {
     return 'NotAssigned';
   }
 
-  private readPropertyDrafts(propertySet: aas.types.SubmodelElementCollection | undefined): CapabilityPropertyDraft[] {
+  private readPropertyContainerDrafts(
+    propertySet: aas.types.SubmodelElementCollection | undefined,
+  ): PropertyContainerDraft[] {
     const containers = (propertySet?.value ?? []).filter(
       (el): el is aas.types.SubmodelElementCollection => el instanceof aas.types.SubmodelElementCollection,
     );
 
-    return containers.map((container, index) => {
+    return containers.map((container) => {
       const value = container.value ?? [];
       const comment = value.find((el) =>
         this.hasSemanticId(el, 'https://adminshell.io/idta/CapabilityDescription/PropertyComment/1/0'),
       ) as aas.types.MultiLanguageProperty | undefined;
-      const propertyElement = value.find(
+
+      const propertyElements = value.filter(
         (el) => !this.hasSemanticId(el, 'https://adminshell.io/idta/CapabilityDescription/PropertyComment/1/0'),
       );
 
-      const draft: CapabilityPropertyDraft = {
-        idShort: `Property${index.toString().padStart(2, '0')}`,
-        type: 'Property',
-        valueType: aas.types.DataTypeDefXsd.String,
-        semanticId: '',
-        valueId: '',
-        value: '',
-        mlpValue: null,
-        commentValue:
-          comment?.value
-            ?.map((entry) => new aas.types.LangStringTextType(entry.language?.trim() ?? '', entry.text?.trim() ?? ''))
-            .filter((entry) => entry.language !== '' && entry.text !== '') ?? null,
-        min: '',
-        max: '',
-      };
+      const commentValue =
+        comment?.value
+          ?.map((entry) => new aas.types.LangStringTextType(entry.language?.trim() ?? '', entry.text?.trim() ?? ''))
+          .filter((entry) => entry.language !== '' && entry.text !== '') ?? null;
 
-      if (propertyElement instanceof aas.types.Range) {
-        draft.idShort = propertyElement.idShort ?? draft.idShort;
-        draft.type = 'Range';
-        draft.valueType = propertyElement.valueType ?? aas.types.DataTypeDefXsd.String;
-        draft.semanticId = this.readFirstRefValue(propertyElement.semanticId);
-        draft.min = propertyElement.min ?? '';
-        draft.max = propertyElement.max ?? '';
-      } else if (propertyElement instanceof aas.types.MultiLanguageProperty) {
-        draft.idShort = propertyElement.idShort ?? draft.idShort;
-        draft.type = 'MultiLanguageProperty';
-        draft.semanticId = this.readFirstRefValue(propertyElement.semanticId);
-        draft.mlpValue =
-          propertyElement.value
-            ?.map((entry) => new aas.types.LangStringTextType(entry.language?.trim() ?? '', entry.text?.trim() ?? ''))
-            .filter((entry) => entry.language !== '' && entry.text !== '') ?? null;
-        draft.valueId = this.readFirstRefValue(propertyElement.valueId);
-      } else if (propertyElement instanceof aas.types.SubmodelElementList) {
-        draft.idShort = propertyElement.idShort ?? draft.idShort;
-        draft.type = 'SubmodelElementList';
-        draft.valueType = propertyElement.valueTypeListElement ?? aas.types.DataTypeDefXsd.String;
-        draft.semanticId = this.readFirstRefValue(propertyElement.semanticId);
-        const first = propertyElement.value?.[0];
-        if (first instanceof aas.types.Property) {
-          draft.value = first.value ?? '';
+      const properties: CapabilityPropertyDraft[] = propertyElements.map((propertyElement, propIndex) => {
+        const draft: CapabilityPropertyDraft = {
+          idShort: `Property${propIndex.toString().padStart(2, '0')}`,
+          type: 'Property',
+          valueType: aas.types.DataTypeDefXsd.String,
+          semanticId: '',
+          valueId: '',
+          value: '',
+          mlpValue: null,
+          min: '',
+          max: '',
+        };
+
+        if (propertyElement instanceof aas.types.Range) {
+          draft.idShort = propertyElement.idShort ?? draft.idShort;
+          draft.type = 'Range';
+          draft.valueType = propertyElement.valueType ?? aas.types.DataTypeDefXsd.String;
+          draft.semanticId = this.readFirstRefValue(propertyElement.semanticId);
+          draft.min = propertyElement.min ?? '';
+          draft.max = propertyElement.max ?? '';
+        } else if (propertyElement instanceof aas.types.MultiLanguageProperty) {
+          draft.idShort = propertyElement.idShort ?? draft.idShort;
+          draft.type = 'MultiLanguageProperty';
+          draft.semanticId = this.readFirstRefValue(propertyElement.semanticId);
+          draft.mlpValue =
+            propertyElement.value
+              ?.map((entry) => new aas.types.LangStringTextType(entry.language?.trim() ?? '', entry.text?.trim() ?? ''))
+              .filter((entry) => entry.language !== '' && entry.text !== '') ?? null;
+          draft.valueId = this.readFirstRefValue(propertyElement.valueId);
+        } else if (propertyElement instanceof aas.types.SubmodelElementList) {
+          draft.idShort = propertyElement.idShort ?? draft.idShort;
+          draft.type = 'SubmodelElementList';
+          draft.valueType = propertyElement.valueTypeListElement ?? aas.types.DataTypeDefXsd.String;
+          draft.semanticId = this.readFirstRefValue(propertyElement.semanticId);
+          const first = propertyElement.value?.[0];
+          if (first instanceof aas.types.Property) {
+            draft.value = first.value ?? '';
+          }
+        } else if (propertyElement instanceof aas.types.Property) {
+          draft.idShort = propertyElement.idShort ?? draft.idShort;
+          draft.type = 'Property';
+          draft.valueType = propertyElement.valueType ?? aas.types.DataTypeDefXsd.String;
+          draft.semanticId = this.readFirstRefValue(propertyElement.semanticId);
+          draft.value = propertyElement.value ?? '';
+          draft.valueId = this.readFirstRefValue(propertyElement.valueId);
         }
-      } else if (propertyElement instanceof aas.types.Property) {
-        draft.idShort = propertyElement.idShort ?? draft.idShort;
-        draft.type = 'Property';
-        draft.valueType = propertyElement.valueType ?? aas.types.DataTypeDefXsd.String;
-        draft.semanticId = this.readFirstRefValue(propertyElement.semanticId);
-        draft.value = propertyElement.value ?? '';
-        draft.valueId = this.readFirstRefValue(propertyElement.valueId);
-      }
 
-      return draft;
+        return draft;
+      });
+
+      return {
+        idShort: container.idShort?.trim() ?? '',
+        commentValue,
+        properties,
+      };
     });
   }
 

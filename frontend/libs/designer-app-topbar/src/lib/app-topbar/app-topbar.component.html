@@ -20,16 +20,14 @@
   </div>
 
   <div class="flex flex-row gap-1 items-center">
-    @if (portalService.loggedIn) {
-      <p-button
-        label="{{ portalService.currentLanguage.toUpperCase() }}"
-        icon="pi pi-globe"
-        (onClick)="opLang.toggle($event)"
-        [rounded]="true"
-        class="topbar-button text-0 mr-2"
-        iconPos="right"
-      ></p-button>
-    }
+    <p-button
+      label="{{ portalService.currentLanguage.toUpperCase() }}"
+      icon="pi pi-globe"
+      (onClick)="opLang.toggle($event)"
+      [rounded]="true"
+      class="topbar-button text-0 mr-2"
+      iconPos="right"
+    ></p-button>
     <p-popover #opLang>
       <div class="flex flex-col gap-2">
         <span class="font-medium text-900 block mb-2">{{ 'PLEASE_SELECT_A_LANGUAGE' | translate }}</span>

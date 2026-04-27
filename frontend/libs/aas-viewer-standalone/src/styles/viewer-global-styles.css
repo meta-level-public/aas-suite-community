@@ -1,0 +1,104 @@
+/* Global styles required by aas-viewer-standalone.
+ * Import this file in any app that uses aas-aas-viewer-standalone. */
+
+@import '@fortawesome/fontawesome-free/css/all.min.css';
+@import 'leaflet/dist/leaflet.css';
+
+/* Navigation Card Styles */
+.navigation-card,
+.overview-card {
+  position: relative;
+  overflow: hidden;
+}
+
+.navigation-card::before,
+.overview-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: linear-gradient(90deg, var(--p-primary-color) 0%, var(--p-primary-600) 100%);
+  z-index: 1;
+}
+
+.navigation-item {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.875rem 1rem;
+  cursor: pointer;
+  border-radius: var(--p-border-radius);
+  transition: all 0.2s ease;
+  margin-bottom: 0.5rem;
+  border: 1px solid transparent;
+}
+
+.navigation-item:hover {
+  background: var(--p-surface-100);
+}
+
+.navigation-item.active {
+  background: var(--p-primary-color);
+  color: var(--p-surface-0);
+  font-weight: 600;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+}
+
+.navigation-item.active .navigation-icon {
+  color: var(--p-surface-0);
+}
+
+.navigation-icon {
+  font-size: var(--aas-text-lg);
+  color: var(--p-primary-color);
+  flex-shrink: 0;
+}
+
+.navigation-label {
+  flex: 1;
+  font-size: var(--aas-text-md);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* Submodels Section */
+.submodels-section {
+  margin-top: 1rem;
+  padding-top: 1rem;
+  border-top: 2px solid var(--p-surface-200);
+}
+
+.submodels-header {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 1rem;
+  margin-bottom: 0.75rem;
+  font-size: var(--aas-text-sm);
+  color: var(--p-text-muted-color);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.submodels-header i {
+  font-size: 1rem;
+  color: var(--p-primary-color);
+}
+
+.submodel-item {
+  margin-left: 0.5rem;
+}
+
+.submodel-item .navigation-icon {
+  font-size: 1rem;
+}
+
+/* Dark Mode Overrides */
+html.my-app-dark {
+  .navigation-item:hover {
+    background: rgba(255, 255, 255, 0.05);
+  }
+}

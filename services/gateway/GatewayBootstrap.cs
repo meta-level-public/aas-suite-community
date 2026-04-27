@@ -53,6 +53,8 @@ public static class GatewayBootstrap
                 ?? throw new InvalidOperationException(
                     "Missing aas-designer cluster destination address."
                 );
+            options.FrontendLoginPath =
+                builder.Configuration["GatewayBackend:FrontendLoginPath"] ?? "/designer-ui/login";
         });
 
         builder.Services.Configure<ForwardedHeadersOptions>(options =>

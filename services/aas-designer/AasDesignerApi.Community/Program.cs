@@ -314,20 +314,7 @@ builder.Services.AddTransient<
 >();
 builder.Services.AddProxies();
 
-builder.Services.AddSpaStaticFiles(configuration =>
-{
-    configuration.RootPath = "wwwroot";
-});
-
 var app = builder.Build();
-
-var fileExtensionProvider = new FileExtensionContentTypeProvider();
-fileExtensionProvider.Mappings[".yaml"] = "application/yaml";
-fileExtensionProvider.Mappings[".yml"] = "application/yaml";
-
-app.UseStaticFiles(new StaticFileOptions { ContentTypeProvider = fileExtensionProvider });
-
-app.UseSpaStaticFiles(new StaticFileOptions { ContentTypeProvider = fileExtensionProvider });
 
 app.UseOpenApi(settings => settings.Path = "/openapi/{documentName}.json");
 app.UseSwaggerUi(settings =>
@@ -341,17 +328,6 @@ app.UseSwaggerUi(settings =>
 
 app.UseForwardedHeaders();
 app.UseAuthentication();
-
-if (!app.Environment.IsDevelopment())
-{
-    app.UseHttpsRedirection();
-    app.UseSpa(spa =>
-    {
-        spa.Options.SourcePath = "clientapp";
-    });
-
-    app.UseHsts();
-}
 
 app.UseStatusCodePages();
 app.UseAuthorization();
@@ -517,6 +493,29 @@ static class WebApplicationExtensions
             await dbContext.SaveChangesAsync();
 
             logger.LogInformation("Initial Organisation and User created");
+
+            if (keycloakAdminService != null && keycloakAdminService.IsProvisioningEnabled)
+            {
+                var provisionedUser =
+                    await keycloakAdminService.EnsureUserWithOrganisationRolesAsync(
+                        b.Email,
+                        b.Vorname,
+                        b.Name,
+                        orga.Id,
+                        benutzerOrga.BenutzerRollen,
+                        appSettings.InitialOrganisationAdminPassword,
+                        false
+                    );
+
+                if (provisionedUser != null)
+                {
+                    b.ExternalIdentityProvider = "Keycloak";
+                    b.ExternalIdentitySubject = provisionedUser.UserId;
+                    b.ExternalIdentityUsername = provisionedUser.Email;
+                    await dbContext.SaveChangesAsync();
+                    logger.LogInformation("Initial user provisioned in Keycloak");
+                }
+            }
 
             if (!appSettings.SingleTenantMode)
             {

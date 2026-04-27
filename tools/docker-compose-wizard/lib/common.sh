@@ -460,6 +460,7 @@ append_postgres_service() {
       POSTGRES_PASSWORD: \${POSTGRES_PASSWORD}
       BASYX_POSTGRES_DB: \${BASYX_POSTGRES_DB}
       KEYCLOAK_POSTGRES_DB: \${KEYCLOAK_POSTGRES_DB}
+      MARKT_POSTGRES_DB: \${MARKT_POSTGRES_DB}
     volumes:
       - ${volume_name}:/var/lib/postgresql/data
       - ./postgres-init/10-create-basyx-db.sh:/docker-entrypoint-initdb.d/10-create-basyx-db.sh:ro
@@ -469,7 +470,8 @@ append_postgres_service() {
       test: ["CMD-SHELL", "pg_isready -U \${POSTGRES_USER} -d \${POSTGRES_DB}"]
       interval: 10s
       timeout: 5s
-      retries: 5
+      retries: 10
+      start_period: 20s
     restart: unless-stopped
 EOF_COMPOSE
 }
@@ -501,6 +503,9 @@ EOSQL
 create_db_if_missing "${BASYX_POSTGRES_DB:-}"
 if [ "${KEYCLOAK_POSTGRES_DB:-}" != "${BASYX_POSTGRES_DB:-}" ]; then
   create_db_if_missing "${KEYCLOAK_POSTGRES_DB:-}"
+fi
+if [ "${MARKT_POSTGRES_DB:-}" != "${BASYX_POSTGRES_DB:-}" ] && [ "${MARKT_POSTGRES_DB:-}" != "${KEYCLOAK_POSTGRES_DB:-}" ]; then
+  create_db_if_missing "${MARKT_POSTGRES_DB:-}"
 fi
 EOF_SCRIPT
   chmod +x "$init_script"
@@ -606,6 +611,9 @@ append_gateway_service() {
   local include_health_dashboard="${9:-false}"
   local keycloak_mode="${10:-existing}"
   local designer_service_name="${11:-designer-backend}"
+  local market_cluster_url="${12:-}"
+  local market_ui_cluster_url="${13:-}"
+  local frontend_login_path="${14:-/designer-ui/login}"
 
   cat >> "$compose_file" <<EOF_COMPOSE
   gateway:
@@ -623,6 +631,16 @@ append_gateway_service() {
       ReverseProxy__Clusters__keycloak-cluster__Destinations__destination1__Address: ${keycloak_cluster_url}
       ReverseProxy__Clusters__aas-designer-cluster__Destinations__destination1__Address: ${designer_cluster_url}
       ReverseProxy__Clusters__frontend-cluster__Destinations__destination1__Address: ${frontend_cluster_url}
+      AppSettings__KeycloakEnabled: "true"
+      AppSettings__KeycloakSsoSourceName: \${KEYCLOAK_SSO_SOURCE_NAME:-keycloak}
+      AppSettings__KeycloakIssuer: \${KEYCLOAK_ISSUER}
+      AppSettings__KeycloakWellKnownUrl: \${KEYCLOAK_WELLKNOWN_URL}
+      AppSettings__KeycloakPublicIssuer: \${KEYCLOAK_PUBLIC_ISSUER}
+      AppSettings__KeycloakPublicWellKnownUrl: \${KEYCLOAK_PUBLIC_WELLKNOWN_URL}
+      AppSettings__KeycloakClientId: \${KEYCLOAK_CLIENT_ID}
+      AppSettings__KeycloakAudience: \${KEYCLOAK_AUDIENCE}
+      AppSettings__KeycloakScopes: \${KEYCLOAK_SCOPES}
+      GatewayBackend__FrontendLoginPath: ${frontend_login_path}
 EOF_COMPOSE
 
   if [ "$include_feedmapping" = "true" ]; then
@@ -637,6 +655,26 @@ EOF_COMPOSE
 EOF_COMPOSE
   fi
 
+  if [ -n "$market_cluster_url" ] && [ -n "$market_ui_cluster_url" ]; then
+    cat >> "$compose_file" <<EOF_COMPOSE
+      ReverseProxy__Routes__designer-ui-root__ClusterId: frontend-cluster
+      ReverseProxy__Routes__designer-ui-root__Match__Path: /designer-ui
+      ReverseProxy__Routes__designer-ui__ClusterId: frontend-cluster
+      ReverseProxy__Routes__designer-ui__Match__Path: /designer-ui/{**catch-all}
+      ReverseProxy__Routes__designer-ui__Transforms__0__PathRemovePrefix: /designer-ui
+      ReverseProxy__Routes__markt-api__ClusterId: markt-cluster
+      ReverseProxy__Routes__markt-api__Match__Path: /markt-api/{**catch-all}
+      ReverseProxy__Routes__markt-api__Transforms__0__PathRemovePrefix: /markt-api
+      ReverseProxy__Routes__markt-ui-root__ClusterId: markt-ui-cluster
+      ReverseProxy__Routes__markt-ui-root__Match__Path: /markt-ui
+      ReverseProxy__Routes__markt-ui__ClusterId: markt-ui-cluster
+      ReverseProxy__Routes__markt-ui__Match__Path: /markt-ui/{**catch-all}
+      ReverseProxy__Routes__markt-ui__Transforms__0__PathRemovePrefix: /markt-ui
+      ReverseProxy__Clusters__markt-cluster__Destinations__destination1__Address: ${market_cluster_url}
+      ReverseProxy__Clusters__markt-ui-cluster__Destinations__destination1__Address: ${market_ui_cluster_url}
+EOF_COMPOSE
+  fi
+
   cat >> "$compose_file" <<EOF_COMPOSE
     ports:
       - "${host_port}:${container_port}"
@@ -644,8 +682,6 @@ EOF_COMPOSE
       - ${network_name}
     depends_on:
       postgres:
-        condition: service_healthy
-      ${designer_service_name}:
         condition: service_healthy
 EOF_COMPOSE
 
@@ -704,6 +740,7 @@ append_frontend_service() {
   local network_name="$2"
   local container_port="$3"
   local designer_service_name="${4:-designer-backend}"
+  local patch_base_href="${5:-false}"
 
   cat >> "$compose_file" <<EOF_COMPOSE
   frontend:
@@ -773,7 +810,10 @@ append_frontend_service() {
         fi
         INDEX_FILE="\$\$ROOT_DIR/index.html"
         if [ -f "\$\$INDEX_FILE" ] && ! grep -q "runtime-config.js" "\$\$INDEX_FILE"; then
-          sed -i 's#<head>#<head><script src="/runtime-config.js"></script>#' "\$\$INDEX_FILE"
+          sed -i 's#<head>#<head><script src="runtime-config.js"></script>#' "\$\$INDEX_FILE"
+        fi
+        if [ "${patch_base_href}" = "true" ] && [ -f "\$\$INDEX_FILE" ]; then
+          sed -i 's#<base href="/" />#<base href="/designer-ui/" />#' "\$\$INDEX_FILE"
         fi
         cat >/tmp/Caddyfile <<EOF
         {
@@ -794,6 +834,62 @@ append_frontend_service() {
         condition: service_healthy
     healthcheck:
       test: ["CMD-SHELL", "wget -q -O /dev/null http://127.0.0.1:${container_port} || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 20s
+    restart: unless-stopped
+EOF_COMPOSE
+}
+
+append_markt_service() {
+  local compose_file="$1"
+  local network_name="$2"
+  local container_port="$3"
+
+  cat >> "$compose_file" <<EOF_COMPOSE
+  markt:
+    image: \${MARKT_IMAGE_REPO}:\${MARKT_IMAGE_TAG}
+    container_name: \${PROJECT_NAME}-markt
+    environment:
+      ASPNETCORE_ENVIRONMENT: Production
+      ASPNETCORE_URLS: http://+:${container_port}
+      ConnectionStrings__DefaultConnection: Host=postgres;Port=5432;Database=\${MARKT_POSTGRES_DB};Username=\${POSTGRES_USER};Password=\${POSTGRES_PASSWORD}
+      Authentication__ExternalJwt__Authority: \${KEYCLOAK_ISSUER}
+      Authentication__ExternalJwt__Audience: \${MARKT_EXTERNAL_AUDIENCE}
+      Authentication__ExternalJwt__RequireHttpsMetadata: "false"
+    networks:
+      - ${network_name}
+    depends_on:
+      postgres:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "if command -v curl >/dev/null 2>&1; then curl -fsS http://127.0.0.1:${container_port}/health >/dev/null || exit 1; else kill -0 1; fi"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 20s
+    restart: unless-stopped
+EOF_COMPOSE
+}
+
+append_markt_ui_service() {
+  local compose_file="$1"
+  local network_name="$2"
+
+  cat >> "$compose_file" <<EOF_COMPOSE
+  markt-ui:
+    image: \${MARKT_UI_IMAGE_REPO}:\${MARKT_UI_IMAGE_TAG}
+    container_name: \${PROJECT_NAME}-markt-ui
+    environment:
+      MARKT_API_BASE_URL: \${MARKT_API_BASE_URL}
+    networks:
+      - ${network_name}
+    depends_on:
+      gateway:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "wget -q -O /dev/null http://127.0.0.1:80 || exit 1"]
       interval: 10s
       timeout: 5s
       retries: 10
@@ -1215,7 +1311,12 @@ run_optional_startup() {
   if [ "$run_start" = "yes" ]; then
     pull_compose_images "$compose_file" "$env_file" "$project_name" "$image_source"
     info "Starte Stack ..."
-    docker compose -p "$project_name" --env-file "$env_file" -f "$compose_file" up -d
+    local up_pull_flag=""
+    if [ "$image_source" = "local" ]; then
+      up_pull_flag="--pull never"
+    fi
+    # shellcheck disable=SC2086
+    docker compose -p "$project_name" --env-file "$env_file" -f "$compose_file" up -d $up_pull_flag
     docker compose -p "$project_name" --env-file "$env_file" -f "$compose_file" ps
   fi
 }

@@ -8,10 +8,10 @@
 /* eslint-disable */
 // ReSharper disable InconsistentNaming
 
+import { mergeMap as _observableMergeMap, catchError as _observableCatch } from 'rxjs/operators';
+import { Observable, throwError as _observableThrow, of as _observableOf } from 'rxjs';
+import { Injectable, Inject, Optional, InjectionToken } from '@angular/core';
 import { HttpClient, HttpHeaders, HttpResponse, HttpResponseBase } from '@angular/common/http';
-import { Inject, Injectable, InjectionToken, Optional } from '@angular/core';
-import { Observable, of as _observableOf, throwError as _observableThrow } from 'rxjs';
-import { catchError as _observableCatch, mergeMap as _observableMergeMap } from 'rxjs/operators';
 
 export const API_BASE_URL = new InjectionToken<string>('API_BASE_URL');
 
@@ -5053,6 +5053,7 @@ export class SettingsClient implements ISettingsClient {
 
 export interface IAasViewerClient {
   aasViewer_GetViewerDescriptor(aasIdentifier: string | undefined): Observable<ViewerDescriptor>;
+  aasViewer_GetRawDescriptor(aasIdentifier: string | undefined): Observable<RawDescriptor>;
 }
 
 @Injectable({
@@ -5123,6 +5124,74 @@ export class AasViewerClient implements IAasViewerClient {
           let result200: any = null;
           let resultData200 = _responseText === '' ? null : JSON.parse(_responseText, this.jsonParseReviver);
           result200 = ViewerDescriptor.fromJS(resultData200);
+          return _observableOf(result200);
+        }),
+      );
+    } else if (status !== 200 && status !== 204) {
+      return blobToText(responseBlob).pipe(
+        _observableMergeMap((_responseText: string) => {
+          return throwException('An unexpected server error occurred.', status, _responseText, _headers);
+        }),
+      );
+    }
+    return _observableOf(null as any);
+  }
+
+  aasViewer_GetRawDescriptor(aasIdentifier: string | undefined): Observable<RawDescriptor> {
+    let url_ = this.baseUrl + '/aas-viewer-api/raw-descriptor?';
+    if (aasIdentifier === null) throw new Error("The parameter 'aasIdentifier' cannot be null.");
+    else if (aasIdentifier !== undefined) url_ += 'aasIdentifier=' + encodeURIComponent('' + aasIdentifier) + '&';
+    url_ = url_.replace(/[?&]$/, '');
+
+    let options_: any = {
+      observe: 'response',
+      responseType: 'blob',
+      headers: new HttpHeaders({
+        Accept: 'application/json',
+      }),
+    };
+
+    return this.http
+      .request('get', url_, options_)
+      .pipe(
+        _observableMergeMap((response_: any) => {
+          return this.processAasViewer_GetRawDescriptor(response_);
+        }),
+      )
+      .pipe(
+        _observableCatch((response_: any) => {
+          if (response_ instanceof HttpResponseBase) {
+            try {
+              return this.processAasViewer_GetRawDescriptor(response_ as any);
+            } catch (e) {
+              return _observableThrow(e) as any as Observable<RawDescriptor>;
+            }
+          } else return _observableThrow(response_) as any as Observable<RawDescriptor>;
+        }),
+      );
+  }
+
+  protected processAasViewer_GetRawDescriptor(response: HttpResponseBase): Observable<RawDescriptor> {
+    const status = response.status;
+    const responseBlob =
+      response instanceof HttpResponse
+        ? response.body
+        : (response as any).error instanceof Blob
+          ? (response as any).error
+          : undefined;
+
+    let _headers: any = {};
+    if (response.headers) {
+      for (let key of response.headers.keys()) {
+        _headers[key] = response.headers.get(key);
+      }
+    }
+    if (status === 200) {
+      return blobToText(responseBlob).pipe(
+        _observableMergeMap((_responseText: string) => {
+          let result200: any = null;
+          let resultData200 = _responseText === '' ? null : JSON.parse(_responseText, this.jsonParseReviver);
+          result200 = RawDescriptor.fromJS(resultData200);
           return _observableOf(result200);
         }),
       );
@@ -8566,7 +8635,10 @@ export interface ISystemManagementClient {
   systemManagement_GetMailSettings(): Observable<MailSettingsDto>;
   systemManagement_UpdateMailSettings(settings: MailSettingsDto): Observable<MailSettingsDto>;
   systemManagement_GetLegalLinksSettings(): Observable<LegalLinksSettingsDto>;
-  systemManagement_UpdateLegalLinksSettings(settings: LegalLinksSettingsDto): Observable<LegalLinksSettingsDto>;
+  systemManagement_GetLegalDocument(fieldName: string): Observable<FileResponse>;
+  systemManagement_UpdateLegalLinksSettings(
+    request: UpdateLegalLinksSettingsRequest,
+  ): Observable<LegalLinksSettingsDto>;
   systemManagement_SendApplicationTestMail(request: SendApplicationTestMailRequestDto): Observable<void>;
   systemManagement_SendKeycloakTestMail(request: SendKeycloakTestMailRequestDto): Observable<void>;
   systemManagement_UpsertThemeDefinition(theme: ThemeDefinitionDto): Observable<ThemeDefinitionDto>;
@@ -9281,11 +9353,85 @@ export class SystemManagementClient implements ISystemManagementClient {
     return _observableOf(null as any);
   }
 
-  systemManagement_UpdateLegalLinksSettings(settings: LegalLinksSettingsDto): Observable<LegalLinksSettingsDto> {
+  systemManagement_GetLegalDocument(fieldName: string): Observable<FileResponse> {
+    let url_ = this.baseUrl + '/system-management-api/SystemManagement/GetLegalDocument/{fieldName}';
+    if (fieldName === undefined || fieldName === null) throw new Error("The parameter 'fieldName' must be defined.");
+    url_ = url_.replace('{fieldName}', encodeURIComponent('' + fieldName));
+    url_ = url_.replace(/[?&]$/, '');
+
+    let options_: any = {
+      observe: 'response',
+      responseType: 'blob',
+      headers: new HttpHeaders({
+        Accept: 'application/octet-stream',
+      }),
+    };
+
+    return this.http
+      .request('get', url_, options_)
+      .pipe(
+        _observableMergeMap((response_: any) => {
+          return this.processSystemManagement_GetLegalDocument(response_);
+        }),
+      )
+      .pipe(
+        _observableCatch((response_: any) => {
+          if (response_ instanceof HttpResponseBase) {
+            try {
+              return this.processSystemManagement_GetLegalDocument(response_ as any);
+            } catch (e) {
+              return _observableThrow(e) as any as Observable<FileResponse>;
+            }
+          } else return _observableThrow(response_) as any as Observable<FileResponse>;
+        }),
+      );
+  }
+
+  protected processSystemManagement_GetLegalDocument(response: HttpResponseBase): Observable<FileResponse> {
+    const status = response.status;
+    const responseBlob =
+      response instanceof HttpResponse
+        ? response.body
+        : (response as any).error instanceof Blob
+          ? (response as any).error
+          : undefined;
+
+    let _headers: any = {};
+    if (response.headers) {
+      for (let key of response.headers.keys()) {
+        _headers[key] = response.headers.get(key);
+      }
+    }
+    if (status === 200 || status === 206) {
+      const contentDisposition = response.headers ? response.headers.get('content-disposition') : undefined;
+      let fileNameMatch = contentDisposition
+        ? /filename\*=(?:(\\?['"])(.*?)\1|(?:[^\s]+'.*?')?([^;\n]*))/g.exec(contentDisposition)
+        : undefined;
+      let fileName = fileNameMatch && fileNameMatch.length > 1 ? fileNameMatch[3] || fileNameMatch[2] : undefined;
+      if (fileName) {
+        fileName = decodeURIComponent(fileName);
+      } else {
+        fileNameMatch = contentDisposition ? /filename="?([^"]*?)"?(;|$)/g.exec(contentDisposition) : undefined;
+        fileName = fileNameMatch && fileNameMatch.length > 1 ? fileNameMatch[1] : undefined;
+      }
+      return _observableOf({ fileName: fileName, data: responseBlob as any, status: status, headers: _headers });
+    } else if (status !== 200 && status !== 204) {
+      return blobToText(responseBlob).pipe(
+        _observableMergeMap((_responseText: string) => {
+          return throwException('An unexpected server error occurred.', status, _responseText, _headers);
+        }),
+      );
+    }
+    return _observableOf(null as any);
+  }
+
+  systemManagement_UpdateLegalLinksSettings(
+    request: UpdateLegalLinksSettingsRequest,
+  ): Observable<LegalLinksSettingsDto> {
     let url_ = this.baseUrl + '/system-management-api/SystemManagement/UpdateLegalLinksSettings';
     url_ = url_.replace(/[?&]$/, '');
 
-    const content_ = JSON.stringify(settings);
+    const content_ = JSON.stringify(request);
 
     let options_: any = {
       body: content_,
@@ -12690,6 +12836,112 @@ export interface IViewerDescriptor {
   cdEndpoint?: string;
   aasEndpoint?: string;
   submodelEndpoints?: string[];
+}
+
+export class RawDescriptor implements IRawDescriptor {
+  aasId?: string;
+  aasEndpoint?: string;
+  submodelEndpoints?: string[];
+  aasInfrastrukturId?: number;
+  globalAssetId?: string | undefined;
+  specificAssetIds?: SpecificAssetIdEntry[];
+
+  constructor(data?: IRawDescriptor) {
+    if (data) {
+      for (var property in data) {
+        if (data.hasOwnProperty(property)) (<any>this)[property] = (<any>data)[property];
+      }
+    }
+  }
+
+  init(_data?: any) {
+    if (_data) {
+      this.aasId = _data['aasId'];
+      this.aasEndpoint = _data['aasEndpoint'];
+      if (Array.isArray(_data['submodelEndpoints'])) {
+        this.submodelEndpoints = [] as any;
+        for (let item of _data['submodelEndpoints']) this.submodelEndpoints!.push(item);
+      }
+      this.aasInfrastrukturId = _data['aasInfrastrukturId'];
+      this.globalAssetId = _data['globalAssetId'];
+      if (Array.isArray(_data['specificAssetIds'])) {
+        this.specificAssetIds = [] as any;
+        for (let item of _data['specificAssetIds']) this.specificAssetIds!.push(SpecificAssetIdEntry.fromJS(item));
+      }
+    }
+  }
+
+  static fromJS(data: any): RawDescriptor {
+    data = typeof data === 'object' ? data : {};
+    let result = new RawDescriptor();
+    result.init(data);
+    return result;
+  }
+
+  toJSON(data?: any) {
+    data = typeof data === 'object' ? data : {};
+    data['aasId'] = this.aasId;
+    data['aasEndpoint'] = this.aasEndpoint;
+    if (Array.isArray(this.submodelEndpoints)) {
+      data['submodelEndpoints'] = [];
+      for (let item of this.submodelEndpoints) data['submodelEndpoints'].push(item);
+    }
+    data['aasInfrastrukturId'] = this.aasInfrastrukturId;
+    data['globalAssetId'] = this.globalAssetId;
+    if (Array.isArray(this.specificAssetIds)) {
+      data['specificAssetIds'] = [];
+      for (let item of this.specificAssetIds) data['specificAssetIds'].push(item.toJSON());
+    }
+    return data;
+  }
+}
+
+export interface IRawDescriptor {
+  aasId?: string;
+  aasEndpoint?: string;
+  submodelEndpoints?: string[];
+  aasInfrastrukturId?: number;
+  globalAssetId?: string | undefined;
+  specificAssetIds?: SpecificAssetIdEntry[];
+}
+
+export class SpecificAssetIdEntry implements ISpecificAssetIdEntry {
+  name?: string;
+  value?: string;
+
+  constructor(data?: ISpecificAssetIdEntry) {
+    if (data) {
+      for (var property in data) {
+        if (data.hasOwnProperty(property)) (<any>this)[property] = (<any>data)[property];
+      }
+    }
+  }
+
+  init(_data?: any) {
+    if (_data) {
+      this.name = _data['name'];
+      this.value = _data['value'];
+    }
+  }
+
+  static fromJS(data: any): SpecificAssetIdEntry {
+    data = typeof data === 'object' ? data : {};
+    let result = new SpecificAssetIdEntry();
+    result.init(data);
+    return result;
+  }
+
+  toJSON(data?: any) {
+    data = typeof data === 'object' ? data : {};
+    data['name'] = this.name;
+    data['value'] = this.value;
+    return data;
+  }
+}
+
+export interface ISpecificAssetIdEntry {
+  name?: string;
+  value?: string;
 }
 
 export class OrganisationUebersichtDto implements IOrganisationUebersichtDto {
@@ -16496,6 +16748,13 @@ export class LegalLinksSettingsDto implements ILegalLinksSettingsDto {
   avvLinkDe?: string;
   avvLinkEn?: string;
   imprintLink?: string;
+  datenschutzLinkDeDocument?: LegalLinksDocumentInfoDto | undefined;
+  datenschutzLinkEnDocument?: LegalLinksDocumentInfoDto | undefined;
+  agbLinkDeDocument?: LegalLinksDocumentInfoDto | undefined;
+  agbLinkEnDocument?: LegalLinksDocumentInfoDto | undefined;
+  avvLinkDeDocument?: LegalLinksDocumentInfoDto | undefined;
+  avvLinkEnDocument?: LegalLinksDocumentInfoDto | undefined;
+  imprintLinkDocument?: LegalLinksDocumentInfoDto | undefined;
 
   constructor(data?: ILegalLinksSettingsDto) {
     if (data) {
@@ -16514,6 +16773,27 @@ export class LegalLinksSettingsDto implements ILegalLinksSettingsDto {
       this.avvLinkDe = _data['avvLinkDe'];
       this.avvLinkEn = _data['avvLinkEn'];
       this.imprintLink = _data['imprintLink'];
+      this.datenschutzLinkDeDocument = _data['datenschutzLinkDeDocument']
+        ? LegalLinksDocumentInfoDto.fromJS(_data['datenschutzLinkDeDocument'])
+        : <any>undefined;
+      this.datenschutzLinkEnDocument = _data['datenschutzLinkEnDocument']
+        ? LegalLinksDocumentInfoDto.fromJS(_data['datenschutzLinkEnDocument'])
+        : <any>undefined;
+      this.agbLinkDeDocument = _data['agbLinkDeDocument']
+        ? LegalLinksDocumentInfoDto.fromJS(_data['agbLinkDeDocument'])
+        : <any>undefined;
+      this.agbLinkEnDocument = _data['agbLinkEnDocument']
+        ? LegalLinksDocumentInfoDto.fromJS(_data['agbLinkEnDocument'])
+        : <any>undefined;
+      this.avvLinkDeDocument = _data['avvLinkDeDocument']
+        ? LegalLinksDocumentInfoDto.fromJS(_data['avvLinkDeDocument'])
+        : <any>undefined;
+      this.avvLinkEnDocument = _data['avvLinkEnDocument']
+        ? LegalLinksDocumentInfoDto.fromJS(_data['avvLinkEnDocument'])
+        : <any>undefined;
+      this.imprintLinkDocument = _data['imprintLinkDocument']
+        ? LegalLinksDocumentInfoDto.fromJS(_data['imprintLinkDocument'])
+        : <any>undefined;
     }
   }
 
@@ -16533,6 +16813,17 @@ export class LegalLinksSettingsDto implements ILegalLinksSettingsDto {
     data['avvLinkDe'] = this.avvLinkDe;
     data['avvLinkEn'] = this.avvLinkEn;
     data['imprintLink'] = this.imprintLink;
+    data['datenschutzLinkDeDocument'] = this.datenschutzLinkDeDocument
+      ? this.datenschutzLinkDeDocument.toJSON()
+      : <any>undefined;
+    data['datenschutzLinkEnDocument'] = this.datenschutzLinkEnDocument
+      ? this.datenschutzLinkEnDocument.toJSON()
+      : <any>undefined;
+    data['agbLinkDeDocument'] = this.agbLinkDeDocument ? this.agbLinkDeDocument.toJSON() : <any>undefined;
+    data['agbLinkEnDocument'] = this.agbLinkEnDocument ? this.agbLinkEnDocument.toJSON() : <any>undefined;
+    data['avvLinkDeDocument'] = this.avvLinkDeDocument ? this.avvLinkDeDocument.toJSON() : <any>undefined;
+    data['avvLinkEnDocument'] = this.avvLinkEnDocument ? this.avvLinkEnDocument.toJSON() : <any>undefined;
+    data['imprintLinkDocument'] = this.imprintLinkDocument ? this.imprintLinkDocument.toJSON() : <any>undefined;
     return data;
   }
 }
@@ -16545,6 +16836,204 @@ export interface ILegalLinksSettingsDto {
   avvLinkDe?: string;
   avvLinkEn?: string;
   imprintLink?: string;
+  datenschutzLinkDeDocument?: LegalLinksDocumentInfoDto | undefined;
+  datenschutzLinkEnDocument?: LegalLinksDocumentInfoDto | undefined;
+  agbLinkDeDocument?: LegalLinksDocumentInfoDto | undefined;
+  agbLinkEnDocument?: LegalLinksDocumentInfoDto | undefined;
+  avvLinkDeDocument?: LegalLinksDocumentInfoDto | undefined;
+  avvLinkEnDocument?: LegalLinksDocumentInfoDto | undefined;
+  imprintLinkDocument?: LegalLinksDocumentInfoDto | undefined;
+}
+
+export class LegalLinksDocumentInfoDto implements ILegalLinksDocumentInfoDto {
+  fileName?: string;
+  contentType?: string;
+
+  constructor(data?: ILegalLinksDocumentInfoDto) {
+    if (data) {
+      for (var property in data) {
+        if (data.hasOwnProperty(property)) (<any>this)[property] = (<any>data)[property];
+      }
+    }
+  }
+
+  init(_data?: any) {
+    if (_data) {
+      this.fileName = _data['fileName'];
+      this.contentType = _data['contentType'];
+    }
+  }
+
+  static fromJS(data: any): LegalLinksDocumentInfoDto {
+    data = typeof data === 'object' ? data : {};
+    let result = new LegalLinksDocumentInfoDto();
+    result.init(data);
+    return result;
+  }
+
+  toJSON(data?: any) {
+    data = typeof data === 'object' ? data : {};
+    data['fileName'] = this.fileName;
+    data['contentType'] = this.contentType;
+    return data;
+  }
+}
+
+export interface ILegalLinksDocumentInfoDto {
+  fileName?: string;
+  contentType?: string;
+}
+
+export class UpdateLegalLinksSettingsRequest implements IUpdateLegalLinksSettingsRequest {
+  datenschutzLinkDe?: string;
+  datenschutzLinkEn?: string;
+  agbLinkDe?: string;
+  agbLinkEn?: string;
+  avvLinkDe?: string;
+  avvLinkEn?: string;
+  imprintLink?: string;
+  datenschutzLinkDeDocument?: LegalLinksDocumentUploadDto | undefined;
+  datenschutzLinkEnDocument?: LegalLinksDocumentUploadDto | undefined;
+  agbLinkDeDocument?: LegalLinksDocumentUploadDto | undefined;
+  agbLinkEnDocument?: LegalLinksDocumentUploadDto | undefined;
+  avvLinkDeDocument?: LegalLinksDocumentUploadDto | undefined;
+  avvLinkEnDocument?: LegalLinksDocumentUploadDto | undefined;
+  imprintLinkDocument?: LegalLinksDocumentUploadDto | undefined;
+  servingBaseUrl?: string;
+
+  constructor(data?: IUpdateLegalLinksSettingsRequest) {
+    if (data) {
+      for (var property in data) {
+        if (data.hasOwnProperty(property)) (<any>this)[property] = (<any>data)[property];
+      }
+    }
+  }
+
+  init(_data?: any) {
+    if (_data) {
+      this.datenschutzLinkDe = _data['datenschutzLinkDe'];
+      this.datenschutzLinkEn = _data['datenschutzLinkEn'];
+      this.agbLinkDe = _data['agbLinkDe'];
+      this.agbLinkEn = _data['agbLinkEn'];
+      this.avvLinkDe = _data['avvLinkDe'];
+      this.avvLinkEn = _data['avvLinkEn'];
+      this.imprintLink = _data['imprintLink'];
+      this.datenschutzLinkDeDocument = _data['datenschutzLinkDeDocument']
+        ? LegalLinksDocumentUploadDto.fromJS(_data['datenschutzLinkDeDocument'])
+        : <any>undefined;
+      this.datenschutzLinkEnDocument = _data['datenschutzLinkEnDocument']
+        ? LegalLinksDocumentUploadDto.fromJS(_data['datenschutzLinkEnDocument'])
+        : <any>undefined;
+      this.agbLinkDeDocument = _data['agbLinkDeDocument']
+        ? LegalLinksDocumentUploadDto.fromJS(_data['agbLinkDeDocument'])
+        : <any>undefined;
+      this.agbLinkEnDocument = _data['agbLinkEnDocument']
+        ? LegalLinksDocumentUploadDto.fromJS(_data['agbLinkEnDocument'])
+        : <any>undefined;
+      this.avvLinkDeDocument = _data['avvLinkDeDocument']
+        ? LegalLinksDocumentUploadDto.fromJS(_data['avvLinkDeDocument'])
+        : <any>undefined;
+      this.avvLinkEnDocument = _data['avvLinkEnDocument']
+        ? LegalLinksDocumentUploadDto.fromJS(_data['avvLinkEnDocument'])
+        : <any>undefined;
+      this.imprintLinkDocument = _data['imprintLinkDocument']
+        ? LegalLinksDocumentUploadDto.fromJS(_data['imprintLinkDocument'])
+        : <any>undefined;
+      this.servingBaseUrl = _data['servingBaseUrl'];
+    }
+  }
+
+  static fromJS(data: any): UpdateLegalLinksSettingsRequest {
+    data = typeof data === 'object' ? data : {};
+    let result = new UpdateLegalLinksSettingsRequest();
+    result.init(data);
+    return result;
+  }
+
+  toJSON(data?: any) {
+    data = typeof data === 'object' ? data : {};
+    data['datenschutzLinkDe'] = this.datenschutzLinkDe;
+    data['datenschutzLinkEn'] = this.datenschutzLinkEn;
+    data['agbLinkDe'] = this.agbLinkDe;
+    data['agbLinkEn'] = this.agbLinkEn;
+    data['avvLinkDe'] = this.avvLinkDe;
+    data['avvLinkEn'] = this.avvLinkEn;
+    data['imprintLink'] = this.imprintLink;
+    data['datenschutzLinkDeDocument'] = this.datenschutzLinkDeDocument
+      ? this.datenschutzLinkDeDocument.toJSON()
+      : <any>undefined;
+    data['datenschutzLinkEnDocument'] = this.datenschutzLinkEnDocument
+      ? this.datenschutzLinkEnDocument.toJSON()
+      : <any>undefined;
+    data['agbLinkDeDocument'] = this.agbLinkDeDocument ? this.agbLinkDeDocument.toJSON() : <any>undefined;
+    data['agbLinkEnDocument'] = this.agbLinkEnDocument ? this.agbLinkEnDocument.toJSON() : <any>undefined;
+    data['avvLinkDeDocument'] = this.avvLinkDeDocument ? this.avvLinkDeDocument.toJSON() : <any>undefined;
+    data['avvLinkEnDocument'] = this.avvLinkEnDocument ? this.avvLinkEnDocument.toJSON() : <any>undefined;
+    data['imprintLinkDocument'] = this.imprintLinkDocument ? this.imprintLinkDocument.toJSON() : <any>undefined;
+    data['servingBaseUrl'] = this.servingBaseUrl;
+    return data;
+  }
+}
+
+export interface IUpdateLegalLinksSettingsRequest {
+  datenschutzLinkDe?: string;
+  datenschutzLinkEn?: string;
+  agbLinkDe?: string;
+  agbLinkEn?: string;
+  avvLinkDe?: string;
+  avvLinkEn?: string;
+  imprintLink?: string;
+  datenschutzLinkDeDocument?: LegalLinksDocumentUploadDto | undefined;
+  datenschutzLinkEnDocument?: LegalLinksDocumentUploadDto | undefined;
+  agbLinkDeDocument?: LegalLinksDocumentUploadDto | undefined;
+  agbLinkEnDocument?: LegalLinksDocumentUploadDto | undefined;
+  avvLinkDeDocument?: LegalLinksDocumentUploadDto | undefined;
+  avvLinkEnDocument?: LegalLinksDocumentUploadDto | undefined;
+  imprintLinkDocument?: LegalLinksDocumentUploadDto | undefined;
+  servingBaseUrl?: string;
+}
+
+export class LegalLinksDocumentUploadDto implements ILegalLinksDocumentUploadDto {
+  fileName?: string;
+  contentType?: string;
+  contentBase64?: string;
+
+  constructor(data?: ILegalLinksDocumentUploadDto) {
+    if (data) {
+      for (var property in data) {
+        if (data.hasOwnProperty(property)) (<any>this)[property] = (<any>data)[property];
+      }
+    }
+  }
+
+  init(_data?: any) {
+    if (_data) {
+      this.fileName = _data['fileName'];
+      this.contentType = _data['contentType'];
+      this.contentBase64 = _data['contentBase64'];
+    }
+  }
+
+  static fromJS(data: any): LegalLinksDocumentUploadDto {
+    data = typeof data === 'object' ? data : {};
+    let result = new LegalLinksDocumentUploadDto();
+    result.init(data);
+    return result;
+  }
+
+  toJSON(data?: any) {
+    data = typeof data === 'object' ? data : {};
+    data['fileName'] = this.fileName;
+    data['contentType'] = this.contentType;
+    data['contentBase64'] = this.contentBase64;
+    return data;
+  }
+}
+
+export interface ILegalLinksDocumentUploadDto {
+  fileName?: string;
+  contentType?: string;
+  contentBase64?: string;
 }
 
 export class SendApplicationTestMailRequestDto implements ISendApplicationTestMailRequestDto {

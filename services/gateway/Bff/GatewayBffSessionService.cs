@@ -24,6 +24,7 @@ public sealed class GatewayBffSessionService
     private readonly string _designerBaseUrl;
     private readonly IHttpContextAccessor _httpContextAccessor;
     private readonly ILogger<GatewayBffSessionService> _logger;
+    private readonly string _frontendBasePath;
 
     public GatewayBffSessionService(
         HttpClient httpClient,
@@ -36,6 +37,7 @@ public sealed class GatewayBffSessionService
         _httpClient = httpClient;
         _appSettings = appSettings;
         _designerBaseUrl = options.Value.DesignerBaseUrl.TrimEnd('/');
+        _frontendBasePath = options.Value.FrontendBasePath;
         _httpContextAccessor = httpContextAccessor;
         _logger = logger;
     }
@@ -842,35 +844,46 @@ public sealed class GatewayBffSessionService
         return string.Join(' ', configuredScopes.Distinct(StringComparer.Ordinal));
     }
 
-    private static string NormalizeReturnUrl(string? returnUrl)
+    private string NormalizeReturnUrl(string? returnUrl)
     {
+        var fallback = string.IsNullOrEmpty(_frontendBasePath)
+            ? "/dashboard"
+            : $"{_frontendBasePath}/dashboard";
+
         if (string.IsNullOrWhiteSpace(returnUrl))
         {
-            return "/dashboard";
+            return fallback;
         }
 
         var trimmed = returnUrl.Trim();
         if (!trimmed.StartsWith('/'))
         {
-            return "/dashboard";
+            return fallback;
         }
 
-        var forbiddenPrefixes = new[]
+        // Reject bare login/callback/error paths (with or without frontend base path prefix)
+        var forbiddenSegments = new[]
         {
             "/login",
             "/sso-login-success",
             "/sso-login-status",
+            "/bff/auth/sso/callback",
             "/error",
             "/forbidden",
         };
+        var pathToCheck =
+            !string.IsNullOrEmpty(_frontendBasePath)
+            && trimmed.StartsWith(_frontendBasePath, StringComparison.OrdinalIgnoreCase)
+                ? trimmed[_frontendBasePath.Length..]
+                : trimmed;
         if (
-            forbiddenPrefixes.Any(prefix =>
-                trimmed.Equals(prefix, StringComparison.OrdinalIgnoreCase)
-                || trimmed.StartsWith(prefix + '/', StringComparison.OrdinalIgnoreCase)
+            forbiddenSegments.Any(segment =>
+                pathToCheck.Equals(segment, StringComparison.OrdinalIgnoreCase)
+                || pathToCheck.StartsWith(segment + '/', StringComparison.OrdinalIgnoreCase)
             )
         )
         {
-            return "/dashboard";
+            return fallback;
         }
 
         return trimmed;

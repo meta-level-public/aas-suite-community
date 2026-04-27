@@ -1,3 +1,4 @@
+import { ADDITIONAL_USER_SPACE_MENU_ITEMS } from '@aas-designer-model';
 import { Component, inject, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, NavigationEnd, Router, RouterModule } from '@angular/router';
@@ -17,6 +18,7 @@ export class MyUserdataComponent {
   selectedNodeKey: string | null = null;
   router = inject(Router);
   route = inject(ActivatedRoute);
+  private readonly additionalMenuItems = inject(ADDITIONAL_USER_SPACE_MENU_ITEMS);
 
   constructor() {
     const areas: TreeNode[] = [
@@ -58,6 +60,7 @@ export class MyUserdataComponent {
         icon: 'pi pi-share-alt',
         expanded: true,
       },
+      ...this.additionalMenuItems,
     ];
     this.areas.set(areas);
 

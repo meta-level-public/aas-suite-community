@@ -87,7 +87,10 @@ public sealed class DownstreamAuthMiddleware
 
         return path.StartsWithSegments("/feed-mapping", StringComparison.OrdinalIgnoreCase)
             || path.StartsWithSegments("/aas-proxy", StringComparison.OrdinalIgnoreCase)
-            || path.StartsWithSegments("/aas-viewer-proxy", StringComparison.OrdinalIgnoreCase);
+            || path.StartsWithSegments("/aas-viewer-proxy", StringComparison.OrdinalIgnoreCase)
+            || path.StartsWithSegments("/markt-api", StringComparison.OrdinalIgnoreCase)
+            || path.StartsWithSegments("/shared-links-api", StringComparison.OrdinalIgnoreCase)
+            || path.StartsWithSegments("/aas-viewer-api", StringComparison.OrdinalIgnoreCase);
     }
 
     internal static bool IsAnonymousDesignerPath(PathString path)
@@ -95,6 +98,16 @@ public sealed class DownstreamAuthMiddleware
         if (!path.HasValue)
         {
             return false;
+        }
+
+        if (
+            path.StartsWithSegments(
+                "/designer-api/system-management-api/SystemManagement/GetLegalDocument",
+                StringComparison.OrdinalIgnoreCase
+            )
+        )
+        {
+            return true;
         }
 
         return AnonymousDesignerPaths.Any(anonymousPath =>

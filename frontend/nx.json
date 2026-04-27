@@ -10,6 +10,11 @@
     },
     "neverConnectToCloud": true
   },
+  "pluginsConfig": {
+    "@nx/js": {
+      "projectsAffectedByDependencyUpdates": "auto"
+    }
+  },
   "targetDefaults": {
     "build": {
       "dependsOn": ["^build"],
@@ -45,6 +50,10 @@
       "cache": true,
       "dependsOn": ["^build"],
       "inputs": ["production", "^production"]
+    },
+    "@nx/vitest:test": {
+      "cache": true,
+      "inputs": ["default", "^production"]
     }
   },
   "namedInputs": {
@@ -62,7 +71,7 @@
     "@nx/angular:application": {
       "e2eTestRunner": "playwright",
       "linter": "eslint",
-      "style": "none",
+      "style": "css",
       "unitTestRunner": "vitest-analog"
     },
     "@nx/angular:library": {
@@ -70,12 +79,12 @@
       "unitTestRunner": "vitest-analog"
     },
     "@nx/angular:component": {
-      "style": "none"
+      "style": "css"
     }
   },
   "cli": {
     "cache": {
-      "enabled": false,
+      "enabled": true,
       "verbose": true
     },
     "packageManager": "pnpm"

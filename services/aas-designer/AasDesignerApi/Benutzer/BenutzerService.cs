@@ -266,11 +266,35 @@ namespace AasDesignerApi.Benutzer
             _context.Invitations.Add(invitation);
             _context.SaveChanges();
 
+            SendInvitationMail(invitation, orga);
+
+            return invitation;
+        }
+
+        public void ResendInvitationMail(long id, AppUser benutzer)
+        {
+            var invitation = _context.Invitations.First(i => i.Id == id);
+            invitation.VerifyDeleteAllowed(benutzer);
+
+            invitation.ValidUntil = DateTimeOffset.Now.AddDays(14);
+            _context.SaveChanges();
+
+            var orga = _context.Organisations.First(o => o.Id == invitation.OrganisationId);
+            SendInvitationMail(invitation, orga);
+        }
+
+        private void SendInvitationMail(Invitation invitation, Organisation orga)
+        {
             var url =
                 $"{_config.BaseApiUrl}/Benutzer/AcceptInvitation?guid={invitation.InvitationGuid}";
 
             var text = File.ReadAllText(
-                Path.Combine("Mail", "Templates", $"user-einladung-tmpl.{invitation.Language}.html")
+                Path.Combine(
+                    AppContext.BaseDirectory,
+                    "Mail",
+                    "Templates",
+                    $"user-einladung-tmpl.{invitation.Language}.html"
+                )
             );
 
             text = text.Replace("{{username}}", $"{invitation.Vorname} {invitation.Name}");
@@ -284,8 +308,6 @@ namespace AasDesignerApi.Benutzer
                     : "[AAS Designer] Invitation";
 
             _mailer.SendMail(invitation.Email, subject, text, true);
-
-            return invitation;
         }
 
         public async Task<string> AcceptInvitation(string guid)

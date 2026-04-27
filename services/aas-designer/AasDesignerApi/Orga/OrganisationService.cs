@@ -777,6 +777,15 @@ public class OrganisationService
     {
         newRoles ??= [];
 
+        if (
+            userId == benutzer.BenutzerId
+            && benutzer.BenutzerRollen.Contains(AuthRoles.ORGA_ADMIN)
+            && !newRoles.Contains(AuthRoles.ORGA_ADMIN)
+        )
+        {
+            throw new OperationNotAllowedException("ORGA_ADMIN_CANNOT_REMOVE_OWN_ROLE");
+        }
+
         var orgaUserToUpdate = _context
             .BenutzerOrganisations.Include(bo => bo.Benutzer)
             .First(bo => bo.BenutzerId == userId && bo.OrganisationId == benutzer.OrganisationId);

@@ -1,7 +1,7 @@
 services:
   postgres:
     image: postgres:16-alpine
-    container_name: aas-postgres
+    container_name: aas-postgres-oss-dev
     environment:
       POSTGRES_USER: localPostgres
       POSTGRES_PASSWORD: "P@SSworDT!"
@@ -22,7 +22,7 @@ services:
 
   keycloak:
     image: quay.io/keycloak/keycloak:26.0
-    container_name: aas-keycloak
+    container_name: aas-keycloak-oss-dev
     command: start-dev --http-port=8080 --hostname-strict=false --proxy-headers=xforwarded --import-realm --spi-theme-cache-themes=false --spi-theme-cache-templates=false
     environment:
       KC_DB: postgres
@@ -46,14 +46,14 @@ services:
 
   mailpit:
     image: axllent/mailpit:v1.26
-    container_name: aas-mailpit
+    container_name: aas-mailpit-oss-dev
     ports:
       - "8025:8025"
     restart: unless-stopped
 
   aasregistry-go:
     image: eclipsebasyx/aasregistry-go:SNAPSHOT
-    container_name: aasregistry-go
+    container_name: aasregistry-go-oss-dev
     ports:
       - "5082:8082"
     environment:
@@ -83,7 +83,7 @@ services:
 
   submodelregistry-go:
     image: eclipsebasyx/submodelregistry-go:SNAPSHOT
-    container_name: submodelregistry-go
+    container_name: submodelregistry-go-oss-dev
     ports:
       - "5083:8083"
     environment:
@@ -113,7 +113,7 @@ services:
 
   aasdiscovery-go:
     image: eclipsebasyx/aasdiscovery-go:SNAPSHOT
-    container_name: aasdiscovery-go
+    container_name: aasdiscovery-go-oss-dev
     ports:
       - "5084:8081"
     environment:
@@ -143,7 +143,7 @@ services:
 
   aasrepository-go:
     image: eclipsebasyx/aasrepository-go:SNAPSHOT
-    container_name: aasrepository-go
+    container_name: aasrepository-go-oss-dev
     ports:
       - "5081:8081"
     environment:
@@ -172,7 +172,7 @@ services:
 
   submodelrepository-go:
     image: eclipsebasyx/submodelrepository-go:SNAPSHOT
-    container_name: submodelrepository-go
+    container_name: submodelrepository-go-oss-dev
     ports:
       - "5085:8081"
     environment:
@@ -202,7 +202,7 @@ services:
 
   conceptdescriptionrepository-go:
     image: eclipsebasyx/conceptdescriptionrepository-go:SNAPSHOT
-    container_name: conceptdescriptionrepository-go
+    container_name: conceptdescriptionrepository-go-oss-dev
     ports:
       - "5086:8081"
     environment:
@@ -231,8 +231,8 @@ services:
 
 volumes:
   postgres_data:
-    name: vws-portal-postgres-dev
+    name: aas-oss-dev-postgres-dev
 
 networks:
   default:
-    name: aas-dev-network
+    name: aas-oss-dev-network

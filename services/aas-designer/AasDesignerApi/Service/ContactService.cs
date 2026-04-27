@@ -150,7 +150,12 @@ namespace AasDesignerApi.Service
                     : request.SelectedLanguage;
 
                 var text = File.ReadAllText(
-                    Path.Combine("Mail", "Templates", $"neue_orga_willkommem-tmpl.{lang}.html")
+                    Path.Combine(
+                        AppContext.BaseDirectory,
+                        "Mail",
+                        "Templates",
+                        $"neue_orga_willkommem-tmpl.{lang}.html"
+                    )
                 );
 
                 text = text.Replace(

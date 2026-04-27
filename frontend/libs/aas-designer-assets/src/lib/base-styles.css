@@ -1,9 +1,7 @@
 /* You can add global styles to this file, and also import other style files */
 
 @import 'primeicons/primeicons.css';
-@import '@fortawesome/fontawesome-free/css/all.min.css';
 @import 'prismjs/themes/prism-coy.css';
-@import 'leaflet/dist/leaflet.css';
 @import './styles-additional.css';
 @import './common-components.css';
 
@@ -711,10 +709,9 @@ del.diff span {
 
 .topbar-button > button {
   background-color: var(--p-topbar-button-background-color) !important;
-  color: var(--p-button-primary-color) !important;
+  color: var(--p-text-color) !important;
   border-radius: var(--p-border-radius-xl) !important;
-  border-color: var(--topbar-button-border-color) !important;
-  border: var(--p-topbar-button-border) !important;
+  border: 1px solid color-mix(in srgb, white 30%, transparent) !important;
   padding-top: 0.6rem !important;
   padding-bottom: 0.6rem !important;
 }

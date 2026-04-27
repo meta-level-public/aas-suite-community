@@ -1,4 +1,5 @@
 using AasDesignerAasApi.Shells.Queries.GetViewerDescriptor;
+using AasDesignerAasApi.Viewer.Queries.GetRawDescriptor;
 using AasDesignerApi.Model;
 using AasDesignerAuthorization;
 using AasDesignerCommon.Utils;
@@ -49,6 +50,27 @@ public class AasViewerController : InternalApiBaseController
         var mediator = new Mediator(_serviceProvider);
 
         var command = new GetViewerDescriptorQuery
+        {
+            AppUser = benutzer,
+            AasIdentifier = aasIdentifier,
+        };
+
+        return await mediator.Send(command);
+    }
+
+    [HttpGet]
+    [Route("raw-descriptor")]
+    [AasDesignerAuthorize(
+        RequiredRoles = [AuthRoles.BENUTZER, AuthRoles.ORGA_ADMIN, AuthRoles.SYSTEM_ADMIN]
+    )]
+    public async Task<RawDescriptor> GetRawDescriptor(string aasIdentifier)
+    {
+        if (HttpContext.Items[AasDesignerConstants.APP_USER] is not AppUser benutzer)
+            throw new UserNotFoundException();
+
+        var mediator = new Mediator(_serviceProvider);
+
+        var command = new GetRawDescriptorQuery
         {
             AppUser = benutzer,
             AasIdentifier = aasIdentifier,

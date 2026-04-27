@@ -61,6 +61,17 @@ namespace AasDesignerApi.Controllers.Internal
             return _benutzerService.InviteUser(invitationDto, benutzer);
         }
 
+        [HttpPost]
+        [AasDesignerAuthorize(RequiredRoles = [AuthRoles.SYSTEM_ADMIN, AuthRoles.ORGA_ADMIN])]
+        public async Task<ActionResult> ResendInvitation(long id)
+        {
+            if (HttpContext.Items[AasDesignerConstants.APP_USER] is not AppUser benutzer)
+                throw new UserNotFoundException();
+
+            _benutzerService.ResendInvitationMail(id, benutzer);
+            return await Task.FromResult(Ok());
+        }
+
         [HttpPut]
         [AasDesignerAuthorize(
             RequiredRoles = [AuthRoles.SYSTEM_ADMIN, AuthRoles.ORGA_ADMIN, AuthRoles.BENUTZER]

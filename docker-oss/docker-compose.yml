@@ -64,7 +64,7 @@ services:
 
   # Gateway Service
   gateway:
-    image: ${REGISTRY_HOST:-gitea.meta-level.de}/${IMAGE_NAMESPACE:-aas-suite}/aas-designer-gateway:${IMAGE_TAG:-latest}
+    image: ${REGISTRY_HOST:-ghcr.io}/${IMAGE_NAMESPACE:-meta-level/aas-suite}/aas-designer-gateway:${IMAGE_TAG:-latest}
     container_name: aas-suite-gateway
     build:
       context: ..
@@ -81,6 +81,7 @@ services:
       - ReverseProxy__Clusters__keycloak-cluster__Destinations__destination1__Address=http://keycloak:8080
       - ReverseProxy__Clusters__aas-designer-cluster__Destinations__destination1__Address=http://aas-designer-community:8080
       - ReverseProxy__Clusters__frontend-cluster__Destinations__destination1__Address=http://frontend:80
+      - GatewayBackend__FrontendLoginPath=/login
     ports:
       - "8081:8080"
     networks:
@@ -100,7 +101,7 @@ services:
 
   # Designer Backend Service
   aas-designer-community:
-    image: ${REGISTRY_HOST:-gitea.meta-level.de}/${IMAGE_NAMESPACE:-aas-suite}/aas-designer-backend-community:${IMAGE_TAG:-latest}
+    image: ${REGISTRY_HOST:-ghcr.io}/${IMAGE_NAMESPACE:-meta-level/aas-suite}/aas-designer-backend-community:${IMAGE_TAG:-latest}
     container_name: aas-suite-designer-community
     build:
       context: ..
@@ -146,14 +147,12 @@ services:
     depends_on:
       postgres:
         condition: service_healthy
-      gateway:
-        condition: service_healthy
       keycloak:
         condition: service_started
 
   # Frontend Service
   frontend:
-    image: ${REGISTRY_HOST:-gitea.meta-level.de}/${IMAGE_NAMESPACE:-aas-suite}/aas-designer-frontend-community:${IMAGE_TAG:-latest}
+    image: ${REGISTRY_HOST:-ghcr.io}/${IMAGE_NAMESPACE:-meta-level/aas-suite}/aas-designer-frontend-community:${IMAGE_TAG:-latest}
     container_name: aas-suite-frontend
     build:
       context: ..

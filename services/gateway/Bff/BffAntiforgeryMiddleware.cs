@@ -10,7 +10,11 @@ public sealed class BffAntiforgeryMiddleware(RequestDelegate next)
         "/designer-api",
         "/feed-mapping",
     ];
-    private static readonly string[] IgnoredPaths = ["/bff/csrf"];
+    private static readonly string[] IgnoredPaths =
+    [
+        "/bff/csrf",
+        "/designer-api/api/Auth/LoginPublicViewer",
+    ];
 
     public async Task InvokeAsync(HttpContext context, IAntiforgery antiforgery)
     {

@@ -53,6 +53,11 @@ export class AppTopBarComponent implements OnInit, OnDestroy {
   topbarAfterComponents = inject(ADDITIONAL_TOPBAR_AFTER_COMPONENTS);
 
   async ngOnInit() {
+    const savedFontSize = window.localStorage.getItem('designer-fontSize');
+    if (savedFontSize === 'small' || savedFontSize === 'large') {
+      this.fontSize = savedFontSize;
+    }
+
     this.subscriptions.push(
       this.portalService.loginStateChanged.subscribe((state) => {
         if (state === true) {
@@ -207,9 +212,11 @@ export class AppTopBarComponent implements OnInit, OnDestroy {
 
     menuItems.push({
       label: this.translate.instant('VERSION') + ': ' + this.versionInfo.version,
+      disabled: true,
     });
     menuItems.push({
       label: '' + this.datePipe.transform(this.versionInfo.date, 'L LTS'),
+      disabled: true,
     });
 
     for (const menuFactory of this.additionalTopbarMenuItems) {
@@ -247,12 +254,13 @@ export class AppTopBarComponent implements OnInit, OnDestroy {
 
   applyFontSize() {
     document.documentElement.style.fontSize = this.fontSize === 'small' ? '12px' : '14px';
+    window.localStorage.setItem('designer-fontSize', this.fontSize);
   }
 
   toggleDarkMode() {
     const element = document.querySelector('html');
     element?.classList.toggle('my-app-dark');
-    window.localStorage.setItem('darkMode', element?.classList.contains('my-app-dark') ? 'true' : 'false');
+    window.localStorage.setItem('designer-darkMode', element?.classList.contains('my-app-dark') ? 'true' : 'false');
     window.dispatchEvent(new CustomEvent('aas:theme-mode-changed'));
   }
 
