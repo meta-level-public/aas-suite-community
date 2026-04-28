@@ -241,10 +241,24 @@ export class BatterySubmodelsComponent implements OnInit, OnDestroy {
       return;
     }
 
-    const currentIndex = flatItems.findIndex((item) => item.key === this.activeItem?.key);
+    const currentItem = this.activeItem;
+    const currentIndex = flatItems.findIndex((item) => item.key === currentItem?.key);
     if (currentIndex !== -1 && currentIndex < flatItems.length - 1) {
-      this.activeItemKey = flatItems[currentIndex + 1].key;
-      return;
+      // Wenn das aktive Element ein Container (Collection) ist, zum nächsten Geschwisterelement springen,
+      // nicht zum ersten Kind.
+      if (currentItem?.kind === 'container') {
+        const containerKeyPrefix = currentItem.key + '__';
+        const nextSiblingIndex = flatItems.findIndex(
+          (item, i) => i > currentIndex && !item.key.startsWith(containerKeyPrefix),
+        );
+        if (nextSiblingIndex !== -1) {
+          this.activeItemKey = flatItems[nextSiblingIndex].key;
+          return;
+        }
+      } else {
+        this.activeItemKey = flatItems[currentIndex + 1].key;
+        return;
+      }
     }
 
     this.generatorService.navigateToNextGeneratorFlowStep(this.router, this.currentFlowStepId, [

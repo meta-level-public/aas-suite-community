@@ -10,7 +10,7 @@ namespace AasDesignerApi.Jobs
         private int executionCount = 0;
         private readonly ILogger<DailyStatisticCalculator> _logger;
         private readonly IServiceProvider _provider;
-        private Timer? _timer = null;
+        private CancellationTokenSource? _cts;
 
         public DailyStatisticCalculator(
             ILogger<DailyStatisticCalculator> logger,
@@ -23,15 +23,61 @@ namespace AasDesignerApi.Jobs
 
         public Task StartAsync(CancellationToken stoppingToken)
         {
-            _logger.LogInformation("StatisticCalculator running.");
-
-            // _timer = new Timer(DoWork, null, TimeSpan.Zero,
-            //     TimeSpan.FromSeconds(5));
-
-            // täglicher Lauf
-            _timer = new Timer(DoWork, null, getJobRunDelay(), new TimeSpan(24, 0, 0));
-
+            _logger.LogInformation("DailyStatisticCalculator running.");
+            _cts = CancellationTokenSource.CreateLinkedTokenSource(stoppingToken);
+            _ = Task.Run(() => RunLoopAsync(_cts.Token), _cts.Token);
             return Task.CompletedTask;
+        }
+
+        private async Task RunLoopAsync(CancellationToken cancellationToken)
+        {
+            // Warte bis zur geplanten Startzeit
+            var initialDelay = getJobRunDelay();
+            if (initialDelay > TimeSpan.Zero)
+                await Task.Delay(initialDelay, cancellationToken).ConfigureAwait(false);
+
+            var lastRun = DateTimeOffset.MinValue;
+            using var timer = new PeriodicTimer(TimeSpan.FromMinutes(10));
+
+            while (await timer.WaitForNextTickAsync(cancellationToken))
+            {
+                DailyStatisticCalculatorSettingsDto settings;
+                try
+                {
+                    using var scope = _provider.CreateScope();
+                    var db = scope.ServiceProvider.GetRequiredService<IApplicationDbContext>();
+                    settings = await DailyStatisticCalculatorSettingsStore.LoadAsync(
+                        db,
+                        cancellationToken
+                    );
+                }
+                catch
+                {
+                    settings = new DailyStatisticCalculatorSettingsDto(
+                        DailyStatisticCalculatorSettingsStore.DefaultIntervalMinutes,
+                        true
+                    );
+                }
+
+                if (!settings.IsEnabled)
+                    continue;
+
+                if (
+                    DateTimeOffset.UtcNow - lastRun
+                    < TimeSpan.FromMinutes(settings.IntervalMinutes)
+                )
+                    continue;
+
+                lastRun = DateTimeOffset.UtcNow;
+                try
+                {
+                    DoWork(null);
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogError(ex, "DailyStatisticCalculator: Fehler im Lauf.");
+                }
+            }
         }
 
         private void DoWork(object? state)
@@ -133,15 +179,13 @@ namespace AasDesignerApi.Jobs
         public Task StopAsync(CancellationToken stoppingToken)
         {
             _logger.LogInformation("DailyStatisticCalculator is stopping.");
-
-            _timer?.Change(Timeout.Infinite, 0);
-
+            _cts?.Cancel();
             return Task.CompletedTask;
         }
 
         public void Dispose()
         {
-            _timer?.Dispose();
+            _cts?.Dispose();
         }
 
         private static TimeSpan getScheduledParsedTime()

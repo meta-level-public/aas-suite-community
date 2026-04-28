@@ -886,6 +886,15 @@ public sealed class GatewayBffSessionService
             return fallback;
         }
 
+        // Prepend frontend base path if URL lacks it (Angular router URLs are relative to base href)
+        if (
+            !string.IsNullOrEmpty(_frontendBasePath)
+            && !trimmed.StartsWith(_frontendBasePath, StringComparison.OrdinalIgnoreCase)
+        )
+        {
+            return $"{_frontendBasePath}{trimmed}";
+        }
+
         return trimmed;
     }
 

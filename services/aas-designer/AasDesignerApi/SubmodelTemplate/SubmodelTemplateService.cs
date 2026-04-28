@@ -551,6 +551,8 @@ namespace AasDesignerApi.SubmodelTemplate
                     );
                 }
 
+                submodel.Id = IdGenerationUtil.GenerateId(IdType.Submodel, normalizedIriPrefix);
+
                 if (
                     string.Equals(
                         templateDefinition.TemplateId,
@@ -564,8 +566,9 @@ namespace AasDesignerApi.SubmodelTemplate
                         result,
                         knownConceptDescriptionIds
                     );
-                    submodelPlain = AasJsonization.Serialize.ToJsonObject(submodel).ToJsonString();
                 }
+
+                submodelPlain = AasJsonization.Serialize.ToJsonObject(submodel).ToJsonString();
 
                 submodels.Add(submodel);
                 AddDistinctPayload(result.V3SubmodelsPlain, submodelPlain);

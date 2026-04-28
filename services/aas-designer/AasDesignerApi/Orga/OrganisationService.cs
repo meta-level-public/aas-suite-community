@@ -786,6 +786,14 @@ public class OrganisationService
             throw new OperationNotAllowedException("ORGA_ADMIN_CANNOT_REMOVE_OWN_ROLE");
         }
 
+        if (
+            newRoles.Contains(AuthRoles.SYSTEM_ADMIN)
+            && !benutzer.BenutzerRollen.Contains(AuthRoles.SYSTEM_ADMIN)
+        )
+        {
+            throw new OperationNotAllowedException("ONLY_SYSTEM_ADMIN_CAN_ASSIGN_SYSTEM_ADMIN");
+        }
+
         var orgaUserToUpdate = _context
             .BenutzerOrganisations.Include(bo => bo.Benutzer)
             .First(bo => bo.BenutzerId == userId && bo.OrganisationId == benutzer.OrganisationId);

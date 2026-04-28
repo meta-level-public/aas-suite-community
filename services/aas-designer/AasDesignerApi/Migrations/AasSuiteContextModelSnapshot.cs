@@ -605,6 +605,208 @@ namespace AasDesignerApi.Migrations
                     b.ToTable("Mappings");
                 });
 
+            modelBuilder.Entity("AasDesignerApi.Model.MarktListing", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<long?>("AasInfrastrukturId")
+                        .HasColumnType("bigint");
+
+                    b.Property<string>("AssetKind")
+                        .HasMaxLength(64)
+                        .HasColumnType("character varying(64)");
+
+                    b.Property<Guid?>("AutoManagedByRuleId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("GlobalAssetId")
+                        .HasMaxLength(2048)
+                        .HasColumnType("character varying(2048)");
+
+                    b.Property<bool>("IsExternal")
+                        .HasColumnType("boolean");
+
+                    b.Property<bool>("IsFeatured")
+                        .HasColumnType("boolean");
+
+                    b.Property<DateTimeOffset>("LastModifiedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("LastModifiedBy")
+                        .HasMaxLength(256)
+                        .HasColumnType("character varying(256)");
+
+                    b.Property<long?>("OrganisationId")
+                        .HasColumnType("bigint");
+
+                    b.Property<string>("OrganizationName")
+                        .IsRequired()
+                        .HasMaxLength(256)
+                        .HasColumnType("character varying(256)");
+
+                    b.Property<DateTimeOffset>("PublishedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<long?>("PublisherId")
+                        .HasColumnType("bigint");
+
+                    b.Property<string>("SourceShellId")
+                        .IsRequired()
+                        .HasMaxLength(512)
+                        .HasColumnType("character varying(512)");
+
+                    b.Property<string>("SourceType")
+                        .IsRequired()
+                        .HasMaxLength(64)
+                        .HasColumnType("character varying(64)");
+
+                    b.Property<string>("Summary")
+                        .IsRequired()
+                        .HasMaxLength(2048)
+                        .HasColumnType("character varying(2048)");
+
+                    b.Property<string>("ThumbnailContentType")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<byte[]>("ThumbnailData")
+                        .HasColumnType("bytea");
+
+                    b.Property<string>("Title")
+                        .IsRequired()
+                        .HasMaxLength(256)
+                        .HasColumnType("character varying(256)");
+
+                    b.Property<string>("ViewerUrl")
+                        .HasMaxLength(2048)
+                        .HasColumnType("character varying(2048)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("AutoManagedByRuleId");
+
+                    b.HasIndex("SourceShellId")
+                        .IsUnique();
+
+                    b.ToTable("markt_listings", (string)null);
+                });
+
+            modelBuilder.Entity("AasDesignerApi.Model.MarktListingRuleMatch", b =>
+                {
+                    b.Property<Guid>("ListingId")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("RuleId")
+                        .HasColumnType("uuid");
+
+                    b.HasKey("ListingId", "RuleId");
+
+                    b.HasIndex("RuleId");
+
+                    b.ToTable("markt_listing_rule_matches", (string)null);
+                });
+
+            modelBuilder.Entity("AasDesignerApi.Model.MarktListingSpecificAssetId", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("ListingId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(256)
+                        .HasColumnType("character varying(256)");
+
+                    b.Property<string>("Value")
+                        .IsRequired()
+                        .HasMaxLength(2048)
+                        .HasColumnType("character varying(2048)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ListingId");
+
+                    b.ToTable("markt_listing_specific_asset_ids", (string)null);
+                });
+
+            modelBuilder.Entity("AasDesignerApi.Model.MarktListingSubmodel", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("ListingId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("SemanticId")
+                        .IsRequired()
+                        .HasMaxLength(512)
+                        .HasColumnType("character varying(512)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ListingId");
+
+                    b.ToTable("markt_listing_submodels", (string)null);
+                });
+
+            modelBuilder.Entity("AasDesignerApi.Model.MarktRegexFreigabe", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<long>("AasInfrastrukturId")
+                        .HasColumnType("bigint");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("CreatedBy")
+                        .IsRequired()
+                        .HasMaxLength(256)
+                        .HasColumnType("character varying(256)");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("boolean");
+
+                    b.Property<string>("Label")
+                        .IsRequired()
+                        .HasMaxLength(256)
+                        .HasColumnType("character varying(256)");
+
+                    b.Property<DateTimeOffset?>("LastRunAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("LastRunResult")
+                        .HasMaxLength(512)
+                        .HasColumnType("character varying(512)");
+
+                    b.Property<long>("OrganisationId")
+                        .HasColumnType("bigint");
+
+                    b.Property<string>("RegexPattern")
+                        .IsRequired()
+                        .HasMaxLength(1024)
+                        .HasColumnType("character varying(1024)");
+
+                    b.Property<string>("SpecificAssetIdName")
+                        .HasMaxLength(256)
+                        .HasColumnType("character varying(256)");
+
+                    b.Property<int>("TargetAttribute")
+                        .HasColumnType("integer");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("markt_regex_freigaben", (string)null);
+                });
+
             modelBuilder.Entity("AasDesignerApi.Model.MlConceptDescription", b =>
                 {
                     b.Property<long>("Id")
@@ -2904,6 +3106,57 @@ namespace AasDesignerApi.Migrations
                     b.Navigation("BesitzerOrga");
                 });
 
+            modelBuilder.Entity("AasDesignerApi.Model.MarktListing", b =>
+                {
+                    b.HasOne("AasDesignerApi.Model.MarktRegexFreigabe", "AutoManagedByRule")
+                        .WithMany("AutoManagedListings")
+                        .HasForeignKey("AutoManagedByRuleId")
+                        .OnDelete(DeleteBehavior.SetNull);
+
+                    b.Navigation("AutoManagedByRule");
+                });
+
+            modelBuilder.Entity("AasDesignerApi.Model.MarktListingRuleMatch", b =>
+                {
+                    b.HasOne("AasDesignerApi.Model.MarktListing", "Listing")
+                        .WithMany("RuleMatches")
+                        .HasForeignKey("ListingId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("AasDesignerApi.Model.MarktRegexFreigabe", "Rule")
+                        .WithMany("ListingMatches")
+                        .HasForeignKey("RuleId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Listing");
+
+                    b.Navigation("Rule");
+                });
+
+            modelBuilder.Entity("AasDesignerApi.Model.MarktListingSpecificAssetId", b =>
+                {
+                    b.HasOne("AasDesignerApi.Model.MarktListing", "Listing")
+                        .WithMany("SpecificAssetIds")
+                        .HasForeignKey("ListingId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Listing");
+                });
+
+            modelBuilder.Entity("AasDesignerApi.Model.MarktListingSubmodel", b =>
+                {
+                    b.HasOne("AasDesignerApi.Model.MarktListing", "Listing")
+                        .WithMany("Submodels")
+                        .HasForeignKey("ListingId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Listing");
+                });
+
             modelBuilder.Entity("AasDesignerApi.Model.OrgaHelpText", b =>
                 {
                     b.HasOne("AasDesignerApi.Model.GlobalHelpText", "GlobalHelpText")
@@ -3269,6 +3522,22 @@ namespace AasDesignerApi.Migrations
             modelBuilder.Entity("AasDesignerApi.Model.GlobalHelpText", b =>
                 {
                     b.Navigation("OrgaHelpTexts");
+                });
+
+            modelBuilder.Entity("AasDesignerApi.Model.MarktListing", b =>
+                {
+                    b.Navigation("RuleMatches");
+
+                    b.Navigation("SpecificAssetIds");
+
+                    b.Navigation("Submodels");
+                });
+
+            modelBuilder.Entity("AasDesignerApi.Model.MarktRegexFreigabe", b =>
+                {
+                    b.Navigation("AutoManagedListings");
+
+                    b.Navigation("ListingMatches");
                 });
 
             modelBuilder.Entity("AasDesignerApi.Model.Organisation", b =>

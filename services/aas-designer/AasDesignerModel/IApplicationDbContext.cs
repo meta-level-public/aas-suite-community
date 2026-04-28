@@ -72,6 +72,12 @@ namespace AasDesignerModel
 
         DbSet<PersistentSetting> PersistentSettings { get; set; }
 
+        DbSet<MarktListing> MarktListings { get; set; }
+        DbSet<MarktListingSubmodel> MarktListingSubmodels { get; set; }
+        DbSet<MarktListingSpecificAssetId> MarktListingSpecificAssetIds { get; set; }
+        DbSet<MarktRegexFreigabe> MarktRegexFreigaben { get; set; }
+        DbSet<MarktListingRuleMatch> MarktListingRuleMatches { get; set; }
+
         ChangeTracker ChangeTracker { get; }
         DatabaseFacade Database { get; }
 

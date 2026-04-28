@@ -2214,6 +2214,849 @@
         }
       }
     },
+    "/api/job-settings/statistic-calculator": {
+      "get": {
+        "tags": [
+          "JobSettings"
+        ],
+        "operationId": "JobSettings_GetStatisticCalculatorSettings",
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/octet-stream": {
+                "schema": {
+                  "type": "string",
+                  "format": "binary"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "JobSettings"
+        ],
+        "operationId": "JobSettings_UpdateStatisticCalculatorSettings",
+        "requestBody": {
+          "x-name": "request",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/StatisticCalculatorSettingsDto"
+              }
+            }
+          },
+          "required": true,
+          "x-position": 1
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/octet-stream": {
+                "schema": {
+                  "type": "string",
+                  "format": "binary"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/job-settings/daily-statistic-calculator": {
+      "get": {
+        "tags": [
+          "JobSettings"
+        ],
+        "operationId": "JobSettings_GetDailyStatisticCalculatorSettings",
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/octet-stream": {
+                "schema": {
+                  "type": "string",
+                  "format": "binary"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "JobSettings"
+        ],
+        "operationId": "JobSettings_UpdateDailyStatisticCalculatorSettings",
+        "requestBody": {
+          "x-name": "request",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/DailyStatisticCalculatorSettingsDto"
+              }
+            }
+          },
+          "required": true,
+          "x-position": 1
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/octet-stream": {
+                "schema": {
+                  "type": "string",
+                  "format": "binary"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/job-settings/daily-expired-organisations-checker": {
+      "get": {
+        "tags": [
+          "JobSettings"
+        ],
+        "operationId": "JobSettings_GetDailyExpiredOrganisationsCheckerSettings",
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/octet-stream": {
+                "schema": {
+                  "type": "string",
+                  "format": "binary"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "JobSettings"
+        ],
+        "operationId": "JobSettings_UpdateDailyExpiredOrganisationsCheckerSettings",
+        "requestBody": {
+          "x-name": "request",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/DailyExpiredOrganisationsCheckerSettingsDto"
+              }
+            }
+          },
+          "required": true,
+          "x-position": 1
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/octet-stream": {
+                "schema": {
+                  "type": "string",
+                  "format": "binary"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/job-settings/periodic-organisation-deleter": {
+      "get": {
+        "tags": [
+          "JobSettings"
+        ],
+        "operationId": "JobSettings_GetPeriodicOrganisationDeleterSettings",
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/octet-stream": {
+                "schema": {
+                  "type": "string",
+                  "format": "binary"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "JobSettings"
+        ],
+        "operationId": "JobSettings_UpdatePeriodicOrganisationDeleterSettings",
+        "requestBody": {
+          "x-name": "request",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PeriodicOrganisationDeleterSettingsDto"
+              }
+            }
+          },
+          "required": true,
+          "x-position": 1
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/octet-stream": {
+                "schema": {
+                  "type": "string",
+                  "format": "binary"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/job-settings/periodic-infrastructure-deleter": {
+      "get": {
+        "tags": [
+          "JobSettings"
+        ],
+        "operationId": "JobSettings_GetPeriodicInfrastructureDeleterSettings",
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/octet-stream": {
+                "schema": {
+                  "type": "string",
+                  "format": "binary"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "JobSettings"
+        ],
+        "operationId": "JobSettings_UpdatePeriodicInfrastructureDeleterSettings",
+        "requestBody": {
+          "x-name": "request",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PeriodicInfrastructureDeleterSettingsDto"
+              }
+            }
+          },
+          "required": true,
+          "x-position": 1
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/octet-stream": {
+                "schema": {
+                  "type": "string",
+                  "format": "binary"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/job-settings/idta-crawler": {
+      "get": {
+        "tags": [
+          "JobSettings"
+        ],
+        "operationId": "JobSettings_GetIdtaCrawlerSettings",
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/octet-stream": {
+                "schema": {
+                  "type": "string",
+                  "format": "binary"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "JobSettings"
+        ],
+        "operationId": "JobSettings_UpdateIdtaCrawlerSettings",
+        "requestBody": {
+          "x-name": "request",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/IdtaCrawlerSettingsDto"
+              }
+            }
+          },
+          "required": true,
+          "x-position": 1
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/octet-stream": {
+                "schema": {
+                  "type": "string",
+                  "format": "binary"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/job-settings/pcn-update-listener": {
+      "get": {
+        "tags": [
+          "JobSettings"
+        ],
+        "operationId": "JobSettings_GetPcnUpdateListenerSettings",
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/octet-stream": {
+                "schema": {
+                  "type": "string",
+                  "format": "binary"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "JobSettings"
+        ],
+        "operationId": "JobSettings_UpdatePcnUpdateListenerSettings",
+        "requestBody": {
+          "x-name": "request",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PcnUpdateListenerSettingsDto"
+              }
+            }
+          },
+          "required": true,
+          "x-position": 1
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/octet-stream": {
+                "schema": {
+                  "type": "string",
+                  "format": "binary"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/system-management-api/SystemManagement/GetConfiguration": {
+      "get": {
+        "tags": [
+          "SystemManagement"
+        ],
+        "operationId": "SystemManagement_GetConfiguration",
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SystemConfigurationDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/system-management-api/SystemManagement/GetStatus": {
+      "get": {
+        "tags": [
+          "SystemManagement"
+        ],
+        "operationId": "SystemManagement_GetStatus",
+        "parameters": [
+          {
+            "name": "systemType",
+            "in": "query",
+            "schema": {
+              "$ref": "#/components/schemas/SystemType"
+            },
+            "x-position": 1
+          },
+          {
+            "name": "infrastructureId",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            },
+            "x-position": 2
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SystemStatusDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/system-management-api/SystemManagement/GetHelpInfo": {
+      "get": {
+        "tags": [
+          "SystemManagement"
+        ],
+        "operationId": "SystemManagement_GetHelpInfo",
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HelpInfoDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/system-management-api/SystemManagement/ExportHelpTexts": {
+      "post": {
+        "tags": [
+          "SystemManagement"
+        ],
+        "operationId": "SystemManagement_ExportHelpTexts",
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/octet-stream": {
+                "schema": {
+                  "type": "string",
+                  "format": "binary"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/system-management-api/SystemManagement/ImportHelpTexts": {
+      "post": {
+        "tags": [
+          "SystemManagement"
+        ],
+        "operationId": "SystemManagement_ImportHelpTexts",
+        "requestBody": {
+          "x-name": "helpUpdate",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/HelpUpdate"
+              }
+            }
+          },
+          "required": true,
+          "x-position": 1
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "boolean"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/system-management-api/SystemManagement/GetThemeDefinitions": {
+      "get": {
+        "tags": [
+          "SystemManagement"
+        ],
+        "operationId": "SystemManagement_GetThemeDefinitions",
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/ThemeDefinitionDto"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/system-management-api/SystemManagement/GetDeleteProtocols": {
+      "get": {
+        "tags": [
+          "SystemManagement"
+        ],
+        "operationId": "SystemManagement_GetDeleteProtocols",
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/DeleteProtocolDto"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/system-management-api/SystemManagement/GetMailSettings": {
+      "get": {
+        "tags": [
+          "SystemManagement"
+        ],
+        "operationId": "SystemManagement_GetMailSettings",
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MailSettingsDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/system-management-api/SystemManagement/UpdateMailSettings": {
+      "put": {
+        "tags": [
+          "SystemManagement"
+        ],
+        "operationId": "SystemManagement_UpdateMailSettings",
+        "requestBody": {
+          "x-name": "settings",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/MailSettingsDto"
+              }
+            }
+          },
+          "required": true,
+          "x-position": 1
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MailSettingsDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/system-management-api/SystemManagement/GetLegalLinksSettings": {
+      "get": {
+        "tags": [
+          "SystemManagement"
+        ],
+        "operationId": "SystemManagement_GetLegalLinksSettings",
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LegalLinksSettingsDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/system-management-api/SystemManagement/GetLegalDocument/{fieldName}": {
+      "get": {
+        "tags": [
+          "SystemManagement"
+        ],
+        "operationId": "SystemManagement_GetLegalDocument",
+        "parameters": [
+          {
+            "name": "fieldName",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "x-position": 1
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/octet-stream": {
+                "schema": {
+                  "type": "string",
+                  "format": "binary"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/system-management-api/SystemManagement/UpdateLegalLinksSettings": {
+      "put": {
+        "tags": [
+          "SystemManagement"
+        ],
+        "operationId": "SystemManagement_UpdateLegalLinksSettings",
+        "requestBody": {
+          "x-name": "request",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateLegalLinksSettingsRequest"
+              }
+            }
+          },
+          "required": true,
+          "x-position": 1
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LegalLinksSettingsDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/system-management-api/SystemManagement/SendApplicationTestMail": {
+      "post": {
+        "tags": [
+          "SystemManagement"
+        ],
+        "operationId": "SystemManagement_SendApplicationTestMail",
+        "requestBody": {
+          "x-name": "request",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SendApplicationTestMailRequestDto"
+              }
+            }
+          },
+          "required": true,
+          "x-position": 1
+        },
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        }
+      }
+    },
+    "/system-management-api/SystemManagement/SendKeycloakTestMail": {
+      "post": {
+        "tags": [
+          "SystemManagement"
+        ],
+        "operationId": "SystemManagement_SendKeycloakTestMail",
+        "requestBody": {
+          "x-name": "request",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SendKeycloakTestMailRequestDto"
+              }
+            }
+          },
+          "required": true,
+          "x-position": 1
+        },
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        }
+      }
+    },
+    "/system-management-api/SystemManagement/UpsertThemeDefinition": {
+      "post": {
+        "tags": [
+          "SystemManagement"
+        ],
+        "operationId": "SystemManagement_UpsertThemeDefinition",
+        "requestBody": {
+          "x-name": "theme",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ThemeDefinitionDto"
+              }
+            }
+          },
+          "required": true,
+          "x-position": 1
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ThemeDefinitionDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/system-management-api/SystemManagement/DeleteThemeDefinition": {
+      "delete": {
+        "tags": [
+          "SystemManagement"
+        ],
+        "operationId": "SystemManagement_DeleteThemeDefinition",
+        "parameters": [
+          {
+            "name": "key",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            },
+            "x-position": 1
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "boolean"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/system-management-api/SystemManagement/ExportThemeDefinitions": {
+      "post": {
+        "tags": [
+          "SystemManagement"
+        ],
+        "operationId": "SystemManagement_ExportThemeDefinitions",
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/octet-stream": {
+                "schema": {
+                  "type": "string",
+                  "format": "binary"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/system-management-api/SystemManagement/ImportThemeDefinitions": {
+      "post": {
+        "tags": [
+          "SystemManagement"
+        ],
+        "operationId": "SystemManagement_ImportThemeDefinitions",
+        "requestBody": {
+          "x-name": "themeImport",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ThemeDefinitionsImport"
+              }
+            }
+          },
+          "required": true,
+          "x-position": 1
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "boolean"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/Organisation/GetAll": {
       "get": {
         "tags": [
@@ -3666,485 +4509,6 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/PublicViewerValidity"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/system-management-api/SystemManagement/GetConfiguration": {
-      "get": {
-        "tags": [
-          "SystemManagement"
-        ],
-        "operationId": "SystemManagement_GetConfiguration",
-        "responses": {
-          "200": {
-            "description": "",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/SystemConfigurationDto"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/system-management-api/SystemManagement/GetStatus": {
-      "get": {
-        "tags": [
-          "SystemManagement"
-        ],
-        "operationId": "SystemManagement_GetStatus",
-        "parameters": [
-          {
-            "name": "systemType",
-            "in": "query",
-            "schema": {
-              "$ref": "#/components/schemas/SystemType"
-            },
-            "x-position": 1
-          },
-          {
-            "name": "infrastructureId",
-            "in": "query",
-            "schema": {
-              "type": "integer",
-              "format": "int64"
-            },
-            "x-position": 2
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/SystemStatusDto"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/system-management-api/SystemManagement/GetHelpInfo": {
-      "get": {
-        "tags": [
-          "SystemManagement"
-        ],
-        "operationId": "SystemManagement_GetHelpInfo",
-        "responses": {
-          "200": {
-            "description": "",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/HelpInfoDto"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/system-management-api/SystemManagement/ExportHelpTexts": {
-      "post": {
-        "tags": [
-          "SystemManagement"
-        ],
-        "operationId": "SystemManagement_ExportHelpTexts",
-        "responses": {
-          "200": {
-            "description": "",
-            "content": {
-              "application/octet-stream": {
-                "schema": {
-                  "type": "string",
-                  "format": "binary"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/system-management-api/SystemManagement/ImportHelpTexts": {
-      "post": {
-        "tags": [
-          "SystemManagement"
-        ],
-        "operationId": "SystemManagement_ImportHelpTexts",
-        "requestBody": {
-          "x-name": "helpUpdate",
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/HelpUpdate"
-              }
-            }
-          },
-          "required": true,
-          "x-position": 1
-        },
-        "responses": {
-          "200": {
-            "description": "",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "boolean"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/system-management-api/SystemManagement/GetThemeDefinitions": {
-      "get": {
-        "tags": [
-          "SystemManagement"
-        ],
-        "operationId": "SystemManagement_GetThemeDefinitions",
-        "responses": {
-          "200": {
-            "description": "",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/ThemeDefinitionDto"
-                  }
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/system-management-api/SystemManagement/GetDeleteProtocols": {
-      "get": {
-        "tags": [
-          "SystemManagement"
-        ],
-        "operationId": "SystemManagement_GetDeleteProtocols",
-        "responses": {
-          "200": {
-            "description": "",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/DeleteProtocolDto"
-                  }
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/system-management-api/SystemManagement/GetMailSettings": {
-      "get": {
-        "tags": [
-          "SystemManagement"
-        ],
-        "operationId": "SystemManagement_GetMailSettings",
-        "responses": {
-          "200": {
-            "description": "",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/MailSettingsDto"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/system-management-api/SystemManagement/UpdateMailSettings": {
-      "put": {
-        "tags": [
-          "SystemManagement"
-        ],
-        "operationId": "SystemManagement_UpdateMailSettings",
-        "requestBody": {
-          "x-name": "settings",
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/MailSettingsDto"
-              }
-            }
-          },
-          "required": true,
-          "x-position": 1
-        },
-        "responses": {
-          "200": {
-            "description": "",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/MailSettingsDto"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/system-management-api/SystemManagement/GetLegalLinksSettings": {
-      "get": {
-        "tags": [
-          "SystemManagement"
-        ],
-        "operationId": "SystemManagement_GetLegalLinksSettings",
-        "responses": {
-          "200": {
-            "description": "",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/LegalLinksSettingsDto"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/system-management-api/SystemManagement/GetLegalDocument/{fieldName}": {
-      "get": {
-        "tags": [
-          "SystemManagement"
-        ],
-        "operationId": "SystemManagement_GetLegalDocument",
-        "parameters": [
-          {
-            "name": "fieldName",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string"
-            },
-            "x-position": 1
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "",
-            "content": {
-              "application/octet-stream": {
-                "schema": {
-                  "type": "string",
-                  "format": "binary"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/system-management-api/SystemManagement/UpdateLegalLinksSettings": {
-      "put": {
-        "tags": [
-          "SystemManagement"
-        ],
-        "operationId": "SystemManagement_UpdateLegalLinksSettings",
-        "requestBody": {
-          "x-name": "request",
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/UpdateLegalLinksSettingsRequest"
-              }
-            }
-          },
-          "required": true,
-          "x-position": 1
-        },
-        "responses": {
-          "200": {
-            "description": "",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/LegalLinksSettingsDto"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/system-management-api/SystemManagement/SendApplicationTestMail": {
-      "post": {
-        "tags": [
-          "SystemManagement"
-        ],
-        "operationId": "SystemManagement_SendApplicationTestMail",
-        "requestBody": {
-          "x-name": "request",
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/SendApplicationTestMailRequestDto"
-              }
-            }
-          },
-          "required": true,
-          "x-position": 1
-        },
-        "responses": {
-          "200": {
-            "description": ""
-          }
-        }
-      }
-    },
-    "/system-management-api/SystemManagement/SendKeycloakTestMail": {
-      "post": {
-        "tags": [
-          "SystemManagement"
-        ],
-        "operationId": "SystemManagement_SendKeycloakTestMail",
-        "requestBody": {
-          "x-name": "request",
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/SendKeycloakTestMailRequestDto"
-              }
-            }
-          },
-          "required": true,
-          "x-position": 1
-        },
-        "responses": {
-          "200": {
-            "description": ""
-          }
-        }
-      }
-    },
-    "/system-management-api/SystemManagement/UpsertThemeDefinition": {
-      "post": {
-        "tags": [
-          "SystemManagement"
-        ],
-        "operationId": "SystemManagement_UpsertThemeDefinition",
-        "requestBody": {
-          "x-name": "theme",
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/ThemeDefinitionDto"
-              }
-            }
-          },
-          "required": true,
-          "x-position": 1
-        },
-        "responses": {
-          "200": {
-            "description": "",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ThemeDefinitionDto"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/system-management-api/SystemManagement/DeleteThemeDefinition": {
-      "delete": {
-        "tags": [
-          "SystemManagement"
-        ],
-        "operationId": "SystemManagement_DeleteThemeDefinition",
-        "parameters": [
-          {
-            "name": "key",
-            "in": "query",
-            "schema": {
-              "type": "string"
-            },
-            "x-position": 1
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "boolean"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/system-management-api/SystemManagement/ExportThemeDefinitions": {
-      "post": {
-        "tags": [
-          "SystemManagement"
-        ],
-        "operationId": "SystemManagement_ExportThemeDefinitions",
-        "responses": {
-          "200": {
-            "description": "",
-            "content": {
-              "application/octet-stream": {
-                "schema": {
-                  "type": "string",
-                  "format": "binary"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/system-management-api/SystemManagement/ImportThemeDefinitions": {
-      "post": {
-        "tags": [
-          "SystemManagement"
-        ],
-        "operationId": "SystemManagement_ImportThemeDefinitions",
-        "requestBody": {
-          "x-name": "themeImport",
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/ThemeDefinitionsImport"
-              }
-            }
-          },
-          "required": true,
-          "x-position": 1
-        },
-        "responses": {
-          "200": {
-            "description": "",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "boolean"
                 }
               }
             }
@@ -5686,6 +6050,733 @@
             "type": "string"
           },
           "value": {
+            "type": "string"
+          }
+        }
+      },
+      "StatisticCalculatorSettingsDto": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "intervalMinutes": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "isEnabled": {
+            "type": "boolean"
+          }
+        }
+      },
+      "DailyStatisticCalculatorSettingsDto": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "intervalMinutes": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "isEnabled": {
+            "type": "boolean"
+          }
+        }
+      },
+      "DailyExpiredOrganisationsCheckerSettingsDto": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "intervalMinutes": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "isEnabled": {
+            "type": "boolean"
+          }
+        }
+      },
+      "PeriodicOrganisationDeleterSettingsDto": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "intervalMinutes": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "isEnabled": {
+            "type": "boolean"
+          }
+        }
+      },
+      "PeriodicInfrastructureDeleterSettingsDto": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "intervalMinutes": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "isEnabled": {
+            "type": "boolean"
+          }
+        }
+      },
+      "IdtaCrawlerSettingsDto": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "intervalMinutes": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "isEnabled": {
+            "type": "boolean"
+          }
+        }
+      },
+      "PcnUpdateListenerSettingsDto": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "intervalMinutes": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "isEnabled": {
+            "type": "boolean"
+          }
+        }
+      },
+      "SystemConfigurationDto": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "singleTenantMode": {
+            "type": "boolean"
+          },
+          "isSsoAvailableSingleTenant": {
+            "type": "boolean"
+          },
+          "ssoConfigName": {
+            "type": "string"
+          },
+          "singleTenantTheme": {
+            "type": "string"
+          },
+          "datenschutzLinkDe": {
+            "type": "string"
+          },
+          "datenschutzLinkEn": {
+            "type": "string"
+          },
+          "agbLinkDe": {
+            "type": "string"
+          },
+          "agbLinkEn": {
+            "type": "string"
+          },
+          "avvLinkDe": {
+            "type": "string"
+          },
+          "avvLinkEn": {
+            "type": "string"
+          },
+          "imprintLink": {
+            "type": "string"
+          }
+        }
+      },
+      "SystemStatusDto": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "available": {
+            "type": "boolean"
+          }
+        }
+      },
+      "SystemType": {
+        "type": "integer",
+        "description": "",
+        "x-enumNames": [
+          "Discovery",
+          "AasRegistry",
+          "AasRepository",
+          "SubmodelRepository",
+          "SubmodelRegistry",
+          "ConceptDescriptionRepository"
+        ],
+        "enum": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5
+        ]
+      },
+      "HelpInfoDto": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "lastModification": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "amountTexts": {
+            "type": "integer",
+            "format": "int32"
+          }
+        }
+      },
+      "HelpUpdate": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "fileAsBase64": {
+            "type": "string"
+          }
+        }
+      },
+      "ThemeDefinitionDto": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "key": {
+            "type": "string"
+          },
+          "displayName": {
+            "type": "string"
+          },
+          "baseTheme": {
+            "type": "string"
+          },
+          "customCss": {
+            "type": "string"
+          },
+          "darkCustomCss": {
+            "type": "string"
+          },
+          "customerLogoUrl": {
+            "type": "string"
+          },
+          "backgroundImageUrl": {
+            "type": "string"
+          },
+          "darkBackgroundImageUrl": {
+            "type": "string"
+          },
+          "backgroundColor": {
+            "type": "string"
+          },
+          "darkBackgroundColor": {
+            "type": "string"
+          },
+          "backgroundMode": {
+            "type": "string"
+          },
+          "darkBackgroundMode": {
+            "type": "string"
+          },
+          "fontFamily": {
+            "type": "string"
+          },
+          "darkFontFamily": {
+            "type": "string"
+          },
+          "baseFontSize": {
+            "type": "string"
+          },
+          "darkBaseFontSize": {
+            "type": "string"
+          },
+          "primaryColor": {
+            "type": "string"
+          },
+          "darkPrimaryColor": {
+            "type": "string"
+          },
+          "highlightColor": {
+            "type": "string"
+          },
+          "darkHighlightColor": {
+            "type": "string"
+          },
+          "highlightTextColor": {
+            "type": "string"
+          },
+          "darkHighlightTextColor": {
+            "type": "string"
+          },
+          "primaryHoverColor": {
+            "type": "string"
+          },
+          "darkPrimaryHoverColor": {
+            "type": "string"
+          },
+          "surfaceColor": {
+            "type": "string"
+          },
+          "darkSurfaceColor": {
+            "type": "string"
+          },
+          "textColor": {
+            "type": "string"
+          },
+          "darkTextColor": {
+            "type": "string"
+          },
+          "inputTextColor": {
+            "type": "string"
+          },
+          "darkInputTextColor": {
+            "type": "string"
+          },
+          "primaryOpacity": {
+            "type": "string"
+          },
+          "darkPrimaryOpacity": {
+            "type": "string"
+          },
+          "surfaceOpacity": {
+            "type": "string"
+          },
+          "darkSurfaceOpacity": {
+            "type": "string"
+          },
+          "textOpacity": {
+            "type": "string"
+          },
+          "darkTextOpacity": {
+            "type": "string"
+          },
+          "borderRadius": {
+            "type": "string"
+          },
+          "darkBorderRadius": {
+            "type": "string"
+          },
+          "darkInheritFromLight": {
+            "type": "boolean"
+          },
+          "isBuiltIn": {
+            "type": "boolean"
+          }
+        }
+      },
+      "DeleteProtocolDto": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "deleteType": {
+            "$ref": "#/components/schemas/DeleteType"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "createdBy": {
+            "type": "string"
+          },
+          "additionalData": {
+            "type": "string"
+          },
+          "organisation": {
+            "nullable": true,
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/OrganisationDeleteProtocolDto"
+              }
+            ]
+          },
+          "userAccount": {
+            "nullable": true,
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/UserAccountDeleteProtocolDto"
+              }
+            ]
+          },
+          "infrastructure": {
+            "nullable": true,
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/InfrastructureDeleteProtocolDto"
+              }
+            ]
+          }
+        }
+      },
+      "DeleteType": {
+        "type": "integer",
+        "description": "",
+        "x-enumNames": [
+          "Unknown",
+          "Organisation",
+          "UserAccount",
+          "Infrastructure"
+        ],
+        "enum": [
+          0,
+          1,
+          2,
+          3
+        ]
+      },
+      "OrganisationDeleteProtocolDto": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "email": {
+            "type": "string"
+          }
+        }
+      },
+      "UserAccountDeleteProtocolDto": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "email": {
+            "type": "string"
+          }
+        }
+      },
+      "InfrastructureDeleteProtocolDto": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "infraName": {
+            "type": "string"
+          },
+          "infraGuid": {
+            "type": "string"
+          }
+        }
+      },
+      "MailSettingsDto": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "keycloakEnabled": {
+            "type": "boolean"
+          },
+          "canManageKeycloakMailSettings": {
+            "type": "boolean"
+          },
+          "application": {
+            "$ref": "#/components/schemas/ApplicationMailSettingsDto"
+          },
+          "keycloak": {
+            "$ref": "#/components/schemas/KeycloakMailSettingsDto"
+          }
+        }
+      },
+      "ApplicationMailSettingsDto": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "smtpServer": {
+            "type": "string"
+          },
+          "smtpPort": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "smtpUseSsl": {
+            "type": "boolean"
+          },
+          "smtpUseTls": {
+            "type": "boolean"
+          },
+          "smtpNeedsAuthentication": {
+            "type": "boolean"
+          },
+          "senderAddress": {
+            "type": "string"
+          },
+          "senderUsername": {
+            "type": "string"
+          },
+          "senderPassword": {
+            "type": "string"
+          },
+          "newOrgaNotificationAddress": {
+            "type": "string"
+          },
+          "subjectPrefix": {
+            "type": "string"
+          }
+        }
+      },
+      "KeycloakMailSettingsDto": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "host": {
+            "type": "string"
+          },
+          "port": {
+            "type": "string"
+          },
+          "from": {
+            "type": "string"
+          },
+          "fromDisplayName": {
+            "type": "string"
+          },
+          "replyTo": {
+            "type": "string"
+          },
+          "replyToDisplayName": {
+            "type": "string"
+          },
+          "user": {
+            "type": "string"
+          },
+          "password": {
+            "type": "string"
+          },
+          "auth": {
+            "type": "boolean"
+          },
+          "startTls": {
+            "type": "boolean"
+          },
+          "ssl": {
+            "type": "boolean"
+          }
+        }
+      },
+      "LegalLinksSettingsDto": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "datenschutzLinkDe": {
+            "type": "string"
+          },
+          "datenschutzLinkEn": {
+            "type": "string"
+          },
+          "agbLinkDe": {
+            "type": "string"
+          },
+          "agbLinkEn": {
+            "type": "string"
+          },
+          "avvLinkDe": {
+            "type": "string"
+          },
+          "avvLinkEn": {
+            "type": "string"
+          },
+          "imprintLink": {
+            "type": "string"
+          },
+          "datenschutzLinkDeDocument": {
+            "nullable": true,
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/LegalLinksDocumentInfoDto"
+              }
+            ]
+          },
+          "datenschutzLinkEnDocument": {
+            "nullable": true,
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/LegalLinksDocumentInfoDto"
+              }
+            ]
+          },
+          "agbLinkDeDocument": {
+            "nullable": true,
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/LegalLinksDocumentInfoDto"
+              }
+            ]
+          },
+          "agbLinkEnDocument": {
+            "nullable": true,
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/LegalLinksDocumentInfoDto"
+              }
+            ]
+          },
+          "avvLinkDeDocument": {
+            "nullable": true,
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/LegalLinksDocumentInfoDto"
+              }
+            ]
+          },
+          "avvLinkEnDocument": {
+            "nullable": true,
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/LegalLinksDocumentInfoDto"
+              }
+            ]
+          },
+          "imprintLinkDocument": {
+            "nullable": true,
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/LegalLinksDocumentInfoDto"
+              }
+            ]
+          }
+        }
+      },
+      "LegalLinksDocumentInfoDto": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "fileName": {
+            "type": "string"
+          },
+          "contentType": {
+            "type": "string"
+          }
+        }
+      },
+      "UpdateLegalLinksSettingsRequest": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "datenschutzLinkDe": {
+            "type": "string"
+          },
+          "datenschutzLinkEn": {
+            "type": "string"
+          },
+          "agbLinkDe": {
+            "type": "string"
+          },
+          "agbLinkEn": {
+            "type": "string"
+          },
+          "avvLinkDe": {
+            "type": "string"
+          },
+          "avvLinkEn": {
+            "type": "string"
+          },
+          "imprintLink": {
+            "type": "string"
+          },
+          "datenschutzLinkDeDocument": {
+            "nullable": true,
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/LegalLinksDocumentUploadDto"
+              }
+            ]
+          },
+          "datenschutzLinkEnDocument": {
+            "nullable": true,
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/LegalLinksDocumentUploadDto"
+              }
+            ]
+          },
+          "agbLinkDeDocument": {
+            "nullable": true,
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/LegalLinksDocumentUploadDto"
+              }
+            ]
+          },
+          "agbLinkEnDocument": {
+            "nullable": true,
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/LegalLinksDocumentUploadDto"
+              }
+            ]
+          },
+          "avvLinkDeDocument": {
+            "nullable": true,
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/LegalLinksDocumentUploadDto"
+              }
+            ]
+          },
+          "avvLinkEnDocument": {
+            "nullable": true,
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/LegalLinksDocumentUploadDto"
+              }
+            ]
+          },
+          "imprintLinkDocument": {
+            "nullable": true,
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/LegalLinksDocumentUploadDto"
+              }
+            ]
+          },
+          "servingBaseUrl": {
+            "type": "string"
+          }
+        }
+      },
+      "LegalLinksDocumentUploadDto": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "fileName": {
+            "type": "string"
+          },
+          "contentType": {
+            "type": "string"
+          },
+          "contentBase64": {
+            "type": "string"
+          }
+        }
+      },
+      "SendApplicationTestMailRequestDto": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "targetEmail": {
+            "type": "string"
+          },
+          "settings": {
+            "$ref": "#/components/schemas/ApplicationMailSettingsDto"
+          }
+        }
+      },
+      "SendKeycloakTestMailRequestDto": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "targetEmail": {
+            "type": "string"
+          },
+          "settings": {
+            "$ref": "#/components/schemas/KeycloakMailSettingsDto"
+          }
+        }
+      },
+      "ThemeDefinitionsImport": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "fileAsBase64": {
             "type": "string"
           }
         }
@@ -7649,642 +8740,6 @@
           2,
           3
         ]
-      },
-      "SystemConfigurationDto": {
-        "type": "object",
-        "additionalProperties": false,
-        "properties": {
-          "singleTenantMode": {
-            "type": "boolean"
-          },
-          "isSsoAvailableSingleTenant": {
-            "type": "boolean"
-          },
-          "ssoConfigName": {
-            "type": "string"
-          },
-          "singleTenantTheme": {
-            "type": "string"
-          },
-          "datenschutzLinkDe": {
-            "type": "string"
-          },
-          "datenschutzLinkEn": {
-            "type": "string"
-          },
-          "agbLinkDe": {
-            "type": "string"
-          },
-          "agbLinkEn": {
-            "type": "string"
-          },
-          "avvLinkDe": {
-            "type": "string"
-          },
-          "avvLinkEn": {
-            "type": "string"
-          },
-          "imprintLink": {
-            "type": "string"
-          }
-        }
-      },
-      "SystemStatusDto": {
-        "type": "object",
-        "additionalProperties": false,
-        "properties": {
-          "available": {
-            "type": "boolean"
-          }
-        }
-      },
-      "SystemType": {
-        "type": "integer",
-        "description": "",
-        "x-enumNames": [
-          "Discovery",
-          "AasRegistry",
-          "AasRepository",
-          "SubmodelRepository",
-          "SubmodelRegistry",
-          "ConceptDescriptionRepository"
-        ],
-        "enum": [
-          0,
-          1,
-          2,
-          3,
-          4,
-          5
-        ]
-      },
-      "HelpInfoDto": {
-        "type": "object",
-        "additionalProperties": false,
-        "properties": {
-          "lastModification": {
-            "type": "string",
-            "format": "date-time"
-          },
-          "amountTexts": {
-            "type": "integer",
-            "format": "int32"
-          }
-        }
-      },
-      "HelpUpdate": {
-        "type": "object",
-        "additionalProperties": false,
-        "properties": {
-          "fileAsBase64": {
-            "type": "string"
-          }
-        }
-      },
-      "ThemeDefinitionDto": {
-        "type": "object",
-        "additionalProperties": false,
-        "properties": {
-          "key": {
-            "type": "string"
-          },
-          "displayName": {
-            "type": "string"
-          },
-          "baseTheme": {
-            "type": "string"
-          },
-          "customCss": {
-            "type": "string"
-          },
-          "darkCustomCss": {
-            "type": "string"
-          },
-          "customerLogoUrl": {
-            "type": "string"
-          },
-          "backgroundImageUrl": {
-            "type": "string"
-          },
-          "darkBackgroundImageUrl": {
-            "type": "string"
-          },
-          "backgroundColor": {
-            "type": "string"
-          },
-          "darkBackgroundColor": {
-            "type": "string"
-          },
-          "backgroundMode": {
-            "type": "string"
-          },
-          "darkBackgroundMode": {
-            "type": "string"
-          },
-          "fontFamily": {
-            "type": "string"
-          },
-          "darkFontFamily": {
-            "type": "string"
-          },
-          "baseFontSize": {
-            "type": "string"
-          },
-          "darkBaseFontSize": {
-            "type": "string"
-          },
-          "primaryColor": {
-            "type": "string"
-          },
-          "darkPrimaryColor": {
-            "type": "string"
-          },
-          "highlightColor": {
-            "type": "string"
-          },
-          "darkHighlightColor": {
-            "type": "string"
-          },
-          "highlightTextColor": {
-            "type": "string"
-          },
-          "darkHighlightTextColor": {
-            "type": "string"
-          },
-          "primaryHoverColor": {
-            "type": "string"
-          },
-          "darkPrimaryHoverColor": {
-            "type": "string"
-          },
-          "surfaceColor": {
-            "type": "string"
-          },
-          "darkSurfaceColor": {
-            "type": "string"
-          },
-          "textColor": {
-            "type": "string"
-          },
-          "darkTextColor": {
-            "type": "string"
-          },
-          "inputTextColor": {
-            "type": "string"
-          },
-          "darkInputTextColor": {
-            "type": "string"
-          },
-          "primaryOpacity": {
-            "type": "string"
-          },
-          "darkPrimaryOpacity": {
-            "type": "string"
-          },
-          "surfaceOpacity": {
-            "type": "string"
-          },
-          "darkSurfaceOpacity": {
-            "type": "string"
-          },
-          "textOpacity": {
-            "type": "string"
-          },
-          "darkTextOpacity": {
-            "type": "string"
-          },
-          "borderRadius": {
-            "type": "string"
-          },
-          "darkBorderRadius": {
-            "type": "string"
-          },
-          "darkInheritFromLight": {
-            "type": "boolean"
-          },
-          "isBuiltIn": {
-            "type": "boolean"
-          }
-        }
-      },
-      "DeleteProtocolDto": {
-        "type": "object",
-        "additionalProperties": false,
-        "properties": {
-          "id": {
-            "type": "integer",
-            "format": "int64"
-          },
-          "deleteType": {
-            "$ref": "#/components/schemas/DeleteType"
-          },
-          "createdAt": {
-            "type": "string",
-            "format": "date-time"
-          },
-          "createdBy": {
-            "type": "string"
-          },
-          "additionalData": {
-            "type": "string"
-          },
-          "organisation": {
-            "nullable": true,
-            "oneOf": [
-              {
-                "$ref": "#/components/schemas/OrganisationDeleteProtocolDto"
-              }
-            ]
-          },
-          "userAccount": {
-            "nullable": true,
-            "oneOf": [
-              {
-                "$ref": "#/components/schemas/UserAccountDeleteProtocolDto"
-              }
-            ]
-          },
-          "infrastructure": {
-            "nullable": true,
-            "oneOf": [
-              {
-                "$ref": "#/components/schemas/InfrastructureDeleteProtocolDto"
-              }
-            ]
-          }
-        }
-      },
-      "DeleteType": {
-        "type": "integer",
-        "description": "",
-        "x-enumNames": [
-          "Unknown",
-          "Organisation",
-          "UserAccount",
-          "Infrastructure"
-        ],
-        "enum": [
-          0,
-          1,
-          2,
-          3
-        ]
-      },
-      "OrganisationDeleteProtocolDto": {
-        "type": "object",
-        "additionalProperties": false,
-        "properties": {
-          "name": {
-            "type": "string"
-          },
-          "email": {
-            "type": "string"
-          }
-        }
-      },
-      "UserAccountDeleteProtocolDto": {
-        "type": "object",
-        "additionalProperties": false,
-        "properties": {
-          "email": {
-            "type": "string"
-          }
-        }
-      },
-      "InfrastructureDeleteProtocolDto": {
-        "type": "object",
-        "additionalProperties": false,
-        "properties": {
-          "infraName": {
-            "type": "string"
-          },
-          "infraGuid": {
-            "type": "string"
-          }
-        }
-      },
-      "MailSettingsDto": {
-        "type": "object",
-        "additionalProperties": false,
-        "properties": {
-          "keycloakEnabled": {
-            "type": "boolean"
-          },
-          "canManageKeycloakMailSettings": {
-            "type": "boolean"
-          },
-          "application": {
-            "$ref": "#/components/schemas/ApplicationMailSettingsDto"
-          },
-          "keycloak": {
-            "$ref": "#/components/schemas/KeycloakMailSettingsDto"
-          }
-        }
-      },
-      "ApplicationMailSettingsDto": {
-        "type": "object",
-        "additionalProperties": false,
-        "properties": {
-          "smtpServer": {
-            "type": "string"
-          },
-          "smtpPort": {
-            "type": "integer",
-            "format": "int32"
-          },
-          "smtpUseSsl": {
-            "type": "boolean"
-          },
-          "smtpUseTls": {
-            "type": "boolean"
-          },
-          "smtpNeedsAuthentication": {
-            "type": "boolean"
-          },
-          "senderAddress": {
-            "type": "string"
-          },
-          "senderUsername": {
-            "type": "string"
-          },
-          "senderPassword": {
-            "type": "string"
-          },
-          "newOrgaNotificationAddress": {
-            "type": "string"
-          },
-          "subjectPrefix": {
-            "type": "string"
-          }
-        }
-      },
-      "KeycloakMailSettingsDto": {
-        "type": "object",
-        "additionalProperties": false,
-        "properties": {
-          "host": {
-            "type": "string"
-          },
-          "port": {
-            "type": "string"
-          },
-          "from": {
-            "type": "string"
-          },
-          "fromDisplayName": {
-            "type": "string"
-          },
-          "replyTo": {
-            "type": "string"
-          },
-          "replyToDisplayName": {
-            "type": "string"
-          },
-          "user": {
-            "type": "string"
-          },
-          "password": {
-            "type": "string"
-          },
-          "auth": {
-            "type": "boolean"
-          },
-          "startTls": {
-            "type": "boolean"
-          },
-          "ssl": {
-            "type": "boolean"
-          }
-        }
-      },
-      "LegalLinksSettingsDto": {
-        "type": "object",
-        "additionalProperties": false,
-        "properties": {
-          "datenschutzLinkDe": {
-            "type": "string"
-          },
-          "datenschutzLinkEn": {
-            "type": "string"
-          },
-          "agbLinkDe": {
-            "type": "string"
-          },
-          "agbLinkEn": {
-            "type": "string"
-          },
-          "avvLinkDe": {
-            "type": "string"
-          },
-          "avvLinkEn": {
-            "type": "string"
-          },
-          "imprintLink": {
-            "type": "string"
-          },
-          "datenschutzLinkDeDocument": {
-            "nullable": true,
-            "oneOf": [
-              {
-                "$ref": "#/components/schemas/LegalLinksDocumentInfoDto"
-              }
-            ]
-          },
-          "datenschutzLinkEnDocument": {
-            "nullable": true,
-            "oneOf": [
-              {
-                "$ref": "#/components/schemas/LegalLinksDocumentInfoDto"
-              }
-            ]
-          },
-          "agbLinkDeDocument": {
-            "nullable": true,
-            "oneOf": [
-              {
-                "$ref": "#/components/schemas/LegalLinksDocumentInfoDto"
-              }
-            ]
-          },
-          "agbLinkEnDocument": {
-            "nullable": true,
-            "oneOf": [
-              {
-                "$ref": "#/components/schemas/LegalLinksDocumentInfoDto"
-              }
-            ]
-          },
-          "avvLinkDeDocument": {
-            "nullable": true,
-            "oneOf": [
-              {
-                "$ref": "#/components/schemas/LegalLinksDocumentInfoDto"
-              }
-            ]
-          },
-          "avvLinkEnDocument": {
-            "nullable": true,
-            "oneOf": [
-              {
-                "$ref": "#/components/schemas/LegalLinksDocumentInfoDto"
-              }
-            ]
-          },
-          "imprintLinkDocument": {
-            "nullable": true,
-            "oneOf": [
-              {
-                "$ref": "#/components/schemas/LegalLinksDocumentInfoDto"
-              }
-            ]
-          }
-        }
-      },
-      "LegalLinksDocumentInfoDto": {
-        "type": "object",
-        "additionalProperties": false,
-        "properties": {
-          "fileName": {
-            "type": "string"
-          },
-          "contentType": {
-            "type": "string"
-          }
-        }
-      },
-      "UpdateLegalLinksSettingsRequest": {
-        "type": "object",
-        "additionalProperties": false,
-        "properties": {
-          "datenschutzLinkDe": {
-            "type": "string"
-          },
-          "datenschutzLinkEn": {
-            "type": "string"
-          },
-          "agbLinkDe": {
-            "type": "string"
-          },
-          "agbLinkEn": {
-            "type": "string"
-          },
-          "avvLinkDe": {
-            "type": "string"
-          },
-          "avvLinkEn": {
-            "type": "string"
-          },
-          "imprintLink": {
-            "type": "string"
-          },
-          "datenschutzLinkDeDocument": {
-            "nullable": true,
-            "oneOf": [
-              {
-                "$ref": "#/components/schemas/LegalLinksDocumentUploadDto"
-              }
-            ]
-          },
-          "datenschutzLinkEnDocument": {
-            "nullable": true,
-            "oneOf": [
-              {
-                "$ref": "#/components/schemas/LegalLinksDocumentUploadDto"
-              }
-            ]
-          },
-          "agbLinkDeDocument": {
-            "nullable": true,
-            "oneOf": [
-              {
-                "$ref": "#/components/schemas/LegalLinksDocumentUploadDto"
-              }
-            ]
-          },
-          "agbLinkEnDocument": {
-            "nullable": true,
-            "oneOf": [
-              {
-                "$ref": "#/components/schemas/LegalLinksDocumentUploadDto"
-              }
-            ]
-          },
-          "avvLinkDeDocument": {
-            "nullable": true,
-            "oneOf": [
-              {
-                "$ref": "#/components/schemas/LegalLinksDocumentUploadDto"
-              }
-            ]
-          },
-          "avvLinkEnDocument": {
-            "nullable": true,
-            "oneOf": [
-              {
-                "$ref": "#/components/schemas/LegalLinksDocumentUploadDto"
-              }
-            ]
-          },
-          "imprintLinkDocument": {
-            "nullable": true,
-            "oneOf": [
-              {
-                "$ref": "#/components/schemas/LegalLinksDocumentUploadDto"
-              }
-            ]
-          },
-          "servingBaseUrl": {
-            "type": "string"
-          }
-        }
-      },
-      "LegalLinksDocumentUploadDto": {
-        "type": "object",
-        "additionalProperties": false,
-        "properties": {
-          "fileName": {
-            "type": "string"
-          },
-          "contentType": {
-            "type": "string"
-          },
-          "contentBase64": {
-            "type": "string"
-          }
-        }
-      },
-      "SendApplicationTestMailRequestDto": {
-        "type": "object",
-        "additionalProperties": false,
-        "properties": {
-          "targetEmail": {
-            "type": "string"
-          },
-          "settings": {
-            "$ref": "#/components/schemas/ApplicationMailSettingsDto"
-          }
-        }
-      },
-      "SendKeycloakTestMailRequestDto": {
-        "type": "object",
-        "additionalProperties": false,
-        "properties": {
-          "targetEmail": {
-            "type": "string"
-          },
-          "settings": {
-            "$ref": "#/components/schemas/KeycloakMailSettingsDto"
-          }
-        }
-      },
-      "ThemeDefinitionsImport": {
-        "type": "object",
-        "additionalProperties": false,
-        "properties": {
-          "fileAsBase64": {
-            "type": "string"
-          }
-        }
       }
     }
   }

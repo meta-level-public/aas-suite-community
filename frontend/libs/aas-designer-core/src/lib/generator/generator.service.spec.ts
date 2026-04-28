@@ -421,7 +421,7 @@ describe('GeneratorService', () => {
           v3ConceptDescriptionsPlain: [],
           templateRoles: [
             {
-              role: 'nameplate',
+              role: 'digital-nameplate',
               label: 'Digital Nameplate',
               semanticId: 'https://admin-shell.io/idta/nameplate/3/0/Nameplate',
               templateId: 'https://admin-shell.io/idta-02006-3-0',
@@ -471,7 +471,7 @@ describe('GeneratorService', () => {
       true,
     );
     expect(service.standardGeneratorTemplateRoles.map((role) => role.role)).toEqual([
-      'nameplate',
+      'digital-nameplate',
       'handover-documentation',
     ]);
     expect(service.showStandardGeneratorSerialNumber).toBe(false);
@@ -513,7 +513,7 @@ describe('GeneratorService', () => {
     service.additionalV3Submodels = [nameplateTemplate, handoverTemplate];
     service.standardGeneratorTemplateRoles = [
       {
-        role: 'nameplate',
+        role: 'digital-nameplate',
         label: 'Digital Nameplate',
         semanticId: 'https://admin-shell.io/idta/nameplate/3/0/Nameplate',
         templateId: 'https://admin-shell.io/idta-02006-3-0',
@@ -590,7 +590,7 @@ describe('GeneratorService', () => {
     service.additionalV3Submodels = [rawNameplate];
     service.standardGeneratorTemplateRoles = [
       {
-        role: 'nameplate',
+        role: 'digital-nameplate',
         label: 'Digital Nameplate',
         semanticId: 'https://admin-shell.io/idta/nameplate/3/0/Nameplate',
         templateId: 'https://admin-shell.io/idta-02006-3-0',
@@ -728,7 +728,7 @@ describe('GeneratorService', () => {
     service.additionalV3Submodels = [nameplateTemplate, handoverTemplate, pcfTemplate];
     service.standardGeneratorTemplateRoles = [
       {
-        role: 'nameplate',
+        role: 'digital-nameplate',
         label: 'Digital Nameplate',
         semanticId: 'https://admin-shell.io/idta/nameplate/3/0/Nameplate',
         templateId: 'https://admin-shell.io/idta-02006-3-0',
@@ -1178,7 +1178,7 @@ describe('GeneratorService', () => {
       }),
     ];
     service.additionalV3ConceptDescriptions = [new aas.types.ConceptDescription('urn:test:cd')];
-    service.standardGeneratorTemplateRoles = [{ role: 'nameplate' }] as never;
+    service.standardGeneratorTemplateRoles = [{ role: 'digital-nameplate' }] as never;
     service.standardGeneratorUiRules = {
       showSerialNumber: false,
       showManufacturingDate: false,

@@ -11,10 +11,19 @@ export interface SystemManagementModuleConfig {
   value: string;
   icon: string;
   show?: (context: SystemManagementModuleContext) => boolean;
+  children?: SystemManagementModuleConfig[];
 }
 
 export const ADDITIONAL_SYSTEM_MANAGEMENT_MODULES = new InjectionToken<SystemManagementModuleConfig[]>(
   'ADDITIONAL_SYSTEM_MANAGEMENT_MODULES',
+  {
+    providedIn: 'root',
+    factory: () => [],
+  },
+);
+
+export const ADDITIONAL_JOB_SETTINGS_CHILDREN = new InjectionToken<SystemManagementModuleConfig[]>(
+  'ADDITIONAL_JOB_SETTINGS_CHILDREN',
   {
     providedIn: 'root',
     factory: () => [],

@@ -21,10 +21,24 @@ export function createDocumentationSubmodel(requiredSemanticIds: string[]) {
       ]),
     ),
     aas.types.ModellingKind.Instance,
-    new aas.types.Reference(aas.types.ReferenceTypes.ModelReference, [
-      new aas.types.Key(aas.types.KeyTypes.Submodel, HandoverSemantics.SUBMODEL_V3),
+    new aas.types.Reference(aas.types.ReferenceTypes.ExternalReference, [
+      new aas.types.Key(aas.types.KeyTypes.GlobalReference, HandoverSemantics.SUBMODEL_V3),
     ]),
   );
+
+  // Create the v2 Documents container so that documents are always stored
+  // in the correct v2 structure (SubmodelElementList with CONTAINER_V2 semantics).
+  const documentsContainer = new aas.types.SubmodelElementList(aas.types.AasSubmodelElements.SubmodelElementCollection);
+  documentsContainer.idShort = 'Documents';
+  documentsContainer.semanticId = new aas.types.Reference(aas.types.ReferenceTypes.ExternalReference, [
+    new aas.types.Key(aas.types.KeyTypes.GlobalReference, HandoverSemantics.CONTAINER_V2),
+  ]);
+  documentsContainer.semanticIdListElement = new aas.types.Reference(aas.types.ReferenceTypes.ExternalReference, [
+    new aas.types.Key(aas.types.KeyTypes.GlobalReference, HandoverSemantics.DOCUMENT_V2),
+  ]);
+  documentsContainer.value = [];
+  documentation.submodelElements = [documentsContainer];
+
   requiredSemanticIds.push(HandoverSemantics.SUBMODEL_V3);
   return documentation;
 }

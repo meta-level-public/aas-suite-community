@@ -59,6 +59,9 @@ export class OrganisationUserListComponent implements OnInit {
 
   async ngOnInit() {
     this.availableRoles = await this.organisationService.getAvailableRoles();
+    if (this.portalService.getRights().includes('SYSTEM_ADMIN')) {
+      this.availableRoles = ['SYSTEM_ADMIN', ...this.availableRoles];
+    }
   }
 
   onShowActions(user: Benutzer, _event: any) {
@@ -142,6 +145,9 @@ export class OrganisationUserListComponent implements OnInit {
   }
 
   isRoleDisabled(role: string): boolean {
+    if (role === 'SYSTEM_ADMIN' && !this.portalService.getRights().includes('SYSTEM_ADMIN')) {
+      return true;
+    }
     return this.portalService.user?.id === this.currentEditUser()?.id && role === 'ORGA_ADMIN';
   }
 

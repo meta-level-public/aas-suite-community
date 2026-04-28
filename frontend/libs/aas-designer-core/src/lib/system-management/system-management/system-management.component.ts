@@ -1,4 +1,5 @@
 import {
+  ADDITIONAL_JOB_SETTINGS_CHILDREN,
   ADDITIONAL_SYSTEM_MANAGEMENT_MODULES,
   SystemManagementModuleConfig,
   SystemManagementModuleContext,
@@ -24,7 +25,7 @@ import { SidebarTreeNavComponent } from '../../general/sidebar-tree-nav/sidebar-
 })
 export class SystemManagementComponent implements OnInit {
   sidebarVisible: boolean = false;
-  modules: { label: string; value: string; icon: string }[] = [];
+  modules: SystemManagementModuleConfig[] = [];
   selectedEntryKey: string | null = null;
 
   loading = signal(true);
@@ -38,6 +39,7 @@ export class SystemManagementComponent implements OnInit {
   destroyRef = inject(DestroyRef);
   appConfigService = inject(AppConfigService);
   additionalModules = inject(ADDITIONAL_SYSTEM_MANAGEMENT_MODULES);
+  additionalJobSettingsChildren = inject(ADDITIONAL_JOB_SETTINGS_CHILDREN);
 
   constructor() {
     this.router.events
@@ -80,18 +82,47 @@ export class SystemManagementComponent implements OnInit {
       }
       this.modules.push(...this.resolveAdditionalModules());
       this.modules.push({ label: 'HELP_TEXT_CONFIG', value: 'help-text-config', icon: 'pi pi-question-circle' });
+      this.modules.push({
+        label: 'JOB_SETTINGS',
+        value: 'job-settings',
+        icon: 'pi pi-sliders-h',
+        children: [
+          { label: 'JOB_STATISTIC_CALCULATOR', value: 'job-settings/statistic-calculator', icon: 'pi pi-chart-bar' },
+          {
+            label: 'JOB_DAILY_STATISTIC_CALCULATOR',
+            value: 'job-settings/daily-statistic-calculator',
+            icon: 'pi pi-chart-line',
+          },
+          ...(this.systemConfguration()?.singleTenantMode === false
+            ? [
+                {
+                  label: 'JOB_DAILY_EXPIRED_ORGANISATIONS_CHECKER',
+                  value: 'job-settings/daily-expired-organisations-checker',
+                  icon: 'pi pi-calendar-times',
+                },
+                {
+                  label: 'JOB_PERIODIC_ORGANISATION_DELETER',
+                  value: 'job-settings/periodic-organisation-deleter',
+                  icon: 'pi pi-trash',
+                },
+                {
+                  label: 'JOB_PERIODIC_INFRASTRUCTURE_DELETER',
+                  value: 'job-settings/periodic-infrastructure-deleter',
+                  icon: 'pi pi-server',
+                },
+              ]
+            : []),
+          { label: 'JOB_IDTA_CRAWLER', value: 'job-settings/idta-crawler', icon: 'pi pi-globe' },
+          {
+            label: 'JOB_PCN_UPDATE_LISTENER',
+            value: 'job-settings/pcn-update-listener',
+            icon: 'pi pi-wifi',
+          },
+          ...this.additionalJobSettingsChildren,
+        ],
+      });
 
-      this.systemManagementEntries.set(
-        this.modules.map((module) => {
-          return {
-            label: module.label,
-            key: module.value,
-            data: { value: module.value },
-            icon: module.icon,
-            expanded: true,
-          };
-        }),
-      );
+      this.systemManagementEntries.set(this.modules.map((module) => this.buildTreeNode(module)));
 
       this.updateSelectedEntry(this.router.url);
     } finally {
@@ -99,7 +130,7 @@ export class SystemManagementComponent implements OnInit {
     }
   }
 
-  private resolveAdditionalModules(): { label: string; value: string; icon: string }[] {
+  private resolveAdditionalModules(): SystemManagementModuleConfig[] {
     const context: SystemManagementModuleContext = {
       systemConfiguration: this.systemConfguration(),
       appConfig: this.appConfigService.config,
@@ -107,26 +138,68 @@ export class SystemManagementComponent implements OnInit {
 
     return this.additionalModules
       .filter((module: SystemManagementModuleConfig) => module.show == null || module.show(context))
-      .map((module) => ({ label: module.label, value: module.value, icon: module.icon }));
+      .map((module) => ({ label: module.label, value: module.value, icon: module.icon, children: module.children }));
+  }
+
+  private buildTreeNode(module: SystemManagementModuleConfig): TreeNode {
+    if (module.children?.length) {
+      return {
+        label: module.label,
+        key: module.value,
+        data: { value: module.value },
+        icon: module.icon,
+        selectable: false,
+        expanded: false,
+        children: module.children.map((child) => this.buildTreeNode(child)),
+      };
+    }
+    return {
+      label: module.label,
+      key: module.value,
+      data: { value: module.value },
+      icon: module.icon,
+      expanded: true,
+    };
+  }
+
+  private findNodeByValue(nodes: TreeNode[], url: string): TreeNode | null {
+    for (const node of nodes) {
+      const value = node.data?.value;
+      if (value != null && url.startsWith(`/system-management/${value}`)) {
+        if (node.children?.length) {
+          const child = this.findNodeByValue(node.children, url);
+          if (child != null) return child;
+        }
+        return node;
+      }
+    }
+    return null;
   }
 
   private updateSelectedEntry(url: string) {
     const normalizedUrl = url.split('?')[0].split('#')[0];
 
     if (normalizedUrl === '/system-management' || normalizedUrl === '/system-management/') {
-      const firstEntryValue = this.systemManagementEntries()[0]?.data?.value;
-      this.selectedEntryKey = this.systemManagementEntries()[0]?.key ?? null;
-      if (firstEntryValue != null) {
-        void this.router.navigate([firstEntryValue], { relativeTo: this.route, replaceUrl: true });
+      const firstLeaf = this.findFirstLeaf(this.systemManagementEntries());
+      this.selectedEntryKey = firstLeaf?.key ?? null;
+      const firstValue = firstLeaf?.data?.value;
+      if (firstValue != null) {
+        void this.router.navigate(firstValue.split('/'), { relativeTo: this.route, replaceUrl: true });
       }
       return;
     }
 
-    this.selectedEntryKey =
-      this.systemManagementEntries().find((entry) => {
-        const value = entry.data?.value;
-        return value != null && normalizedUrl.startsWith(`/system-management/${value}`);
-      })?.key ?? null;
+    const found = this.findNodeByValue(this.systemManagementEntries(), normalizedUrl);
+    this.selectedEntryKey = found?.key ?? null;
+  }
+
+  private findFirstLeaf(nodes: TreeNode[]): TreeNode | null {
+    for (const node of nodes) {
+      if (!node.children?.length) return node;
+      const child = this.findFirstLeaf(node.children);
+      if (child != null) return child;
+    }
+    return null;
   }
 
   selectPage(entry: TreeNode) {
@@ -135,7 +208,7 @@ export class SystemManagementComponent implements OnInit {
       return;
     }
 
-    this.router.navigate([value], { relativeTo: this.route });
+    this.router.navigate(value.split('/'), { relativeTo: this.route });
     this.sidebarVisible = false;
   }
 }

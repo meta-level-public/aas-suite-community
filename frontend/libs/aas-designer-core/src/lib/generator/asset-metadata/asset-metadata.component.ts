@@ -599,7 +599,7 @@ export class AssetMetadataComponent implements OnInit, DoCheck, OnDestroy {
   }
 
   private isPlaceholderAssetShellId(value: string) {
-    return value === 'aa';
+    return value === 'aa' || value === 'TypeAssetAdministrationShell' || value === 'InstanceAssetAdministrationShell';
   }
 
   private syncAssetShellIdentifier() {
@@ -649,16 +649,23 @@ export class AssetMetadataComponent implements OnInit, DoCheck, OnDestroy {
       return;
     }
 
-    const bufferFingerprint = this.getDescriptionFingerprint(this.assetShellDescriptionBuffer);
-    const shellDescription = this.toMultiLanguagePropertyValues(rootShell.description);
-    const shellFingerprint = this.getDescriptionFingerprint(shellDescription);
+    const currentBufferFingerprint = this.getDescriptionFingerprint(this.assetShellDescriptionBuffer);
 
-    if (bufferFingerprint === shellFingerprint) {
+    if (currentBufferFingerprint !== this.assetShellDescriptionBufferFingerprint) {
+      // Buffer was mutated by user input — persist changes to the shell.
+      rootShell.description = this.toLangStrings(this.assetShellDescriptionBuffer);
+      this.assetShellDescriptionBufferFingerprint = currentBufferFingerprint;
       return;
     }
 
-    this.assetShellDescriptionBuffer = shellDescription;
-    this.assetShellDescriptionBufferFingerprint = shellFingerprint;
+    const shellDescription = this.toMultiLanguagePropertyValues(rootShell.description);
+    const shellFingerprint = this.getDescriptionFingerprint(shellDescription);
+
+    if (shellFingerprint !== this.assetShellDescriptionBufferFingerprint) {
+      // Shell was modified externally (e.g. by suggestions) — update buffer from shell.
+      this.assetShellDescriptionBuffer = shellDescription;
+      this.assetShellDescriptionBufferFingerprint = shellFingerprint;
+    }
   }
 
   private toMultiLanguagePropertyValues(

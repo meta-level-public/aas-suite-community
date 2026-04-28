@@ -216,6 +216,10 @@
 
 ::ng-deep .battery-editor-nav-actions .p-button {
   width: 100%;
+  white-space: normal;
+  word-break: break-word;
+  height: auto;
+  min-height: 2.5rem;
 }
 
 .battery-editor-nav-actions :where(.p-button) {

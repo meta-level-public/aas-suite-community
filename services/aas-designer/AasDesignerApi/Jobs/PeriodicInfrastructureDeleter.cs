@@ -19,7 +19,7 @@ namespace AasDesignerApi.Jobs
         private int executionCount = 0;
         private readonly ILogger<PeriodicInfrastructureDeleter> _logger;
         private readonly IServiceProvider _provider;
-        private Timer? _timer = null;
+        private CancellationTokenSource? _cts;
 
         public PeriodicInfrastructureDeleter(
             ILogger<PeriodicInfrastructureDeleter> logger,
@@ -33,14 +33,55 @@ namespace AasDesignerApi.Jobs
         public Task StartAsync(CancellationToken stoppingToken)
         {
             _logger.LogInformation("PeriodicInfrastructureDeleter running.");
-
-            // _timer = new Timer(DoWork, null, TimeSpan.Zero,
-            //     TimeSpan.FromMinutes(5));
-
-            // stündlicher Lauf
-            _timer = new Timer(DoWork, null, TimeSpan.Zero, TimeSpan.FromHours(1));
-
+            _cts = CancellationTokenSource.CreateLinkedTokenSource(stoppingToken);
+            _ = Task.Run(() => RunLoopAsync(_cts.Token), _cts.Token);
             return Task.CompletedTask;
+        }
+
+        private async Task RunLoopAsync(CancellationToken cancellationToken)
+        {
+            var lastRun = DateTimeOffset.MinValue;
+            using var timer = new PeriodicTimer(TimeSpan.FromMinutes(1));
+
+            while (await timer.WaitForNextTickAsync(cancellationToken))
+            {
+                PeriodicInfrastructureDeleterSettingsDto settings;
+                try
+                {
+                    using var scope = _provider.CreateScope();
+                    var db = scope.ServiceProvider.GetRequiredService<IApplicationDbContext>();
+                    settings = await PeriodicInfrastructureDeleterSettingsStore.LoadAsync(
+                        db,
+                        cancellationToken
+                    );
+                }
+                catch
+                {
+                    settings = new PeriodicInfrastructureDeleterSettingsDto(
+                        PeriodicInfrastructureDeleterSettingsStore.DefaultIntervalMinutes,
+                        true
+                    );
+                }
+
+                if (!settings.IsEnabled)
+                    continue;
+
+                if (
+                    DateTimeOffset.UtcNow - lastRun
+                    < TimeSpan.FromMinutes(settings.IntervalMinutes)
+                )
+                    continue;
+
+                lastRun = DateTimeOffset.UtcNow;
+                try
+                {
+                    DoWork(null);
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogError(ex, "PeriodicInfrastructureDeleter: Fehler im Lauf.");
+                }
+            }
         }
 
         /// <summary>
@@ -137,15 +178,13 @@ namespace AasDesignerApi.Jobs
         public Task StopAsync(CancellationToken stoppingToken)
         {
             _logger.LogInformation("PeriodicInfrastructureDeleter is stopping.");
-
-            _timer?.Change(Timeout.Infinite, 0);
-
+            _cts?.Cancel();
             return Task.CompletedTask;
         }
 
         public void Dispose()
         {
-            _timer?.Dispose();
+            _cts?.Dispose();
         }
 
         private static TimeSpan getScheduledParsedTime()
