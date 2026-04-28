@@ -232,6 +232,7 @@ export class ShellsListComponent implements OnInit, OnDestroy {
   }
 
   private buildShellMenu(shell: ShellListDto, canEdit: boolean, transferTargets: MenuItem[]): MenuItem[] {
+    const isTypeShell = shell.assetKind === AssetKind.Type || (shell.assetKind as unknown as string) === 'Type';
     return [
       this.createMenuAction('VIEW', 'pi pi-eye', () => this.openViewer(shell.id), true),
       this.createMenuAction('EDIT', 'pi pi-pencil', () => this.openEditor(shell.id), canEdit),
@@ -259,7 +260,7 @@ export class ShellsListComponent implements OnInit, OnDestroy {
             'CREATE_INSTANCE',
             'pi pi-box',
             () => this.createInstanceByShell(shell),
-            canEdit && shell.assetKind === AssetKind.Type,
+            canEdit && isTypeShell,
           ),
         ],
       },
