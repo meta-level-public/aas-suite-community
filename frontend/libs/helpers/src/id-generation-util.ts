@@ -15,7 +15,7 @@ export class IdGenerationUtil {
     type: 'submodel' | 'property' | 'collection' | 'mlp' | 'file' | 'asset' | 'other' | 'aas' | string,
     prefix: string,
   ) {
-    let generatedIRdi = prefix.endsWith('/') ? prefix : prefix + '/' + 'ids';
+    let generatedIRdi = prefix.replace(/\/+$/, '') + '/ids';
     switch (type) {
       case 'submodel':
         generatedIRdi += `/sm/${this.getRandomInt(1000, 9999)}_${this.getRandomInt(1000, 9999)}_${this.getRandomInt(

@@ -1061,7 +1061,8 @@ export class GeneratorService {
   }
 
   private appendTemplateBackedCoreExportSubmodels(exportState: GeneratorExportState) {
-    const nameplateTemplate = this.getStandardGeneratorTemplateSubmodel('nameplate');
+    exportState.shell.submodels = [];
+    const nameplateTemplate = this.getStandardGeneratorTemplateSubmodel('digital-nameplate');
     if (nameplateTemplate != null) {
       appendExportSubmodel(
         exportState,

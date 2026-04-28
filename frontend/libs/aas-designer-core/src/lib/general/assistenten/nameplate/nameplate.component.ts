@@ -643,6 +643,26 @@ export class NameplateComponent implements OnInit, OnDestroy {
     });
   }
 
+  private isContainerFilled(item: BatteryEditorTreeItem<NameplateField>): boolean {
+    return flattenBatteryEditorTreeItems(item.children).some((child) => {
+      const field = child.fields[0];
+      if (field == null) {
+        return false;
+      }
+
+      const element = field.element;
+      if (element == null) {
+        return false;
+      }
+
+      if (Array.isArray(element.value)) {
+        return element.value.some((entry: any) => entry != null && `${entry?.text ?? entry ?? ''}`.trim() !== '');
+      }
+
+      return element.value != null && `${element.value}`.trim() !== '';
+    });
+  }
+
   private isAddressSelectionElement(element: any) {
     return (
       SemanticIdHelper.hasSemanticId(
@@ -975,14 +995,34 @@ export class NameplateComponent implements OnInit, OnDestroy {
 
   next(focusFieldId: string = '') {
     const flatItems = flattenBatteryEditorTreeItems(this.navItems);
-    const currentIndex = flatItems.findIndex((item) => item.key === this.activeItem?.key);
+    const currentItem = this.activeItem;
+    const currentIndex = flatItems.findIndex((item) => item.key === currentItem?.key);
 
-    if (currentIndex !== -1 && currentIndex < flatItems.length - 1) {
-      this.activeItemKey = flatItems[currentIndex + 1].key;
-      if (focusFieldId !== '') {
-        setTimeout(() => document.getElementById(focusFieldId)?.focus());
+    if (currentIndex !== -1) {
+      // Wenn das aktive Element ein Container (Collection) ist und dieser befüllt wurde,
+      // zum nächsten Geschwisterelement springen statt in die Kinder.
+      let nextIndex: number;
+      if (currentItem?.kind === 'container' && this.isContainerFilled(currentItem)) {
+        const containerKeyPrefix = currentItem.key + '__';
+        const siblingIndex = flatItems.findIndex(
+          (item, i) => i > currentIndex && !item.key.startsWith(containerKeyPrefix),
+        );
+        nextIndex = siblingIndex !== -1 ? siblingIndex : flatItems.length;
+      } else {
+        nextIndex = currentIndex + 1;
       }
-    } else if (this.embedded) {
+
+      if (nextIndex < flatItems.length) {
+        this.activeItemKey = flatItems[nextIndex].key;
+        if (focusFieldId !== '') {
+          setTimeout(() => document.getElementById(focusFieldId)?.focus());
+        }
+        this.focusByActiveIndex();
+        return;
+      }
+    }
+
+    if (this.embedded) {
       this.nameplateComplete.next(true);
     } else {
       this.generatorService.navigateToNextGeneratorFlowStep(this.router, 'nameplate', ['generator', 'document']);

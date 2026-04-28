@@ -572,7 +572,7 @@
   "CONFIGURE": "Configure",
   "CONFIRM": "Confirmation",
   "CONFIRMATION": "Confirmation",
-  "CONFIRM_AND_SAVE": "Summary and confirmation",
+  "CONFIRM_AND_SAVE": "Next",
   "CONFIRM_DELETE_ECLASS_CERTIFICATION": "Do you really want to delete the ECLASS certificate?",
   "CONFIRM_PASSWORD": "Confirm new password",
   "CONNECTION_DELETED": "Connection has been removed successfully.",
