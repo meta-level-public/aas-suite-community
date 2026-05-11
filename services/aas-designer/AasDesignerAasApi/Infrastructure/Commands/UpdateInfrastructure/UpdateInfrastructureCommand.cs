@@ -60,25 +60,28 @@ public class UpdateInfrastructureHandler : IRequestHandler<UpdateInfrastructureC
             .AasInfrastructureSettings
             .ConceptDescriptionRepositoryVersion;
 
-        infrastructure.ContainerGuid = request.AppUser.Organisation.InternalAasInfrastructureGuid;
-        infrastructure.MongoContainer =
-            $"aas-suite-mongo-{request.AppUser.Organisation.InternalAasInfrastructureGuid}";
-        infrastructure.MqttContainer =
-            $"aas-suite-mqtt-{request.AppUser.Organisation.InternalAasInfrastructureGuid}";
-        infrastructure.AasEnvContainer =
-            $"aas-suite-aas-env-{request.AppUser.Organisation.InternalAasInfrastructureGuid}";
-        infrastructure.AasRegistryContainer =
-            $"aas-suite-aas-registry-{request.AppUser.Organisation.InternalAasInfrastructureGuid}";
-        infrastructure.SmRegistryContainer =
-            $"aas-suite-sm-registry-{request.AppUser.Organisation.InternalAasInfrastructureGuid}";
-        infrastructure.AasDiscoveryContainer =
-            $"aas-suite-aas-discovery-{request.AppUser.Organisation.InternalAasInfrastructureGuid}";
+        infrastructure.MongoContainer = $"aas-suite-mongo-{infrastructure.ContainerGuid}";
+        infrastructure.MqttContainer = infrastructure.IsGoInfrastructure
+            ? $"aas-suite-go-mqtt-{infrastructure.ContainerGuid}"
+            : $"aas-suite-mqtt-{infrastructure.ContainerGuid}";
+        infrastructure.AasEnvContainer = infrastructure.IsGoInfrastructure
+            ? $"aas-suite-go-aas-env-{infrastructure.ContainerGuid}"
+            : $"aas-suite-aas-env-{infrastructure.ContainerGuid}";
+        infrastructure.AasRegistryContainer = infrastructure.IsGoInfrastructure
+            ? $"aas-suite-go-aas-registry-{infrastructure.ContainerGuid}"
+            : $"aas-suite-aas-registry-{infrastructure.ContainerGuid}";
+        infrastructure.SmRegistryContainer = infrastructure.IsGoInfrastructure
+            ? $"aas-suite-go-sm-registry-{infrastructure.ContainerGuid}"
+            : $"aas-suite-sm-registry-{infrastructure.ContainerGuid}";
+        infrastructure.AasDiscoveryContainer = infrastructure.IsGoInfrastructure
+            ? $"aas-suite-go-aas-discovery-{infrastructure.ContainerGuid}"
+            : $"aas-suite-aas-discovery-{infrastructure.ContainerGuid}";
 
         _context.SaveChanges();
         var externalUrl =
             $"{_appsettings.BaseUrl.AppendSlash()}aas-proxy/" + infrastructure.Id + "/aas-repo/";
         InfrastructureChangeRequester.RequestInfrastructureChange(
-            request.AppUser.Organisation.InternalAasInfrastructureGuid,
+            infrastructure.ContainerGuid,
             _appsettings.ContainerManagerInboxDirectory,
             infrastructure,
             externalUrl

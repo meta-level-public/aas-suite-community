@@ -56,7 +56,6 @@ namespace AasDesignerApi.Orga
             };
 
             organisation.MaxHostPort = maxPort + 5;
-            organisation.InternalAasInfrastructureGuid = containerInfos.Guid;
 
             var aasEnvContainer = $"aas-suite-aas-env-{containerInfos.Guid}";
             var aasRegistryContainer = $"aas-suite-aas-registry-{containerInfos.Guid}";
@@ -164,6 +163,150 @@ namespace AasDesignerApi.Orga
             System.IO.File.WriteAllText(path, infoString);
 
             _logger.LogInformation("ContainerInfos written to {Path}", path);
+        }
+
+        public void RequestGoInfrastructure(Organisation organisation, string status = "started")
+        {
+            var maxPort = _context.Organisations.Max(o => o.MaxHostPort);
+            if (maxPort == 0)
+            {
+                maxPort = _appsSettings.StartContainerPort;
+            }
+
+            var guid = Guid.NewGuid().ToString();
+            var guidShort = guid.Replace("-", "")[..12];
+            var dbName = $"basyx_{guidShort}";
+            var dbUser = $"gouser_{guidShort}";
+            var dbPassword = Convert
+                .ToHexString(System.Security.Cryptography.RandomNumberGenerator.GetBytes(24))
+                .ToLower();
+
+            var containerInfos = new ContainerInfos
+            {
+                Guid = guid,
+                HostPortAasEnv = maxPort + 1,
+                HostPortAasRegistry = maxPort + 2,
+                HostPortSmRegistry = maxPort + 3,
+                HostPortAasDiscovery = maxPort + 4,
+                HostPortMqtt = maxPort + 5,
+                VersionAasDiscovery = "SNAPSHOT",
+                VersionAasRegistry = "SNAPSHOT",
+                VersionAasEnv = "SNAPSHOT",
+                VersionSmRegistry = "SNAPSHOT",
+                AasEnvMemory = 256_000_000,
+                AasRegistryMemory = 128_000_000,
+                SmRegistryMemory = 128_000_000,
+                AasDiscoveryMemory = 128_000_000,
+                Action = "create",
+                ContainerStatus = status,
+                ExternalUrl = $"{_appsSettings.BaseUrl.AppendSlash()}aas-proxy/aas-repo/",
+                IsGoInfrastructure = true,
+                GoPostgresDbName = dbName,
+                GoPostgresUser = dbUser,
+                GoPostgresPassword = dbPassword,
+            };
+
+            organisation.MaxHostPort = maxPort + 5;
+
+            var aasEnvContainer = $"aas-suite-go-aas-env-{guid}";
+            var aasRegistryContainer = $"aas-suite-go-aas-registry-{guid}";
+            var smRegistryContainer = $"aas-suite-go-sm-registry-{guid}";
+            var aasDiscoveryContainer = $"aas-suite-go-aas-discovery-{guid}";
+
+            var aasEnvBaseUrl = _env.IsDevelopment()
+                ? $"{_appsSettings.ContainerHost}:{containerInfos.HostPortAasEnv}"
+                : $"http://{aasEnvContainer}:8081";
+            var aasRegistryBaseUrl = _env.IsDevelopment()
+                ? $"{_appsSettings.ContainerHost}:{containerInfos.HostPortAasRegistry}"
+                : $"http://{aasRegistryContainer}:8082";
+            var smRegistryBaseUrl = _env.IsDevelopment()
+                ? $"{_appsSettings.ContainerHost}:{containerInfos.HostPortSmRegistry}"
+                : $"http://{smRegistryContainer}:8083";
+            var aasDiscoveryBaseUrl = _env.IsDevelopment()
+                ? $"{_appsSettings.ContainerHost}:{containerInfos.HostPortAasDiscovery}"
+                : $"http://{aasDiscoveryContainer}:8081";
+
+            var infra = new AasInfrastructureSettings
+            {
+                AasDiscoveryUrl = aasDiscoveryBaseUrl,
+                AasDiscoveryVersion = containerInfos.VersionAasDiscovery,
+                AasDiscoveryHcUrl = $"{aasDiscoveryBaseUrl}/health",
+                AasDiscoveryHcEnabled = true,
+
+                AasRegistryUrl = aasRegistryBaseUrl,
+                AasRegistryVersion = containerInfos.VersionAasRegistry,
+                AasRegistryHcUrl = $"{aasRegistryBaseUrl}/health",
+                AasRegistryHcEnabled = true,
+
+                AasRepositoryUrl = aasEnvBaseUrl,
+                AasRepositoryVersion = containerInfos.VersionAasEnv,
+                AasRepositoryHcUrl = $"{aasEnvBaseUrl}/health",
+                AasRepositoryHcEnabled = true,
+
+                SubmodelRegistryUrl = smRegistryBaseUrl,
+                SubmodelRegistryVersion = containerInfos.VersionSmRegistry,
+                SubmodelRegistryHcUrl = $"{smRegistryBaseUrl}/health",
+                SubmodelRegistryHcEnabled = true,
+
+                SubmodelRepositoryUrl = aasEnvBaseUrl,
+                SubmodelRepositoryVersion = containerInfos.VersionAasEnv,
+                SubmodelRepositoryHcUrl = $"{aasEnvBaseUrl}/health",
+                SubmodelRepositoryHcEnabled = true,
+
+                ConceptDescriptionRepositoryUrl = aasEnvBaseUrl,
+                ConceptDescriptionRepositoryVersion = containerInfos.VersionAasEnv,
+                ConceptDescriptionRepositoryHcUrl = $"{aasEnvBaseUrl}/health",
+                ConceptDescriptionRepositoryHcEnabled = true,
+
+                ContainerGuid = guid,
+                MqttContainer = $"aas-suite-go-mqtt-{guid}",
+                AasEnvContainer = aasEnvContainer,
+                AasRegistryContainer = aasRegistryContainer,
+                SmRegistryContainer = smRegistryContainer,
+                AasDiscoveryContainer = aasDiscoveryContainer,
+
+                HostPortAasEnv = containerInfos.HostPortAasEnv,
+                HostPortAasRegistry = containerInfos.HostPortAasRegistry,
+                HostPortAasDiscovery = containerInfos.HostPortAasDiscovery,
+                HostPortMqtt = containerInfos.HostPortMqtt,
+                HostPortSmRegistry = containerInfos.HostPortSmRegistry,
+                InternalPortAasEnv = 8081,
+                InternalPortAasRegistry = 8082,
+                InternalPortAasDiscovery = 8081,
+                InternalPortMqtt = 1883,
+                InternalPortSmRegistry = 8083,
+                IsInternal = true,
+                IsActive = status == "started",
+                IsReadonly = false,
+                IsGoInfrastructure = true,
+                GoPostgresDbName = dbName,
+                GoPostgresUser = dbUser,
+                Name = "Internal Infrastructure (BaSyx Go)",
+                Description = "Internal Infrastructure (BaSyx Go)",
+
+                OrganisationId = organisation.Id,
+            };
+
+            _logger.LogInformation(
+                "Requesting Go infrastructure for organisation {OrganisationId} with GUID {Guid}",
+                organisation.Id,
+                guid
+            );
+
+            _context.AasInfrastructureSettings.Add(infra);
+            _context.SaveChanges();
+
+            var infoString = System.Text.Json.JsonSerializer.Serialize(containerInfos);
+            var inboxDirectory = _appsSettings.ContainerManagerInboxDirectory;
+            if (!string.IsNullOrWhiteSpace(inboxDirectory))
+            {
+                Directory.CreateDirectory(inboxDirectory);
+            }
+
+            var path = Path.Combine(inboxDirectory, $"containerInfos-{Guid.NewGuid()}.json");
+            System.IO.File.WriteAllText(path, infoString);
+
+            _logger.LogInformation("Go ContainerInfos written to {Path}", path);
         }
     }
 }

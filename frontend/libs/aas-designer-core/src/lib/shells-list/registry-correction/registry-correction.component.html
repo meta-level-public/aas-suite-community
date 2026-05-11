@@ -6,8 +6,20 @@
         <p class="hero-subtitle">{{ 'REGISTRY_CORRECTION_SUBTITLE' | translate }}</p>
       </div>
       <div class="hero-actions">
-        <p-button icon="pi pi-refresh" [label]="'RELOAD' | translate" severity="secondary" [outlined]="true" (onClick)="reloadDescriptor()" />
-        <p-button icon="pi pi-arrow-left" [label]="'BACK' | translate" severity="secondary" [outlined]="true" (onClick)="goBack()" />
+        <p-button
+          icon="pi pi-refresh"
+          [label]="'RELOAD' | translate"
+          severity="secondary"
+          [outlined]="true"
+          (onClick)="reloadDescriptor()"
+        />
+        <p-button
+          icon="pi pi-arrow-left"
+          [label]="'BACK' | translate"
+          severity="secondary"
+          [outlined]="true"
+          (onClick)="goBack()"
+        />
       </div>
     </div>
   </div>
@@ -23,7 +35,12 @@
         <p-skeleton height="10rem" />
       </div>
     } @else if (aasDescriptor()) {
-      <p-splitter stateKey="registryCorrectionLayout" stateStorage="local" [panelSizes]="[24, 76]" class="aas-splitter-fill">
+      <p-splitter
+        stateKey="registryCorrectionLayout"
+        stateStorage="local"
+        [panelSizes]="[24, 76]"
+        class="aas-splitter-fill"
+      >
         <ng-template pTemplate>
           <div class="registry-sidebar-panel">
             <div class="detail-card registry-sidebar-card">
@@ -77,7 +94,11 @@
                         icon="pi pi-save"
                         [label]="'SAVE' | translate"
                         [loading]="isSelectedDescriptorSaving()"
-                        [disabled]="isAasSelected() ? aasDraftJsonError() != null : submodelDraftError(selectedSubmodelId() ?? '') != null"
+                        [disabled]="
+                          isAasSelected()
+                            ? aasDraftJsonError() != null
+                            : submodelDraftError(selectedSubmodelId() ?? '') != null
+                        "
                         (onClick)="saveSelectedDescriptor()"
                       />
                     }
@@ -90,27 +111,58 @@
                       <div class="flex flex-col gap-3">
                         <p-inputgroup>
                           <p-inputgroup-addon class="font-bold w-56">{{ 'ID' | translate }}</p-inputgroup-addon>
-                          <input pInputText class="registry-readonly-field" [readonly]="true" [ngModel]="descriptor.id ?? ''" />
+                          <input
+                            pInputText
+                            class="registry-readonly-field"
+                            [readonly]="true"
+                            [ngModel]="descriptor.id ?? ''"
+                          />
                         </p-inputgroup>
 
                         <p-inputgroup>
                           <p-inputgroup-addon class="font-bold w-56">{{ 'ID_SHORT' | translate }}</p-inputgroup-addon>
-                          <input pInputText class="registry-readonly-field" [readonly]="true" [ngModel]="descriptor.idShort ?? ''" />
+                          <input
+                            pInputText
+                            class="registry-readonly-field"
+                            [readonly]="true"
+                            [ngModel]="descriptor.idShort ?? ''"
+                          />
                         </p-inputgroup>
 
                         <p-inputgroup>
-                          <p-inputgroup-addon class="font-bold w-56">{{ 'REGISTRY_CORRECTION_ASSET_KIND' | translate }}</p-inputgroup-addon>
-                          <input pInputText class="registry-readonly-field" [readonly]="true" [ngModel]="descriptor.assetKind ?? ''" />
+                          <p-inputgroup-addon class="font-bold w-56">{{
+                            'REGISTRY_CORRECTION_ASSET_KIND' | translate
+                          }}</p-inputgroup-addon>
+                          <input
+                            pInputText
+                            class="registry-readonly-field"
+                            [readonly]="true"
+                            [ngModel]="descriptor.assetKind ?? ''"
+                          />
                         </p-inputgroup>
 
                         <p-inputgroup>
-                          <p-inputgroup-addon class="font-bold w-56">{{ 'REGISTRY_CORRECTION_ASSET_TYPE' | translate }}</p-inputgroup-addon>
-                          <input pInputText class="registry-readonly-field" [readonly]="true" [ngModel]="descriptor.assetType ?? ''" />
+                          <p-inputgroup-addon class="font-bold w-56">{{
+                            'REGISTRY_CORRECTION_ASSET_TYPE' | translate
+                          }}</p-inputgroup-addon>
+                          <input
+                            pInputText
+                            class="registry-readonly-field"
+                            [readonly]="true"
+                            [ngModel]="descriptor.assetType ?? ''"
+                          />
                         </p-inputgroup>
 
                         <p-inputgroup>
-                          <p-inputgroup-addon class="font-bold w-56">{{ 'REGISTRY_CORRECTION_GLOBAL_ASSET_ID' | translate }}</p-inputgroup-addon>
-                          <input pInputText class="registry-readonly-field" [readonly]="true" [ngModel]="descriptor.globalAssetId ?? ''" />
+                          <p-inputgroup-addon class="font-bold w-56">{{
+                            'REGISTRY_CORRECTION_GLOBAL_ASSET_ID' | translate
+                          }}</p-inputgroup-addon>
+                          <input
+                            pInputText
+                            class="registry-readonly-field"
+                            [readonly]="true"
+                            [ngModel]="descriptor.globalAssetId ?? ''"
+                          />
                         </p-inputgroup>
                       </div>
 
@@ -121,8 +173,15 @@
                             <div class="registry-localized-list">
                               @for (entry of descriptor.displayName ?? []; track $index) {
                                 <p-inputgroup>
-                                  <input pInputText class="registry-readonly-field" [readonly]="true" [ngModel]="entry.text ?? ''" />
-                                  <p-inputgroup-addon class="registry-locale-addon">@ {{ entry.language ?? '-' }}</p-inputgroup-addon>
+                                  <input
+                                    pInputText
+                                    class="registry-readonly-field"
+                                    [readonly]="true"
+                                    [ngModel]="entry.text ?? ''"
+                                  />
+                                  <p-inputgroup-addon class="registry-locale-addon"
+                                    >@ {{ entry.language ?? '-' }}</p-inputgroup-addon
+                                  >
                                 </p-inputgroup>
                               }
                             </div>
@@ -163,15 +222,32 @@
                         <div class="grid grid-cols-1 gap-3">
                           <p-inputgroup>
                             <p-inputgroup-addon class="font-bold w-56">{{ 'VERSION' | translate }}</p-inputgroup-addon>
-                            <input pInputText class="registry-readonly-field" [readonly]="true" [ngModel]="administrationValue(descriptor, 'version') || '-'" />
+                            <input
+                              pInputText
+                              class="registry-readonly-field"
+                              [readonly]="true"
+                              [ngModel]="administrationValue(descriptor, 'version') || '-'"
+                            />
                           </p-inputgroup>
                           <p-inputgroup>
                             <p-inputgroup-addon class="font-bold w-56">{{ 'REVISION' | translate }}</p-inputgroup-addon>
-                            <input pInputText class="registry-readonly-field" [readonly]="true" [ngModel]="administrationValue(descriptor, 'revision') || '-'" />
+                            <input
+                              pInputText
+                              class="registry-readonly-field"
+                              [readonly]="true"
+                              [ngModel]="administrationValue(descriptor, 'revision') || '-'"
+                            />
                           </p-inputgroup>
                           <p-inputgroup>
-                            <p-inputgroup-addon class="font-bold w-56">{{ 'REGISTRY_CORRECTION_TEMPLATE_ID' | translate }}</p-inputgroup-addon>
-                            <input pInputText class="registry-readonly-field" [readonly]="true" [ngModel]="administrationValue(descriptor, 'templateId') || '-'" />
+                            <p-inputgroup-addon class="font-bold w-56">{{
+                              'REGISTRY_CORRECTION_TEMPLATE_ID' | translate
+                            }}</p-inputgroup-addon>
+                            <input
+                              pInputText
+                              class="registry-readonly-field"
+                              [readonly]="true"
+                              [ngModel]="administrationValue(descriptor, 'templateId') || '-'"
+                            />
                           </p-inputgroup>
                         </div>
                       </div>
@@ -191,19 +267,45 @@
                                 <p-accordion-content>
                                   <div class="registry-endpoint-fields">
                                     <p-inputgroup>
-                                      <p-inputgroup-addon class="font-bold w-56">{{ 'INTERFACE' | translate }}</p-inputgroup-addon>
-                                      <input pInputText class="registry-readonly-field" [readonly]="true" [ngModel]="endpoint.interface || '-'" />
+                                      <p-inputgroup-addon class="font-bold w-56">{{
+                                        'INTERFACE' | translate
+                                      }}</p-inputgroup-addon>
+                                      <input
+                                        pInputText
+                                        class="registry-readonly-field"
+                                        [readonly]="true"
+                                        [ngModel]="endpoint.interface || '-'"
+                                      />
                                     </p-inputgroup>
                                     <p-inputgroup>
-                                      <p-inputgroup-addon class="font-bold w-56">{{ 'REGISTRY_CORRECTION_ENDPOINT_PROTOCOL' | translate }}</p-inputgroup-addon>
-                                      <input pInputText class="registry-readonly-field" [readonly]="true" [ngModel]="endpointProtocol(endpoint) || '-'" />
+                                      <p-inputgroup-addon class="font-bold w-56">{{
+                                        'REGISTRY_CORRECTION_ENDPOINT_PROTOCOL' | translate
+                                      }}</p-inputgroup-addon>
+                                      <input
+                                        pInputText
+                                        class="registry-readonly-field"
+                                        [readonly]="true"
+                                        [ngModel]="endpointProtocol(endpoint) || '-'"
+                                      />
                                     </p-inputgroup>
                                     <p-inputgroup>
-                                      <p-inputgroup-addon class="font-bold w-56">{{ 'REGISTRY_CORRECTION_ENDPOINT_URL' | translate }}</p-inputgroup-addon>
-                                      <input pInputText class="registry-readonly-field break-all" [readonly]="true" [ngModel]="endpointHref(endpoint) || '-'" />
+                                      <p-inputgroup-addon class="font-bold w-56">{{
+                                        'REGISTRY_CORRECTION_ENDPOINT_URL' | translate
+                                      }}</p-inputgroup-addon>
+                                      <input
+                                        pInputText
+                                        class="registry-readonly-field break-all"
+                                        [readonly]="true"
+                                        [ngModel]="endpointHref(endpoint) || '-'"
+                                      />
                                       @if (endpointHref(endpoint)) {
                                         <p-inputgroup-addon class="registry-link-addon">
-                                          <a [href]="endpointHref(endpoint)" target="_blank" rel="noopener noreferrer" class="registry-external-link">
+                                          <a
+                                            [href]="endpointHref(endpoint)"
+                                            target="_blank"
+                                            rel="noopener noreferrer"
+                                            class="registry-external-link"
+                                          >
                                             <i class="fa-solid fa-up-right-from-square"></i>
                                           </a>
                                         </p-inputgroup-addon>
@@ -254,18 +356,36 @@
                               <p-accordion-content>
                                 <div class="registry-endpoint-fields">
                                   <p-inputgroup>
-                                    <p-inputgroup-addon class="font-bold w-56">{{ 'INTERFACE' | translate }}</p-inputgroup-addon>
-                                    <input pInputText [ngModel]="endpoint.interface ?? ''" (ngModelChange)="updateAasEndpointInterface($index, $event)" />
+                                    <p-inputgroup-addon class="font-bold w-56">{{
+                                      'INTERFACE' | translate
+                                    }}</p-inputgroup-addon>
+                                    <input
+                                      pInputText
+                                      [ngModel]="endpoint.interface ?? ''"
+                                      (ngModelChange)="updateAasEndpointInterface($index, $event)"
+                                    />
                                   </p-inputgroup>
 
                                   <p-inputgroup>
-                                    <p-inputgroup-addon class="font-bold w-56">{{ 'REGISTRY_CORRECTION_ENDPOINT_PROTOCOL' | translate }}</p-inputgroup-addon>
-                                    <input pInputText [ngModel]="endpointProtocol(endpoint)" (ngModelChange)="updateAasEndpointProtocol($index, $event)" />
+                                    <p-inputgroup-addon class="font-bold w-56">{{
+                                      'REGISTRY_CORRECTION_ENDPOINT_PROTOCOL' | translate
+                                    }}</p-inputgroup-addon>
+                                    <input
+                                      pInputText
+                                      [ngModel]="endpointProtocol(endpoint)"
+                                      (ngModelChange)="updateAasEndpointProtocol($index, $event)"
+                                    />
                                   </p-inputgroup>
 
                                   <p-inputgroup>
-                                    <p-inputgroup-addon class="font-bold w-56">{{ 'REGISTRY_CORRECTION_ENDPOINT_URL' | translate }}</p-inputgroup-addon>
-                                    <input pInputText [ngModel]="endpointHref(endpoint)" (ngModelChange)="updateAasEndpointHref($index, $event)" />
+                                    <p-inputgroup-addon class="font-bold w-56">{{
+                                      'REGISTRY_CORRECTION_ENDPOINT_URL' | translate
+                                    }}</p-inputgroup-addon>
+                                    <input
+                                      pInputText
+                                      [ngModel]="endpointHref(endpoint)"
+                                      (ngModelChange)="updateAasEndpointHref($index, $event)"
+                                    />
                                   </p-inputgroup>
                                 </div>
                               </p-accordion-content>
@@ -279,7 +399,12 @@
 
                       <div class="detail-surface flex flex-col gap-3">
                         <div class="registry-list-title">{{ 'REGISTRY_CORRECTION_RAW_JSON' | translate }}</div>
-                        <textarea pTextarea class="registry-json-editor" [ngModel]="aasDraftJson()" (ngModelChange)="onAasJsonChanged($event)"></textarea>
+                        <textarea
+                          pTextarea
+                          class="registry-json-editor"
+                          [ngModel]="aasDraftJson()"
+                          (ngModelChange)="onAasJsonChanged($event)"
+                        ></textarea>
                         <div class="registry-json-help">{{ 'REGISTRY_CORRECTION_JSON_HELP' | translate }}</div>
                         @if (aasDraftJsonError(); as jsonError) {
                           <div class="registry-json-error">{{ jsonError | translate }}</div>
@@ -293,11 +418,21 @@
                       <div class="flex flex-col gap-3">
                         <p-inputgroup>
                           <p-inputgroup-addon class="font-bold w-56">{{ 'ID' | translate }}</p-inputgroup-addon>
-                          <input pInputText class="registry-readonly-field" [readonly]="true" [ngModel]="descriptor.id ?? ''" />
+                          <input
+                            pInputText
+                            class="registry-readonly-field"
+                            [readonly]="true"
+                            [ngModel]="descriptor.id ?? ''"
+                          />
                         </p-inputgroup>
                         <p-inputgroup>
                           <p-inputgroup-addon class="font-bold w-56">{{ 'ID_SHORT' | translate }}</p-inputgroup-addon>
-                          <input pInputText class="registry-readonly-field" [readonly]="true" [ngModel]="descriptor.idShort ?? ''" />
+                          <input
+                            pInputText
+                            class="registry-readonly-field"
+                            [readonly]="true"
+                            [ngModel]="descriptor.idShort ?? ''"
+                          />
                         </p-inputgroup>
                       </div>
 
@@ -308,8 +443,15 @@
                             <div class="registry-localized-list">
                               @for (entry of descriptor.displayName ?? []; track $index) {
                                 <p-inputgroup>
-                                  <input pInputText class="registry-readonly-field" [readonly]="true" [ngModel]="entry.text ?? ''" />
-                                  <p-inputgroup-addon class="registry-locale-addon">@ {{ entry.language ?? '-' }}</p-inputgroup-addon>
+                                  <input
+                                    pInputText
+                                    class="registry-readonly-field"
+                                    [readonly]="true"
+                                    [ngModel]="entry.text ?? ''"
+                                  />
+                                  <p-inputgroup-addon class="registry-locale-addon"
+                                    >@ {{ entry.language ?? '-' }}</p-inputgroup-addon
+                                  >
                                 </p-inputgroup>
                               }
                             </div>
@@ -350,15 +492,32 @@
                         <div class="grid grid-cols-1 gap-3">
                           <p-inputgroup>
                             <p-inputgroup-addon class="font-bold w-56">{{ 'VERSION' | translate }}</p-inputgroup-addon>
-                            <input pInputText class="registry-readonly-field" [readonly]="true" [ngModel]="administrationValue(descriptor, 'version') || '-'" />
+                            <input
+                              pInputText
+                              class="registry-readonly-field"
+                              [readonly]="true"
+                              [ngModel]="administrationValue(descriptor, 'version') || '-'"
+                            />
                           </p-inputgroup>
                           <p-inputgroup>
                             <p-inputgroup-addon class="font-bold w-56">{{ 'REVISION' | translate }}</p-inputgroup-addon>
-                            <input pInputText class="registry-readonly-field" [readonly]="true" [ngModel]="administrationValue(descriptor, 'revision') || '-'" />
+                            <input
+                              pInputText
+                              class="registry-readonly-field"
+                              [readonly]="true"
+                              [ngModel]="administrationValue(descriptor, 'revision') || '-'"
+                            />
                           </p-inputgroup>
                           <p-inputgroup>
-                            <p-inputgroup-addon class="font-bold w-56">{{ 'REGISTRY_CORRECTION_TEMPLATE_ID' | translate }}</p-inputgroup-addon>
-                            <input pInputText class="registry-readonly-field" [readonly]="true" [ngModel]="administrationValue(descriptor, 'templateId') || '-'" />
+                            <p-inputgroup-addon class="font-bold w-56">{{
+                              'REGISTRY_CORRECTION_TEMPLATE_ID' | translate
+                            }}</p-inputgroup-addon>
+                            <input
+                              pInputText
+                              class="registry-readonly-field"
+                              [readonly]="true"
+                              [ngModel]="administrationValue(descriptor, 'templateId') || '-'"
+                            />
                           </p-inputgroup>
                         </div>
                       </div>
@@ -378,19 +537,45 @@
                                 <p-accordion-content>
                                   <div class="registry-endpoint-fields">
                                     <p-inputgroup>
-                                      <p-inputgroup-addon class="font-bold w-56">{{ 'INTERFACE' | translate }}</p-inputgroup-addon>
-                                      <input pInputText class="registry-readonly-field" [readonly]="true" [ngModel]="endpoint.interface || '-'" />
+                                      <p-inputgroup-addon class="font-bold w-56">{{
+                                        'INTERFACE' | translate
+                                      }}</p-inputgroup-addon>
+                                      <input
+                                        pInputText
+                                        class="registry-readonly-field"
+                                        [readonly]="true"
+                                        [ngModel]="endpoint.interface || '-'"
+                                      />
                                     </p-inputgroup>
                                     <p-inputgroup>
-                                      <p-inputgroup-addon class="font-bold w-56">{{ 'REGISTRY_CORRECTION_ENDPOINT_PROTOCOL' | translate }}</p-inputgroup-addon>
-                                      <input pInputText class="registry-readonly-field" [readonly]="true" [ngModel]="endpointProtocol(endpoint) || '-'" />
+                                      <p-inputgroup-addon class="font-bold w-56">{{
+                                        'REGISTRY_CORRECTION_ENDPOINT_PROTOCOL' | translate
+                                      }}</p-inputgroup-addon>
+                                      <input
+                                        pInputText
+                                        class="registry-readonly-field"
+                                        [readonly]="true"
+                                        [ngModel]="endpointProtocol(endpoint) || '-'"
+                                      />
                                     </p-inputgroup>
                                     <p-inputgroup>
-                                      <p-inputgroup-addon class="font-bold w-56">{{ 'REGISTRY_CORRECTION_ENDPOINT_URL' | translate }}</p-inputgroup-addon>
-                                      <input pInputText class="registry-readonly-field break-all" [readonly]="true" [ngModel]="endpointHref(endpoint) || '-'" />
+                                      <p-inputgroup-addon class="font-bold w-56">{{
+                                        'REGISTRY_CORRECTION_ENDPOINT_URL' | translate
+                                      }}</p-inputgroup-addon>
+                                      <input
+                                        pInputText
+                                        class="registry-readonly-field break-all"
+                                        [readonly]="true"
+                                        [ngModel]="endpointHref(endpoint) || '-'"
+                                      />
                                       @if (endpointHref(endpoint)) {
                                         <p-inputgroup-addon class="registry-link-addon">
-                                          <a [href]="endpointHref(endpoint)" target="_blank" rel="noopener noreferrer" class="registry-external-link">
+                                          <a
+                                            [href]="endpointHref(endpoint)"
+                                            target="_blank"
+                                            rel="noopener noreferrer"
+                                            class="registry-external-link"
+                                          >
                                             <i class="fa-solid fa-up-right-from-square"></i>
                                           </a>
                                         </p-inputgroup-addon>
@@ -411,7 +596,10 @@
                       <summary>{{ 'REGISTRY_CORRECTION_RAW_JSON' | translate }}</summary>
                       <pre>{{ descriptor | json }}</pre>
                     </details>
-                  } @else if (selectedSubmodelId() != null && submodelDraft(selectedSubmodelId()!); as submodelDraftValue) {
+                  } @else if (
+                    selectedSubmodelId() != null && submodelDraft(selectedSubmodelId()!);
+                    as submodelDraftValue
+                  ) {
                     <div class="flex flex-col gap-4">
                       <div class="detail-surface flex flex-col gap-3">
                         <div class="registry-list-title">{{ 'ENDPOINTS' | translate }}</div>
@@ -441,18 +629,42 @@
                               <p-accordion-content>
                                 <div class="registry-endpoint-fields">
                                   <p-inputgroup>
-                                    <p-inputgroup-addon class="font-bold w-56">{{ 'INTERFACE' | translate }}</p-inputgroup-addon>
-                                    <input pInputText [ngModel]="endpoint.interface ?? ''" (ngModelChange)="updateSubmodelEndpointInterface(selectedSubmodelId()!, $index, $event)" />
+                                    <p-inputgroup-addon class="font-bold w-56">{{
+                                      'INTERFACE' | translate
+                                    }}</p-inputgroup-addon>
+                                    <input
+                                      pInputText
+                                      [ngModel]="endpoint.interface ?? ''"
+                                      (ngModelChange)="
+                                        updateSubmodelEndpointInterface(selectedSubmodelId()!, $index, $event)
+                                      "
+                                    />
                                   </p-inputgroup>
 
                                   <p-inputgroup>
-                                    <p-inputgroup-addon class="font-bold w-56">{{ 'REGISTRY_CORRECTION_ENDPOINT_PROTOCOL' | translate }}</p-inputgroup-addon>
-                                    <input pInputText [ngModel]="endpointProtocol(endpoint)" (ngModelChange)="updateSubmodelEndpointProtocol(selectedSubmodelId()!, $index, $event)" />
+                                    <p-inputgroup-addon class="font-bold w-56">{{
+                                      'REGISTRY_CORRECTION_ENDPOINT_PROTOCOL' | translate
+                                    }}</p-inputgroup-addon>
+                                    <input
+                                      pInputText
+                                      [ngModel]="endpointProtocol(endpoint)"
+                                      (ngModelChange)="
+                                        updateSubmodelEndpointProtocol(selectedSubmodelId()!, $index, $event)
+                                      "
+                                    />
                                   </p-inputgroup>
 
                                   <p-inputgroup>
-                                    <p-inputgroup-addon class="font-bold w-56">{{ 'REGISTRY_CORRECTION_ENDPOINT_URL' | translate }}</p-inputgroup-addon>
-                                    <input pInputText [ngModel]="endpointHref(endpoint)" (ngModelChange)="updateSubmodelEndpointHref(selectedSubmodelId()!, $index, $event)" />
+                                    <p-inputgroup-addon class="font-bold w-56">{{
+                                      'REGISTRY_CORRECTION_ENDPOINT_URL' | translate
+                                    }}</p-inputgroup-addon>
+                                    <input
+                                      pInputText
+                                      [ngModel]="endpointHref(endpoint)"
+                                      (ngModelChange)="
+                                        updateSubmodelEndpointHref(selectedSubmodelId()!, $index, $event)
+                                      "
+                                    />
                                   </p-inputgroup>
                                 </div>
                               </p-accordion-content>

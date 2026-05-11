@@ -84,6 +84,7 @@ export class FileContentEditorComponent {
   previewLoaded = signal(false);
 
   fileResourceUrl = signal<string>('');
+  showPdfDialog = model(false);
 
   displayFileSelectionDialog = model(false);
 
@@ -302,8 +303,12 @@ export class FileContentEditorComponent {
 
   private async setPreviewResourceUrl(blob: Blob, fileName?: string | null, contentType?: string | null) {
     const previewType = this.previewType();
+    const resolvedType =
+      previewType === 'pdf'
+        ? 'application/pdf'
+        : blob.type || contentType || this.fileContentTypeIncoming() || 'application/octet-stream';
     const typedBlob = new File([blob], fileName ?? this.getLastPart(this.fileValueIncoming()) ?? 'preview', {
-      type: blob.type || contentType || this.fileContentTypeIncoming() || 'application/octet-stream',
+      type: resolvedType,
     });
     const previewBlob = previewType === 'image' ? await FilenameHelper.buildPreviewImageBlob(typedBlob) : typedBlob;
     this.fileResourceUrl.set(URL.createObjectURL(previewBlob));

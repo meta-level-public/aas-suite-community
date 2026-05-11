@@ -41,6 +41,7 @@ export class HandoverDocumentationDocumentComponent implements OnChanges {
   document = input.required<aas.types.SubmodelElementCollection | undefined>();
   @Input() currentLang = 'de';
   @Input({ required: true }) submodelIdentifier = '';
+  @Input() submodelUrl = '';
   @Input({ required: true }) fileMap: Map<string, string> = new Map<string, string>();
   fileDataMap: Map<string, string> = new Map<string, string>();
   @Input({ required: true }) documentFiles: Map<string, SelectDocumentFile[]> = new Map<string, SelectDocumentFile[]>();
@@ -135,7 +136,22 @@ export class HandoverDocumentationDocumentComponent implements OnChanges {
     try {
       const _submodelIdentifier = EncodingService.base64urlEncode(this.submodelIdentifier);
 
-      const url = `${await this.viewerStore.currentSmUrl()}/submodel-elements/${encodeURIComponent(selectedDocument.idPath)}/attachment`;
+      const smUrl = this.submodelUrl || (await this.viewerStore.currentSmUrl());
+      let url: string;
+      try {
+        const proxyUrl = new URL(smUrl, window.location.origin);
+        const targetParam = proxyUrl.searchParams.get('target');
+        if (targetParam) {
+          // idPath mit literalen Brackets, targetParam bereits dekodiert
+          const attachmentTarget = `${targetParam}/submodel-elements/${selectedDocument.idPath}/attachment`;
+          const proxyBase = `${proxyUrl.origin}${proxyUrl.pathname}`;
+          url = `${proxyBase}?target=${encodeURIComponent(attachmentTarget)}`;
+        } else {
+          url = `${smUrl}/submodel-elements/${encodeURIComponent(selectedDocument.idPath)}/attachment`;
+        }
+      } catch {
+        url = `${smUrl}/submodel-elements/${encodeURIComponent(selectedDocument.idPath)}/attachment`;
+      }
 
       const response = await lastValueFrom(
         this.http.get<any>(url, {

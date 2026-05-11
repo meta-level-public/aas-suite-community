@@ -246,7 +246,7 @@ public class OrganisationService
             throw;
         }
 
-        _infrastructureRequester.RequestInfrastructure(organisation);
+        _infrastructureRequester.RequestGoInfrastructure(organisation);
 
         return organisation;
     }
@@ -839,7 +839,7 @@ public class OrganisationService
         if (infrastructure == null)
         {
             // neu erstellen
-            _infrastructureRequester.RequestInfrastructure(orga);
+            _infrastructureRequester.RequestGoInfrastructure(orga);
             return true;
         }
         else
@@ -853,17 +853,15 @@ public class OrganisationService
             infrastructure.SubmodelRepositoryVersion = version;
             infrastructure.ConceptDescriptionRepositoryVersion = version;
 
-            infrastructure.ContainerGuid = orga.InternalAasInfrastructureGuid;
-            infrastructure.MongoContainer = $"aas-suite-mongo-{orga.InternalAasInfrastructureGuid}";
-            infrastructure.MqttContainer = $"aas-suite-mqtt-{orga.InternalAasInfrastructureGuid}";
-            infrastructure.AasEnvContainer =
-                $"aas-suite-aas-env-{orga.InternalAasInfrastructureGuid}";
+            infrastructure.MongoContainer = $"aas-suite-mongo-{infrastructure.ContainerGuid}";
+            infrastructure.MqttContainer = $"aas-suite-mqtt-{infrastructure.ContainerGuid}";
+            infrastructure.AasEnvContainer = $"aas-suite-aas-env-{infrastructure.ContainerGuid}";
             infrastructure.AasRegistryContainer =
-                $"aas-suite-aas-registry-{orga.InternalAasInfrastructureGuid}";
+                $"aas-suite-aas-registry-{infrastructure.ContainerGuid}";
             infrastructure.SmRegistryContainer =
-                $"aas-suite-sm-registry-{orga.InternalAasInfrastructureGuid}";
+                $"aas-suite-sm-registry-{infrastructure.ContainerGuid}";
             infrastructure.AasDiscoveryContainer =
-                $"aas-suite-aas-discovery-{orga.InternalAasInfrastructureGuid}";
+                $"aas-suite-aas-discovery-{infrastructure.ContainerGuid}";
 
             _context.SaveChanges();
             var externalUrl =
@@ -871,7 +869,7 @@ public class OrganisationService
                 + infrastructure.Id
                 + "/aas-repo/";
             InfrastructureChangeRequester.RequestInfrastructureChange(
-                orga.InternalAasInfrastructureGuid,
+                infrastructure.ContainerGuid,
                 _appsettings.ContainerManagerInboxDirectory,
                 infrastructure,
                 externalUrl

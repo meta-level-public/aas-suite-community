@@ -1031,10 +1031,6 @@ namespace AasDesignerApi.Migrations
                     b.Property<Guid>("Guid")
                         .HasColumnType("uuid");
 
-                    b.Property<string>("InternalAasInfrastructureGuid")
-                        .IsRequired()
-                        .HasColumnType("text");
-
                     b.Property<string>("IriPrefix")
                         .IsRequired()
                         .HasColumnType("text");
@@ -1899,6 +1895,9 @@ namespace AasDesignerApi.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
+                    b.Property<bool>("SendCurrentJwt")
+                        .HasColumnType("boolean");
+
                     b.Property<bool>("ConceptDescriptionRepositoryHcEnabled")
                         .HasColumnType("boolean");
 
@@ -1976,6 +1975,15 @@ namespace AasDesignerApi.Migrations
 
                     b.Property<bool>("IsReadonly")
                         .HasColumnType("boolean");
+
+                    b.Property<bool>("IsGoInfrastructure")
+                        .HasColumnType("boolean");
+
+                    b.Property<string>("GoPostgresDbName")
+                        .HasColumnType("text");
+
+                    b.Property<string>("GoPostgresUser")
+                        .HasColumnType("text");
 
                     b.Property<string>("MongoContainer")
                         .IsRequired()

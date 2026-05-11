@@ -160,7 +160,7 @@ export class V3MarkingsEditorComponent implements OnChanges {
       const newMarking = new aas.types.SubmodelElementCollection();
       newMarking.idShort = `Marking${(markingsSmc?.value?.length ?? 0).toString().padStart(2, '0')}`;
       newMarking.semanticId = new aas.types.Reference(aas.types.ReferenceTypes.ExternalReference, [
-        new aas.types.Key(aas.types.KeyTypes.ConceptDescription, '0173-1#01-AHD206#001'),
+        new aas.types.Key(aas.types.KeyTypes.GlobalReference, '0173-1#01-AHD206#001'),
       ]);
       newMarking.value = [];
 
@@ -176,7 +176,7 @@ export class V3MarkingsEditorComponent implements OnChanges {
       const newMarking = new aas.types.SubmodelElementCollection();
       newMarking.idShort = `Marking${(this.markingsSmc()?.value?.length ?? 0).toString().padStart(2, '0')}`;
       newMarking.semanticId = new aas.types.Reference(aas.types.ReferenceTypes.ExternalReference, [
-        new aas.types.Key(aas.types.KeyTypes.ConceptDescription, '0173-1#01-AHD206#001'),
+        new aas.types.Key(aas.types.KeyTypes.GlobalReference, '0173-1#01-AHD206#001'),
       ]);
       newMarking.value = [];
       this.createMarkingName(newMarking);

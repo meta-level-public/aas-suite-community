@@ -119,6 +119,26 @@
         }
       }
     },
+    "/aas-api/AasInfrastructure/CreateGoInfrastructure": {
+      "post": {
+        "tags": [
+          "AasInfrastructure"
+        ],
+        "operationId": "AasInfrastructure_CreateGoInfrastructure",
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "boolean"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/aas-api/AasInfrastructure/UpdateInfrastructure": {
       "patch": {
         "tags": [
@@ -459,6 +479,113 @@
             "schema": {
               "type": "integer",
               "format": "int64"
+            },
+            "x-position": 1
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "boolean"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/aas-api/AasInfrastructure/GetOrphanedInfrastructures": {
+      "get": {
+        "tags": [
+          "AasInfrastructure"
+        ],
+        "operationId": "AasInfrastructure_GetOrphanedInfrastructures",
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/OrphanedInfrastructureDto"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/aas-api/AasInfrastructure/DeleteOrphanedInfrastructure": {
+      "delete": {
+        "tags": [
+          "AasInfrastructure"
+        ],
+        "operationId": "AasInfrastructure_DeleteOrphanedInfrastructure",
+        "parameters": [
+          {
+            "name": "infrastructureId",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            },
+            "x-position": 1
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "boolean"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/aas-api/AasInfrastructure/GetContainerOnlyOrphans": {
+      "get": {
+        "tags": [
+          "AasInfrastructure"
+        ],
+        "operationId": "AasInfrastructure_GetContainerOnlyOrphans",
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/ContainerOnlyOrphanDto"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/aas-api/AasInfrastructure/DeleteContainerOnlyOrphan": {
+      "post": {
+        "tags": [
+          "AasInfrastructure"
+        ],
+        "operationId": "AasInfrastructure_DeleteContainerOnlyOrphan",
+        "parameters": [
+          {
+            "name": "containerGuid",
+            "in": "query",
+            "schema": {
+              "type": "string"
             },
             "x-position": 1
           }
@@ -4539,6 +4666,9 @@
           "isInternal": {
             "type": "boolean"
           },
+          "isGoInfrastructure": {
+            "type": "boolean"
+          },
           "aasRepositoryUrl": {
             "type": "string"
           },
@@ -4678,6 +4808,9 @@
           "certificatePassword": {
             "type": "string"
           },
+          "sendCurrentJwt": {
+            "type": "boolean"
+          },
           "isActive": {
             "type": "boolean"
           },
@@ -4689,6 +4822,17 @@
           },
           "isReadonly": {
             "type": "boolean"
+          },
+          "isGoInfrastructure": {
+            "type": "boolean"
+          },
+          "goPostgresDbName": {
+            "type": "string",
+            "nullable": true
+          },
+          "goPostgresUser": {
+            "type": "string",
+            "nullable": true
           },
           "aasEnvContainer": {
             "type": "string"
@@ -4857,6 +5001,30 @@
             }
           },
           "discoveryVersions": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/VersionEntry"
+            }
+          },
+          "aasEnvGoVersions": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/VersionEntry"
+            }
+          },
+          "aasRegGoVersions": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/VersionEntry"
+            }
+          },
+          "smRegGoVersions": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/VersionEntry"
+            }
+          },
+          "discoveryGoVersions": {
             "type": "array",
             "items": {
               "$ref": "#/components/schemas/VersionEntry"
@@ -5072,6 +5240,12 @@
           "aasEnvMaxMemSetting": {
             "type": "integer",
             "format": "int64"
+          },
+          "isGoInfrastructure": {
+            "type": "boolean"
+          },
+          "goPostgresDbName": {
+            "type": "string"
           }
         }
       },
@@ -5148,6 +5322,47 @@
           "aasEnvMaxMemSetting": {
             "type": "integer",
             "format": "int64"
+          }
+        }
+      },
+      "OrphanedInfrastructureDto": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "name": {
+            "type": "string"
+          },
+          "containerGuid": {
+            "type": "string"
+          },
+          "isGoInfrastructure": {
+            "type": "boolean"
+          },
+          "organisationId": {
+            "type": "integer",
+            "format": "int64"
+          }
+        }
+      },
+      "ContainerOnlyOrphanDto": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "containerGuid": {
+            "type": "string"
+          },
+          "containerNames": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "isGoInfrastructure": {
+            "type": "boolean"
           }
         }
       },
@@ -7095,9 +7310,6 @@
             "type": "integer",
             "format": "int32"
           },
-          "internalAasInfrastructureGuid": {
-            "type": "string"
-          },
           "expirationState": {
             "nullable": true,
             "oneOf": [
@@ -7435,6 +7647,9 @@
           "certificatePassword": {
             "type": "string"
           },
+          "sendCurrentJwt": {
+            "type": "boolean"
+          },
           "isActive": {
             "type": "boolean"
           },
@@ -7446,6 +7661,17 @@
           },
           "isReadonly": {
             "type": "boolean"
+          },
+          "isGoInfrastructure": {
+            "type": "boolean"
+          },
+          "goPostgresDbName": {
+            "type": "string",
+            "nullable": true
+          },
+          "goPostgresUser": {
+            "type": "string",
+            "nullable": true
           },
           "aasEnvContainer": {
             "type": "string"

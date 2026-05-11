@@ -77,6 +77,7 @@ export class HandoverDocumentationService {
     documents: aas.types.SubmodelElementCollection[],
     mode: HandoverStructureMode,
     currentLang: string,
+    smUrlOverride?: string,
   ): Promise<HandoverFileGroup[]> {
     const groups: HandoverFileGroup[] = [];
     if (!sub || !documents.length) return groups;
@@ -274,7 +275,7 @@ export class HandoverDocumentationService {
     }
 
     // Previews (Bilder) laden (intern) -> asynchron
-    await this.loadPreviewBlobs(groups);
+    await this.loadPreviewBlobs(groups, smUrlOverride);
 
     // Sort files inside each group so that the preview file (if any) comes first
     for (const g of groups) {
@@ -285,7 +286,7 @@ export class HandoverDocumentationService {
     return groups;
   }
 
-  async loadPreviewBlobs(groups: HandoverFileGroup[]): Promise<void> {
+  async loadPreviewBlobs(groups: HandoverFileGroup[], smUrlOverride?: string): Promise<void> {
     if (!groups.length) return;
     const headers = (this.viewerStore as any).headers?.() || undefined;
     const currentRef = groups;
@@ -298,7 +299,11 @@ export class HandoverDocumentationService {
       tasks.push(
         (async () => {
           try {
-            const attachmentUrl = await this.buildAttachmentUrl(group.previewIdPath!, group.previewOriginalValue);
+            const attachmentUrl = await this.buildAttachmentUrl(
+              group.previewIdPath!,
+              group.previewOriginalValue,
+              smUrlOverride,
+            );
             const resp: any = await lastValueFrom(
               this.http.get(attachmentUrl, { responseType: 'blob' as 'json', observe: 'response', headers }),
             );
@@ -315,7 +320,9 @@ export class HandoverDocumentationService {
                 const bytes = new Uint8Array(head);
                 const isPng = bytes[0] === 0x89 && bytes[1] === 0x50;
                 const isJpg = bytes[0] === 0xff && bytes[1] === 0xd8;
-                if (isPng || isJpg) blob = new Blob([blob], { type: desiredType });
+                // %PDF magic bytes
+                const isPdf = bytes[0] === 0x25 && bytes[1] === 0x50 && bytes[2] === 0x44 && bytes[3] === 0x46;
+                if (isPng || isJpg || isPdf) blob = new Blob([blob], { type: desiredType });
               }
             }
             const previewName = this.extractFilename(group.previewOriginalValue ?? '') || 'preview';
@@ -362,9 +369,25 @@ export class HandoverDocumentationService {
   }
 
   // --- Preview & Download helpers for component reuse ---
-  async buildAttachmentUrl(idPath?: string, originalValue?: string): Promise<string> {
+  async buildAttachmentUrl(idPath?: string, originalValue?: string, smUrlOverride?: string): Promise<string> {
     if (!idPath) return this.resolveFileUrl(originalValue || '');
-    const base = (await (this.viewerStore as any).currentSmUrl()) as string;
+    const base = smUrlOverride || ((this.viewerStore as any).currentSmUrl() as string);
+    // Wenn base eine Proxy-URL mit ?target=... ist, muss der Attachment-Pfad Teil des target-Parameters werden.
+    // WICHTIG: searchParams.set() würde den Wert nochmals enkodieren (%5B → %255B).
+    // Stattdessen: Attachment-URL mit literalen Brackets bauen, dann einmalig encodeURIComponent.
+    try {
+      const url = new URL(base, window.location.origin);
+      const targetParam = url.searchParams.get('target');
+      if (targetParam) {
+        // idPath enthält ggf. literale Brackets: Documents[0].DocumentVersions[0]...
+        // targetParam ist bereits dekodiert (searchParams.get dekodiert automatisch)
+        const attachmentTarget = `${targetParam}/submodel-elements/${idPath}/attachment`;
+        const proxyBase = `${url.origin}${url.pathname}`;
+        return `${proxyBase}?target=${encodeURIComponent(attachmentTarget)}`;
+      }
+    } catch {
+      // Fall through to simple append for non-proxy URLs
+    }
     return `${base}/submodel-elements/${encodeURIComponent(idPath)}/attachment`;
   }
 

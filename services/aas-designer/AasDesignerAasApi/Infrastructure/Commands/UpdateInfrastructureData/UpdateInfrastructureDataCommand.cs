@@ -101,6 +101,7 @@ public class UpdateInfrastructureDataHandler
         }
 
         infrastructure.HeaderParameters = request.AasInfrastructureSettings.HeaderParameters;
+        infrastructure.SendCurrentJwt = request.AasInfrastructureSettings.SendCurrentJwt;
         infrastructure.IsActive = request.AasInfrastructureSettings.IsActive;
         infrastructure.IsReadonly = request.AasInfrastructureSettings.IsReadonly;
 

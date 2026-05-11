@@ -23,8 +23,6 @@ namespace AasDesignerApi.Utils
         {
             // Create single tenant infrastructure
 
-            orga.InternalAasInfrastructureGuid = Guid.NewGuid().ToString();
-
             orga.AasInfrastructureSettings.Add(
                 new AasInfrastructureSettings
                 {

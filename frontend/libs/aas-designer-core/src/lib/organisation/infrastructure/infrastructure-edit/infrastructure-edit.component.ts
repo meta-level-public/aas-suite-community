@@ -1,4 +1,5 @@
 import { AasInfrastructureSettingsDto, HeaderParameter } from '@aas/webapi-client';
+import { NgClass } from '@angular/common';
 import { Component, computed, input } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
@@ -27,6 +28,7 @@ import { HasChangesCheckable } from '../../my-organisation/has-changes-checkable
     ButtonModule,
     ToggleSwitchModule,
     FormsModule,
+    NgClass,
     InputTextModule,
     TextareaModule,
     MessageModule,

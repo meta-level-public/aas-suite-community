@@ -54,6 +54,8 @@ namespace AasDesignerAasApi.Infrastructure.Queries.GetInfrastructureStatusList
         public long AasRegistryMaxMemSetting { get; set; }
         public long AasEnvMemSwapSetting { get; set; }
         public long AasEnvMaxMemSetting { get; set; }
+        public bool IsGoInfrastructure { get; set; }
+        public string GoPostgresDbName { get; set; } = string.Empty;
     }
 
     public enum ContainerStatus

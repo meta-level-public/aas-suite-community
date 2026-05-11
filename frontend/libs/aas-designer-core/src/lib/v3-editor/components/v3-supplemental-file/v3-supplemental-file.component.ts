@@ -9,6 +9,7 @@ import { DomSanitizer } from '@angular/platform-browser';
 import { TranslateModule } from '@ngx-translate/core';
 import { saveAs } from 'file-saver-es';
 import { ButtonModule } from 'primeng/button';
+import { DialogModule } from 'primeng/dialog';
 import { Fieldset } from 'primeng/fieldset';
 import { InputText } from 'primeng/inputtext';
 import { lastValueFrom } from 'rxjs';
@@ -29,7 +30,7 @@ type ReferencingFileEntry = {
 @Component({
   selector: 'aas-v3-supplemental-file',
   templateUrl: './v3-supplemental-file.component.html',
-  imports: [Fieldset, HelpLabelComponent, FormsModule, InputText, ButtonModule, TranslateModule],
+  imports: [Fieldset, HelpLabelComponent, FormsModule, InputText, ButtonModule, DialogModule, TranslateModule],
 })
 export class V3SupplementalFileComponent extends V3ComponentBase implements OnChanges {
   @Input({ required: true }) file: V3TreeItem<SupplementalFile> | undefined | null;
@@ -39,6 +40,7 @@ export class V3SupplementalFileComponent extends V3ComponentBase implements OnCh
 
   FilenameHelper = FilenameHelper;
   showPreview: boolean = false;
+  showPdfDialog: boolean = false;
   previewText: string | null = null;
 
   supplementalFile: SupplementalFile | undefined;
@@ -297,11 +299,15 @@ export class V3SupplementalFileComponent extends V3ComponentBase implements OnCh
       return;
     }
 
+    const resolvedType =
+      previewType === 'pdf'
+        ? 'application/pdf'
+        : fileBlob.type || this.supplementalFile.contentType || 'application/octet-stream';
     const typedFile =
       fileBlob instanceof File
         ? fileBlob
         : new File([fileBlob], this.getFilename(), {
-            type: fileBlob.type || this.supplementalFile.contentType || 'application/octet-stream',
+            type: resolvedType,
           });
     const previewBlob = previewType === 'image' ? await FilenameHelper.buildPreviewImageBlob(typedFile) : typedFile;
 

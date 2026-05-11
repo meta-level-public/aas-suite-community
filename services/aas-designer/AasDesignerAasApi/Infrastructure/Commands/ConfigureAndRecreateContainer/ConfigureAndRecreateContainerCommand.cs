@@ -75,11 +75,14 @@ public class ConfigureAndRecreateContainerBulkHandler
                 infrastructure.SmRegistryMemory = singleRequest.SmRegistryMaxMemSetting;
                 infrastructure.SmRegistryMemSwap = singleRequest.SmRegistryMemSwapSetting;
 
-                infrastructure.MongoMemory = singleRequest.MongoMaxMemSetting;
-                infrastructure.MongoMemSwap = singleRequest.MongoMemSwapSetting;
+                if (!infrastructure.IsGoInfrastructure)
+                {
+                    infrastructure.MongoMemory = singleRequest.MongoMaxMemSetting;
+                    infrastructure.MongoMemSwap = singleRequest.MongoMemSwapSetting;
 
-                infrastructure.MqttMemory = singleRequest.MqttMaxMemSetting;
-                infrastructure.MqttMemSwap = singleRequest.MqttMemSwapSetting;
+                    infrastructure.MqttMemory = singleRequest.MqttMaxMemSetting;
+                    infrastructure.MqttMemSwap = singleRequest.MqttMemSwapSetting;
+                }
 
                 await _context.SaveChangesAsync(cancellationToken);
                 var externalUrl =

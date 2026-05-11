@@ -62,6 +62,7 @@ import { SpecializedSubmodelViewerType, SubmodelViewerResolver } from '../submod
 export class SubmodelSpecializedViewerComponent {
   @Input({ required: true }) submodel: aas.types.Submodel | undefined;
   @Input({ required: true }) currentLanguage = 'de';
+  @Input() submodelUrl = '';
   @Input() navigateInBom: boolean = false;
   @Input() bomEditable: boolean = false;
   @Input() enableBomReinitializeAction: boolean = false;

@@ -38,9 +38,9 @@ export class InfrastructureParentComponent extends HasChangesCheckable {
     newSettings.submodelRegistryHcEnabled = false;
     newSettings.aasRepositoryHcEnabled = false;
     newSettings.submodelRepositoryHcEnabled = false;
-    newSettings.aasDiscoveryHcEnabled = false;
     newSettings.conceptDescriptionRepositoryHcEnabled = false;
     newSettings.isActive = true;
+    newSettings.sendCurrentJwt = true;
     this.settings.set(newSettings);
   }
 
@@ -50,7 +50,7 @@ export class InfrastructureParentComponent extends HasChangesCheckable {
   }
 
   saveEnabled() {
-    return true;
+    return !!this.settings().name?.trim();
   }
 
   async saveSettings() {

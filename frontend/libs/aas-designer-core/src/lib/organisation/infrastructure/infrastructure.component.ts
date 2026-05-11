@@ -1,4 +1,4 @@
-import { AasConfirmationService, AccessService, PortalService } from '@aas/common-services';
+import { AasConfirmationService, AccessService, NotificationService, PortalService } from '@aas/common-services';
 import {
   AasInfrastructureClient,
   AasInfrastructureSettingsDto,
@@ -20,6 +20,7 @@ import { HasChangesCheckable } from '../my-organisation/has-changes-checkable';
 import { OrganisationStateService } from '../organisation-state.service';
 import { InfrastructureEditComponent } from './infrastructure-edit/infrastructure-edit.component';
 import { InfrastructureListComponent } from './infrastructure-list/infrastructure-list.component';
+import { InfrastructureMigrateGoComponent } from './infrastructure-migrate-go/infrastructure-migrate-go.component';
 import { InfrastructureUpdateVersionsComponent } from './infrastructure-update-versions/infrastructure-update-versions.component';
 
 @Component({
@@ -34,6 +35,7 @@ import { InfrastructureUpdateVersionsComponent } from './infrastructure-update-v
     InfrastructureEditComponent,
     InfrastructureListComponent,
     InfrastructureUpdateVersionsComponent,
+    InfrastructureMigrateGoComponent,
   ],
   templateUrl: './infrastructure.component.html',
   styleUrls: ['../../../host.scss'],
@@ -44,6 +46,7 @@ export class InfrastructureComponent extends HasChangesCheckable implements OnIn
   confirmationService = inject(AasConfirmationService);
   translate = inject(TranslateService);
   accessService = inject(AccessService);
+  notificationService = inject(NotificationService);
   infrastructureClient = inject(AasInfrastructureClient);
   systemManagementClient = inject(SystemManagementClient);
   orgaStateService = inject(OrganisationStateService);
@@ -52,6 +55,7 @@ export class InfrastructureComponent extends HasChangesCheckable implements OnIn
   loading = signal<boolean>(false);
   mode = signal<'list' | 'edit' | 'updateVersions'>('list');
   requestReload = output();
+  allInfrastructures = signal<AvailableInfastructure[]>([]);
   settingsBackup = computed(() => {
     return JSON.stringify(this.settings());
   });
@@ -74,6 +78,7 @@ export class InfrastructureComponent extends HasChangesCheckable implements OnIn
         const allInfrastructures = await lastValueFrom(
           this.infrastructureClient.aasInfrastructure_GetAllSavedInfrastructures(),
         );
+        this.allInfrastructures.set(allInfrastructures);
         const infrastructure = allInfrastructures.find((i) => i.id === id);
         if (infrastructure) {
           this.selectedInfrastructure.set(infrastructure);
@@ -131,14 +136,15 @@ export class InfrastructureComponent extends HasChangesCheckable implements OnIn
 
   async save() {
     if (this.mode() !== 'updateVersions') {
+      const settings = this.settings();
+      if (settings != null && !settings.name?.trim()) {
+        this.notificationService.showMessageAlways('REQUIRED_FIELD', 'NAME', 'warn', false);
+        return;
+      }
       try {
         this.loading.set(true);
         const myOrgaId = PortalService.getCurrentOrgaId();
         if (myOrgaId) {
-          // const organisationUpdateDto = new OrganisationUpdateDto();
-          // Object.assign(organisationUpdateDto, this.organisation());
-          // await lastValueFrom(this.organisationClient.organisation_Update(myOrgaId, organisationUpdateDto));
-          const settings = this.settings();
           if (settings != null) {
             const res = await lastValueFrom(this.infrastructureClient.aasInfrastructure_UpdateInfrastructure(settings));
             if (res) {

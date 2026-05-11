@@ -178,8 +178,7 @@ namespace AasDesignerApi.Service
                 text = text.Replace("{{endDate}}", endDate.ToString());
                 text = text.Replace("{{loginname}}", request.Admin.Email);
 
-                var subject =
-                    lang == "de" ? "[AAS Designer] Testzugang" : "[AAS Designer] Test account";
+                var subject = lang == "de" ? "Testzugang" : "Test account";
 #pragma warning disable CS8604 // Possible null reference argument.
                 _mailer.SendMail(request.Admin.Email, subject, text, true);
 #pragma warning restore CS8604 // Possible null reference argument.

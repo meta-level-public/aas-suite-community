@@ -145,7 +145,11 @@
               <i class="pi pi-server mr-2"></i>
               {{ 'SMTP_SERVER' | translate }}
             </p-inputgroup-addon>
-            <input pInputText [(ngModel)]="settings.keycloak.host" [disabled]="!settings.canManageKeycloakMailSettings" />
+            <input
+              pInputText
+              [(ngModel)]="settings.keycloak.host"
+              [disabled]="!settings.canManageKeycloakMailSettings"
+            />
           </p-inputgroup>
 
           <p-inputgroup>
@@ -153,7 +157,11 @@
               <i class="pi pi-hashtag mr-2"></i>
               {{ 'SMTP_PORT' | translate }}
             </p-inputgroup-addon>
-            <input pInputText [(ngModel)]="settings.keycloak.port" [disabled]="!settings.canManageKeycloakMailSettings" />
+            <input
+              pInputText
+              [(ngModel)]="settings.keycloak.port"
+              [disabled]="!settings.canManageKeycloakMailSettings"
+            />
           </p-inputgroup>
 
           <p-inputgroup>
@@ -161,7 +169,11 @@
               <i class="pi pi-envelope mr-2"></i>
               {{ 'MAIL_FROM' | translate }}
             </p-inputgroup-addon>
-            <input pInputText [(ngModel)]="settings.keycloak.from" [disabled]="!settings.canManageKeycloakMailSettings" />
+            <input
+              pInputText
+              [(ngModel)]="settings.keycloak.from"
+              [disabled]="!settings.canManageKeycloakMailSettings"
+            />
           </p-inputgroup>
 
           <p-inputgroup>
@@ -169,7 +181,11 @@
               <i class="pi pi-id-card mr-2"></i>
               {{ 'MAIL_FROM_DISPLAY_NAME' | translate }}
             </p-inputgroup-addon>
-            <input pInputText [(ngModel)]="settings.keycloak.fromDisplayName" [disabled]="!settings.canManageKeycloakMailSettings" />
+            <input
+              pInputText
+              [(ngModel)]="settings.keycloak.fromDisplayName"
+              [disabled]="!settings.canManageKeycloakMailSettings"
+            />
           </p-inputgroup>
 
           <p-inputgroup>
@@ -177,7 +193,11 @@
               <i class="pi pi-reply mr-2"></i>
               {{ 'MAIL_REPLY_TO' | translate }}
             </p-inputgroup-addon>
-            <input pInputText [(ngModel)]="settings.keycloak.replyTo" [disabled]="!settings.canManageKeycloakMailSettings" />
+            <input
+              pInputText
+              [(ngModel)]="settings.keycloak.replyTo"
+              [disabled]="!settings.canManageKeycloakMailSettings"
+            />
           </p-inputgroup>
 
           <p-inputgroup>
@@ -197,7 +217,11 @@
               <i class="pi pi-user mr-2"></i>
               {{ 'SENDER_USERNAME' | translate }}
             </p-inputgroup-addon>
-            <input pInputText [(ngModel)]="settings.keycloak.user" [disabled]="!settings.canManageKeycloakMailSettings" />
+            <input
+              pInputText
+              [(ngModel)]="settings.keycloak.user"
+              [disabled]="!settings.canManageKeycloakMailSettings"
+            />
           </p-inputgroup>
 
           <p-inputgroup>

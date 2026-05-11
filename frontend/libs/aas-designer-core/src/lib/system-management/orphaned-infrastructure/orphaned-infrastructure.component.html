@@ -1,0 +1,72 @@
+<div class="flex flex-col flex-auto overflow-auto">
+  <div class="hero-section">
+    <div class="hero-content">
+      <h1 class="hero-title">{{ 'ORPHANED_INFRASTRUCTURES' | translate }}</h1>
+      <div class="hero-actions">
+        <p-button
+          label="{{ 'RELOAD' | translate }}"
+          icon="pi pi-refresh"
+          (onClick)="load()"
+          severity="success"
+        />
+      </div>
+    </div>
+  </div>
+
+  <div class="flex-auto overflow-auto p-2">
+    <p-table
+      [value]="entries()"
+      [loading]="loading()"
+      [rowHover]="true"
+      [paginator]="true"
+      [rows]="20"
+      [rowsPerPageOptions]="[10, 20, 50]"
+      [showCurrentPageReport]="true"
+      currentPageReportTemplate="{{ 'SHOW_FROM_TO_OF_TOTAL' | translate }}"
+      size="small"
+    >
+      <ng-template #header>
+        <tr>
+          <th>{{ 'ID' | translate }}</th>
+          <th>{{ 'NAME' | translate }}</th>
+          <th>{{ 'CONTAINER_GUID' | translate }}</th>
+          <th>{{ 'TYPE' | translate }}</th>
+          <th>{{ 'ORGANISATION_ID' | translate }}</th>
+          <th></th>
+        </tr>
+      </ng-template>
+      <ng-template #body let-entry>
+        <tr>
+          <td>{{ entry.id }}</td>
+          <td>{{ entry.name }}</td>
+          <td class="font-mono text-xs">{{ entry.containerGuid }}</td>
+          <td>
+            @if (entry.isGoInfrastructure) {
+              <p-tag value="BaSyx Go" severity="info" />
+            } @else {
+              <p-tag value="BaSyx Java" severity="secondary" />
+            }
+          </td>
+          <td>{{ entry.organisationId }}</td>
+          <td>
+            <p-button
+              icon="pi pi-trash"
+              severity="danger"
+              size="small"
+              [text]="true"
+              (onClick)="deleteEntry(entry)"
+              [title]="'DELETE' | translate"
+            />
+          </td>
+        </tr>
+      </ng-template>
+      <ng-template #emptymessage>
+        <tr>
+          <td colspan="6" class="text-center text-muted p-4">
+            {{ 'ORPHANED_INFRA_EMPTY' | translate }}
+          </td>
+        </tr>
+      </ng-template>
+    </p-table>
+  </div>
+</div>

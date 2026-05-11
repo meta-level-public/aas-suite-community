@@ -81,12 +81,7 @@ public class DescriptorCreator
         descriptor.IdShort = submodel.IdShort;
         descriptor.DisplayName = submodel.DisplayName?.Cast<LangStringNameType>().ToList();
         descriptor.Description = submodel.Description?.Cast<LangStringTextType>().ToList();
-        if (submodel.SemanticId != null)
-        {
-            var refObj = new MyReference(submodel.SemanticId);
-            if (refObj != null)
-                descriptor.SemanticId = refObj;
-        }
+        descriptor.SemanticId = SanitizedExternalReference(submodel.SemanticId);
         submodel.SupplementalSemanticIds?.ForEach(
             (supplmentalSemanticId) =>
             {
@@ -164,12 +159,7 @@ public class DescriptorCreator
         descriptor.IdShort = submodel.IdShort;
         descriptor.DisplayName = submodel.DisplayName?.Cast<LangStringNameType>().ToList();
         descriptor.Description = submodel.Description?.Cast<LangStringTextType>().ToList();
-        if (submodel.SemanticId != null)
-        {
-            var refObj = new MyReference(submodel.SemanticId);
-            if (refObj != null)
-                descriptor.SemanticId = refObj;
-        }
+        descriptor.SemanticId = SanitizedExternalReference(submodel.SemanticId);
         submodel.SupplementalSemanticIds?.ForEach(
             (supplmentalSemanticId) =>
             {
@@ -178,5 +168,31 @@ public class DescriptorCreator
         );
 
         return descriptor;
+    }
+
+    /// <summary>
+    /// Baut eine MyReference aus einer IReference.
+    /// Für ExternalReferences: korrigiert den ersten Key-Type auf GlobalReference (AASd-122).
+    /// </summary>
+    internal static MyReference? SanitizedExternalReference(IReference? reference)
+    {
+        if (reference == null)
+            return null;
+
+        if (
+            reference.Type == ReferenceTypes.ExternalReference
+            && reference.Keys?.Count > 0
+            && reference.Keys[0].Type != KeyTypes.GlobalReference
+        )
+        {
+            var fixedKeys = reference
+                .Keys.Select(
+                    (k, i) => i == 0 ? new Key(KeyTypes.GlobalReference, k.Value) : (IKey)k
+                )
+                .ToList();
+            return new MyReference(new Reference(ReferenceTypes.ExternalReference, fixedKeys));
+        }
+
+        return new MyReference(reference);
     }
 }

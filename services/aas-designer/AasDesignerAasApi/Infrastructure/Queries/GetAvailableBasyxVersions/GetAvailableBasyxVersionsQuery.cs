@@ -106,6 +106,71 @@ public class GetAvailableBasyxVersionsHandler
             });
         }
 
+        var resAasEnvGo = await client.GetAsync(
+            "https://registry.hub.docker.com/v2/repositories/eclipsebasyx/aasenvironment-go/tags"
+        );
+        if (resAasEnvGo.IsSuccessStatusCode)
+        {
+            var content = await resAasEnvGo.Content.ReadAsStringAsync();
+            var jsonObj = JsonConvert.DeserializeObject<JObject>(content);
+            var results = jsonObj?.GetValue("results")?.ToList();
+            results?.ForEach(r =>
+            {
+                var tag = (r as JObject)?.GetValue("name")?.ToString();
+                var date = (r as JObject)?.GetValue("last_updated")?.ToString() ?? string.Empty;
+                if (tag != null)
+                    result.AasEnvGoVersions.Add(new VersionEntry { Version = tag, Date = date });
+            });
+        }
+        var resAasRegGo = await client.GetAsync(
+            "https://registry.hub.docker.com/v2/repositories/eclipsebasyx/aasregistry-go/tags"
+        );
+        if (resAasRegGo.IsSuccessStatusCode)
+        {
+            var content = await resAasRegGo.Content.ReadAsStringAsync();
+            var jsonObj = JsonConvert.DeserializeObject<JObject>(content);
+            var results = jsonObj?.GetValue("results")?.ToList();
+            results?.ForEach(r =>
+            {
+                var tag = (r as JObject)?.GetValue("name")?.ToString();
+                var date = (r as JObject)?.GetValue("last_updated")?.ToString() ?? string.Empty;
+                if (tag != null)
+                    result.AasRegGoVersions.Add(new VersionEntry { Version = tag, Date = date });
+            });
+        }
+        var resSmRegGo = await client.GetAsync(
+            "https://registry.hub.docker.com/v2/repositories/eclipsebasyx/submodelregistry-go/tags"
+        );
+        if (resSmRegGo.IsSuccessStatusCode)
+        {
+            var content = await resSmRegGo.Content.ReadAsStringAsync();
+            var jsonObj = JsonConvert.DeserializeObject<JObject>(content);
+            var results = jsonObj?.GetValue("results")?.ToList();
+            results?.ForEach(r =>
+            {
+                var tag = (r as JObject)?.GetValue("name")?.ToString();
+                var date = (r as JObject)?.GetValue("last_updated")?.ToString() ?? string.Empty;
+                if (tag != null)
+                    result.SmRegGoVersions.Add(new VersionEntry { Version = tag, Date = date });
+            });
+        }
+        var resDiscoveryGo = await client.GetAsync(
+            "https://registry.hub.docker.com/v2/repositories/eclipsebasyx/aasdiscovery-go/tags"
+        );
+        if (resDiscoveryGo.IsSuccessStatusCode)
+        {
+            var content = await resDiscoveryGo.Content.ReadAsStringAsync();
+            var jsonObj = JsonConvert.DeserializeObject<JObject>(content);
+            var results = jsonObj?.GetValue("results")?.ToList();
+            results?.ForEach(r =>
+            {
+                var tag = (r as JObject)?.GetValue("name")?.ToString();
+                var date = (r as JObject)?.GetValue("last_updated")?.ToString() ?? string.Empty;
+                if (tag != null)
+                    result.DiscoveryGoVersions.Add(new VersionEntry { Version = tag, Date = date });
+            });
+        }
+
         return result;
     }
 }

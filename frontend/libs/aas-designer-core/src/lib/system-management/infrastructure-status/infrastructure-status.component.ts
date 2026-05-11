@@ -178,10 +178,10 @@ export class InfrastructureStatusComponent {
           entry.smRegistryMaxMemSetting = this.memoryLimitSmRegistry();
           break;
         case 'mongo':
-          entry.mongoMaxMemSetting = this.memoryLimitMongo();
+          if (!entry.isGoInfrastructure) entry.mongoMaxMemSetting = this.memoryLimitMongo();
           break;
         case 'mqtt':
-          entry.mqttMaxMemSetting = this.memoryLimitMqtt();
+          if (!entry.isGoInfrastructure) entry.mqttMaxMemSetting = this.memoryLimitMqtt();
           break;
       }
     });
@@ -204,10 +204,10 @@ export class InfrastructureStatusComponent {
           entry.smRegistryMemSwap = this.memorySwapSmRegistry();
           break;
         case 'mongo':
-          entry.mongoMemSwapSetting = this.memorySwapMongo();
+          if (!entry.isGoInfrastructure) entry.mongoMemSwapSetting = this.memorySwapMongo();
           break;
         case 'mqtt':
-          entry.mqttMemSwapSetting = this.memorySwapMqtt();
+          if (!entry.isGoInfrastructure) entry.mqttMemSwapSetting = this.memorySwapMqtt();
           break;
       }
     });

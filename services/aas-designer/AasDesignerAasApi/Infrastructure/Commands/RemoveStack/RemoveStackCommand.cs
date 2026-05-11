@@ -34,13 +34,6 @@ public class RemoveStackCommandHandler : IRequestHandler<RemoveStackCommand, boo
         if (setting == null)
             throw new Exception("Setting not found");
 
-        var orga = await _context
-            .Organisations.Where(o => o.InternalAasInfrastructureGuid == setting.ContainerGuid)
-            .FirstOrDefaultAsync(cancellationToken);
-
-        if (orga != null)
-            orga.InternalAasInfrastructureGuid = string.Empty;
-
         _context.Remove(setting);
         await _context.SaveChangesAsync(cancellationToken);
 

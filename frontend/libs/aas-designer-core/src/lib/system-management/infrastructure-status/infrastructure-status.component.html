@@ -40,7 +40,7 @@
           <th></th>
           <th></th>
           <th></th>
-          <th colspan="5" style="background: var(--aas-success-icon); color: var(--p-surface-0)">
+          <th colspan="5">
             <div class="flex justify-center">{{ 'DISCOVERY' | translate }}</div>
           </th>
           <th colspan="5">
@@ -503,7 +503,12 @@
               ></p-button>
             </div>
           </td>
-          <td>{{ entry.infrastructureId }}</td>
+          <td>
+            {{ entry.infrastructureId }}
+            @if (entry.isGoInfrastructure) {
+              <p-tag value="Go" severity="info" styleClass="ml-1"></p-tag>
+            }
+          </td>
           <td>{{ entry.orgaName }}</td>
           <td>
             <div class="flex flex-col gap-2 items-center">
@@ -856,89 +861,105 @@
           </td>
           <!-- Mongo -->
           <td>
-            <div class="w-16rem">{{ entry.mongoContainerName }}</div>
-          </td>
-          <td>
-            <div class="flex flex-col gap-2 items-center">
-              <p-tag [value]="entry.mongoStatus" [severity]="getTagSeverity(entry.mongoStatus)"></p-tag>
-              @if (entry.mongoStatus === 'Running') {
-                <p-button
-                  (onClick)="stop(entry.mongoContainerName)"
-                  icon="pi pi-stop-circle"
-                  size="small"
-                  [text]="true"
-                ></p-button>
-              } @else {
-                <p-button
-                  (onClick)="start(entry.mongoContainerName)"
-                  icon="pi pi-play-circle"
-                  size="small"
-                  [text]="true"
-                ></p-button>
-              }
-            </div>
-          </td>
-          <td>
-            @if (entry.mongoMaxMem - entry.mongoMem < 50 * 1000 * 1000) {
-              <div
-                class="w-6rem flex flex-col items-center"
-                style="background-color: var(--aas-danger-surface); border-radius: var(--aas-radius-xs)"
-              >
-                <div>{{ entry.mongoMem | filesize }}</div>
-                <!-- anzeige in % -->
-                <div>({{ (entry.mongoMem / entry.mongoMaxMem) * 100 | number: '1.0-0' }}%)</div>
-              </div>
+            @if (!entry.isGoInfrastructure) {
+              <div class="w-16rem">{{ entry.mongoContainerName }}</div>
             } @else {
-              <div class="w-6rem flex flex-col items-center">
-                <div>{{ entry.mongoMem | filesize }}</div>
-                <!-- anzeige in % -->
-                <div>({{ (entry.mongoMem / entry.mongoMaxMem) * 100 | number: '1.0-0' }}%)</div>
+              <div class="w-16rem text-color-secondary text-xs">
+                <span class="font-semibold">PostgreSQL:</span> {{ entry.goPostgresDbName }}
               </div>
             }
           </td>
           <td>
-            <div class="flex flex-col gap-2 items-center">
-              {{ entry.mongoMaxMem | filesize }}
-              <p-inputnumber
-                [(ngModel)]="entry.mongoMaxMemSetting"
-                [showButtons]="true"
-                buttonLayout="horizontal"
-                inputId="horizontal"
-                spinnerMode="horizontal"
-                [step]="1"
-                inputStyleClass="w-5rem"
-                size="small"
-              >
-                <ng-template #incrementbuttonicon>
-                  <span class="pi pi-plus"></span>
-                </ng-template>
-                <ng-template #decrementbuttonicon>
-                  <span class="pi pi-minus"></span>
-                </ng-template>
-              </p-inputnumber>
-            </div>
+            @if (!entry.isGoInfrastructure) {
+              <div class="flex flex-col gap-2 items-center">
+                <p-tag [value]="entry.mongoStatus" [severity]="getTagSeverity(entry.mongoStatus)"></p-tag>
+                @if (entry.mongoStatus === 'Running') {
+                  <p-button
+                    (onClick)="stop(entry.mongoContainerName)"
+                    icon="pi pi-stop-circle"
+                    size="small"
+                    [text]="true"
+                  ></p-button>
+                } @else {
+                  <p-button
+                    (onClick)="start(entry.mongoContainerName)"
+                    icon="pi pi-play-circle"
+                    size="small"
+                    [text]="true"
+                  ></p-button>
+                }
+              </div>
+            } @else {
+              <span class="text-color-secondary">—</span>
+            }
           </td>
           <td>
-            {{ entry.mongoMemSwap | filesize }}
-            <div class="flex flex-col gap-2 items-center">
-              <p-inputnumber
-                [(ngModel)]="entry.mongoMemSwapSetting"
-                [showButtons]="true"
-                buttonLayout="horizontal"
-                inputId="horizontal"
-                spinnerMode="horizontal"
-                [step]="1"
-                inputStyleClass="w-5rem"
-                size="small"
-              >
-                <ng-template #incrementbuttonicon>
-                  <span class="pi pi-plus"></span>
-                </ng-template>
-                <ng-template #decrementbuttonicon>
-                  <span class="pi pi-minus"></span>
-                </ng-template>
-              </p-inputnumber>
-            </div>
+            @if (!entry.isGoInfrastructure) {
+              @if (entry.mongoMaxMem - entry.mongoMem < 50 * 1000 * 1000) {
+                <div
+                  class="w-6rem flex flex-col items-center"
+                  style="background-color: var(--aas-danger-surface); border-radius: var(--aas-radius-xs)"
+                >
+                  <div>{{ entry.mongoMem | filesize }}</div>
+                  <!-- anzeige in % -->
+                  <div>({{ (entry.mongoMem / entry.mongoMaxMem) * 100 | number: '1.0-0' }}%)</div>
+                </div>
+              } @else {
+                <div class="w-6rem flex flex-col items-center">
+                  <div>{{ entry.mongoMem | filesize }}</div>
+                  <!-- anzeige in % -->
+                  <div>({{ (entry.mongoMem / entry.mongoMaxMem) * 100 | number: '1.0-0' }}%)</div>
+                </div>
+              }
+            }
+          </td>
+          <td>
+            @if (!entry.isGoInfrastructure) {
+              <div class="flex flex-col gap-2 items-center">
+                {{ entry.mongoMaxMem | filesize }}
+                <p-inputnumber
+                  [(ngModel)]="entry.mongoMaxMemSetting"
+                  [showButtons]="true"
+                  buttonLayout="horizontal"
+                  inputId="horizontal"
+                  spinnerMode="horizontal"
+                  [step]="1"
+                  inputStyleClass="w-5rem"
+                  size="small"
+                >
+                  <ng-template #incrementbuttonicon>
+                    <span class="pi pi-plus"></span>
+                  </ng-template>
+                  <ng-template #decrementbuttonicon>
+                    <span class="pi pi-minus"></span>
+                  </ng-template>
+                </p-inputnumber>
+              </div>
+            }
+          </td>
+          <td>
+            @if (!entry.isGoInfrastructure) {
+              {{ entry.mongoMemSwap | filesize }}
+              <div class="flex flex-col gap-2 items-center">
+                <p-inputnumber
+                  [(ngModel)]="entry.mongoMemSwapSetting"
+                  [showButtons]="true"
+                  buttonLayout="horizontal"
+                  inputId="horizontal"
+                  spinnerMode="horizontal"
+                  [step]="1"
+                  inputStyleClass="w-5rem"
+                  size="small"
+                >
+                  <ng-template #incrementbuttonicon>
+                    <span class="pi pi-plus"></span>
+                  </ng-template>
+                  <ng-template #decrementbuttonicon>
+                    <span class="pi pi-minus"></span>
+                  </ng-template>
+                </p-inputnumber>
+              </div>
+            }
           </td>
           <!-- Mqtt -->
           <td>

@@ -21,10 +21,7 @@
       <div class="flex flex-col gap-6 p-4 max-w-lg">
         <div class="flex flex-col gap-2">
           <label class="font-semibold">{{ 'JOB_SETTINGS_ENABLED' | translate }}</label>
-          <p-toggleswitch
-            [ngModel]="settings().isEnabled"
-            (ngModelChange)="setEnabled($event)"
-          />
+          <p-toggleswitch [ngModel]="settings().isEnabled" (ngModelChange)="setEnabled($event)" />
           <small style="color: var(--p-text-muted-color)">
             {{ 'JOB_SETTINGS_ENABLED_HINT' | translate }}
           </small>

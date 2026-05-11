@@ -522,7 +522,7 @@ static class WebApplicationExtensions
             if (!appSettings.SingleTenantMode)
             {
                 logger.LogInformation("Requesting infrastructure for initial organisation");
-                infrastructureRequester?.RequestInfrastructure(orga, "started");
+                infrastructureRequester?.RequestGoInfrastructure(orga, "started");
                 logger.LogInformation("Infrastructure requested for initial organisation");
             }
             else

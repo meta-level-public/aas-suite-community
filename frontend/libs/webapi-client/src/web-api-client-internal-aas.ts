@@ -20,6 +20,7 @@ export interface IAasInfrastructureClient {
   aasInfrastructure_GetAllSavedInfrastructures(): Observable<AvailableInfastructure[]>;
   aasInfrastructure_GetInfrastructureDetails(id: number | undefined): Observable<AasInfrastructureSettingsDto>;
   aasInfrastructure_AddInfrastructure(settings: AasInfrastructureSettingsDto): Observable<boolean>;
+  aasInfrastructure_CreateGoInfrastructure(): Observable<boolean>;
   aasInfrastructure_UpdateInfrastructure(settings: AasInfrastructureSettingsDto): Observable<boolean>;
   aasInfrastructure_DeleteInfrastructure(settingId: number | undefined): Observable<boolean>;
   aasInfrastructure_EnableInternalInfrastructure(infrastructureId: number | undefined): Observable<boolean>;
@@ -32,6 +33,10 @@ export interface IAasInfrastructureClient {
   aasInfrastructure_StartContainer(containerName: string | undefined): Observable<boolean>;
   aasInfrastructure_StopContainer(containerName: string | undefined): Observable<boolean>;
   aasInfrastructure_RemoveStack(infrastructureId: number | undefined): Observable<boolean>;
+  aasInfrastructure_GetOrphanedInfrastructures(): Observable<OrphanedInfrastructureDto[]>;
+  aasInfrastructure_DeleteOrphanedInfrastructure(infrastructureId: number | undefined): Observable<boolean>;
+  aasInfrastructure_GetContainerOnlyOrphans(): Observable<ContainerOnlyOrphanDto[]>;
+  aasInfrastructure_DeleteContainerOnlyOrphan(containerGuid: string | undefined): Observable<boolean>;
 }
 
 @Injectable({
@@ -300,6 +305,73 @@ export class AasInfrastructureClient implements IAasInfrastructureClient {
   }
 
   protected processAasInfrastructure_AddInfrastructure(response: HttpResponseBase): Observable<boolean> {
+    const status = response.status;
+    const responseBlob =
+      response instanceof HttpResponse
+        ? response.body
+        : (response as any).error instanceof Blob
+          ? (response as any).error
+          : undefined;
+
+    let _headers: any = {};
+    if (response.headers) {
+      for (let key of response.headers.keys()) {
+        _headers[key] = response.headers.get(key);
+      }
+    }
+    if (status === 200) {
+      return blobToText(responseBlob).pipe(
+        _observableMergeMap((_responseText: string) => {
+          let result200: any = null;
+          let resultData200 = _responseText === '' ? null : JSON.parse(_responseText, this.jsonParseReviver);
+          result200 = resultData200 !== undefined ? resultData200 : <any>null;
+
+          return _observableOf(result200);
+        }),
+      );
+    } else if (status !== 200 && status !== 204) {
+      return blobToText(responseBlob).pipe(
+        _observableMergeMap((_responseText: string) => {
+          return throwException('An unexpected server error occurred.', status, _responseText, _headers);
+        }),
+      );
+    }
+    return _observableOf(null as any);
+  }
+
+  aasInfrastructure_CreateGoInfrastructure(): Observable<boolean> {
+    let url_ = this.baseUrl + '/aas-api/AasInfrastructure/CreateGoInfrastructure';
+    url_ = url_.replace(/[?&]$/, '');
+
+    let options_: any = {
+      observe: 'response',
+      responseType: 'blob',
+      headers: new HttpHeaders({
+        Accept: 'application/json',
+      }),
+    };
+
+    return this.http
+      .request('post', url_, options_)
+      .pipe(
+        _observableMergeMap((response_: any) => {
+          return this.processAasInfrastructure_CreateGoInfrastructure(response_);
+        }),
+      )
+      .pipe(
+        _observableCatch((response_: any) => {
+          if (response_ instanceof HttpResponseBase) {
+            try {
+              return this.processAasInfrastructure_CreateGoInfrastructure(response_ as any);
+            } catch (e) {
+              return _observableThrow(e) as any as Observable<boolean>;
+            }
+          } else return _observableThrow(response_) as any as Observable<boolean>;
+        }),
+      );
+  }
+
+  protected processAasInfrastructure_CreateGoInfrastructure(response: HttpResponseBase): Observable<boolean> {
     const status = response.status;
     const responseBlob =
       response instanceof HttpResponse
@@ -1142,6 +1214,291 @@ export class AasInfrastructureClient implements IAasInfrastructureClient {
   }
 
   protected processAasInfrastructure_RemoveStack(response: HttpResponseBase): Observable<boolean> {
+    const status = response.status;
+    const responseBlob =
+      response instanceof HttpResponse
+        ? response.body
+        : (response as any).error instanceof Blob
+          ? (response as any).error
+          : undefined;
+
+    let _headers: any = {};
+    if (response.headers) {
+      for (let key of response.headers.keys()) {
+        _headers[key] = response.headers.get(key);
+      }
+    }
+    if (status === 200) {
+      return blobToText(responseBlob).pipe(
+        _observableMergeMap((_responseText: string) => {
+          let result200: any = null;
+          let resultData200 = _responseText === '' ? null : JSON.parse(_responseText, this.jsonParseReviver);
+          result200 = resultData200 !== undefined ? resultData200 : <any>null;
+
+          return _observableOf(result200);
+        }),
+      );
+    } else if (status !== 200 && status !== 204) {
+      return blobToText(responseBlob).pipe(
+        _observableMergeMap((_responseText: string) => {
+          return throwException('An unexpected server error occurred.', status, _responseText, _headers);
+        }),
+      );
+    }
+    return _observableOf(null as any);
+  }
+
+  aasInfrastructure_GetOrphanedInfrastructures(): Observable<OrphanedInfrastructureDto[]> {
+    let url_ = this.baseUrl + '/aas-api/AasInfrastructure/GetOrphanedInfrastructures';
+    url_ = url_.replace(/[?&]$/, '');
+
+    let options_: any = {
+      observe: 'response',
+      responseType: 'blob',
+      headers: new HttpHeaders({
+        Accept: 'application/json',
+      }),
+    };
+
+    return this.http
+      .request('get', url_, options_)
+      .pipe(
+        _observableMergeMap((response_: any) => {
+          return this.processAasInfrastructure_GetOrphanedInfrastructures(response_);
+        }),
+      )
+      .pipe(
+        _observableCatch((response_: any) => {
+          if (response_ instanceof HttpResponseBase) {
+            try {
+              return this.processAasInfrastructure_GetOrphanedInfrastructures(response_ as any);
+            } catch (e) {
+              return _observableThrow(e) as any as Observable<OrphanedInfrastructureDto[]>;
+            }
+          } else return _observableThrow(response_) as any as Observable<OrphanedInfrastructureDto[]>;
+        }),
+      );
+  }
+
+  protected processAasInfrastructure_GetOrphanedInfrastructures(
+    response: HttpResponseBase,
+  ): Observable<OrphanedInfrastructureDto[]> {
+    const status = response.status;
+    const responseBlob =
+      response instanceof HttpResponse
+        ? response.body
+        : (response as any).error instanceof Blob
+          ? (response as any).error
+          : undefined;
+
+    let _headers: any = {};
+    if (response.headers) {
+      for (let key of response.headers.keys()) {
+        _headers[key] = response.headers.get(key);
+      }
+    }
+    if (status === 200) {
+      return blobToText(responseBlob).pipe(
+        _observableMergeMap((_responseText: string) => {
+          let result200: any = null;
+          let resultData200 = _responseText === '' ? null : JSON.parse(_responseText, this.jsonParseReviver);
+          if (Array.isArray(resultData200)) {
+            result200 = [] as any;
+            for (let item of resultData200) result200!.push(OrphanedInfrastructureDto.fromJS(item));
+          } else {
+            result200 = <any>null;
+          }
+          return _observableOf(result200);
+        }),
+      );
+    } else if (status !== 200 && status !== 204) {
+      return blobToText(responseBlob).pipe(
+        _observableMergeMap((_responseText: string) => {
+          return throwException('An unexpected server error occurred.', status, _responseText, _headers);
+        }),
+      );
+    }
+    return _observableOf(null as any);
+  }
+
+  aasInfrastructure_DeleteOrphanedInfrastructure(infrastructureId: number | undefined): Observable<boolean> {
+    let url_ = this.baseUrl + '/aas-api/AasInfrastructure/DeleteOrphanedInfrastructure?';
+    if (infrastructureId === null) throw new Error("The parameter 'infrastructureId' cannot be null.");
+    else if (infrastructureId !== undefined)
+      url_ += 'infrastructureId=' + encodeURIComponent('' + infrastructureId) + '&';
+    url_ = url_.replace(/[?&]$/, '');
+
+    let options_: any = {
+      observe: 'response',
+      responseType: 'blob',
+      headers: new HttpHeaders({
+        Accept: 'application/json',
+      }),
+    };
+
+    return this.http
+      .request('delete', url_, options_)
+      .pipe(
+        _observableMergeMap((response_: any) => {
+          return this.processAasInfrastructure_DeleteOrphanedInfrastructure(response_);
+        }),
+      )
+      .pipe(
+        _observableCatch((response_: any) => {
+          if (response_ instanceof HttpResponseBase) {
+            try {
+              return this.processAasInfrastructure_DeleteOrphanedInfrastructure(response_ as any);
+            } catch (e) {
+              return _observableThrow(e) as any as Observable<boolean>;
+            }
+          } else return _observableThrow(response_) as any as Observable<boolean>;
+        }),
+      );
+  }
+
+  protected processAasInfrastructure_DeleteOrphanedInfrastructure(response: HttpResponseBase): Observable<boolean> {
+    const status = response.status;
+    const responseBlob =
+      response instanceof HttpResponse
+        ? response.body
+        : (response as any).error instanceof Blob
+          ? (response as any).error
+          : undefined;
+
+    let _headers: any = {};
+    if (response.headers) {
+      for (let key of response.headers.keys()) {
+        _headers[key] = response.headers.get(key);
+      }
+    }
+    if (status === 200) {
+      return blobToText(responseBlob).pipe(
+        _observableMergeMap((_responseText: string) => {
+          let result200: any = null;
+          let resultData200 = _responseText === '' ? null : JSON.parse(_responseText, this.jsonParseReviver);
+          result200 = resultData200 !== undefined ? resultData200 : <any>null;
+
+          return _observableOf(result200);
+        }),
+      );
+    } else if (status !== 200 && status !== 204) {
+      return blobToText(responseBlob).pipe(
+        _observableMergeMap((_responseText: string) => {
+          return throwException('An unexpected server error occurred.', status, _responseText, _headers);
+        }),
+      );
+    }
+    return _observableOf(null as any);
+  }
+
+  aasInfrastructure_GetContainerOnlyOrphans(): Observable<ContainerOnlyOrphanDto[]> {
+    let url_ = this.baseUrl + '/aas-api/AasInfrastructure/GetContainerOnlyOrphans';
+    url_ = url_.replace(/[?&]$/, '');
+
+    let options_: any = {
+      observe: 'response',
+      responseType: 'blob',
+      headers: new HttpHeaders({
+        Accept: 'application/json',
+      }),
+    };
+
+    return this.http
+      .request('get', url_, options_)
+      .pipe(
+        _observableMergeMap((response_: any) => {
+          return this.processAasInfrastructure_GetContainerOnlyOrphans(response_);
+        }),
+      )
+      .pipe(
+        _observableCatch((response_: any) => {
+          if (response_ instanceof HttpResponseBase) {
+            try {
+              return this.processAasInfrastructure_GetContainerOnlyOrphans(response_ as any);
+            } catch (e) {
+              return _observableThrow(e) as any as Observable<ContainerOnlyOrphanDto[]>;
+            }
+          } else return _observableThrow(response_) as any as Observable<ContainerOnlyOrphanDto[]>;
+        }),
+      );
+  }
+
+  protected processAasInfrastructure_GetContainerOnlyOrphans(
+    response: HttpResponseBase,
+  ): Observable<ContainerOnlyOrphanDto[]> {
+    const status = response.status;
+    const responseBlob =
+      response instanceof HttpResponse
+        ? response.body
+        : (response as any).error instanceof Blob
+          ? (response as any).error
+          : undefined;
+
+    let _headers: any = {};
+    if (response.headers) {
+      for (let key of response.headers.keys()) {
+        _headers[key] = response.headers.get(key);
+      }
+    }
+    if (status === 200) {
+      return blobToText(responseBlob).pipe(
+        _observableMergeMap((_responseText: string) => {
+          let result200: any = null;
+          let resultData200 = _responseText === '' ? null : JSON.parse(_responseText, this.jsonParseReviver);
+          if (Array.isArray(resultData200)) {
+            result200 = [] as any;
+            for (let item of resultData200) result200!.push(ContainerOnlyOrphanDto.fromJS(item));
+          } else {
+            result200 = <any>null;
+          }
+          return _observableOf(result200);
+        }),
+      );
+    } else if (status !== 200 && status !== 204) {
+      return blobToText(responseBlob).pipe(
+        _observableMergeMap((_responseText: string) => {
+          return throwException('An unexpected server error occurred.', status, _responseText, _headers);
+        }),
+      );
+    }
+    return _observableOf(null as any);
+  }
+
+  aasInfrastructure_DeleteContainerOnlyOrphan(containerGuid: string | undefined): Observable<boolean> {
+    let url_ = this.baseUrl + '/aas-api/AasInfrastructure/DeleteContainerOnlyOrphan?';
+    if (containerGuid === null) throw new Error("The parameter 'containerGuid' cannot be null.");
+    else if (containerGuid !== undefined) url_ += 'containerGuid=' + encodeURIComponent('' + containerGuid) + '&';
+    url_ = url_.replace(/[?&]$/, '');
+
+    let options_: any = {
+      observe: 'response',
+      responseType: 'blob',
+      headers: new HttpHeaders({
+        Accept: 'application/json',
+      }),
+    };
+
+    return this.http
+      .request('post', url_, options_)
+      .pipe(
+        _observableMergeMap((response_: any) => {
+          return this.processAasInfrastructure_DeleteContainerOnlyOrphan(response_);
+        }),
+      )
+      .pipe(
+        _observableCatch((response_: any) => {
+          if (response_ instanceof HttpResponseBase) {
+            try {
+              return this.processAasInfrastructure_DeleteContainerOnlyOrphan(response_ as any);
+            } catch (e) {
+              return _observableThrow(e) as any as Observable<boolean>;
+            }
+          } else return _observableThrow(response_) as any as Observable<boolean>;
+        }),
+      );
+  }
+
+  protected processAasInfrastructure_DeleteContainerOnlyOrphan(response: HttpResponseBase): Observable<boolean> {
     const status = response.status;
     const responseBlob =
       response instanceof HttpResponse
@@ -10989,6 +11346,7 @@ export class AvailableInfastructure implements IAvailableInfastructure {
   description?: string;
   isReadonly?: boolean;
   isInternal?: boolean;
+  isGoInfrastructure?: boolean;
   aasRepositoryUrl?: string;
   smRepositoryUrl?: string;
   aasRegistryUrl?: string;
@@ -11010,6 +11368,7 @@ export class AvailableInfastructure implements IAvailableInfastructure {
       this.description = _data['description'];
       this.isReadonly = _data['isReadonly'];
       this.isInternal = _data['isInternal'];
+      this.isGoInfrastructure = _data['isGoInfrastructure'];
       this.aasRepositoryUrl = _data['aasRepositoryUrl'];
       this.smRepositoryUrl = _data['smRepositoryUrl'];
       this.aasRegistryUrl = _data['aasRegistryUrl'];
@@ -11032,6 +11391,7 @@ export class AvailableInfastructure implements IAvailableInfastructure {
     data['description'] = this.description;
     data['isReadonly'] = this.isReadonly;
     data['isInternal'] = this.isInternal;
+    data['isGoInfrastructure'] = this.isGoInfrastructure;
     data['aasRepositoryUrl'] = this.aasRepositoryUrl;
     data['smRepositoryUrl'] = this.smRepositoryUrl;
     data['aasRegistryUrl'] = this.aasRegistryUrl;
@@ -11047,6 +11407,7 @@ export interface IAvailableInfastructure {
   description?: string;
   isReadonly?: boolean;
   isInternal?: boolean;
+  isGoInfrastructure?: boolean;
   aasRepositoryUrl?: string;
   smRepositoryUrl?: string;
   aasRegistryUrl?: string;
@@ -11092,10 +11453,14 @@ export class AasInfrastructureSettingsDto implements IAasInfrastructureSettingsD
   headerParameters?: HeaderParameter[];
   certificate?: string | undefined;
   certificatePassword?: string;
+  sendCurrentJwt?: boolean;
   isActive?: boolean;
   isInternal?: boolean;
   handleAsInternal?: boolean;
   isReadonly?: boolean;
+  isGoInfrastructure?: boolean;
+  goPostgresDbName?: string | undefined;
+  goPostgresUser?: string | undefined;
   aasEnvContainer?: string;
   hostPortAasEnv?: number;
   aasEnvMemory?: number;
@@ -11182,10 +11547,14 @@ export class AasInfrastructureSettingsDto implements IAasInfrastructureSettingsD
       }
       this.certificate = _data['certificate'];
       this.certificatePassword = _data['certificatePassword'];
+      this.sendCurrentJwt = _data['sendCurrentJwt'];
       this.isActive = _data['isActive'];
       this.isInternal = _data['isInternal'];
       this.handleAsInternal = _data['handleAsInternal'];
       this.isReadonly = _data['isReadonly'];
+      this.isGoInfrastructure = _data['isGoInfrastructure'];
+      this.goPostgresDbName = _data['goPostgresDbName'];
+      this.goPostgresUser = _data['goPostgresUser'];
       this.aasEnvContainer = _data['aasEnvContainer'];
       this.hostPortAasEnv = _data['hostPortAasEnv'];
       this.aasEnvMemory = _data['aasEnvMemory'];
@@ -11273,10 +11642,14 @@ export class AasInfrastructureSettingsDto implements IAasInfrastructureSettingsD
     }
     data['certificate'] = this.certificate;
     data['certificatePassword'] = this.certificatePassword;
+    data['sendCurrentJwt'] = this.sendCurrentJwt;
     data['isActive'] = this.isActive;
     data['isInternal'] = this.isInternal;
     data['handleAsInternal'] = this.handleAsInternal;
     data['isReadonly'] = this.isReadonly;
+    data['isGoInfrastructure'] = this.isGoInfrastructure;
+    data['goPostgresDbName'] = this.goPostgresDbName;
+    data['goPostgresUser'] = this.goPostgresUser;
     data['aasEnvContainer'] = this.aasEnvContainer;
     data['hostPortAasEnv'] = this.hostPortAasEnv;
     data['aasEnvMemory'] = this.aasEnvMemory;
@@ -11354,10 +11727,14 @@ export interface IAasInfrastructureSettingsDto {
   headerParameters?: HeaderParameter[];
   certificate?: string | undefined;
   certificatePassword?: string;
+  sendCurrentJwt?: boolean;
   isActive?: boolean;
   isInternal?: boolean;
   handleAsInternal?: boolean;
   isReadonly?: boolean;
+  isGoInfrastructure?: boolean;
+  goPostgresDbName?: string | undefined;
+  goPostgresUser?: string | undefined;
   aasEnvContainer?: string;
   hostPortAasEnv?: number;
   aasEnvMemory?: number;
@@ -11439,6 +11816,10 @@ export class AvailableBasyxVersions implements IAvailableBasyxVersions {
   aasRegVersions?: VersionEntry[];
   smRegVersions?: VersionEntry[];
   discoveryVersions?: VersionEntry[];
+  aasEnvGoVersions?: VersionEntry[];
+  aasRegGoVersions?: VersionEntry[];
+  smRegGoVersions?: VersionEntry[];
+  discoveryGoVersions?: VersionEntry[];
 
   constructor(data?: IAvailableBasyxVersions) {
     if (data) {
@@ -11465,6 +11846,22 @@ export class AvailableBasyxVersions implements IAvailableBasyxVersions {
       if (Array.isArray(_data['discoveryVersions'])) {
         this.discoveryVersions = [] as any;
         for (let item of _data['discoveryVersions']) this.discoveryVersions!.push(VersionEntry.fromJS(item));
+      }
+      if (Array.isArray(_data['aasEnvGoVersions'])) {
+        this.aasEnvGoVersions = [] as any;
+        for (let item of _data['aasEnvGoVersions']) this.aasEnvGoVersions!.push(VersionEntry.fromJS(item));
+      }
+      if (Array.isArray(_data['aasRegGoVersions'])) {
+        this.aasRegGoVersions = [] as any;
+        for (let item of _data['aasRegGoVersions']) this.aasRegGoVersions!.push(VersionEntry.fromJS(item));
+      }
+      if (Array.isArray(_data['smRegGoVersions'])) {
+        this.smRegGoVersions = [] as any;
+        for (let item of _data['smRegGoVersions']) this.smRegGoVersions!.push(VersionEntry.fromJS(item));
+      }
+      if (Array.isArray(_data['discoveryGoVersions'])) {
+        this.discoveryGoVersions = [] as any;
+        for (let item of _data['discoveryGoVersions']) this.discoveryGoVersions!.push(VersionEntry.fromJS(item));
       }
     }
   }
@@ -11494,6 +11891,22 @@ export class AvailableBasyxVersions implements IAvailableBasyxVersions {
       data['discoveryVersions'] = [];
       for (let item of this.discoveryVersions) data['discoveryVersions'].push(item.toJSON());
     }
+    if (Array.isArray(this.aasEnvGoVersions)) {
+      data['aasEnvGoVersions'] = [];
+      for (let item of this.aasEnvGoVersions) data['aasEnvGoVersions'].push(item.toJSON());
+    }
+    if (Array.isArray(this.aasRegGoVersions)) {
+      data['aasRegGoVersions'] = [];
+      for (let item of this.aasRegGoVersions) data['aasRegGoVersions'].push(item.toJSON());
+    }
+    if (Array.isArray(this.smRegGoVersions)) {
+      data['smRegGoVersions'] = [];
+      for (let item of this.smRegGoVersions) data['smRegGoVersions'].push(item.toJSON());
+    }
+    if (Array.isArray(this.discoveryGoVersions)) {
+      data['discoveryGoVersions'] = [];
+      for (let item of this.discoveryGoVersions) data['discoveryGoVersions'].push(item.toJSON());
+    }
     return data;
   }
 }
@@ -11503,6 +11916,10 @@ export interface IAvailableBasyxVersions {
   aasRegVersions?: VersionEntry[];
   smRegVersions?: VersionEntry[];
   discoveryVersions?: VersionEntry[];
+  aasEnvGoVersions?: VersionEntry[];
+  aasRegGoVersions?: VersionEntry[];
+  smRegGoVersions?: VersionEntry[];
+  discoveryGoVersions?: VersionEntry[];
 }
 
 export class VersionEntry implements IVersionEntry {
@@ -11597,6 +12014,8 @@ export class InfrastructureStatus implements IInfrastructureStatus {
   aasRegistryMaxMemSetting?: number;
   aasEnvMemSwapSetting?: number;
   aasEnvMaxMemSetting?: number;
+  isGoInfrastructure?: boolean;
+  goPostgresDbName?: string;
 
   constructor(data?: IInfrastructureStatus) {
     if (data) {
@@ -11660,6 +12079,8 @@ export class InfrastructureStatus implements IInfrastructureStatus {
       this.aasRegistryMaxMemSetting = _data['aasRegistryMaxMemSetting'];
       this.aasEnvMemSwapSetting = _data['aasEnvMemSwapSetting'];
       this.aasEnvMaxMemSetting = _data['aasEnvMaxMemSetting'];
+      this.isGoInfrastructure = _data['isGoInfrastructure'];
+      this.goPostgresDbName = _data['goPostgresDbName'];
     }
   }
 
@@ -11724,6 +12145,8 @@ export class InfrastructureStatus implements IInfrastructureStatus {
     data['aasRegistryMaxMemSetting'] = this.aasRegistryMaxMemSetting;
     data['aasEnvMemSwapSetting'] = this.aasEnvMemSwapSetting;
     data['aasEnvMaxMemSetting'] = this.aasEnvMaxMemSetting;
+    data['isGoInfrastructure'] = this.isGoInfrastructure;
+    data['goPostgresDbName'] = this.goPostgresDbName;
     return data;
   }
 }
@@ -11781,6 +12204,8 @@ export interface IInfrastructureStatus {
   aasRegistryMaxMemSetting?: number;
   aasEnvMemSwapSetting?: number;
   aasEnvMaxMemSetting?: number;
+  isGoInfrastructure?: boolean;
+  goPostgresDbName?: string;
 }
 
 export enum ContainerStatus {
@@ -11872,6 +12297,106 @@ export interface IRecreateContainerData {
   aasRegistryMaxMemSetting?: number;
   aasEnvMemSwapSetting?: number;
   aasEnvMaxMemSetting?: number;
+}
+
+export class OrphanedInfrastructureDto implements IOrphanedInfrastructureDto {
+  id?: number;
+  name?: string;
+  containerGuid?: string;
+  isGoInfrastructure?: boolean;
+  organisationId?: number;
+
+  constructor(data?: IOrphanedInfrastructureDto) {
+    if (data) {
+      for (var property in data) {
+        if (data.hasOwnProperty(property)) (<any>this)[property] = (<any>data)[property];
+      }
+    }
+  }
+
+  init(_data?: any) {
+    if (_data) {
+      this.id = _data['id'];
+      this.name = _data['name'];
+      this.containerGuid = _data['containerGuid'];
+      this.isGoInfrastructure = _data['isGoInfrastructure'];
+      this.organisationId = _data['organisationId'];
+    }
+  }
+
+  static fromJS(data: any): OrphanedInfrastructureDto {
+    data = typeof data === 'object' ? data : {};
+    let result = new OrphanedInfrastructureDto();
+    result.init(data);
+    return result;
+  }
+
+  toJSON(data?: any) {
+    data = typeof data === 'object' ? data : {};
+    data['id'] = this.id;
+    data['name'] = this.name;
+    data['containerGuid'] = this.containerGuid;
+    data['isGoInfrastructure'] = this.isGoInfrastructure;
+    data['organisationId'] = this.organisationId;
+    return data;
+  }
+}
+
+export interface IOrphanedInfrastructureDto {
+  id?: number;
+  name?: string;
+  containerGuid?: string;
+  isGoInfrastructure?: boolean;
+  organisationId?: number;
+}
+
+export class ContainerOnlyOrphanDto implements IContainerOnlyOrphanDto {
+  containerGuid?: string;
+  containerNames?: string[];
+  isGoInfrastructure?: boolean;
+
+  constructor(data?: IContainerOnlyOrphanDto) {
+    if (data) {
+      for (var property in data) {
+        if (data.hasOwnProperty(property)) (<any>this)[property] = (<any>data)[property];
+      }
+    }
+  }
+
+  init(_data?: any) {
+    if (_data) {
+      this.containerGuid = _data['containerGuid'];
+      if (Array.isArray(_data['containerNames'])) {
+        this.containerNames = [] as any;
+        for (let item of _data['containerNames']) this.containerNames!.push(item);
+      }
+      this.isGoInfrastructure = _data['isGoInfrastructure'];
+    }
+  }
+
+  static fromJS(data: any): ContainerOnlyOrphanDto {
+    data = typeof data === 'object' ? data : {};
+    let result = new ContainerOnlyOrphanDto();
+    result.init(data);
+    return result;
+  }
+
+  toJSON(data?: any) {
+    data = typeof data === 'object' ? data : {};
+    data['containerGuid'] = this.containerGuid;
+    if (Array.isArray(this.containerNames)) {
+      data['containerNames'] = [];
+      for (let item of this.containerNames) data['containerNames'].push(item);
+    }
+    data['isGoInfrastructure'] = this.isGoInfrastructure;
+    return data;
+  }
+}
+
+export interface IContainerOnlyOrphanDto {
+  containerGuid?: string;
+  containerNames?: string[];
+  isGoInfrastructure?: boolean;
 }
 
 export class CdVm implements ICdVm {
@@ -15782,7 +16307,6 @@ export class Organisation implements IOrganisation {
   maintenanceActive?: boolean;
   systemUserId?: number;
   maxHostPort?: number;
-  internalAasInfrastructureGuid?: string;
   expirationState?: ExpirationState | undefined;
   expirationStateDate?: Date | undefined;
   ownedEclassData?: EClassMetadata[];
@@ -15838,7 +16362,6 @@ export class Organisation implements IOrganisation {
       this.maintenanceActive = _data['maintenanceActive'];
       this.systemUserId = _data['systemUserId'];
       this.maxHostPort = _data['maxHostPort'];
-      this.internalAasInfrastructureGuid = _data['internalAasInfrastructureGuid'];
       this.expirationState = _data['expirationState'];
       this.expirationStateDate = _data['expirationStateDate']
         ? new Date(_data['expirationStateDate'].toString())
@@ -15902,7 +16425,6 @@ export class Organisation implements IOrganisation {
     data['maintenanceActive'] = this.maintenanceActive;
     data['systemUserId'] = this.systemUserId;
     data['maxHostPort'] = this.maxHostPort;
-    data['internalAasInfrastructureGuid'] = this.internalAasInfrastructureGuid;
     data['expirationState'] = this.expirationState;
     data['expirationStateDate'] = this.expirationStateDate ? this.expirationStateDate.toISOString() : <any>undefined;
     if (Array.isArray(this.ownedEclassData)) {
@@ -15950,7 +16472,6 @@ export interface IOrganisation {
   maintenanceActive?: boolean;
   systemUserId?: number;
   maxHostPort?: number;
-  internalAasInfrastructureGuid?: string;
   expirationState?: ExpirationState | undefined;
   expirationStateDate?: Date | undefined;
   ownedEclassData?: EClassMetadata[];
@@ -16277,10 +16798,14 @@ export class AasInfrastructureSettings implements IAasInfrastructureSettings {
   headerParameters?: HeaderParameter[];
   certificate?: string | undefined;
   certificatePassword?: string;
+  sendCurrentJwt?: boolean;
   isActive?: boolean;
   isInternal?: boolean;
   handleAsInternal?: boolean;
   isReadonly?: boolean;
+  isGoInfrastructure?: boolean;
+  goPostgresDbName?: string | undefined;
+  goPostgresUser?: string | undefined;
   aasEnvContainer?: string;
   hostPortAasEnv?: number;
   aasEnvMemory?: number;
@@ -16362,10 +16887,14 @@ export class AasInfrastructureSettings implements IAasInfrastructureSettings {
       }
       this.certificate = _data['certificate'];
       this.certificatePassword = _data['certificatePassword'];
+      this.sendCurrentJwt = _data['sendCurrentJwt'];
       this.isActive = _data['isActive'];
       this.isInternal = _data['isInternal'];
       this.handleAsInternal = _data['handleAsInternal'];
       this.isReadonly = _data['isReadonly'];
+      this.isGoInfrastructure = _data['isGoInfrastructure'];
+      this.goPostgresDbName = _data['goPostgresDbName'];
+      this.goPostgresUser = _data['goPostgresUser'];
       this.aasEnvContainer = _data['aasEnvContainer'];
       this.hostPortAasEnv = _data['hostPortAasEnv'];
       this.aasEnvMemory = _data['aasEnvMemory'];
@@ -16448,10 +16977,14 @@ export class AasInfrastructureSettings implements IAasInfrastructureSettings {
     }
     data['certificate'] = this.certificate;
     data['certificatePassword'] = this.certificatePassword;
+    data['sendCurrentJwt'] = this.sendCurrentJwt;
     data['isActive'] = this.isActive;
     data['isInternal'] = this.isInternal;
     data['handleAsInternal'] = this.handleAsInternal;
     data['isReadonly'] = this.isReadonly;
+    data['isGoInfrastructure'] = this.isGoInfrastructure;
+    data['goPostgresDbName'] = this.goPostgresDbName;
+    data['goPostgresUser'] = this.goPostgresUser;
     data['aasEnvContainer'] = this.aasEnvContainer;
     data['hostPortAasEnv'] = this.hostPortAasEnv;
     data['aasEnvMemory'] = this.aasEnvMemory;
@@ -16524,10 +17057,14 @@ export interface IAasInfrastructureSettings {
   headerParameters?: HeaderParameter[];
   certificate?: string | undefined;
   certificatePassword?: string;
+  sendCurrentJwt?: boolean;
   isActive?: boolean;
   isInternal?: boolean;
   handleAsInternal?: boolean;
   isReadonly?: boolean;
+  isGoInfrastructure?: boolean;
+  goPostgresDbName?: string | undefined;
+  goPostgresUser?: string | undefined;
   aasEnvContainer?: string;
   hostPortAasEnv?: number;
   aasEnvMemory?: number;

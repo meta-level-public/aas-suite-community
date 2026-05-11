@@ -52,7 +52,6 @@ namespace AasDesignerApi.Model
         public long SystemUserId { get; set; }
 
         public int MaxHostPort { get; set; } = 0;
-        public string InternalAasInfrastructureGuid { get; set; } = string.Empty;
 
         // Daten für die Ablaufwarnung
         public ExpirationState? ExpirationState { get; set; }

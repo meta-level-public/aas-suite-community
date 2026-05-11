@@ -50,7 +50,6 @@
 .login-container {
   display: flex;
   flex-direction: column;
-  height: calc(100% - 1rem);
   min-height: calc(100% - 1rem);
   width: calc(100% - 1rem);
   gap: 2rem;
@@ -61,8 +60,6 @@
 .login-content {
   display: grid;
   flex: 1 1 auto;
-  height: 100%;
-  min-height: 100%;
   grid-template-columns: minmax(24rem, 34rem) minmax(0, 1fr);
   gap: 2rem;
   align-items: stretch;
@@ -91,6 +88,8 @@
   &.form-section-full {
     max-width: 100%;
     grid-column: 1 / -1;
+    height: auto;
+    min-height: 0;
   }
 }
 
@@ -114,6 +113,12 @@
 
   &.form-card-full {
     max-width: 100%;
+    height: auto;
+    min-height: 0;
+
+    .form-wrapper {
+      align-items: flex-start;
+    }
   }
 }
 

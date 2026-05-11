@@ -43,11 +43,15 @@ namespace AasDesignerModel.Model
 
         public byte[]? Certificate { get; set; }
         public string CertificatePassword { get; set; } = string.Empty;
+        public bool SendCurrentJwt { get; set; } = true;
 
         public bool IsActive { get; set; } = true;
         public bool IsInternal { get; set; } = false;
         public bool HandleAsInternal { get; set; } = false;
         public bool IsReadonly { get; set; } = false;
+        public bool IsGoInfrastructure { get; set; } = false;
+        public string? GoPostgresDbName { get; set; }
+        public string? GoPostgresUser { get; set; }
 
         // public string BasyxVersion { get; set; } = "1.0.0";
         public string AasEnvContainer { get; set; } = string.Empty;

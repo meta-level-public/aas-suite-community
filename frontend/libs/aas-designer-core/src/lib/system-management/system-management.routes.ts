@@ -41,6 +41,20 @@ export function getSystemManagementRoutes(): Routes {
           canDeactivate: [DeactivateGuard],
         },
         {
+          path: 'orphaned-infrastructure',
+          loadChildren: () =>
+            import('./orphaned-infrastructure/orphaned-infrastructure.routes').then(
+              (m) => m.ORPHANED_INFRASTRUCTURE_ROUTES,
+            ),
+          canActivate: [() => canActivate([AuthRoles.SYSTEM_ADMIN])],
+        },
+        {
+          path: 'orphaned-container',
+          loadChildren: () =>
+            import('./orphaned-container/orphaned-container.routes').then((m) => m.ORPHANED_CONTAINER_ROUTES),
+          canActivate: [() => canActivate([AuthRoles.SYSTEM_ADMIN])],
+        },
+        {
           path: 'payment-model-management',
           loadChildren: () => import('../payment/payment.routes').then((m) => m.PAYMENT_ROUTES),
           canActivate: [() => canActivate([AuthRoles.SYSTEM_ADMIN])],
