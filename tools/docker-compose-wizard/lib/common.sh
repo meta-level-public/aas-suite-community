@@ -25,6 +25,15 @@ else
   NC='\033[0m'
 fi
 
+detect_arch_suffix() {
+  local arch
+  arch="$(uname -m)"
+  case "$arch" in
+    aarch64|arm64) printf '%s' '-arm64' ;;
+    *) printf '%s' '' ;;
+  esac
+}
+
 default_generated_stack_dir() {
   date +"./generated-stack-%Y%m%d%H%M%S"
 }

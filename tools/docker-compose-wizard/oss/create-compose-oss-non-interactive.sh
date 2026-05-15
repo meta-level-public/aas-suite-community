@@ -158,12 +158,14 @@ main() {
     die "IMAGE_SOURCE muss remote oder local sein"
   fi
 
+  local arch_suffix
+  arch_suffix="$(detect_arch_suffix)"
   local designer_backend_repo_default="ghcr.io/meta-level-public/aas-suite-community/aas-designer-backend-community"
-  local designer_backend_tag_default="latest"
+  local designer_backend_tag_default="latest${arch_suffix}"
   local gateway_repo_default="ghcr.io/meta-level-public/aas-suite-community/aas-designer-gateway"
-  local gateway_tag_default="latest"
+  local gateway_tag_default="latest${arch_suffix}"
   local frontend_repo_default="ghcr.io/meta-level-public/aas-suite-community/aas-designer-frontend-community"
-  local frontend_tag_default="latest"
+  local frontend_tag_default="latest${arch_suffix}"
   if [ "$IMAGE_SOURCE" = "local" ]; then
     designer_backend_repo_default="aas-suite/aas-designer-backend-community"
     designer_backend_tag_default="local"

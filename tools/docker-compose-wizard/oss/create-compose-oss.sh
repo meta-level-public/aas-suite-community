@@ -175,12 +175,15 @@ main() {
   fi
 
   component_header "Kernservices"
+  local ARCH_SUFFIX
+  ARCH_SUFFIX="$(detect_arch_suffix)"
+  [ -n "$ARCH_SUFFIX" ] && info "ARM64-Architektur erkannt – Image-Tag-Standard wird auf 'latest-arm64' gesetzt."
   local DESIGNER_BACKEND_IMAGE_REPO_DEFAULT="ghcr.io/meta-level-public/aas-suite-community/aas-designer-backend-community"
-  local DESIGNER_BACKEND_IMAGE_TAG_DEFAULT="latest"
+  local DESIGNER_BACKEND_IMAGE_TAG_DEFAULT="latest${ARCH_SUFFIX}"
   local GATEWAY_IMAGE_REPO_DEFAULT="ghcr.io/meta-level-public/aas-suite-community/aas-designer-gateway"
-  local GATEWAY_IMAGE_TAG_DEFAULT="latest"
+  local GATEWAY_IMAGE_TAG_DEFAULT="latest${ARCH_SUFFIX}"
   local FRONTEND_IMAGE_REPO_DEFAULT="ghcr.io/meta-level-public/aas-suite-community/aas-designer-frontend-community"
-  local FRONTEND_IMAGE_TAG_DEFAULT="latest"
+  local FRONTEND_IMAGE_TAG_DEFAULT="latest${ARCH_SUFFIX}"
   if [ "$IMAGE_SOURCE" = "local" ]; then
     DESIGNER_BACKEND_IMAGE_REPO_DEFAULT="aas-suite/aas-designer-backend-community"
     DESIGNER_BACKEND_IMAGE_TAG_DEFAULT="local"

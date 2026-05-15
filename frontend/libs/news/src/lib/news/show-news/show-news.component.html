@@ -12,7 +12,9 @@
           (ngModelChange)="toggleShowReadNews($event)"
           [binary]="true"
         ></p-checkbox>
-        <label for="show-read-news" class="text-sm text-[var(--p-text-color)]">{{ 'NEWS_SHOW_READ' | translate }}</label>
+        <label for="show-read-news" class="text-sm text-[var(--p-text-color)]">{{
+          'NEWS_SHOW_READ' | translate
+        }}</label>
       </div>
     </div>
   </div>
@@ -47,7 +49,12 @@
     <div class="news-empty">
       <h2 class="news-title">{{ 'NEWS' | translate }}</h2>
       <p class="news-date">{{ 'NEWS_EMPTY_DIALOG' | translate }}</p>
-      <p-button label="{{ 'CLOSE' | translate }}" icon="pi pi-times" severity="secondary" (onClick)="closeDialog()"></p-button>
+      <p-button
+        label="{{ 'CLOSE' | translate }}"
+        icon="pi pi-times"
+        severity="secondary"
+        (onClick)="closeDialog()"
+      ></p-button>
     </div>
   }
 </div>
