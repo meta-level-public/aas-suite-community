@@ -878,6 +878,8 @@ main() {
   compose_begin "$COMPOSE_FILE"
   prepare_postgres_init_assets "$COMPOSE_FILE"
   append_postgres_service "$COMPOSE_FILE" "$NETWORK_NAME" "$POSTGRES_VOLUME"
+  append_service_separator "$COMPOSE_FILE"
+  append_postgres_init_service "$COMPOSE_FILE" "$NETWORK_NAME"
 
   if [ "$KEYCLOAK_MODE" = "install" ]; then
     append_service_separator "$COMPOSE_FILE"

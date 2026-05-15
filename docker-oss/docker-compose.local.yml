@@ -13,12 +13,35 @@ services:
     volumes:
       - postgres_data:/var/lib/postgresql/data
       - ../deploy/shared/postgres-init/10-create-basyx-db.sh:/docker-entrypoint-initdb.d/10-create-basyx-db.sh:ro
+    networks:
+      - aas-oss-dev-network
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U localPostgres -d designer"]
       interval: 10s
       timeout: 5s
       retries: 5
     restart: unless-stopped
+
+  postgres-init:
+    image: postgres:16-alpine
+    container_name: aas-postgres-init-oss-dev
+    environment:
+      PGPASSWORD: "P@SSworDT!"
+      PGHOST: postgres
+      PGPORT: "5432"
+      POSTGRES_USER: localPostgres
+      POSTGRES_DB: designer
+      BASYX_POSTGRES_DB: basyx_core
+      KEYCLOAK_POSTGRES_DB: keycloak
+    command: ["/bin/bash", "/scripts/10-create-basyx-db.sh"]
+    volumes:
+      - ../deploy/shared/postgres-init/10-create-basyx-db.sh:/scripts/10-create-basyx-db.sh:ro
+    networks:
+      - aas-oss-dev-network
+    depends_on:
+      postgres:
+        condition: service_healthy
+    restart: "no"
 
   keycloak:
     image: quay.io/keycloak/keycloak:26.0
@@ -39,9 +62,11 @@ services:
     volumes:
       - ../docker-oss/keycloak/aas-local-realm.json:/opt/keycloak/data/import/aas-local-realm.json:ro
       - ../docker-oss/keycloak/themes:/opt/keycloak/themes:ro
+    networks:
+      - aas-oss-dev-network
     depends_on:
-      postgres:
-        condition: service_healthy
+      postgres-init:
+        condition: service_completed_successfully
     restart: unless-stopped
 
   mailpit:
@@ -49,6 +74,9 @@ services:
     container_name: aas-mailpit-oss-dev
     ports:
       - "8025:8025"
+      - "1025:1025"
+    networks:
+      - aas-oss-dev-network
     restart: unless-stopped
 
   aasregistry-go:
@@ -76,10 +104,12 @@ services:
       OIDC_TRUSTLISTPATH: /security_env/trustlist.json
     volumes:
       - ../tools/docker-compose-wizard/security_env:/security_env:ro
+    networks:
+      - aas-oss-dev-network
     restart: unless-stopped
     depends_on:
-      postgres:
-        condition: service_healthy
+      postgres-init:
+        condition: service_completed_successfully
 
   submodelregistry-go:
     image: eclipsebasyx/submodelregistry-go:SNAPSHOT
@@ -106,10 +136,12 @@ services:
       OIDC_TRUSTLISTPATH: /security_env/trustlist.json
     volumes:
       - ../tools/docker-compose-wizard/security_env:/security_env:ro
+    networks:
+      - aas-oss-dev-network
     restart: unless-stopped
     depends_on:
-      postgres:
-        condition: service_healthy
+      postgres-init:
+        condition: service_completed_successfully
 
   aasdiscovery-go:
     image: eclipsebasyx/aasdiscovery-go:SNAPSHOT
@@ -136,10 +168,12 @@ services:
       OIDC_TRUSTLISTPATH: /security_env/trustlist.json
     volumes:
       - ../tools/docker-compose-wizard/security_env:/security_env:ro
+    networks:
+      - aas-oss-dev-network
     restart: unless-stopped
     depends_on:
-      postgres:
-        condition: service_healthy
+      postgres-init:
+        condition: service_completed_successfully
 
   aasrepository-go:
     image: eclipsebasyx/aasrepository-go:SNAPSHOT
@@ -165,10 +199,12 @@ services:
       OIDC_TRUSTLISTPATH: /security_env/trustlist.json
     volumes:
       - ../tools/docker-compose-wizard/security_env:/security_env:ro
+    networks:
+      - aas-oss-dev-network
     restart: unless-stopped
     depends_on:
-      postgres:
-        condition: service_healthy
+      postgres-init:
+        condition: service_completed_successfully
 
   submodelrepository-go:
     image: eclipsebasyx/submodelrepository-go:SNAPSHOT
@@ -195,10 +231,12 @@ services:
       JWS_PRIVATEKEYPATH: ""
     volumes:
       - ../tools/docker-compose-wizard/security_env:/security_env:ro
+    networks:
+      - aas-oss-dev-network
     restart: unless-stopped
     depends_on:
-      postgres:
-        condition: service_healthy
+      postgres-init:
+        condition: service_completed_successfully
 
   conceptdescriptionrepository-go:
     image: eclipsebasyx/conceptdescriptionrepository-go:SNAPSHOT
@@ -224,15 +262,17 @@ services:
       OIDC_TRUSTLISTPATH: /security_env/trustlist.json
     volumes:
       - ../tools/docker-compose-wizard/security_env:/security_env:ro
+    networks:
+      - aas-oss-dev-network
     restart: unless-stopped
     depends_on:
-      postgres:
-        condition: service_healthy
+      postgres-init:
+        condition: service_completed_successfully
 
 volumes:
   postgres_data:
     name: aas-oss-dev-postgres-dev
 
 networks:
-  default:
-    name: aas-oss-dev-network
+  aas-oss-dev-network:
+    driver: bridge
