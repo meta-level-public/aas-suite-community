@@ -103,64 +103,61 @@ namespace AasDesignerApi.Jobs
                 var appSettings = scope.ServiceProvider.GetService<AppSettings>();
                 if (context != null && appSettings != null)
                 {
-                    // prüfen, welche Infrastrukturen nicht referenziert sind
-                    var infrastructures = context
+                    // Verwaiste interne Infrastrukturen löschen: eine Infra gilt als verwaist,
+                    // wenn keine Organisation mehr mit passender OrganisationId existiert.
+                    var orphanedInfrastructures = context
                         .AasInfrastructureSettings.Where(s =>
                             s.IsInternal && !string.IsNullOrWhiteSpace(s.ContainerGuid)
                         )
+                        .ToList()
+                        .Where(s => !context.Organisations.Any(o => o.Id == s.OrganisationId))
                         .ToList();
-                    infrastructures.ForEach(infraSetting =>
+
+                    orphanedInfrastructures.ForEach(infraSetting =>
                     {
                         try
                         {
-                            var referencingOrga = context.Organisations.Any(o =>
-                                o.InternalAasInfrastructureGuid == infraSetting.ContainerGuid
+                            context.Apikeys.RemoveRange(
+                                context.Apikeys.Where(a =>
+                                    a.AasInfrastructureSettingsId == infraSetting.Id
+                                )
                             );
-                            if (!referencingOrga)
+
+                            context.AasInfrastructureSettings.RemoveHardDelete(infraSetting);
+
+                            InfrastructureChangeRequester.RequestInfrastructureRemoval(
+                                infraSetting.ContainerGuid,
+                                appSettings.ContainerManagerInboxDirectory
+                            );
+
+                            var deleteProtocol = new DeleteProtocol
                             {
-                                // apikey löschen
-                                context.Apikeys.RemoveRange(
-                                    context.Apikeys.Where(a =>
-                                        a.AasInfrastructureSettingsId == infraSetting.Id
-                                    )
-                                );
-
-                                // Infrastruktur löschen
-                                context.AasInfrastructureSettings.RemoveHardDelete(infraSetting);
-
-                                InfrastructureChangeRequester.RequestInfrastructureRemoval(
-                                    infraSetting.ContainerGuid,
-                                    appSettings.ContainerManagerInboxDirectory
-                                );
-                                var deleteProtocol = new DeleteProtocol
-                                {
-                                    DeleteType = DeleteType.Infrastructure,
-                                    AdditionalData = JsonConvert.SerializeObject(
-                                        new
-                                        {
-                                            InfraName = infraSetting.Name,
-                                            InfraGuid = infraSetting.ContainerGuid,
-                                        }
-                                    ),
-                                    AnlageBenutzer = "System",
-                                    AnlageDatum = DateTime.Now,
-                                    AenderungsBenutzer = "System",
-                                    AenderungsDatum = DateTime.Now,
-                                };
-                                context.Add(deleteProtocol);
-                                context.SaveChanges();
-                                _logger.LogInformation(
-                                    "Infrastructure {InfraName} with GUID {InfraGuid} deleted.",
-                                    infraSetting.Name,
-                                    infraSetting.ContainerGuid
-                                );
-                            }
+                                DeleteType = DeleteType.Infrastructure,
+                                AdditionalData = JsonConvert.SerializeObject(
+                                    new
+                                    {
+                                        InfraName = infraSetting.Name,
+                                        InfraGuid = infraSetting.ContainerGuid,
+                                    }
+                                ),
+                                AnlageBenutzer = "System",
+                                AnlageDatum = DateTime.Now,
+                                AenderungsBenutzer = "System",
+                                AenderungsDatum = DateTime.Now,
+                            };
+                            context.Add(deleteProtocol);
+                            context.SaveChanges();
+                            _logger.LogInformation(
+                                "Orphaned infrastructure {InfraName} with GUID {InfraGuid} deleted.",
+                                infraSetting.Name,
+                                infraSetting.ContainerGuid
+                            );
                         }
                         catch (Exception ex)
                         {
                             _logger.LogError(
                                 ex,
-                                "Error deleting infrastructure {InfraName} with GUID {InfraGuid}.",
+                                "Error deleting orphaned infrastructure {InfraName} with GUID {InfraGuid}.",
                                 infraSetting.Name,
                                 infraSetting.ContainerGuid
                             );

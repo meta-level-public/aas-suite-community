@@ -426,6 +426,26 @@ html.my-app-dark > body {
   width: 36rem;
 }
 
+.h-20rem {
+  height: 20rem;
+}
+
+.h-30rem {
+  height: 30rem;
+}
+
+.h-48rem {
+  height: 48rem;
+}
+
+.max-h-20rem {
+  max-height: 20rem;
+}
+
+.max-h-30rem {
+  max-height: 30rem;
+}
+
 .p-error {
   color: var(--error) !important;
 }

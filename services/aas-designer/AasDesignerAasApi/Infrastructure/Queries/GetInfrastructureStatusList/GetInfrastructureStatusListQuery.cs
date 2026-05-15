@@ -117,6 +117,8 @@ public class GetInfrastructureStatusListQueryHandler
                 MongoMemSwapSetting = infrastructure.MongoMemSwap,
 
                 IsActive = infrastructure.IsActive,
+                IsGoInfrastructure = infrastructure.IsGoInfrastructure,
+                GoPostgresDbName = infrastructure.GoPostgresDbName ?? string.Empty,
             };
 
             if (infrastructure.IsActive)
@@ -276,9 +278,9 @@ public class GetInfrastructureStatusListQueryHandler
     {
         try
         {
-            ContainerStatsResponse? containerStats = null;
+            var tcs = new TaskCompletionSource<ContainerStatsResponse?>();
             var progress = new Progress<ContainerStatsResponse>(message =>
-                containerStats = message
+                tcs.TrySetResult(message)
             );
             await dockerClient.Containers.GetContainerStatsAsync(
                 containerName,
@@ -287,7 +289,21 @@ public class GetInfrastructureStatusListQueryHandler
                 cancellationToken
             );
 
-            return containerStats;
+            if (tcs.Task.IsCompleted)
+                return await tcs.Task;
+
+            using var timeoutCts = CancellationTokenSource.CreateLinkedTokenSource(
+                cancellationToken
+            );
+            timeoutCts.CancelAfter(TimeSpan.FromSeconds(5));
+            try
+            {
+                return await tcs.Task.WaitAsync(timeoutCts.Token);
+            }
+            catch (OperationCanceledException)
+            {
+                return null;
+            }
         }
         catch
         {

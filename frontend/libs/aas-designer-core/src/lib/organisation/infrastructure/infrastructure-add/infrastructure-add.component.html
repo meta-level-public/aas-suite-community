@@ -1,8 +1,11 @@
 <div class="flex flex-col gap-2">
   <p-fieldset legend="{{ 'DETAILS' | translate }}" class="w-full">
     <div class="mb-4">
-      <label for="name"> {{ 'NAME' | translate }} </label>
-      <input pInputText id="name" name="name" type="text" class="w-full" [(ngModel)]="settings().name" required />
+      <label for="name"> {{ 'NAME' | translate }} * </label>
+      <input pInputText id="name" name="name" type="text" class="w-full" [(ngModel)]="settings().name" required #nameInput="ngModel" [ngClass]="{'ng-invalid ng-dirty': nameInput.invalid && nameInput.touched}" />
+      @if (nameInput.invalid && nameInput.touched) {
+        <small class="p-error">{{ 'REQUIRED_FIELD' | translate }}</small>
+      }
     </div>
     <div class="mb-4">
       <label for="description"> {{ 'DESCRIPTION' | translate }} </label>
@@ -226,20 +229,22 @@
       </div>
     </p-fieldset>
     <p-fieldset legend="{{ 'SECURITY' | translate }}" class="w-full">
-      <div class="flex flex-col gap-2">
-        <div class="flex flex-row items-end">
-          <p-button
-            label="{{ 'ADD_HEADER_PARAM' | translate }}"
-            class="w-full"
-            (onClick)="addHeaderRow()"
-            icon="pi pi-plus"
-          ></p-button>
+      <div class="flex flex-col gap-4">
+        <!-- Header Parameter -->
+        <div class="flex flex-col gap-3">
+          <p-message text="{{ 'ADD_HEADER_PARAM_EXPL' | translate }}" severity="info"></p-message>
+          <div>
+            <p-button
+              label="{{ 'ADD_HEADER_PARAM' | translate }}"
+              (onClick)="addHeaderRow()"
+              icon="pi pi-plus"
+            ></p-button>
+          </div>
         </div>
-        <p-message text="{{ 'ADD_HEADER_PARAM_EXPL' | translate }}" severity="info"></p-message>
 
         @for (headerParam of settings().headerParameters; track $index; let indx = $index) {
           <div class="grid grid-cols-1 md:grid-cols-12 gap-2 items-end">
-            <div class="mb-4 md:col-span-5 min-w-0">
+            <div class="md:col-span-5 min-w-0">
               <label for="headerName{{ indx }}"> {{ 'NAME' | translate }} </label>
               <input
                 pInputText
@@ -251,7 +256,7 @@
                 required
               />
             </div>
-            <div class="mb-4 md:col-span-5 min-w-0">
+            <div class="md:col-span-5 min-w-0">
               <label for="headerValue{{ indx }}"> {{ 'VALUE' | translate }} </label>
               <input
                 pInputText
@@ -263,7 +268,7 @@
                 required
               />
             </div>
-            <div class="mb-4 md:col-span-2">
+            <div class="md:col-span-2 flex items-end">
               <p-button
                 icon="pi pi-trash"
                 [outlined]="true"
@@ -274,9 +279,21 @@
             </div>
           </div>
         }
-        <div class="flex flex-col mt-5">
+
+        <p-divider />
+
+        <!-- JWT Token -->
+        <div class="flex items-center gap-3">
+          <p-toggleswitch id="sendCurrentJwt" name="sendCurrentJwt" [(ngModel)]="settings().sendCurrentJwt" />
+          <label for="sendCurrentJwt" class="cursor-pointer"> {{ 'SEND_CURRENT_JWT' | translate }} </label>
+        </div>
+
+        <p-divider />
+
+        <!-- Zertifikat -->
+        <div class="flex flex-col gap-3">
           <p-message text="{{ 'ADD_CERTIFCATE_EXPL' | translate }}" severity="info"></p-message>
-          <div class="mb-4">
+          <div>
             <label for="certificate"> {{ 'CERTIFICATE_FILE' | translate }} </label>
             <p-fileUpload
               #uploader
@@ -292,7 +309,7 @@
               </ng-template>
             </p-fileUpload>
           </div>
-          <div class="mb-4">
+          <div>
             <label for="certificatePassword"> {{ 'PASSWORD' | translate }} </label>
             <p-password
               [(ngModel)]="settings().certificatePassword"

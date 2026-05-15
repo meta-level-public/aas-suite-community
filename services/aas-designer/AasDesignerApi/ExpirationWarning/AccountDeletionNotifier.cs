@@ -11,7 +11,6 @@ public class AccountDeletionNotifier
         Model.Organisation o,
         IApplicationDbContext context,
         MailService mailer,
-        string subjectPrefix,
         ILogger logger
     )
     {
@@ -36,7 +35,7 @@ public class AccountDeletionNotifier
                 adminText = adminText.Replace("{{organame}}", o.Name);
                 adminText = adminText.Replace("{{email}}", a.Benutzer.Email);
 
-                var subject = subjectPrefix + " Löschung Ihres Accounts / Deletion of your Account";
+                var subject = "Löschung Ihres Accounts / Deletion of your Account";
 #pragma warning disable CS8604 // Possible null reference argument.
                 try
                 {

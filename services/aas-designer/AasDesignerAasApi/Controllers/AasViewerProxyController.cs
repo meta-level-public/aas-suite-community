@@ -78,7 +78,14 @@ public class AasViewerProxyController : InternalApiBaseController
         }
 
         using var client = HttpClientCreator.CreateHttpClient(appUser);
-        using var request = new HttpRequestMessage(HttpMethod.Get, url);
+        // DangerousDisablePathAndQueryCanonicalization verhindert, dass .NET %5B/%5D in den Pfad-Segmenten
+        // zu %255B/%255D re-enkodiert. Der Upstream erhält korrekte AAS-Notation (z.B. Documents%5B0%5D).
+        var options = new UriCreationOptions
+        {
+            DangerousDisablePathAndQueryCanonicalization = true,
+        };
+        Uri.TryCreate(url, options, out var requestUri);
+        using var request = new HttpRequestMessage(HttpMethod.Get, requestUri ?? new Uri(url));
         var infrastructureId = appUser.CurrentInfrastructureSettings.Id;
 
         _logger.LogInformation(

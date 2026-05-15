@@ -1,0 +1,7 @@
+.viewer-frame {
+  border: 1px solid var(--p-content-border-color);
+  border-radius: var(--p-content-border-radius);
+  overflow: hidden;
+  background: var(--p-surface-50, #fafafa);
+  padding: 0.5rem;
+}

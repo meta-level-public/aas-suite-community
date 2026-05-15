@@ -41,8 +41,9 @@ public class HttpClientCreator
         }
         if (
             !string.IsNullOrWhiteSpace(appUser.JwtToken)
+            && appUser.CurrentInfrastructureSettings.SendCurrentJwt
             && !appUser.CurrentInfrastructureSettings.HeaderParameters.Any(k =>
-                k.Name == "Authorization"
+                k.Name.Equals("Authorization", StringComparison.OrdinalIgnoreCase)
             )
         )
         {

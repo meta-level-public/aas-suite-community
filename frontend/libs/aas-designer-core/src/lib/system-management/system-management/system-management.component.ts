@@ -77,6 +77,16 @@ export class SystemManagementComponent implements OnInit {
           value: 'infrastructure-status',
           icon: 'pi pi-fw pi-server',
         });
+        this.modules.push({
+          label: 'ORPHANED_INFRASTRUCTURES',
+          value: 'orphaned-infrastructure',
+          icon: 'pi pi-fw pi-exclamation-triangle',
+        });
+        this.modules.push({
+          label: 'ORPHANED_CONTAINERS',
+          value: 'orphaned-container',
+          icon: 'pi pi-fw pi-box',
+        });
         this.modules.push({ label: 'REQUESTS_FOR_OFFERS', value: 'request-for-offer', icon: 'pi pi-money-bill' });
         // { label: 'INVOICE', value: 'invoice', icon: 'pi pi-dollar' },
       }

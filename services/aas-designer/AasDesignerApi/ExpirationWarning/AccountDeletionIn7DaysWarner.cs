@@ -12,7 +12,6 @@ public class AccountDeletionIn7DaysWarner
         IApplicationDbContext context,
         MailService mailer,
         DateTime expiryDate,
-        string subjectPrefix,
         ILogger logger
     )
     {
@@ -51,8 +50,7 @@ public class AccountDeletionIn7DaysWarner
                 adminText = adminText.Replace("{{email}}", a.Benutzer.Email);
 
                 var subject =
-                    subjectPrefix
-                    + " Löschung Ihres Accounts – Handlungsbedarf / Deletion of your account - action required";
+                    "Löschung Ihres Accounts – Handlungsbedarf / Deletion of your account - action required";
 #pragma warning disable CS8604 // Possible null reference argument.
                 try
                 {

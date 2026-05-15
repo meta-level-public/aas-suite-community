@@ -64,7 +64,7 @@ services:
 
   # Gateway Service
   gateway:
-    image: ${REGISTRY_HOST:-ghcr.io}/${IMAGE_NAMESPACE:-meta-level/aas-suite}/aas-designer-gateway:${IMAGE_TAG:-latest}
+    image: ${REGISTRY_HOST:-ghcr.io}/${IMAGE_NAMESPACE:-meta-level-public/aas-suite-community}/aas-designer-gateway:${IMAGE_TAG:-latest}
     container_name: aas-suite-gateway
     build:
       context: ..
@@ -101,7 +101,7 @@ services:
 
   # Designer Backend Service
   aas-designer-community:
-    image: ${REGISTRY_HOST:-ghcr.io}/${IMAGE_NAMESPACE:-meta-level/aas-suite}/aas-designer-backend-community:${IMAGE_TAG:-latest}
+    image: ${REGISTRY_HOST:-ghcr.io}/${IMAGE_NAMESPACE:-meta-level-public/aas-suite-community}/aas-designer-backend-community:${IMAGE_TAG:-latest}
     container_name: aas-suite-designer-community
     build:
       context: ..
@@ -152,7 +152,7 @@ services:
 
   # Frontend Service
   frontend:
-    image: ${REGISTRY_HOST:-ghcr.io}/${IMAGE_NAMESPACE:-meta-level/aas-suite}/aas-designer-frontend-community:${IMAGE_TAG:-latest}
+    image: ${REGISTRY_HOST:-ghcr.io}/${IMAGE_NAMESPACE:-meta-level-public/aas-suite-community}/aas-designer-frontend-community:${IMAGE_TAG:-latest}
     container_name: aas-suite-frontend
     build:
       context: ..

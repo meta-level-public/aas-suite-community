@@ -115,10 +115,20 @@ public static class ShellLoader
                     smIdentifier
                 );
 
+                var superpathSubmodelUrl = GetSubmodelViaSuperPathUrl(
+                    aasInfrastructureSettings,
+                    aasIdentifier,
+                    smIdentifier
+                );
+
                 try
                 {
                     var (submodel, loadedSubmodelUrl) = await LoadFromCandidateUrlsAsync(
-                        BuildCandidateUrls([.. submodelCandidateUrls, fallbackSubmodelUrl]),
+                        BuildCandidateUrls([
+                            .. submodelCandidateUrls,
+                            fallbackSubmodelUrl,
+                            superpathSubmodelUrl,
+                        ]),
                         (candidateUrl, ct) => LoadSubmodelFromUrlAsync(client, candidateUrl, ct),
                         $"submodel {smIdentifier}",
                         cancellationToken
@@ -550,6 +560,23 @@ public static class ShellLoader
     {
         return GetAasRepositoryUrl(aasInfrastructureSettings, aasIdentifier).AppendSlash()
             + "asset-information";
+    }
+
+    private static string GetSubmodelViaSuperPathUrl(
+        AasInfrastructureSettings aasInfrastructureSettings,
+        string aasIdentifier,
+        string smIdentifier
+    )
+    {
+        return (
+            aasInfrastructureSettings.AasRepositoryUrl.AppendSlash()
+            + "shells/"
+            + aasIdentifier.ToBase64UrlEncoded(Encoding.UTF8)
+            + "/submodels/"
+            + smIdentifier.ToBase64UrlEncoded(Encoding.UTF8)
+        )
+            .Replace("//", "/")
+            .Replace(":/", "://");
     }
 
     private static string GetSubmodelRepositoryUrl(

@@ -18,6 +18,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\..\shared\AasContainerShared\AasContainerShared.csproj" />
     <ProjectReference Include="..\AasDesignerModel\AasDesignerModel.csproj" />
     <ProjectReference Include="..\..\shared\AasShared\AasShared.csproj" />
   </ItemGroup>

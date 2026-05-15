@@ -49,6 +49,7 @@ public static class LicenseSettingsBootstrap
         foreach (
             var candidatePath in new[]
             {
+                Path.Combine(licenseDirectory, "license-Dev-Designer.json"),
                 Path.Combine(licenseDirectory, "license-Demo-Designer2.json"),
                 Path.Combine(licenseDirectory, "license-Demo1-Designer.json"),
             }

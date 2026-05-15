@@ -86,3 +86,6 @@ layout-ml.css
 # Docker compose wizard generated files
 tools/docker-compose-wizard/**/.env.generated
 tools/docker-compose-wizard/**/docker-compose.generated.yml
+
+# Private key files
+**/*private*.pem

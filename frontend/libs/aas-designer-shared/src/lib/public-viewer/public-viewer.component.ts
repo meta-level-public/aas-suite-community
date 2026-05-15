@@ -72,7 +72,11 @@ export class PublicViewerComponent implements OnInit, OnDestroy {
 
       const result = await lastValueFrom(this.sharedLinksClient.sharedLinks_CheckValidity(this.accesscode));
 
-      switch (result.resultCode) {
+      const resultCode =
+        typeof result.resultCode === 'string'
+          ? (ViewerResultCode[result.resultCode as keyof typeof ViewerResultCode] as ViewerResultCode)
+          : result.resultCode;
+      switch (resultCode) {
         case ViewerResultCode.OK:
           this.aasIdentifier = result.aasIdentifier;
           this.resultCode = 'OK';

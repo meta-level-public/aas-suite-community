@@ -85,7 +85,7 @@ public class DescriptorUpdater
         smDescriptor.IdShort = submodel.IdShort;
         smDescriptor.DisplayName = submodel.DisplayName?.Cast<LangStringNameType>().ToList();
         smDescriptor.Description = submodel.Description?.Cast<LangStringTextType>().ToList();
-        smDescriptor.SemanticId = new MyReference(submodel.SemanticId);
+        smDescriptor.SemanticId = DescriptorCreator.SanitizedExternalReference(submodel.SemanticId);
         smDescriptor.SupplementalSemanticIds = submodel
             .SupplementalSemanticIds?.Select(supplmentalSemanticId => new MyReference(
                 supplmentalSemanticId

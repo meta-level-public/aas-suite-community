@@ -1,7 +1,9 @@
 using AasDesignerApi.Model;
 using AasDesignerModel;
+using AasDesignerModel.Model;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
+using Newtonsoft.Json;
 
 namespace AasDesignerAasApi.Infrastructure.Commands.DeleteInfrastructure;
 
@@ -37,6 +39,22 @@ public class DeleteInfrastructureHandler : IRequestHandler<DeleteInfrastructureC
             throw new Exception("Setting not found");
 
         _context.Remove(setting);
+
+        var deleteProtocol = new DeleteProtocol
+        {
+            DeleteType = DeleteType.Infrastructure,
+            AdditionalData = JsonConvert.SerializeObject(
+                new { InfraName = setting.Name, InfraGuid = setting.ContainerGuid }
+            ),
+            AnlageBenutzer =
+                request.AppUser.Benutzer?.Email ?? request.AppUser.BenutzerId.ToString(),
+            AnlageDatum = DateTime.Now,
+            AenderungsBenutzer =
+                request.AppUser.Benutzer?.Email ?? request.AppUser.BenutzerId.ToString(),
+            AenderungsDatum = DateTime.Now,
+        };
+        _context.Add(deleteProtocol);
+
         _context.SaveChanges();
 
         return true;

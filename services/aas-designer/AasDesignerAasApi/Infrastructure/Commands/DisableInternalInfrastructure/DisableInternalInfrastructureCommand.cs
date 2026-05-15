@@ -51,7 +51,7 @@ public class DisableInternalInfrastructureHandler
 
         _context.SaveChanges();
         InfrastructureChangeRequester.RequestInfrastructureDisabling(
-            request.AppUser.Organisation.InternalAasInfrastructureGuid,
+            infrastructure.ContainerGuid,
             _appsettings.ContainerManagerInboxDirectory
         );
 

@@ -12,7 +12,6 @@ public class AccountExpiringIn7DaysWarner
         IApplicationDbContext context,
         MailService mailer,
         DateTime? expiryDate,
-        string subjectPrefix,
         ILogger logger
     )
     {
@@ -56,8 +55,7 @@ public class AccountExpiringIn7DaysWarner
                 adminText = adminText.Replace("{{email}}", a.Benutzer.Email);
 
                 var subject =
-                    subjectPrefix
-                    + " Lizenzablauf Ihres Accounts – Handlungsbedarf / License expiry of your account - action required";
+                    "Lizenzablauf Ihres Accounts – Handlungsbedarf / License expiry of your account - action required";
 #pragma warning disable CS8604 // Possible null reference argument.
                 try
                 {

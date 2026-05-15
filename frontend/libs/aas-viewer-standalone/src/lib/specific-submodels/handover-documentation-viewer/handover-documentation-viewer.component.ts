@@ -26,6 +26,7 @@ import { SelectDocumentFile } from './select-document-file';
 })
 export class HandoverDocumentationViewerComponent implements OnChanges, OnDestroy {
   @Input({ required: true }) documentation: aas.types.Submodel | undefined;
+  @Input() submodelUrl = '';
 
   currentLang = signal('en');
 

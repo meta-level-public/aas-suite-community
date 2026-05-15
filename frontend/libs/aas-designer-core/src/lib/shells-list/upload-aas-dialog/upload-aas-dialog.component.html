@@ -102,7 +102,11 @@
                   @if (issue.importableSubmodels.length > 0) {
                     <div class="flex items-center justify-between gap-3">
                       <div class="flex items-center gap-2">
-                        <p-checkbox [(ngModel)]="issue.overwrite" [binary]="true" [inputId]="'overwrite-' + issue.sourceFileName" />
+                        <p-checkbox
+                          [(ngModel)]="issue.overwrite"
+                          [binary]="true"
+                          [inputId]="'overwrite-' + issue.sourceFileName"
+                        />
                         <label [for]="'overwrite-' + issue.sourceFileName" class="text-sm cursor-pointer">
                           {{ 'OVERWRITE_IF_EXISTING_AAS' | translate }}
                         </label>

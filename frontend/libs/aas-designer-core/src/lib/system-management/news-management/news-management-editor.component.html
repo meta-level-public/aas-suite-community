@@ -41,7 +41,11 @@
             <i class="pi pi-bullhorn mr-2"></i>
             {{ 'VISIBILITY' | translate }}
           </p-inputgroup-addon>
-          <input pInputText [readonly]="true" [ngModel]="item.visible ? ('VISIBLE' | translate) : ('INVISIBLE' | translate)" />
+          <input
+            pInputText
+            [readonly]="true"
+            [ngModel]="item.visible ? ('VISIBLE' | translate) : ('INVISIBLE' | translate)"
+          />
         </p-inputgroup>
       </div>
 

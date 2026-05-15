@@ -476,6 +476,35 @@ append_postgres_service() {
 EOF_COMPOSE
 }
 
+append_postgres_init_service() {
+  local compose_file="$1"
+  local network_name="$2"
+
+  cat >> "$compose_file" <<EOF_COMPOSE
+  postgres-init:
+    image: \${POSTGRES_IMAGE_REPO}:\${POSTGRES_IMAGE_TAG}
+    container_name: \${PROJECT_NAME}-postgres-init
+    environment:
+      PGPASSWORD: \${POSTGRES_PASSWORD}
+      PGHOST: postgres
+      PGPORT: "5432"
+      POSTGRES_USER: \${POSTGRES_USER}
+      POSTGRES_DB: \${POSTGRES_DB}
+      BASYX_POSTGRES_DB: \${BASYX_POSTGRES_DB}
+      KEYCLOAK_POSTGRES_DB: \${KEYCLOAK_POSTGRES_DB}
+      MARKT_POSTGRES_DB: \${MARKT_POSTGRES_DB:-}
+    command: ["/bin/bash", "/scripts/10-create-basyx-db.sh"]
+    volumes:
+      - ./postgres-init/10-create-basyx-db.sh:/scripts/10-create-basyx-db.sh:ro
+    networks:
+      - ${network_name}
+    depends_on:
+      postgres:
+        condition: service_healthy
+    restart: "no"
+EOF_COMPOSE
+}
+
 prepare_postgres_init_assets() {
   local compose_file="$1"
   local compose_dir init_dir init_script
@@ -587,8 +616,8 @@ append_keycloak_internal_service() {
     networks:
       - ${network_name}
     depends_on:
-      postgres:
-        condition: service_healthy
+      postgres-init:
+        condition: service_completed_successfully
     healthcheck:
       test: ["CMD-SHELL", "bash -c 'cat < /dev/null > /dev/tcp/127.0.0.1/8080'"]
       interval: 10s
@@ -861,8 +890,8 @@ append_markt_service() {
     networks:
       - ${network_name}
     depends_on:
-      postgres:
-        condition: service_healthy
+      postgres-init:
+        condition: service_completed_successfully
     healthcheck:
       test: ["CMD-SHELL", "if command -v curl >/dev/null 2>&1; then curl -fsS http://127.0.0.1:${container_port}/health >/dev/null || exit 1; else kill -0 1; fi"]
       interval: 10s
@@ -1106,8 +1135,8 @@ append_basyx_internal_services() {
     networks:
       - ${network_name}
     depends_on:
-      postgres:
-        condition: service_healthy
+      postgres-init:
+        condition: service_completed_successfully
     restart: unless-stopped
 
   submodelregistry-go:
@@ -1138,8 +1167,8 @@ append_basyx_internal_services() {
     networks:
       - ${network_name}
     depends_on:
-      postgres:
-        condition: service_healthy
+      postgres-init:
+        condition: service_completed_successfully
     restart: unless-stopped
 
   aasdiscovery-go:
@@ -1170,8 +1199,8 @@ append_basyx_internal_services() {
     networks:
       - ${network_name}
     depends_on:
-      postgres:
-        condition: service_healthy
+      postgres-init:
+        condition: service_completed_successfully
     restart: unless-stopped
 
   aasrepository-go:
@@ -1201,8 +1230,8 @@ append_basyx_internal_services() {
     networks:
       - ${network_name}
     depends_on:
-      postgres:
-        condition: service_healthy
+      postgres-init:
+        condition: service_completed_successfully
     restart: unless-stopped
 
   submodelrepository-go:
@@ -1233,8 +1262,8 @@ append_basyx_internal_services() {
     networks:
       - ${network_name}
     depends_on:
-      postgres:
-        condition: service_healthy
+      postgres-init:
+        condition: service_completed_successfully
     restart: unless-stopped
 
   conceptdescriptionrepository-go:
@@ -1264,8 +1293,8 @@ append_basyx_internal_services() {
     networks:
       - ${network_name}
     depends_on:
-      postgres:
-        condition: service_healthy
+      postgres-init:
+        condition: service_completed_successfully
     restart: unless-stopped
 EOF_COMPOSE
 }

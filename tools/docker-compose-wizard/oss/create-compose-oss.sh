@@ -175,11 +175,11 @@ main() {
   fi
 
   component_header "Kernservices"
-  local DESIGNER_BACKEND_IMAGE_REPO_DEFAULT="ghcr.io/meta-level/aas-suite/aas-designer-backend-community"
+  local DESIGNER_BACKEND_IMAGE_REPO_DEFAULT="ghcr.io/meta-level-public/aas-suite-community/aas-designer-backend-community"
   local DESIGNER_BACKEND_IMAGE_TAG_DEFAULT="latest"
-  local GATEWAY_IMAGE_REPO_DEFAULT="ghcr.io/meta-level/aas-suite/aas-designer-gateway"
+  local GATEWAY_IMAGE_REPO_DEFAULT="ghcr.io/meta-level-public/aas-suite-community/aas-designer-gateway"
   local GATEWAY_IMAGE_TAG_DEFAULT="latest"
-  local FRONTEND_IMAGE_REPO_DEFAULT="ghcr.io/meta-level/aas-suite/aas-designer-frontend-community"
+  local FRONTEND_IMAGE_REPO_DEFAULT="ghcr.io/meta-level-public/aas-suite-community/aas-designer-frontend-community"
   local FRONTEND_IMAGE_TAG_DEFAULT="latest"
   if [ "$IMAGE_SOURCE" = "local" ]; then
     DESIGNER_BACKEND_IMAGE_REPO_DEFAULT="aas-suite/aas-designer-backend-community"
@@ -470,15 +470,15 @@ main() {
     local AAS_REGISTRY_IMAGE_TAG_DEFAULT
     local SUBMODEL_REGISTRY_IMAGE_TAG_DEFAULT
     local AAS_DISCOVERY_IMAGE_TAG_DEFAULT
-    SUBMODEL_REPOSITORY_IMAGE_TAG_DEFAULT="$(state_default SUBMODEL_REPOSITORY_IMAGE_TAG "1.0.0")"
-    CONCEPT_DESCRIPTION_REPOSITORY_IMAGE_TAG_DEFAULT="$(state_default CONCEPT_DESCRIPTION_REPOSITORY_IMAGE_TAG "1.0.0")"
-    AAS_REGISTRY_IMAGE_TAG_DEFAULT="$(state_default AAS_REGISTRY_IMAGE_TAG "1.0.0")"
-    SUBMODEL_REGISTRY_IMAGE_TAG_DEFAULT="$(state_default SUBMODEL_REGISTRY_IMAGE_TAG "1.0.0")"
-    AAS_DISCOVERY_IMAGE_TAG_DEFAULT="$(state_default AAS_DISCOVERY_IMAGE_TAG "1.0.0")"
+    SUBMODEL_REPOSITORY_IMAGE_TAG_DEFAULT="$(state_default SUBMODEL_REPOSITORY_IMAGE_TAG "SNAPSHOT")"
+    CONCEPT_DESCRIPTION_REPOSITORY_IMAGE_TAG_DEFAULT="$(state_default CONCEPT_DESCRIPTION_REPOSITORY_IMAGE_TAG "SNAPSHOT")"
+    AAS_REGISTRY_IMAGE_TAG_DEFAULT="$(state_default AAS_REGISTRY_IMAGE_TAG "SNAPSHOT")"
+    SUBMODEL_REGISTRY_IMAGE_TAG_DEFAULT="$(state_default SUBMODEL_REGISTRY_IMAGE_TAG "SNAPSHOT")"
+    AAS_DISCOVERY_IMAGE_TAG_DEFAULT="$(state_default AAS_DISCOVERY_IMAGE_TAG "SNAPSHOT")"
 
     component_header "BaSyx: aasrepository-go"
     ask_required_with_default AAS_REPOSITORY_IMAGE_REPO "aasrepository-go Image Repository" "$(state_default AAS_REPOSITORY_IMAGE_REPO "eclipsebasyx/aasrepository-go")"
-    ask_required_with_default AAS_REPOSITORY_IMAGE_TAG "aasrepository-go Image Tag" "$(state_default AAS_REPOSITORY_IMAGE_TAG "1.0.0")"
+    ask_required_with_default AAS_REPOSITORY_IMAGE_TAG "aasrepository-go Image Tag" "$(state_default AAS_REPOSITORY_IMAGE_TAG "SNAPSHOT")"
     ask_port AAS_REPOSITORY_HOST_PORT "aasrepository-go Host-Port" "$(state_default AAS_REPOSITORY_HOST_PORT "5081")"
     component_header "BaSyx: Shared Defaults"
     ask_required_with_default BASYX_REPO_CORS_ALLOWEDORIGINS "BaSyx CORS_ALLOWEDORIGINS" "$(state_default BASYX_REPO_CORS_ALLOWEDORIGINS "${AASREPO_CORS_ALLOWEDORIGINS-*}")"
@@ -878,6 +878,8 @@ main() {
   compose_begin "$COMPOSE_FILE"
   prepare_postgres_init_assets "$COMPOSE_FILE"
   append_postgres_service "$COMPOSE_FILE" "$NETWORK_NAME" "$POSTGRES_VOLUME"
+  append_service_separator "$COMPOSE_FILE"
+  append_postgres_init_service "$COMPOSE_FILE" "$NETWORK_NAME"
 
   if [ "$KEYCLOAK_MODE" = "install" ]; then
     append_service_separator "$COMPOSE_FILE"

@@ -46,6 +46,7 @@ import { HandoverStructureMode } from './structure-mode';
 })
 export class HandoverDocumentationViewerV2Component implements OnChanges, OnDestroy {
   @Input({ required: true }) documentation: aas.types.Submodel | undefined;
+  @Input() submodelUrl = '';
   submodelVersion = signal<string | undefined>(undefined);
 
   documents: aas.types.SubmodelElementCollection[] = [];
@@ -127,6 +128,7 @@ export class HandoverDocumentationViewerV2Component implements OnChanges, OnDest
       this.documents,
       this.structureMode(),
       this.currentLang(),
+      this.submodelUrl || undefined,
     );
   }
 
@@ -177,7 +179,10 @@ export class HandoverDocumentationViewerV2Component implements OnChanges, OnDest
       document.body.removeChild(a);
       URL.revokeObjectURL(a.href);
     } catch {
-      window.open(downloadUrl, '_blank');
+      // Fallback nur für externe URLs; interne Proxy-URLs nicht direkt im Browser öffnen (auth/CSRF)
+      if (item.isExternal || this.isExternal(item.value)) {
+        window.open(downloadUrl, '_blank');
+      }
     }
   }
 
@@ -403,7 +408,7 @@ export class HandoverDocumentationViewerV2Component implements OnChanges, OnDest
   // entfernt: doppelte deriveMimeFromName (Service Wrapper oben)
 
   private async buildAttachmentUrl(idPath?: string, originalValue?: string) {
-    return this.handoverSvc.buildAttachmentUrl(idPath, originalValue);
+    return this.handoverSvc.buildAttachmentUrl(idPath, originalValue, this.submodelUrl || undefined);
   }
 
   private revokeGroupPreviewUrls() {

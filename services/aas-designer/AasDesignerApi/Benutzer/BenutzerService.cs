@@ -302,10 +302,7 @@ namespace AasDesignerApi.Benutzer
             text = text.Replace("{{endDate}}", invitation.ValidUntil.ToString());
             text = text.Replace("{{organisation}}", orga.Name);
             text = text.Replace("{{url}}", url);
-            var subject =
-                invitation.Language == "de"
-                    ? "[AAS Designer] Einladung"
-                    : "[AAS Designer] Invitation";
+            var subject = invitation.Language == "de" ? "Einladung" : "Invitation";
 
             _mailer.SendMail(invitation.Email, subject, text, true);
         }

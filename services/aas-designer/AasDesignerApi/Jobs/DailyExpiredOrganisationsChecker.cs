@@ -154,7 +154,6 @@ namespace AasDesignerApi.Jobs
                                                 context,
                                                 mailer,
                                                 expiryDate,
-                                                emailConfig.SubjectPrefix,
                                                 _logger
                                             );
                                             // Status setzen
@@ -197,7 +196,6 @@ namespace AasDesignerApi.Jobs
                                                 context,
                                                 mailer,
                                                 expiryDate,
-                                                emailConfig.SubjectPrefix,
                                                 _logger
                                             );
                                             // Status setzen
@@ -246,7 +244,6 @@ namespace AasDesignerApi.Jobs
                                         context,
                                         mailer,
                                         expiryDate,
-                                        emailConfig.SubjectPrefix,
                                         _logger
                                     );
                                 }
@@ -275,7 +272,6 @@ namespace AasDesignerApi.Jobs
                                         context,
                                         mailer,
                                         expiryDate,
-                                        emailConfig.SubjectPrefix,
                                         _logger
                                     );
                                 }
@@ -305,7 +301,6 @@ namespace AasDesignerApi.Jobs
                                         context,
                                         mailer,
                                         expiryDate,
-                                        emailConfig.SubjectPrefix,
                                         _logger
                                     );
                                 }
@@ -324,7 +319,6 @@ namespace AasDesignerApi.Jobs
                                         o,
                                         context,
                                         mailer,
-                                        emailConfig.SubjectPrefix,
                                         _logger
                                     );
                                 }

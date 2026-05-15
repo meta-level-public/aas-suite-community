@@ -139,7 +139,7 @@ export class MyOrganisationComponent implements OnInit {
       .map((infrastructure) => {
         return {
           key: `infrastructure/${infrastructure.id}`,
-          label: infrastructure.name,
+          label: infrastructure.name || `(${infrastructure.id})`,
           data: { value: `infrastructure/${infrastructure.id}` },
           icon: 'pi pi-server',
         };

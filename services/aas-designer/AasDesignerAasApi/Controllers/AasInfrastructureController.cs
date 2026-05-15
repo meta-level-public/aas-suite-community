@@ -2,8 +2,11 @@ using AasDesignerAasApi.Infrastructure;
 using AasDesignerAasApi.Infrastructure.Commands;
 using AasDesignerAasApi.Infrastructure.Commands.ConfigureAndRecreateContainer;
 using AasDesignerAasApi.Infrastructure.Commands.ConfigureAndRecreateContainerBulk;
+using AasDesignerAasApi.Infrastructure.Commands.CreateGoInfrastructure;
 using AasDesignerAasApi.Infrastructure.Commands.CreateInfrastructure;
+using AasDesignerAasApi.Infrastructure.Commands.DeleteContainerOnlyOrphan;
 using AasDesignerAasApi.Infrastructure.Commands.DeleteInfrastructure;
+using AasDesignerAasApi.Infrastructure.Commands.DeleteOrphanedInfrastructure;
 using AasDesignerAasApi.Infrastructure.Commands.EnableInfrastructure;
 using AasDesignerAasApi.Infrastructure.Commands.RemoveStack;
 using AasDesignerAasApi.Infrastructure.Commands.StartContainer;
@@ -13,8 +16,10 @@ using AasDesignerAasApi.Infrastructure.Commands.UpdateInfrastructureData;
 using AasDesignerAasApi.Infrastructure.Queries;
 using AasDesignerAasApi.Infrastructure.Queries.GetAvailableBasyxVersions;
 using AasDesignerAasApi.Infrastructure.Queries.GetAvailableInfrastructures;
+using AasDesignerAasApi.Infrastructure.Queries.GetContainerOnlyOrphans;
 using AasDesignerAasApi.Infrastructure.Queries.GetInfrastructureDetails;
 using AasDesignerAasApi.Infrastructure.Queries.GetInfrastructureStatusList;
+using AasDesignerAasApi.Infrastructure.Queries.GetOrphanedInfrastructures;
 using AasDesignerAasApi.Orga.Queries.GetAllSavedInfrastructures;
 using AasDesignerApi.Model;
 using AasDesignerAuthorization;
@@ -108,6 +113,20 @@ public class AasInfrastructureController : InternalApiBaseController
             AasInfrastructureSettings = settings,
         };
         return await mediator.Send(command);
+    }
+
+    [HttpPost]
+    [AasDesignerAuthorize(RequiredRoles = [AuthRoles.ORGA_ADMIN, AuthRoles.SYSTEM_ADMIN])]
+    public async Task<bool> CreateGoInfrastructure()
+    {
+        if (HttpContext.Items[AasDesignerConstants.APP_USER] is not AppUser benutzer)
+            throw new UserNotFoundException();
+
+        var mediator = new Mediator(_serviceProvider);
+
+        return await mediator.Send(
+            new CreateGoInfrastructureCommand { OrganisationId = benutzer.OrganisationId }
+        );
     }
 
     [HttpPatch]
@@ -261,5 +280,45 @@ public class AasInfrastructureController : InternalApiBaseController
         var mediator = new Mediator(_serviceProvider);
 
         return await mediator.Send(new RemoveStackCommand { InfrastructureId = infrastructureId });
+    }
+
+    [HttpGet]
+    [AasDesignerAuthorize(RequiredRoles = [AuthRoles.SYSTEM_ADMIN])]
+    public async Task<List<OrphanedInfrastructureDto>> GetOrphanedInfrastructures()
+    {
+        var mediator = new Mediator(_serviceProvider);
+
+        return await mediator.Send(new GetOrphanedInfrastructuresQuery());
+    }
+
+    [HttpDelete]
+    [AasDesignerAuthorize(RequiredRoles = [AuthRoles.SYSTEM_ADMIN])]
+    public async Task<bool> DeleteOrphanedInfrastructure(long infrastructureId)
+    {
+        var mediator = new Mediator(_serviceProvider);
+
+        return await mediator.Send(
+            new DeleteOrphanedInfrastructureCommand { InfrastructureId = infrastructureId }
+        );
+    }
+
+    [HttpGet]
+    [AasDesignerAuthorize(RequiredRoles = [AuthRoles.SYSTEM_ADMIN])]
+    public async Task<List<ContainerOnlyOrphanDto>> GetContainerOnlyOrphans()
+    {
+        var mediator = new Mediator(_serviceProvider);
+
+        return await mediator.Send(new GetContainerOnlyOrphansQuery());
+    }
+
+    [HttpPost]
+    [AasDesignerAuthorize(RequiredRoles = [AuthRoles.SYSTEM_ADMIN])]
+    public async Task<bool> DeleteContainerOnlyOrphan(string containerGuid)
+    {
+        var mediator = new Mediator(_serviceProvider);
+
+        return await mediator.Send(
+            new DeleteContainerOnlyOrphanCommand { ContainerGuid = containerGuid }
+        );
     }
 }

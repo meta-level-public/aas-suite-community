@@ -62,10 +62,12 @@
   </div>
 
   @if (isLoaded) {
-    <aas-aas-viewer-standalone
-      [currentLanguage]="translate.currentLang"
-      [viewerDescriptor]="descriptor()"
-    ></aas-aas-viewer-standalone>
+    <div class="viewer-frame">
+      <aas-aas-viewer-standalone
+        [currentLanguage]="translate.currentLang"
+        [viewerDescriptor]="descriptor()"
+      ></aas-aas-viewer-standalone>
+    </div>
   }
 </div>
 

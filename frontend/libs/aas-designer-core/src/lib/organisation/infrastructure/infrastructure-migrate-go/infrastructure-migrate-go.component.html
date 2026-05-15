@@ -1,0 +1,23 @@
+@if (!hasGoInfrastructure()) {
+  <div class="mt-4 rounded-lg border border-blue-200 bg-blue-50 p-4">
+    <div class="flex items-start gap-3">
+      <i class="pi pi-info-circle mt-0.5 text-blue-500"></i>
+      <div class="flex-1">
+        <h3 class="mb-1 font-semibold text-blue-900">{{ 'GO_INFRASTRUCTURE_BANNER_TITLE' | translate }}</h3>
+        <p class="mb-2 text-sm text-blue-800">{{ 'GO_INFRASTRUCTURE_BANNER_TEXT' | translate }}</p>
+        <p class="mb-3 text-sm text-blue-700">{{ 'GO_INFRASTRUCTURE_BANNER_DETAILS' | translate }}</p>
+        <p class="mb-3 text-sm text-blue-700">
+          <i class="pi pi-info-circle mr-1"></i>{{ 'GO_INFRASTRUCTURE_BANNER_MIGRATION_HINT' | translate }}
+        </p>
+        <p-button
+          pRipple
+          label="{{ 'GO_INFRASTRUCTURE_CREATE_BUTTON' | translate }}"
+          icon="pi pi-plus"
+          severity="info"
+          [loading]="loading()"
+          (onClick)="createGoInfrastructure()"
+        ></p-button>
+      </div>
+    </div>
+  </div>
+}

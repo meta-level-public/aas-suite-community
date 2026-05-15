@@ -10,6 +10,7 @@ public class AvailableInfastructure
     public string Description { get; set; } = string.Empty;
     public bool IsReadonly { get; set; } = false;
     public bool IsInternal { get; set; } = false;
+    public bool IsGoInfrastructure { get; set; } = false;
     public string AasRepositoryUrl { get; set; } = string.Empty;
     public string SmRepositoryUrl { get; set; } = string.Empty;
     public string AasRegistryUrl { get; set; } = string.Empty;

@@ -114,6 +114,12 @@
       @if (settings() != null) {
         <aas-infrastructure-list [settings]="settings()!"></aas-infrastructure-list>
       }
+      @if (settings()?.isInternal && !settings()?.isGoInfrastructure && accessService.isAllowed('ORGA_ADMIN')) {
+        <aas-infrastructure-migrate-go
+          [allInfrastructures]="allInfrastructures()"
+          (goInfraCreated)="requestReload.emit(); reloadInfrastuctureList.emit()"
+        ></aas-infrastructure-migrate-go>
+      }
     }
   </div>
 </div>
