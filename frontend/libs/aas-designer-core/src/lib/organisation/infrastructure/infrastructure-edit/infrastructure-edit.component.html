@@ -11,7 +11,7 @@
         [(ngModel)]="settings().name"
         required
         #nameInput="ngModel"
-        [ngClass]="{'ng-invalid ng-dirty': nameInput.invalid && nameInput.touched}"
+        [ngClass]="{ 'ng-invalid ng-dirty': nameInput.invalid && nameInput.touched }"
         [disabled]="editDisabled()"
       />
       @if (nameInput.invalid && nameInput.touched) {

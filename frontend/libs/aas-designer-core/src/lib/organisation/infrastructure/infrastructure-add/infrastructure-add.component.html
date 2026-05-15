@@ -2,7 +2,17 @@
   <p-fieldset legend="{{ 'DETAILS' | translate }}" class="w-full">
     <div class="mb-4">
       <label for="name"> {{ 'NAME' | translate }} * </label>
-      <input pInputText id="name" name="name" type="text" class="w-full" [(ngModel)]="settings().name" required #nameInput="ngModel" [ngClass]="{'ng-invalid ng-dirty': nameInput.invalid && nameInput.touched}" />
+      <input
+        pInputText
+        id="name"
+        name="name"
+        type="text"
+        class="w-full"
+        [(ngModel)]="settings().name"
+        required
+        #nameInput="ngModel"
+        [ngClass]="{ 'ng-invalid ng-dirty': nameInput.invalid && nameInput.touched }"
+      />
       @if (nameInput.invalid && nameInput.touched) {
         <small class="p-error">{{ 'REQUIRED_FIELD' | translate }}</small>
       }

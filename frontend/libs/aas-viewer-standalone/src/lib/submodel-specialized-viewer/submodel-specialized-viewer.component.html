@@ -64,10 +64,16 @@
         <aas-time-series-viewer [timeSeries]="submodel" (reloadData)="onReloadData()"></aas-time-series-viewer>
       }
       @case ('HandoverDocumentation') {
-        <aas-handover-documentation-viewer [documentation]="submodel" [submodelUrl]="submodelUrl"></aas-handover-documentation-viewer>
+        <aas-handover-documentation-viewer
+          [documentation]="submodel"
+          [submodelUrl]="submodelUrl"
+        ></aas-handover-documentation-viewer>
       }
       @case ('HandoverDocumentation_V2') {
-        <aas-handover-documentation-viewer-v2 [documentation]="submodel" [submodelUrl]="submodelUrl"></aas-handover-documentation-viewer-v2>
+        <aas-handover-documentation-viewer-v2
+          [documentation]="submodel"
+          [submodelUrl]="submodelUrl"
+        ></aas-handover-documentation-viewer-v2>
       }
       @case ('TechnicalData') {
         <aas-technicaldata-viewer [technicalData]="submodel"></aas-technicaldata-viewer>
