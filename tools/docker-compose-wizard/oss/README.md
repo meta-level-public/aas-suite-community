@@ -10,7 +10,7 @@ Erzeugt standardmaessig einen portablen Stack in einem Ordner wie `generated-sta
 
 Der erzeugte Stack kann als Verzeichnis an einen beliebigen Ort gelegt und dort gestartet werden.
 
-Der Wizard erzeugt BaSyx-Installationen mit den Go-Komponenten auf Version `1.0.0`.
+Der Wizard erzeugt BaSyx-Installationen mit den Go-Komponenten auf Version `SNAPSHOT`.
 Dabei wird der frühere kombinierte `aas-environment` vollständig durch getrennte Komponenten ersetzt:
 `eclipsebasyx/aasrepository-go`, `eclipsebasyx/submodelrepository-go` und `eclipsebasyx/conceptdescriptionrepository-go`.
 

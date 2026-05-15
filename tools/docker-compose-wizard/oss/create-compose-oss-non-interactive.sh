@@ -158,11 +158,11 @@ main() {
     die "IMAGE_SOURCE muss remote oder local sein"
   fi
 
-  local designer_backend_repo_default="ghcr.io/meta-level/aas-suite/aas-designer-backend-community"
+  local designer_backend_repo_default="ghcr.io/meta-level-public/aas-suite-community/aas-designer-backend-community"
   local designer_backend_tag_default="latest"
-  local gateway_repo_default="ghcr.io/meta-level/aas-suite/aas-designer-gateway"
+  local gateway_repo_default="ghcr.io/meta-level-public/aas-suite-community/aas-designer-gateway"
   local gateway_tag_default="latest"
-  local frontend_repo_default="ghcr.io/meta-level/aas-suite/aas-designer-frontend-community"
+  local frontend_repo_default="ghcr.io/meta-level-public/aas-suite-community/aas-designer-frontend-community"
   local frontend_tag_default="latest"
   if [ "$IMAGE_SOURCE" = "local" ]; then
     designer_backend_repo_default="aas-suite/aas-designer-backend-community"
@@ -406,25 +406,25 @@ main() {
   elif [ "$BASYX_MODE" = "install" ]; then
     BASYX_HANDLE_AS_INTERNAL="true"
     set_default_if_empty AAS_REPOSITORY_IMAGE_REPO "eclipsebasyx/aasrepository-go"
-    set_default_if_empty AAS_REPOSITORY_IMAGE_TAG "1.0.0"
+    set_default_if_empty AAS_REPOSITORY_IMAGE_TAG "SNAPSHOT"
     set_default_if_empty AAS_REPOSITORY_HOST_PORT "5081"
     set_default_if_empty SUBMODEL_REPOSITORY_IMAGE_REPO "eclipsebasyx/submodelrepository-go"
-    set_default_if_empty SUBMODEL_REPOSITORY_IMAGE_TAG "1.0.0"
+    set_default_if_empty SUBMODEL_REPOSITORY_IMAGE_TAG "SNAPSHOT"
     set_default_if_empty SUBMODEL_REPOSITORY_HOST_PORT "5085"
     set_default_if_empty CONCEPT_DESCRIPTION_REPOSITORY_IMAGE_REPO "eclipsebasyx/conceptdescriptionrepository-go"
-    set_default_if_empty CONCEPT_DESCRIPTION_REPOSITORY_IMAGE_TAG "1.0.0"
+    set_default_if_empty CONCEPT_DESCRIPTION_REPOSITORY_IMAGE_TAG "SNAPSHOT"
     set_default_if_empty CONCEPT_DESCRIPTION_REPOSITORY_HOST_PORT "5086"
 
     set_default_if_empty AAS_REGISTRY_IMAGE_REPO "eclipsebasyx/aasregistry-go"
-    set_default_if_empty AAS_REGISTRY_IMAGE_TAG "1.0.0"
+    set_default_if_empty AAS_REGISTRY_IMAGE_TAG "SNAPSHOT"
     set_default_if_empty AAS_REGISTRY_HOST_PORT "5082"
 
     set_default_if_empty SUBMODEL_REGISTRY_IMAGE_REPO "eclipsebasyx/submodelregistry-go"
-    set_default_if_empty SUBMODEL_REGISTRY_IMAGE_TAG "1.0.0"
+    set_default_if_empty SUBMODEL_REGISTRY_IMAGE_TAG "SNAPSHOT"
     set_default_if_empty SUBMODEL_REGISTRY_HOST_PORT "5083"
 
     set_default_if_empty AAS_DISCOVERY_IMAGE_REPO "eclipsebasyx/aasdiscovery-go"
-    set_default_if_empty AAS_DISCOVERY_IMAGE_TAG "1.0.0"
+    set_default_if_empty AAS_DISCOVERY_IMAGE_TAG "SNAPSHOT"
     set_default_if_empty AAS_DISCOVERY_HOST_PORT "5084"
 
     BASYX_AAS_REPOSITORY_CONTAINER="${PROJECT_NAME}-aasrepository-go"
