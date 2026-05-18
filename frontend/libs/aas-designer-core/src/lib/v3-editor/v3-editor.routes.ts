@@ -11,13 +11,13 @@ export const V3_EDITOR_ROUTES: Routes = [
       {
         path: 'repo-edit/:infrastructureId/:aasId',
         component: EditorStartComponent,
-        canActivate: [() => canActivate([AuthRoles.BENUTZER, AuthRoles.ORGA_ADMIN, AuthRoles.SYSTEM_ADMIN])],
+        canActivate: [() => canActivate([AuthRoles.SHELLS_EDITOR, AuthRoles.ORGA_ADMIN, AuthRoles.SYSTEM_ADMIN])],
         canDeactivate: [DeactivateGuard],
       },
       {
         path: 'repo-edit/:aasId',
         component: EditorStartComponent,
-        canActivate: [() => canActivate([AuthRoles.BENUTZER, AuthRoles.ORGA_ADMIN, AuthRoles.SYSTEM_ADMIN])],
+        canActivate: [() => canActivate([AuthRoles.SHELLS_EDITOR, AuthRoles.ORGA_ADMIN, AuthRoles.SYSTEM_ADMIN])],
         canDeactivate: [DeactivateGuard],
       },
     ],

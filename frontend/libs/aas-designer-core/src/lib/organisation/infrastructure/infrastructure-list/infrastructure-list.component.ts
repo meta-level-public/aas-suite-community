@@ -4,7 +4,6 @@ import { AasInfrastructureSettingsDto, SystemManagementClient, SystemType } from
 import { Component, effect, inject, input, signal } from '@angular/core';
 import { TranslateModule } from '@ngx-translate/core';
 import { ButtonModule } from 'primeng/button';
-import { CardModule } from 'primeng/card';
 import { FieldsetModule } from 'primeng/fieldset';
 import { InputGroupModule } from 'primeng/inputgroup';
 import { InputGroupAddonModule } from 'primeng/inputgroupaddon';
@@ -27,7 +26,6 @@ import { HasChangesCheckable } from '../../my-organisation/has-changes-checkable
     TagModule,
     ToolbarModule,
     ButtonModule,
-    CardModule,
     SkeletonModule,
     InputGroupModule,
     InputGroupAddonModule,
@@ -37,6 +35,7 @@ import { HasChangesCheckable } from '../../my-organisation/has-changes-checkable
     TooltipModule,
   ],
   templateUrl: './infrastructure-list.component.html',
+  styleUrl: './infrastructure-list.component.scss',
   providers: [{ provide: HasChangesCheckable, useExisting: InfrastructureListComponent }],
 })
 export class InfrastructureListComponent extends HasChangesCheckable {

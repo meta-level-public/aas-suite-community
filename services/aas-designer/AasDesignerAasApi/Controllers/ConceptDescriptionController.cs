@@ -33,7 +33,12 @@ namespace AasDesignerAasApi.Controllers
 
         [HttpPost]
         [AasDesignerAuthorize(
-            RequiredRoles = [AuthRoles.BENUTZER, AuthRoles.ORGA_ADMIN, AuthRoles.SYSTEM_ADMIN]
+            RequiredRoles = [
+                AuthRoles.SHELLS_READER,
+                AuthRoles.SHELLS_EDITOR,
+                AuthRoles.ORGA_ADMIN,
+                AuthRoles.SYSTEM_ADMIN,
+            ]
         )]
         public async Task<CdVm> GetCdList(
             int count = 10,
@@ -59,7 +64,12 @@ namespace AasDesignerAasApi.Controllers
 
         [HttpGet]
         [AasDesignerAuthorize(
-            RequiredRoles = [AuthRoles.BENUTZER, AuthRoles.ORGA_ADMIN, AuthRoles.SYSTEM_ADMIN]
+            RequiredRoles = [
+                AuthRoles.SHELLS_READER,
+                AuthRoles.SHELLS_EDITOR,
+                AuthRoles.ORGA_ADMIN,
+                AuthRoles.SYSTEM_ADMIN,
+            ]
         )]
         public async Task<AllCdsVm> GetAllCds(
             int count = 10,
@@ -85,7 +95,12 @@ namespace AasDesignerAasApi.Controllers
 
         [HttpPost]
         [AasDesignerAuthorize(
-            RequiredRoles = [AuthRoles.BENUTZER, AuthRoles.ORGA_ADMIN, AuthRoles.SYSTEM_ADMIN]
+            RequiredRoles = [
+                AuthRoles.SHELLS_READER,
+                AuthRoles.SHELLS_EDITOR,
+                AuthRoles.ORGA_ADMIN,
+                AuthRoles.SYSTEM_ADMIN,
+            ]
         )]
         public async Task<string> GetCd(string id)
         {
@@ -101,7 +116,7 @@ namespace AasDesignerAasApi.Controllers
 
         [HttpPost]
         [AasDesignerAuthorize(
-            RequiredRoles = [AuthRoles.BENUTZER, AuthRoles.ORGA_ADMIN, AuthRoles.SYSTEM_ADMIN]
+            RequiredRoles = [AuthRoles.SHELLS_EDITOR, AuthRoles.ORGA_ADMIN, AuthRoles.SYSTEM_ADMIN]
         )]
         public async Task<bool> UpdateCd(string cdString)
         {
@@ -121,7 +136,7 @@ namespace AasDesignerAasApi.Controllers
 
         [HttpDelete]
         [AasDesignerAuthorize(
-            RequiredRoles = [AuthRoles.BENUTZER, AuthRoles.ORGA_ADMIN, AuthRoles.SYSTEM_ADMIN]
+            RequiredRoles = [AuthRoles.SHELLS_EDITOR, AuthRoles.ORGA_ADMIN, AuthRoles.SYSTEM_ADMIN]
         )]
         public async Task<bool> DeleteCd(string cdIdentifierBase64)
         {

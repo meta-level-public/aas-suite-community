@@ -11,6 +11,8 @@ namespace AasDesignerApi.Model
         public const string FEED_MAPPING_USER = "FEED_MAPPING_USER";
         public const string MARKT_PUBLISHER = "MARKT_PUBLISHER";
         public const string INTERNAL_SYSTEM_USER = "INTERNAL_SYSTEM_USER";
+        public const string SHELLS_READER = "SHELLS_READER";
+        public const string SHELLS_EDITOR = "SHELLS_EDITOR";
 
         public static List<string> GetRoles()
         {
@@ -20,8 +22,9 @@ namespace AasDesignerApi.Model
                 ORGA_ADMIN,
                 FEED_MAPPING_USER,
                 MARKT_PUBLISHER,
-                VIEWER_NUTZER,
                 ORGA_HELP_EDITOR,
+                SHELLS_READER,
+                SHELLS_EDITOR,
             ];
         }
     }

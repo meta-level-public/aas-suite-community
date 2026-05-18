@@ -63,6 +63,19 @@ export class ShellsListStore {
     return this.thumbDataById.get(shellId);
   }
 
+  registerShellThumb(shellId: string) {
+    if (this.thumbDataById.has(shellId)) return;
+    const thumbData = new ShellListDtoThumbData();
+    thumbData.shellListDtoId = shellId;
+    if (this.thumbUrlCache.has(shellId)) {
+      thumbData.fileUrl = this.thumbUrlCache.get(shellId);
+      thumbData.thumbLoaded = true;
+      thumbData.requested = true;
+    }
+    this.thumbDataById.set(shellId, thumbData);
+    this.thumbDatas.set([...this.thumbDatas(), thumbData]);
+  }
+
   ensureThumbLoaded(shellId: string): Promise<void> {
     const thumbData = this.getThumb(shellId);
     if (

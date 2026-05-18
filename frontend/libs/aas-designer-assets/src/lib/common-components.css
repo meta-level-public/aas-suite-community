@@ -620,10 +620,12 @@
 }
 
 .theme-form-section {
-  border: 1px solid color-mix(in srgb, var(--p-content-border-color) 82%, transparent);
+  border: 1px solid color-mix(in srgb, var(--p-primary-color) 18%, var(--p-content-border-color));
+  border-top: 3px solid var(--p-primary-color);
   border-radius: var(--p-border-radius);
   padding: 1rem;
-  background: color-mix(in srgb, var(--p-content-background) 95%, transparent);
+  background: var(--p-content-background);
+  box-shadow: 0 4px 12px color-mix(in srgb, black 4%, transparent);
 }
 
 .theme-form-section-heading {
@@ -1054,5 +1056,42 @@ html.my-app-dark {
   .claim-item {
     background: rgba(50, 50, 50, 0.5);
     border-color: rgba(255, 255, 255, 0.1);
+  }
+}
+
+/* ── AAS Loading Spinner (blocks animation like the app splash) ── */
+.aas-loading-spinner {
+  width: 80px;
+  height: 80px;
+  background-image:
+    linear-gradient(var(--p-primary-color, #009cdf) 20px, transparent 0),
+    linear-gradient(rgba(0, 156, 223, 0.25) 20px, transparent 0),
+    linear-gradient(rgba(0, 156, 223, 0.25) 20px, transparent 0),
+    linear-gradient(var(--p-primary-color, #009cdf) 20px, transparent 0);
+  background-repeat: no-repeat;
+  background-size: 20px 20px;
+  background-position:
+    left top,
+    left bottom,
+    right top,
+    right bottom;
+  animation: aas-loader-blocks 1s linear infinite;
+}
+
+@keyframes aas-loader-blocks {
+  0% {
+    width: 80px;
+    height: 80px;
+    transform: rotate(0deg);
+  }
+  50% {
+    width: 40px;
+    height: 40px;
+    transform: rotate(180deg);
+  }
+  100% {
+    width: 80px;
+    height: 80px;
+    transform: rotate(360deg);
   }
 }

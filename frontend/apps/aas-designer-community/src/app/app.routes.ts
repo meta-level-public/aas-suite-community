@@ -52,22 +52,40 @@ export const appRoutes: Routes = [
       {
         path: AppRouteSegments.shellsList,
         loadChildren: () => import('@aas/aas-designer-core').then((m) => m.SHELLS_LIST_ROUTES),
-        canActivate: [() => canActivate([AuthRoles.BENUTZER, AuthRoles.ORGA_ADMIN, AuthRoles.SYSTEM_ADMIN])],
+        canActivate: [
+          () =>
+            canActivate([
+              AuthRoles.SHELLS_READER,
+              AuthRoles.SHELLS_EDITOR,
+              AuthRoles.BENUTZER,
+              AuthRoles.ORGA_ADMIN,
+              AuthRoles.SYSTEM_ADMIN,
+            ]),
+        ],
       },
       {
         path: AppRouteSegments.cdsList,
         loadChildren: () => import('@aas/aas-designer-core').then((m) => m.CDS_LIST_ROUTES),
-        canActivate: [() => canActivate([AuthRoles.BENUTZER, AuthRoles.ORGA_ADMIN, AuthRoles.SYSTEM_ADMIN])],
+        canActivate: [
+          () =>
+            canActivate([
+              AuthRoles.SHELLS_READER,
+              AuthRoles.SHELLS_EDITOR,
+              AuthRoles.BENUTZER,
+              AuthRoles.ORGA_ADMIN,
+              AuthRoles.SYSTEM_ADMIN,
+            ]),
+        ],
       },
       {
         path: AppRoutePaths.cdEditWithInfrastructure,
         loadChildren: () => import('@aas/aas-designer-core').then((m) => m.CD_EDIT_ROUTES),
-        canActivate: [() => canActivate([AuthRoles.BENUTZER, AuthRoles.ORGA_ADMIN, AuthRoles.SYSTEM_ADMIN])],
+        canActivate: [() => canActivate([AuthRoles.SHELLS_EDITOR, AuthRoles.ORGA_ADMIN, AuthRoles.SYSTEM_ADMIN])],
       },
       {
         path: AppRoutePaths.cdEdit,
         loadChildren: () => import('@aas/aas-designer-core').then((m) => m.CD_EDIT_ROUTES),
-        canActivate: [() => canActivate([AuthRoles.BENUTZER, AuthRoles.ORGA_ADMIN, AuthRoles.SYSTEM_ADMIN])],
+        canActivate: [() => canActivate([AuthRoles.SHELLS_EDITOR, AuthRoles.ORGA_ADMIN, AuthRoles.SYSTEM_ADMIN])],
       },
       {
         path: AppRouteSegments.submodels,

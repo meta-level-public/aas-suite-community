@@ -54,7 +54,12 @@ public class ShellsController : InternalApiBaseController
 
     [HttpGet]
     [AasDesignerAuthorize(
-        RequiredRoles = [AuthRoles.ORGA_ADMIN, AuthRoles.BENUTZER, AuthRoles.SYSTEM_ADMIN]
+        RequiredRoles = [
+            AuthRoles.SHELLS_READER,
+            AuthRoles.SHELLS_EDITOR,
+            AuthRoles.ORGA_ADMIN,
+            AuthRoles.SYSTEM_ADMIN,
+        ]
     )]
     public async Task<ShellListVm> GetAllShells(
         int count = 10,
@@ -84,7 +89,12 @@ public class ShellsController : InternalApiBaseController
 
     [HttpGet]
     [AasDesignerAuthorize(
-        RequiredRoles = [AuthRoles.ORGA_ADMIN, AuthRoles.BENUTZER, AuthRoles.SYSTEM_ADMIN]
+        RequiredRoles = [
+            AuthRoles.SHELLS_READER,
+            AuthRoles.SHELLS_EDITOR,
+            AuthRoles.ORGA_ADMIN,
+            AuthRoles.SYSTEM_ADMIN,
+        ]
     )]
     public async Task<ShellForEditingVm> GetShell(string aasIdentifier)
     {
@@ -104,7 +114,12 @@ public class ShellsController : InternalApiBaseController
 
     [HttpGet]
     [AasDesignerAuthorize(
-        RequiredRoles = [AuthRoles.ORGA_ADMIN, AuthRoles.BENUTZER, AuthRoles.SYSTEM_ADMIN]
+        RequiredRoles = [
+            AuthRoles.SHELLS_READER,
+            AuthRoles.SHELLS_EDITOR,
+            AuthRoles.ORGA_ADMIN,
+            AuthRoles.SYSTEM_ADMIN,
+        ]
     )]
     public async Task<ShellPlainVm> GetShellPlain(string aasIdentifier)
     {
@@ -120,7 +135,7 @@ public class ShellsController : InternalApiBaseController
 
     [HttpDelete]
     [AasDesignerAuthorize(
-        RequiredRoles = [AuthRoles.ORGA_ADMIN, AuthRoles.BENUTZER, AuthRoles.SYSTEM_ADMIN]
+        RequiredRoles = [AuthRoles.SHELLS_EDITOR, AuthRoles.ORGA_ADMIN, AuthRoles.SYSTEM_ADMIN]
     )]
     public async Task<bool> Delete(string aasIdentifier)
     {
@@ -138,7 +153,7 @@ public class ShellsController : InternalApiBaseController
     [HttpPost, DisableRequestSizeLimit]
     [RequestFormLimits(ValueLengthLimit = int.MaxValue, MultipartBodyLengthLimit = long.MaxValue)]
     [AasDesignerAuthorize(
-        RequiredRoles = [AuthRoles.ORGA_ADMIN, AuthRoles.BENUTZER, AuthRoles.SYSTEM_ADMIN]
+        RequiredRoles = [AuthRoles.SHELLS_EDITOR, AuthRoles.ORGA_ADMIN, AuthRoles.SYSTEM_ADMIN]
     )]
     public async Task<SaveShellResult> Save(IFormCollection data)
     {
@@ -188,7 +203,7 @@ public class ShellsController : InternalApiBaseController
 
     [HttpPost]
     [AasDesignerAuthorize(
-        RequiredRoles = [AuthRoles.ORGA_ADMIN, AuthRoles.BENUTZER, AuthRoles.SYSTEM_ADMIN]
+        RequiredRoles = [AuthRoles.SHELLS_EDITOR, AuthRoles.ORGA_ADMIN, AuthRoles.SYSTEM_ADMIN]
     )]
     public async Task<SaveShellResult> Create()
     {
@@ -221,7 +236,7 @@ public class ShellsController : InternalApiBaseController
 
     [HttpPost]
     [AasDesignerAuthorize(
-        RequiredRoles = [AuthRoles.ORGA_ADMIN, AuthRoles.BENUTZER, AuthRoles.SYSTEM_ADMIN]
+        RequiredRoles = [AuthRoles.SHELLS_EDITOR, AuthRoles.ORGA_ADMIN, AuthRoles.SYSTEM_ADMIN]
     )]
     public async Task<TransferShellResponse> Transfer([FromBody] TransferShellRequest request)
     {
@@ -255,7 +270,12 @@ public class ShellsController : InternalApiBaseController
 
     [HttpPost]
     [AasDesignerAuthorize(
-        RequiredRoles = [AuthRoles.ORGA_ADMIN, AuthRoles.BENUTZER, AuthRoles.SYSTEM_ADMIN]
+        RequiredRoles = [
+            AuthRoles.SHELLS_READER,
+            AuthRoles.SHELLS_EDITOR,
+            AuthRoles.ORGA_ADMIN,
+            AuthRoles.SYSTEM_ADMIN,
+        ]
     )]
     public async Task<FileStreamResult> ExportAasx([FromBody] ShellExportOptions exportOpts)
     {
@@ -286,7 +306,7 @@ public class ShellsController : InternalApiBaseController
 
     [HttpDelete]
     [AasDesignerAuthorize(
-        RequiredRoles = [AuthRoles.ORGA_ADMIN, AuthRoles.BENUTZER, AuthRoles.SYSTEM_ADMIN]
+        RequiredRoles = [AuthRoles.SHELLS_EDITOR, AuthRoles.ORGA_ADMIN, AuthRoles.SYSTEM_ADMIN]
     )]
     public async Task<bool> DeleteShellsBulk(List<string> aasIdentifiers)
     {
@@ -306,7 +326,12 @@ public class ShellsController : InternalApiBaseController
 
     [HttpPost]
     [AasDesignerAuthorize(
-        RequiredRoles = [AuthRoles.ORGA_ADMIN, AuthRoles.BENUTZER, AuthRoles.SYSTEM_ADMIN]
+        RequiredRoles = [
+            AuthRoles.SHELLS_READER,
+            AuthRoles.SHELLS_EDITOR,
+            AuthRoles.ORGA_ADMIN,
+            AuthRoles.SYSTEM_ADMIN,
+        ]
     )]
     public async Task<FileStreamResult> DownloadShellsBulk(List<string> aasIdentifiers)
     {
@@ -339,7 +364,7 @@ public class ShellsController : InternalApiBaseController
     [HttpPost, DisableRequestSizeLimit]
     [RequestFormLimits(ValueLengthLimit = int.MaxValue, MultipartBodyLengthLimit = long.MaxValue)]
     [AasDesignerAuthorize(
-        RequiredRoles = [AuthRoles.ORGA_ADMIN, AuthRoles.BENUTZER, AuthRoles.SYSTEM_ADMIN]
+        RequiredRoles = [AuthRoles.SHELLS_EDITOR, AuthRoles.ORGA_ADMIN, AuthRoles.SYSTEM_ADMIN]
     )]
     public async Task<SaveShellResult> CreateFromAssistant(IFormCollection data)
     {
@@ -380,7 +405,12 @@ public class ShellsController : InternalApiBaseController
 
     [HttpPost]
     [AasDesignerAuthorize(
-        RequiredRoles = [AuthRoles.ORGA_ADMIN, AuthRoles.BENUTZER, AuthRoles.SYSTEM_ADMIN]
+        RequiredRoles = [
+            AuthRoles.SHELLS_READER,
+            AuthRoles.SHELLS_EDITOR,
+            AuthRoles.ORGA_ADMIN,
+            AuthRoles.SYSTEM_ADMIN,
+        ]
     )]
     public async Task<ShellListVm> Discover(string globalAssetId)
     {
@@ -396,7 +426,12 @@ public class ShellsController : InternalApiBaseController
 
     [HttpPost]
     [AasDesignerAuthorize(
-        RequiredRoles = [AuthRoles.ORGA_ADMIN, AuthRoles.BENUTZER, AuthRoles.SYSTEM_ADMIN]
+        RequiredRoles = [
+            AuthRoles.SHELLS_READER,
+            AuthRoles.SHELLS_EDITOR,
+            AuthRoles.ORGA_ADMIN,
+            AuthRoles.SYSTEM_ADMIN,
+        ]
     )]
     public async Task<ShellListVm> Search(ShellSearchParams shellSearchParams)
     {
@@ -412,7 +447,7 @@ public class ShellsController : InternalApiBaseController
 
     [HttpPost]
     [AasDesignerAuthorize(
-        RequiredRoles = [AuthRoles.ORGA_ADMIN, AuthRoles.BENUTZER, AuthRoles.SYSTEM_ADMIN]
+        RequiredRoles = [AuthRoles.SHELLS_EDITOR, AuthRoles.ORGA_ADMIN, AuthRoles.SYSTEM_ADMIN]
     )]
     public async Task<TransferShellResponse> Duplicate([FromBody] string shellId)
     {
@@ -451,7 +486,7 @@ public class ShellsController : InternalApiBaseController
 
     [HttpPost]
     [AasDesignerAuthorize(
-        RequiredRoles = [AuthRoles.ORGA_ADMIN, AuthRoles.BENUTZER, AuthRoles.SYSTEM_ADMIN]
+        RequiredRoles = [AuthRoles.SHELLS_EDITOR, AuthRoles.ORGA_ADMIN, AuthRoles.SYSTEM_ADMIN]
     )]
     public async Task<string> CreateInstance(CreateInstanceRequest createInstanceRequest)
     {
@@ -486,7 +521,12 @@ public class ShellsController : InternalApiBaseController
 
     [HttpGet]
     [AasDesignerAuthorize(
-        RequiredRoles = [AuthRoles.ORGA_ADMIN, AuthRoles.BENUTZER, AuthRoles.SYSTEM_ADMIN]
+        RequiredRoles = [
+            AuthRoles.SHELLS_READER,
+            AuthRoles.SHELLS_EDITOR,
+            AuthRoles.ORGA_ADMIN,
+            AuthRoles.SYSTEM_ADMIN,
+        ]
     )]
     public async Task<ContainedSubmodelsVm> GetContainedSubmdels(string shellId)
     {
@@ -502,7 +542,12 @@ public class ShellsController : InternalApiBaseController
 
     [HttpGet]
     [AasDesignerAuthorize(
-        RequiredRoles = [AuthRoles.ORGA_ADMIN, AuthRoles.BENUTZER, AuthRoles.SYSTEM_ADMIN]
+        RequiredRoles = [
+            AuthRoles.SHELLS_READER,
+            AuthRoles.SHELLS_EDITOR,
+            AuthRoles.ORGA_ADMIN,
+            AuthRoles.SYSTEM_ADMIN,
+        ]
     )]
     public async Task<FileStreamResult> GetThumbnail(string shellId)
     {
@@ -538,7 +583,12 @@ public class ShellsController : InternalApiBaseController
 
     [HttpGet]
     [AasDesignerAuthorize(
-        RequiredRoles = [AuthRoles.ORGA_ADMIN, AuthRoles.BENUTZER, AuthRoles.SYSTEM_ADMIN]
+        RequiredRoles = [
+            AuthRoles.SHELLS_READER,
+            AuthRoles.SHELLS_EDITOR,
+            AuthRoles.ORGA_ADMIN,
+            AuthRoles.SYSTEM_ADMIN,
+        ]
     )]
     public async Task<NameplateInfosVm> GetNameplateInfos(string shellId)
     {
@@ -554,7 +604,7 @@ public class ShellsController : InternalApiBaseController
 
     [HttpPost]
     [AasDesignerAuthorize(
-        RequiredRoles = [AuthRoles.ORGA_ADMIN, AuthRoles.BENUTZER, AuthRoles.SYSTEM_ADMIN]
+        RequiredRoles = [AuthRoles.SHELLS_EDITOR, AuthRoles.ORGA_ADMIN, AuthRoles.SYSTEM_ADMIN]
     )]
     public async Task<string> ChangeAasIdentifier(
         [FromBody] string shellId,
@@ -584,7 +634,7 @@ public class ShellsController : InternalApiBaseController
 
     [HttpPost]
     [AasDesignerAuthorize(
-        RequiredRoles = [AuthRoles.ORGA_ADMIN, AuthRoles.BENUTZER, AuthRoles.SYSTEM_ADMIN]
+        RequiredRoles = [AuthRoles.SHELLS_EDITOR, AuthRoles.ORGA_ADMIN, AuthRoles.SYSTEM_ADMIN]
     )]
     public async Task<string> ChangeAllIds(ChangeIdsRequest request)
     {
@@ -605,7 +655,12 @@ public class ShellsController : InternalApiBaseController
 
     [HttpPost]
     [AasDesignerAuthorize(
-        RequiredRoles = [AuthRoles.ORGA_ADMIN, AuthRoles.BENUTZER, AuthRoles.SYSTEM_ADMIN]
+        RequiredRoles = [
+            AuthRoles.SHELLS_READER,
+            AuthRoles.SHELLS_EDITOR,
+            AuthRoles.ORGA_ADMIN,
+            AuthRoles.SYSTEM_ADMIN,
+        ]
     )]
     public async Task<List<ModificationCheckResult>> CheckChangeAllIds(
         List<IdModification> modifications

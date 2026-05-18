@@ -11345,6 +11345,7 @@ export class AvailableInfastructure implements IAvailableInfastructure {
   name?: string;
   description?: string;
   isReadonly?: boolean;
+  noShellsListEndpoint?: boolean;
   isInternal?: boolean;
   isGoInfrastructure?: boolean;
   aasRepositoryUrl?: string;
@@ -11367,6 +11368,7 @@ export class AvailableInfastructure implements IAvailableInfastructure {
       this.name = _data['name'];
       this.description = _data['description'];
       this.isReadonly = _data['isReadonly'];
+      this.noShellsListEndpoint = _data['noShellsListEndpoint'];
       this.isInternal = _data['isInternal'];
       this.isGoInfrastructure = _data['isGoInfrastructure'];
       this.aasRepositoryUrl = _data['aasRepositoryUrl'];
@@ -11390,6 +11392,7 @@ export class AvailableInfastructure implements IAvailableInfastructure {
     data['name'] = this.name;
     data['description'] = this.description;
     data['isReadonly'] = this.isReadonly;
+    data['noShellsListEndpoint'] = this.noShellsListEndpoint;
     data['isInternal'] = this.isInternal;
     data['isGoInfrastructure'] = this.isGoInfrastructure;
     data['aasRepositoryUrl'] = this.aasRepositoryUrl;
@@ -11406,6 +11409,7 @@ export interface IAvailableInfastructure {
   name?: string;
   description?: string;
   isReadonly?: boolean;
+  noShellsListEndpoint?: boolean;
   isInternal?: boolean;
   isGoInfrastructure?: boolean;
   aasRepositoryUrl?: string;
@@ -11458,6 +11462,7 @@ export class AasInfrastructureSettingsDto implements IAasInfrastructureSettingsD
   isInternal?: boolean;
   handleAsInternal?: boolean;
   isReadonly?: boolean;
+  noShellsListEndpoint?: boolean;
   isGoInfrastructure?: boolean;
   goPostgresDbName?: string | undefined;
   goPostgresUser?: string | undefined;
@@ -11552,6 +11557,7 @@ export class AasInfrastructureSettingsDto implements IAasInfrastructureSettingsD
       this.isInternal = _data['isInternal'];
       this.handleAsInternal = _data['handleAsInternal'];
       this.isReadonly = _data['isReadonly'];
+      this.noShellsListEndpoint = _data['noShellsListEndpoint'];
       this.isGoInfrastructure = _data['isGoInfrastructure'];
       this.goPostgresDbName = _data['goPostgresDbName'];
       this.goPostgresUser = _data['goPostgresUser'];
@@ -11647,6 +11653,7 @@ export class AasInfrastructureSettingsDto implements IAasInfrastructureSettingsD
     data['isInternal'] = this.isInternal;
     data['handleAsInternal'] = this.handleAsInternal;
     data['isReadonly'] = this.isReadonly;
+    data['noShellsListEndpoint'] = this.noShellsListEndpoint;
     data['isGoInfrastructure'] = this.isGoInfrastructure;
     data['goPostgresDbName'] = this.goPostgresDbName;
     data['goPostgresUser'] = this.goPostgresUser;
@@ -11732,6 +11739,7 @@ export interface IAasInfrastructureSettingsDto {
   isInternal?: boolean;
   handleAsInternal?: boolean;
   isReadonly?: boolean;
+  noShellsListEndpoint?: boolean;
   isGoInfrastructure?: boolean;
   goPostgresDbName?: string | undefined;
   goPostgresUser?: string | undefined;
@@ -16803,6 +16811,7 @@ export class AasInfrastructureSettings implements IAasInfrastructureSettings {
   isInternal?: boolean;
   handleAsInternal?: boolean;
   isReadonly?: boolean;
+  noShellsListEndpoint?: boolean;
   isGoInfrastructure?: boolean;
   goPostgresDbName?: string | undefined;
   goPostgresUser?: string | undefined;
@@ -16892,6 +16901,7 @@ export class AasInfrastructureSettings implements IAasInfrastructureSettings {
       this.isInternal = _data['isInternal'];
       this.handleAsInternal = _data['handleAsInternal'];
       this.isReadonly = _data['isReadonly'];
+      this.noShellsListEndpoint = _data['noShellsListEndpoint'];
       this.isGoInfrastructure = _data['isGoInfrastructure'];
       this.goPostgresDbName = _data['goPostgresDbName'];
       this.goPostgresUser = _data['goPostgresUser'];
@@ -16982,6 +16992,7 @@ export class AasInfrastructureSettings implements IAasInfrastructureSettings {
     data['isInternal'] = this.isInternal;
     data['handleAsInternal'] = this.handleAsInternal;
     data['isReadonly'] = this.isReadonly;
+    data['noShellsListEndpoint'] = this.noShellsListEndpoint;
     data['isGoInfrastructure'] = this.isGoInfrastructure;
     data['goPostgresDbName'] = this.goPostgresDbName;
     data['goPostgresUser'] = this.goPostgresUser;
@@ -17062,6 +17073,7 @@ export interface IAasInfrastructureSettings {
   isInternal?: boolean;
   handleAsInternal?: boolean;
   isReadonly?: boolean;
+  noShellsListEndpoint?: boolean;
   isGoInfrastructure?: boolean;
   goPostgresDbName?: string | undefined;
   goPostgresUser?: string | undefined;

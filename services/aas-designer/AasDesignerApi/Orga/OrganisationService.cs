@@ -777,6 +777,15 @@ public class OrganisationService
     {
         newRoles ??= [];
 
+        // SHELLS_EDITOR impliziert SHELLS_READER
+        if (
+            newRoles.Contains(AuthRoles.SHELLS_EDITOR)
+            && !newRoles.Contains(AuthRoles.SHELLS_READER)
+        )
+        {
+            newRoles = [.. newRoles, AuthRoles.SHELLS_READER];
+        }
+
         if (
             userId == benutzer.BenutzerId
             && benutzer.BenutzerRollen.Contains(AuthRoles.ORGA_ADMIN)

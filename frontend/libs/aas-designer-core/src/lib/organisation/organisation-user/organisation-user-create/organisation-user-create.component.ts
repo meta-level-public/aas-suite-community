@@ -1,28 +1,18 @@
+import { DirtyCheckable, UserInvitation } from '@aas-designer-model';
 import { emailRegEx } from '@aas/model';
 import { Component, input, OnInit, ViewChild } from '@angular/core';
 import { FormsModule, NgForm } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
 import { CheckboxModule } from 'primeng/checkbox';
-import { FieldsetModule } from 'primeng/fieldset';
 import { InputTextModule } from 'primeng/inputtext';
 import { KeyFilterModule } from 'primeng/keyfilter';
 import { MessageModule } from 'primeng/message';
-import { DirtyCheckable } from '@aas-designer-model';
-import { UserInvitation } from '@aas-designer-model';
 import { OrganisationService } from '../../organisation.service';
 
 @Component({
   selector: 'aas-organisation-user-create',
   templateUrl: './organisation-user-create.component.html',
-  imports: [
-    FormsModule,
-    MessageModule,
-    InputTextModule,
-    FieldsetModule,
-    TranslateModule,
-    KeyFilterModule,
-    CheckboxModule,
-  ],
+  imports: [FormsModule, MessageModule, InputTextModule, TranslateModule, KeyFilterModule, CheckboxModule],
 })
 export class OrganisationUserCreateComponent extends DirtyCheckable implements OnInit {
   invitation = input.required<UserInvitation>();
