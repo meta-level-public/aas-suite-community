@@ -1,21 +1,20 @@
+import { Clipboard } from '@angular/cdk/clipboard';
 import { NO_ERRORS_SCHEMA, signal } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { TranslateModule, TranslateService } from '@ngx-translate/core';
-import { of, Subject } from 'rxjs';
-import { Clipboard } from '@angular/cdk/clipboard';
 import { Router } from '@angular/router';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { DialogService, DynamicDialogRef } from 'primeng/dynamicdialog';
+import { of, Subject } from 'rxjs';
 import { vi } from 'vitest';
 
-import { HelpService } from '@aas/common-components';
-import { NotificationService, PortalService } from '@aas/common-services';
 import { ADDITIONAL_SHELL_MENU_ITEMS } from '@aas-designer-model';
-import { AccessService } from '@aas/common-services';
+import { HelpService } from '@aas/common-components';
+import { AccessService, NotificationService, PortalService } from '@aas/common-services';
 import { AasInfrastructureClient, ShellsClient } from '@aas/webapi-client';
 
-import { SHELLS_LIST_DEFAULT_COLUMNS } from './shells-list.config';
 import { ShellsListActions } from './shells-list.actions';
 import { ShellsListComponent } from './shells-list.component';
+import { SHELLS_LIST_DEFAULT_COLUMNS } from './shells-list.config';
 import { ShellsListStore } from './shells-list.store';
 
 describe('ShellsListComponent', () => {
@@ -114,7 +113,7 @@ describe('ShellsListComponent', () => {
         { provide: HelpService, useValue: helpServiceMock },
         { provide: Router, useValue: routerMock },
         { provide: NotificationService, useValue: { showMessageAlways: vi.fn() } },
-        { provide: AccessService, useValue: {} },
+        { provide: AccessService, useValue: { isAllowed: vi.fn().mockReturnValue(false) } },
         { provide: ADDITIONAL_SHELL_MENU_ITEMS, useValue: [] },
         { provide: AasInfrastructureClient, useValue: infrastructureClientMock },
         { provide: PortalService, useValue: portalServiceMock },
