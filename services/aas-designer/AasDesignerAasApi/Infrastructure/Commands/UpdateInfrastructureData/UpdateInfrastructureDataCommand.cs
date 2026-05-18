@@ -104,6 +104,9 @@ public class UpdateInfrastructureDataHandler
         infrastructure.SendCurrentJwt = request.AasInfrastructureSettings.SendCurrentJwt;
         infrastructure.IsActive = request.AasInfrastructureSettings.IsActive;
         infrastructure.IsReadonly = request.AasInfrastructureSettings.IsReadonly;
+        infrastructure.NoShellsListEndpoint = request
+            .AasInfrastructureSettings
+            .NoShellsListEndpoint;
 
         // var byteCert = Convert.FromBase64String(request.AasInfrastructureSettings.Certificate);
 

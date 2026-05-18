@@ -5,23 +5,15 @@ import { Component, computed, inject, model, ViewChild } from '@angular/core';
 import { TranslateModule } from '@ngx-translate/core';
 import { QRCodeComponent } from 'angularx-qrcode';
 import { ButtonModule } from 'primeng/button';
-import { CardModule } from 'primeng/card';
 import { DynamicDialogConfig } from 'primeng/dynamicdialog';
 import { SkeletonModule } from 'primeng/skeleton';
 import { lastValueFrom } from 'rxjs';
 
 @Component({
   selector: 'aas-viewer-setup-code',
-  imports: [
-    CommonModule,
-    TranslateModule,
-    CardModule,
-    SkeletonModule,
-    QRCodeComponent,
-    HelpLabelComponent,
-    ButtonModule,
-  ],
+  imports: [CommonModule, TranslateModule, SkeletonModule, QRCodeComponent, HelpLabelComponent, ButtonModule],
   templateUrl: './viewer-setup-code.component.html',
+  styleUrl: './viewer-setup-code.component.scss',
 })
 export class ViewerSetupCodeComponent {
   @ViewChild('qrcode', { static: false }) qrCodeComponent!: QRCodeComponent;

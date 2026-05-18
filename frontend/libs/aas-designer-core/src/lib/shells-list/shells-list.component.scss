@@ -1,3 +1,44 @@
+@use '../organisation/infrastructure/infra-card';
+
+.found-shell-props {
+  border: 1px solid var(--p-content-border-color);
+  border-radius: var(--p-border-radius);
+  overflow: hidden;
+
+  &__row {
+    display: grid;
+    grid-template-columns: minmax(140px, 220px) 1fr;
+    border-bottom: 1px solid var(--p-content-border-color);
+
+    &:last-child {
+      border-bottom: none;
+    }
+  }
+
+  &__label {
+    padding: 0.45rem 0.75rem;
+    font-weight: 600;
+    color: var(--p-primary-color);
+    background: color-mix(in srgb, var(--p-primary-color) 4%, var(--p-content-background));
+    border-right: 1px solid var(--p-content-border-color);
+    font-size: 0.875rem;
+  }
+
+  &__value {
+    padding: 0.45rem 0.75rem;
+    font-size: 0.875rem;
+    word-break: break-all;
+    color: var(--p-text-color);
+  }
+}
+
+.found-shell-label {
+  font-weight: 600;
+  color: var(--p-primary-color);
+  min-width: 130px;
+  justify-content: flex-start;
+}
+
 img.shell-thumb {
   box-shadow: 2px 2px 5px color-mix(in srgb, var(--p-surface-900) 30%, transparent);
   border-radius: var(--aas-radius-xs);

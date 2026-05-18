@@ -22,6 +22,7 @@ output/
 
 # .NET / C#
 *.user
+*.lscache
 
 # Node / NX
 .nx/cache/*

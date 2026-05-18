@@ -22,7 +22,7 @@
           [options]="availableRepositories()"
           [(ngModel)]="selectedRepository"
           appendTo="body"
-          (ngModelChange)="setInfrastructure(); loadFirstPage()"
+          (ngModelChange)="setInfrastructure(); isNoShellsListMode() || loadFirstPage()"
           optionLabel="name"
         />
 
@@ -40,7 +40,7 @@
           ></p-button>
         }
 
-        @if (!PortalService.getCurrentAasInfrastructureSetting()?.isReadonly) {
+        @if (canEditShells()) {
           <p-button
             label="{{ 'ADD' | translate }}"
             icon="pi pi-plus"
@@ -56,128 +56,131 @@
   <div class="aas-page-layout w-full">
     <div class="aas-page-fill">
       <div class="aas-page-abs-fill">
-        <div class="aas-page-panel aas-page-panel-inset viewer-content-area rounded-lg overflow-hidden">
-          <p-table
-            #dt
-            [value]="shells()"
-            [tableStyle]="{ 'min-width': '50rem' }"
-            [loading]="loading()"
-            responsiveLayout="scroll"
-            [rows]="10"
-            [paginator]="false"
-            [rowsPerPageOptions]="[5, 10, 25, 50]"
-            [showCurrentPageReport]="false"
-            [rowHover]="true"
-            dataKey="id"
-            [scrollable]="true"
-            scrollHeight="flex"
-            sortField="aenderungsDatum"
-            [sortOrder]="-1"
-            [selectionMode]="'multiple'"
-            [(selection)]="selectedShells"
-            stateKey="shells-list"
-            stateStorage="local"
-            sortField="id"
-            [sortOrder]="1"
-            [columns]="selectedColumns()"
-            [reorderableColumns]="true"
-            [resizableColumns]="true"
-          >
-            <ng-template #caption>
-              <div class="flex items-center gap-2">
-                <p-multiselect
-                  display="chip"
-                  [options]="availableColumns()"
-                  [(ngModel)]="selectedColumns"
-                  selectedItemsLabel="{0} columns selected"
-                  [style]="{ 'min-width': '200px' }"
-                  optionLabel="label"
-                  (onChange)="fetchDataIfRequired()"
-                >
-                  <ng-template let-column #item>
-                    <div>{{ column.label | translate }}</div>
-                  </ng-template>
-                  <ng-template let-items #selecteditems>
-                    @for (item of items; track $index) {
-                      <p-chip
-                        label="{{ item.label | translate }}"
-                        [removable]="true"
-                        (onRemove)="removeSelectedColumn(item)"
-                      />
-                    }
-                  </ng-template>
-                </p-multiselect>
-                <lib-help-label tag="ASSET_KIND_FILTER" [showLabel]="false"></lib-help-label>
-                <p-select
-                  [options]="[
-                    { label: 'ALL', value: '' },
-                    { label: 'Instance', value: 'Instance' },
-                    { label: 'Type', value: 'Type' },
-                    { label: 'Role', value: 'Role' },
-                    { label: 'NotApplicable', value: 'NotApplicable' },
-                  ]"
-                  [ngModel]="filterAssetKind()"
-                  (ngModelChange)="filterAssetKind.set($event); loadFirstPage()"
-                  appendTo="body"
-                  optionLabel="label"
-                  optionValue="value"
-                >
-                  <ng-template #selectedItem let-selectedOption>
-                    @if (selectedOption) {
-                      <div class="flex items-center gap-2">
-                        <div>{{ selectedOption.label | translate }}</div>
-                      </div>
-                    }
-                  </ng-template>
-                  <ng-template let-option #item>
-                    <div class="flex items-center gap-2">
-                      <div>{{ option.label | translate }}</div>
-                    </div>
-                  </ng-template>
-                </p-select>
-              </div>
-            </ng-template>
-            <ng-template #header let-columns>
-              <tr>
-                <th scope="col" pResizableColumn class="w-12">
-                  <div class="flex flex-row items-center">
-                    <p-tableHeaderCheckbox
-                      [ngClass]="{ tableCheckboxTriStateFake: (this.selectedShells() ?? []).length > 0 }"
-                    ></p-tableHeaderCheckbox>
-                    <p-button
-                      icon="pi pi-ellipsis-v"
-                      styleClass="p-button-text p-button-secondary"
-                      (onClick)="bulkMenu.toggle($event)"
-                      [disabled]="(this.selectedShells() ?? []).length === 0"
-                    ></p-button>
-                  </div>
-                  <p-tieredMenu
+        @if (!isNoShellsListMode()) {
+          <div class="aas-page-panel aas-page-panel-inset viewer-content-area rounded-lg overflow-hidden">
+            <p-table
+              #dt
+              [value]="shells()"
+              [tableStyle]="{ 'min-width': '50rem' }"
+              [loading]="loading()"
+              responsiveLayout="scroll"
+              [rows]="10"
+              [paginator]="false"
+              [rowsPerPageOptions]="[5, 10, 25, 50]"
+              [showCurrentPageReport]="false"
+              [rowHover]="true"
+              dataKey="id"
+              [scrollable]="true"
+              scrollHeight="flex"
+              sortField="aenderungsDatum"
+              [sortOrder]="-1"
+              [selectionMode]="'multiple'"
+              [(selection)]="selectedShells"
+              stateKey="shells-list"
+              stateStorage="local"
+              sortField="id"
+              [sortOrder]="1"
+              [columns]="selectedColumns()"
+              [reorderableColumns]="true"
+              [resizableColumns]="true"
+            >
+              <ng-template #caption>
+                <div class="flex items-center gap-2">
+                  <p-multiselect
+                    display="chip"
+                    [options]="availableColumns()"
+                    [(ngModel)]="selectedColumns"
+                    selectedItemsLabel="{0} columns selected"
+                    [style]="{ 'min-width': '200px' }"
+                    optionLabel="label"
+                    (onChange)="fetchDataIfRequired()"
+                  >
+                    <ng-template let-column #item>
+                      <div>{{ column.label | translate }}</div>
+                    </ng-template>
+                    <ng-template let-items #selecteditems>
+                      @for (item of items; track $index) {
+                        <p-chip
+                          label="{{ item.label | translate }}"
+                          [removable]="true"
+                          (onRemove)="removeSelectedColumn(item)"
+                        />
+                      }
+                    </ng-template>
+                  </p-multiselect>
+                  <lib-help-label tag="ASSET_KIND_FILTER" [showLabel]="false"></lib-help-label>
+                  <p-select
+                    [options]="[
+                      { label: 'ALL', value: '' },
+                      { label: 'Instance', value: 'Instance' },
+                      { label: 'Type', value: 'Type' },
+                      { label: 'Role', value: 'Role' },
+                      { label: 'NotApplicable', value: 'NotApplicable' },
+                    ]"
+                    [ngModel]="filterAssetKind()"
+                    (ngModelChange)="filterAssetKind.set($event); loadFirstPage()"
                     appendTo="body"
-                    (onShow)="onShowBulkActions()"
-                    #bulkMenu
-                    [popup]="true"
-                    [model]="menuItems"
-                    class="w-20rem"
-                  ></p-tieredMenu>
-                </th>
-                @for (col of columns; track $index) {
-                  @if (col.sortable && col.reorderable) {
-                    <th [pSortableColumn]="col.field" pReorderableColumn pResizableColumn [style.width]="col.width">
-                      {{ col.header | translate }} <p-sortIcon [field]="col.field" />
-                    </th>
-                  } @else if (col.sortable) {
-                    <th [pSortableColumn]="col.field" pResizableColumn [style.width]="col.width">
-                      {{ col.header | translate }} <p-sortIcon [field]="col.field" />
-                    </th>
-                  } @else if (col.reorderable) {
-                    <th pReorderableColumn pResizableColumn [style.width]="col.width">{{ col.header | translate }}</th>
-                  } @else {
-                    <th pResizableColumn [style.width]="col.width">{{ col.header | translate }}</th>
+                    optionLabel="label"
+                    optionValue="value"
+                  >
+                    <ng-template #selectedItem let-selectedOption>
+                      @if (selectedOption) {
+                        <div class="flex items-center gap-2">
+                          <div>{{ selectedOption.label | translate }}</div>
+                        </div>
+                      }
+                    </ng-template>
+                    <ng-template let-option #item>
+                      <div class="flex items-center gap-2">
+                        <div>{{ option.label | translate }}</div>
+                      </div>
+                    </ng-template>
+                  </p-select>
+                </div>
+              </ng-template>
+              <ng-template #header let-columns>
+                <tr>
+                  <th scope="col" pResizableColumn class="w-12">
+                    <div class="flex flex-row items-center">
+                      <p-tableHeaderCheckbox
+                        [ngClass]="{ tableCheckboxTriStateFake: (this.selectedShells() ?? []).length > 0 }"
+                      ></p-tableHeaderCheckbox>
+                      <p-button
+                        icon="pi pi-ellipsis-v"
+                        styleClass="p-button-text p-button-secondary"
+                        (onClick)="bulkMenu.toggle($event)"
+                        [disabled]="(this.selectedShells() ?? []).length === 0"
+                      ></p-button>
+                    </div>
+                    <p-tieredMenu
+                      appendTo="body"
+                      (onShow)="onShowBulkActions()"
+                      #bulkMenu
+                      [popup]="true"
+                      [model]="menuItems"
+                      class="w-20rem"
+                    ></p-tieredMenu>
+                  </th>
+                  @for (col of columns; track $index) {
+                    @if (col.sortable && col.reorderable) {
+                      <th [pSortableColumn]="col.field" pReorderableColumn pResizableColumn [style.width]="col.width">
+                        {{ col.header | translate }} <p-sortIcon [field]="col.field" />
+                      </th>
+                    } @else if (col.sortable) {
+                      <th [pSortableColumn]="col.field" pResizableColumn [style.width]="col.width">
+                        {{ col.header | translate }} <p-sortIcon [field]="col.field" />
+                      </th>
+                    } @else if (col.reorderable) {
+                      <th pReorderableColumn pResizableColumn [style.width]="col.width">
+                        {{ col.header | translate }}
+                      </th>
+                    } @else {
+                      <th pResizableColumn [style.width]="col.width">{{ col.header | translate }}</th>
+                    }
                   }
-                }
-              </tr>
-              <!-- filter aktivieren, sobald basyx das unterstützt -->
-              <!-- <tr>
+                </tr>
+                <!-- filter aktivieren, sobald basyx das unterstützt -->
+                <!-- <tr>
               <th scope="col" style="width: 3rem"></th>
               @for (col of columns; track $index) {
                 @if (col.filterable) {
@@ -191,147 +194,256 @@
                 }
               }
             </tr> -->
-              <!-- erstal lokalen filter aktivieren, damit wenigstens "irgendwas" da ist -->
-              <tr>
-                <th scope="col" style="width: 3rem"></th>
-                @for (col of columns; track $index) {
-                  @if (col.filterable) {
-                    @if (col.field === 'assetKind') {
-                      <th scope="col"></th>
+                <!-- erstal lokalen filter aktivieren, damit wenigstens "irgendwas" da ist -->
+                <tr>
+                  <th scope="col" style="width: 3rem"></th>
+                  @for (col of columns; track $index) {
+                    @if (col.filterable) {
+                      @if (col.field === 'assetKind') {
+                        <th scope="col"></th>
+                      } @else {
+                        <th scope="col"><p-columnFilter [field]="col.field" matchMode="contains"></p-columnFilter></th>
+                      }
                     } @else {
-                      <th scope="col"><p-columnFilter [field]="col.field" matchMode="contains"></p-columnFilter></th>
+                      <th scope="col"></th>
                     }
-                  } @else {
-                    <th scope="col"></th>
                   }
-                }
-              </tr>
-            </ng-template>
-            <ng-template #body let-shell let-columns="columns">
-              <tr (click)="onRowClick($event, shell)" class="cursor-pointer">
-                <td (click)="$event.stopPropagation()">
-                  <div class="flex flex-row items-center">
-                    <p-tableCheckbox [value]="shell"></p-tableCheckbox>
-                    <p-button
-                      icon="pi pi-ellipsis-v"
-                      styleClass="p-button-text p-button-secondary"
-                      (onClick)="menu.toggle($event)"
-                    ></p-button>
-                    <p-tieredMenu
-                      appendTo="body"
-                      (onShow)="onShowActions(shell)"
-                      #menu
-                      [popup]="true"
-                      [model]="menuItems"
-                      class="w-20rem"
-                    ></p-tieredMenu>
-                  </div>
-                </td>
-                @for (col of columns; track $index) {
-                  @switch (col.columnTemplate) {
-                    @case ('thumbnail') {
-                      <td>
-                        <aas-shell-thumbnail-cell
-                          [thumb]="getThumb(shell.id)"
-                          [shellId]="shell.id"
-                          [alt]="'Thumbnail for ' + (shell.idShort || 'Asset Administration Shell')"
-                          (thumbnailVisible)="ensureThumbLoaded($event)"
-                          (thumbnailError)="onThumbnailError($event)"
-                        />
-                      </td>
-                    }
-                    @case ('string') {
-                      <td
-                        [style.max-width]="col.width"
-                        style="overflow: hidden; text-overflow: ellipsis; white-space: nowrap"
-                      >
-                        <span [pTooltip]="shell[col.field]" tooltipPosition="top">{{ shell[col.field] }}</span>
-                      </td>
-                    }
-                    @case ('productDesignation') {
-                      <td>
-                        <div aasObserveVisibility (visible)="ensureNameplateLoaded(shell.id)">
-                          @let nameplate = getNameplateData(shell.id);
-                          @if (nameplate?.dataLoading) {
-                            <p-skeleton width="70px" height="20px"></p-skeleton>
-                          } @else {
-                            {{ nameplate?.nameplateData?.productDesignation }}
-                          }
-                        </div>
-                      </td>
-                    }
-                    @case ('submodels') {
-                      <td>
-                        <div aasObserveVisibility (visible)="ensureSubmodelsLoaded(shell.id)">
-                          @let submodels = getSubmodels(shell.id);
-                          @if (submodels?.dataLoading) {
-                            <p-skeleton width="70px" height="20px"></p-skeleton>
-                          } @else {
-                            @for (item of submodels?.submodelMetadata; track item.id) {
-                              <p-tag
-                                value="{{ item.idShort }}"
-                                [rounded]="true"
-                                severity="warn"
-                                class="mr-1 mt-1 text-xs"
-                              ></p-tag>
+                </tr>
+              </ng-template>
+              <ng-template #body let-shell let-columns="columns">
+                <tr (click)="onRowClick($event, shell)" class="cursor-pointer">
+                  <td (click)="$event.stopPropagation()">
+                    <div class="flex flex-row items-center">
+                      <p-tableCheckbox [value]="shell"></p-tableCheckbox>
+                      <p-button
+                        icon="pi pi-ellipsis-v"
+                        styleClass="p-button-text p-button-secondary"
+                        (onClick)="menu.toggle($event)"
+                      ></p-button>
+                      <p-tieredMenu
+                        appendTo="body"
+                        (onShow)="onShowActions(shell)"
+                        #menu
+                        [popup]="true"
+                        [model]="menuItems"
+                        class="w-20rem"
+                      ></p-tieredMenu>
+                    </div>
+                  </td>
+                  @for (col of columns; track $index) {
+                    @switch (col.columnTemplate) {
+                      @case ('thumbnail') {
+                        <td>
+                          <aas-shell-thumbnail-cell
+                            [thumb]="getThumb(shell.id)"
+                            [shellId]="shell.id"
+                            [alt]="'Thumbnail for ' + (shell.idShort || 'Asset Administration Shell')"
+                            (thumbnailVisible)="ensureThumbLoaded($event)"
+                            (thumbnailError)="onThumbnailError($event)"
+                          />
+                        </td>
+                      }
+                      @case ('string') {
+                        <td
+                          [style.max-width]="col.width"
+                          style="overflow: hidden; text-overflow: ellipsis; white-space: nowrap"
+                        >
+                          <span [pTooltip]="shell[col.field]" tooltipPosition="top">{{ shell[col.field] }}</span>
+                        </td>
+                      }
+                      @case ('productDesignation') {
+                        <td>
+                          <div aasObserveVisibility (visible)="ensureNameplateLoaded(shell.id)">
+                            @let nameplate = getNameplateData(shell.id);
+                            @if (nameplate?.dataLoading) {
+                              <p-skeleton width="70px" height="20px"></p-skeleton>
+                            } @else {
+                              {{ nameplate?.nameplateData?.productDesignation }}
                             }
-                          }
-                        </div>
-                      </td>
-                    }
-                    @case ('tag') {
-                      <td>
-                        <p-tag
-                          value="{{ shell[col.field] | translate }}"
-                          [severity]="getAasTagSeverity(shell[col.field])"
-                        ></p-tag>
-                      </td>
-                    }
-                    @default {
-                      <td>
-                        {{ col | json }}
-                      </td>
+                          </div>
+                        </td>
+                      }
+                      @case ('submodels') {
+                        <td>
+                          <div aasObserveVisibility (visible)="ensureSubmodelsLoaded(shell.id)">
+                            @let submodels = getSubmodels(shell.id);
+                            @if (submodels?.dataLoading) {
+                              <p-skeleton width="70px" height="20px"></p-skeleton>
+                            } @else {
+                              @for (item of submodels?.submodelMetadata; track item.id) {
+                                <p-tag
+                                  value="{{ item.idShort }}"
+                                  [rounded]="true"
+                                  severity="warn"
+                                  class="mr-1 mt-1 text-xs"
+                                ></p-tag>
+                              }
+                            }
+                          </div>
+                        </td>
+                      }
+                      @case ('tag') {
+                        <td>
+                          <p-tag
+                            value="{{ shell[col.field] | translate }}"
+                            [severity]="getAasTagSeverity(shell[col.field])"
+                          ></p-tag>
+                        </td>
+                      }
+                      @default {
+                        <td>
+                          {{ col | json }}
+                        </td>
+                      }
                     }
                   }
-                }
-              </tr>
-            </ng-template>
-            <ng-template pTemplate="emptymessage" let-columns>
-              <tr>
-                <td [attr.colspan]="8">
-                  <p>{{ 'NO_DATA_FOUND' | translate }}</p>
-                </td>
-              </tr>
-            </ng-template>
-            <ng-template pTemplate="footer" let-columns>
-              <tr>
-                <td [attr.colspan]="8">
-                  <div class="flex flex-row gap-2 justify-center">
-                    <p-button
-                      label="{{ 'FIRST' | translate }}"
-                      icon="pi pi-angle-left"
-                      (onClick)="loadFirstPage()"
-                      [disabled]="firstPage()"
-                    ></p-button>
-                    <p-select
-                      [options]="pageOptions"
-                      [(ngModel)]="pageSize"
-                      appendTo="body"
-                      (ngModelChange)="loadFirstPage()"
-                    ></p-select>
-                    <p-button
-                      label="{{ 'NEXT' | translate }}"
-                      icon="pi pi-angle-right"
-                      iconPos="right"
-                      (onClick)="loadNextPage()"
-                      [disabled]="cursor == null"
-                    ></p-button>
+                </tr>
+              </ng-template>
+              <ng-template pTemplate="emptymessage" let-columns>
+                <tr>
+                  <td [attr.colspan]="8">
+                    <p>{{ 'NO_DATA_FOUND' | translate }}</p>
+                  </td>
+                </tr>
+              </ng-template>
+              <ng-template pTemplate="footer" let-columns>
+                <tr>
+                  <td [attr.colspan]="8">
+                    <div class="flex flex-row gap-2 justify-center">
+                      <p-button
+                        label="{{ 'FIRST' | translate }}"
+                        icon="pi pi-angle-left"
+                        (onClick)="loadFirstPage()"
+                        [disabled]="firstPage()"
+                      ></p-button>
+                      <p-select
+                        [options]="pageOptions"
+                        [(ngModel)]="pageSize"
+                        appendTo="body"
+                        (ngModelChange)="loadFirstPage()"
+                      ></p-select>
+                      <p-button
+                        label="{{ 'NEXT' | translate }}"
+                        icon="pi pi-angle-right"
+                        iconPos="right"
+                        (onClick)="loadNextPage()"
+                        [disabled]="cursor == null"
+                      ></p-button>
+                    </div>
+                  </td>
+                </tr>
+              </ng-template>
+            </p-table>
+          </div>
+        } @else {
+          <div class="aas-page-panel aas-page-panel-inset viewer-content-area rounded-lg overflow-hidden p-6">
+            <p-message severity="info" styleClass="w-full mb-4">
+              <span>{{ 'NO_SHELLS_LIST_MODE_INFO' | translate }}</span>
+            </p-message>
+            <p-inputgroup>
+              <input
+                pInputText
+                [(ngModel)]="aasIdInput"
+                placeholder="{{ 'SEARCH_AAS_BY_ID' | translate }}"
+                (keydown.enter)="lookupAasById()"
+              />
+              <p-inputgroup-addon>
+                <p-button
+                  icon="pi pi-search"
+                  severity="secondary"
+                  (onClick)="lookupAasById()"
+                  [loading]="searchState() === 'loading'"
+                />
+              </p-inputgroup-addon>
+            </p-inputgroup>
+            @switch (searchState()) {
+              @case ('loading') {
+                <div class="flex justify-center mt-6">
+                  <div class="aas-loading-spinner"></div>
+                </div>
+              }
+              @case ('found') {
+                <!-- Card 1: AAS-Header -->
+                <div class="infra-card mt-4">
+                  <div class="flex gap-3 items-center">
+                    <aas-shell-thumbnail-cell
+                      [thumb]="getThumb(foundShellId()!)"
+                      [shellId]="foundShellId()!"
+                      [alt]="foundShellDisplayName() || foundShellIdShort() || foundShellId()!"
+                      (thumbnailVisible)="ensureThumbLoaded($event)"
+                      (thumbnailError)="onThumbnailError($event)"
+                    />
+                    <div class="flex-1 min-w-0">
+                      <div class="flex items-center gap-2 flex-wrap">
+                        <span class="infra-card__title text-left">
+                          {{ foundShellDisplayName() || foundShellIdShort() || ('AAS_ID' | translate) }}
+                        </span>
+                        @if (foundShellAssetKind()) {
+                          <p-tag
+                            [value]="foundShellAssetKind()! | translate"
+                            [severity]="getAasTagSeverity(foundShellAssetKind()!)"
+                            [rounded]="true"
+                          />
+                        }
+                      </div>
+                      <div class="text-xs text-color-secondary mt-1 break-all">{{ foundShellId() }}</div>
+                    </div>
                   </div>
-                </td>
-              </tr>
-            </ng-template>
-          </p-table>
-        </div>
+                  <div class="flex gap-2">
+                    <p-button
+                      label="{{ 'VIEW' | translate }}"
+                      icon="pi pi-eye"
+                      (onClick)="navigateToViewer(foundShellId()!)"
+                    />
+                    @if (canEditShells()) {
+                      <p-button
+                        label="{{ 'EDIT' | translate }}"
+                        icon="pi pi-pencil"
+                        (onClick)="navigateToEditor(foundShellId()!)"
+                      />
+                    }
+                  </div>
+                </div>
+
+                <!-- Card 2: AssetInformation -->
+                <div class="theme-form-section mt-3">
+                  <h3 class="theme-form-section-heading">AssetInformation</h3>
+                  <p-inputgroup>
+                    <p-inputgroup-addon class="found-shell-label">assetKind</p-inputgroup-addon>
+                    <input pInputText readonly class="cursor-default" [value]="foundShellAssetKind() ?? ''" />
+                  </p-inputgroup>
+                  @if (foundShellGlobalAssetId()) {
+                    <p-inputgroup class="mt-2">
+                      <p-inputgroup-addon class="found-shell-label">globalAssetId</p-inputgroup-addon>
+                      <input pInputText readonly class="cursor-default" [value]="foundShellGlobalAssetId() ?? ''" />
+                    </p-inputgroup>
+                  }
+                </div>
+
+                <!-- Card 3: Submodels -->
+                @if (foundShellSubmodelIds().length > 0) {
+                  <div class="theme-form-section mt-3">
+                    <h3 class="theme-form-section-heading">Submodels</h3>
+                    @for (id of foundShellSubmodelIds(); track id) {
+                      <p-inputgroup [class.mt-2]="!$first">
+                        <p-inputgroup-addon><i class="pi pi-link"></i></p-inputgroup-addon>
+                        <input pInputText readonly class="cursor-default" [value]="id" />
+                      </p-inputgroup>
+                    }
+                  </div>
+                }
+              }
+              @case ('not-found') {
+                <p class="mt-4 text-red-600">{{ 'AAS_NOT_FOUND' | translate }}</p>
+              }
+              @case ('error') {
+                <p-message severity="error" styleClass="w-full mt-4">
+                  <span>{{ 'SHELL_SEARCH_FAILED' | translate }}</span>
+                </p-message>
+              }
+            }
+          </div>
+        }
       </div>
     </div>
   </div>

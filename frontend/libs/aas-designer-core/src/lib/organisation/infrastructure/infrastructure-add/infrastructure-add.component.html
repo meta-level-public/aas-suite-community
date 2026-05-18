@@ -1,5 +1,8 @@
-<div class="flex flex-col gap-2">
-  <p-fieldset legend="{{ 'DETAILS' | translate }}" class="w-full">
+<div class="theme-form-section-grid">
+  <section class="theme-form-section">
+    <div class="theme-form-section-heading">
+      <h3><i class="pi pi-sliders-h mr-2 text-primary"></i>{{ 'DETAILS' | translate }}</h3>
+    </div>
     <div class="mb-4">
       <label for="name"> {{ 'NAME' | translate }} * </label>
       <input
@@ -29,17 +32,35 @@
         required
       ></textarea>
     </div>
-    <div class="mb-4 flex items-center">
-      <label for="isReadonly"> {{ 'READONLY' | translate }} </label>
-      <p-toggleswitch id="isReadonly" name="isReadonly" class="ml-5" [(ngModel)]="settings().isReadonly" />
+    <div class="flex flex-col mt-2">
+      <div class="flex items-center justify-between py-3 border-b border-surface-200">
+        <label for="isActive" class="cursor-pointer select-none">{{ 'ACTIVE' | translate }}</label>
+        <p-toggleswitch id="isActive" name="isActive" [(ngModel)]="settings().isActive" />
+      </div>
+      <div class="flex items-center justify-between py-3 border-b border-surface-200">
+        <label for="isReadonly" class="cursor-pointer select-none">{{ 'READONLY' | translate }}</label>
+        <p-toggleswitch id="isReadonly" name="isReadonly" [(ngModel)]="settings().isReadonly" />
+      </div>
+      <div class="flex items-start justify-between py-3">
+        <div class="flex flex-col gap-2 flex-1 mr-6">
+          <label for="noShellsListEndpoint" class="cursor-pointer select-none">{{
+            'NO_SHELLS_LIST_ENDPOINT' | translate
+          }}</label>
+          <p-message text="{{ 'NO_SHELLS_LIST_ENDPOINT_HINT' | translate }}" severity="info"></p-message>
+        </div>
+        <p-toggleswitch
+          id="noShellsListEndpoint"
+          name="noShellsListEndpoint"
+          [(ngModel)]="settings().noShellsListEndpoint"
+        />
+      </div>
     </div>
-    <div class="mb-4 flex items-center">
-      <label for="isActive"> {{ 'ACTIVE' | translate }} </label>
-      <p-toggleswitch id="isActive" name="isActive" class="ml-5" [(ngModel)]="settings().isActive" />
-    </div>
-  </p-fieldset>
+  </section>
   <div class="grid grid-cols-1 xl:grid-cols-2 gap-4">
-    <p-fieldset legend="{{ 'URLS' | translate }}">
+    <section class="theme-form-section">
+      <div class="theme-form-section-heading">
+        <h3><i class="pi pi-link mr-2 text-primary"></i>{{ 'URLS' | translate }}</h3>
+      </div>
       <div class="mb-4">
         <label for="aasDiscoveryUrl"> {{ 'AAS_DISCOVERY_URL' | translate }} </label>
         <input
@@ -237,8 +258,11 @@
           [required]="settings().conceptDescriptionRepositoryHcEnabled === true"
         />
       </div>
-    </p-fieldset>
-    <p-fieldset legend="{{ 'SECURITY' | translate }}" class="w-full">
+    </section>
+    <section class="theme-form-section">
+      <div class="theme-form-section-heading">
+        <h3><i class="pi pi-shield mr-2 text-primary"></i>{{ 'SECURITY' | translate }}</h3>
+      </div>
       <div class="flex flex-col gap-4">
         <!-- Header Parameter -->
         <div class="flex flex-col gap-3">
@@ -333,6 +357,6 @@
           </div>
         </div>
       </div>
-    </p-fieldset>
+    </section>
   </div>
 </div>

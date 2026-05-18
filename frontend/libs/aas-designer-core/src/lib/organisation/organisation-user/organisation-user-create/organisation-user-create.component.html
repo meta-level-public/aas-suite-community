@@ -4,7 +4,10 @@
       <p-message text="{{ 'USER_INVITATION_EXPL' | translate }}" severity="info"></p-message>
       @if (invitation != null) {
         <div class="grid grid-cols-2 gap-4 w-full">
-          <p-fieldset legend="{{ 'USER_DATA' | translate }}">
+          <div class="theme-form-section">
+            <div class="theme-form-section-heading">
+              <h3>{{ 'USER_DATA' | translate }}</h3>
+            </div>
             <div class="mb-4">
               <label for="lastName"> {{ 'LASTNAME' | translate }}</label>
               <input
@@ -56,8 +59,11 @@
                 </div>
               }
             </div>
-          </p-fieldset>
-          <p-fieldset legend="{{ 'USER_RIGHTS' | translate }}">
+          </div>
+          <div class="theme-form-section">
+            <div class="theme-form-section-heading">
+              <h3>{{ 'USER_RIGHTS' | translate }}</h3>
+            </div>
             <div class="flex flex-col gap-2">
               @for (role of availableRoles; track $index) {
                 <div class="flex flex-row gap-2 items-center">
@@ -76,7 +82,7 @@
                 </div>
               }
             </div>
-          </p-fieldset>
+          </div>
         </div>
       }
     </div>

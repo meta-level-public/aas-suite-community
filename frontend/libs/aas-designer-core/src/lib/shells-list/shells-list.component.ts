@@ -2,7 +2,8 @@ import { NotificationService } from '@aas/common-services';
 import { TagHelper } from '@aas/helpers';
 import { Clipboard, ClipboardModule } from '@angular/cdk/clipboard';
 import { CommonModule } from '@angular/common';
-import { Component, inject, model, OnDestroy, OnInit, signal, ViewChild } from '@angular/core';
+import { HttpErrorResponse } from '@angular/common/http';
+import { Component, computed, inject, model, OnDestroy, OnInit, signal, ViewChild } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
@@ -22,7 +23,7 @@ import { TieredMenuModule } from 'primeng/tieredmenu';
 import { TooltipModule } from 'primeng/tooltip';
 import { lastValueFrom } from 'rxjs';
 
-import { ADDITIONAL_SHELL_MENU_ITEMS } from '@aas-designer-model';
+import { ADDITIONAL_SHELL_MENU_ITEMS, AuthRoles } from '@aas-designer-model';
 import { HelpLabelComponent, WaitDialogComponent } from '@aas/common-components';
 import { AccessService, PortalService } from '@aas/common-services';
 import {
@@ -36,6 +37,7 @@ import {
   ShellsClient,
   TransferShellResponse,
 } from '@aas/webapi-client';
+import { MessageModule } from 'primeng/message';
 import { SelectModule } from 'primeng/select';
 import { AasxExportComponent } from '../general/aasx-export/aasx-export.component';
 import { PcnRegisterSubscriptionComponent } from '../pcn/pcn-register-subscription/pcn-register-subscription.component';
@@ -80,6 +82,7 @@ import { UploadAasDialogComponent } from './upload-aas-dialog/upload-aas-dialog.
     SelectModule,
     ObserveVisibilityDirective,
     ShellThumbnailCellComponent,
+    MessageModule,
   ],
   templateUrl: './shells-list.component.html',
   styleUrls: ['../../host.scss', './shells-list.component.scss'],
@@ -123,6 +126,24 @@ export class ShellsListComponent implements OnInit, OnDestroy {
   availableRepositories = signal<AvailableInfastructure[]>([]);
   selectedRepository = model<AvailableInfastructure | null>(null);
 
+  isNoShellsListMode = computed(() => !!this.selectedRepository()?.noShellsListEndpoint);
+  isReadonly = computed(() => !!this.selectedRepository()?.isReadonly);
+  canEditShells = computed(
+    () =>
+      !this.isReadonly() &&
+      [AuthRoles.SHELLS_EDITOR, AuthRoles.ORGA_ADMIN, AuthRoles.SYSTEM_ADMIN].some((r) =>
+        this.accessService.isAllowed(r),
+      ),
+  );
+  aasIdInput = model('');
+  searchState = signal<'idle' | 'loading' | 'found' | 'not-found' | 'error'>('idle');
+  foundShellId = signal<string | undefined>(undefined);
+  foundShellIdShort = signal<string | undefined>(undefined);
+  foundShellDisplayName = signal<string | undefined>(undefined);
+  foundShellGlobalAssetId = signal<string | undefined>(undefined);
+  foundShellAssetKind = signal<string | undefined>(undefined);
+  foundShellSubmodelIds = signal<string[]>([]);
+
   infrastructureClient = inject(AasInfrastructureClient);
   PortalService = PortalService;
   portalService = inject(PortalService);
@@ -134,7 +155,9 @@ export class ShellsListComponent implements OnInit, OnDestroy {
       this.selectedColumns.set(SHELLS_LIST_DEFAULT_COLUMNS);
       this.pageSize.set(readShellsListPageSize());
       await this.initAvailableRepositories();
-      await this.loadFirstPage();
+      if (!this.isNoShellsListMode()) {
+        await this.loadFirstPage();
+      }
       this.initSplitButtonItems();
     } finally {
       this.loading.set(false);
@@ -199,15 +222,25 @@ export class ShellsListComponent implements OnInit, OnDestroy {
   async onShowActions(shell: ShellListDto) {
     const currentInfrastructure = PortalService.getCurrentAasInfrastructureSetting();
     const transferTargets = this.getTransferTargets(shell);
-    this.menuItems = this.buildShellMenu(shell, !currentInfrastructure?.isReadonly, transferTargets);
+    const canEdit =
+      !currentInfrastructure?.isReadonly &&
+      [AuthRoles.SHELLS_EDITOR, AuthRoles.ORGA_ADMIN, AuthRoles.SYSTEM_ADMIN].some((r) =>
+        this.accessService.isAllowed(r),
+      );
+    this.menuItems = this.buildShellMenu(shell, canEdit, transferTargets);
   }
 
   onRowClick(_event: MouseEvent, shell: ShellListDto) {
-    // Check if readonly infrastructure
+    // Check if readonly infrastructure or SHELLS_READER-only user
     const currentInfrastructure = PortalService.getCurrentAasInfrastructureSetting();
+    const canEdit =
+      !currentInfrastructure?.isReadonly &&
+      [AuthRoles.SHELLS_EDITOR, AuthRoles.ORGA_ADMIN, AuthRoles.SYSTEM_ADMIN].some((r) =>
+        this.accessService.isAllowed(r),
+      );
 
     // If readonly, navigate to view instead of edit
-    if (currentInfrastructure?.isReadonly) {
+    if (!canEdit) {
       if (shell.id) {
         this.router.navigate(PortalService.buildViewerRoute(shell.id));
       }
@@ -292,6 +325,18 @@ export class ShellsListComponent implements OnInit, OnDestroy {
     };
   }
 
+  navigateToViewer(shellId: string | undefined): void {
+    if (shellId) {
+      this.router.navigate(PortalService.buildViewerRoute(shellId));
+    }
+  }
+
+  navigateToEditor(shellId: string | undefined): void {
+    if (shellId) {
+      this.router.navigate(PortalService.buildRepoEditRoute(shellId));
+    }
+  }
+
   private openViewer(shellId: string | undefined | null): void {
     if (!shellId) {
       return;
@@ -355,7 +400,12 @@ export class ShellsListComponent implements OnInit, OnDestroy {
 
   async onShowBulkActions() {
     const currentInfrastructure = PortalService.getCurrentAasInfrastructureSetting();
-    this.menuItems = this.buildBulkMenu(!currentInfrastructure?.isReadonly);
+    const canEdit =
+      !currentInfrastructure?.isReadonly &&
+      [AuthRoles.SHELLS_EDITOR, AuthRoles.ORGA_ADMIN, AuthRoles.SYSTEM_ADMIN].some((r) =>
+        this.accessService.isAllowed(r),
+      );
+    this.menuItems = this.buildBulkMenu(canEdit);
   }
 
   getAasTagSeverity(type: string) {
@@ -379,6 +429,67 @@ export class ShellsListComponent implements OnInit, OnDestroy {
     const repo = this.selectedRepository();
     if (repo) {
       this.portalService.saveCurrentInfrastructureSetting(repo);
+      this.aasIdInput.set('');
+      this.searchState.set('idle');
+      this.foundShellId.set(undefined);
+      this.foundShellIdShort.set(undefined);
+      this.foundShellDisplayName.set(undefined);
+      this.foundShellGlobalAssetId.set(undefined);
+      this.foundShellAssetKind.set(undefined);
+      this.foundShellSubmodelIds.set([]);
+    }
+  }
+
+  async lookupAasById() {
+    const aasId = this.aasIdInput();
+    if (!aasId) {
+      return;
+    }
+    this.searchState.set('loading');
+    this.foundShellId.set(undefined);
+    this.foundShellIdShort.set(undefined);
+    this.foundShellDisplayName.set(undefined);
+    this.foundShellGlobalAssetId.set(undefined);
+    this.foundShellAssetKind.set(undefined);
+    this.foundShellSubmodelIds.set([]);
+    try {
+      const shell = await lastValueFrom(this.shellsClient.shells_GetShell(aasId));
+      const resolvedId = shell.aasId ?? aasId;
+      this.foundShellId.set(resolvedId);
+      if (shell.plainJson) {
+        try {
+          const parsed = JSON.parse(shell.plainJson) as {
+            assetAdministrationShells?: Array<{
+              id?: string;
+              idShort?: string;
+              displayName?: Array<{ language: string; text: string }>;
+              assetInformation?: { globalAssetId?: string; assetKind?: string };
+              submodels?: Array<{ keys?: Array<{ type: string; value: string }> }>;
+            }>;
+          };
+          const aas = parsed.assetAdministrationShells?.[0];
+          this.foundShellIdShort.set(aas?.idShort ?? undefined);
+          const lang = this.translate.currentLang;
+          this.foundShellDisplayName.set(
+            aas?.displayName?.find((d) => d.language === lang)?.text ?? aas?.displayName?.[0]?.text ?? undefined,
+          );
+          this.foundShellGlobalAssetId.set(aas?.assetInformation?.globalAssetId ?? undefined);
+          this.foundShellAssetKind.set(aas?.assetInformation?.assetKind ?? undefined);
+          const ids =
+            aas?.submodels?.flatMap((sm) => sm.keys?.map((k) => k.value).filter((v): v is string => !!v) ?? []) ?? [];
+          this.foundShellSubmodelIds.set(ids);
+        } catch {
+          /* ignore parse errors */
+        }
+      }
+      this.store.registerShellThumb(resolvedId);
+      this.searchState.set('found');
+    } catch (error) {
+      if (error instanceof HttpErrorResponse && error.status === 404) {
+        this.searchState.set('not-found');
+      } else {
+        this.searchState.set('error');
+      }
     }
   }
 
@@ -589,7 +700,11 @@ export class ShellsListComponent implements OnInit, OnDestroy {
   }
 
   openSearch() {
-    const canEdit = !PortalService.getCurrentAasInfrastructureSetting()?.isReadonly;
+    const canEdit =
+      !PortalService.getCurrentAasInfrastructureSetting()?.isReadonly &&
+      [AuthRoles.SHELLS_EDITOR, AuthRoles.ORGA_ADMIN, AuthRoles.SYSTEM_ADMIN].some((r) =>
+        this.accessService.isAllowed(r),
+      );
     this.ref = this.openDialog(ShellsSearchComponent, {
       width: '64rem',
       breakpoints: {

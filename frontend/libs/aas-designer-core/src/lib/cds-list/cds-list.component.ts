@@ -5,7 +5,7 @@ import {
   MultiLanguageProperty,
 } from '@aas-core-works/aas-core3.1-typescript/types';
 import { HelpLabelComponent } from '@aas/common-components';
-import { AasConfirmationService, EncodingService } from '@aas/common-services';
+import { AasConfirmationService, AccessService, EncodingService, PortalService } from '@aas/common-services';
 import { TagHelper } from '@aas/helpers';
 import { AasInfrastructureClient, AvailableInfastructure, ConceptDescriptionClient } from '@aas/webapi-client';
 import { CommonModule } from '@angular/common';
@@ -25,7 +25,7 @@ import { TableModule } from 'primeng/table';
 import { TagModule } from 'primeng/tag';
 import { TieredMenuModule } from 'primeng/tieredmenu';
 import { lastValueFrom, Subscription } from 'rxjs';
-import { PortalService } from '@aas/common-services';
+import { AuthRoles } from '../general/model/auth-roles';
 
 interface Column {
   field: string;
@@ -66,6 +66,7 @@ export class CdsListComponent implements OnDestroy, OnInit {
   translate = inject(TranslateService);
   router = inject(Router);
   confirmService = inject(AasConfirmationService);
+  accessService = inject(AccessService);
 
   cdId = model<string>('');
   loading = signal(false);
@@ -251,22 +252,19 @@ export class CdsListComponent implements OnDestroy, OnInit {
 
   async onShowActions(shell: ConceptDescription) {
     const currentInfrastructure = PortalService.getCurrentAasInfrastructureSetting();
-    // const transferTargets = this.getTransferTargets(shell);
+    const canEdit =
+      !currentInfrastructure?.isReadonly &&
+      [AuthRoles.SHELLS_EDITOR, AuthRoles.ORGA_ADMIN, AuthRoles.SYSTEM_ADMIN].some((r) =>
+        this.accessService.isAllowed(r),
+      );
     this.menuItems = [
-      // {
-      //   label: this.translate.instant('VIEW'),
-      //   icon: 'pi pi-eye',
-      //   command: () => {
-      //     // this.router.navigate(['/', 'viewer', 'aas-view', shell.id]);
-      //   },
-      // },
       {
         label: this.translate.instant('EDIT'),
         icon: 'pi pi-pencil',
         command: () => {
           this.router.navigate(PortalService.buildCdEditRoute(shell.id ?? ''));
         },
-        visible: !currentInfrastructure?.isReadonly,
+        visible: canEdit,
       },
       {
         label: this.translate.instant('DELETE'),
@@ -276,7 +274,7 @@ export class CdsListComponent implements OnDestroy, OnInit {
             this.deleteCd(shell.id);
           }
         },
-        visible: !currentInfrastructure?.isReadonly,
+        visible: canEdit,
       },
     ];
   }

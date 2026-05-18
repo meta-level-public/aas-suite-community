@@ -49,6 +49,7 @@ namespace AasDesignerModel.Model
         public bool IsInternal { get; set; } = false;
         public bool HandleAsInternal { get; set; } = false;
         public bool IsReadonly { get; set; } = false;
+        public bool NoShellsListEndpoint { get; set; } = false;
         public bool IsGoInfrastructure { get; set; } = false;
         public string? GoPostgresDbName { get; set; }
         public string? GoPostgresUser { get; set; }

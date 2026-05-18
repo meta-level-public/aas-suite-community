@@ -437,6 +437,8 @@ static class WebApplicationExtensions
                     AuthRoles.FEED_MAPPING_USER,
                     AuthRoles.ORGA_HELP_EDITOR,
                     AuthRoles.MARKT_PUBLISHER,
+                    AuthRoles.SHELLS_READER,
+                    AuthRoles.SHELLS_EDITOR,
                 ],
                 AccountAktiv = true,
             };

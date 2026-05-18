@@ -4663,6 +4663,9 @@
           "isReadonly": {
             "type": "boolean"
           },
+          "noShellsListEndpoint": {
+            "type": "boolean"
+          },
           "isInternal": {
             "type": "boolean"
           },
@@ -4821,6 +4824,9 @@
             "type": "boolean"
           },
           "isReadonly": {
+            "type": "boolean"
+          },
+          "noShellsListEndpoint": {
             "type": "boolean"
           },
           "isGoInfrastructure": {
@@ -7660,6 +7666,9 @@
             "type": "boolean"
           },
           "isReadonly": {
+            "type": "boolean"
+          },
+          "noShellsListEndpoint": {
             "type": "boolean"
           },
           "isGoInfrastructure": {

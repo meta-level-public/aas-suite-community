@@ -1,4 +1,4 @@
-import { Benutzer } from '@aas-designer-model';
+import { AuthRoles, Benutzer } from '@aas-designer-model';
 import { AasConfirmationService, NotificationService, PortalService } from '@aas/common-services';
 import { OrganisationClient, OrganisationUebersichtBenutzerDto, OrganisationUserSeatStats } from '@aas/webapi-client';
 import { CommonModule } from '@angular/common';
@@ -60,7 +60,7 @@ export class OrganisationUserListComponent implements OnInit {
   async ngOnInit() {
     this.availableRoles = await this.organisationService.getAvailableRoles();
     if (this.portalService.getRights().includes('SYSTEM_ADMIN')) {
-      this.availableRoles = ['SYSTEM_ADMIN', ...this.availableRoles];
+      this.availableRoles = ['SYSTEM_ADMIN', 'SYSTEM_HELP_EDITOR', ...this.availableRoles];
     }
   }
 
@@ -129,6 +129,15 @@ export class OrganisationUserListComponent implements OnInit {
       if (currentEditUser == null || myOrgaId == null || currentEditUser.id == null) {
         return;
       }
+
+      // SHELLS_EDITOR impliziert SHELLS_READER
+      if (
+        currentEditUser.benutzerRollen.includes(AuthRoles.SHELLS_EDITOR) &&
+        !currentEditUser.benutzerRollen.includes(AuthRoles.SHELLS_READER)
+      ) {
+        currentEditUser.benutzerRollen = [...currentEditUser.benutzerRollen, AuthRoles.SHELLS_READER];
+      }
+
       const res = await this.organisationService.updateUserRoles(
         myOrgaId,
         currentEditUser.id,
@@ -148,7 +157,21 @@ export class OrganisationUserListComponent implements OnInit {
     if (role === 'SYSTEM_ADMIN' && !this.portalService.getRights().includes('SYSTEM_ADMIN')) {
       return true;
     }
+    // SHELLS_READER wird automatisch aktiviert, wenn SHELLS_EDITOR gesetzt ist
+    if (role === AuthRoles.SHELLS_READER && this.currentEditUser()?.benutzerRollen.includes(AuthRoles.SHELLS_EDITOR)) {
+      return true;
+    }
     return this.portalService.user?.id === this.currentEditUser()?.id && role === 'ORGA_ADMIN';
+  }
+
+  onRoleCheckboxChange(role: string, checked: boolean) {
+    // Beim Aktivieren von SHELLS_EDITOR sofort SHELLS_READER setzen
+    if (role === AuthRoles.SHELLS_EDITOR && checked) {
+      const user = this.currentEditUser();
+      if (user && !user.benutzerRollen.includes(AuthRoles.SHELLS_READER)) {
+        user.benutzerRollen = [...user.benutzerRollen, AuthRoles.SHELLS_READER];
+      }
+    }
   }
 
   canSaveEditRoles() {

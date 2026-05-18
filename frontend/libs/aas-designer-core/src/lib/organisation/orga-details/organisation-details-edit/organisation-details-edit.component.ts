@@ -8,7 +8,6 @@ import { Component, effect, input, OnDestroy, ViewChild } from '@angular/core';
 import { FormsModule, NgForm } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
 import { ButtonModule } from 'primeng/button';
-import { FieldsetModule } from 'primeng/fieldset';
 import { FileSelectEvent, FileUploadModule } from 'primeng/fileupload';
 import { InputTextModule } from 'primeng/inputtext';
 import { KeyFilterModule } from 'primeng/keyfilter';
@@ -26,7 +25,6 @@ import { OrganisationService } from '../../organisation.service';
     InputTextModule,
     ToggleSwitchModule,
     FormsModule,
-    FieldsetModule,
     CountryCodeComponent,
     FileUploadModule,
     KeyFilterModule,

@@ -5,7 +5,6 @@ import { FormsModule } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
 import { ButtonModule } from 'primeng/button';
 import { DividerModule } from 'primeng/divider';
-import { FieldsetModule } from 'primeng/fieldset';
 import { FileUploadModule } from 'primeng/fileupload';
 import { InputTextModule } from 'primeng/inputtext';
 import { MessageModule } from 'primeng/message';
@@ -21,7 +20,6 @@ import { HasChangesCheckable } from '../../my-organisation/has-changes-checkable
   selector: 'aas-infrastructure-edit',
   imports: [
     TableModule,
-    FieldsetModule,
     TranslateModule,
     TagModule,
     ToolbarModule,

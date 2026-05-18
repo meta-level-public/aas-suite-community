@@ -128,7 +128,11 @@
     </p-card>
   </div>
   @let currentSm = viewerStore.currentSubmodel();
-  @if (viewSubmodels() && currentSm) {
+  @if (viewerStore.isLoadingAas() || viewerStore.isLoadingSubmodels()) {
+    <div class="col-span-12 xl:col-span-9 w-full mt-4 flex justify-center items-center" style="min-height: 280px">
+      <div class="aas-loading-spinner"></div>
+    </div>
+  } @else if (viewSubmodels() && currentSm) {
     <div class="col-span-12 xl:col-span-9 w-full mt-4">
       <aas-aas-model-viewer
         class="w-full"
