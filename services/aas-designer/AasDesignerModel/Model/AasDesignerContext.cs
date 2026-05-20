@@ -47,6 +47,7 @@ namespace AasDesignerApi.Model
         public DbSet<EClassUnit> EClassUnits { get; set; } = null!;
         public DbSet<RequestForOffer> RequestForOffers { get; set; } = null!;
         public DbSet<BenutzerOrganisation> BenutzerOrganisations { get; set; } = null!;
+        public DbSet<BenutzerInfrastrukturRecht> BenutzerInfrastrukturRechte { get; set; } = null!;
         public DbSet<Invitation> Invitations { get; set; } = null!;
 
         public DbSet<DashboardLayout> DashboardLayouts { get; set; } = null!;
@@ -409,6 +410,37 @@ namespace AasDesignerApi.Model
                     v => DBJsonConverter.Deserialize<List<string>>(v)
                 )
                 .Metadata.SetValueComparer(stringListComparer);
+
+            modelBuilder
+                .Entity<BenutzerInfrastrukturRecht>()
+                .HasIndex(e => new
+                {
+                    e.BenutzerId,
+                    e.OrganisationId,
+                    e.InfrastrukturId,
+                })
+                .IsUnique(false);
+
+            modelBuilder
+                .Entity<BenutzerInfrastrukturRecht>()
+                .HasOne(e => e.Benutzer)
+                .WithMany()
+                .HasForeignKey(e => e.BenutzerId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            modelBuilder
+                .Entity<BenutzerInfrastrukturRecht>()
+                .HasOne(e => e.Organisation)
+                .WithMany()
+                .HasForeignKey(e => e.OrganisationId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            modelBuilder
+                .Entity<BenutzerInfrastrukturRecht>()
+                .HasOne(e => e.Infrastruktur)
+                .WithMany(b => b.BenutzerRechte)
+                .HasForeignKey(e => e.InfrastrukturId)
+                .OnDelete(DeleteBehavior.Cascade);
 
             modelBuilder
                 .Entity<Adresse>()

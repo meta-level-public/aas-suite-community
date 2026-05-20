@@ -88,7 +88,7 @@ export class FileTreeService {
         if (zipFiles.length > 0 && zipFiles[0].folder === elementPath) {
           this.insertChild(node, key, elementPath, zipFiles);
         } else {
-          // Fügt ein neues Eltern-Element mit child Element hinzu
+          // Adds a new parent element with a child element
 
           const newParentNode = new ZipTree(parentNodeKey, elementPath, node);
 
@@ -96,7 +96,7 @@ export class FileTreeService {
 
           let fileData: ZipFile[] = [];
 
-          // Wenn File aus dem Folder ist, nur hinzufügen
+          // If file is from the folder, just add it
           if (zipFiles.length > 0 && zipFiles.some((z) => z.folder === key)) {
             fileData = zipFiles;
           }
@@ -112,7 +112,7 @@ export class FileTreeService {
   }
 
   private *getTreeElement(node = this.root): any {
-    // Aus Performance gründen mit yield beendet
+    // Terminated with yield for performance reasons
     yield node;
     if (node.children.length) {
       for (const child of node.children) {

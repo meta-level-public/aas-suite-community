@@ -1,3 +1,4 @@
+import { SubmodelTemplate } from '@aas-designer-model';
 import { DateProxyPipe } from '@aas/common-pipes';
 import { AasConfirmationService } from '@aas/common-services';
 import { AasMetamodelVersion } from '@aas/model';
@@ -13,7 +14,6 @@ import { Menu } from 'primeng/menu';
 import { Select } from 'primeng/select';
 import { TableModule } from 'primeng/table';
 import { Textarea } from 'primeng/textarea';
-import { SubmodelTemplate } from '@aas-designer-model';
 import { SubmodelTemplateService } from '../submodel-template.service';
 
 @Component({
@@ -127,7 +127,7 @@ export class TemplateListComponent implements OnInit {
           this.group,
         );
 
-        // erstmal komplette tabelle, später vielleicht anhand der id
+        // full table for now, maybe later by id
         this.loadData();
         this.displayUploadDialog = false;
         this.uploader?.clear();
@@ -146,7 +146,7 @@ export class TemplateListComponent implements OnInit {
       this.loading = true;
       await this.submodelTemplateService.bulkUpload(this.files, this.version, this.group);
 
-      // erstmal komplette tabelle, später vielleicht anhand der id
+      // full table for now, maybe later by id
       await this.loadData();
       this.displayBulkDialog = false;
       this.bulkFileUpload?.clear();
@@ -217,7 +217,7 @@ export class TemplateListComponent implements OnInit {
         this.loading = true;
         await this.submodelTemplateService.edit(this.editSmt);
 
-        // erstmal komplette tabelle, später vielleicht anhand der id
+        // full table for now, maybe later by id
         this.loadData();
         this.displayEditDialog = false;
       } finally {

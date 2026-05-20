@@ -30,15 +30,15 @@ export class DocumentVersion {
   organizationOfficialName: string = '';
   digitalFile: File | null = null;
   previewFile: File | null = null;
-  refersTo: Reference[] = []; // brauchen wir das überhaupt?!?
-  basedOn: Reference[] = []; // brauchen wir das überhaupt?!?
-  translationOf: Reference[] = []; // brauchen wir das überhaupt?!?
+  refersTo: Reference[] = []; // do we even need this?!?
+  basedOn: Reference[] = []; // do we even need this?!?
+  translationOf: Reference[] = []; // do we even need this?!?
 }
 
 export class DocumentItem {
   idShort: string = '';
 
-  // das wären die offiziellen Felder
+  // these would be the official fields
   documentId: DocumentId[] = [];
   documentClassification: DocumentClassification[] = [];
   documentVersion: DocumentVersion[] = [];
@@ -93,7 +93,7 @@ export class DocumentItem {
       documentItem.mimeType = dto.value?.find((sme: any) => sme.idShort === 'File')?.mimeType ?? '';
       return documentItem;
     } catch {
-      // TODO: Dem Benutzer mitteilen, dass hier umgültige Daten vorliegen
+      // TODO: Inform the user that invalid data is present here
       return null;
     }
   }

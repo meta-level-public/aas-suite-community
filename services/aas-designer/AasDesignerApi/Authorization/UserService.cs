@@ -357,6 +357,32 @@ public class UserService : IUserService
             .. benutzerOrga.Benutzer.BenutzerRollen,
         ];
         rollen = rollen.Distinct().ToList();
+
+        // resolve infra permissions for all users (no bypass for admins)
+        if (aasSettingId > 0)
+        {
+            // resolve infra permissions and translate to virtual roles
+            var infraRecht = _context.BenutzerInfrastrukturRechte.FirstOrDefault(r =>
+                r.BenutzerId == benutzerId
+                && r.OrganisationId == orgaId
+                && r.InfrastrukturId == aasSettingId
+                && !r.Geloescht
+            );
+            if (infraRecht != null)
+            {
+                if (infraRecht.DarfLesen)
+                    rollen.Add(AuthRoles.SHELLS_READER);
+                if (infraRecht.DarfSchreiben)
+                {
+                    rollen.Add(AuthRoles.SHELLS_EDITOR);
+                    rollen.Add(AuthRoles.SHELLS_READER);
+                }
+                if (infraRecht.DarfMarktPublizieren)
+                    rollen.Add(AuthRoles.MARKT_PUBLISHER);
+            }
+        }
+
+        rollen = rollen.Distinct().ToList();
         return new AppUser
         {
             BenutzerId = benutzerOrga.BenutzerId,

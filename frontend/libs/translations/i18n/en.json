@@ -1326,6 +1326,14 @@
   "EDIT_PRODUCT_FAMILY": "Edit product family",
   "EDIT_PRODUCT_ROOT": "Edit product root",
   "EDIT_RECURSIVE": "Should the type of the submodel be adopted recursively for all subelements?",
+  "INFRA_RECHTE": {
+    "TITLE": "Infrastructure Access Rights",
+    "INFRASTRUKTUR": "Infrastructure",
+    "DARF_LESEN": "Read",
+    "DARF_SCHREIBEN": "Write",
+    "DARF_MARKT_PUBLIZIEREN": "Publish to Marketplace",
+    "ASSIGN_AFTER_INVITE": "After the invitation is accepted, infrastructure access rights must be assigned manually."
+  },
   "EDIT_ROLES": "Edit roles",
   "EDIT_ROLES_FOR_USER": "Edit roles for {{ user }}",
   "ROLE_DESC_SYSTEM_ADMIN": "System-wide administrator – full access to all features and organisations",

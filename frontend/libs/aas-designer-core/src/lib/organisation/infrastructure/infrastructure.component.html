@@ -120,6 +120,15 @@
           (goInfraCreated)="requestReload.emit(); reloadInfrastuctureList.emit()"
         ></aas-infrastructure-migrate-go>
       }
+      @if (accessService.isAllowed('ORGA_ADMIN') && settings()?.id) {
+        <p-fieldset [legend]="'INFRA_RECHTE.TITLE' | translate" class="mt-4">
+          <aas-infrastruktur-rechte
+            mode="infra"
+            [organisationId]="orgaStateService.myOrgaId"
+            [infraId]="settings()!.id!"
+          ></aas-infrastruktur-rechte>
+        </p-fieldset>
+      }
     }
   </div>
 </div>

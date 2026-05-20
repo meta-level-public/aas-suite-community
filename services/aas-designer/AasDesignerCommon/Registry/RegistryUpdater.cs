@@ -18,7 +18,7 @@ public class RegistryUpdater
 
     static RegistryUpdater()
     {
-        // Dienstanbieter für Dependency Injection abrufen
+        // retrieve service provider for dependency injection
         var serviceProvider = new ServiceCollection()
             .AddLogging(configure =>
             {
@@ -28,7 +28,7 @@ public class RegistryUpdater
             })
             .BuildServiceProvider();
 
-        // Logger initialisieren
+        // initialize logger
         _logger = serviceProvider.GetService<ILogger<RegistryUpdater>>();
     }
 

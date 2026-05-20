@@ -28,7 +28,7 @@ export class SemanticIdValidator {
           this.addMessage(element, 'CONCEPT_DESCRIPTION_MISSING', 'hint', validationErrors);
         }
         for (const key of element.semanticId?.keys ?? []) {
-          // prüfen ob alle elemente vorhanden
+          // check if all elements are present
           if (!this.isSemanticIdValid(key)) {
             this.addMessage(element, 'SEMANTIC_ID_INVALID', 'error', validationErrors);
           }
@@ -36,7 +36,7 @@ export class SemanticIdValidator {
         break;
       case 'Submodel':
         for (const key of element.semanticId?.keys ?? []) {
-          // prüfen ob alle elemente vorhanden
+          // check if all elements are present
           if (!this.isSemanticIdValid(key)) {
             this.addMessage(element, 'SEMANTIC_ID_INVALID', 'error', validationErrors);
           }

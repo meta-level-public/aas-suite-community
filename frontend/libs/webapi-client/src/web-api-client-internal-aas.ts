@@ -5563,35 +5563,44 @@ export class AasViewerClient implements IAasViewerClient {
   }
 }
 
-export interface IJobSettingsClient {
-  jobSettings_GetStatisticCalculatorSettings(): Observable<FileResponse>;
-  jobSettings_UpdateStatisticCalculatorSettings(request: StatisticCalculatorSettingsDto): Observable<FileResponse>;
-  jobSettings_GetDailyStatisticCalculatorSettings(): Observable<FileResponse>;
-  jobSettings_UpdateDailyStatisticCalculatorSettings(
-    request: DailyStatisticCalculatorSettingsDto,
-  ): Observable<FileResponse>;
-  jobSettings_GetDailyExpiredOrganisationsCheckerSettings(): Observable<FileResponse>;
-  jobSettings_UpdateDailyExpiredOrganisationsCheckerSettings(
-    request: DailyExpiredOrganisationsCheckerSettingsDto,
-  ): Observable<FileResponse>;
-  jobSettings_GetPeriodicOrganisationDeleterSettings(): Observable<FileResponse>;
-  jobSettings_UpdatePeriodicOrganisationDeleterSettings(
-    request: PeriodicOrganisationDeleterSettingsDto,
-  ): Observable<FileResponse>;
-  jobSettings_GetPeriodicInfrastructureDeleterSettings(): Observable<FileResponse>;
-  jobSettings_UpdatePeriodicInfrastructureDeleterSettings(
-    request: PeriodicInfrastructureDeleterSettingsDto,
-  ): Observable<FileResponse>;
-  jobSettings_GetIdtaCrawlerSettings(): Observable<FileResponse>;
-  jobSettings_UpdateIdtaCrawlerSettings(request: IdtaCrawlerSettingsDto): Observable<FileResponse>;
-  jobSettings_GetPcnUpdateListenerSettings(): Observable<FileResponse>;
-  jobSettings_UpdatePcnUpdateListenerSettings(request: PcnUpdateListenerSettingsDto): Observable<FileResponse>;
+export interface IInfrastrukturRechteClient {
+  /**
+   * Alle Infrastrukturen einer Organisation mit den Rechten eines bestimmten Nutzers.
+   * @param organisationId (optional)
+   * @param userId (optional)
+   */
+  infrastrukturRechte_GetUserInfraRechte(
+    organisationId: number | undefined,
+    userId: number | undefined,
+  ): Observable<BenutzerInfrastrukturRechtDto[]>;
+  /**
+     * Rechte eines Nutzers für eine bestimmte Infrastruktur setzen (Upsert).
+    DarfSchreiben impliziert DarfLesen.
+     * @param organisationId (optional) 
+     * @param userId (optional) 
+     * @param infraId (optional) 
+     */
+  infrastrukturRechte_UpsertUserInfraRecht(
+    organisationId: number | undefined,
+    userId: number | undefined,
+    infraId: number | undefined,
+    dto: BenutzerInfrastrukturRechtDto,
+  ): Observable<BenutzerInfrastrukturRechtDto>;
+  /**
+   * Alle Nutzer einer Organisation mit ihren Rechten für eine bestimmte Infrastruktur.
+   * @param organisationId (optional)
+   * @param infraId (optional)
+   */
+  infrastrukturRechte_GetInfraUserRechte(
+    organisationId: number | undefined,
+    infraId: number | undefined,
+  ): Observable<InfraUserRechtDto[]>;
 }
 
 @Injectable({
   providedIn: 'root',
 })
-export class JobSettingsClient implements IJobSettingsClient {
+export class InfrastrukturRechteClient implements IInfrastrukturRechteClient {
   private http: HttpClient;
   private baseUrl: string;
   protected jsonParseReviver: ((key: string, value: any) => any) | undefined = undefined;
@@ -5601,1080 +5610,20 @@ export class JobSettingsClient implements IJobSettingsClient {
     this.baseUrl = baseUrl ?? '';
   }
 
-  jobSettings_GetStatisticCalculatorSettings(): Observable<FileResponse> {
-    let url_ = this.baseUrl + '/api/job-settings/statistic-calculator';
-    url_ = url_.replace(/[?&]$/, '');
-
-    let options_: any = {
-      observe: 'response',
-      responseType: 'blob',
-      headers: new HttpHeaders({
-        Accept: 'application/octet-stream',
-      }),
-    };
-
-    return this.http
-      .request('get', url_, options_)
-      .pipe(
-        _observableMergeMap((response_: any) => {
-          return this.processJobSettings_GetStatisticCalculatorSettings(response_);
-        }),
-      )
-      .pipe(
-        _observableCatch((response_: any) => {
-          if (response_ instanceof HttpResponseBase) {
-            try {
-              return this.processJobSettings_GetStatisticCalculatorSettings(response_ as any);
-            } catch (e) {
-              return _observableThrow(e) as any as Observable<FileResponse>;
-            }
-          } else return _observableThrow(response_) as any as Observable<FileResponse>;
-        }),
-      );
-  }
-
-  protected processJobSettings_GetStatisticCalculatorSettings(response: HttpResponseBase): Observable<FileResponse> {
-    const status = response.status;
-    const responseBlob =
-      response instanceof HttpResponse
-        ? response.body
-        : (response as any).error instanceof Blob
-          ? (response as any).error
-          : undefined;
-
-    let _headers: any = {};
-    if (response.headers) {
-      for (let key of response.headers.keys()) {
-        _headers[key] = response.headers.get(key);
-      }
-    }
-    if (status === 200 || status === 206) {
-      const contentDisposition = response.headers ? response.headers.get('content-disposition') : undefined;
-      let fileNameMatch = contentDisposition
-        ? /filename\*=(?:(\\?['"])(.*?)\1|(?:[^\s]+'.*?')?([^;\n]*))/g.exec(contentDisposition)
-        : undefined;
-      let fileName = fileNameMatch && fileNameMatch.length > 1 ? fileNameMatch[3] || fileNameMatch[2] : undefined;
-      if (fileName) {
-        fileName = decodeURIComponent(fileName);
-      } else {
-        fileNameMatch = contentDisposition ? /filename="?([^"]*?)"?(;|$)/g.exec(contentDisposition) : undefined;
-        fileName = fileNameMatch && fileNameMatch.length > 1 ? fileNameMatch[1] : undefined;
-      }
-      return _observableOf({ fileName: fileName, data: responseBlob as any, status: status, headers: _headers });
-    } else if (status !== 200 && status !== 204) {
-      return blobToText(responseBlob).pipe(
-        _observableMergeMap((_responseText: string) => {
-          return throwException('An unexpected server error occurred.', status, _responseText, _headers);
-        }),
-      );
-    }
-    return _observableOf(null as any);
-  }
-
-  jobSettings_UpdateStatisticCalculatorSettings(request: StatisticCalculatorSettingsDto): Observable<FileResponse> {
-    let url_ = this.baseUrl + '/api/job-settings/statistic-calculator';
-    url_ = url_.replace(/[?&]$/, '');
-
-    const content_ = JSON.stringify(request);
-
-    let options_: any = {
-      body: content_,
-      observe: 'response',
-      responseType: 'blob',
-      headers: new HttpHeaders({
-        'Content-Type': 'application/json',
-        Accept: 'application/octet-stream',
-      }),
-    };
-
-    return this.http
-      .request('put', url_, options_)
-      .pipe(
-        _observableMergeMap((response_: any) => {
-          return this.processJobSettings_UpdateStatisticCalculatorSettings(response_);
-        }),
-      )
-      .pipe(
-        _observableCatch((response_: any) => {
-          if (response_ instanceof HttpResponseBase) {
-            try {
-              return this.processJobSettings_UpdateStatisticCalculatorSettings(response_ as any);
-            } catch (e) {
-              return _observableThrow(e) as any as Observable<FileResponse>;
-            }
-          } else return _observableThrow(response_) as any as Observable<FileResponse>;
-        }),
-      );
-  }
-
-  protected processJobSettings_UpdateStatisticCalculatorSettings(response: HttpResponseBase): Observable<FileResponse> {
-    const status = response.status;
-    const responseBlob =
-      response instanceof HttpResponse
-        ? response.body
-        : (response as any).error instanceof Blob
-          ? (response as any).error
-          : undefined;
-
-    let _headers: any = {};
-    if (response.headers) {
-      for (let key of response.headers.keys()) {
-        _headers[key] = response.headers.get(key);
-      }
-    }
-    if (status === 200 || status === 206) {
-      const contentDisposition = response.headers ? response.headers.get('content-disposition') : undefined;
-      let fileNameMatch = contentDisposition
-        ? /filename\*=(?:(\\?['"])(.*?)\1|(?:[^\s]+'.*?')?([^;\n]*))/g.exec(contentDisposition)
-        : undefined;
-      let fileName = fileNameMatch && fileNameMatch.length > 1 ? fileNameMatch[3] || fileNameMatch[2] : undefined;
-      if (fileName) {
-        fileName = decodeURIComponent(fileName);
-      } else {
-        fileNameMatch = contentDisposition ? /filename="?([^"]*?)"?(;|$)/g.exec(contentDisposition) : undefined;
-        fileName = fileNameMatch && fileNameMatch.length > 1 ? fileNameMatch[1] : undefined;
-      }
-      return _observableOf({ fileName: fileName, data: responseBlob as any, status: status, headers: _headers });
-    } else if (status !== 200 && status !== 204) {
-      return blobToText(responseBlob).pipe(
-        _observableMergeMap((_responseText: string) => {
-          return throwException('An unexpected server error occurred.', status, _responseText, _headers);
-        }),
-      );
-    }
-    return _observableOf(null as any);
-  }
-
-  jobSettings_GetDailyStatisticCalculatorSettings(): Observable<FileResponse> {
-    let url_ = this.baseUrl + '/api/job-settings/daily-statistic-calculator';
-    url_ = url_.replace(/[?&]$/, '');
-
-    let options_: any = {
-      observe: 'response',
-      responseType: 'blob',
-      headers: new HttpHeaders({
-        Accept: 'application/octet-stream',
-      }),
-    };
-
-    return this.http
-      .request('get', url_, options_)
-      .pipe(
-        _observableMergeMap((response_: any) => {
-          return this.processJobSettings_GetDailyStatisticCalculatorSettings(response_);
-        }),
-      )
-      .pipe(
-        _observableCatch((response_: any) => {
-          if (response_ instanceof HttpResponseBase) {
-            try {
-              return this.processJobSettings_GetDailyStatisticCalculatorSettings(response_ as any);
-            } catch (e) {
-              return _observableThrow(e) as any as Observable<FileResponse>;
-            }
-          } else return _observableThrow(response_) as any as Observable<FileResponse>;
-        }),
-      );
-  }
-
-  protected processJobSettings_GetDailyStatisticCalculatorSettings(
-    response: HttpResponseBase,
-  ): Observable<FileResponse> {
-    const status = response.status;
-    const responseBlob =
-      response instanceof HttpResponse
-        ? response.body
-        : (response as any).error instanceof Blob
-          ? (response as any).error
-          : undefined;
-
-    let _headers: any = {};
-    if (response.headers) {
-      for (let key of response.headers.keys()) {
-        _headers[key] = response.headers.get(key);
-      }
-    }
-    if (status === 200 || status === 206) {
-      const contentDisposition = response.headers ? response.headers.get('content-disposition') : undefined;
-      let fileNameMatch = contentDisposition
-        ? /filename\*=(?:(\\?['"])(.*?)\1|(?:[^\s]+'.*?')?([^;\n]*))/g.exec(contentDisposition)
-        : undefined;
-      let fileName = fileNameMatch && fileNameMatch.length > 1 ? fileNameMatch[3] || fileNameMatch[2] : undefined;
-      if (fileName) {
-        fileName = decodeURIComponent(fileName);
-      } else {
-        fileNameMatch = contentDisposition ? /filename="?([^"]*?)"?(;|$)/g.exec(contentDisposition) : undefined;
-        fileName = fileNameMatch && fileNameMatch.length > 1 ? fileNameMatch[1] : undefined;
-      }
-      return _observableOf({ fileName: fileName, data: responseBlob as any, status: status, headers: _headers });
-    } else if (status !== 200 && status !== 204) {
-      return blobToText(responseBlob).pipe(
-        _observableMergeMap((_responseText: string) => {
-          return throwException('An unexpected server error occurred.', status, _responseText, _headers);
-        }),
-      );
-    }
-    return _observableOf(null as any);
-  }
-
-  jobSettings_UpdateDailyStatisticCalculatorSettings(
-    request: DailyStatisticCalculatorSettingsDto,
-  ): Observable<FileResponse> {
-    let url_ = this.baseUrl + '/api/job-settings/daily-statistic-calculator';
-    url_ = url_.replace(/[?&]$/, '');
-
-    const content_ = JSON.stringify(request);
-
-    let options_: any = {
-      body: content_,
-      observe: 'response',
-      responseType: 'blob',
-      headers: new HttpHeaders({
-        'Content-Type': 'application/json',
-        Accept: 'application/octet-stream',
-      }),
-    };
-
-    return this.http
-      .request('put', url_, options_)
-      .pipe(
-        _observableMergeMap((response_: any) => {
-          return this.processJobSettings_UpdateDailyStatisticCalculatorSettings(response_);
-        }),
-      )
-      .pipe(
-        _observableCatch((response_: any) => {
-          if (response_ instanceof HttpResponseBase) {
-            try {
-              return this.processJobSettings_UpdateDailyStatisticCalculatorSettings(response_ as any);
-            } catch (e) {
-              return _observableThrow(e) as any as Observable<FileResponse>;
-            }
-          } else return _observableThrow(response_) as any as Observable<FileResponse>;
-        }),
-      );
-  }
-
-  protected processJobSettings_UpdateDailyStatisticCalculatorSettings(
-    response: HttpResponseBase,
-  ): Observable<FileResponse> {
-    const status = response.status;
-    const responseBlob =
-      response instanceof HttpResponse
-        ? response.body
-        : (response as any).error instanceof Blob
-          ? (response as any).error
-          : undefined;
-
-    let _headers: any = {};
-    if (response.headers) {
-      for (let key of response.headers.keys()) {
-        _headers[key] = response.headers.get(key);
-      }
-    }
-    if (status === 200 || status === 206) {
-      const contentDisposition = response.headers ? response.headers.get('content-disposition') : undefined;
-      let fileNameMatch = contentDisposition
-        ? /filename\*=(?:(\\?['"])(.*?)\1|(?:[^\s]+'.*?')?([^;\n]*))/g.exec(contentDisposition)
-        : undefined;
-      let fileName = fileNameMatch && fileNameMatch.length > 1 ? fileNameMatch[3] || fileNameMatch[2] : undefined;
-      if (fileName) {
-        fileName = decodeURIComponent(fileName);
-      } else {
-        fileNameMatch = contentDisposition ? /filename="?([^"]*?)"?(;|$)/g.exec(contentDisposition) : undefined;
-        fileName = fileNameMatch && fileNameMatch.length > 1 ? fileNameMatch[1] : undefined;
-      }
-      return _observableOf({ fileName: fileName, data: responseBlob as any, status: status, headers: _headers });
-    } else if (status !== 200 && status !== 204) {
-      return blobToText(responseBlob).pipe(
-        _observableMergeMap((_responseText: string) => {
-          return throwException('An unexpected server error occurred.', status, _responseText, _headers);
-        }),
-      );
-    }
-    return _observableOf(null as any);
-  }
-
-  jobSettings_GetDailyExpiredOrganisationsCheckerSettings(): Observable<FileResponse> {
-    let url_ = this.baseUrl + '/api/job-settings/daily-expired-organisations-checker';
-    url_ = url_.replace(/[?&]$/, '');
-
-    let options_: any = {
-      observe: 'response',
-      responseType: 'blob',
-      headers: new HttpHeaders({
-        Accept: 'application/octet-stream',
-      }),
-    };
-
-    return this.http
-      .request('get', url_, options_)
-      .pipe(
-        _observableMergeMap((response_: any) => {
-          return this.processJobSettings_GetDailyExpiredOrganisationsCheckerSettings(response_);
-        }),
-      )
-      .pipe(
-        _observableCatch((response_: any) => {
-          if (response_ instanceof HttpResponseBase) {
-            try {
-              return this.processJobSettings_GetDailyExpiredOrganisationsCheckerSettings(response_ as any);
-            } catch (e) {
-              return _observableThrow(e) as any as Observable<FileResponse>;
-            }
-          } else return _observableThrow(response_) as any as Observable<FileResponse>;
-        }),
-      );
-  }
-
-  protected processJobSettings_GetDailyExpiredOrganisationsCheckerSettings(
-    response: HttpResponseBase,
-  ): Observable<FileResponse> {
-    const status = response.status;
-    const responseBlob =
-      response instanceof HttpResponse
-        ? response.body
-        : (response as any).error instanceof Blob
-          ? (response as any).error
-          : undefined;
-
-    let _headers: any = {};
-    if (response.headers) {
-      for (let key of response.headers.keys()) {
-        _headers[key] = response.headers.get(key);
-      }
-    }
-    if (status === 200 || status === 206) {
-      const contentDisposition = response.headers ? response.headers.get('content-disposition') : undefined;
-      let fileNameMatch = contentDisposition
-        ? /filename\*=(?:(\\?['"])(.*?)\1|(?:[^\s]+'.*?')?([^;\n]*))/g.exec(contentDisposition)
-        : undefined;
-      let fileName = fileNameMatch && fileNameMatch.length > 1 ? fileNameMatch[3] || fileNameMatch[2] : undefined;
-      if (fileName) {
-        fileName = decodeURIComponent(fileName);
-      } else {
-        fileNameMatch = contentDisposition ? /filename="?([^"]*?)"?(;|$)/g.exec(contentDisposition) : undefined;
-        fileName = fileNameMatch && fileNameMatch.length > 1 ? fileNameMatch[1] : undefined;
-      }
-      return _observableOf({ fileName: fileName, data: responseBlob as any, status: status, headers: _headers });
-    } else if (status !== 200 && status !== 204) {
-      return blobToText(responseBlob).pipe(
-        _observableMergeMap((_responseText: string) => {
-          return throwException('An unexpected server error occurred.', status, _responseText, _headers);
-        }),
-      );
-    }
-    return _observableOf(null as any);
-  }
-
-  jobSettings_UpdateDailyExpiredOrganisationsCheckerSettings(
-    request: DailyExpiredOrganisationsCheckerSettingsDto,
-  ): Observable<FileResponse> {
-    let url_ = this.baseUrl + '/api/job-settings/daily-expired-organisations-checker';
-    url_ = url_.replace(/[?&]$/, '');
-
-    const content_ = JSON.stringify(request);
-
-    let options_: any = {
-      body: content_,
-      observe: 'response',
-      responseType: 'blob',
-      headers: new HttpHeaders({
-        'Content-Type': 'application/json',
-        Accept: 'application/octet-stream',
-      }),
-    };
-
-    return this.http
-      .request('put', url_, options_)
-      .pipe(
-        _observableMergeMap((response_: any) => {
-          return this.processJobSettings_UpdateDailyExpiredOrganisationsCheckerSettings(response_);
-        }),
-      )
-      .pipe(
-        _observableCatch((response_: any) => {
-          if (response_ instanceof HttpResponseBase) {
-            try {
-              return this.processJobSettings_UpdateDailyExpiredOrganisationsCheckerSettings(response_ as any);
-            } catch (e) {
-              return _observableThrow(e) as any as Observable<FileResponse>;
-            }
-          } else return _observableThrow(response_) as any as Observable<FileResponse>;
-        }),
-      );
-  }
-
-  protected processJobSettings_UpdateDailyExpiredOrganisationsCheckerSettings(
-    response: HttpResponseBase,
-  ): Observable<FileResponse> {
-    const status = response.status;
-    const responseBlob =
-      response instanceof HttpResponse
-        ? response.body
-        : (response as any).error instanceof Blob
-          ? (response as any).error
-          : undefined;
-
-    let _headers: any = {};
-    if (response.headers) {
-      for (let key of response.headers.keys()) {
-        _headers[key] = response.headers.get(key);
-      }
-    }
-    if (status === 200 || status === 206) {
-      const contentDisposition = response.headers ? response.headers.get('content-disposition') : undefined;
-      let fileNameMatch = contentDisposition
-        ? /filename\*=(?:(\\?['"])(.*?)\1|(?:[^\s]+'.*?')?([^;\n]*))/g.exec(contentDisposition)
-        : undefined;
-      let fileName = fileNameMatch && fileNameMatch.length > 1 ? fileNameMatch[3] || fileNameMatch[2] : undefined;
-      if (fileName) {
-        fileName = decodeURIComponent(fileName);
-      } else {
-        fileNameMatch = contentDisposition ? /filename="?([^"]*?)"?(;|$)/g.exec(contentDisposition) : undefined;
-        fileName = fileNameMatch && fileNameMatch.length > 1 ? fileNameMatch[1] : undefined;
-      }
-      return _observableOf({ fileName: fileName, data: responseBlob as any, status: status, headers: _headers });
-    } else if (status !== 200 && status !== 204) {
-      return blobToText(responseBlob).pipe(
-        _observableMergeMap((_responseText: string) => {
-          return throwException('An unexpected server error occurred.', status, _responseText, _headers);
-        }),
-      );
-    }
-    return _observableOf(null as any);
-  }
-
-  jobSettings_GetPeriodicOrganisationDeleterSettings(): Observable<FileResponse> {
-    let url_ = this.baseUrl + '/api/job-settings/periodic-organisation-deleter';
-    url_ = url_.replace(/[?&]$/, '');
-
-    let options_: any = {
-      observe: 'response',
-      responseType: 'blob',
-      headers: new HttpHeaders({
-        Accept: 'application/octet-stream',
-      }),
-    };
-
-    return this.http
-      .request('get', url_, options_)
-      .pipe(
-        _observableMergeMap((response_: any) => {
-          return this.processJobSettings_GetPeriodicOrganisationDeleterSettings(response_);
-        }),
-      )
-      .pipe(
-        _observableCatch((response_: any) => {
-          if (response_ instanceof HttpResponseBase) {
-            try {
-              return this.processJobSettings_GetPeriodicOrganisationDeleterSettings(response_ as any);
-            } catch (e) {
-              return _observableThrow(e) as any as Observable<FileResponse>;
-            }
-          } else return _observableThrow(response_) as any as Observable<FileResponse>;
-        }),
-      );
-  }
-
-  protected processJobSettings_GetPeriodicOrganisationDeleterSettings(
-    response: HttpResponseBase,
-  ): Observable<FileResponse> {
-    const status = response.status;
-    const responseBlob =
-      response instanceof HttpResponse
-        ? response.body
-        : (response as any).error instanceof Blob
-          ? (response as any).error
-          : undefined;
-
-    let _headers: any = {};
-    if (response.headers) {
-      for (let key of response.headers.keys()) {
-        _headers[key] = response.headers.get(key);
-      }
-    }
-    if (status === 200 || status === 206) {
-      const contentDisposition = response.headers ? response.headers.get('content-disposition') : undefined;
-      let fileNameMatch = contentDisposition
-        ? /filename\*=(?:(\\?['"])(.*?)\1|(?:[^\s]+'.*?')?([^;\n]*))/g.exec(contentDisposition)
-        : undefined;
-      let fileName = fileNameMatch && fileNameMatch.length > 1 ? fileNameMatch[3] || fileNameMatch[2] : undefined;
-      if (fileName) {
-        fileName = decodeURIComponent(fileName);
-      } else {
-        fileNameMatch = contentDisposition ? /filename="?([^"]*?)"?(;|$)/g.exec(contentDisposition) : undefined;
-        fileName = fileNameMatch && fileNameMatch.length > 1 ? fileNameMatch[1] : undefined;
-      }
-      return _observableOf({ fileName: fileName, data: responseBlob as any, status: status, headers: _headers });
-    } else if (status !== 200 && status !== 204) {
-      return blobToText(responseBlob).pipe(
-        _observableMergeMap((_responseText: string) => {
-          return throwException('An unexpected server error occurred.', status, _responseText, _headers);
-        }),
-      );
-    }
-    return _observableOf(null as any);
-  }
-
-  jobSettings_UpdatePeriodicOrganisationDeleterSettings(
-    request: PeriodicOrganisationDeleterSettingsDto,
-  ): Observable<FileResponse> {
-    let url_ = this.baseUrl + '/api/job-settings/periodic-organisation-deleter';
-    url_ = url_.replace(/[?&]$/, '');
-
-    const content_ = JSON.stringify(request);
-
-    let options_: any = {
-      body: content_,
-      observe: 'response',
-      responseType: 'blob',
-      headers: new HttpHeaders({
-        'Content-Type': 'application/json',
-        Accept: 'application/octet-stream',
-      }),
-    };
-
-    return this.http
-      .request('put', url_, options_)
-      .pipe(
-        _observableMergeMap((response_: any) => {
-          return this.processJobSettings_UpdatePeriodicOrganisationDeleterSettings(response_);
-        }),
-      )
-      .pipe(
-        _observableCatch((response_: any) => {
-          if (response_ instanceof HttpResponseBase) {
-            try {
-              return this.processJobSettings_UpdatePeriodicOrganisationDeleterSettings(response_ as any);
-            } catch (e) {
-              return _observableThrow(e) as any as Observable<FileResponse>;
-            }
-          } else return _observableThrow(response_) as any as Observable<FileResponse>;
-        }),
-      );
-  }
-
-  protected processJobSettings_UpdatePeriodicOrganisationDeleterSettings(
-    response: HttpResponseBase,
-  ): Observable<FileResponse> {
-    const status = response.status;
-    const responseBlob =
-      response instanceof HttpResponse
-        ? response.body
-        : (response as any).error instanceof Blob
-          ? (response as any).error
-          : undefined;
-
-    let _headers: any = {};
-    if (response.headers) {
-      for (let key of response.headers.keys()) {
-        _headers[key] = response.headers.get(key);
-      }
-    }
-    if (status === 200 || status === 206) {
-      const contentDisposition = response.headers ? response.headers.get('content-disposition') : undefined;
-      let fileNameMatch = contentDisposition
-        ? /filename\*=(?:(\\?['"])(.*?)\1|(?:[^\s]+'.*?')?([^;\n]*))/g.exec(contentDisposition)
-        : undefined;
-      let fileName = fileNameMatch && fileNameMatch.length > 1 ? fileNameMatch[3] || fileNameMatch[2] : undefined;
-      if (fileName) {
-        fileName = decodeURIComponent(fileName);
-      } else {
-        fileNameMatch = contentDisposition ? /filename="?([^"]*?)"?(;|$)/g.exec(contentDisposition) : undefined;
-        fileName = fileNameMatch && fileNameMatch.length > 1 ? fileNameMatch[1] : undefined;
-      }
-      return _observableOf({ fileName: fileName, data: responseBlob as any, status: status, headers: _headers });
-    } else if (status !== 200 && status !== 204) {
-      return blobToText(responseBlob).pipe(
-        _observableMergeMap((_responseText: string) => {
-          return throwException('An unexpected server error occurred.', status, _responseText, _headers);
-        }),
-      );
-    }
-    return _observableOf(null as any);
-  }
-
-  jobSettings_GetPeriodicInfrastructureDeleterSettings(): Observable<FileResponse> {
-    let url_ = this.baseUrl + '/api/job-settings/periodic-infrastructure-deleter';
-    url_ = url_.replace(/[?&]$/, '');
-
-    let options_: any = {
-      observe: 'response',
-      responseType: 'blob',
-      headers: new HttpHeaders({
-        Accept: 'application/octet-stream',
-      }),
-    };
-
-    return this.http
-      .request('get', url_, options_)
-      .pipe(
-        _observableMergeMap((response_: any) => {
-          return this.processJobSettings_GetPeriodicInfrastructureDeleterSettings(response_);
-        }),
-      )
-      .pipe(
-        _observableCatch((response_: any) => {
-          if (response_ instanceof HttpResponseBase) {
-            try {
-              return this.processJobSettings_GetPeriodicInfrastructureDeleterSettings(response_ as any);
-            } catch (e) {
-              return _observableThrow(e) as any as Observable<FileResponse>;
-            }
-          } else return _observableThrow(response_) as any as Observable<FileResponse>;
-        }),
-      );
-  }
-
-  protected processJobSettings_GetPeriodicInfrastructureDeleterSettings(
-    response: HttpResponseBase,
-  ): Observable<FileResponse> {
-    const status = response.status;
-    const responseBlob =
-      response instanceof HttpResponse
-        ? response.body
-        : (response as any).error instanceof Blob
-          ? (response as any).error
-          : undefined;
-
-    let _headers: any = {};
-    if (response.headers) {
-      for (let key of response.headers.keys()) {
-        _headers[key] = response.headers.get(key);
-      }
-    }
-    if (status === 200 || status === 206) {
-      const contentDisposition = response.headers ? response.headers.get('content-disposition') : undefined;
-      let fileNameMatch = contentDisposition
-        ? /filename\*=(?:(\\?['"])(.*?)\1|(?:[^\s]+'.*?')?([^;\n]*))/g.exec(contentDisposition)
-        : undefined;
-      let fileName = fileNameMatch && fileNameMatch.length > 1 ? fileNameMatch[3] || fileNameMatch[2] : undefined;
-      if (fileName) {
-        fileName = decodeURIComponent(fileName);
-      } else {
-        fileNameMatch = contentDisposition ? /filename="?([^"]*?)"?(;|$)/g.exec(contentDisposition) : undefined;
-        fileName = fileNameMatch && fileNameMatch.length > 1 ? fileNameMatch[1] : undefined;
-      }
-      return _observableOf({ fileName: fileName, data: responseBlob as any, status: status, headers: _headers });
-    } else if (status !== 200 && status !== 204) {
-      return blobToText(responseBlob).pipe(
-        _observableMergeMap((_responseText: string) => {
-          return throwException('An unexpected server error occurred.', status, _responseText, _headers);
-        }),
-      );
-    }
-    return _observableOf(null as any);
-  }
-
-  jobSettings_UpdatePeriodicInfrastructureDeleterSettings(
-    request: PeriodicInfrastructureDeleterSettingsDto,
-  ): Observable<FileResponse> {
-    let url_ = this.baseUrl + '/api/job-settings/periodic-infrastructure-deleter';
-    url_ = url_.replace(/[?&]$/, '');
-
-    const content_ = JSON.stringify(request);
-
-    let options_: any = {
-      body: content_,
-      observe: 'response',
-      responseType: 'blob',
-      headers: new HttpHeaders({
-        'Content-Type': 'application/json',
-        Accept: 'application/octet-stream',
-      }),
-    };
-
-    return this.http
-      .request('put', url_, options_)
-      .pipe(
-        _observableMergeMap((response_: any) => {
-          return this.processJobSettings_UpdatePeriodicInfrastructureDeleterSettings(response_);
-        }),
-      )
-      .pipe(
-        _observableCatch((response_: any) => {
-          if (response_ instanceof HttpResponseBase) {
-            try {
-              return this.processJobSettings_UpdatePeriodicInfrastructureDeleterSettings(response_ as any);
-            } catch (e) {
-              return _observableThrow(e) as any as Observable<FileResponse>;
-            }
-          } else return _observableThrow(response_) as any as Observable<FileResponse>;
-        }),
-      );
-  }
-
-  protected processJobSettings_UpdatePeriodicInfrastructureDeleterSettings(
-    response: HttpResponseBase,
-  ): Observable<FileResponse> {
-    const status = response.status;
-    const responseBlob =
-      response instanceof HttpResponse
-        ? response.body
-        : (response as any).error instanceof Blob
-          ? (response as any).error
-          : undefined;
-
-    let _headers: any = {};
-    if (response.headers) {
-      for (let key of response.headers.keys()) {
-        _headers[key] = response.headers.get(key);
-      }
-    }
-    if (status === 200 || status === 206) {
-      const contentDisposition = response.headers ? response.headers.get('content-disposition') : undefined;
-      let fileNameMatch = contentDisposition
-        ? /filename\*=(?:(\\?['"])(.*?)\1|(?:[^\s]+'.*?')?([^;\n]*))/g.exec(contentDisposition)
-        : undefined;
-      let fileName = fileNameMatch && fileNameMatch.length > 1 ? fileNameMatch[3] || fileNameMatch[2] : undefined;
-      if (fileName) {
-        fileName = decodeURIComponent(fileName);
-      } else {
-        fileNameMatch = contentDisposition ? /filename="?([^"]*?)"?(;|$)/g.exec(contentDisposition) : undefined;
-        fileName = fileNameMatch && fileNameMatch.length > 1 ? fileNameMatch[1] : undefined;
-      }
-      return _observableOf({ fileName: fileName, data: responseBlob as any, status: status, headers: _headers });
-    } else if (status !== 200 && status !== 204) {
-      return blobToText(responseBlob).pipe(
-        _observableMergeMap((_responseText: string) => {
-          return throwException('An unexpected server error occurred.', status, _responseText, _headers);
-        }),
-      );
-    }
-    return _observableOf(null as any);
-  }
-
-  jobSettings_GetIdtaCrawlerSettings(): Observable<FileResponse> {
-    let url_ = this.baseUrl + '/api/job-settings/idta-crawler';
-    url_ = url_.replace(/[?&]$/, '');
-
-    let options_: any = {
-      observe: 'response',
-      responseType: 'blob',
-      headers: new HttpHeaders({
-        Accept: 'application/octet-stream',
-      }),
-    };
-
-    return this.http
-      .request('get', url_, options_)
-      .pipe(
-        _observableMergeMap((response_: any) => {
-          return this.processJobSettings_GetIdtaCrawlerSettings(response_);
-        }),
-      )
-      .pipe(
-        _observableCatch((response_: any) => {
-          if (response_ instanceof HttpResponseBase) {
-            try {
-              return this.processJobSettings_GetIdtaCrawlerSettings(response_ as any);
-            } catch (e) {
-              return _observableThrow(e) as any as Observable<FileResponse>;
-            }
-          } else return _observableThrow(response_) as any as Observable<FileResponse>;
-        }),
-      );
-  }
-
-  protected processJobSettings_GetIdtaCrawlerSettings(response: HttpResponseBase): Observable<FileResponse> {
-    const status = response.status;
-    const responseBlob =
-      response instanceof HttpResponse
-        ? response.body
-        : (response as any).error instanceof Blob
-          ? (response as any).error
-          : undefined;
-
-    let _headers: any = {};
-    if (response.headers) {
-      for (let key of response.headers.keys()) {
-        _headers[key] = response.headers.get(key);
-      }
-    }
-    if (status === 200 || status === 206) {
-      const contentDisposition = response.headers ? response.headers.get('content-disposition') : undefined;
-      let fileNameMatch = contentDisposition
-        ? /filename\*=(?:(\\?['"])(.*?)\1|(?:[^\s]+'.*?')?([^;\n]*))/g.exec(contentDisposition)
-        : undefined;
-      let fileName = fileNameMatch && fileNameMatch.length > 1 ? fileNameMatch[3] || fileNameMatch[2] : undefined;
-      if (fileName) {
-        fileName = decodeURIComponent(fileName);
-      } else {
-        fileNameMatch = contentDisposition ? /filename="?([^"]*?)"?(;|$)/g.exec(contentDisposition) : undefined;
-        fileName = fileNameMatch && fileNameMatch.length > 1 ? fileNameMatch[1] : undefined;
-      }
-      return _observableOf({ fileName: fileName, data: responseBlob as any, status: status, headers: _headers });
-    } else if (status !== 200 && status !== 204) {
-      return blobToText(responseBlob).pipe(
-        _observableMergeMap((_responseText: string) => {
-          return throwException('An unexpected server error occurred.', status, _responseText, _headers);
-        }),
-      );
-    }
-    return _observableOf(null as any);
-  }
-
-  jobSettings_UpdateIdtaCrawlerSettings(request: IdtaCrawlerSettingsDto): Observable<FileResponse> {
-    let url_ = this.baseUrl + '/api/job-settings/idta-crawler';
-    url_ = url_.replace(/[?&]$/, '');
-
-    const content_ = JSON.stringify(request);
-
-    let options_: any = {
-      body: content_,
-      observe: 'response',
-      responseType: 'blob',
-      headers: new HttpHeaders({
-        'Content-Type': 'application/json',
-        Accept: 'application/octet-stream',
-      }),
-    };
-
-    return this.http
-      .request('put', url_, options_)
-      .pipe(
-        _observableMergeMap((response_: any) => {
-          return this.processJobSettings_UpdateIdtaCrawlerSettings(response_);
-        }),
-      )
-      .pipe(
-        _observableCatch((response_: any) => {
-          if (response_ instanceof HttpResponseBase) {
-            try {
-              return this.processJobSettings_UpdateIdtaCrawlerSettings(response_ as any);
-            } catch (e) {
-              return _observableThrow(e) as any as Observable<FileResponse>;
-            }
-          } else return _observableThrow(response_) as any as Observable<FileResponse>;
-        }),
-      );
-  }
-
-  protected processJobSettings_UpdateIdtaCrawlerSettings(response: HttpResponseBase): Observable<FileResponse> {
-    const status = response.status;
-    const responseBlob =
-      response instanceof HttpResponse
-        ? response.body
-        : (response as any).error instanceof Blob
-          ? (response as any).error
-          : undefined;
-
-    let _headers: any = {};
-    if (response.headers) {
-      for (let key of response.headers.keys()) {
-        _headers[key] = response.headers.get(key);
-      }
-    }
-    if (status === 200 || status === 206) {
-      const contentDisposition = response.headers ? response.headers.get('content-disposition') : undefined;
-      let fileNameMatch = contentDisposition
-        ? /filename\*=(?:(\\?['"])(.*?)\1|(?:[^\s]+'.*?')?([^;\n]*))/g.exec(contentDisposition)
-        : undefined;
-      let fileName = fileNameMatch && fileNameMatch.length > 1 ? fileNameMatch[3] || fileNameMatch[2] : undefined;
-      if (fileName) {
-        fileName = decodeURIComponent(fileName);
-      } else {
-        fileNameMatch = contentDisposition ? /filename="?([^"]*?)"?(;|$)/g.exec(contentDisposition) : undefined;
-        fileName = fileNameMatch && fileNameMatch.length > 1 ? fileNameMatch[1] : undefined;
-      }
-      return _observableOf({ fileName: fileName, data: responseBlob as any, status: status, headers: _headers });
-    } else if (status !== 200 && status !== 204) {
-      return blobToText(responseBlob).pipe(
-        _observableMergeMap((_responseText: string) => {
-          return throwException('An unexpected server error occurred.', status, _responseText, _headers);
-        }),
-      );
-    }
-    return _observableOf(null as any);
-  }
-
-  jobSettings_GetPcnUpdateListenerSettings(): Observable<FileResponse> {
-    let url_ = this.baseUrl + '/api/job-settings/pcn-update-listener';
-    url_ = url_.replace(/[?&]$/, '');
-
-    let options_: any = {
-      observe: 'response',
-      responseType: 'blob',
-      headers: new HttpHeaders({
-        Accept: 'application/octet-stream',
-      }),
-    };
-
-    return this.http
-      .request('get', url_, options_)
-      .pipe(
-        _observableMergeMap((response_: any) => {
-          return this.processJobSettings_GetPcnUpdateListenerSettings(response_);
-        }),
-      )
-      .pipe(
-        _observableCatch((response_: any) => {
-          if (response_ instanceof HttpResponseBase) {
-            try {
-              return this.processJobSettings_GetPcnUpdateListenerSettings(response_ as any);
-            } catch (e) {
-              return _observableThrow(e) as any as Observable<FileResponse>;
-            }
-          } else return _observableThrow(response_) as any as Observable<FileResponse>;
-        }),
-      );
-  }
-
-  protected processJobSettings_GetPcnUpdateListenerSettings(response: HttpResponseBase): Observable<FileResponse> {
-    const status = response.status;
-    const responseBlob =
-      response instanceof HttpResponse
-        ? response.body
-        : (response as any).error instanceof Blob
-          ? (response as any).error
-          : undefined;
-
-    let _headers: any = {};
-    if (response.headers) {
-      for (let key of response.headers.keys()) {
-        _headers[key] = response.headers.get(key);
-      }
-    }
-    if (status === 200 || status === 206) {
-      const contentDisposition = response.headers ? response.headers.get('content-disposition') : undefined;
-      let fileNameMatch = contentDisposition
-        ? /filename\*=(?:(\\?['"])(.*?)\1|(?:[^\s]+'.*?')?([^;\n]*))/g.exec(contentDisposition)
-        : undefined;
-      let fileName = fileNameMatch && fileNameMatch.length > 1 ? fileNameMatch[3] || fileNameMatch[2] : undefined;
-      if (fileName) {
-        fileName = decodeURIComponent(fileName);
-      } else {
-        fileNameMatch = contentDisposition ? /filename="?([^"]*?)"?(;|$)/g.exec(contentDisposition) : undefined;
-        fileName = fileNameMatch && fileNameMatch.length > 1 ? fileNameMatch[1] : undefined;
-      }
-      return _observableOf({ fileName: fileName, data: responseBlob as any, status: status, headers: _headers });
-    } else if (status !== 200 && status !== 204) {
-      return blobToText(responseBlob).pipe(
-        _observableMergeMap((_responseText: string) => {
-          return throwException('An unexpected server error occurred.', status, _responseText, _headers);
-        }),
-      );
-    }
-    return _observableOf(null as any);
-  }
-
-  jobSettings_UpdatePcnUpdateListenerSettings(request: PcnUpdateListenerSettingsDto): Observable<FileResponse> {
-    let url_ = this.baseUrl + '/api/job-settings/pcn-update-listener';
-    url_ = url_.replace(/[?&]$/, '');
-
-    const content_ = JSON.stringify(request);
-
-    let options_: any = {
-      body: content_,
-      observe: 'response',
-      responseType: 'blob',
-      headers: new HttpHeaders({
-        'Content-Type': 'application/json',
-        Accept: 'application/octet-stream',
-      }),
-    };
-
-    return this.http
-      .request('put', url_, options_)
-      .pipe(
-        _observableMergeMap((response_: any) => {
-          return this.processJobSettings_UpdatePcnUpdateListenerSettings(response_);
-        }),
-      )
-      .pipe(
-        _observableCatch((response_: any) => {
-          if (response_ instanceof HttpResponseBase) {
-            try {
-              return this.processJobSettings_UpdatePcnUpdateListenerSettings(response_ as any);
-            } catch (e) {
-              return _observableThrow(e) as any as Observable<FileResponse>;
-            }
-          } else return _observableThrow(response_) as any as Observable<FileResponse>;
-        }),
-      );
-  }
-
-  protected processJobSettings_UpdatePcnUpdateListenerSettings(response: HttpResponseBase): Observable<FileResponse> {
-    const status = response.status;
-    const responseBlob =
-      response instanceof HttpResponse
-        ? response.body
-        : (response as any).error instanceof Blob
-          ? (response as any).error
-          : undefined;
-
-    let _headers: any = {};
-    if (response.headers) {
-      for (let key of response.headers.keys()) {
-        _headers[key] = response.headers.get(key);
-      }
-    }
-    if (status === 200 || status === 206) {
-      const contentDisposition = response.headers ? response.headers.get('content-disposition') : undefined;
-      let fileNameMatch = contentDisposition
-        ? /filename\*=(?:(\\?['"])(.*?)\1|(?:[^\s]+'.*?')?([^;\n]*))/g.exec(contentDisposition)
-        : undefined;
-      let fileName = fileNameMatch && fileNameMatch.length > 1 ? fileNameMatch[3] || fileNameMatch[2] : undefined;
-      if (fileName) {
-        fileName = decodeURIComponent(fileName);
-      } else {
-        fileNameMatch = contentDisposition ? /filename="?([^"]*?)"?(;|$)/g.exec(contentDisposition) : undefined;
-        fileName = fileNameMatch && fileNameMatch.length > 1 ? fileNameMatch[1] : undefined;
-      }
-      return _observableOf({ fileName: fileName, data: responseBlob as any, status: status, headers: _headers });
-    } else if (status !== 200 && status !== 204) {
-      return blobToText(responseBlob).pipe(
-        _observableMergeMap((_responseText: string) => {
-          return throwException('An unexpected server error occurred.', status, _responseText, _headers);
-        }),
-      );
-    }
-    return _observableOf(null as any);
-  }
-}
-
-export interface ISystemManagementClient {
-  systemManagement_GetConfiguration(): Observable<SystemConfigurationDto>;
-  systemManagement_GetStatus(
-    systemType: SystemType | undefined,
-    infrastructureId: number | undefined,
-  ): Observable<SystemStatusDto>;
-  systemManagement_GetHelpInfo(): Observable<HelpInfoDto>;
-  systemManagement_ExportHelpTexts(): Observable<FileResponse>;
-  systemManagement_ImportHelpTexts(helpUpdate: HelpUpdate): Observable<boolean>;
-  systemManagement_GetThemeDefinitions(): Observable<ThemeDefinitionDto[]>;
-  systemManagement_GetDeleteProtocols(): Observable<DeleteProtocolDto[]>;
-  systemManagement_GetMailSettings(): Observable<MailSettingsDto>;
-  systemManagement_UpdateMailSettings(settings: MailSettingsDto): Observable<MailSettingsDto>;
-  systemManagement_GetLegalLinksSettings(): Observable<LegalLinksSettingsDto>;
-  systemManagement_GetLegalDocument(fieldName: string): Observable<FileResponse>;
-  systemManagement_UpdateLegalLinksSettings(
-    request: UpdateLegalLinksSettingsRequest,
-  ): Observable<LegalLinksSettingsDto>;
-  systemManagement_SendApplicationTestMail(request: SendApplicationTestMailRequestDto): Observable<void>;
-  systemManagement_SendKeycloakTestMail(request: SendKeycloakTestMailRequestDto): Observable<void>;
-  systemManagement_UpsertThemeDefinition(theme: ThemeDefinitionDto): Observable<ThemeDefinitionDto>;
-  systemManagement_DeleteThemeDefinition(key: string | undefined): Observable<boolean>;
-  systemManagement_ExportThemeDefinitions(): Observable<FileResponse>;
-  systemManagement_ImportThemeDefinitions(themeImport: ThemeDefinitionsImport): Observable<boolean>;
-}
-
-@Injectable({
-  providedIn: 'root',
-})
-export class SystemManagementClient implements ISystemManagementClient {
-  private http: HttpClient;
-  private baseUrl: string;
-  protected jsonParseReviver: ((key: string, value: any) => any) | undefined = undefined;
-
-  constructor(@Inject(HttpClient) http: HttpClient, @Optional() @Inject(API_BASE_URL) baseUrl?: string) {
-    this.http = http;
-    this.baseUrl = baseUrl ?? '';
-  }
-
-  systemManagement_GetConfiguration(): Observable<SystemConfigurationDto> {
-    let url_ = this.baseUrl + '/system-management-api/SystemManagement/GetConfiguration';
+  /**
+   * Alle Infrastrukturen einer Organisation mit den Rechten eines bestimmten Nutzers.
+   * @param organisationId (optional)
+   * @param userId (optional)
+   */
+  infrastrukturRechte_GetUserInfraRechte(
+    organisationId: number | undefined,
+    userId: number | undefined,
+  ): Observable<BenutzerInfrastrukturRechtDto[]> {
+    let url_ = this.baseUrl + '/api/InfrastrukturRechte/GetUserInfraRechte?';
+    if (organisationId === null) throw new Error("The parameter 'organisationId' cannot be null.");
+    else if (organisationId !== undefined) url_ += 'organisationId=' + encodeURIComponent('' + organisationId) + '&';
+    if (userId === null) throw new Error("The parameter 'userId' cannot be null.");
+    else if (userId !== undefined) url_ += 'userId=' + encodeURIComponent('' + userId) + '&';
     url_ = url_.replace(/[?&]$/, '');
 
     let options_: any = {
@@ -6689,370 +5638,25 @@ export class SystemManagementClient implements ISystemManagementClient {
       .request('get', url_, options_)
       .pipe(
         _observableMergeMap((response_: any) => {
-          return this.processSystemManagement_GetConfiguration(response_);
+          return this.processInfrastrukturRechte_GetUserInfraRechte(response_);
         }),
       )
       .pipe(
         _observableCatch((response_: any) => {
           if (response_ instanceof HttpResponseBase) {
             try {
-              return this.processSystemManagement_GetConfiguration(response_ as any);
+              return this.processInfrastrukturRechte_GetUserInfraRechte(response_ as any);
             } catch (e) {
-              return _observableThrow(e) as any as Observable<SystemConfigurationDto>;
+              return _observableThrow(e) as any as Observable<BenutzerInfrastrukturRechtDto[]>;
             }
-          } else return _observableThrow(response_) as any as Observable<SystemConfigurationDto>;
+          } else return _observableThrow(response_) as any as Observable<BenutzerInfrastrukturRechtDto[]>;
         }),
       );
   }
 
-  protected processSystemManagement_GetConfiguration(response: HttpResponseBase): Observable<SystemConfigurationDto> {
-    const status = response.status;
-    const responseBlob =
-      response instanceof HttpResponse
-        ? response.body
-        : (response as any).error instanceof Blob
-          ? (response as any).error
-          : undefined;
-
-    let _headers: any = {};
-    if (response.headers) {
-      for (let key of response.headers.keys()) {
-        _headers[key] = response.headers.get(key);
-      }
-    }
-    if (status === 200) {
-      return blobToText(responseBlob).pipe(
-        _observableMergeMap((_responseText: string) => {
-          let result200: any = null;
-          let resultData200 = _responseText === '' ? null : JSON.parse(_responseText, this.jsonParseReviver);
-          result200 = SystemConfigurationDto.fromJS(resultData200);
-          return _observableOf(result200);
-        }),
-      );
-    } else if (status !== 200 && status !== 204) {
-      return blobToText(responseBlob).pipe(
-        _observableMergeMap((_responseText: string) => {
-          return throwException('An unexpected server error occurred.', status, _responseText, _headers);
-        }),
-      );
-    }
-    return _observableOf(null as any);
-  }
-
-  systemManagement_GetStatus(
-    systemType: SystemType | undefined,
-    infrastructureId: number | undefined,
-  ): Observable<SystemStatusDto> {
-    let url_ = this.baseUrl + '/system-management-api/SystemManagement/GetStatus?';
-    if (systemType === null) throw new Error("The parameter 'systemType' cannot be null.");
-    else if (systemType !== undefined) url_ += 'systemType=' + encodeURIComponent('' + systemType) + '&';
-    if (infrastructureId === null) throw new Error("The parameter 'infrastructureId' cannot be null.");
-    else if (infrastructureId !== undefined)
-      url_ += 'infrastructureId=' + encodeURIComponent('' + infrastructureId) + '&';
-    url_ = url_.replace(/[?&]$/, '');
-
-    let options_: any = {
-      observe: 'response',
-      responseType: 'blob',
-      headers: new HttpHeaders({
-        Accept: 'application/json',
-      }),
-    };
-
-    return this.http
-      .request('get', url_, options_)
-      .pipe(
-        _observableMergeMap((response_: any) => {
-          return this.processSystemManagement_GetStatus(response_);
-        }),
-      )
-      .pipe(
-        _observableCatch((response_: any) => {
-          if (response_ instanceof HttpResponseBase) {
-            try {
-              return this.processSystemManagement_GetStatus(response_ as any);
-            } catch (e) {
-              return _observableThrow(e) as any as Observable<SystemStatusDto>;
-            }
-          } else return _observableThrow(response_) as any as Observable<SystemStatusDto>;
-        }),
-      );
-  }
-
-  protected processSystemManagement_GetStatus(response: HttpResponseBase): Observable<SystemStatusDto> {
-    const status = response.status;
-    const responseBlob =
-      response instanceof HttpResponse
-        ? response.body
-        : (response as any).error instanceof Blob
-          ? (response as any).error
-          : undefined;
-
-    let _headers: any = {};
-    if (response.headers) {
-      for (let key of response.headers.keys()) {
-        _headers[key] = response.headers.get(key);
-      }
-    }
-    if (status === 200) {
-      return blobToText(responseBlob).pipe(
-        _observableMergeMap((_responseText: string) => {
-          let result200: any = null;
-          let resultData200 = _responseText === '' ? null : JSON.parse(_responseText, this.jsonParseReviver);
-          result200 = SystemStatusDto.fromJS(resultData200);
-          return _observableOf(result200);
-        }),
-      );
-    } else if (status !== 200 && status !== 204) {
-      return blobToText(responseBlob).pipe(
-        _observableMergeMap((_responseText: string) => {
-          return throwException('An unexpected server error occurred.', status, _responseText, _headers);
-        }),
-      );
-    }
-    return _observableOf(null as any);
-  }
-
-  systemManagement_GetHelpInfo(): Observable<HelpInfoDto> {
-    let url_ = this.baseUrl + '/system-management-api/SystemManagement/GetHelpInfo';
-    url_ = url_.replace(/[?&]$/, '');
-
-    let options_: any = {
-      observe: 'response',
-      responseType: 'blob',
-      headers: new HttpHeaders({
-        Accept: 'application/json',
-      }),
-    };
-
-    return this.http
-      .request('get', url_, options_)
-      .pipe(
-        _observableMergeMap((response_: any) => {
-          return this.processSystemManagement_GetHelpInfo(response_);
-        }),
-      )
-      .pipe(
-        _observableCatch((response_: any) => {
-          if (response_ instanceof HttpResponseBase) {
-            try {
-              return this.processSystemManagement_GetHelpInfo(response_ as any);
-            } catch (e) {
-              return _observableThrow(e) as any as Observable<HelpInfoDto>;
-            }
-          } else return _observableThrow(response_) as any as Observable<HelpInfoDto>;
-        }),
-      );
-  }
-
-  protected processSystemManagement_GetHelpInfo(response: HttpResponseBase): Observable<HelpInfoDto> {
-    const status = response.status;
-    const responseBlob =
-      response instanceof HttpResponse
-        ? response.body
-        : (response as any).error instanceof Blob
-          ? (response as any).error
-          : undefined;
-
-    let _headers: any = {};
-    if (response.headers) {
-      for (let key of response.headers.keys()) {
-        _headers[key] = response.headers.get(key);
-      }
-    }
-    if (status === 200) {
-      return blobToText(responseBlob).pipe(
-        _observableMergeMap((_responseText: string) => {
-          let result200: any = null;
-          let resultData200 = _responseText === '' ? null : JSON.parse(_responseText, this.jsonParseReviver);
-          result200 = HelpInfoDto.fromJS(resultData200);
-          return _observableOf(result200);
-        }),
-      );
-    } else if (status !== 200 && status !== 204) {
-      return blobToText(responseBlob).pipe(
-        _observableMergeMap((_responseText: string) => {
-          return throwException('An unexpected server error occurred.', status, _responseText, _headers);
-        }),
-      );
-    }
-    return _observableOf(null as any);
-  }
-
-  systemManagement_ExportHelpTexts(): Observable<FileResponse> {
-    let url_ = this.baseUrl + '/system-management-api/SystemManagement/ExportHelpTexts';
-    url_ = url_.replace(/[?&]$/, '');
-
-    let options_: any = {
-      observe: 'response',
-      responseType: 'blob',
-      headers: new HttpHeaders({
-        Accept: 'application/octet-stream',
-      }),
-    };
-
-    return this.http
-      .request('post', url_, options_)
-      .pipe(
-        _observableMergeMap((response_: any) => {
-          return this.processSystemManagement_ExportHelpTexts(response_);
-        }),
-      )
-      .pipe(
-        _observableCatch((response_: any) => {
-          if (response_ instanceof HttpResponseBase) {
-            try {
-              return this.processSystemManagement_ExportHelpTexts(response_ as any);
-            } catch (e) {
-              return _observableThrow(e) as any as Observable<FileResponse>;
-            }
-          } else return _observableThrow(response_) as any as Observable<FileResponse>;
-        }),
-      );
-  }
-
-  protected processSystemManagement_ExportHelpTexts(response: HttpResponseBase): Observable<FileResponse> {
-    const status = response.status;
-    const responseBlob =
-      response instanceof HttpResponse
-        ? response.body
-        : (response as any).error instanceof Blob
-          ? (response as any).error
-          : undefined;
-
-    let _headers: any = {};
-    if (response.headers) {
-      for (let key of response.headers.keys()) {
-        _headers[key] = response.headers.get(key);
-      }
-    }
-    if (status === 200 || status === 206) {
-      const contentDisposition = response.headers ? response.headers.get('content-disposition') : undefined;
-      let fileNameMatch = contentDisposition
-        ? /filename\*=(?:(\\?['"])(.*?)\1|(?:[^\s]+'.*?')?([^;\n]*))/g.exec(contentDisposition)
-        : undefined;
-      let fileName = fileNameMatch && fileNameMatch.length > 1 ? fileNameMatch[3] || fileNameMatch[2] : undefined;
-      if (fileName) {
-        fileName = decodeURIComponent(fileName);
-      } else {
-        fileNameMatch = contentDisposition ? /filename="?([^"]*?)"?(;|$)/g.exec(contentDisposition) : undefined;
-        fileName = fileNameMatch && fileNameMatch.length > 1 ? fileNameMatch[1] : undefined;
-      }
-      return _observableOf({ fileName: fileName, data: responseBlob as any, status: status, headers: _headers });
-    } else if (status !== 200 && status !== 204) {
-      return blobToText(responseBlob).pipe(
-        _observableMergeMap((_responseText: string) => {
-          return throwException('An unexpected server error occurred.', status, _responseText, _headers);
-        }),
-      );
-    }
-    return _observableOf(null as any);
-  }
-
-  systemManagement_ImportHelpTexts(helpUpdate: HelpUpdate): Observable<boolean> {
-    let url_ = this.baseUrl + '/system-management-api/SystemManagement/ImportHelpTexts';
-    url_ = url_.replace(/[?&]$/, '');
-
-    const content_ = JSON.stringify(helpUpdate);
-
-    let options_: any = {
-      body: content_,
-      observe: 'response',
-      responseType: 'blob',
-      headers: new HttpHeaders({
-        'Content-Type': 'application/json',
-        Accept: 'application/json',
-      }),
-    };
-
-    return this.http
-      .request('post', url_, options_)
-      .pipe(
-        _observableMergeMap((response_: any) => {
-          return this.processSystemManagement_ImportHelpTexts(response_);
-        }),
-      )
-      .pipe(
-        _observableCatch((response_: any) => {
-          if (response_ instanceof HttpResponseBase) {
-            try {
-              return this.processSystemManagement_ImportHelpTexts(response_ as any);
-            } catch (e) {
-              return _observableThrow(e) as any as Observable<boolean>;
-            }
-          } else return _observableThrow(response_) as any as Observable<boolean>;
-        }),
-      );
-  }
-
-  protected processSystemManagement_ImportHelpTexts(response: HttpResponseBase): Observable<boolean> {
-    const status = response.status;
-    const responseBlob =
-      response instanceof HttpResponse
-        ? response.body
-        : (response as any).error instanceof Blob
-          ? (response as any).error
-          : undefined;
-
-    let _headers: any = {};
-    if (response.headers) {
-      for (let key of response.headers.keys()) {
-        _headers[key] = response.headers.get(key);
-      }
-    }
-    if (status === 200) {
-      return blobToText(responseBlob).pipe(
-        _observableMergeMap((_responseText: string) => {
-          let result200: any = null;
-          let resultData200 = _responseText === '' ? null : JSON.parse(_responseText, this.jsonParseReviver);
-          result200 = resultData200 !== undefined ? resultData200 : <any>null;
-
-          return _observableOf(result200);
-        }),
-      );
-    } else if (status !== 200 && status !== 204) {
-      return blobToText(responseBlob).pipe(
-        _observableMergeMap((_responseText: string) => {
-          return throwException('An unexpected server error occurred.', status, _responseText, _headers);
-        }),
-      );
-    }
-    return _observableOf(null as any);
-  }
-
-  systemManagement_GetThemeDefinitions(): Observable<ThemeDefinitionDto[]> {
-    let url_ = this.baseUrl + '/system-management-api/SystemManagement/GetThemeDefinitions';
-    url_ = url_.replace(/[?&]$/, '');
-
-    let options_: any = {
-      observe: 'response',
-      responseType: 'blob',
-      headers: new HttpHeaders({
-        Accept: 'application/json',
-      }),
-    };
-
-    return this.http
-      .request('get', url_, options_)
-      .pipe(
-        _observableMergeMap((response_: any) => {
-          return this.processSystemManagement_GetThemeDefinitions(response_);
-        }),
-      )
-      .pipe(
-        _observableCatch((response_: any) => {
-          if (response_ instanceof HttpResponseBase) {
-            try {
-              return this.processSystemManagement_GetThemeDefinitions(response_ as any);
-            } catch (e) {
-              return _observableThrow(e) as any as Observable<ThemeDefinitionDto[]>;
-            }
-          } else return _observableThrow(response_) as any as Observable<ThemeDefinitionDto[]>;
-        }),
-      );
-  }
-
-  protected processSystemManagement_GetThemeDefinitions(response: HttpResponseBase): Observable<ThemeDefinitionDto[]> {
+  protected processInfrastrukturRechte_GetUserInfraRechte(
+    response: HttpResponseBase,
+  ): Observable<BenutzerInfrastrukturRechtDto[]> {
     const status = response.status;
     const responseBlob =
       response instanceof HttpResponse
@@ -7074,7 +5678,7 @@ export class SystemManagementClient implements ISystemManagementClient {
           let resultData200 = _responseText === '' ? null : JSON.parse(_responseText, this.jsonParseReviver);
           if (Array.isArray(resultData200)) {
             result200 = [] as any;
-            for (let item of resultData200) result200!.push(ThemeDefinitionDto.fromJS(item));
+            for (let item of resultData200) result200!.push(BenutzerInfrastrukturRechtDto.fromJS(item));
           } else {
             result200 = <any>null;
           }
@@ -7091,8 +5695,110 @@ export class SystemManagementClient implements ISystemManagementClient {
     return _observableOf(null as any);
   }
 
-  systemManagement_GetDeleteProtocols(): Observable<DeleteProtocolDto[]> {
-    let url_ = this.baseUrl + '/system-management-api/SystemManagement/GetDeleteProtocols';
+  /**
+     * Rechte eines Nutzers für eine bestimmte Infrastruktur setzen (Upsert).
+    DarfSchreiben impliziert DarfLesen.
+     * @param organisationId (optional) 
+     * @param userId (optional) 
+     * @param infraId (optional) 
+     */
+  infrastrukturRechte_UpsertUserInfraRecht(
+    organisationId: number | undefined,
+    userId: number | undefined,
+    infraId: number | undefined,
+    dto: BenutzerInfrastrukturRechtDto,
+  ): Observable<BenutzerInfrastrukturRechtDto> {
+    let url_ = this.baseUrl + '/api/InfrastrukturRechte/UpsertUserInfraRecht?';
+    if (organisationId === null) throw new Error("The parameter 'organisationId' cannot be null.");
+    else if (organisationId !== undefined) url_ += 'organisationId=' + encodeURIComponent('' + organisationId) + '&';
+    if (userId === null) throw new Error("The parameter 'userId' cannot be null.");
+    else if (userId !== undefined) url_ += 'userId=' + encodeURIComponent('' + userId) + '&';
+    if (infraId === null) throw new Error("The parameter 'infraId' cannot be null.");
+    else if (infraId !== undefined) url_ += 'infraId=' + encodeURIComponent('' + infraId) + '&';
+    url_ = url_.replace(/[?&]$/, '');
+
+    const content_ = JSON.stringify(dto);
+
+    let options_: any = {
+      body: content_,
+      observe: 'response',
+      responseType: 'blob',
+      headers: new HttpHeaders({
+        'Content-Type': 'application/json',
+        Accept: 'application/json',
+      }),
+    };
+
+    return this.http
+      .request('put', url_, options_)
+      .pipe(
+        _observableMergeMap((response_: any) => {
+          return this.processInfrastrukturRechte_UpsertUserInfraRecht(response_);
+        }),
+      )
+      .pipe(
+        _observableCatch((response_: any) => {
+          if (response_ instanceof HttpResponseBase) {
+            try {
+              return this.processInfrastrukturRechte_UpsertUserInfraRecht(response_ as any);
+            } catch (e) {
+              return _observableThrow(e) as any as Observable<BenutzerInfrastrukturRechtDto>;
+            }
+          } else return _observableThrow(response_) as any as Observable<BenutzerInfrastrukturRechtDto>;
+        }),
+      );
+  }
+
+  protected processInfrastrukturRechte_UpsertUserInfraRecht(
+    response: HttpResponseBase,
+  ): Observable<BenutzerInfrastrukturRechtDto> {
+    const status = response.status;
+    const responseBlob =
+      response instanceof HttpResponse
+        ? response.body
+        : (response as any).error instanceof Blob
+          ? (response as any).error
+          : undefined;
+
+    let _headers: any = {};
+    if (response.headers) {
+      for (let key of response.headers.keys()) {
+        _headers[key] = response.headers.get(key);
+      }
+    }
+    if (status === 200) {
+      return blobToText(responseBlob).pipe(
+        _observableMergeMap((_responseText: string) => {
+          let result200: any = null;
+          let resultData200 = _responseText === '' ? null : JSON.parse(_responseText, this.jsonParseReviver);
+          result200 = BenutzerInfrastrukturRechtDto.fromJS(resultData200);
+          return _observableOf(result200);
+        }),
+      );
+    } else if (status !== 200 && status !== 204) {
+      return blobToText(responseBlob).pipe(
+        _observableMergeMap((_responseText: string) => {
+          return throwException('An unexpected server error occurred.', status, _responseText, _headers);
+        }),
+      );
+    }
+    return _observableOf(null as any);
+  }
+
+  /**
+   * Alle Nutzer einer Organisation mit ihren Rechten für eine bestimmte Infrastruktur.
+   * @param organisationId (optional)
+   * @param infraId (optional)
+   */
+  infrastrukturRechte_GetInfraUserRechte(
+    organisationId: number | undefined,
+    infraId: number | undefined,
+  ): Observable<InfraUserRechtDto[]> {
+    let url_ = this.baseUrl + '/api/InfrastrukturRechte/GetInfraUserRechte?';
+    if (organisationId === null) throw new Error("The parameter 'organisationId' cannot be null.");
+    else if (organisationId !== undefined) url_ += 'organisationId=' + encodeURIComponent('' + organisationId) + '&';
+    if (infraId === null) throw new Error("The parameter 'infraId' cannot be null.");
+    else if (infraId !== undefined) url_ += 'infraId=' + encodeURIComponent('' + infraId) + '&';
     url_ = url_.replace(/[?&]$/, '');
 
     let options_: any = {
@@ -7107,23 +5813,23 @@ export class SystemManagementClient implements ISystemManagementClient {
       .request('get', url_, options_)
       .pipe(
         _observableMergeMap((response_: any) => {
-          return this.processSystemManagement_GetDeleteProtocols(response_);
+          return this.processInfrastrukturRechte_GetInfraUserRechte(response_);
         }),
       )
       .pipe(
         _observableCatch((response_: any) => {
           if (response_ instanceof HttpResponseBase) {
             try {
-              return this.processSystemManagement_GetDeleteProtocols(response_ as any);
+              return this.processInfrastrukturRechte_GetInfraUserRechte(response_ as any);
             } catch (e) {
-              return _observableThrow(e) as any as Observable<DeleteProtocolDto[]>;
+              return _observableThrow(e) as any as Observable<InfraUserRechtDto[]>;
             }
-          } else return _observableThrow(response_) as any as Observable<DeleteProtocolDto[]>;
+          } else return _observableThrow(response_) as any as Observable<InfraUserRechtDto[]>;
         }),
       );
   }
 
-  protected processSystemManagement_GetDeleteProtocols(response: HttpResponseBase): Observable<DeleteProtocolDto[]> {
+  protected processInfrastrukturRechte_GetInfraUserRechte(response: HttpResponseBase): Observable<InfraUserRechtDto[]> {
     const status = response.status;
     const responseBlob =
       response instanceof HttpResponse
@@ -7145,772 +5851,10 @@ export class SystemManagementClient implements ISystemManagementClient {
           let resultData200 = _responseText === '' ? null : JSON.parse(_responseText, this.jsonParseReviver);
           if (Array.isArray(resultData200)) {
             result200 = [] as any;
-            for (let item of resultData200) result200!.push(DeleteProtocolDto.fromJS(item));
+            for (let item of resultData200) result200!.push(InfraUserRechtDto.fromJS(item));
           } else {
             result200 = <any>null;
           }
-          return _observableOf(result200);
-        }),
-      );
-    } else if (status !== 200 && status !== 204) {
-      return blobToText(responseBlob).pipe(
-        _observableMergeMap((_responseText: string) => {
-          return throwException('An unexpected server error occurred.', status, _responseText, _headers);
-        }),
-      );
-    }
-    return _observableOf(null as any);
-  }
-
-  systemManagement_GetMailSettings(): Observable<MailSettingsDto> {
-    let url_ = this.baseUrl + '/system-management-api/SystemManagement/GetMailSettings';
-    url_ = url_.replace(/[?&]$/, '');
-
-    let options_: any = {
-      observe: 'response',
-      responseType: 'blob',
-      headers: new HttpHeaders({
-        Accept: 'application/json',
-      }),
-    };
-
-    return this.http
-      .request('get', url_, options_)
-      .pipe(
-        _observableMergeMap((response_: any) => {
-          return this.processSystemManagement_GetMailSettings(response_);
-        }),
-      )
-      .pipe(
-        _observableCatch((response_: any) => {
-          if (response_ instanceof HttpResponseBase) {
-            try {
-              return this.processSystemManagement_GetMailSettings(response_ as any);
-            } catch (e) {
-              return _observableThrow(e) as any as Observable<MailSettingsDto>;
-            }
-          } else return _observableThrow(response_) as any as Observable<MailSettingsDto>;
-        }),
-      );
-  }
-
-  protected processSystemManagement_GetMailSettings(response: HttpResponseBase): Observable<MailSettingsDto> {
-    const status = response.status;
-    const responseBlob =
-      response instanceof HttpResponse
-        ? response.body
-        : (response as any).error instanceof Blob
-          ? (response as any).error
-          : undefined;
-
-    let _headers: any = {};
-    if (response.headers) {
-      for (let key of response.headers.keys()) {
-        _headers[key] = response.headers.get(key);
-      }
-    }
-    if (status === 200) {
-      return blobToText(responseBlob).pipe(
-        _observableMergeMap((_responseText: string) => {
-          let result200: any = null;
-          let resultData200 = _responseText === '' ? null : JSON.parse(_responseText, this.jsonParseReviver);
-          result200 = MailSettingsDto.fromJS(resultData200);
-          return _observableOf(result200);
-        }),
-      );
-    } else if (status !== 200 && status !== 204) {
-      return blobToText(responseBlob).pipe(
-        _observableMergeMap((_responseText: string) => {
-          return throwException('An unexpected server error occurred.', status, _responseText, _headers);
-        }),
-      );
-    }
-    return _observableOf(null as any);
-  }
-
-  systemManagement_UpdateMailSettings(settings: MailSettingsDto): Observable<MailSettingsDto> {
-    let url_ = this.baseUrl + '/system-management-api/SystemManagement/UpdateMailSettings';
-    url_ = url_.replace(/[?&]$/, '');
-
-    const content_ = JSON.stringify(settings);
-
-    let options_: any = {
-      body: content_,
-      observe: 'response',
-      responseType: 'blob',
-      headers: new HttpHeaders({
-        'Content-Type': 'application/json',
-        Accept: 'application/json',
-      }),
-    };
-
-    return this.http
-      .request('put', url_, options_)
-      .pipe(
-        _observableMergeMap((response_: any) => {
-          return this.processSystemManagement_UpdateMailSettings(response_);
-        }),
-      )
-      .pipe(
-        _observableCatch((response_: any) => {
-          if (response_ instanceof HttpResponseBase) {
-            try {
-              return this.processSystemManagement_UpdateMailSettings(response_ as any);
-            } catch (e) {
-              return _observableThrow(e) as any as Observable<MailSettingsDto>;
-            }
-          } else return _observableThrow(response_) as any as Observable<MailSettingsDto>;
-        }),
-      );
-  }
-
-  protected processSystemManagement_UpdateMailSettings(response: HttpResponseBase): Observable<MailSettingsDto> {
-    const status = response.status;
-    const responseBlob =
-      response instanceof HttpResponse
-        ? response.body
-        : (response as any).error instanceof Blob
-          ? (response as any).error
-          : undefined;
-
-    let _headers: any = {};
-    if (response.headers) {
-      for (let key of response.headers.keys()) {
-        _headers[key] = response.headers.get(key);
-      }
-    }
-    if (status === 200) {
-      return blobToText(responseBlob).pipe(
-        _observableMergeMap((_responseText: string) => {
-          let result200: any = null;
-          let resultData200 = _responseText === '' ? null : JSON.parse(_responseText, this.jsonParseReviver);
-          result200 = MailSettingsDto.fromJS(resultData200);
-          return _observableOf(result200);
-        }),
-      );
-    } else if (status !== 200 && status !== 204) {
-      return blobToText(responseBlob).pipe(
-        _observableMergeMap((_responseText: string) => {
-          return throwException('An unexpected server error occurred.', status, _responseText, _headers);
-        }),
-      );
-    }
-    return _observableOf(null as any);
-  }
-
-  systemManagement_GetLegalLinksSettings(): Observable<LegalLinksSettingsDto> {
-    let url_ = this.baseUrl + '/system-management-api/SystemManagement/GetLegalLinksSettings';
-    url_ = url_.replace(/[?&]$/, '');
-
-    let options_: any = {
-      observe: 'response',
-      responseType: 'blob',
-      headers: new HttpHeaders({
-        Accept: 'application/json',
-      }),
-    };
-
-    return this.http
-      .request('get', url_, options_)
-      .pipe(
-        _observableMergeMap((response_: any) => {
-          return this.processSystemManagement_GetLegalLinksSettings(response_);
-        }),
-      )
-      .pipe(
-        _observableCatch((response_: any) => {
-          if (response_ instanceof HttpResponseBase) {
-            try {
-              return this.processSystemManagement_GetLegalLinksSettings(response_ as any);
-            } catch (e) {
-              return _observableThrow(e) as any as Observable<LegalLinksSettingsDto>;
-            }
-          } else return _observableThrow(response_) as any as Observable<LegalLinksSettingsDto>;
-        }),
-      );
-  }
-
-  protected processSystemManagement_GetLegalLinksSettings(
-    response: HttpResponseBase,
-  ): Observable<LegalLinksSettingsDto> {
-    const status = response.status;
-    const responseBlob =
-      response instanceof HttpResponse
-        ? response.body
-        : (response as any).error instanceof Blob
-          ? (response as any).error
-          : undefined;
-
-    let _headers: any = {};
-    if (response.headers) {
-      for (let key of response.headers.keys()) {
-        _headers[key] = response.headers.get(key);
-      }
-    }
-    if (status === 200) {
-      return blobToText(responseBlob).pipe(
-        _observableMergeMap((_responseText: string) => {
-          let result200: any = null;
-          let resultData200 = _responseText === '' ? null : JSON.parse(_responseText, this.jsonParseReviver);
-          result200 = LegalLinksSettingsDto.fromJS(resultData200);
-          return _observableOf(result200);
-        }),
-      );
-    } else if (status !== 200 && status !== 204) {
-      return blobToText(responseBlob).pipe(
-        _observableMergeMap((_responseText: string) => {
-          return throwException('An unexpected server error occurred.', status, _responseText, _headers);
-        }),
-      );
-    }
-    return _observableOf(null as any);
-  }
-
-  systemManagement_GetLegalDocument(fieldName: string): Observable<FileResponse> {
-    let url_ = this.baseUrl + '/system-management-api/SystemManagement/GetLegalDocument/{fieldName}';
-    if (fieldName === undefined || fieldName === null) throw new Error("The parameter 'fieldName' must be defined.");
-    url_ = url_.replace('{fieldName}', encodeURIComponent('' + fieldName));
-    url_ = url_.replace(/[?&]$/, '');
-
-    let options_: any = {
-      observe: 'response',
-      responseType: 'blob',
-      headers: new HttpHeaders({
-        Accept: 'application/octet-stream',
-      }),
-    };
-
-    return this.http
-      .request('get', url_, options_)
-      .pipe(
-        _observableMergeMap((response_: any) => {
-          return this.processSystemManagement_GetLegalDocument(response_);
-        }),
-      )
-      .pipe(
-        _observableCatch((response_: any) => {
-          if (response_ instanceof HttpResponseBase) {
-            try {
-              return this.processSystemManagement_GetLegalDocument(response_ as any);
-            } catch (e) {
-              return _observableThrow(e) as any as Observable<FileResponse>;
-            }
-          } else return _observableThrow(response_) as any as Observable<FileResponse>;
-        }),
-      );
-  }
-
-  protected processSystemManagement_GetLegalDocument(response: HttpResponseBase): Observable<FileResponse> {
-    const status = response.status;
-    const responseBlob =
-      response instanceof HttpResponse
-        ? response.body
-        : (response as any).error instanceof Blob
-          ? (response as any).error
-          : undefined;
-
-    let _headers: any = {};
-    if (response.headers) {
-      for (let key of response.headers.keys()) {
-        _headers[key] = response.headers.get(key);
-      }
-    }
-    if (status === 200 || status === 206) {
-      const contentDisposition = response.headers ? response.headers.get('content-disposition') : undefined;
-      let fileNameMatch = contentDisposition
-        ? /filename\*=(?:(\\?['"])(.*?)\1|(?:[^\s]+'.*?')?([^;\n]*))/g.exec(contentDisposition)
-        : undefined;
-      let fileName = fileNameMatch && fileNameMatch.length > 1 ? fileNameMatch[3] || fileNameMatch[2] : undefined;
-      if (fileName) {
-        fileName = decodeURIComponent(fileName);
-      } else {
-        fileNameMatch = contentDisposition ? /filename="?([^"]*?)"?(;|$)/g.exec(contentDisposition) : undefined;
-        fileName = fileNameMatch && fileNameMatch.length > 1 ? fileNameMatch[1] : undefined;
-      }
-      return _observableOf({ fileName: fileName, data: responseBlob as any, status: status, headers: _headers });
-    } else if (status !== 200 && status !== 204) {
-      return blobToText(responseBlob).pipe(
-        _observableMergeMap((_responseText: string) => {
-          return throwException('An unexpected server error occurred.', status, _responseText, _headers);
-        }),
-      );
-    }
-    return _observableOf(null as any);
-  }
-
-  systemManagement_UpdateLegalLinksSettings(
-    request: UpdateLegalLinksSettingsRequest,
-  ): Observable<LegalLinksSettingsDto> {
-    let url_ = this.baseUrl + '/system-management-api/SystemManagement/UpdateLegalLinksSettings';
-    url_ = url_.replace(/[?&]$/, '');
-
-    const content_ = JSON.stringify(request);
-
-    let options_: any = {
-      body: content_,
-      observe: 'response',
-      responseType: 'blob',
-      headers: new HttpHeaders({
-        'Content-Type': 'application/json',
-        Accept: 'application/json',
-      }),
-    };
-
-    return this.http
-      .request('put', url_, options_)
-      .pipe(
-        _observableMergeMap((response_: any) => {
-          return this.processSystemManagement_UpdateLegalLinksSettings(response_);
-        }),
-      )
-      .pipe(
-        _observableCatch((response_: any) => {
-          if (response_ instanceof HttpResponseBase) {
-            try {
-              return this.processSystemManagement_UpdateLegalLinksSettings(response_ as any);
-            } catch (e) {
-              return _observableThrow(e) as any as Observable<LegalLinksSettingsDto>;
-            }
-          } else return _observableThrow(response_) as any as Observable<LegalLinksSettingsDto>;
-        }),
-      );
-  }
-
-  protected processSystemManagement_UpdateLegalLinksSettings(
-    response: HttpResponseBase,
-  ): Observable<LegalLinksSettingsDto> {
-    const status = response.status;
-    const responseBlob =
-      response instanceof HttpResponse
-        ? response.body
-        : (response as any).error instanceof Blob
-          ? (response as any).error
-          : undefined;
-
-    let _headers: any = {};
-    if (response.headers) {
-      for (let key of response.headers.keys()) {
-        _headers[key] = response.headers.get(key);
-      }
-    }
-    if (status === 200) {
-      return blobToText(responseBlob).pipe(
-        _observableMergeMap((_responseText: string) => {
-          let result200: any = null;
-          let resultData200 = _responseText === '' ? null : JSON.parse(_responseText, this.jsonParseReviver);
-          result200 = LegalLinksSettingsDto.fromJS(resultData200);
-          return _observableOf(result200);
-        }),
-      );
-    } else if (status !== 200 && status !== 204) {
-      return blobToText(responseBlob).pipe(
-        _observableMergeMap((_responseText: string) => {
-          return throwException('An unexpected server error occurred.', status, _responseText, _headers);
-        }),
-      );
-    }
-    return _observableOf(null as any);
-  }
-
-  systemManagement_SendApplicationTestMail(request: SendApplicationTestMailRequestDto): Observable<void> {
-    let url_ = this.baseUrl + '/system-management-api/SystemManagement/SendApplicationTestMail';
-    url_ = url_.replace(/[?&]$/, '');
-
-    const content_ = JSON.stringify(request);
-
-    let options_: any = {
-      body: content_,
-      observe: 'response',
-      responseType: 'blob',
-      headers: new HttpHeaders({
-        'Content-Type': 'application/json',
-      }),
-    };
-
-    return this.http
-      .request('post', url_, options_)
-      .pipe(
-        _observableMergeMap((response_: any) => {
-          return this.processSystemManagement_SendApplicationTestMail(response_);
-        }),
-      )
-      .pipe(
-        _observableCatch((response_: any) => {
-          if (response_ instanceof HttpResponseBase) {
-            try {
-              return this.processSystemManagement_SendApplicationTestMail(response_ as any);
-            } catch (e) {
-              return _observableThrow(e) as any as Observable<void>;
-            }
-          } else return _observableThrow(response_) as any as Observable<void>;
-        }),
-      );
-  }
-
-  protected processSystemManagement_SendApplicationTestMail(response: HttpResponseBase): Observable<void> {
-    const status = response.status;
-    const responseBlob =
-      response instanceof HttpResponse
-        ? response.body
-        : (response as any).error instanceof Blob
-          ? (response as any).error
-          : undefined;
-
-    let _headers: any = {};
-    if (response.headers) {
-      for (let key of response.headers.keys()) {
-        _headers[key] = response.headers.get(key);
-      }
-    }
-    if (status === 200) {
-      return blobToText(responseBlob).pipe(
-        _observableMergeMap((_responseText: string) => {
-          return _observableOf(null as any);
-        }),
-      );
-    } else if (status !== 200 && status !== 204) {
-      return blobToText(responseBlob).pipe(
-        _observableMergeMap((_responseText: string) => {
-          return throwException('An unexpected server error occurred.', status, _responseText, _headers);
-        }),
-      );
-    }
-    return _observableOf(null as any);
-  }
-
-  systemManagement_SendKeycloakTestMail(request: SendKeycloakTestMailRequestDto): Observable<void> {
-    let url_ = this.baseUrl + '/system-management-api/SystemManagement/SendKeycloakTestMail';
-    url_ = url_.replace(/[?&]$/, '');
-
-    const content_ = JSON.stringify(request);
-
-    let options_: any = {
-      body: content_,
-      observe: 'response',
-      responseType: 'blob',
-      headers: new HttpHeaders({
-        'Content-Type': 'application/json',
-      }),
-    };
-
-    return this.http
-      .request('post', url_, options_)
-      .pipe(
-        _observableMergeMap((response_: any) => {
-          return this.processSystemManagement_SendKeycloakTestMail(response_);
-        }),
-      )
-      .pipe(
-        _observableCatch((response_: any) => {
-          if (response_ instanceof HttpResponseBase) {
-            try {
-              return this.processSystemManagement_SendKeycloakTestMail(response_ as any);
-            } catch (e) {
-              return _observableThrow(e) as any as Observable<void>;
-            }
-          } else return _observableThrow(response_) as any as Observable<void>;
-        }),
-      );
-  }
-
-  protected processSystemManagement_SendKeycloakTestMail(response: HttpResponseBase): Observable<void> {
-    const status = response.status;
-    const responseBlob =
-      response instanceof HttpResponse
-        ? response.body
-        : (response as any).error instanceof Blob
-          ? (response as any).error
-          : undefined;
-
-    let _headers: any = {};
-    if (response.headers) {
-      for (let key of response.headers.keys()) {
-        _headers[key] = response.headers.get(key);
-      }
-    }
-    if (status === 200) {
-      return blobToText(responseBlob).pipe(
-        _observableMergeMap((_responseText: string) => {
-          return _observableOf(null as any);
-        }),
-      );
-    } else if (status !== 200 && status !== 204) {
-      return blobToText(responseBlob).pipe(
-        _observableMergeMap((_responseText: string) => {
-          return throwException('An unexpected server error occurred.', status, _responseText, _headers);
-        }),
-      );
-    }
-    return _observableOf(null as any);
-  }
-
-  systemManagement_UpsertThemeDefinition(theme: ThemeDefinitionDto): Observable<ThemeDefinitionDto> {
-    let url_ = this.baseUrl + '/system-management-api/SystemManagement/UpsertThemeDefinition';
-    url_ = url_.replace(/[?&]$/, '');
-
-    const content_ = JSON.stringify(theme);
-
-    let options_: any = {
-      body: content_,
-      observe: 'response',
-      responseType: 'blob',
-      headers: new HttpHeaders({
-        'Content-Type': 'application/json',
-        Accept: 'application/json',
-      }),
-    };
-
-    return this.http
-      .request('post', url_, options_)
-      .pipe(
-        _observableMergeMap((response_: any) => {
-          return this.processSystemManagement_UpsertThemeDefinition(response_);
-        }),
-      )
-      .pipe(
-        _observableCatch((response_: any) => {
-          if (response_ instanceof HttpResponseBase) {
-            try {
-              return this.processSystemManagement_UpsertThemeDefinition(response_ as any);
-            } catch (e) {
-              return _observableThrow(e) as any as Observable<ThemeDefinitionDto>;
-            }
-          } else return _observableThrow(response_) as any as Observable<ThemeDefinitionDto>;
-        }),
-      );
-  }
-
-  protected processSystemManagement_UpsertThemeDefinition(response: HttpResponseBase): Observable<ThemeDefinitionDto> {
-    const status = response.status;
-    const responseBlob =
-      response instanceof HttpResponse
-        ? response.body
-        : (response as any).error instanceof Blob
-          ? (response as any).error
-          : undefined;
-
-    let _headers: any = {};
-    if (response.headers) {
-      for (let key of response.headers.keys()) {
-        _headers[key] = response.headers.get(key);
-      }
-    }
-    if (status === 200) {
-      return blobToText(responseBlob).pipe(
-        _observableMergeMap((_responseText: string) => {
-          let result200: any = null;
-          let resultData200 = _responseText === '' ? null : JSON.parse(_responseText, this.jsonParseReviver);
-          result200 = ThemeDefinitionDto.fromJS(resultData200);
-          return _observableOf(result200);
-        }),
-      );
-    } else if (status !== 200 && status !== 204) {
-      return blobToText(responseBlob).pipe(
-        _observableMergeMap((_responseText: string) => {
-          return throwException('An unexpected server error occurred.', status, _responseText, _headers);
-        }),
-      );
-    }
-    return _observableOf(null as any);
-  }
-
-  systemManagement_DeleteThemeDefinition(key: string | undefined): Observable<boolean> {
-    let url_ = this.baseUrl + '/system-management-api/SystemManagement/DeleteThemeDefinition?';
-    if (key === null) throw new Error("The parameter 'key' cannot be null.");
-    else if (key !== undefined) url_ += 'key=' + encodeURIComponent('' + key) + '&';
-    url_ = url_.replace(/[?&]$/, '');
-
-    let options_: any = {
-      observe: 'response',
-      responseType: 'blob',
-      headers: new HttpHeaders({
-        Accept: 'application/json',
-      }),
-    };
-
-    return this.http
-      .request('delete', url_, options_)
-      .pipe(
-        _observableMergeMap((response_: any) => {
-          return this.processSystemManagement_DeleteThemeDefinition(response_);
-        }),
-      )
-      .pipe(
-        _observableCatch((response_: any) => {
-          if (response_ instanceof HttpResponseBase) {
-            try {
-              return this.processSystemManagement_DeleteThemeDefinition(response_ as any);
-            } catch (e) {
-              return _observableThrow(e) as any as Observable<boolean>;
-            }
-          } else return _observableThrow(response_) as any as Observable<boolean>;
-        }),
-      );
-  }
-
-  protected processSystemManagement_DeleteThemeDefinition(response: HttpResponseBase): Observable<boolean> {
-    const status = response.status;
-    const responseBlob =
-      response instanceof HttpResponse
-        ? response.body
-        : (response as any).error instanceof Blob
-          ? (response as any).error
-          : undefined;
-
-    let _headers: any = {};
-    if (response.headers) {
-      for (let key of response.headers.keys()) {
-        _headers[key] = response.headers.get(key);
-      }
-    }
-    if (status === 200) {
-      return blobToText(responseBlob).pipe(
-        _observableMergeMap((_responseText: string) => {
-          let result200: any = null;
-          let resultData200 = _responseText === '' ? null : JSON.parse(_responseText, this.jsonParseReviver);
-          result200 = resultData200 !== undefined ? resultData200 : <any>null;
-
-          return _observableOf(result200);
-        }),
-      );
-    } else if (status !== 200 && status !== 204) {
-      return blobToText(responseBlob).pipe(
-        _observableMergeMap((_responseText: string) => {
-          return throwException('An unexpected server error occurred.', status, _responseText, _headers);
-        }),
-      );
-    }
-    return _observableOf(null as any);
-  }
-
-  systemManagement_ExportThemeDefinitions(): Observable<FileResponse> {
-    let url_ = this.baseUrl + '/system-management-api/SystemManagement/ExportThemeDefinitions';
-    url_ = url_.replace(/[?&]$/, '');
-
-    let options_: any = {
-      observe: 'response',
-      responseType: 'blob',
-      headers: new HttpHeaders({
-        Accept: 'application/octet-stream',
-      }),
-    };
-
-    return this.http
-      .request('post', url_, options_)
-      .pipe(
-        _observableMergeMap((response_: any) => {
-          return this.processSystemManagement_ExportThemeDefinitions(response_);
-        }),
-      )
-      .pipe(
-        _observableCatch((response_: any) => {
-          if (response_ instanceof HttpResponseBase) {
-            try {
-              return this.processSystemManagement_ExportThemeDefinitions(response_ as any);
-            } catch (e) {
-              return _observableThrow(e) as any as Observable<FileResponse>;
-            }
-          } else return _observableThrow(response_) as any as Observable<FileResponse>;
-        }),
-      );
-  }
-
-  protected processSystemManagement_ExportThemeDefinitions(response: HttpResponseBase): Observable<FileResponse> {
-    const status = response.status;
-    const responseBlob =
-      response instanceof HttpResponse
-        ? response.body
-        : (response as any).error instanceof Blob
-          ? (response as any).error
-          : undefined;
-
-    let _headers: any = {};
-    if (response.headers) {
-      for (let key of response.headers.keys()) {
-        _headers[key] = response.headers.get(key);
-      }
-    }
-    if (status === 200 || status === 206) {
-      const contentDisposition = response.headers ? response.headers.get('content-disposition') : undefined;
-      let fileNameMatch = contentDisposition
-        ? /filename\*=(?:(\\?['"])(.*?)\1|(?:[^\s]+'.*?')?([^;\n]*))/g.exec(contentDisposition)
-        : undefined;
-      let fileName = fileNameMatch && fileNameMatch.length > 1 ? fileNameMatch[3] || fileNameMatch[2] : undefined;
-      if (fileName) {
-        fileName = decodeURIComponent(fileName);
-      } else {
-        fileNameMatch = contentDisposition ? /filename="?([^"]*?)"?(;|$)/g.exec(contentDisposition) : undefined;
-        fileName = fileNameMatch && fileNameMatch.length > 1 ? fileNameMatch[1] : undefined;
-      }
-      return _observableOf({ fileName: fileName, data: responseBlob as any, status: status, headers: _headers });
-    } else if (status !== 200 && status !== 204) {
-      return blobToText(responseBlob).pipe(
-        _observableMergeMap((_responseText: string) => {
-          return throwException('An unexpected server error occurred.', status, _responseText, _headers);
-        }),
-      );
-    }
-    return _observableOf(null as any);
-  }
-
-  systemManagement_ImportThemeDefinitions(themeImport: ThemeDefinitionsImport): Observable<boolean> {
-    let url_ = this.baseUrl + '/system-management-api/SystemManagement/ImportThemeDefinitions';
-    url_ = url_.replace(/[?&]$/, '');
-
-    const content_ = JSON.stringify(themeImport);
-
-    let options_: any = {
-      body: content_,
-      observe: 'response',
-      responseType: 'blob',
-      headers: new HttpHeaders({
-        'Content-Type': 'application/json',
-        Accept: 'application/json',
-      }),
-    };
-
-    return this.http
-      .request('post', url_, options_)
-      .pipe(
-        _observableMergeMap((response_: any) => {
-          return this.processSystemManagement_ImportThemeDefinitions(response_);
-        }),
-      )
-      .pipe(
-        _observableCatch((response_: any) => {
-          if (response_ instanceof HttpResponseBase) {
-            try {
-              return this.processSystemManagement_ImportThemeDefinitions(response_ as any);
-            } catch (e) {
-              return _observableThrow(e) as any as Observable<boolean>;
-            }
-          } else return _observableThrow(response_) as any as Observable<boolean>;
-        }),
-      );
-  }
-
-  protected processSystemManagement_ImportThemeDefinitions(response: HttpResponseBase): Observable<boolean> {
-    const status = response.status;
-    const responseBlob =
-      response instanceof HttpResponse
-        ? response.body
-        : (response as any).error instanceof Blob
-          ? (response as any).error
-          : undefined;
-
-    let _headers: any = {};
-    if (response.headers) {
-      for (let key of response.headers.keys()) {
-        _headers[key] = response.headers.get(key);
-      }
-    }
-    if (status === 200) {
-      return blobToText(responseBlob).pipe(
-        _observableMergeMap((_responseText: string) => {
-          let result200: any = null;
-          let resultData200 = _responseText === '' ? null : JSON.parse(_responseText, this.jsonParseReviver);
-          result200 = resultData200 !== undefined ? resultData200 : <any>null;
-
           return _observableOf(result200);
         }),
       );
@@ -10621,6 +8565,2368 @@ export class OrganisationClient implements IOrganisationClient {
   }
 
   protected processOrganisation_CreateInfrastructure(response: HttpResponseBase): Observable<boolean> {
+    const status = response.status;
+    const responseBlob =
+      response instanceof HttpResponse
+        ? response.body
+        : (response as any).error instanceof Blob
+          ? (response as any).error
+          : undefined;
+
+    let _headers: any = {};
+    if (response.headers) {
+      for (let key of response.headers.keys()) {
+        _headers[key] = response.headers.get(key);
+      }
+    }
+    if (status === 200) {
+      return blobToText(responseBlob).pipe(
+        _observableMergeMap((_responseText: string) => {
+          let result200: any = null;
+          let resultData200 = _responseText === '' ? null : JSON.parse(_responseText, this.jsonParseReviver);
+          result200 = resultData200 !== undefined ? resultData200 : <any>null;
+
+          return _observableOf(result200);
+        }),
+      );
+    } else if (status !== 200 && status !== 204) {
+      return blobToText(responseBlob).pipe(
+        _observableMergeMap((_responseText: string) => {
+          return throwException('An unexpected server error occurred.', status, _responseText, _headers);
+        }),
+      );
+    }
+    return _observableOf(null as any);
+  }
+}
+
+export interface IJobSettingsClient {
+  jobSettings_GetStatisticCalculatorSettings(): Observable<FileResponse>;
+  jobSettings_UpdateStatisticCalculatorSettings(request: StatisticCalculatorSettingsDto): Observable<FileResponse>;
+  jobSettings_GetDailyStatisticCalculatorSettings(): Observable<FileResponse>;
+  jobSettings_UpdateDailyStatisticCalculatorSettings(
+    request: DailyStatisticCalculatorSettingsDto,
+  ): Observable<FileResponse>;
+  jobSettings_GetDailyExpiredOrganisationsCheckerSettings(): Observable<FileResponse>;
+  jobSettings_UpdateDailyExpiredOrganisationsCheckerSettings(
+    request: DailyExpiredOrganisationsCheckerSettingsDto,
+  ): Observable<FileResponse>;
+  jobSettings_GetPeriodicOrganisationDeleterSettings(): Observable<FileResponse>;
+  jobSettings_UpdatePeriodicOrganisationDeleterSettings(
+    request: PeriodicOrganisationDeleterSettingsDto,
+  ): Observable<FileResponse>;
+  jobSettings_GetPeriodicInfrastructureDeleterSettings(): Observable<FileResponse>;
+  jobSettings_UpdatePeriodicInfrastructureDeleterSettings(
+    request: PeriodicInfrastructureDeleterSettingsDto,
+  ): Observable<FileResponse>;
+  jobSettings_GetIdtaCrawlerSettings(): Observable<FileResponse>;
+  jobSettings_UpdateIdtaCrawlerSettings(request: IdtaCrawlerSettingsDto): Observable<FileResponse>;
+  jobSettings_GetPcnUpdateListenerSettings(): Observable<FileResponse>;
+  jobSettings_UpdatePcnUpdateListenerSettings(request: PcnUpdateListenerSettingsDto): Observable<FileResponse>;
+}
+
+@Injectable({
+  providedIn: 'root',
+})
+export class JobSettingsClient implements IJobSettingsClient {
+  private http: HttpClient;
+  private baseUrl: string;
+  protected jsonParseReviver: ((key: string, value: any) => any) | undefined = undefined;
+
+  constructor(@Inject(HttpClient) http: HttpClient, @Optional() @Inject(API_BASE_URL) baseUrl?: string) {
+    this.http = http;
+    this.baseUrl = baseUrl ?? '';
+  }
+
+  jobSettings_GetStatisticCalculatorSettings(): Observable<FileResponse> {
+    let url_ = this.baseUrl + '/api/job-settings/statistic-calculator';
+    url_ = url_.replace(/[?&]$/, '');
+
+    let options_: any = {
+      observe: 'response',
+      responseType: 'blob',
+      headers: new HttpHeaders({
+        Accept: 'application/octet-stream',
+      }),
+    };
+
+    return this.http
+      .request('get', url_, options_)
+      .pipe(
+        _observableMergeMap((response_: any) => {
+          return this.processJobSettings_GetStatisticCalculatorSettings(response_);
+        }),
+      )
+      .pipe(
+        _observableCatch((response_: any) => {
+          if (response_ instanceof HttpResponseBase) {
+            try {
+              return this.processJobSettings_GetStatisticCalculatorSettings(response_ as any);
+            } catch (e) {
+              return _observableThrow(e) as any as Observable<FileResponse>;
+            }
+          } else return _observableThrow(response_) as any as Observable<FileResponse>;
+        }),
+      );
+  }
+
+  protected processJobSettings_GetStatisticCalculatorSettings(response: HttpResponseBase): Observable<FileResponse> {
+    const status = response.status;
+    const responseBlob =
+      response instanceof HttpResponse
+        ? response.body
+        : (response as any).error instanceof Blob
+          ? (response as any).error
+          : undefined;
+
+    let _headers: any = {};
+    if (response.headers) {
+      for (let key of response.headers.keys()) {
+        _headers[key] = response.headers.get(key);
+      }
+    }
+    if (status === 200 || status === 206) {
+      const contentDisposition = response.headers ? response.headers.get('content-disposition') : undefined;
+      let fileNameMatch = contentDisposition
+        ? /filename\*=(?:(\\?['"])(.*?)\1|(?:[^\s]+'.*?')?([^;\n]*))/g.exec(contentDisposition)
+        : undefined;
+      let fileName = fileNameMatch && fileNameMatch.length > 1 ? fileNameMatch[3] || fileNameMatch[2] : undefined;
+      if (fileName) {
+        fileName = decodeURIComponent(fileName);
+      } else {
+        fileNameMatch = contentDisposition ? /filename="?([^"]*?)"?(;|$)/g.exec(contentDisposition) : undefined;
+        fileName = fileNameMatch && fileNameMatch.length > 1 ? fileNameMatch[1] : undefined;
+      }
+      return _observableOf({ fileName: fileName, data: responseBlob as any, status: status, headers: _headers });
+    } else if (status !== 200 && status !== 204) {
+      return blobToText(responseBlob).pipe(
+        _observableMergeMap((_responseText: string) => {
+          return throwException('An unexpected server error occurred.', status, _responseText, _headers);
+        }),
+      );
+    }
+    return _observableOf(null as any);
+  }
+
+  jobSettings_UpdateStatisticCalculatorSettings(request: StatisticCalculatorSettingsDto): Observable<FileResponse> {
+    let url_ = this.baseUrl + '/api/job-settings/statistic-calculator';
+    url_ = url_.replace(/[?&]$/, '');
+
+    const content_ = JSON.stringify(request);
+
+    let options_: any = {
+      body: content_,
+      observe: 'response',
+      responseType: 'blob',
+      headers: new HttpHeaders({
+        'Content-Type': 'application/json',
+        Accept: 'application/octet-stream',
+      }),
+    };
+
+    return this.http
+      .request('put', url_, options_)
+      .pipe(
+        _observableMergeMap((response_: any) => {
+          return this.processJobSettings_UpdateStatisticCalculatorSettings(response_);
+        }),
+      )
+      .pipe(
+        _observableCatch((response_: any) => {
+          if (response_ instanceof HttpResponseBase) {
+            try {
+              return this.processJobSettings_UpdateStatisticCalculatorSettings(response_ as any);
+            } catch (e) {
+              return _observableThrow(e) as any as Observable<FileResponse>;
+            }
+          } else return _observableThrow(response_) as any as Observable<FileResponse>;
+        }),
+      );
+  }
+
+  protected processJobSettings_UpdateStatisticCalculatorSettings(response: HttpResponseBase): Observable<FileResponse> {
+    const status = response.status;
+    const responseBlob =
+      response instanceof HttpResponse
+        ? response.body
+        : (response as any).error instanceof Blob
+          ? (response as any).error
+          : undefined;
+
+    let _headers: any = {};
+    if (response.headers) {
+      for (let key of response.headers.keys()) {
+        _headers[key] = response.headers.get(key);
+      }
+    }
+    if (status === 200 || status === 206) {
+      const contentDisposition = response.headers ? response.headers.get('content-disposition') : undefined;
+      let fileNameMatch = contentDisposition
+        ? /filename\*=(?:(\\?['"])(.*?)\1|(?:[^\s]+'.*?')?([^;\n]*))/g.exec(contentDisposition)
+        : undefined;
+      let fileName = fileNameMatch && fileNameMatch.length > 1 ? fileNameMatch[3] || fileNameMatch[2] : undefined;
+      if (fileName) {
+        fileName = decodeURIComponent(fileName);
+      } else {
+        fileNameMatch = contentDisposition ? /filename="?([^"]*?)"?(;|$)/g.exec(contentDisposition) : undefined;
+        fileName = fileNameMatch && fileNameMatch.length > 1 ? fileNameMatch[1] : undefined;
+      }
+      return _observableOf({ fileName: fileName, data: responseBlob as any, status: status, headers: _headers });
+    } else if (status !== 200 && status !== 204) {
+      return blobToText(responseBlob).pipe(
+        _observableMergeMap((_responseText: string) => {
+          return throwException('An unexpected server error occurred.', status, _responseText, _headers);
+        }),
+      );
+    }
+    return _observableOf(null as any);
+  }
+
+  jobSettings_GetDailyStatisticCalculatorSettings(): Observable<FileResponse> {
+    let url_ = this.baseUrl + '/api/job-settings/daily-statistic-calculator';
+    url_ = url_.replace(/[?&]$/, '');
+
+    let options_: any = {
+      observe: 'response',
+      responseType: 'blob',
+      headers: new HttpHeaders({
+        Accept: 'application/octet-stream',
+      }),
+    };
+
+    return this.http
+      .request('get', url_, options_)
+      .pipe(
+        _observableMergeMap((response_: any) => {
+          return this.processJobSettings_GetDailyStatisticCalculatorSettings(response_);
+        }),
+      )
+      .pipe(
+        _observableCatch((response_: any) => {
+          if (response_ instanceof HttpResponseBase) {
+            try {
+              return this.processJobSettings_GetDailyStatisticCalculatorSettings(response_ as any);
+            } catch (e) {
+              return _observableThrow(e) as any as Observable<FileResponse>;
+            }
+          } else return _observableThrow(response_) as any as Observable<FileResponse>;
+        }),
+      );
+  }
+
+  protected processJobSettings_GetDailyStatisticCalculatorSettings(
+    response: HttpResponseBase,
+  ): Observable<FileResponse> {
+    const status = response.status;
+    const responseBlob =
+      response instanceof HttpResponse
+        ? response.body
+        : (response as any).error instanceof Blob
+          ? (response as any).error
+          : undefined;
+
+    let _headers: any = {};
+    if (response.headers) {
+      for (let key of response.headers.keys()) {
+        _headers[key] = response.headers.get(key);
+      }
+    }
+    if (status === 200 || status === 206) {
+      const contentDisposition = response.headers ? response.headers.get('content-disposition') : undefined;
+      let fileNameMatch = contentDisposition
+        ? /filename\*=(?:(\\?['"])(.*?)\1|(?:[^\s]+'.*?')?([^;\n]*))/g.exec(contentDisposition)
+        : undefined;
+      let fileName = fileNameMatch && fileNameMatch.length > 1 ? fileNameMatch[3] || fileNameMatch[2] : undefined;
+      if (fileName) {
+        fileName = decodeURIComponent(fileName);
+      } else {
+        fileNameMatch = contentDisposition ? /filename="?([^"]*?)"?(;|$)/g.exec(contentDisposition) : undefined;
+        fileName = fileNameMatch && fileNameMatch.length > 1 ? fileNameMatch[1] : undefined;
+      }
+      return _observableOf({ fileName: fileName, data: responseBlob as any, status: status, headers: _headers });
+    } else if (status !== 200 && status !== 204) {
+      return blobToText(responseBlob).pipe(
+        _observableMergeMap((_responseText: string) => {
+          return throwException('An unexpected server error occurred.', status, _responseText, _headers);
+        }),
+      );
+    }
+    return _observableOf(null as any);
+  }
+
+  jobSettings_UpdateDailyStatisticCalculatorSettings(
+    request: DailyStatisticCalculatorSettingsDto,
+  ): Observable<FileResponse> {
+    let url_ = this.baseUrl + '/api/job-settings/daily-statistic-calculator';
+    url_ = url_.replace(/[?&]$/, '');
+
+    const content_ = JSON.stringify(request);
+
+    let options_: any = {
+      body: content_,
+      observe: 'response',
+      responseType: 'blob',
+      headers: new HttpHeaders({
+        'Content-Type': 'application/json',
+        Accept: 'application/octet-stream',
+      }),
+    };
+
+    return this.http
+      .request('put', url_, options_)
+      .pipe(
+        _observableMergeMap((response_: any) => {
+          return this.processJobSettings_UpdateDailyStatisticCalculatorSettings(response_);
+        }),
+      )
+      .pipe(
+        _observableCatch((response_: any) => {
+          if (response_ instanceof HttpResponseBase) {
+            try {
+              return this.processJobSettings_UpdateDailyStatisticCalculatorSettings(response_ as any);
+            } catch (e) {
+              return _observableThrow(e) as any as Observable<FileResponse>;
+            }
+          } else return _observableThrow(response_) as any as Observable<FileResponse>;
+        }),
+      );
+  }
+
+  protected processJobSettings_UpdateDailyStatisticCalculatorSettings(
+    response: HttpResponseBase,
+  ): Observable<FileResponse> {
+    const status = response.status;
+    const responseBlob =
+      response instanceof HttpResponse
+        ? response.body
+        : (response as any).error instanceof Blob
+          ? (response as any).error
+          : undefined;
+
+    let _headers: any = {};
+    if (response.headers) {
+      for (let key of response.headers.keys()) {
+        _headers[key] = response.headers.get(key);
+      }
+    }
+    if (status === 200 || status === 206) {
+      const contentDisposition = response.headers ? response.headers.get('content-disposition') : undefined;
+      let fileNameMatch = contentDisposition
+        ? /filename\*=(?:(\\?['"])(.*?)\1|(?:[^\s]+'.*?')?([^;\n]*))/g.exec(contentDisposition)
+        : undefined;
+      let fileName = fileNameMatch && fileNameMatch.length > 1 ? fileNameMatch[3] || fileNameMatch[2] : undefined;
+      if (fileName) {
+        fileName = decodeURIComponent(fileName);
+      } else {
+        fileNameMatch = contentDisposition ? /filename="?([^"]*?)"?(;|$)/g.exec(contentDisposition) : undefined;
+        fileName = fileNameMatch && fileNameMatch.length > 1 ? fileNameMatch[1] : undefined;
+      }
+      return _observableOf({ fileName: fileName, data: responseBlob as any, status: status, headers: _headers });
+    } else if (status !== 200 && status !== 204) {
+      return blobToText(responseBlob).pipe(
+        _observableMergeMap((_responseText: string) => {
+          return throwException('An unexpected server error occurred.', status, _responseText, _headers);
+        }),
+      );
+    }
+    return _observableOf(null as any);
+  }
+
+  jobSettings_GetDailyExpiredOrganisationsCheckerSettings(): Observable<FileResponse> {
+    let url_ = this.baseUrl + '/api/job-settings/daily-expired-organisations-checker';
+    url_ = url_.replace(/[?&]$/, '');
+
+    let options_: any = {
+      observe: 'response',
+      responseType: 'blob',
+      headers: new HttpHeaders({
+        Accept: 'application/octet-stream',
+      }),
+    };
+
+    return this.http
+      .request('get', url_, options_)
+      .pipe(
+        _observableMergeMap((response_: any) => {
+          return this.processJobSettings_GetDailyExpiredOrganisationsCheckerSettings(response_);
+        }),
+      )
+      .pipe(
+        _observableCatch((response_: any) => {
+          if (response_ instanceof HttpResponseBase) {
+            try {
+              return this.processJobSettings_GetDailyExpiredOrganisationsCheckerSettings(response_ as any);
+            } catch (e) {
+              return _observableThrow(e) as any as Observable<FileResponse>;
+            }
+          } else return _observableThrow(response_) as any as Observable<FileResponse>;
+        }),
+      );
+  }
+
+  protected processJobSettings_GetDailyExpiredOrganisationsCheckerSettings(
+    response: HttpResponseBase,
+  ): Observable<FileResponse> {
+    const status = response.status;
+    const responseBlob =
+      response instanceof HttpResponse
+        ? response.body
+        : (response as any).error instanceof Blob
+          ? (response as any).error
+          : undefined;
+
+    let _headers: any = {};
+    if (response.headers) {
+      for (let key of response.headers.keys()) {
+        _headers[key] = response.headers.get(key);
+      }
+    }
+    if (status === 200 || status === 206) {
+      const contentDisposition = response.headers ? response.headers.get('content-disposition') : undefined;
+      let fileNameMatch = contentDisposition
+        ? /filename\*=(?:(\\?['"])(.*?)\1|(?:[^\s]+'.*?')?([^;\n]*))/g.exec(contentDisposition)
+        : undefined;
+      let fileName = fileNameMatch && fileNameMatch.length > 1 ? fileNameMatch[3] || fileNameMatch[2] : undefined;
+      if (fileName) {
+        fileName = decodeURIComponent(fileName);
+      } else {
+        fileNameMatch = contentDisposition ? /filename="?([^"]*?)"?(;|$)/g.exec(contentDisposition) : undefined;
+        fileName = fileNameMatch && fileNameMatch.length > 1 ? fileNameMatch[1] : undefined;
+      }
+      return _observableOf({ fileName: fileName, data: responseBlob as any, status: status, headers: _headers });
+    } else if (status !== 200 && status !== 204) {
+      return blobToText(responseBlob).pipe(
+        _observableMergeMap((_responseText: string) => {
+          return throwException('An unexpected server error occurred.', status, _responseText, _headers);
+        }),
+      );
+    }
+    return _observableOf(null as any);
+  }
+
+  jobSettings_UpdateDailyExpiredOrganisationsCheckerSettings(
+    request: DailyExpiredOrganisationsCheckerSettingsDto,
+  ): Observable<FileResponse> {
+    let url_ = this.baseUrl + '/api/job-settings/daily-expired-organisations-checker';
+    url_ = url_.replace(/[?&]$/, '');
+
+    const content_ = JSON.stringify(request);
+
+    let options_: any = {
+      body: content_,
+      observe: 'response',
+      responseType: 'blob',
+      headers: new HttpHeaders({
+        'Content-Type': 'application/json',
+        Accept: 'application/octet-stream',
+      }),
+    };
+
+    return this.http
+      .request('put', url_, options_)
+      .pipe(
+        _observableMergeMap((response_: any) => {
+          return this.processJobSettings_UpdateDailyExpiredOrganisationsCheckerSettings(response_);
+        }),
+      )
+      .pipe(
+        _observableCatch((response_: any) => {
+          if (response_ instanceof HttpResponseBase) {
+            try {
+              return this.processJobSettings_UpdateDailyExpiredOrganisationsCheckerSettings(response_ as any);
+            } catch (e) {
+              return _observableThrow(e) as any as Observable<FileResponse>;
+            }
+          } else return _observableThrow(response_) as any as Observable<FileResponse>;
+        }),
+      );
+  }
+
+  protected processJobSettings_UpdateDailyExpiredOrganisationsCheckerSettings(
+    response: HttpResponseBase,
+  ): Observable<FileResponse> {
+    const status = response.status;
+    const responseBlob =
+      response instanceof HttpResponse
+        ? response.body
+        : (response as any).error instanceof Blob
+          ? (response as any).error
+          : undefined;
+
+    let _headers: any = {};
+    if (response.headers) {
+      for (let key of response.headers.keys()) {
+        _headers[key] = response.headers.get(key);
+      }
+    }
+    if (status === 200 || status === 206) {
+      const contentDisposition = response.headers ? response.headers.get('content-disposition') : undefined;
+      let fileNameMatch = contentDisposition
+        ? /filename\*=(?:(\\?['"])(.*?)\1|(?:[^\s]+'.*?')?([^;\n]*))/g.exec(contentDisposition)
+        : undefined;
+      let fileName = fileNameMatch && fileNameMatch.length > 1 ? fileNameMatch[3] || fileNameMatch[2] : undefined;
+      if (fileName) {
+        fileName = decodeURIComponent(fileName);
+      } else {
+        fileNameMatch = contentDisposition ? /filename="?([^"]*?)"?(;|$)/g.exec(contentDisposition) : undefined;
+        fileName = fileNameMatch && fileNameMatch.length > 1 ? fileNameMatch[1] : undefined;
+      }
+      return _observableOf({ fileName: fileName, data: responseBlob as any, status: status, headers: _headers });
+    } else if (status !== 200 && status !== 204) {
+      return blobToText(responseBlob).pipe(
+        _observableMergeMap((_responseText: string) => {
+          return throwException('An unexpected server error occurred.', status, _responseText, _headers);
+        }),
+      );
+    }
+    return _observableOf(null as any);
+  }
+
+  jobSettings_GetPeriodicOrganisationDeleterSettings(): Observable<FileResponse> {
+    let url_ = this.baseUrl + '/api/job-settings/periodic-organisation-deleter';
+    url_ = url_.replace(/[?&]$/, '');
+
+    let options_: any = {
+      observe: 'response',
+      responseType: 'blob',
+      headers: new HttpHeaders({
+        Accept: 'application/octet-stream',
+      }),
+    };
+
+    return this.http
+      .request('get', url_, options_)
+      .pipe(
+        _observableMergeMap((response_: any) => {
+          return this.processJobSettings_GetPeriodicOrganisationDeleterSettings(response_);
+        }),
+      )
+      .pipe(
+        _observableCatch((response_: any) => {
+          if (response_ instanceof HttpResponseBase) {
+            try {
+              return this.processJobSettings_GetPeriodicOrganisationDeleterSettings(response_ as any);
+            } catch (e) {
+              return _observableThrow(e) as any as Observable<FileResponse>;
+            }
+          } else return _observableThrow(response_) as any as Observable<FileResponse>;
+        }),
+      );
+  }
+
+  protected processJobSettings_GetPeriodicOrganisationDeleterSettings(
+    response: HttpResponseBase,
+  ): Observable<FileResponse> {
+    const status = response.status;
+    const responseBlob =
+      response instanceof HttpResponse
+        ? response.body
+        : (response as any).error instanceof Blob
+          ? (response as any).error
+          : undefined;
+
+    let _headers: any = {};
+    if (response.headers) {
+      for (let key of response.headers.keys()) {
+        _headers[key] = response.headers.get(key);
+      }
+    }
+    if (status === 200 || status === 206) {
+      const contentDisposition = response.headers ? response.headers.get('content-disposition') : undefined;
+      let fileNameMatch = contentDisposition
+        ? /filename\*=(?:(\\?['"])(.*?)\1|(?:[^\s]+'.*?')?([^;\n]*))/g.exec(contentDisposition)
+        : undefined;
+      let fileName = fileNameMatch && fileNameMatch.length > 1 ? fileNameMatch[3] || fileNameMatch[2] : undefined;
+      if (fileName) {
+        fileName = decodeURIComponent(fileName);
+      } else {
+        fileNameMatch = contentDisposition ? /filename="?([^"]*?)"?(;|$)/g.exec(contentDisposition) : undefined;
+        fileName = fileNameMatch && fileNameMatch.length > 1 ? fileNameMatch[1] : undefined;
+      }
+      return _observableOf({ fileName: fileName, data: responseBlob as any, status: status, headers: _headers });
+    } else if (status !== 200 && status !== 204) {
+      return blobToText(responseBlob).pipe(
+        _observableMergeMap((_responseText: string) => {
+          return throwException('An unexpected server error occurred.', status, _responseText, _headers);
+        }),
+      );
+    }
+    return _observableOf(null as any);
+  }
+
+  jobSettings_UpdatePeriodicOrganisationDeleterSettings(
+    request: PeriodicOrganisationDeleterSettingsDto,
+  ): Observable<FileResponse> {
+    let url_ = this.baseUrl + '/api/job-settings/periodic-organisation-deleter';
+    url_ = url_.replace(/[?&]$/, '');
+
+    const content_ = JSON.stringify(request);
+
+    let options_: any = {
+      body: content_,
+      observe: 'response',
+      responseType: 'blob',
+      headers: new HttpHeaders({
+        'Content-Type': 'application/json',
+        Accept: 'application/octet-stream',
+      }),
+    };
+
+    return this.http
+      .request('put', url_, options_)
+      .pipe(
+        _observableMergeMap((response_: any) => {
+          return this.processJobSettings_UpdatePeriodicOrganisationDeleterSettings(response_);
+        }),
+      )
+      .pipe(
+        _observableCatch((response_: any) => {
+          if (response_ instanceof HttpResponseBase) {
+            try {
+              return this.processJobSettings_UpdatePeriodicOrganisationDeleterSettings(response_ as any);
+            } catch (e) {
+              return _observableThrow(e) as any as Observable<FileResponse>;
+            }
+          } else return _observableThrow(response_) as any as Observable<FileResponse>;
+        }),
+      );
+  }
+
+  protected processJobSettings_UpdatePeriodicOrganisationDeleterSettings(
+    response: HttpResponseBase,
+  ): Observable<FileResponse> {
+    const status = response.status;
+    const responseBlob =
+      response instanceof HttpResponse
+        ? response.body
+        : (response as any).error instanceof Blob
+          ? (response as any).error
+          : undefined;
+
+    let _headers: any = {};
+    if (response.headers) {
+      for (let key of response.headers.keys()) {
+        _headers[key] = response.headers.get(key);
+      }
+    }
+    if (status === 200 || status === 206) {
+      const contentDisposition = response.headers ? response.headers.get('content-disposition') : undefined;
+      let fileNameMatch = contentDisposition
+        ? /filename\*=(?:(\\?['"])(.*?)\1|(?:[^\s]+'.*?')?([^;\n]*))/g.exec(contentDisposition)
+        : undefined;
+      let fileName = fileNameMatch && fileNameMatch.length > 1 ? fileNameMatch[3] || fileNameMatch[2] : undefined;
+      if (fileName) {
+        fileName = decodeURIComponent(fileName);
+      } else {
+        fileNameMatch = contentDisposition ? /filename="?([^"]*?)"?(;|$)/g.exec(contentDisposition) : undefined;
+        fileName = fileNameMatch && fileNameMatch.length > 1 ? fileNameMatch[1] : undefined;
+      }
+      return _observableOf({ fileName: fileName, data: responseBlob as any, status: status, headers: _headers });
+    } else if (status !== 200 && status !== 204) {
+      return blobToText(responseBlob).pipe(
+        _observableMergeMap((_responseText: string) => {
+          return throwException('An unexpected server error occurred.', status, _responseText, _headers);
+        }),
+      );
+    }
+    return _observableOf(null as any);
+  }
+
+  jobSettings_GetPeriodicInfrastructureDeleterSettings(): Observable<FileResponse> {
+    let url_ = this.baseUrl + '/api/job-settings/periodic-infrastructure-deleter';
+    url_ = url_.replace(/[?&]$/, '');
+
+    let options_: any = {
+      observe: 'response',
+      responseType: 'blob',
+      headers: new HttpHeaders({
+        Accept: 'application/octet-stream',
+      }),
+    };
+
+    return this.http
+      .request('get', url_, options_)
+      .pipe(
+        _observableMergeMap((response_: any) => {
+          return this.processJobSettings_GetPeriodicInfrastructureDeleterSettings(response_);
+        }),
+      )
+      .pipe(
+        _observableCatch((response_: any) => {
+          if (response_ instanceof HttpResponseBase) {
+            try {
+              return this.processJobSettings_GetPeriodicInfrastructureDeleterSettings(response_ as any);
+            } catch (e) {
+              return _observableThrow(e) as any as Observable<FileResponse>;
+            }
+          } else return _observableThrow(response_) as any as Observable<FileResponse>;
+        }),
+      );
+  }
+
+  protected processJobSettings_GetPeriodicInfrastructureDeleterSettings(
+    response: HttpResponseBase,
+  ): Observable<FileResponse> {
+    const status = response.status;
+    const responseBlob =
+      response instanceof HttpResponse
+        ? response.body
+        : (response as any).error instanceof Blob
+          ? (response as any).error
+          : undefined;
+
+    let _headers: any = {};
+    if (response.headers) {
+      for (let key of response.headers.keys()) {
+        _headers[key] = response.headers.get(key);
+      }
+    }
+    if (status === 200 || status === 206) {
+      const contentDisposition = response.headers ? response.headers.get('content-disposition') : undefined;
+      let fileNameMatch = contentDisposition
+        ? /filename\*=(?:(\\?['"])(.*?)\1|(?:[^\s]+'.*?')?([^;\n]*))/g.exec(contentDisposition)
+        : undefined;
+      let fileName = fileNameMatch && fileNameMatch.length > 1 ? fileNameMatch[3] || fileNameMatch[2] : undefined;
+      if (fileName) {
+        fileName = decodeURIComponent(fileName);
+      } else {
+        fileNameMatch = contentDisposition ? /filename="?([^"]*?)"?(;|$)/g.exec(contentDisposition) : undefined;
+        fileName = fileNameMatch && fileNameMatch.length > 1 ? fileNameMatch[1] : undefined;
+      }
+      return _observableOf({ fileName: fileName, data: responseBlob as any, status: status, headers: _headers });
+    } else if (status !== 200 && status !== 204) {
+      return blobToText(responseBlob).pipe(
+        _observableMergeMap((_responseText: string) => {
+          return throwException('An unexpected server error occurred.', status, _responseText, _headers);
+        }),
+      );
+    }
+    return _observableOf(null as any);
+  }
+
+  jobSettings_UpdatePeriodicInfrastructureDeleterSettings(
+    request: PeriodicInfrastructureDeleterSettingsDto,
+  ): Observable<FileResponse> {
+    let url_ = this.baseUrl + '/api/job-settings/periodic-infrastructure-deleter';
+    url_ = url_.replace(/[?&]$/, '');
+
+    const content_ = JSON.stringify(request);
+
+    let options_: any = {
+      body: content_,
+      observe: 'response',
+      responseType: 'blob',
+      headers: new HttpHeaders({
+        'Content-Type': 'application/json',
+        Accept: 'application/octet-stream',
+      }),
+    };
+
+    return this.http
+      .request('put', url_, options_)
+      .pipe(
+        _observableMergeMap((response_: any) => {
+          return this.processJobSettings_UpdatePeriodicInfrastructureDeleterSettings(response_);
+        }),
+      )
+      .pipe(
+        _observableCatch((response_: any) => {
+          if (response_ instanceof HttpResponseBase) {
+            try {
+              return this.processJobSettings_UpdatePeriodicInfrastructureDeleterSettings(response_ as any);
+            } catch (e) {
+              return _observableThrow(e) as any as Observable<FileResponse>;
+            }
+          } else return _observableThrow(response_) as any as Observable<FileResponse>;
+        }),
+      );
+  }
+
+  protected processJobSettings_UpdatePeriodicInfrastructureDeleterSettings(
+    response: HttpResponseBase,
+  ): Observable<FileResponse> {
+    const status = response.status;
+    const responseBlob =
+      response instanceof HttpResponse
+        ? response.body
+        : (response as any).error instanceof Blob
+          ? (response as any).error
+          : undefined;
+
+    let _headers: any = {};
+    if (response.headers) {
+      for (let key of response.headers.keys()) {
+        _headers[key] = response.headers.get(key);
+      }
+    }
+    if (status === 200 || status === 206) {
+      const contentDisposition = response.headers ? response.headers.get('content-disposition') : undefined;
+      let fileNameMatch = contentDisposition
+        ? /filename\*=(?:(\\?['"])(.*?)\1|(?:[^\s]+'.*?')?([^;\n]*))/g.exec(contentDisposition)
+        : undefined;
+      let fileName = fileNameMatch && fileNameMatch.length > 1 ? fileNameMatch[3] || fileNameMatch[2] : undefined;
+      if (fileName) {
+        fileName = decodeURIComponent(fileName);
+      } else {
+        fileNameMatch = contentDisposition ? /filename="?([^"]*?)"?(;|$)/g.exec(contentDisposition) : undefined;
+        fileName = fileNameMatch && fileNameMatch.length > 1 ? fileNameMatch[1] : undefined;
+      }
+      return _observableOf({ fileName: fileName, data: responseBlob as any, status: status, headers: _headers });
+    } else if (status !== 200 && status !== 204) {
+      return blobToText(responseBlob).pipe(
+        _observableMergeMap((_responseText: string) => {
+          return throwException('An unexpected server error occurred.', status, _responseText, _headers);
+        }),
+      );
+    }
+    return _observableOf(null as any);
+  }
+
+  jobSettings_GetIdtaCrawlerSettings(): Observable<FileResponse> {
+    let url_ = this.baseUrl + '/api/job-settings/idta-crawler';
+    url_ = url_.replace(/[?&]$/, '');
+
+    let options_: any = {
+      observe: 'response',
+      responseType: 'blob',
+      headers: new HttpHeaders({
+        Accept: 'application/octet-stream',
+      }),
+    };
+
+    return this.http
+      .request('get', url_, options_)
+      .pipe(
+        _observableMergeMap((response_: any) => {
+          return this.processJobSettings_GetIdtaCrawlerSettings(response_);
+        }),
+      )
+      .pipe(
+        _observableCatch((response_: any) => {
+          if (response_ instanceof HttpResponseBase) {
+            try {
+              return this.processJobSettings_GetIdtaCrawlerSettings(response_ as any);
+            } catch (e) {
+              return _observableThrow(e) as any as Observable<FileResponse>;
+            }
+          } else return _observableThrow(response_) as any as Observable<FileResponse>;
+        }),
+      );
+  }
+
+  protected processJobSettings_GetIdtaCrawlerSettings(response: HttpResponseBase): Observable<FileResponse> {
+    const status = response.status;
+    const responseBlob =
+      response instanceof HttpResponse
+        ? response.body
+        : (response as any).error instanceof Blob
+          ? (response as any).error
+          : undefined;
+
+    let _headers: any = {};
+    if (response.headers) {
+      for (let key of response.headers.keys()) {
+        _headers[key] = response.headers.get(key);
+      }
+    }
+    if (status === 200 || status === 206) {
+      const contentDisposition = response.headers ? response.headers.get('content-disposition') : undefined;
+      let fileNameMatch = contentDisposition
+        ? /filename\*=(?:(\\?['"])(.*?)\1|(?:[^\s]+'.*?')?([^;\n]*))/g.exec(contentDisposition)
+        : undefined;
+      let fileName = fileNameMatch && fileNameMatch.length > 1 ? fileNameMatch[3] || fileNameMatch[2] : undefined;
+      if (fileName) {
+        fileName = decodeURIComponent(fileName);
+      } else {
+        fileNameMatch = contentDisposition ? /filename="?([^"]*?)"?(;|$)/g.exec(contentDisposition) : undefined;
+        fileName = fileNameMatch && fileNameMatch.length > 1 ? fileNameMatch[1] : undefined;
+      }
+      return _observableOf({ fileName: fileName, data: responseBlob as any, status: status, headers: _headers });
+    } else if (status !== 200 && status !== 204) {
+      return blobToText(responseBlob).pipe(
+        _observableMergeMap((_responseText: string) => {
+          return throwException('An unexpected server error occurred.', status, _responseText, _headers);
+        }),
+      );
+    }
+    return _observableOf(null as any);
+  }
+
+  jobSettings_UpdateIdtaCrawlerSettings(request: IdtaCrawlerSettingsDto): Observable<FileResponse> {
+    let url_ = this.baseUrl + '/api/job-settings/idta-crawler';
+    url_ = url_.replace(/[?&]$/, '');
+
+    const content_ = JSON.stringify(request);
+
+    let options_: any = {
+      body: content_,
+      observe: 'response',
+      responseType: 'blob',
+      headers: new HttpHeaders({
+        'Content-Type': 'application/json',
+        Accept: 'application/octet-stream',
+      }),
+    };
+
+    return this.http
+      .request('put', url_, options_)
+      .pipe(
+        _observableMergeMap((response_: any) => {
+          return this.processJobSettings_UpdateIdtaCrawlerSettings(response_);
+        }),
+      )
+      .pipe(
+        _observableCatch((response_: any) => {
+          if (response_ instanceof HttpResponseBase) {
+            try {
+              return this.processJobSettings_UpdateIdtaCrawlerSettings(response_ as any);
+            } catch (e) {
+              return _observableThrow(e) as any as Observable<FileResponse>;
+            }
+          } else return _observableThrow(response_) as any as Observable<FileResponse>;
+        }),
+      );
+  }
+
+  protected processJobSettings_UpdateIdtaCrawlerSettings(response: HttpResponseBase): Observable<FileResponse> {
+    const status = response.status;
+    const responseBlob =
+      response instanceof HttpResponse
+        ? response.body
+        : (response as any).error instanceof Blob
+          ? (response as any).error
+          : undefined;
+
+    let _headers: any = {};
+    if (response.headers) {
+      for (let key of response.headers.keys()) {
+        _headers[key] = response.headers.get(key);
+      }
+    }
+    if (status === 200 || status === 206) {
+      const contentDisposition = response.headers ? response.headers.get('content-disposition') : undefined;
+      let fileNameMatch = contentDisposition
+        ? /filename\*=(?:(\\?['"])(.*?)\1|(?:[^\s]+'.*?')?([^;\n]*))/g.exec(contentDisposition)
+        : undefined;
+      let fileName = fileNameMatch && fileNameMatch.length > 1 ? fileNameMatch[3] || fileNameMatch[2] : undefined;
+      if (fileName) {
+        fileName = decodeURIComponent(fileName);
+      } else {
+        fileNameMatch = contentDisposition ? /filename="?([^"]*?)"?(;|$)/g.exec(contentDisposition) : undefined;
+        fileName = fileNameMatch && fileNameMatch.length > 1 ? fileNameMatch[1] : undefined;
+      }
+      return _observableOf({ fileName: fileName, data: responseBlob as any, status: status, headers: _headers });
+    } else if (status !== 200 && status !== 204) {
+      return blobToText(responseBlob).pipe(
+        _observableMergeMap((_responseText: string) => {
+          return throwException('An unexpected server error occurred.', status, _responseText, _headers);
+        }),
+      );
+    }
+    return _observableOf(null as any);
+  }
+
+  jobSettings_GetPcnUpdateListenerSettings(): Observable<FileResponse> {
+    let url_ = this.baseUrl + '/api/job-settings/pcn-update-listener';
+    url_ = url_.replace(/[?&]$/, '');
+
+    let options_: any = {
+      observe: 'response',
+      responseType: 'blob',
+      headers: new HttpHeaders({
+        Accept: 'application/octet-stream',
+      }),
+    };
+
+    return this.http
+      .request('get', url_, options_)
+      .pipe(
+        _observableMergeMap((response_: any) => {
+          return this.processJobSettings_GetPcnUpdateListenerSettings(response_);
+        }),
+      )
+      .pipe(
+        _observableCatch((response_: any) => {
+          if (response_ instanceof HttpResponseBase) {
+            try {
+              return this.processJobSettings_GetPcnUpdateListenerSettings(response_ as any);
+            } catch (e) {
+              return _observableThrow(e) as any as Observable<FileResponse>;
+            }
+          } else return _observableThrow(response_) as any as Observable<FileResponse>;
+        }),
+      );
+  }
+
+  protected processJobSettings_GetPcnUpdateListenerSettings(response: HttpResponseBase): Observable<FileResponse> {
+    const status = response.status;
+    const responseBlob =
+      response instanceof HttpResponse
+        ? response.body
+        : (response as any).error instanceof Blob
+          ? (response as any).error
+          : undefined;
+
+    let _headers: any = {};
+    if (response.headers) {
+      for (let key of response.headers.keys()) {
+        _headers[key] = response.headers.get(key);
+      }
+    }
+    if (status === 200 || status === 206) {
+      const contentDisposition = response.headers ? response.headers.get('content-disposition') : undefined;
+      let fileNameMatch = contentDisposition
+        ? /filename\*=(?:(\\?['"])(.*?)\1|(?:[^\s]+'.*?')?([^;\n]*))/g.exec(contentDisposition)
+        : undefined;
+      let fileName = fileNameMatch && fileNameMatch.length > 1 ? fileNameMatch[3] || fileNameMatch[2] : undefined;
+      if (fileName) {
+        fileName = decodeURIComponent(fileName);
+      } else {
+        fileNameMatch = contentDisposition ? /filename="?([^"]*?)"?(;|$)/g.exec(contentDisposition) : undefined;
+        fileName = fileNameMatch && fileNameMatch.length > 1 ? fileNameMatch[1] : undefined;
+      }
+      return _observableOf({ fileName: fileName, data: responseBlob as any, status: status, headers: _headers });
+    } else if (status !== 200 && status !== 204) {
+      return blobToText(responseBlob).pipe(
+        _observableMergeMap((_responseText: string) => {
+          return throwException('An unexpected server error occurred.', status, _responseText, _headers);
+        }),
+      );
+    }
+    return _observableOf(null as any);
+  }
+
+  jobSettings_UpdatePcnUpdateListenerSettings(request: PcnUpdateListenerSettingsDto): Observable<FileResponse> {
+    let url_ = this.baseUrl + '/api/job-settings/pcn-update-listener';
+    url_ = url_.replace(/[?&]$/, '');
+
+    const content_ = JSON.stringify(request);
+
+    let options_: any = {
+      body: content_,
+      observe: 'response',
+      responseType: 'blob',
+      headers: new HttpHeaders({
+        'Content-Type': 'application/json',
+        Accept: 'application/octet-stream',
+      }),
+    };
+
+    return this.http
+      .request('put', url_, options_)
+      .pipe(
+        _observableMergeMap((response_: any) => {
+          return this.processJobSettings_UpdatePcnUpdateListenerSettings(response_);
+        }),
+      )
+      .pipe(
+        _observableCatch((response_: any) => {
+          if (response_ instanceof HttpResponseBase) {
+            try {
+              return this.processJobSettings_UpdatePcnUpdateListenerSettings(response_ as any);
+            } catch (e) {
+              return _observableThrow(e) as any as Observable<FileResponse>;
+            }
+          } else return _observableThrow(response_) as any as Observable<FileResponse>;
+        }),
+      );
+  }
+
+  protected processJobSettings_UpdatePcnUpdateListenerSettings(response: HttpResponseBase): Observable<FileResponse> {
+    const status = response.status;
+    const responseBlob =
+      response instanceof HttpResponse
+        ? response.body
+        : (response as any).error instanceof Blob
+          ? (response as any).error
+          : undefined;
+
+    let _headers: any = {};
+    if (response.headers) {
+      for (let key of response.headers.keys()) {
+        _headers[key] = response.headers.get(key);
+      }
+    }
+    if (status === 200 || status === 206) {
+      const contentDisposition = response.headers ? response.headers.get('content-disposition') : undefined;
+      let fileNameMatch = contentDisposition
+        ? /filename\*=(?:(\\?['"])(.*?)\1|(?:[^\s]+'.*?')?([^;\n]*))/g.exec(contentDisposition)
+        : undefined;
+      let fileName = fileNameMatch && fileNameMatch.length > 1 ? fileNameMatch[3] || fileNameMatch[2] : undefined;
+      if (fileName) {
+        fileName = decodeURIComponent(fileName);
+      } else {
+        fileNameMatch = contentDisposition ? /filename="?([^"]*?)"?(;|$)/g.exec(contentDisposition) : undefined;
+        fileName = fileNameMatch && fileNameMatch.length > 1 ? fileNameMatch[1] : undefined;
+      }
+      return _observableOf({ fileName: fileName, data: responseBlob as any, status: status, headers: _headers });
+    } else if (status !== 200 && status !== 204) {
+      return blobToText(responseBlob).pipe(
+        _observableMergeMap((_responseText: string) => {
+          return throwException('An unexpected server error occurred.', status, _responseText, _headers);
+        }),
+      );
+    }
+    return _observableOf(null as any);
+  }
+}
+
+export interface ISystemManagementClient {
+  systemManagement_GetConfiguration(): Observable<SystemConfigurationDto>;
+  systemManagement_GetStatus(
+    systemType: SystemType | undefined,
+    infrastructureId: number | undefined,
+  ): Observable<SystemStatusDto>;
+  systemManagement_GetHelpInfo(): Observable<HelpInfoDto>;
+  systemManagement_ExportHelpTexts(): Observable<FileResponse>;
+  systemManagement_ImportHelpTexts(helpUpdate: HelpUpdate): Observable<boolean>;
+  systemManagement_GetThemeDefinitions(): Observable<ThemeDefinitionDto[]>;
+  systemManagement_GetDeleteProtocols(): Observable<DeleteProtocolDto[]>;
+  systemManagement_GetMailSettings(): Observable<MailSettingsDto>;
+  systemManagement_UpdateMailSettings(settings: MailSettingsDto): Observable<MailSettingsDto>;
+  systemManagement_GetLegalLinksSettings(): Observable<LegalLinksSettingsDto>;
+  systemManagement_GetLegalDocument(fieldName: string): Observable<FileResponse>;
+  systemManagement_UpdateLegalLinksSettings(
+    request: UpdateLegalLinksSettingsRequest,
+  ): Observable<LegalLinksSettingsDto>;
+  systemManagement_SendApplicationTestMail(request: SendApplicationTestMailRequestDto): Observable<void>;
+  systemManagement_SendKeycloakTestMail(request: SendKeycloakTestMailRequestDto): Observable<void>;
+  systemManagement_UpsertThemeDefinition(theme: ThemeDefinitionDto): Observable<ThemeDefinitionDto>;
+  systemManagement_DeleteThemeDefinition(key: string | undefined): Observable<boolean>;
+  systemManagement_ExportThemeDefinitions(): Observable<FileResponse>;
+  systemManagement_ImportThemeDefinitions(themeImport: ThemeDefinitionsImport): Observable<boolean>;
+}
+
+@Injectable({
+  providedIn: 'root',
+})
+export class SystemManagementClient implements ISystemManagementClient {
+  private http: HttpClient;
+  private baseUrl: string;
+  protected jsonParseReviver: ((key: string, value: any) => any) | undefined = undefined;
+
+  constructor(@Inject(HttpClient) http: HttpClient, @Optional() @Inject(API_BASE_URL) baseUrl?: string) {
+    this.http = http;
+    this.baseUrl = baseUrl ?? '';
+  }
+
+  systemManagement_GetConfiguration(): Observable<SystemConfigurationDto> {
+    let url_ = this.baseUrl + '/system-management-api/SystemManagement/GetConfiguration';
+    url_ = url_.replace(/[?&]$/, '');
+
+    let options_: any = {
+      observe: 'response',
+      responseType: 'blob',
+      headers: new HttpHeaders({
+        Accept: 'application/json',
+      }),
+    };
+
+    return this.http
+      .request('get', url_, options_)
+      .pipe(
+        _observableMergeMap((response_: any) => {
+          return this.processSystemManagement_GetConfiguration(response_);
+        }),
+      )
+      .pipe(
+        _observableCatch((response_: any) => {
+          if (response_ instanceof HttpResponseBase) {
+            try {
+              return this.processSystemManagement_GetConfiguration(response_ as any);
+            } catch (e) {
+              return _observableThrow(e) as any as Observable<SystemConfigurationDto>;
+            }
+          } else return _observableThrow(response_) as any as Observable<SystemConfigurationDto>;
+        }),
+      );
+  }
+
+  protected processSystemManagement_GetConfiguration(response: HttpResponseBase): Observable<SystemConfigurationDto> {
+    const status = response.status;
+    const responseBlob =
+      response instanceof HttpResponse
+        ? response.body
+        : (response as any).error instanceof Blob
+          ? (response as any).error
+          : undefined;
+
+    let _headers: any = {};
+    if (response.headers) {
+      for (let key of response.headers.keys()) {
+        _headers[key] = response.headers.get(key);
+      }
+    }
+    if (status === 200) {
+      return blobToText(responseBlob).pipe(
+        _observableMergeMap((_responseText: string) => {
+          let result200: any = null;
+          let resultData200 = _responseText === '' ? null : JSON.parse(_responseText, this.jsonParseReviver);
+          result200 = SystemConfigurationDto.fromJS(resultData200);
+          return _observableOf(result200);
+        }),
+      );
+    } else if (status !== 200 && status !== 204) {
+      return blobToText(responseBlob).pipe(
+        _observableMergeMap((_responseText: string) => {
+          return throwException('An unexpected server error occurred.', status, _responseText, _headers);
+        }),
+      );
+    }
+    return _observableOf(null as any);
+  }
+
+  systemManagement_GetStatus(
+    systemType: SystemType | undefined,
+    infrastructureId: number | undefined,
+  ): Observable<SystemStatusDto> {
+    let url_ = this.baseUrl + '/system-management-api/SystemManagement/GetStatus?';
+    if (systemType === null) throw new Error("The parameter 'systemType' cannot be null.");
+    else if (systemType !== undefined) url_ += 'systemType=' + encodeURIComponent('' + systemType) + '&';
+    if (infrastructureId === null) throw new Error("The parameter 'infrastructureId' cannot be null.");
+    else if (infrastructureId !== undefined)
+      url_ += 'infrastructureId=' + encodeURIComponent('' + infrastructureId) + '&';
+    url_ = url_.replace(/[?&]$/, '');
+
+    let options_: any = {
+      observe: 'response',
+      responseType: 'blob',
+      headers: new HttpHeaders({
+        Accept: 'application/json',
+      }),
+    };
+
+    return this.http
+      .request('get', url_, options_)
+      .pipe(
+        _observableMergeMap((response_: any) => {
+          return this.processSystemManagement_GetStatus(response_);
+        }),
+      )
+      .pipe(
+        _observableCatch((response_: any) => {
+          if (response_ instanceof HttpResponseBase) {
+            try {
+              return this.processSystemManagement_GetStatus(response_ as any);
+            } catch (e) {
+              return _observableThrow(e) as any as Observable<SystemStatusDto>;
+            }
+          } else return _observableThrow(response_) as any as Observable<SystemStatusDto>;
+        }),
+      );
+  }
+
+  protected processSystemManagement_GetStatus(response: HttpResponseBase): Observable<SystemStatusDto> {
+    const status = response.status;
+    const responseBlob =
+      response instanceof HttpResponse
+        ? response.body
+        : (response as any).error instanceof Blob
+          ? (response as any).error
+          : undefined;
+
+    let _headers: any = {};
+    if (response.headers) {
+      for (let key of response.headers.keys()) {
+        _headers[key] = response.headers.get(key);
+      }
+    }
+    if (status === 200) {
+      return blobToText(responseBlob).pipe(
+        _observableMergeMap((_responseText: string) => {
+          let result200: any = null;
+          let resultData200 = _responseText === '' ? null : JSON.parse(_responseText, this.jsonParseReviver);
+          result200 = SystemStatusDto.fromJS(resultData200);
+          return _observableOf(result200);
+        }),
+      );
+    } else if (status !== 200 && status !== 204) {
+      return blobToText(responseBlob).pipe(
+        _observableMergeMap((_responseText: string) => {
+          return throwException('An unexpected server error occurred.', status, _responseText, _headers);
+        }),
+      );
+    }
+    return _observableOf(null as any);
+  }
+
+  systemManagement_GetHelpInfo(): Observable<HelpInfoDto> {
+    let url_ = this.baseUrl + '/system-management-api/SystemManagement/GetHelpInfo';
+    url_ = url_.replace(/[?&]$/, '');
+
+    let options_: any = {
+      observe: 'response',
+      responseType: 'blob',
+      headers: new HttpHeaders({
+        Accept: 'application/json',
+      }),
+    };
+
+    return this.http
+      .request('get', url_, options_)
+      .pipe(
+        _observableMergeMap((response_: any) => {
+          return this.processSystemManagement_GetHelpInfo(response_);
+        }),
+      )
+      .pipe(
+        _observableCatch((response_: any) => {
+          if (response_ instanceof HttpResponseBase) {
+            try {
+              return this.processSystemManagement_GetHelpInfo(response_ as any);
+            } catch (e) {
+              return _observableThrow(e) as any as Observable<HelpInfoDto>;
+            }
+          } else return _observableThrow(response_) as any as Observable<HelpInfoDto>;
+        }),
+      );
+  }
+
+  protected processSystemManagement_GetHelpInfo(response: HttpResponseBase): Observable<HelpInfoDto> {
+    const status = response.status;
+    const responseBlob =
+      response instanceof HttpResponse
+        ? response.body
+        : (response as any).error instanceof Blob
+          ? (response as any).error
+          : undefined;
+
+    let _headers: any = {};
+    if (response.headers) {
+      for (let key of response.headers.keys()) {
+        _headers[key] = response.headers.get(key);
+      }
+    }
+    if (status === 200) {
+      return blobToText(responseBlob).pipe(
+        _observableMergeMap((_responseText: string) => {
+          let result200: any = null;
+          let resultData200 = _responseText === '' ? null : JSON.parse(_responseText, this.jsonParseReviver);
+          result200 = HelpInfoDto.fromJS(resultData200);
+          return _observableOf(result200);
+        }),
+      );
+    } else if (status !== 200 && status !== 204) {
+      return blobToText(responseBlob).pipe(
+        _observableMergeMap((_responseText: string) => {
+          return throwException('An unexpected server error occurred.', status, _responseText, _headers);
+        }),
+      );
+    }
+    return _observableOf(null as any);
+  }
+
+  systemManagement_ExportHelpTexts(): Observable<FileResponse> {
+    let url_ = this.baseUrl + '/system-management-api/SystemManagement/ExportHelpTexts';
+    url_ = url_.replace(/[?&]$/, '');
+
+    let options_: any = {
+      observe: 'response',
+      responseType: 'blob',
+      headers: new HttpHeaders({
+        Accept: 'application/octet-stream',
+      }),
+    };
+
+    return this.http
+      .request('post', url_, options_)
+      .pipe(
+        _observableMergeMap((response_: any) => {
+          return this.processSystemManagement_ExportHelpTexts(response_);
+        }),
+      )
+      .pipe(
+        _observableCatch((response_: any) => {
+          if (response_ instanceof HttpResponseBase) {
+            try {
+              return this.processSystemManagement_ExportHelpTexts(response_ as any);
+            } catch (e) {
+              return _observableThrow(e) as any as Observable<FileResponse>;
+            }
+          } else return _observableThrow(response_) as any as Observable<FileResponse>;
+        }),
+      );
+  }
+
+  protected processSystemManagement_ExportHelpTexts(response: HttpResponseBase): Observable<FileResponse> {
+    const status = response.status;
+    const responseBlob =
+      response instanceof HttpResponse
+        ? response.body
+        : (response as any).error instanceof Blob
+          ? (response as any).error
+          : undefined;
+
+    let _headers: any = {};
+    if (response.headers) {
+      for (let key of response.headers.keys()) {
+        _headers[key] = response.headers.get(key);
+      }
+    }
+    if (status === 200 || status === 206) {
+      const contentDisposition = response.headers ? response.headers.get('content-disposition') : undefined;
+      let fileNameMatch = contentDisposition
+        ? /filename\*=(?:(\\?['"])(.*?)\1|(?:[^\s]+'.*?')?([^;\n]*))/g.exec(contentDisposition)
+        : undefined;
+      let fileName = fileNameMatch && fileNameMatch.length > 1 ? fileNameMatch[3] || fileNameMatch[2] : undefined;
+      if (fileName) {
+        fileName = decodeURIComponent(fileName);
+      } else {
+        fileNameMatch = contentDisposition ? /filename="?([^"]*?)"?(;|$)/g.exec(contentDisposition) : undefined;
+        fileName = fileNameMatch && fileNameMatch.length > 1 ? fileNameMatch[1] : undefined;
+      }
+      return _observableOf({ fileName: fileName, data: responseBlob as any, status: status, headers: _headers });
+    } else if (status !== 200 && status !== 204) {
+      return blobToText(responseBlob).pipe(
+        _observableMergeMap((_responseText: string) => {
+          return throwException('An unexpected server error occurred.', status, _responseText, _headers);
+        }),
+      );
+    }
+    return _observableOf(null as any);
+  }
+
+  systemManagement_ImportHelpTexts(helpUpdate: HelpUpdate): Observable<boolean> {
+    let url_ = this.baseUrl + '/system-management-api/SystemManagement/ImportHelpTexts';
+    url_ = url_.replace(/[?&]$/, '');
+
+    const content_ = JSON.stringify(helpUpdate);
+
+    let options_: any = {
+      body: content_,
+      observe: 'response',
+      responseType: 'blob',
+      headers: new HttpHeaders({
+        'Content-Type': 'application/json',
+        Accept: 'application/json',
+      }),
+    };
+
+    return this.http
+      .request('post', url_, options_)
+      .pipe(
+        _observableMergeMap((response_: any) => {
+          return this.processSystemManagement_ImportHelpTexts(response_);
+        }),
+      )
+      .pipe(
+        _observableCatch((response_: any) => {
+          if (response_ instanceof HttpResponseBase) {
+            try {
+              return this.processSystemManagement_ImportHelpTexts(response_ as any);
+            } catch (e) {
+              return _observableThrow(e) as any as Observable<boolean>;
+            }
+          } else return _observableThrow(response_) as any as Observable<boolean>;
+        }),
+      );
+  }
+
+  protected processSystemManagement_ImportHelpTexts(response: HttpResponseBase): Observable<boolean> {
+    const status = response.status;
+    const responseBlob =
+      response instanceof HttpResponse
+        ? response.body
+        : (response as any).error instanceof Blob
+          ? (response as any).error
+          : undefined;
+
+    let _headers: any = {};
+    if (response.headers) {
+      for (let key of response.headers.keys()) {
+        _headers[key] = response.headers.get(key);
+      }
+    }
+    if (status === 200) {
+      return blobToText(responseBlob).pipe(
+        _observableMergeMap((_responseText: string) => {
+          let result200: any = null;
+          let resultData200 = _responseText === '' ? null : JSON.parse(_responseText, this.jsonParseReviver);
+          result200 = resultData200 !== undefined ? resultData200 : <any>null;
+
+          return _observableOf(result200);
+        }),
+      );
+    } else if (status !== 200 && status !== 204) {
+      return blobToText(responseBlob).pipe(
+        _observableMergeMap((_responseText: string) => {
+          return throwException('An unexpected server error occurred.', status, _responseText, _headers);
+        }),
+      );
+    }
+    return _observableOf(null as any);
+  }
+
+  systemManagement_GetThemeDefinitions(): Observable<ThemeDefinitionDto[]> {
+    let url_ = this.baseUrl + '/system-management-api/SystemManagement/GetThemeDefinitions';
+    url_ = url_.replace(/[?&]$/, '');
+
+    let options_: any = {
+      observe: 'response',
+      responseType: 'blob',
+      headers: new HttpHeaders({
+        Accept: 'application/json',
+      }),
+    };
+
+    return this.http
+      .request('get', url_, options_)
+      .pipe(
+        _observableMergeMap((response_: any) => {
+          return this.processSystemManagement_GetThemeDefinitions(response_);
+        }),
+      )
+      .pipe(
+        _observableCatch((response_: any) => {
+          if (response_ instanceof HttpResponseBase) {
+            try {
+              return this.processSystemManagement_GetThemeDefinitions(response_ as any);
+            } catch (e) {
+              return _observableThrow(e) as any as Observable<ThemeDefinitionDto[]>;
+            }
+          } else return _observableThrow(response_) as any as Observable<ThemeDefinitionDto[]>;
+        }),
+      );
+  }
+
+  protected processSystemManagement_GetThemeDefinitions(response: HttpResponseBase): Observable<ThemeDefinitionDto[]> {
+    const status = response.status;
+    const responseBlob =
+      response instanceof HttpResponse
+        ? response.body
+        : (response as any).error instanceof Blob
+          ? (response as any).error
+          : undefined;
+
+    let _headers: any = {};
+    if (response.headers) {
+      for (let key of response.headers.keys()) {
+        _headers[key] = response.headers.get(key);
+      }
+    }
+    if (status === 200) {
+      return blobToText(responseBlob).pipe(
+        _observableMergeMap((_responseText: string) => {
+          let result200: any = null;
+          let resultData200 = _responseText === '' ? null : JSON.parse(_responseText, this.jsonParseReviver);
+          if (Array.isArray(resultData200)) {
+            result200 = [] as any;
+            for (let item of resultData200) result200!.push(ThemeDefinitionDto.fromJS(item));
+          } else {
+            result200 = <any>null;
+          }
+          return _observableOf(result200);
+        }),
+      );
+    } else if (status !== 200 && status !== 204) {
+      return blobToText(responseBlob).pipe(
+        _observableMergeMap((_responseText: string) => {
+          return throwException('An unexpected server error occurred.', status, _responseText, _headers);
+        }),
+      );
+    }
+    return _observableOf(null as any);
+  }
+
+  systemManagement_GetDeleteProtocols(): Observable<DeleteProtocolDto[]> {
+    let url_ = this.baseUrl + '/system-management-api/SystemManagement/GetDeleteProtocols';
+    url_ = url_.replace(/[?&]$/, '');
+
+    let options_: any = {
+      observe: 'response',
+      responseType: 'blob',
+      headers: new HttpHeaders({
+        Accept: 'application/json',
+      }),
+    };
+
+    return this.http
+      .request('get', url_, options_)
+      .pipe(
+        _observableMergeMap((response_: any) => {
+          return this.processSystemManagement_GetDeleteProtocols(response_);
+        }),
+      )
+      .pipe(
+        _observableCatch((response_: any) => {
+          if (response_ instanceof HttpResponseBase) {
+            try {
+              return this.processSystemManagement_GetDeleteProtocols(response_ as any);
+            } catch (e) {
+              return _observableThrow(e) as any as Observable<DeleteProtocolDto[]>;
+            }
+          } else return _observableThrow(response_) as any as Observable<DeleteProtocolDto[]>;
+        }),
+      );
+  }
+
+  protected processSystemManagement_GetDeleteProtocols(response: HttpResponseBase): Observable<DeleteProtocolDto[]> {
+    const status = response.status;
+    const responseBlob =
+      response instanceof HttpResponse
+        ? response.body
+        : (response as any).error instanceof Blob
+          ? (response as any).error
+          : undefined;
+
+    let _headers: any = {};
+    if (response.headers) {
+      for (let key of response.headers.keys()) {
+        _headers[key] = response.headers.get(key);
+      }
+    }
+    if (status === 200) {
+      return blobToText(responseBlob).pipe(
+        _observableMergeMap((_responseText: string) => {
+          let result200: any = null;
+          let resultData200 = _responseText === '' ? null : JSON.parse(_responseText, this.jsonParseReviver);
+          if (Array.isArray(resultData200)) {
+            result200 = [] as any;
+            for (let item of resultData200) result200!.push(DeleteProtocolDto.fromJS(item));
+          } else {
+            result200 = <any>null;
+          }
+          return _observableOf(result200);
+        }),
+      );
+    } else if (status !== 200 && status !== 204) {
+      return blobToText(responseBlob).pipe(
+        _observableMergeMap((_responseText: string) => {
+          return throwException('An unexpected server error occurred.', status, _responseText, _headers);
+        }),
+      );
+    }
+    return _observableOf(null as any);
+  }
+
+  systemManagement_GetMailSettings(): Observable<MailSettingsDto> {
+    let url_ = this.baseUrl + '/system-management-api/SystemManagement/GetMailSettings';
+    url_ = url_.replace(/[?&]$/, '');
+
+    let options_: any = {
+      observe: 'response',
+      responseType: 'blob',
+      headers: new HttpHeaders({
+        Accept: 'application/json',
+      }),
+    };
+
+    return this.http
+      .request('get', url_, options_)
+      .pipe(
+        _observableMergeMap((response_: any) => {
+          return this.processSystemManagement_GetMailSettings(response_);
+        }),
+      )
+      .pipe(
+        _observableCatch((response_: any) => {
+          if (response_ instanceof HttpResponseBase) {
+            try {
+              return this.processSystemManagement_GetMailSettings(response_ as any);
+            } catch (e) {
+              return _observableThrow(e) as any as Observable<MailSettingsDto>;
+            }
+          } else return _observableThrow(response_) as any as Observable<MailSettingsDto>;
+        }),
+      );
+  }
+
+  protected processSystemManagement_GetMailSettings(response: HttpResponseBase): Observable<MailSettingsDto> {
+    const status = response.status;
+    const responseBlob =
+      response instanceof HttpResponse
+        ? response.body
+        : (response as any).error instanceof Blob
+          ? (response as any).error
+          : undefined;
+
+    let _headers: any = {};
+    if (response.headers) {
+      for (let key of response.headers.keys()) {
+        _headers[key] = response.headers.get(key);
+      }
+    }
+    if (status === 200) {
+      return blobToText(responseBlob).pipe(
+        _observableMergeMap((_responseText: string) => {
+          let result200: any = null;
+          let resultData200 = _responseText === '' ? null : JSON.parse(_responseText, this.jsonParseReviver);
+          result200 = MailSettingsDto.fromJS(resultData200);
+          return _observableOf(result200);
+        }),
+      );
+    } else if (status !== 200 && status !== 204) {
+      return blobToText(responseBlob).pipe(
+        _observableMergeMap((_responseText: string) => {
+          return throwException('An unexpected server error occurred.', status, _responseText, _headers);
+        }),
+      );
+    }
+    return _observableOf(null as any);
+  }
+
+  systemManagement_UpdateMailSettings(settings: MailSettingsDto): Observable<MailSettingsDto> {
+    let url_ = this.baseUrl + '/system-management-api/SystemManagement/UpdateMailSettings';
+    url_ = url_.replace(/[?&]$/, '');
+
+    const content_ = JSON.stringify(settings);
+
+    let options_: any = {
+      body: content_,
+      observe: 'response',
+      responseType: 'blob',
+      headers: new HttpHeaders({
+        'Content-Type': 'application/json',
+        Accept: 'application/json',
+      }),
+    };
+
+    return this.http
+      .request('put', url_, options_)
+      .pipe(
+        _observableMergeMap((response_: any) => {
+          return this.processSystemManagement_UpdateMailSettings(response_);
+        }),
+      )
+      .pipe(
+        _observableCatch((response_: any) => {
+          if (response_ instanceof HttpResponseBase) {
+            try {
+              return this.processSystemManagement_UpdateMailSettings(response_ as any);
+            } catch (e) {
+              return _observableThrow(e) as any as Observable<MailSettingsDto>;
+            }
+          } else return _observableThrow(response_) as any as Observable<MailSettingsDto>;
+        }),
+      );
+  }
+
+  protected processSystemManagement_UpdateMailSettings(response: HttpResponseBase): Observable<MailSettingsDto> {
+    const status = response.status;
+    const responseBlob =
+      response instanceof HttpResponse
+        ? response.body
+        : (response as any).error instanceof Blob
+          ? (response as any).error
+          : undefined;
+
+    let _headers: any = {};
+    if (response.headers) {
+      for (let key of response.headers.keys()) {
+        _headers[key] = response.headers.get(key);
+      }
+    }
+    if (status === 200) {
+      return blobToText(responseBlob).pipe(
+        _observableMergeMap((_responseText: string) => {
+          let result200: any = null;
+          let resultData200 = _responseText === '' ? null : JSON.parse(_responseText, this.jsonParseReviver);
+          result200 = MailSettingsDto.fromJS(resultData200);
+          return _observableOf(result200);
+        }),
+      );
+    } else if (status !== 200 && status !== 204) {
+      return blobToText(responseBlob).pipe(
+        _observableMergeMap((_responseText: string) => {
+          return throwException('An unexpected server error occurred.', status, _responseText, _headers);
+        }),
+      );
+    }
+    return _observableOf(null as any);
+  }
+
+  systemManagement_GetLegalLinksSettings(): Observable<LegalLinksSettingsDto> {
+    let url_ = this.baseUrl + '/system-management-api/SystemManagement/GetLegalLinksSettings';
+    url_ = url_.replace(/[?&]$/, '');
+
+    let options_: any = {
+      observe: 'response',
+      responseType: 'blob',
+      headers: new HttpHeaders({
+        Accept: 'application/json',
+      }),
+    };
+
+    return this.http
+      .request('get', url_, options_)
+      .pipe(
+        _observableMergeMap((response_: any) => {
+          return this.processSystemManagement_GetLegalLinksSettings(response_);
+        }),
+      )
+      .pipe(
+        _observableCatch((response_: any) => {
+          if (response_ instanceof HttpResponseBase) {
+            try {
+              return this.processSystemManagement_GetLegalLinksSettings(response_ as any);
+            } catch (e) {
+              return _observableThrow(e) as any as Observable<LegalLinksSettingsDto>;
+            }
+          } else return _observableThrow(response_) as any as Observable<LegalLinksSettingsDto>;
+        }),
+      );
+  }
+
+  protected processSystemManagement_GetLegalLinksSettings(
+    response: HttpResponseBase,
+  ): Observable<LegalLinksSettingsDto> {
+    const status = response.status;
+    const responseBlob =
+      response instanceof HttpResponse
+        ? response.body
+        : (response as any).error instanceof Blob
+          ? (response as any).error
+          : undefined;
+
+    let _headers: any = {};
+    if (response.headers) {
+      for (let key of response.headers.keys()) {
+        _headers[key] = response.headers.get(key);
+      }
+    }
+    if (status === 200) {
+      return blobToText(responseBlob).pipe(
+        _observableMergeMap((_responseText: string) => {
+          let result200: any = null;
+          let resultData200 = _responseText === '' ? null : JSON.parse(_responseText, this.jsonParseReviver);
+          result200 = LegalLinksSettingsDto.fromJS(resultData200);
+          return _observableOf(result200);
+        }),
+      );
+    } else if (status !== 200 && status !== 204) {
+      return blobToText(responseBlob).pipe(
+        _observableMergeMap((_responseText: string) => {
+          return throwException('An unexpected server error occurred.', status, _responseText, _headers);
+        }),
+      );
+    }
+    return _observableOf(null as any);
+  }
+
+  systemManagement_GetLegalDocument(fieldName: string): Observable<FileResponse> {
+    let url_ = this.baseUrl + '/system-management-api/SystemManagement/GetLegalDocument/{fieldName}';
+    if (fieldName === undefined || fieldName === null) throw new Error("The parameter 'fieldName' must be defined.");
+    url_ = url_.replace('{fieldName}', encodeURIComponent('' + fieldName));
+    url_ = url_.replace(/[?&]$/, '');
+
+    let options_: any = {
+      observe: 'response',
+      responseType: 'blob',
+      headers: new HttpHeaders({
+        Accept: 'application/octet-stream',
+      }),
+    };
+
+    return this.http
+      .request('get', url_, options_)
+      .pipe(
+        _observableMergeMap((response_: any) => {
+          return this.processSystemManagement_GetLegalDocument(response_);
+        }),
+      )
+      .pipe(
+        _observableCatch((response_: any) => {
+          if (response_ instanceof HttpResponseBase) {
+            try {
+              return this.processSystemManagement_GetLegalDocument(response_ as any);
+            } catch (e) {
+              return _observableThrow(e) as any as Observable<FileResponse>;
+            }
+          } else return _observableThrow(response_) as any as Observable<FileResponse>;
+        }),
+      );
+  }
+
+  protected processSystemManagement_GetLegalDocument(response: HttpResponseBase): Observable<FileResponse> {
+    const status = response.status;
+    const responseBlob =
+      response instanceof HttpResponse
+        ? response.body
+        : (response as any).error instanceof Blob
+          ? (response as any).error
+          : undefined;
+
+    let _headers: any = {};
+    if (response.headers) {
+      for (let key of response.headers.keys()) {
+        _headers[key] = response.headers.get(key);
+      }
+    }
+    if (status === 200 || status === 206) {
+      const contentDisposition = response.headers ? response.headers.get('content-disposition') : undefined;
+      let fileNameMatch = contentDisposition
+        ? /filename\*=(?:(\\?['"])(.*?)\1|(?:[^\s]+'.*?')?([^;\n]*))/g.exec(contentDisposition)
+        : undefined;
+      let fileName = fileNameMatch && fileNameMatch.length > 1 ? fileNameMatch[3] || fileNameMatch[2] : undefined;
+      if (fileName) {
+        fileName = decodeURIComponent(fileName);
+      } else {
+        fileNameMatch = contentDisposition ? /filename="?([^"]*?)"?(;|$)/g.exec(contentDisposition) : undefined;
+        fileName = fileNameMatch && fileNameMatch.length > 1 ? fileNameMatch[1] : undefined;
+      }
+      return _observableOf({ fileName: fileName, data: responseBlob as any, status: status, headers: _headers });
+    } else if (status !== 200 && status !== 204) {
+      return blobToText(responseBlob).pipe(
+        _observableMergeMap((_responseText: string) => {
+          return throwException('An unexpected server error occurred.', status, _responseText, _headers);
+        }),
+      );
+    }
+    return _observableOf(null as any);
+  }
+
+  systemManagement_UpdateLegalLinksSettings(
+    request: UpdateLegalLinksSettingsRequest,
+  ): Observable<LegalLinksSettingsDto> {
+    let url_ = this.baseUrl + '/system-management-api/SystemManagement/UpdateLegalLinksSettings';
+    url_ = url_.replace(/[?&]$/, '');
+
+    const content_ = JSON.stringify(request);
+
+    let options_: any = {
+      body: content_,
+      observe: 'response',
+      responseType: 'blob',
+      headers: new HttpHeaders({
+        'Content-Type': 'application/json',
+        Accept: 'application/json',
+      }),
+    };
+
+    return this.http
+      .request('put', url_, options_)
+      .pipe(
+        _observableMergeMap((response_: any) => {
+          return this.processSystemManagement_UpdateLegalLinksSettings(response_);
+        }),
+      )
+      .pipe(
+        _observableCatch((response_: any) => {
+          if (response_ instanceof HttpResponseBase) {
+            try {
+              return this.processSystemManagement_UpdateLegalLinksSettings(response_ as any);
+            } catch (e) {
+              return _observableThrow(e) as any as Observable<LegalLinksSettingsDto>;
+            }
+          } else return _observableThrow(response_) as any as Observable<LegalLinksSettingsDto>;
+        }),
+      );
+  }
+
+  protected processSystemManagement_UpdateLegalLinksSettings(
+    response: HttpResponseBase,
+  ): Observable<LegalLinksSettingsDto> {
+    const status = response.status;
+    const responseBlob =
+      response instanceof HttpResponse
+        ? response.body
+        : (response as any).error instanceof Blob
+          ? (response as any).error
+          : undefined;
+
+    let _headers: any = {};
+    if (response.headers) {
+      for (let key of response.headers.keys()) {
+        _headers[key] = response.headers.get(key);
+      }
+    }
+    if (status === 200) {
+      return blobToText(responseBlob).pipe(
+        _observableMergeMap((_responseText: string) => {
+          let result200: any = null;
+          let resultData200 = _responseText === '' ? null : JSON.parse(_responseText, this.jsonParseReviver);
+          result200 = LegalLinksSettingsDto.fromJS(resultData200);
+          return _observableOf(result200);
+        }),
+      );
+    } else if (status !== 200 && status !== 204) {
+      return blobToText(responseBlob).pipe(
+        _observableMergeMap((_responseText: string) => {
+          return throwException('An unexpected server error occurred.', status, _responseText, _headers);
+        }),
+      );
+    }
+    return _observableOf(null as any);
+  }
+
+  systemManagement_SendApplicationTestMail(request: SendApplicationTestMailRequestDto): Observable<void> {
+    let url_ = this.baseUrl + '/system-management-api/SystemManagement/SendApplicationTestMail';
+    url_ = url_.replace(/[?&]$/, '');
+
+    const content_ = JSON.stringify(request);
+
+    let options_: any = {
+      body: content_,
+      observe: 'response',
+      responseType: 'blob',
+      headers: new HttpHeaders({
+        'Content-Type': 'application/json',
+      }),
+    };
+
+    return this.http
+      .request('post', url_, options_)
+      .pipe(
+        _observableMergeMap((response_: any) => {
+          return this.processSystemManagement_SendApplicationTestMail(response_);
+        }),
+      )
+      .pipe(
+        _observableCatch((response_: any) => {
+          if (response_ instanceof HttpResponseBase) {
+            try {
+              return this.processSystemManagement_SendApplicationTestMail(response_ as any);
+            } catch (e) {
+              return _observableThrow(e) as any as Observable<void>;
+            }
+          } else return _observableThrow(response_) as any as Observable<void>;
+        }),
+      );
+  }
+
+  protected processSystemManagement_SendApplicationTestMail(response: HttpResponseBase): Observable<void> {
+    const status = response.status;
+    const responseBlob =
+      response instanceof HttpResponse
+        ? response.body
+        : (response as any).error instanceof Blob
+          ? (response as any).error
+          : undefined;
+
+    let _headers: any = {};
+    if (response.headers) {
+      for (let key of response.headers.keys()) {
+        _headers[key] = response.headers.get(key);
+      }
+    }
+    if (status === 200) {
+      return blobToText(responseBlob).pipe(
+        _observableMergeMap((_responseText: string) => {
+          return _observableOf(null as any);
+        }),
+      );
+    } else if (status !== 200 && status !== 204) {
+      return blobToText(responseBlob).pipe(
+        _observableMergeMap((_responseText: string) => {
+          return throwException('An unexpected server error occurred.', status, _responseText, _headers);
+        }),
+      );
+    }
+    return _observableOf(null as any);
+  }
+
+  systemManagement_SendKeycloakTestMail(request: SendKeycloakTestMailRequestDto): Observable<void> {
+    let url_ = this.baseUrl + '/system-management-api/SystemManagement/SendKeycloakTestMail';
+    url_ = url_.replace(/[?&]$/, '');
+
+    const content_ = JSON.stringify(request);
+
+    let options_: any = {
+      body: content_,
+      observe: 'response',
+      responseType: 'blob',
+      headers: new HttpHeaders({
+        'Content-Type': 'application/json',
+      }),
+    };
+
+    return this.http
+      .request('post', url_, options_)
+      .pipe(
+        _observableMergeMap((response_: any) => {
+          return this.processSystemManagement_SendKeycloakTestMail(response_);
+        }),
+      )
+      .pipe(
+        _observableCatch((response_: any) => {
+          if (response_ instanceof HttpResponseBase) {
+            try {
+              return this.processSystemManagement_SendKeycloakTestMail(response_ as any);
+            } catch (e) {
+              return _observableThrow(e) as any as Observable<void>;
+            }
+          } else return _observableThrow(response_) as any as Observable<void>;
+        }),
+      );
+  }
+
+  protected processSystemManagement_SendKeycloakTestMail(response: HttpResponseBase): Observable<void> {
+    const status = response.status;
+    const responseBlob =
+      response instanceof HttpResponse
+        ? response.body
+        : (response as any).error instanceof Blob
+          ? (response as any).error
+          : undefined;
+
+    let _headers: any = {};
+    if (response.headers) {
+      for (let key of response.headers.keys()) {
+        _headers[key] = response.headers.get(key);
+      }
+    }
+    if (status === 200) {
+      return blobToText(responseBlob).pipe(
+        _observableMergeMap((_responseText: string) => {
+          return _observableOf(null as any);
+        }),
+      );
+    } else if (status !== 200 && status !== 204) {
+      return blobToText(responseBlob).pipe(
+        _observableMergeMap((_responseText: string) => {
+          return throwException('An unexpected server error occurred.', status, _responseText, _headers);
+        }),
+      );
+    }
+    return _observableOf(null as any);
+  }
+
+  systemManagement_UpsertThemeDefinition(theme: ThemeDefinitionDto): Observable<ThemeDefinitionDto> {
+    let url_ = this.baseUrl + '/system-management-api/SystemManagement/UpsertThemeDefinition';
+    url_ = url_.replace(/[?&]$/, '');
+
+    const content_ = JSON.stringify(theme);
+
+    let options_: any = {
+      body: content_,
+      observe: 'response',
+      responseType: 'blob',
+      headers: new HttpHeaders({
+        'Content-Type': 'application/json',
+        Accept: 'application/json',
+      }),
+    };
+
+    return this.http
+      .request('post', url_, options_)
+      .pipe(
+        _observableMergeMap((response_: any) => {
+          return this.processSystemManagement_UpsertThemeDefinition(response_);
+        }),
+      )
+      .pipe(
+        _observableCatch((response_: any) => {
+          if (response_ instanceof HttpResponseBase) {
+            try {
+              return this.processSystemManagement_UpsertThemeDefinition(response_ as any);
+            } catch (e) {
+              return _observableThrow(e) as any as Observable<ThemeDefinitionDto>;
+            }
+          } else return _observableThrow(response_) as any as Observable<ThemeDefinitionDto>;
+        }),
+      );
+  }
+
+  protected processSystemManagement_UpsertThemeDefinition(response: HttpResponseBase): Observable<ThemeDefinitionDto> {
+    const status = response.status;
+    const responseBlob =
+      response instanceof HttpResponse
+        ? response.body
+        : (response as any).error instanceof Blob
+          ? (response as any).error
+          : undefined;
+
+    let _headers: any = {};
+    if (response.headers) {
+      for (let key of response.headers.keys()) {
+        _headers[key] = response.headers.get(key);
+      }
+    }
+    if (status === 200) {
+      return blobToText(responseBlob).pipe(
+        _observableMergeMap((_responseText: string) => {
+          let result200: any = null;
+          let resultData200 = _responseText === '' ? null : JSON.parse(_responseText, this.jsonParseReviver);
+          result200 = ThemeDefinitionDto.fromJS(resultData200);
+          return _observableOf(result200);
+        }),
+      );
+    } else if (status !== 200 && status !== 204) {
+      return blobToText(responseBlob).pipe(
+        _observableMergeMap((_responseText: string) => {
+          return throwException('An unexpected server error occurred.', status, _responseText, _headers);
+        }),
+      );
+    }
+    return _observableOf(null as any);
+  }
+
+  systemManagement_DeleteThemeDefinition(key: string | undefined): Observable<boolean> {
+    let url_ = this.baseUrl + '/system-management-api/SystemManagement/DeleteThemeDefinition?';
+    if (key === null) throw new Error("The parameter 'key' cannot be null.");
+    else if (key !== undefined) url_ += 'key=' + encodeURIComponent('' + key) + '&';
+    url_ = url_.replace(/[?&]$/, '');
+
+    let options_: any = {
+      observe: 'response',
+      responseType: 'blob',
+      headers: new HttpHeaders({
+        Accept: 'application/json',
+      }),
+    };
+
+    return this.http
+      .request('delete', url_, options_)
+      .pipe(
+        _observableMergeMap((response_: any) => {
+          return this.processSystemManagement_DeleteThemeDefinition(response_);
+        }),
+      )
+      .pipe(
+        _observableCatch((response_: any) => {
+          if (response_ instanceof HttpResponseBase) {
+            try {
+              return this.processSystemManagement_DeleteThemeDefinition(response_ as any);
+            } catch (e) {
+              return _observableThrow(e) as any as Observable<boolean>;
+            }
+          } else return _observableThrow(response_) as any as Observable<boolean>;
+        }),
+      );
+  }
+
+  protected processSystemManagement_DeleteThemeDefinition(response: HttpResponseBase): Observable<boolean> {
+    const status = response.status;
+    const responseBlob =
+      response instanceof HttpResponse
+        ? response.body
+        : (response as any).error instanceof Blob
+          ? (response as any).error
+          : undefined;
+
+    let _headers: any = {};
+    if (response.headers) {
+      for (let key of response.headers.keys()) {
+        _headers[key] = response.headers.get(key);
+      }
+    }
+    if (status === 200) {
+      return blobToText(responseBlob).pipe(
+        _observableMergeMap((_responseText: string) => {
+          let result200: any = null;
+          let resultData200 = _responseText === '' ? null : JSON.parse(_responseText, this.jsonParseReviver);
+          result200 = resultData200 !== undefined ? resultData200 : <any>null;
+
+          return _observableOf(result200);
+        }),
+      );
+    } else if (status !== 200 && status !== 204) {
+      return blobToText(responseBlob).pipe(
+        _observableMergeMap((_responseText: string) => {
+          return throwException('An unexpected server error occurred.', status, _responseText, _headers);
+        }),
+      );
+    }
+    return _observableOf(null as any);
+  }
+
+  systemManagement_ExportThemeDefinitions(): Observable<FileResponse> {
+    let url_ = this.baseUrl + '/system-management-api/SystemManagement/ExportThemeDefinitions';
+    url_ = url_.replace(/[?&]$/, '');
+
+    let options_: any = {
+      observe: 'response',
+      responseType: 'blob',
+      headers: new HttpHeaders({
+        Accept: 'application/octet-stream',
+      }),
+    };
+
+    return this.http
+      .request('post', url_, options_)
+      .pipe(
+        _observableMergeMap((response_: any) => {
+          return this.processSystemManagement_ExportThemeDefinitions(response_);
+        }),
+      )
+      .pipe(
+        _observableCatch((response_: any) => {
+          if (response_ instanceof HttpResponseBase) {
+            try {
+              return this.processSystemManagement_ExportThemeDefinitions(response_ as any);
+            } catch (e) {
+              return _observableThrow(e) as any as Observable<FileResponse>;
+            }
+          } else return _observableThrow(response_) as any as Observable<FileResponse>;
+        }),
+      );
+  }
+
+  protected processSystemManagement_ExportThemeDefinitions(response: HttpResponseBase): Observable<FileResponse> {
+    const status = response.status;
+    const responseBlob =
+      response instanceof HttpResponse
+        ? response.body
+        : (response as any).error instanceof Blob
+          ? (response as any).error
+          : undefined;
+
+    let _headers: any = {};
+    if (response.headers) {
+      for (let key of response.headers.keys()) {
+        _headers[key] = response.headers.get(key);
+      }
+    }
+    if (status === 200 || status === 206) {
+      const contentDisposition = response.headers ? response.headers.get('content-disposition') : undefined;
+      let fileNameMatch = contentDisposition
+        ? /filename\*=(?:(\\?['"])(.*?)\1|(?:[^\s]+'.*?')?([^;\n]*))/g.exec(contentDisposition)
+        : undefined;
+      let fileName = fileNameMatch && fileNameMatch.length > 1 ? fileNameMatch[3] || fileNameMatch[2] : undefined;
+      if (fileName) {
+        fileName = decodeURIComponent(fileName);
+      } else {
+        fileNameMatch = contentDisposition ? /filename="?([^"]*?)"?(;|$)/g.exec(contentDisposition) : undefined;
+        fileName = fileNameMatch && fileNameMatch.length > 1 ? fileNameMatch[1] : undefined;
+      }
+      return _observableOf({ fileName: fileName, data: responseBlob as any, status: status, headers: _headers });
+    } else if (status !== 200 && status !== 204) {
+      return blobToText(responseBlob).pipe(
+        _observableMergeMap((_responseText: string) => {
+          return throwException('An unexpected server error occurred.', status, _responseText, _headers);
+        }),
+      );
+    }
+    return _observableOf(null as any);
+  }
+
+  systemManagement_ImportThemeDefinitions(themeImport: ThemeDefinitionsImport): Observable<boolean> {
+    let url_ = this.baseUrl + '/system-management-api/SystemManagement/ImportThemeDefinitions';
+    url_ = url_.replace(/[?&]$/, '');
+
+    const content_ = JSON.stringify(themeImport);
+
+    let options_: any = {
+      body: content_,
+      observe: 'response',
+      responseType: 'blob',
+      headers: new HttpHeaders({
+        'Content-Type': 'application/json',
+        Accept: 'application/json',
+      }),
+    };
+
+    return this.http
+      .request('post', url_, options_)
+      .pipe(
+        _observableMergeMap((response_: any) => {
+          return this.processSystemManagement_ImportThemeDefinitions(response_);
+        }),
+      )
+      .pipe(
+        _observableCatch((response_: any) => {
+          if (response_ instanceof HttpResponseBase) {
+            try {
+              return this.processSystemManagement_ImportThemeDefinitions(response_ as any);
+            } catch (e) {
+              return _observableThrow(e) as any as Observable<boolean>;
+            }
+          } else return _observableThrow(response_) as any as Observable<boolean>;
+        }),
+      );
+  }
+
+  protected processSystemManagement_ImportThemeDefinitions(response: HttpResponseBase): Observable<boolean> {
     const status = response.status;
     const responseBlob =
       response instanceof HttpResponse
@@ -14548,6 +14854,2734 @@ export interface ISpecificAssetIdEntry {
   value?: string;
 }
 
+export class BenutzerInfrastrukturRechtDto implements IBenutzerInfrastrukturRechtDto {
+  infrastrukturId?: number;
+  infrastrukturName?: string;
+  darfLesen?: boolean;
+  darfSchreiben?: boolean;
+  darfMarktPublizieren?: boolean;
+
+  constructor(data?: IBenutzerInfrastrukturRechtDto) {
+    if (data) {
+      for (var property in data) {
+        if (data.hasOwnProperty(property)) (<any>this)[property] = (<any>data)[property];
+      }
+    }
+  }
+
+  init(_data?: any) {
+    if (_data) {
+      this.infrastrukturId = _data['infrastrukturId'];
+      this.infrastrukturName = _data['infrastrukturName'];
+      this.darfLesen = _data['darfLesen'];
+      this.darfSchreiben = _data['darfSchreiben'];
+      this.darfMarktPublizieren = _data['darfMarktPublizieren'];
+    }
+  }
+
+  static fromJS(data: any): BenutzerInfrastrukturRechtDto {
+    data = typeof data === 'object' ? data : {};
+    let result = new BenutzerInfrastrukturRechtDto();
+    result.init(data);
+    return result;
+  }
+
+  toJSON(data?: any) {
+    data = typeof data === 'object' ? data : {};
+    data['infrastrukturId'] = this.infrastrukturId;
+    data['infrastrukturName'] = this.infrastrukturName;
+    data['darfLesen'] = this.darfLesen;
+    data['darfSchreiben'] = this.darfSchreiben;
+    data['darfMarktPublizieren'] = this.darfMarktPublizieren;
+    return data;
+  }
+}
+
+export interface IBenutzerInfrastrukturRechtDto {
+  infrastrukturId?: number;
+  infrastrukturName?: string;
+  darfLesen?: boolean;
+  darfSchreiben?: boolean;
+  darfMarktPublizieren?: boolean;
+}
+
+export class InfraUserRechtDto implements IInfraUserRechtDto {
+  benutzerId?: number;
+  vorname?: string;
+  name?: string;
+  email?: string;
+  darfLesen?: boolean;
+  darfSchreiben?: boolean;
+  darfMarktPublizieren?: boolean;
+
+  constructor(data?: IInfraUserRechtDto) {
+    if (data) {
+      for (var property in data) {
+        if (data.hasOwnProperty(property)) (<any>this)[property] = (<any>data)[property];
+      }
+    }
+  }
+
+  init(_data?: any) {
+    if (_data) {
+      this.benutzerId = _data['benutzerId'];
+      this.vorname = _data['vorname'];
+      this.name = _data['name'];
+      this.email = _data['email'];
+      this.darfLesen = _data['darfLesen'];
+      this.darfSchreiben = _data['darfSchreiben'];
+      this.darfMarktPublizieren = _data['darfMarktPublizieren'];
+    }
+  }
+
+  static fromJS(data: any): InfraUserRechtDto {
+    data = typeof data === 'object' ? data : {};
+    let result = new InfraUserRechtDto();
+    result.init(data);
+    return result;
+  }
+
+  toJSON(data?: any) {
+    data = typeof data === 'object' ? data : {};
+    data['benutzerId'] = this.benutzerId;
+    data['vorname'] = this.vorname;
+    data['name'] = this.name;
+    data['email'] = this.email;
+    data['darfLesen'] = this.darfLesen;
+    data['darfSchreiben'] = this.darfSchreiben;
+    data['darfMarktPublizieren'] = this.darfMarktPublizieren;
+    return data;
+  }
+}
+
+export interface IInfraUserRechtDto {
+  benutzerId?: number;
+  vorname?: string;
+  name?: string;
+  email?: string;
+  darfLesen?: boolean;
+  darfSchreiben?: boolean;
+  darfMarktPublizieren?: boolean;
+}
+
+export class OrganisationUebersichtDto implements IOrganisationUebersichtDto {
+  id?: number;
+  name?: string;
+  telefon?: string;
+  email?: string;
+  fax?: string;
+  accountAktiv?: boolean;
+  geloescht?: boolean;
+  strasse?: string;
+  plz?: string;
+  ort?: string;
+  bundesland?: string;
+  laenderCode?: string;
+  iriPrefix?: string;
+  themeUrl?: string;
+  logoBase64?: string;
+  useInternalInfrastructure?: boolean;
+  aasDiscoveryUrl?: string;
+  aasRegistryUrl?: string;
+  aasRepositoryUrl?: string;
+  submodelRegistryUrl?: string;
+  submodelRepositoryUrl?: string;
+  conceptDescriptionRepositoryUrl?: string;
+  externalAasDiscoveryUrl?: string;
+  externalAasRegistryUrl?: string;
+  externalAasRepositoryUrl?: string;
+  externalSubmodelRegistryUrl?: string;
+  externalSubmodelRepositoryUrl?: string;
+  externalConceptDescriptionRepositoryUrl?: string;
+  headerParameters?: HeaderParameter[];
+  anlageDatum?: Date;
+  anlageBenutzer?: string;
+  aenderungsDatum?: Date;
+  aenderungsBenutzer?: string;
+  bezahlmodelle?: OrganisationPaymentModel[];
+  ownedEclassData?: EClassMetadata[];
+  maintenanceActive?: boolean;
+
+  constructor(data?: IOrganisationUebersichtDto) {
+    if (data) {
+      for (var property in data) {
+        if (data.hasOwnProperty(property)) (<any>this)[property] = (<any>data)[property];
+      }
+    }
+  }
+
+  init(_data?: any) {
+    if (_data) {
+      this.id = _data['id'];
+      this.name = _data['name'];
+      this.telefon = _data['telefon'];
+      this.email = _data['email'];
+      this.fax = _data['fax'];
+      this.accountAktiv = _data['accountAktiv'];
+      this.geloescht = _data['geloescht'];
+      this.strasse = _data['strasse'];
+      this.plz = _data['plz'];
+      this.ort = _data['ort'];
+      this.bundesland = _data['bundesland'];
+      this.laenderCode = _data['laenderCode'];
+      this.iriPrefix = _data['iriPrefix'];
+      this.themeUrl = _data['themeUrl'];
+      this.logoBase64 = _data['logoBase64'];
+      this.useInternalInfrastructure = _data['useInternalInfrastructure'];
+      this.aasDiscoveryUrl = _data['aasDiscoveryUrl'];
+      this.aasRegistryUrl = _data['aasRegistryUrl'];
+      this.aasRepositoryUrl = _data['aasRepositoryUrl'];
+      this.submodelRegistryUrl = _data['submodelRegistryUrl'];
+      this.submodelRepositoryUrl = _data['submodelRepositoryUrl'];
+      this.conceptDescriptionRepositoryUrl = _data['conceptDescriptionRepositoryUrl'];
+      this.externalAasDiscoveryUrl = _data['externalAasDiscoveryUrl'];
+      this.externalAasRegistryUrl = _data['externalAasRegistryUrl'];
+      this.externalAasRepositoryUrl = _data['externalAasRepositoryUrl'];
+      this.externalSubmodelRegistryUrl = _data['externalSubmodelRegistryUrl'];
+      this.externalSubmodelRepositoryUrl = _data['externalSubmodelRepositoryUrl'];
+      this.externalConceptDescriptionRepositoryUrl = _data['externalConceptDescriptionRepositoryUrl'];
+      if (Array.isArray(_data['headerParameters'])) {
+        this.headerParameters = [] as any;
+        for (let item of _data['headerParameters']) this.headerParameters!.push(HeaderParameter.fromJS(item));
+      }
+      this.anlageDatum = _data['anlageDatum'] ? new Date(_data['anlageDatum'].toString()) : <any>undefined;
+      this.anlageBenutzer = _data['anlageBenutzer'];
+      this.aenderungsDatum = _data['aenderungsDatum'] ? new Date(_data['aenderungsDatum'].toString()) : <any>undefined;
+      this.aenderungsBenutzer = _data['aenderungsBenutzer'];
+      if (Array.isArray(_data['bezahlmodelle'])) {
+        this.bezahlmodelle = [] as any;
+        for (let item of _data['bezahlmodelle']) this.bezahlmodelle!.push(OrganisationPaymentModel.fromJS(item));
+      }
+      if (Array.isArray(_data['ownedEclassData'])) {
+        this.ownedEclassData = [] as any;
+        for (let item of _data['ownedEclassData']) this.ownedEclassData!.push(EClassMetadata.fromJS(item));
+      }
+      this.maintenanceActive = _data['maintenanceActive'];
+    }
+  }
+
+  static fromJS(data: any): OrganisationUebersichtDto {
+    data = typeof data === 'object' ? data : {};
+    let result = new OrganisationUebersichtDto();
+    result.init(data);
+    return result;
+  }
+
+  toJSON(data?: any) {
+    data = typeof data === 'object' ? data : {};
+    data['id'] = this.id;
+    data['name'] = this.name;
+    data['telefon'] = this.telefon;
+    data['email'] = this.email;
+    data['fax'] = this.fax;
+    data['accountAktiv'] = this.accountAktiv;
+    data['geloescht'] = this.geloescht;
+    data['strasse'] = this.strasse;
+    data['plz'] = this.plz;
+    data['ort'] = this.ort;
+    data['bundesland'] = this.bundesland;
+    data['laenderCode'] = this.laenderCode;
+    data['iriPrefix'] = this.iriPrefix;
+    data['themeUrl'] = this.themeUrl;
+    data['logoBase64'] = this.logoBase64;
+    data['useInternalInfrastructure'] = this.useInternalInfrastructure;
+    data['aasDiscoveryUrl'] = this.aasDiscoveryUrl;
+    data['aasRegistryUrl'] = this.aasRegistryUrl;
+    data['aasRepositoryUrl'] = this.aasRepositoryUrl;
+    data['submodelRegistryUrl'] = this.submodelRegistryUrl;
+    data['submodelRepositoryUrl'] = this.submodelRepositoryUrl;
+    data['conceptDescriptionRepositoryUrl'] = this.conceptDescriptionRepositoryUrl;
+    data['externalAasDiscoveryUrl'] = this.externalAasDiscoveryUrl;
+    data['externalAasRegistryUrl'] = this.externalAasRegistryUrl;
+    data['externalAasRepositoryUrl'] = this.externalAasRepositoryUrl;
+    data['externalSubmodelRegistryUrl'] = this.externalSubmodelRegistryUrl;
+    data['externalSubmodelRepositoryUrl'] = this.externalSubmodelRepositoryUrl;
+    data['externalConceptDescriptionRepositoryUrl'] = this.externalConceptDescriptionRepositoryUrl;
+    if (Array.isArray(this.headerParameters)) {
+      data['headerParameters'] = [];
+      for (let item of this.headerParameters) data['headerParameters'].push(item.toJSON());
+    }
+    data['anlageDatum'] = this.anlageDatum ? this.anlageDatum.toISOString() : <any>undefined;
+    data['anlageBenutzer'] = this.anlageBenutzer;
+    data['aenderungsDatum'] = this.aenderungsDatum ? this.aenderungsDatum.toISOString() : <any>undefined;
+    data['aenderungsBenutzer'] = this.aenderungsBenutzer;
+    if (Array.isArray(this.bezahlmodelle)) {
+      data['bezahlmodelle'] = [];
+      for (let item of this.bezahlmodelle) data['bezahlmodelle'].push(item.toJSON());
+    }
+    if (Array.isArray(this.ownedEclassData)) {
+      data['ownedEclassData'] = [];
+      for (let item of this.ownedEclassData) data['ownedEclassData'].push(item.toJSON());
+    }
+    data['maintenanceActive'] = this.maintenanceActive;
+    return data;
+  }
+}
+
+export interface IOrganisationUebersichtDto {
+  id?: number;
+  name?: string;
+  telefon?: string;
+  email?: string;
+  fax?: string;
+  accountAktiv?: boolean;
+  geloescht?: boolean;
+  strasse?: string;
+  plz?: string;
+  ort?: string;
+  bundesland?: string;
+  laenderCode?: string;
+  iriPrefix?: string;
+  themeUrl?: string;
+  logoBase64?: string;
+  useInternalInfrastructure?: boolean;
+  aasDiscoveryUrl?: string;
+  aasRegistryUrl?: string;
+  aasRepositoryUrl?: string;
+  submodelRegistryUrl?: string;
+  submodelRepositoryUrl?: string;
+  conceptDescriptionRepositoryUrl?: string;
+  externalAasDiscoveryUrl?: string;
+  externalAasRegistryUrl?: string;
+  externalAasRepositoryUrl?: string;
+  externalSubmodelRegistryUrl?: string;
+  externalSubmodelRepositoryUrl?: string;
+  externalConceptDescriptionRepositoryUrl?: string;
+  headerParameters?: HeaderParameter[];
+  anlageDatum?: Date;
+  anlageBenutzer?: string;
+  aenderungsDatum?: Date;
+  aenderungsBenutzer?: string;
+  bezahlmodelle?: OrganisationPaymentModel[];
+  ownedEclassData?: EClassMetadata[];
+  maintenanceActive?: boolean;
+}
+
+export class OrganisationPaymentModel implements IOrganisationPaymentModel {
+  id?: number;
+  organisation?: Organisation;
+  organisationId?: number;
+  paymentModel?: PaymentModel;
+  paymentModelId?: number;
+  loeschDatum?: Date | undefined;
+  loeschBenutzer?: string;
+  endDate?: Date | undefined;
+  anlageDatum?: Date;
+  anlageBenutzer?: string;
+  aenderungsDatum?: Date;
+  aenderungsBenutzer?: string;
+  geloescht?: boolean;
+  aenderungsZaehler?: number;
+  shouldBeHardDeleted?: boolean;
+
+  constructor(data?: IOrganisationPaymentModel) {
+    if (data) {
+      for (var property in data) {
+        if (data.hasOwnProperty(property)) (<any>this)[property] = (<any>data)[property];
+      }
+    }
+  }
+
+  init(_data?: any) {
+    if (_data) {
+      this.id = _data['id'];
+      this.organisation = _data['organisation'] ? Organisation.fromJS(_data['organisation']) : <any>undefined;
+      this.organisationId = _data['organisationId'];
+      this.paymentModel = _data['paymentModel'] ? PaymentModel.fromJS(_data['paymentModel']) : <any>undefined;
+      this.paymentModelId = _data['paymentModelId'];
+      this.loeschDatum = _data['loeschDatum'] ? new Date(_data['loeschDatum'].toString()) : <any>undefined;
+      this.loeschBenutzer = _data['loeschBenutzer'];
+      this.endDate = _data['endDate'] ? new Date(_data['endDate'].toString()) : <any>undefined;
+      this.anlageDatum = _data['anlageDatum'] ? new Date(_data['anlageDatum'].toString()) : <any>undefined;
+      this.anlageBenutzer = _data['anlageBenutzer'];
+      this.aenderungsDatum = _data['aenderungsDatum'] ? new Date(_data['aenderungsDatum'].toString()) : <any>undefined;
+      this.aenderungsBenutzer = _data['aenderungsBenutzer'];
+      this.geloescht = _data['geloescht'];
+      this.aenderungsZaehler = _data['aenderungsZaehler'];
+      this.shouldBeHardDeleted = _data['shouldBeHardDeleted'];
+    }
+  }
+
+  static fromJS(data: any): OrganisationPaymentModel {
+    data = typeof data === 'object' ? data : {};
+    let result = new OrganisationPaymentModel();
+    result.init(data);
+    return result;
+  }
+
+  toJSON(data?: any) {
+    data = typeof data === 'object' ? data : {};
+    data['id'] = this.id;
+    data['organisation'] = this.organisation ? this.organisation.toJSON() : <any>undefined;
+    data['organisationId'] = this.organisationId;
+    data['paymentModel'] = this.paymentModel ? this.paymentModel.toJSON() : <any>undefined;
+    data['paymentModelId'] = this.paymentModelId;
+    data['loeschDatum'] = this.loeschDatum ? this.loeschDatum.toISOString() : <any>undefined;
+    data['loeschBenutzer'] = this.loeschBenutzer;
+    data['endDate'] = this.endDate ? this.endDate.toISOString() : <any>undefined;
+    data['anlageDatum'] = this.anlageDatum ? this.anlageDatum.toISOString() : <any>undefined;
+    data['anlageBenutzer'] = this.anlageBenutzer;
+    data['aenderungsDatum'] = this.aenderungsDatum ? this.aenderungsDatum.toISOString() : <any>undefined;
+    data['aenderungsBenutzer'] = this.aenderungsBenutzer;
+    data['geloescht'] = this.geloescht;
+    data['aenderungsZaehler'] = this.aenderungsZaehler;
+    data['shouldBeHardDeleted'] = this.shouldBeHardDeleted;
+    return data;
+  }
+}
+
+export interface IOrganisationPaymentModel {
+  id?: number;
+  organisation?: Organisation;
+  organisationId?: number;
+  paymentModel?: PaymentModel;
+  paymentModelId?: number;
+  loeschDatum?: Date | undefined;
+  loeschBenutzer?: string;
+  endDate?: Date | undefined;
+  anlageDatum?: Date;
+  anlageBenutzer?: string;
+  aenderungsDatum?: Date;
+  aenderungsBenutzer?: string;
+  geloescht?: boolean;
+  aenderungsZaehler?: number;
+  shouldBeHardDeleted?: boolean;
+}
+
+export class Organisation implements IOrganisation {
+  id?: number;
+  guid?: string;
+  name?: string;
+  strasse?: string | undefined;
+  plz?: string | undefined;
+  ort?: string | undefined;
+  bundesland?: string | undefined;
+  laenderCode?: string | undefined;
+  logoBase64?: string | undefined;
+  email!: string;
+  telefon?: string;
+  fax?: string;
+  accountAktiv?: boolean;
+  eclassCertificateId?: number | undefined;
+  eclassCertificate?: EclassCertificate | undefined;
+  iriPrefix?: string;
+  bezahlmodelle?: OrganisationPaymentModel[];
+  apikeys?: Apikey[];
+  anlageDatum?: Date;
+  anlageBenutzer?: string;
+  aenderungsDatum?: Date;
+  aenderungsBenutzer?: string;
+  geloescht?: boolean;
+  aenderungsZaehler?: number;
+  themeUrl?: string | undefined;
+  registryUrl?: string | undefined;
+  aasServerUrl?: string | undefined;
+  maintenanceActive?: boolean;
+  systemUserId?: number;
+  maxHostPort?: number;
+  expirationState?: ExpirationState | undefined;
+  expirationStateDate?: Date | undefined;
+  ownedEclassData?: EClassMetadata[];
+  aasInfrastructureSettings?: AasInfrastructureSettings[];
+  serializeForBackup?: boolean;
+  shouldBeHardDeleted?: boolean;
+
+  constructor(data?: IOrganisation) {
+    if (data) {
+      for (var property in data) {
+        if (data.hasOwnProperty(property)) (<any>this)[property] = (<any>data)[property];
+      }
+    }
+  }
+
+  init(_data?: any) {
+    if (_data) {
+      this.id = _data['id'];
+      this.guid = _data['guid'];
+      this.name = _data['name'];
+      this.strasse = _data['strasse'];
+      this.plz = _data['plz'];
+      this.ort = _data['ort'];
+      this.bundesland = _data['bundesland'];
+      this.laenderCode = _data['laenderCode'];
+      this.logoBase64 = _data['logoBase64'];
+      this.email = _data['email'];
+      this.telefon = _data['telefon'];
+      this.fax = _data['fax'];
+      this.accountAktiv = _data['accountAktiv'];
+      this.eclassCertificateId = _data['eclassCertificateId'];
+      this.eclassCertificate = _data['eclassCertificate']
+        ? EclassCertificate.fromJS(_data['eclassCertificate'])
+        : <any>undefined;
+      this.iriPrefix = _data['iriPrefix'];
+      if (Array.isArray(_data['bezahlmodelle'])) {
+        this.bezahlmodelle = [] as any;
+        for (let item of _data['bezahlmodelle']) this.bezahlmodelle!.push(OrganisationPaymentModel.fromJS(item));
+      }
+      if (Array.isArray(_data['apikeys'])) {
+        this.apikeys = [] as any;
+        for (let item of _data['apikeys']) this.apikeys!.push(Apikey.fromJS(item));
+      }
+      this.anlageDatum = _data['anlageDatum'] ? new Date(_data['anlageDatum'].toString()) : <any>undefined;
+      this.anlageBenutzer = _data['anlageBenutzer'];
+      this.aenderungsDatum = _data['aenderungsDatum'] ? new Date(_data['aenderungsDatum'].toString()) : <any>undefined;
+      this.aenderungsBenutzer = _data['aenderungsBenutzer'];
+      this.geloescht = _data['geloescht'];
+      this.aenderungsZaehler = _data['aenderungsZaehler'];
+      this.themeUrl = _data['themeUrl'];
+      this.registryUrl = _data['registryUrl'];
+      this.aasServerUrl = _data['aasServerUrl'];
+      this.maintenanceActive = _data['maintenanceActive'];
+      this.systemUserId = _data['systemUserId'];
+      this.maxHostPort = _data['maxHostPort'];
+      this.expirationState = _data['expirationState'];
+      this.expirationStateDate = _data['expirationStateDate']
+        ? new Date(_data['expirationStateDate'].toString())
+        : <any>undefined;
+      if (Array.isArray(_data['ownedEclassData'])) {
+        this.ownedEclassData = [] as any;
+        for (let item of _data['ownedEclassData']) this.ownedEclassData!.push(EClassMetadata.fromJS(item));
+      }
+      if (Array.isArray(_data['aasInfrastructureSettings'])) {
+        this.aasInfrastructureSettings = [] as any;
+        for (let item of _data['aasInfrastructureSettings'])
+          this.aasInfrastructureSettings!.push(AasInfrastructureSettings.fromJS(item));
+      }
+      this.serializeForBackup = _data['serializeForBackup'];
+      this.shouldBeHardDeleted = _data['shouldBeHardDeleted'];
+    }
+  }
+
+  static fromJS(data: any): Organisation {
+    data = typeof data === 'object' ? data : {};
+    let result = new Organisation();
+    result.init(data);
+    return result;
+  }
+
+  toJSON(data?: any) {
+    data = typeof data === 'object' ? data : {};
+    data['id'] = this.id;
+    data['guid'] = this.guid;
+    data['name'] = this.name;
+    data['strasse'] = this.strasse;
+    data['plz'] = this.plz;
+    data['ort'] = this.ort;
+    data['bundesland'] = this.bundesland;
+    data['laenderCode'] = this.laenderCode;
+    data['logoBase64'] = this.logoBase64;
+    data['email'] = this.email;
+    data['telefon'] = this.telefon;
+    data['fax'] = this.fax;
+    data['accountAktiv'] = this.accountAktiv;
+    data['eclassCertificateId'] = this.eclassCertificateId;
+    data['eclassCertificate'] = this.eclassCertificate ? this.eclassCertificate.toJSON() : <any>undefined;
+    data['iriPrefix'] = this.iriPrefix;
+    if (Array.isArray(this.bezahlmodelle)) {
+      data['bezahlmodelle'] = [];
+      for (let item of this.bezahlmodelle) data['bezahlmodelle'].push(item.toJSON());
+    }
+    if (Array.isArray(this.apikeys)) {
+      data['apikeys'] = [];
+      for (let item of this.apikeys) data['apikeys'].push(item.toJSON());
+    }
+    data['anlageDatum'] = this.anlageDatum ? this.anlageDatum.toISOString() : <any>undefined;
+    data['anlageBenutzer'] = this.anlageBenutzer;
+    data['aenderungsDatum'] = this.aenderungsDatum ? this.aenderungsDatum.toISOString() : <any>undefined;
+    data['aenderungsBenutzer'] = this.aenderungsBenutzer;
+    data['geloescht'] = this.geloescht;
+    data['aenderungsZaehler'] = this.aenderungsZaehler;
+    data['themeUrl'] = this.themeUrl;
+    data['registryUrl'] = this.registryUrl;
+    data['aasServerUrl'] = this.aasServerUrl;
+    data['maintenanceActive'] = this.maintenanceActive;
+    data['systemUserId'] = this.systemUserId;
+    data['maxHostPort'] = this.maxHostPort;
+    data['expirationState'] = this.expirationState;
+    data['expirationStateDate'] = this.expirationStateDate ? this.expirationStateDate.toISOString() : <any>undefined;
+    if (Array.isArray(this.ownedEclassData)) {
+      data['ownedEclassData'] = [];
+      for (let item of this.ownedEclassData) data['ownedEclassData'].push(item.toJSON());
+    }
+    if (Array.isArray(this.aasInfrastructureSettings)) {
+      data['aasInfrastructureSettings'] = [];
+      for (let item of this.aasInfrastructureSettings) data['aasInfrastructureSettings'].push(item.toJSON());
+    }
+    data['serializeForBackup'] = this.serializeForBackup;
+    data['shouldBeHardDeleted'] = this.shouldBeHardDeleted;
+    return data;
+  }
+}
+
+export interface IOrganisation {
+  id?: number;
+  guid?: string;
+  name?: string;
+  strasse?: string | undefined;
+  plz?: string | undefined;
+  ort?: string | undefined;
+  bundesland?: string | undefined;
+  laenderCode?: string | undefined;
+  logoBase64?: string | undefined;
+  email: string;
+  telefon?: string;
+  fax?: string;
+  accountAktiv?: boolean;
+  eclassCertificateId?: number | undefined;
+  eclassCertificate?: EclassCertificate | undefined;
+  iriPrefix?: string;
+  bezahlmodelle?: OrganisationPaymentModel[];
+  apikeys?: Apikey[];
+  anlageDatum?: Date;
+  anlageBenutzer?: string;
+  aenderungsDatum?: Date;
+  aenderungsBenutzer?: string;
+  geloescht?: boolean;
+  aenderungsZaehler?: number;
+  themeUrl?: string | undefined;
+  registryUrl?: string | undefined;
+  aasServerUrl?: string | undefined;
+  maintenanceActive?: boolean;
+  systemUserId?: number;
+  maxHostPort?: number;
+  expirationState?: ExpirationState | undefined;
+  expirationStateDate?: Date | undefined;
+  ownedEclassData?: EClassMetadata[];
+  aasInfrastructureSettings?: AasInfrastructureSettings[];
+  serializeForBackup?: boolean;
+  shouldBeHardDeleted?: boolean;
+}
+
+export class EclassCertificate implements IEclassCertificate {
+  id?: number;
+  filename?: string;
+  validTo?: Date;
+  validFrom?: Date;
+  serialNumber?: string;
+  issuingCertificate?: string;
+  issuedBy?: string;
+  signature?: string;
+  certificateBlob?: EclassCertificateBlob;
+  organisationId?: number;
+  organisation?: Organisation;
+  anlageDatum?: Date;
+  anlageBenutzer?: string;
+  aenderungsDatum?: Date;
+  aenderungsBenutzer?: string;
+  geloescht?: boolean;
+  aenderungsZaehler?: number;
+
+  constructor(data?: IEclassCertificate) {
+    if (data) {
+      for (var property in data) {
+        if (data.hasOwnProperty(property)) (<any>this)[property] = (<any>data)[property];
+      }
+    }
+  }
+
+  init(_data?: any) {
+    if (_data) {
+      this.id = _data['id'];
+      this.filename = _data['filename'];
+      this.validTo = _data['validTo'] ? new Date(_data['validTo'].toString()) : <any>undefined;
+      this.validFrom = _data['validFrom'] ? new Date(_data['validFrom'].toString()) : <any>undefined;
+      this.serialNumber = _data['serialNumber'];
+      this.issuingCertificate = _data['issuingCertificate'];
+      this.issuedBy = _data['issuedBy'];
+      this.signature = _data['signature'];
+      this.certificateBlob = _data['certificateBlob']
+        ? EclassCertificateBlob.fromJS(_data['certificateBlob'])
+        : <any>undefined;
+      this.organisationId = _data['organisationId'];
+      this.organisation = _data['organisation'] ? Organisation.fromJS(_data['organisation']) : <any>undefined;
+      this.anlageDatum = _data['anlageDatum'] ? new Date(_data['anlageDatum'].toString()) : <any>undefined;
+      this.anlageBenutzer = _data['anlageBenutzer'];
+      this.aenderungsDatum = _data['aenderungsDatum'] ? new Date(_data['aenderungsDatum'].toString()) : <any>undefined;
+      this.aenderungsBenutzer = _data['aenderungsBenutzer'];
+      this.geloescht = _data['geloescht'];
+      this.aenderungsZaehler = _data['aenderungsZaehler'];
+    }
+  }
+
+  static fromJS(data: any): EclassCertificate {
+    data = typeof data === 'object' ? data : {};
+    let result = new EclassCertificate();
+    result.init(data);
+    return result;
+  }
+
+  toJSON(data?: any) {
+    data = typeof data === 'object' ? data : {};
+    data['id'] = this.id;
+    data['filename'] = this.filename;
+    data['validTo'] = this.validTo ? this.validTo.toISOString() : <any>undefined;
+    data['validFrom'] = this.validFrom ? this.validFrom.toISOString() : <any>undefined;
+    data['serialNumber'] = this.serialNumber;
+    data['issuingCertificate'] = this.issuingCertificate;
+    data['issuedBy'] = this.issuedBy;
+    data['signature'] = this.signature;
+    data['certificateBlob'] = this.certificateBlob ? this.certificateBlob.toJSON() : <any>undefined;
+    data['organisationId'] = this.organisationId;
+    data['organisation'] = this.organisation ? this.organisation.toJSON() : <any>undefined;
+    data['anlageDatum'] = this.anlageDatum ? this.anlageDatum.toISOString() : <any>undefined;
+    data['anlageBenutzer'] = this.anlageBenutzer;
+    data['aenderungsDatum'] = this.aenderungsDatum ? this.aenderungsDatum.toISOString() : <any>undefined;
+    data['aenderungsBenutzer'] = this.aenderungsBenutzer;
+    data['geloescht'] = this.geloescht;
+    data['aenderungsZaehler'] = this.aenderungsZaehler;
+    return data;
+  }
+}
+
+export interface IEclassCertificate {
+  id?: number;
+  filename?: string;
+  validTo?: Date;
+  validFrom?: Date;
+  serialNumber?: string;
+  issuingCertificate?: string;
+  issuedBy?: string;
+  signature?: string;
+  certificateBlob?: EclassCertificateBlob;
+  organisationId?: number;
+  organisation?: Organisation;
+  anlageDatum?: Date;
+  anlageBenutzer?: string;
+  aenderungsDatum?: Date;
+  aenderungsBenutzer?: string;
+  geloescht?: boolean;
+  aenderungsZaehler?: number;
+}
+
+export class EclassCertificateBlob implements IEclassCertificateBlob {
+  id?: number;
+  datei?: string;
+  certificateId?: number;
+  certificate?: EclassCertificate;
+  anlageDatum?: Date;
+  anlageBenutzer?: string;
+  aenderungsDatum?: Date;
+  aenderungsBenutzer?: string;
+  geloescht?: boolean;
+  aenderungsZaehler?: number;
+
+  constructor(data?: IEclassCertificateBlob) {
+    if (data) {
+      for (var property in data) {
+        if (data.hasOwnProperty(property)) (<any>this)[property] = (<any>data)[property];
+      }
+    }
+  }
+
+  init(_data?: any) {
+    if (_data) {
+      this.id = _data['id'];
+      this.datei = _data['datei'];
+      this.certificateId = _data['certificateId'];
+      this.certificate = _data['certificate'] ? EclassCertificate.fromJS(_data['certificate']) : <any>undefined;
+      this.anlageDatum = _data['anlageDatum'] ? new Date(_data['anlageDatum'].toString()) : <any>undefined;
+      this.anlageBenutzer = _data['anlageBenutzer'];
+      this.aenderungsDatum = _data['aenderungsDatum'] ? new Date(_data['aenderungsDatum'].toString()) : <any>undefined;
+      this.aenderungsBenutzer = _data['aenderungsBenutzer'];
+      this.geloescht = _data['geloescht'];
+      this.aenderungsZaehler = _data['aenderungsZaehler'];
+    }
+  }
+
+  static fromJS(data: any): EclassCertificateBlob {
+    data = typeof data === 'object' ? data : {};
+    let result = new EclassCertificateBlob();
+    result.init(data);
+    return result;
+  }
+
+  toJSON(data?: any) {
+    data = typeof data === 'object' ? data : {};
+    data['id'] = this.id;
+    data['datei'] = this.datei;
+    data['certificateId'] = this.certificateId;
+    data['certificate'] = this.certificate ? this.certificate.toJSON() : <any>undefined;
+    data['anlageDatum'] = this.anlageDatum ? this.anlageDatum.toISOString() : <any>undefined;
+    data['anlageBenutzer'] = this.anlageBenutzer;
+    data['aenderungsDatum'] = this.aenderungsDatum ? this.aenderungsDatum.toISOString() : <any>undefined;
+    data['aenderungsBenutzer'] = this.aenderungsBenutzer;
+    data['geloescht'] = this.geloescht;
+    data['aenderungsZaehler'] = this.aenderungsZaehler;
+    return data;
+  }
+}
+
+export interface IEclassCertificateBlob {
+  id?: number;
+  datei?: string;
+  certificateId?: number;
+  certificate?: EclassCertificate;
+  anlageDatum?: Date;
+  anlageBenutzer?: string;
+  aenderungsDatum?: Date;
+  aenderungsBenutzer?: string;
+  geloescht?: boolean;
+  aenderungsZaehler?: number;
+}
+
+export class Apikey implements IApikey {
+  id?: number;
+  key?: string;
+  validUntil?: Date | undefined;
+  active?: boolean;
+  notice?: string;
+  scopes?: string[];
+  organisationId?: number | undefined;
+  organisation?: Organisation | undefined;
+  aasInfrastructureSettingsId?: number | undefined;
+  aasInfrastructureSettings?: AasInfrastructureSettings | undefined;
+  benutzerId?: number | undefined;
+  benutzer?: Benutzer | undefined;
+  anlageDatum?: Date;
+  anlageBenutzer?: string;
+  aenderungsDatum?: Date;
+  aenderungsBenutzer?: string;
+  geloescht?: boolean;
+  aenderungsZaehler?: number;
+
+  constructor(data?: IApikey) {
+    if (data) {
+      for (var property in data) {
+        if (data.hasOwnProperty(property)) (<any>this)[property] = (<any>data)[property];
+      }
+    }
+  }
+
+  init(_data?: any) {
+    if (_data) {
+      this.id = _data['id'];
+      this.key = _data['key'];
+      this.validUntil = _data['validUntil'] ? new Date(_data['validUntil'].toString()) : <any>undefined;
+      this.active = _data['active'];
+      this.notice = _data['notice'];
+      if (Array.isArray(_data['scopes'])) {
+        this.scopes = [] as any;
+        for (let item of _data['scopes']) this.scopes!.push(item);
+      }
+      this.organisationId = _data['organisationId'];
+      this.organisation = _data['organisation'] ? Organisation.fromJS(_data['organisation']) : <any>undefined;
+      this.aasInfrastructureSettingsId = _data['aasInfrastructureSettingsId'];
+      this.aasInfrastructureSettings = _data['aasInfrastructureSettings']
+        ? AasInfrastructureSettings.fromJS(_data['aasInfrastructureSettings'])
+        : <any>undefined;
+      this.benutzerId = _data['benutzerId'];
+      this.benutzer = _data['benutzer'] ? Benutzer.fromJS(_data['benutzer']) : <any>undefined;
+      this.anlageDatum = _data['anlageDatum'] ? new Date(_data['anlageDatum'].toString()) : <any>undefined;
+      this.anlageBenutzer = _data['anlageBenutzer'];
+      this.aenderungsDatum = _data['aenderungsDatum'] ? new Date(_data['aenderungsDatum'].toString()) : <any>undefined;
+      this.aenderungsBenutzer = _data['aenderungsBenutzer'];
+      this.geloescht = _data['geloescht'];
+      this.aenderungsZaehler = _data['aenderungsZaehler'];
+    }
+  }
+
+  static fromJS(data: any): Apikey {
+    data = typeof data === 'object' ? data : {};
+    let result = new Apikey();
+    result.init(data);
+    return result;
+  }
+
+  toJSON(data?: any) {
+    data = typeof data === 'object' ? data : {};
+    data['id'] = this.id;
+    data['key'] = this.key;
+    data['validUntil'] = this.validUntil ? this.validUntil.toISOString() : <any>undefined;
+    data['active'] = this.active;
+    data['notice'] = this.notice;
+    if (Array.isArray(this.scopes)) {
+      data['scopes'] = [];
+      for (let item of this.scopes) data['scopes'].push(item);
+    }
+    data['organisationId'] = this.organisationId;
+    data['organisation'] = this.organisation ? this.organisation.toJSON() : <any>undefined;
+    data['aasInfrastructureSettingsId'] = this.aasInfrastructureSettingsId;
+    data['aasInfrastructureSettings'] = this.aasInfrastructureSettings
+      ? this.aasInfrastructureSettings.toJSON()
+      : <any>undefined;
+    data['benutzerId'] = this.benutzerId;
+    data['benutzer'] = this.benutzer ? this.benutzer.toJSON() : <any>undefined;
+    data['anlageDatum'] = this.anlageDatum ? this.anlageDatum.toISOString() : <any>undefined;
+    data['anlageBenutzer'] = this.anlageBenutzer;
+    data['aenderungsDatum'] = this.aenderungsDatum ? this.aenderungsDatum.toISOString() : <any>undefined;
+    data['aenderungsBenutzer'] = this.aenderungsBenutzer;
+    data['geloescht'] = this.geloescht;
+    data['aenderungsZaehler'] = this.aenderungsZaehler;
+    return data;
+  }
+}
+
+export interface IApikey {
+  id?: number;
+  key?: string;
+  validUntil?: Date | undefined;
+  active?: boolean;
+  notice?: string;
+  scopes?: string[];
+  organisationId?: number | undefined;
+  organisation?: Organisation | undefined;
+  aasInfrastructureSettingsId?: number | undefined;
+  aasInfrastructureSettings?: AasInfrastructureSettings | undefined;
+  benutzerId?: number | undefined;
+  benutzer?: Benutzer | undefined;
+  anlageDatum?: Date;
+  anlageBenutzer?: string;
+  aenderungsDatum?: Date;
+  aenderungsBenutzer?: string;
+  geloescht?: boolean;
+  aenderungsZaehler?: number;
+}
+
+export class AasInfrastructureSettings implements IAasInfrastructureSettings {
+  id?: number;
+  organisationId?: number;
+  organisation?: Organisation;
+  benutzerRechte?: BenutzerInfrastrukturRecht[];
+  name?: string;
+  description?: string;
+  aasDiscoveryUrl?: string;
+  aasDiscoveryVersion?: string;
+  aasDiscoveryHcUrl?: string;
+  aasDiscoveryHcEnabled?: boolean;
+  aasRegistryUrl?: string;
+  aasRegistryVersion?: string;
+  aasRegistryHcUrl?: string;
+  aasRegistryHcEnabled?: boolean;
+  aasRepositoryUrl?: string;
+  aasRepositoryVersion?: string;
+  aasRepositoryHcUrl?: string;
+  aasRepositoryHcEnabled?: boolean;
+  submodelRegistryUrl?: string;
+  submodelRegistryVersion?: string;
+  submodelRegistryHcUrl?: string;
+  submodelRegistryHcEnabled?: boolean;
+  submodelRepositoryUrl?: string;
+  submodelRepositoryVersion?: string;
+  submodelRepositoryHcUrl?: string;
+  submodelRepositoryHcEnabled?: boolean;
+  conceptDescriptionRepositoryUrl?: string;
+  conceptDescriptionRepositoryVersion?: string;
+  conceptDescriptionRepositoryHcUrl?: string;
+  conceptDescriptionRepositoryHcEnabled?: boolean;
+  headerParameters?: HeaderParameter[];
+  certificate?: string | undefined;
+  certificatePassword?: string;
+  sendCurrentJwt?: boolean;
+  isActive?: boolean;
+  isInternal?: boolean;
+  handleAsInternal?: boolean;
+  isReadonly?: boolean;
+  noShellsListEndpoint?: boolean;
+  isGoInfrastructure?: boolean;
+  goPostgresDbName?: string | undefined;
+  goPostgresUser?: string | undefined;
+  aasEnvContainer?: string;
+  hostPortAasEnv?: number;
+  aasEnvMemory?: number;
+  aasEnvMemSwap?: number;
+  aasDiscoveryContainer?: string;
+  hostPortAasDiscovery?: number;
+  discoveryMemory?: number;
+  discoveryMemSwap?: number;
+  aasRegistryContainer?: string;
+  hostPortAasRegistry?: number;
+  aasRegistryMemory?: number;
+  aasRegistryMemSwap?: number;
+  smRegistryContainer?: string;
+  hostPortSmRegistry?: number;
+  smRegistryMemory?: number;
+  smRegistryMemSwap?: number;
+  mqttContainer?: string;
+  hostPortMqtt?: number;
+  mqttMemory?: number;
+  mqttMemSwap?: number;
+  mongoContainer?: string;
+  mongoMemory?: number;
+  mongoMemSwap?: number;
+  containerGuid?: string;
+  internalPortAasEnv?: number;
+  internalPortAasRegistry?: number;
+  internalPortAasDiscovery?: number;
+  internalPortMqtt?: number;
+  internalPortSmRegistry?: number;
+  anlageDatum?: Date;
+  anlageBenutzer?: string;
+  aenderungsDatum?: Date;
+  aenderungsBenutzer?: string;
+  geloescht?: boolean;
+  aenderungsZaehler?: number;
+
+  constructor(data?: IAasInfrastructureSettings) {
+    if (data) {
+      for (var property in data) {
+        if (data.hasOwnProperty(property)) (<any>this)[property] = (<any>data)[property];
+      }
+    }
+  }
+
+  init(_data?: any) {
+    if (_data) {
+      this.id = _data['id'];
+      this.organisationId = _data['organisationId'];
+      this.organisation = _data['organisation'] ? Organisation.fromJS(_data['organisation']) : <any>undefined;
+      if (Array.isArray(_data['benutzerRechte'])) {
+        this.benutzerRechte = [] as any;
+        for (let item of _data['benutzerRechte']) this.benutzerRechte!.push(BenutzerInfrastrukturRecht.fromJS(item));
+      }
+      this.name = _data['name'];
+      this.description = _data['description'];
+      this.aasDiscoveryUrl = _data['aasDiscoveryUrl'];
+      this.aasDiscoveryVersion = _data['aasDiscoveryVersion'];
+      this.aasDiscoveryHcUrl = _data['aasDiscoveryHcUrl'];
+      this.aasDiscoveryHcEnabled = _data['aasDiscoveryHcEnabled'];
+      this.aasRegistryUrl = _data['aasRegistryUrl'];
+      this.aasRegistryVersion = _data['aasRegistryVersion'];
+      this.aasRegistryHcUrl = _data['aasRegistryHcUrl'];
+      this.aasRegistryHcEnabled = _data['aasRegistryHcEnabled'];
+      this.aasRepositoryUrl = _data['aasRepositoryUrl'];
+      this.aasRepositoryVersion = _data['aasRepositoryVersion'];
+      this.aasRepositoryHcUrl = _data['aasRepositoryHcUrl'];
+      this.aasRepositoryHcEnabled = _data['aasRepositoryHcEnabled'];
+      this.submodelRegistryUrl = _data['submodelRegistryUrl'];
+      this.submodelRegistryVersion = _data['submodelRegistryVersion'];
+      this.submodelRegistryHcUrl = _data['submodelRegistryHcUrl'];
+      this.submodelRegistryHcEnabled = _data['submodelRegistryHcEnabled'];
+      this.submodelRepositoryUrl = _data['submodelRepositoryUrl'];
+      this.submodelRepositoryVersion = _data['submodelRepositoryVersion'];
+      this.submodelRepositoryHcUrl = _data['submodelRepositoryHcUrl'];
+      this.submodelRepositoryHcEnabled = _data['submodelRepositoryHcEnabled'];
+      this.conceptDescriptionRepositoryUrl = _data['conceptDescriptionRepositoryUrl'];
+      this.conceptDescriptionRepositoryVersion = _data['conceptDescriptionRepositoryVersion'];
+      this.conceptDescriptionRepositoryHcUrl = _data['conceptDescriptionRepositoryHcUrl'];
+      this.conceptDescriptionRepositoryHcEnabled = _data['conceptDescriptionRepositoryHcEnabled'];
+      if (Array.isArray(_data['headerParameters'])) {
+        this.headerParameters = [] as any;
+        for (let item of _data['headerParameters']) this.headerParameters!.push(HeaderParameter.fromJS(item));
+      }
+      this.certificate = _data['certificate'];
+      this.certificatePassword = _data['certificatePassword'];
+      this.sendCurrentJwt = _data['sendCurrentJwt'];
+      this.isActive = _data['isActive'];
+      this.isInternal = _data['isInternal'];
+      this.handleAsInternal = _data['handleAsInternal'];
+      this.isReadonly = _data['isReadonly'];
+      this.noShellsListEndpoint = _data['noShellsListEndpoint'];
+      this.isGoInfrastructure = _data['isGoInfrastructure'];
+      this.goPostgresDbName = _data['goPostgresDbName'];
+      this.goPostgresUser = _data['goPostgresUser'];
+      this.aasEnvContainer = _data['aasEnvContainer'];
+      this.hostPortAasEnv = _data['hostPortAasEnv'];
+      this.aasEnvMemory = _data['aasEnvMemory'];
+      this.aasEnvMemSwap = _data['aasEnvMemSwap'];
+      this.aasDiscoveryContainer = _data['aasDiscoveryContainer'];
+      this.hostPortAasDiscovery = _data['hostPortAasDiscovery'];
+      this.discoveryMemory = _data['discoveryMemory'];
+      this.discoveryMemSwap = _data['discoveryMemSwap'];
+      this.aasRegistryContainer = _data['aasRegistryContainer'];
+      this.hostPortAasRegistry = _data['hostPortAasRegistry'];
+      this.aasRegistryMemory = _data['aasRegistryMemory'];
+      this.aasRegistryMemSwap = _data['aasRegistryMemSwap'];
+      this.smRegistryContainer = _data['smRegistryContainer'];
+      this.hostPortSmRegistry = _data['hostPortSmRegistry'];
+      this.smRegistryMemory = _data['smRegistryMemory'];
+      this.smRegistryMemSwap = _data['smRegistryMemSwap'];
+      this.mqttContainer = _data['mqttContainer'];
+      this.hostPortMqtt = _data['hostPortMqtt'];
+      this.mqttMemory = _data['mqttMemory'];
+      this.mqttMemSwap = _data['mqttMemSwap'];
+      this.mongoContainer = _data['mongoContainer'];
+      this.mongoMemory = _data['mongoMemory'];
+      this.mongoMemSwap = _data['mongoMemSwap'];
+      this.containerGuid = _data['containerGuid'];
+      this.internalPortAasEnv = _data['internalPortAasEnv'];
+      this.internalPortAasRegistry = _data['internalPortAasRegistry'];
+      this.internalPortAasDiscovery = _data['internalPortAasDiscovery'];
+      this.internalPortMqtt = _data['internalPortMqtt'];
+      this.internalPortSmRegistry = _data['internalPortSmRegistry'];
+      this.anlageDatum = _data['anlageDatum'] ? new Date(_data['anlageDatum'].toString()) : <any>undefined;
+      this.anlageBenutzer = _data['anlageBenutzer'];
+      this.aenderungsDatum = _data['aenderungsDatum'] ? new Date(_data['aenderungsDatum'].toString()) : <any>undefined;
+      this.aenderungsBenutzer = _data['aenderungsBenutzer'];
+      this.geloescht = _data['geloescht'];
+      this.aenderungsZaehler = _data['aenderungsZaehler'];
+    }
+  }
+
+  static fromJS(data: any): AasInfrastructureSettings {
+    data = typeof data === 'object' ? data : {};
+    let result = new AasInfrastructureSettings();
+    result.init(data);
+    return result;
+  }
+
+  toJSON(data?: any) {
+    data = typeof data === 'object' ? data : {};
+    data['id'] = this.id;
+    data['organisationId'] = this.organisationId;
+    data['organisation'] = this.organisation ? this.organisation.toJSON() : <any>undefined;
+    if (Array.isArray(this.benutzerRechte)) {
+      data['benutzerRechte'] = [];
+      for (let item of this.benutzerRechte) data['benutzerRechte'].push(item.toJSON());
+    }
+    data['name'] = this.name;
+    data['description'] = this.description;
+    data['aasDiscoveryUrl'] = this.aasDiscoveryUrl;
+    data['aasDiscoveryVersion'] = this.aasDiscoveryVersion;
+    data['aasDiscoveryHcUrl'] = this.aasDiscoveryHcUrl;
+    data['aasDiscoveryHcEnabled'] = this.aasDiscoveryHcEnabled;
+    data['aasRegistryUrl'] = this.aasRegistryUrl;
+    data['aasRegistryVersion'] = this.aasRegistryVersion;
+    data['aasRegistryHcUrl'] = this.aasRegistryHcUrl;
+    data['aasRegistryHcEnabled'] = this.aasRegistryHcEnabled;
+    data['aasRepositoryUrl'] = this.aasRepositoryUrl;
+    data['aasRepositoryVersion'] = this.aasRepositoryVersion;
+    data['aasRepositoryHcUrl'] = this.aasRepositoryHcUrl;
+    data['aasRepositoryHcEnabled'] = this.aasRepositoryHcEnabled;
+    data['submodelRegistryUrl'] = this.submodelRegistryUrl;
+    data['submodelRegistryVersion'] = this.submodelRegistryVersion;
+    data['submodelRegistryHcUrl'] = this.submodelRegistryHcUrl;
+    data['submodelRegistryHcEnabled'] = this.submodelRegistryHcEnabled;
+    data['submodelRepositoryUrl'] = this.submodelRepositoryUrl;
+    data['submodelRepositoryVersion'] = this.submodelRepositoryVersion;
+    data['submodelRepositoryHcUrl'] = this.submodelRepositoryHcUrl;
+    data['submodelRepositoryHcEnabled'] = this.submodelRepositoryHcEnabled;
+    data['conceptDescriptionRepositoryUrl'] = this.conceptDescriptionRepositoryUrl;
+    data['conceptDescriptionRepositoryVersion'] = this.conceptDescriptionRepositoryVersion;
+    data['conceptDescriptionRepositoryHcUrl'] = this.conceptDescriptionRepositoryHcUrl;
+    data['conceptDescriptionRepositoryHcEnabled'] = this.conceptDescriptionRepositoryHcEnabled;
+    if (Array.isArray(this.headerParameters)) {
+      data['headerParameters'] = [];
+      for (let item of this.headerParameters) data['headerParameters'].push(item.toJSON());
+    }
+    data['certificate'] = this.certificate;
+    data['certificatePassword'] = this.certificatePassword;
+    data['sendCurrentJwt'] = this.sendCurrentJwt;
+    data['isActive'] = this.isActive;
+    data['isInternal'] = this.isInternal;
+    data['handleAsInternal'] = this.handleAsInternal;
+    data['isReadonly'] = this.isReadonly;
+    data['noShellsListEndpoint'] = this.noShellsListEndpoint;
+    data['isGoInfrastructure'] = this.isGoInfrastructure;
+    data['goPostgresDbName'] = this.goPostgresDbName;
+    data['goPostgresUser'] = this.goPostgresUser;
+    data['aasEnvContainer'] = this.aasEnvContainer;
+    data['hostPortAasEnv'] = this.hostPortAasEnv;
+    data['aasEnvMemory'] = this.aasEnvMemory;
+    data['aasEnvMemSwap'] = this.aasEnvMemSwap;
+    data['aasDiscoveryContainer'] = this.aasDiscoveryContainer;
+    data['hostPortAasDiscovery'] = this.hostPortAasDiscovery;
+    data['discoveryMemory'] = this.discoveryMemory;
+    data['discoveryMemSwap'] = this.discoveryMemSwap;
+    data['aasRegistryContainer'] = this.aasRegistryContainer;
+    data['hostPortAasRegistry'] = this.hostPortAasRegistry;
+    data['aasRegistryMemory'] = this.aasRegistryMemory;
+    data['aasRegistryMemSwap'] = this.aasRegistryMemSwap;
+    data['smRegistryContainer'] = this.smRegistryContainer;
+    data['hostPortSmRegistry'] = this.hostPortSmRegistry;
+    data['smRegistryMemory'] = this.smRegistryMemory;
+    data['smRegistryMemSwap'] = this.smRegistryMemSwap;
+    data['mqttContainer'] = this.mqttContainer;
+    data['hostPortMqtt'] = this.hostPortMqtt;
+    data['mqttMemory'] = this.mqttMemory;
+    data['mqttMemSwap'] = this.mqttMemSwap;
+    data['mongoContainer'] = this.mongoContainer;
+    data['mongoMemory'] = this.mongoMemory;
+    data['mongoMemSwap'] = this.mongoMemSwap;
+    data['containerGuid'] = this.containerGuid;
+    data['internalPortAasEnv'] = this.internalPortAasEnv;
+    data['internalPortAasRegistry'] = this.internalPortAasRegistry;
+    data['internalPortAasDiscovery'] = this.internalPortAasDiscovery;
+    data['internalPortMqtt'] = this.internalPortMqtt;
+    data['internalPortSmRegistry'] = this.internalPortSmRegistry;
+    data['anlageDatum'] = this.anlageDatum ? this.anlageDatum.toISOString() : <any>undefined;
+    data['anlageBenutzer'] = this.anlageBenutzer;
+    data['aenderungsDatum'] = this.aenderungsDatum ? this.aenderungsDatum.toISOString() : <any>undefined;
+    data['aenderungsBenutzer'] = this.aenderungsBenutzer;
+    data['geloescht'] = this.geloescht;
+    data['aenderungsZaehler'] = this.aenderungsZaehler;
+    return data;
+  }
+}
+
+export interface IAasInfrastructureSettings {
+  id?: number;
+  organisationId?: number;
+  organisation?: Organisation;
+  benutzerRechte?: BenutzerInfrastrukturRecht[];
+  name?: string;
+  description?: string;
+  aasDiscoveryUrl?: string;
+  aasDiscoveryVersion?: string;
+  aasDiscoveryHcUrl?: string;
+  aasDiscoveryHcEnabled?: boolean;
+  aasRegistryUrl?: string;
+  aasRegistryVersion?: string;
+  aasRegistryHcUrl?: string;
+  aasRegistryHcEnabled?: boolean;
+  aasRepositoryUrl?: string;
+  aasRepositoryVersion?: string;
+  aasRepositoryHcUrl?: string;
+  aasRepositoryHcEnabled?: boolean;
+  submodelRegistryUrl?: string;
+  submodelRegistryVersion?: string;
+  submodelRegistryHcUrl?: string;
+  submodelRegistryHcEnabled?: boolean;
+  submodelRepositoryUrl?: string;
+  submodelRepositoryVersion?: string;
+  submodelRepositoryHcUrl?: string;
+  submodelRepositoryHcEnabled?: boolean;
+  conceptDescriptionRepositoryUrl?: string;
+  conceptDescriptionRepositoryVersion?: string;
+  conceptDescriptionRepositoryHcUrl?: string;
+  conceptDescriptionRepositoryHcEnabled?: boolean;
+  headerParameters?: HeaderParameter[];
+  certificate?: string | undefined;
+  certificatePassword?: string;
+  sendCurrentJwt?: boolean;
+  isActive?: boolean;
+  isInternal?: boolean;
+  handleAsInternal?: boolean;
+  isReadonly?: boolean;
+  noShellsListEndpoint?: boolean;
+  isGoInfrastructure?: boolean;
+  goPostgresDbName?: string | undefined;
+  goPostgresUser?: string | undefined;
+  aasEnvContainer?: string;
+  hostPortAasEnv?: number;
+  aasEnvMemory?: number;
+  aasEnvMemSwap?: number;
+  aasDiscoveryContainer?: string;
+  hostPortAasDiscovery?: number;
+  discoveryMemory?: number;
+  discoveryMemSwap?: number;
+  aasRegistryContainer?: string;
+  hostPortAasRegistry?: number;
+  aasRegistryMemory?: number;
+  aasRegistryMemSwap?: number;
+  smRegistryContainer?: string;
+  hostPortSmRegistry?: number;
+  smRegistryMemory?: number;
+  smRegistryMemSwap?: number;
+  mqttContainer?: string;
+  hostPortMqtt?: number;
+  mqttMemory?: number;
+  mqttMemSwap?: number;
+  mongoContainer?: string;
+  mongoMemory?: number;
+  mongoMemSwap?: number;
+  containerGuid?: string;
+  internalPortAasEnv?: number;
+  internalPortAasRegistry?: number;
+  internalPortAasDiscovery?: number;
+  internalPortMqtt?: number;
+  internalPortSmRegistry?: number;
+  anlageDatum?: Date;
+  anlageBenutzer?: string;
+  aenderungsDatum?: Date;
+  aenderungsBenutzer?: string;
+  geloescht?: boolean;
+  aenderungsZaehler?: number;
+}
+
+export class BenutzerInfrastrukturRecht implements IBenutzerInfrastrukturRecht {
+  id?: number;
+  benutzerId?: number;
+  organisationId?: number;
+  infrastrukturId?: number;
+  benutzer?: Benutzer;
+  organisation?: Organisation;
+  infrastruktur?: AasInfrastructureSettings;
+  darfLesen?: boolean;
+  darfSchreiben?: boolean;
+  darfMarktPublizieren?: boolean;
+  anlageDatum?: Date;
+  anlageBenutzer?: string;
+  aenderungsDatum?: Date;
+  aenderungsBenutzer?: string;
+  geloescht?: boolean;
+  aenderungsZaehler?: number;
+
+  constructor(data?: IBenutzerInfrastrukturRecht) {
+    if (data) {
+      for (var property in data) {
+        if (data.hasOwnProperty(property)) (<any>this)[property] = (<any>data)[property];
+      }
+    }
+  }
+
+  init(_data?: any) {
+    if (_data) {
+      this.id = _data['id'];
+      this.benutzerId = _data['benutzerId'];
+      this.organisationId = _data['organisationId'];
+      this.infrastrukturId = _data['infrastrukturId'];
+      this.benutzer = _data['benutzer'] ? Benutzer.fromJS(_data['benutzer']) : <any>undefined;
+      this.organisation = _data['organisation'] ? Organisation.fromJS(_data['organisation']) : <any>undefined;
+      this.infrastruktur = _data['infrastruktur']
+        ? AasInfrastructureSettings.fromJS(_data['infrastruktur'])
+        : <any>undefined;
+      this.darfLesen = _data['darfLesen'];
+      this.darfSchreiben = _data['darfSchreiben'];
+      this.darfMarktPublizieren = _data['darfMarktPublizieren'];
+      this.anlageDatum = _data['anlageDatum'] ? new Date(_data['anlageDatum'].toString()) : <any>undefined;
+      this.anlageBenutzer = _data['anlageBenutzer'];
+      this.aenderungsDatum = _data['aenderungsDatum'] ? new Date(_data['aenderungsDatum'].toString()) : <any>undefined;
+      this.aenderungsBenutzer = _data['aenderungsBenutzer'];
+      this.geloescht = _data['geloescht'];
+      this.aenderungsZaehler = _data['aenderungsZaehler'];
+    }
+  }
+
+  static fromJS(data: any): BenutzerInfrastrukturRecht {
+    data = typeof data === 'object' ? data : {};
+    let result = new BenutzerInfrastrukturRecht();
+    result.init(data);
+    return result;
+  }
+
+  toJSON(data?: any) {
+    data = typeof data === 'object' ? data : {};
+    data['id'] = this.id;
+    data['benutzerId'] = this.benutzerId;
+    data['organisationId'] = this.organisationId;
+    data['infrastrukturId'] = this.infrastrukturId;
+    data['benutzer'] = this.benutzer ? this.benutzer.toJSON() : <any>undefined;
+    data['organisation'] = this.organisation ? this.organisation.toJSON() : <any>undefined;
+    data['infrastruktur'] = this.infrastruktur ? this.infrastruktur.toJSON() : <any>undefined;
+    data['darfLesen'] = this.darfLesen;
+    data['darfSchreiben'] = this.darfSchreiben;
+    data['darfMarktPublizieren'] = this.darfMarktPublizieren;
+    data['anlageDatum'] = this.anlageDatum ? this.anlageDatum.toISOString() : <any>undefined;
+    data['anlageBenutzer'] = this.anlageBenutzer;
+    data['aenderungsDatum'] = this.aenderungsDatum ? this.aenderungsDatum.toISOString() : <any>undefined;
+    data['aenderungsBenutzer'] = this.aenderungsBenutzer;
+    data['geloescht'] = this.geloescht;
+    data['aenderungsZaehler'] = this.aenderungsZaehler;
+    return data;
+  }
+}
+
+export interface IBenutzerInfrastrukturRecht {
+  id?: number;
+  benutzerId?: number;
+  organisationId?: number;
+  infrastrukturId?: number;
+  benutzer?: Benutzer;
+  organisation?: Organisation;
+  infrastruktur?: AasInfrastructureSettings;
+  darfLesen?: boolean;
+  darfSchreiben?: boolean;
+  darfMarktPublizieren?: boolean;
+  anlageDatum?: Date;
+  anlageBenutzer?: string;
+  aenderungsDatum?: Date;
+  aenderungsBenutzer?: string;
+  geloescht?: boolean;
+  aenderungsZaehler?: number;
+}
+
+export class Benutzer implements IBenutzer {
+  id?: number;
+  guid?: string;
+  name?: string;
+  vorname?: string;
+  email?: string;
+  telefon?: string;
+  letzerLogin?: Date | undefined;
+  emailBestaetigt?: boolean;
+  accountAktiv?: boolean;
+  createdBySso?: boolean;
+  externalIdentityProvider?: string;
+  externalIdentitySubject?: string;
+  externalIdentityUsername?: string;
+  einstellungen?: BenutzerEinstellungen | undefined;
+  benutzerRollen?: string[];
+  benutzerOrganisationen?: BenutzerOrganisation[];
+  profilbildBase64?: string;
+  anlageDatum?: Date;
+  anlageBenutzer?: string;
+  aenderungsDatum?: Date;
+  aenderungsBenutzer?: string;
+  geloescht?: boolean;
+  aenderungsZaehler?: number;
+  tokenConfirmed?: boolean;
+  token?: string;
+  isSystemUser?: boolean;
+  datenschutzAccepted?: boolean;
+  datenschutzAcceptedDate?: Date | undefined;
+
+  constructor(data?: IBenutzer) {
+    if (data) {
+      for (var property in data) {
+        if (data.hasOwnProperty(property)) (<any>this)[property] = (<any>data)[property];
+      }
+    }
+  }
+
+  init(_data?: any) {
+    if (_data) {
+      this.id = _data['id'];
+      this.guid = _data['guid'];
+      this.name = _data['name'];
+      this.vorname = _data['vorname'];
+      this.email = _data['email'];
+      this.telefon = _data['telefon'];
+      this.letzerLogin = _data['letzerLogin'] ? new Date(_data['letzerLogin'].toString()) : <any>undefined;
+      this.emailBestaetigt = _data['emailBestaetigt'];
+      this.accountAktiv = _data['accountAktiv'];
+      this.createdBySso = _data['createdBySso'];
+      this.externalIdentityProvider = _data['externalIdentityProvider'];
+      this.externalIdentitySubject = _data['externalIdentitySubject'];
+      this.externalIdentityUsername = _data['externalIdentityUsername'];
+      this.einstellungen = _data['einstellungen']
+        ? BenutzerEinstellungen.fromJS(_data['einstellungen'])
+        : <any>undefined;
+      if (Array.isArray(_data['benutzerRollen'])) {
+        this.benutzerRollen = [] as any;
+        for (let item of _data['benutzerRollen']) this.benutzerRollen!.push(item);
+      }
+      if (Array.isArray(_data['benutzerOrganisationen'])) {
+        this.benutzerOrganisationen = [] as any;
+        for (let item of _data['benutzerOrganisationen'])
+          this.benutzerOrganisationen!.push(BenutzerOrganisation.fromJS(item));
+      }
+      this.profilbildBase64 = _data['profilbildBase64'];
+      this.anlageDatum = _data['anlageDatum'] ? new Date(_data['anlageDatum'].toString()) : <any>undefined;
+      this.anlageBenutzer = _data['anlageBenutzer'];
+      this.aenderungsDatum = _data['aenderungsDatum'] ? new Date(_data['aenderungsDatum'].toString()) : <any>undefined;
+      this.aenderungsBenutzer = _data['aenderungsBenutzer'];
+      this.geloescht = _data['geloescht'];
+      this.aenderungsZaehler = _data['aenderungsZaehler'];
+      this.tokenConfirmed = _data['tokenConfirmed'];
+      this.token = _data['token'];
+      this.isSystemUser = _data['isSystemUser'];
+      this.datenschutzAccepted = _data['datenschutzAccepted'];
+      this.datenschutzAcceptedDate = _data['datenschutzAcceptedDate']
+        ? new Date(_data['datenschutzAcceptedDate'].toString())
+        : <any>undefined;
+    }
+  }
+
+  static fromJS(data: any): Benutzer {
+    data = typeof data === 'object' ? data : {};
+    let result = new Benutzer();
+    result.init(data);
+    return result;
+  }
+
+  toJSON(data?: any) {
+    data = typeof data === 'object' ? data : {};
+    data['id'] = this.id;
+    data['guid'] = this.guid;
+    data['name'] = this.name;
+    data['vorname'] = this.vorname;
+    data['email'] = this.email;
+    data['telefon'] = this.telefon;
+    data['letzerLogin'] = this.letzerLogin ? this.letzerLogin.toISOString() : <any>undefined;
+    data['emailBestaetigt'] = this.emailBestaetigt;
+    data['accountAktiv'] = this.accountAktiv;
+    data['createdBySso'] = this.createdBySso;
+    data['externalIdentityProvider'] = this.externalIdentityProvider;
+    data['externalIdentitySubject'] = this.externalIdentitySubject;
+    data['externalIdentityUsername'] = this.externalIdentityUsername;
+    data['einstellungen'] = this.einstellungen ? this.einstellungen.toJSON() : <any>undefined;
+    if (Array.isArray(this.benutzerRollen)) {
+      data['benutzerRollen'] = [];
+      for (let item of this.benutzerRollen) data['benutzerRollen'].push(item);
+    }
+    if (Array.isArray(this.benutzerOrganisationen)) {
+      data['benutzerOrganisationen'] = [];
+      for (let item of this.benutzerOrganisationen) data['benutzerOrganisationen'].push(item.toJSON());
+    }
+    data['profilbildBase64'] = this.profilbildBase64;
+    data['anlageDatum'] = this.anlageDatum ? this.anlageDatum.toISOString() : <any>undefined;
+    data['anlageBenutzer'] = this.anlageBenutzer;
+    data['aenderungsDatum'] = this.aenderungsDatum ? this.aenderungsDatum.toISOString() : <any>undefined;
+    data['aenderungsBenutzer'] = this.aenderungsBenutzer;
+    data['geloescht'] = this.geloescht;
+    data['aenderungsZaehler'] = this.aenderungsZaehler;
+    data['tokenConfirmed'] = this.tokenConfirmed;
+    data['token'] = this.token;
+    data['isSystemUser'] = this.isSystemUser;
+    data['datenschutzAccepted'] = this.datenschutzAccepted;
+    data['datenschutzAcceptedDate'] = this.datenschutzAcceptedDate
+      ? this.datenschutzAcceptedDate.toISOString()
+      : <any>undefined;
+    return data;
+  }
+}
+
+export interface IBenutzer {
+  id?: number;
+  guid?: string;
+  name?: string;
+  vorname?: string;
+  email?: string;
+  telefon?: string;
+  letzerLogin?: Date | undefined;
+  emailBestaetigt?: boolean;
+  accountAktiv?: boolean;
+  createdBySso?: boolean;
+  externalIdentityProvider?: string;
+  externalIdentitySubject?: string;
+  externalIdentityUsername?: string;
+  einstellungen?: BenutzerEinstellungen | undefined;
+  benutzerRollen?: string[];
+  benutzerOrganisationen?: BenutzerOrganisation[];
+  profilbildBase64?: string;
+  anlageDatum?: Date;
+  anlageBenutzer?: string;
+  aenderungsDatum?: Date;
+  aenderungsBenutzer?: string;
+  geloescht?: boolean;
+  aenderungsZaehler?: number;
+  tokenConfirmed?: boolean;
+  token?: string;
+  isSystemUser?: boolean;
+  datenschutzAccepted?: boolean;
+  datenschutzAcceptedDate?: Date | undefined;
+}
+
+export class BenutzerEinstellungen implements IBenutzerEinstellungen {
+  hilfeInaktiv?: { [key: string]: string };
+  letzteSnippets?: SnippetVerwendung[];
+  viewedNewsIds?: number[];
+
+  constructor(data?: IBenutzerEinstellungen) {
+    if (data) {
+      for (var property in data) {
+        if (data.hasOwnProperty(property)) (<any>this)[property] = (<any>data)[property];
+      }
+    }
+  }
+
+  init(_data?: any) {
+    if (_data) {
+      if (_data['hilfeInaktiv']) {
+        this.hilfeInaktiv = {} as any;
+        for (let key in _data['hilfeInaktiv']) {
+          if (_data['hilfeInaktiv'].hasOwnProperty(key)) (<any>this.hilfeInaktiv)![key] = _data['hilfeInaktiv'][key];
+        }
+      }
+      if (Array.isArray(_data['letzteSnippets'])) {
+        this.letzteSnippets = [] as any;
+        for (let item of _data['letzteSnippets']) this.letzteSnippets!.push(SnippetVerwendung.fromJS(item));
+      }
+      if (Array.isArray(_data['viewedNewsIds'])) {
+        this.viewedNewsIds = [] as any;
+        for (let item of _data['viewedNewsIds']) this.viewedNewsIds!.push(item);
+      }
+    }
+  }
+
+  static fromJS(data: any): BenutzerEinstellungen {
+    data = typeof data === 'object' ? data : {};
+    let result = new BenutzerEinstellungen();
+    result.init(data);
+    return result;
+  }
+
+  toJSON(data?: any) {
+    data = typeof data === 'object' ? data : {};
+    if (this.hilfeInaktiv) {
+      data['hilfeInaktiv'] = {};
+      for (let key in this.hilfeInaktiv) {
+        if (this.hilfeInaktiv.hasOwnProperty(key)) (<any>data['hilfeInaktiv'])[key] = (<any>this.hilfeInaktiv)[key];
+      }
+    }
+    if (Array.isArray(this.letzteSnippets)) {
+      data['letzteSnippets'] = [];
+      for (let item of this.letzteSnippets) data['letzteSnippets'].push(item.toJSON());
+    }
+    if (Array.isArray(this.viewedNewsIds)) {
+      data['viewedNewsIds'] = [];
+      for (let item of this.viewedNewsIds) data['viewedNewsIds'].push(item);
+    }
+    return data;
+  }
+}
+
+export interface IBenutzerEinstellungen {
+  hilfeInaktiv?: { [key: string]: string };
+  letzteSnippets?: SnippetVerwendung[];
+  viewedNewsIds?: number[];
+}
+
+export class SnippetVerwendung implements ISnippetVerwendung {
+  datum?: Date;
+  snippetName?: string;
+  snippetTyp?: string;
+  snippetId?: number | undefined;
+
+  constructor(data?: ISnippetVerwendung) {
+    if (data) {
+      for (var property in data) {
+        if (data.hasOwnProperty(property)) (<any>this)[property] = (<any>data)[property];
+      }
+    }
+  }
+
+  init(_data?: any) {
+    if (_data) {
+      this.datum = _data['datum'] ? new Date(_data['datum'].toString()) : <any>undefined;
+      this.snippetName = _data['snippetName'];
+      this.snippetTyp = _data['snippetTyp'];
+      this.snippetId = _data['snippetId'];
+    }
+  }
+
+  static fromJS(data: any): SnippetVerwendung {
+    data = typeof data === 'object' ? data : {};
+    let result = new SnippetVerwendung();
+    result.init(data);
+    return result;
+  }
+
+  toJSON(data?: any) {
+    data = typeof data === 'object' ? data : {};
+    data['datum'] = this.datum ? this.datum.toISOString() : <any>undefined;
+    data['snippetName'] = this.snippetName;
+    data['snippetTyp'] = this.snippetTyp;
+    data['snippetId'] = this.snippetId;
+    return data;
+  }
+}
+
+export interface ISnippetVerwendung {
+  datum?: Date;
+  snippetName?: string;
+  snippetTyp?: string;
+  snippetId?: number | undefined;
+}
+
+export class BenutzerOrganisation implements IBenutzerOrganisation {
+  id?: number;
+  benutzerId?: number;
+  organisationId?: number;
+  benutzer?: Benutzer;
+  organisation?: Organisation;
+  anlageDatum?: Date;
+  anlageBenutzer?: string;
+  aenderungsDatum?: Date;
+  aenderungsBenutzer?: string;
+  geloescht?: boolean;
+  createdBySso?: boolean;
+  aenderungsZaehler?: number;
+  benutzerRollen?: string[];
+  accountAktiv?: boolean;
+  isStammOrga?: boolean;
+  lastLogin?: Date;
+  personalAccessToken?: string;
+  personalAccessTokenValidUntil?: Date;
+
+  constructor(data?: IBenutzerOrganisation) {
+    if (data) {
+      for (var property in data) {
+        if (data.hasOwnProperty(property)) (<any>this)[property] = (<any>data)[property];
+      }
+    }
+  }
+
+  init(_data?: any) {
+    if (_data) {
+      this.id = _data['id'];
+      this.benutzerId = _data['benutzerId'];
+      this.organisationId = _data['organisationId'];
+      this.benutzer = _data['benutzer'] ? Benutzer.fromJS(_data['benutzer']) : <any>undefined;
+      this.organisation = _data['organisation'] ? Organisation.fromJS(_data['organisation']) : <any>undefined;
+      this.anlageDatum = _data['anlageDatum'] ? new Date(_data['anlageDatum'].toString()) : <any>undefined;
+      this.anlageBenutzer = _data['anlageBenutzer'];
+      this.aenderungsDatum = _data['aenderungsDatum'] ? new Date(_data['aenderungsDatum'].toString()) : <any>undefined;
+      this.aenderungsBenutzer = _data['aenderungsBenutzer'];
+      this.geloescht = _data['geloescht'];
+      this.createdBySso = _data['createdBySso'];
+      this.aenderungsZaehler = _data['aenderungsZaehler'];
+      if (Array.isArray(_data['benutzerRollen'])) {
+        this.benutzerRollen = [] as any;
+        for (let item of _data['benutzerRollen']) this.benutzerRollen!.push(item);
+      }
+      this.accountAktiv = _data['accountAktiv'];
+      this.isStammOrga = _data['isStammOrga'];
+      this.lastLogin = _data['lastLogin'] ? new Date(_data['lastLogin'].toString()) : <any>undefined;
+      this.personalAccessToken = _data['personalAccessToken'];
+      this.personalAccessTokenValidUntil = _data['personalAccessTokenValidUntil']
+        ? new Date(_data['personalAccessTokenValidUntil'].toString())
+        : <any>undefined;
+    }
+  }
+
+  static fromJS(data: any): BenutzerOrganisation {
+    data = typeof data === 'object' ? data : {};
+    let result = new BenutzerOrganisation();
+    result.init(data);
+    return result;
+  }
+
+  toJSON(data?: any) {
+    data = typeof data === 'object' ? data : {};
+    data['id'] = this.id;
+    data['benutzerId'] = this.benutzerId;
+    data['organisationId'] = this.organisationId;
+    data['benutzer'] = this.benutzer ? this.benutzer.toJSON() : <any>undefined;
+    data['organisation'] = this.organisation ? this.organisation.toJSON() : <any>undefined;
+    data['anlageDatum'] = this.anlageDatum ? this.anlageDatum.toISOString() : <any>undefined;
+    data['anlageBenutzer'] = this.anlageBenutzer;
+    data['aenderungsDatum'] = this.aenderungsDatum ? this.aenderungsDatum.toISOString() : <any>undefined;
+    data['aenderungsBenutzer'] = this.aenderungsBenutzer;
+    data['geloescht'] = this.geloescht;
+    data['createdBySso'] = this.createdBySso;
+    data['aenderungsZaehler'] = this.aenderungsZaehler;
+    if (Array.isArray(this.benutzerRollen)) {
+      data['benutzerRollen'] = [];
+      for (let item of this.benutzerRollen) data['benutzerRollen'].push(item);
+    }
+    data['accountAktiv'] = this.accountAktiv;
+    data['isStammOrga'] = this.isStammOrga;
+    data['lastLogin'] = this.lastLogin ? this.lastLogin.toISOString() : <any>undefined;
+    data['personalAccessToken'] = this.personalAccessToken;
+    data['personalAccessTokenValidUntil'] = this.personalAccessTokenValidUntil
+      ? this.personalAccessTokenValidUntil.toISOString()
+      : <any>undefined;
+    return data;
+  }
+}
+
+export interface IBenutzerOrganisation {
+  id?: number;
+  benutzerId?: number;
+  organisationId?: number;
+  benutzer?: Benutzer;
+  organisation?: Organisation;
+  anlageDatum?: Date;
+  anlageBenutzer?: string;
+  aenderungsDatum?: Date;
+  aenderungsBenutzer?: string;
+  geloescht?: boolean;
+  createdBySso?: boolean;
+  aenderungsZaehler?: number;
+  benutzerRollen?: string[];
+  accountAktiv?: boolean;
+  isStammOrga?: boolean;
+  lastLogin?: Date;
+  personalAccessToken?: string;
+  personalAccessTokenValidUntil?: Date;
+}
+
+export enum ExpirationState {
+  NOTHING = 0,
+  WARNING_EXPIRIATION_IN_7_DAYS = 1,
+  WARNING_EXPIRIATION_TODAY = 2,
+  WARNING_DELETION_IN_14_DAYS = 3,
+  WARNING_DELETION_IN_7_DAYS = 4,
+  DELETION_TODAY = 5,
+}
+
+export class EClassMetadata implements IEClassMetadata {
+  id?: number | undefined;
+  schemaVersion?: string;
+  generatorVersion?: string;
+  generationDate?: Date | undefined;
+  creator?: string;
+  authorisation?: string;
+  contentDate?: Date | undefined;
+  contentIdentification?: string;
+  contentDescription?: string;
+  contentLanguage?: string;
+  originatingSystem?: string;
+  organisations?: Organisation[];
+  languages?: string[];
+
+  constructor(data?: IEClassMetadata) {
+    if (data) {
+      for (var property in data) {
+        if (data.hasOwnProperty(property)) (<any>this)[property] = (<any>data)[property];
+      }
+    }
+  }
+
+  init(_data?: any) {
+    if (_data) {
+      this.id = _data['id'];
+      this.schemaVersion = _data['schemaVersion'];
+      this.generatorVersion = _data['generatorVersion'];
+      this.generationDate = _data['generationDate'] ? new Date(_data['generationDate'].toString()) : <any>undefined;
+      this.creator = _data['creator'];
+      this.authorisation = _data['authorisation'];
+      this.contentDate = _data['contentDate'] ? new Date(_data['contentDate'].toString()) : <any>undefined;
+      this.contentIdentification = _data['contentIdentification'];
+      this.contentDescription = _data['contentDescription'];
+      this.contentLanguage = _data['contentLanguage'];
+      this.originatingSystem = _data['originatingSystem'];
+      if (Array.isArray(_data['organisations'])) {
+        this.organisations = [] as any;
+        for (let item of _data['organisations']) this.organisations!.push(Organisation.fromJS(item));
+      }
+      if (Array.isArray(_data['languages'])) {
+        this.languages = [] as any;
+        for (let item of _data['languages']) this.languages!.push(item);
+      }
+    }
+  }
+
+  static fromJS(data: any): EClassMetadata {
+    data = typeof data === 'object' ? data : {};
+    let result = new EClassMetadata();
+    result.init(data);
+    return result;
+  }
+
+  toJSON(data?: any) {
+    data = typeof data === 'object' ? data : {};
+    data['id'] = this.id;
+    data['schemaVersion'] = this.schemaVersion;
+    data['generatorVersion'] = this.generatorVersion;
+    data['generationDate'] = this.generationDate ? this.generationDate.toISOString() : <any>undefined;
+    data['creator'] = this.creator;
+    data['authorisation'] = this.authorisation;
+    data['contentDate'] = this.contentDate ? this.contentDate.toISOString() : <any>undefined;
+    data['contentIdentification'] = this.contentIdentification;
+    data['contentDescription'] = this.contentDescription;
+    data['contentLanguage'] = this.contentLanguage;
+    data['originatingSystem'] = this.originatingSystem;
+    if (Array.isArray(this.organisations)) {
+      data['organisations'] = [];
+      for (let item of this.organisations) data['organisations'].push(item.toJSON());
+    }
+    if (Array.isArray(this.languages)) {
+      data['languages'] = [];
+      for (let item of this.languages) data['languages'].push(item);
+    }
+    return data;
+  }
+}
+
+export interface IEClassMetadata {
+  id?: number | undefined;
+  schemaVersion?: string;
+  generatorVersion?: string;
+  generationDate?: Date | undefined;
+  creator?: string;
+  authorisation?: string;
+  contentDate?: Date | undefined;
+  contentIdentification?: string;
+  contentDescription?: string;
+  contentLanguage?: string;
+  originatingSystem?: string;
+  organisations?: Organisation[];
+  languages?: string[];
+}
+
+export class PaymentModel implements IPaymentModel {
+  id?: number;
+  name?: string;
+  nameLabel?: string;
+  beschreibungInternal?: string;
+  beschreibungLabel?: string;
+  anzahlNutzer?: number;
+  preis?: number;
+  mehrfachBuchbar?: boolean;
+  exklusivBuchbar?: boolean;
+  userSelectable?: boolean;
+  period?: PaymentPeriod;
+  isSystemModel?: boolean;
+  organisationPaymentModels?: OrganisationPaymentModel[] | undefined;
+  anlageDatum?: Date;
+  anlageBenutzer?: string;
+  aenderungsDatum?: Date;
+  aenderungsBenutzer?: string;
+  geloescht?: boolean;
+  aenderungsZaehler?: number;
+
+  constructor(data?: IPaymentModel) {
+    if (data) {
+      for (var property in data) {
+        if (data.hasOwnProperty(property)) (<any>this)[property] = (<any>data)[property];
+      }
+    }
+  }
+
+  init(_data?: any) {
+    if (_data) {
+      this.id = _data['id'];
+      this.name = _data['name'];
+      this.nameLabel = _data['nameLabel'];
+      this.beschreibungInternal = _data['beschreibungInternal'];
+      this.beschreibungLabel = _data['beschreibungLabel'];
+      this.anzahlNutzer = _data['anzahlNutzer'];
+      this.preis = _data['preis'];
+      this.mehrfachBuchbar = _data['mehrfachBuchbar'];
+      this.exklusivBuchbar = _data['exklusivBuchbar'];
+      this.userSelectable = _data['userSelectable'];
+      this.period = _data['period'];
+      this.isSystemModel = _data['isSystemModel'];
+      if (Array.isArray(_data['organisationPaymentModels'])) {
+        this.organisationPaymentModels = [] as any;
+        for (let item of _data['organisationPaymentModels'])
+          this.organisationPaymentModels!.push(OrganisationPaymentModel.fromJS(item));
+      }
+      this.anlageDatum = _data['anlageDatum'] ? new Date(_data['anlageDatum'].toString()) : <any>undefined;
+      this.anlageBenutzer = _data['anlageBenutzer'];
+      this.aenderungsDatum = _data['aenderungsDatum'] ? new Date(_data['aenderungsDatum'].toString()) : <any>undefined;
+      this.aenderungsBenutzer = _data['aenderungsBenutzer'];
+      this.geloescht = _data['geloescht'];
+      this.aenderungsZaehler = _data['aenderungsZaehler'];
+    }
+  }
+
+  static fromJS(data: any): PaymentModel {
+    data = typeof data === 'object' ? data : {};
+    let result = new PaymentModel();
+    result.init(data);
+    return result;
+  }
+
+  toJSON(data?: any) {
+    data = typeof data === 'object' ? data : {};
+    data['id'] = this.id;
+    data['name'] = this.name;
+    data['nameLabel'] = this.nameLabel;
+    data['beschreibungInternal'] = this.beschreibungInternal;
+    data['beschreibungLabel'] = this.beschreibungLabel;
+    data['anzahlNutzer'] = this.anzahlNutzer;
+    data['preis'] = this.preis;
+    data['mehrfachBuchbar'] = this.mehrfachBuchbar;
+    data['exklusivBuchbar'] = this.exklusivBuchbar;
+    data['userSelectable'] = this.userSelectable;
+    data['period'] = this.period;
+    data['isSystemModel'] = this.isSystemModel;
+    if (Array.isArray(this.organisationPaymentModels)) {
+      data['organisationPaymentModels'] = [];
+      for (let item of this.organisationPaymentModels) data['organisationPaymentModels'].push(item.toJSON());
+    }
+    data['anlageDatum'] = this.anlageDatum ? this.anlageDatum.toISOString() : <any>undefined;
+    data['anlageBenutzer'] = this.anlageBenutzer;
+    data['aenderungsDatum'] = this.aenderungsDatum ? this.aenderungsDatum.toISOString() : <any>undefined;
+    data['aenderungsBenutzer'] = this.aenderungsBenutzer;
+    data['geloescht'] = this.geloescht;
+    data['aenderungsZaehler'] = this.aenderungsZaehler;
+    return data;
+  }
+}
+
+export interface IPaymentModel {
+  id?: number;
+  name?: string;
+  nameLabel?: string;
+  beschreibungInternal?: string;
+  beschreibungLabel?: string;
+  anzahlNutzer?: number;
+  preis?: number;
+  mehrfachBuchbar?: boolean;
+  exklusivBuchbar?: boolean;
+  userSelectable?: boolean;
+  period?: PaymentPeriod;
+  isSystemModel?: boolean;
+  organisationPaymentModels?: OrganisationPaymentModel[] | undefined;
+  anlageDatum?: Date;
+  anlageBenutzer?: string;
+  aenderungsDatum?: Date;
+  aenderungsBenutzer?: string;
+  geloescht?: boolean;
+  aenderungsZaehler?: number;
+}
+
+export enum PaymentPeriod {
+  MONTHLY = 0,
+  QUARTERLY = 1,
+  HALF_YEARLY = 2,
+  YEARLY = 3,
+}
+
+export class AddOrgaData implements IAddOrgaData {
+  orga?: OrganisationDto;
+  admin?: CreateNewBenutzerDto;
+
+  constructor(data?: IAddOrgaData) {
+    if (data) {
+      for (var property in data) {
+        if (data.hasOwnProperty(property)) (<any>this)[property] = (<any>data)[property];
+      }
+    }
+  }
+
+  init(_data?: any) {
+    if (_data) {
+      this.orga = _data['orga'] ? OrganisationDto.fromJS(_data['orga']) : <any>undefined;
+      this.admin = _data['admin'] ? CreateNewBenutzerDto.fromJS(_data['admin']) : <any>undefined;
+    }
+  }
+
+  static fromJS(data: any): AddOrgaData {
+    data = typeof data === 'object' ? data : {};
+    let result = new AddOrgaData();
+    result.init(data);
+    return result;
+  }
+
+  toJSON(data?: any) {
+    data = typeof data === 'object' ? data : {};
+    data['orga'] = this.orga ? this.orga.toJSON() : <any>undefined;
+    data['admin'] = this.admin ? this.admin.toJSON() : <any>undefined;
+    return data;
+  }
+}
+
+export interface IAddOrgaData {
+  orga?: OrganisationDto;
+  admin?: CreateNewBenutzerDto;
+}
+
+export class OrganisationDto implements IOrganisationDto {
+  name!: string;
+  email!: string;
+  telefon?: string | undefined;
+  fax?: string | undefined;
+  strasse?: string | undefined;
+  plz?: string | undefined;
+  ort?: string | undefined;
+  bundesland?: string | undefined;
+  laenderCode?: string | undefined;
+  accountAktiv!: boolean;
+  bezahlmodelle?: PaymentModel[];
+
+  constructor(data?: IOrganisationDto) {
+    if (data) {
+      for (var property in data) {
+        if (data.hasOwnProperty(property)) (<any>this)[property] = (<any>data)[property];
+      }
+    }
+  }
+
+  init(_data?: any) {
+    if (_data) {
+      this.name = _data['name'];
+      this.email = _data['email'];
+      this.telefon = _data['telefon'];
+      this.fax = _data['fax'];
+      this.strasse = _data['strasse'];
+      this.plz = _data['plz'];
+      this.ort = _data['ort'];
+      this.bundesland = _data['bundesland'];
+      this.laenderCode = _data['laenderCode'];
+      this.accountAktiv = _data['accountAktiv'];
+      if (Array.isArray(_data['bezahlmodelle'])) {
+        this.bezahlmodelle = [] as any;
+        for (let item of _data['bezahlmodelle']) this.bezahlmodelle!.push(PaymentModel.fromJS(item));
+      }
+    }
+  }
+
+  static fromJS(data: any): OrganisationDto {
+    data = typeof data === 'object' ? data : {};
+    let result = new OrganisationDto();
+    result.init(data);
+    return result;
+  }
+
+  toJSON(data?: any) {
+    data = typeof data === 'object' ? data : {};
+    data['name'] = this.name;
+    data['email'] = this.email;
+    data['telefon'] = this.telefon;
+    data['fax'] = this.fax;
+    data['strasse'] = this.strasse;
+    data['plz'] = this.plz;
+    data['ort'] = this.ort;
+    data['bundesland'] = this.bundesland;
+    data['laenderCode'] = this.laenderCode;
+    data['accountAktiv'] = this.accountAktiv;
+    if (Array.isArray(this.bezahlmodelle)) {
+      data['bezahlmodelle'] = [];
+      for (let item of this.bezahlmodelle) data['bezahlmodelle'].push(item.toJSON());
+    }
+    return data;
+  }
+}
+
+export interface IOrganisationDto {
+  name: string;
+  email: string;
+  telefon?: string | undefined;
+  fax?: string | undefined;
+  strasse?: string | undefined;
+  plz?: string | undefined;
+  ort?: string | undefined;
+  bundesland?: string | undefined;
+  laenderCode?: string | undefined;
+  accountAktiv: boolean;
+  bezahlmodelle?: PaymentModel[];
+}
+
+export class CreateNewBenutzerDto implements ICreateNewBenutzerDto {
+  name!: string;
+  vorname!: string;
+  email!: string;
+  passwort?: string | undefined;
+  telefon?: string | undefined;
+  organisationId!: number;
+  benutzerRollen!: string[];
+
+  constructor(data?: ICreateNewBenutzerDto) {
+    if (data) {
+      for (var property in data) {
+        if (data.hasOwnProperty(property)) (<any>this)[property] = (<any>data)[property];
+      }
+    }
+    if (!data) {
+      this.benutzerRollen = [];
+    }
+  }
+
+  init(_data?: any) {
+    if (_data) {
+      this.name = _data['name'];
+      this.vorname = _data['vorname'];
+      this.email = _data['email'];
+      this.passwort = _data['passwort'];
+      this.telefon = _data['telefon'];
+      this.organisationId = _data['organisationId'];
+      if (Array.isArray(_data['benutzerRollen'])) {
+        this.benutzerRollen = [] as any;
+        for (let item of _data['benutzerRollen']) this.benutzerRollen!.push(item);
+      }
+    }
+  }
+
+  static fromJS(data: any): CreateNewBenutzerDto {
+    data = typeof data === 'object' ? data : {};
+    let result = new CreateNewBenutzerDto();
+    result.init(data);
+    return result;
+  }
+
+  toJSON(data?: any) {
+    data = typeof data === 'object' ? data : {};
+    data['name'] = this.name;
+    data['vorname'] = this.vorname;
+    data['email'] = this.email;
+    data['passwort'] = this.passwort;
+    data['telefon'] = this.telefon;
+    data['organisationId'] = this.organisationId;
+    if (Array.isArray(this.benutzerRollen)) {
+      data['benutzerRollen'] = [];
+      for (let item of this.benutzerRollen) data['benutzerRollen'].push(item);
+    }
+    return data;
+  }
+}
+
+export interface ICreateNewBenutzerDto {
+  name: string;
+  vorname: string;
+  email: string;
+  passwort?: string | undefined;
+  telefon?: string | undefined;
+  organisationId: number;
+  benutzerRollen: string[];
+}
+
+export class OrganisationUpdateDto implements IOrganisationUpdateDto {
+  name?: string;
+  email?: string;
+  telefon?: string | undefined;
+  fax?: string | undefined;
+  accountAktiv!: boolean;
+  strasse?: string;
+  plz?: string;
+  ort?: string;
+  bundesland?: string;
+  laenderCode?: string;
+  iriPrefix?: string;
+  themeUrl?: string;
+  logoBase64?: string;
+  useInternalInfrastructure?: boolean;
+  aasDiscoveryUrl?: string;
+  aasRegistryUrl?: string;
+  aasRepositoryUrl?: string;
+  submodelRegistryUrl?: string;
+  submodelRepositoryUrl?: string;
+  conceptDescriptionRepositoryUrl?: string;
+  externalAasDiscoveryUrl?: string;
+  externalAasRegistryUrl?: string;
+  externalAasRepositoryUrl?: string;
+  externalSubmodelRegistryUrl?: string;
+  externalSubmodelRepositoryUrl?: string;
+  externalConceptDescriptionRepositoryUrl?: string;
+  headerParameters?: HeaderParameter[];
+
+  constructor(data?: IOrganisationUpdateDto) {
+    if (data) {
+      for (var property in data) {
+        if (data.hasOwnProperty(property)) (<any>this)[property] = (<any>data)[property];
+      }
+    }
+  }
+
+  init(_data?: any) {
+    if (_data) {
+      this.name = _data['name'];
+      this.email = _data['email'];
+      this.telefon = _data['telefon'];
+      this.fax = _data['fax'];
+      this.accountAktiv = _data['accountAktiv'];
+      this.strasse = _data['strasse'];
+      this.plz = _data['plz'];
+      this.ort = _data['ort'];
+      this.bundesland = _data['bundesland'];
+      this.laenderCode = _data['laenderCode'];
+      this.iriPrefix = _data['iriPrefix'];
+      this.themeUrl = _data['themeUrl'];
+      this.logoBase64 = _data['logoBase64'];
+      this.useInternalInfrastructure = _data['useInternalInfrastructure'];
+      this.aasDiscoveryUrl = _data['aasDiscoveryUrl'];
+      this.aasRegistryUrl = _data['aasRegistryUrl'];
+      this.aasRepositoryUrl = _data['aasRepositoryUrl'];
+      this.submodelRegistryUrl = _data['submodelRegistryUrl'];
+      this.submodelRepositoryUrl = _data['submodelRepositoryUrl'];
+      this.conceptDescriptionRepositoryUrl = _data['conceptDescriptionRepositoryUrl'];
+      this.externalAasDiscoveryUrl = _data['externalAasDiscoveryUrl'];
+      this.externalAasRegistryUrl = _data['externalAasRegistryUrl'];
+      this.externalAasRepositoryUrl = _data['externalAasRepositoryUrl'];
+      this.externalSubmodelRegistryUrl = _data['externalSubmodelRegistryUrl'];
+      this.externalSubmodelRepositoryUrl = _data['externalSubmodelRepositoryUrl'];
+      this.externalConceptDescriptionRepositoryUrl = _data['externalConceptDescriptionRepositoryUrl'];
+      if (Array.isArray(_data['headerParameters'])) {
+        this.headerParameters = [] as any;
+        for (let item of _data['headerParameters']) this.headerParameters!.push(HeaderParameter.fromJS(item));
+      }
+    }
+  }
+
+  static fromJS(data: any): OrganisationUpdateDto {
+    data = typeof data === 'object' ? data : {};
+    let result = new OrganisationUpdateDto();
+    result.init(data);
+    return result;
+  }
+
+  toJSON(data?: any) {
+    data = typeof data === 'object' ? data : {};
+    data['name'] = this.name;
+    data['email'] = this.email;
+    data['telefon'] = this.telefon;
+    data['fax'] = this.fax;
+    data['accountAktiv'] = this.accountAktiv;
+    data['strasse'] = this.strasse;
+    data['plz'] = this.plz;
+    data['ort'] = this.ort;
+    data['bundesland'] = this.bundesland;
+    data['laenderCode'] = this.laenderCode;
+    data['iriPrefix'] = this.iriPrefix;
+    data['themeUrl'] = this.themeUrl;
+    data['logoBase64'] = this.logoBase64;
+    data['useInternalInfrastructure'] = this.useInternalInfrastructure;
+    data['aasDiscoveryUrl'] = this.aasDiscoveryUrl;
+    data['aasRegistryUrl'] = this.aasRegistryUrl;
+    data['aasRepositoryUrl'] = this.aasRepositoryUrl;
+    data['submodelRegistryUrl'] = this.submodelRegistryUrl;
+    data['submodelRepositoryUrl'] = this.submodelRepositoryUrl;
+    data['conceptDescriptionRepositoryUrl'] = this.conceptDescriptionRepositoryUrl;
+    data['externalAasDiscoveryUrl'] = this.externalAasDiscoveryUrl;
+    data['externalAasRegistryUrl'] = this.externalAasRegistryUrl;
+    data['externalAasRepositoryUrl'] = this.externalAasRepositoryUrl;
+    data['externalSubmodelRegistryUrl'] = this.externalSubmodelRegistryUrl;
+    data['externalSubmodelRepositoryUrl'] = this.externalSubmodelRepositoryUrl;
+    data['externalConceptDescriptionRepositoryUrl'] = this.externalConceptDescriptionRepositoryUrl;
+    if (Array.isArray(this.headerParameters)) {
+      data['headerParameters'] = [];
+      for (let item of this.headerParameters) data['headerParameters'].push(item.toJSON());
+    }
+    return data;
+  }
+}
+
+export interface IOrganisationUpdateDto {
+  name?: string;
+  email?: string;
+  telefon?: string | undefined;
+  fax?: string | undefined;
+  accountAktiv: boolean;
+  strasse?: string;
+  plz?: string;
+  ort?: string;
+  bundesland?: string;
+  laenderCode?: string;
+  iriPrefix?: string;
+  themeUrl?: string;
+  logoBase64?: string;
+  useInternalInfrastructure?: boolean;
+  aasDiscoveryUrl?: string;
+  aasRegistryUrl?: string;
+  aasRepositoryUrl?: string;
+  submodelRegistryUrl?: string;
+  submodelRepositoryUrl?: string;
+  conceptDescriptionRepositoryUrl?: string;
+  externalAasDiscoveryUrl?: string;
+  externalAasRegistryUrl?: string;
+  externalAasRepositoryUrl?: string;
+  externalSubmodelRegistryUrl?: string;
+  externalSubmodelRepositoryUrl?: string;
+  externalConceptDescriptionRepositoryUrl?: string;
+  headerParameters?: HeaderParameter[];
+}
+
+export class OrganisationUebersichtBenutzerDto implements IOrganisationUebersichtBenutzerDto {
+  id?: number;
+  name?: string;
+  vorname?: string;
+  email?: string;
+  telefon?: string;
+  geloescht?: boolean;
+  isSystemUser?: boolean;
+  accountAktiv?: boolean;
+  createdBySso?: boolean;
+  benutzerRollen?: string[];
+
+  constructor(data?: IOrganisationUebersichtBenutzerDto) {
+    if (data) {
+      for (var property in data) {
+        if (data.hasOwnProperty(property)) (<any>this)[property] = (<any>data)[property];
+      }
+    }
+  }
+
+  init(_data?: any) {
+    if (_data) {
+      this.id = _data['id'];
+      this.name = _data['name'];
+      this.vorname = _data['vorname'];
+      this.email = _data['email'];
+      this.telefon = _data['telefon'];
+      this.geloescht = _data['geloescht'];
+      this.isSystemUser = _data['isSystemUser'];
+      this.accountAktiv = _data['accountAktiv'];
+      this.createdBySso = _data['createdBySso'];
+      if (Array.isArray(_data['benutzerRollen'])) {
+        this.benutzerRollen = [] as any;
+        for (let item of _data['benutzerRollen']) this.benutzerRollen!.push(item);
+      }
+    }
+  }
+
+  static fromJS(data: any): OrganisationUebersichtBenutzerDto {
+    data = typeof data === 'object' ? data : {};
+    let result = new OrganisationUebersichtBenutzerDto();
+    result.init(data);
+    return result;
+  }
+
+  toJSON(data?: any) {
+    data = typeof data === 'object' ? data : {};
+    data['id'] = this.id;
+    data['name'] = this.name;
+    data['vorname'] = this.vorname;
+    data['email'] = this.email;
+    data['telefon'] = this.telefon;
+    data['geloescht'] = this.geloescht;
+    data['isSystemUser'] = this.isSystemUser;
+    data['accountAktiv'] = this.accountAktiv;
+    data['createdBySso'] = this.createdBySso;
+    if (Array.isArray(this.benutzerRollen)) {
+      data['benutzerRollen'] = [];
+      for (let item of this.benutzerRollen) data['benutzerRollen'].push(item);
+    }
+    return data;
+  }
+}
+
+export interface IOrganisationUebersichtBenutzerDto {
+  id?: number;
+  name?: string;
+  vorname?: string;
+  email?: string;
+  telefon?: string;
+  geloescht?: boolean;
+  isSystemUser?: boolean;
+  accountAktiv?: boolean;
+  createdBySso?: boolean;
+  benutzerRollen?: string[];
+}
+
+export class OrganisationUserSeatStats implements IOrganisationUserSeatStats {
+  maxUserSeatsCount?: number;
+  activeUserSeatsCount?: number;
+  totalUsersCount?: number;
+
+  constructor(data?: IOrganisationUserSeatStats) {
+    if (data) {
+      for (var property in data) {
+        if (data.hasOwnProperty(property)) (<any>this)[property] = (<any>data)[property];
+      }
+    }
+  }
+
+  init(_data?: any) {
+    if (_data) {
+      this.maxUserSeatsCount = _data['maxUserSeatsCount'];
+      this.activeUserSeatsCount = _data['activeUserSeatsCount'];
+      this.totalUsersCount = _data['totalUsersCount'];
+    }
+  }
+
+  static fromJS(data: any): OrganisationUserSeatStats {
+    data = typeof data === 'object' ? data : {};
+    let result = new OrganisationUserSeatStats();
+    result.init(data);
+    return result;
+  }
+
+  toJSON(data?: any) {
+    data = typeof data === 'object' ? data : {};
+    data['maxUserSeatsCount'] = this.maxUserSeatsCount;
+    data['activeUserSeatsCount'] = this.activeUserSeatsCount;
+    data['totalUsersCount'] = this.totalUsersCount;
+    return data;
+  }
+}
+
+export interface IOrganisationUserSeatStats {
+  maxUserSeatsCount?: number;
+  activeUserSeatsCount?: number;
+  totalUsersCount?: number;
+}
+
+export class OrgaTokenDto implements IOrgaTokenDto {
+  id?: number;
+  key?: string;
+  validUntil?: Date | undefined;
+  active?: boolean;
+  notice?: string;
+  aasInfrastructureName?: string;
+  aasInfrastructureId?: number | undefined;
+  scopes?: string[];
+
+  constructor(data?: IOrgaTokenDto) {
+    if (data) {
+      for (var property in data) {
+        if (data.hasOwnProperty(property)) (<any>this)[property] = (<any>data)[property];
+      }
+    }
+  }
+
+  init(_data?: any) {
+    if (_data) {
+      this.id = _data['id'];
+      this.key = _data['key'];
+      this.validUntil = _data['validUntil'] ? new Date(_data['validUntil'].toString()) : <any>undefined;
+      this.active = _data['active'];
+      this.notice = _data['notice'];
+      this.aasInfrastructureName = _data['aasInfrastructureName'];
+      this.aasInfrastructureId = _data['aasInfrastructureId'];
+      if (Array.isArray(_data['scopes'])) {
+        this.scopes = [] as any;
+        for (let item of _data['scopes']) this.scopes!.push(item);
+      }
+    }
+  }
+
+  static fromJS(data: any): OrgaTokenDto {
+    data = typeof data === 'object' ? data : {};
+    let result = new OrgaTokenDto();
+    result.init(data);
+    return result;
+  }
+
+  toJSON(data?: any) {
+    data = typeof data === 'object' ? data : {};
+    data['id'] = this.id;
+    data['key'] = this.key;
+    data['validUntil'] = this.validUntil ? this.validUntil.toISOString() : <any>undefined;
+    data['active'] = this.active;
+    data['notice'] = this.notice;
+    data['aasInfrastructureName'] = this.aasInfrastructureName;
+    data['aasInfrastructureId'] = this.aasInfrastructureId;
+    if (Array.isArray(this.scopes)) {
+      data['scopes'] = [];
+      for (let item of this.scopes) data['scopes'].push(item);
+    }
+    return data;
+  }
+}
+
+export interface IOrgaTokenDto {
+  id?: number;
+  key?: string;
+  validUntil?: Date | undefined;
+  active?: boolean;
+  notice?: string;
+  aasInfrastructureName?: string;
+  aasInfrastructureId?: number | undefined;
+  scopes?: string[];
+}
+
+export class EClassImportQueueItemDto implements IEClassImportQueueItemDto {
+  id?: number | undefined;
+  benutzerId?: number;
+  organisationId?: number;
+  dateImport?: Date;
+  started?: boolean;
+  dateStarted?: Date | undefined;
+  error?: boolean;
+  dateError?: Date | undefined;
+  errorMessage?: string;
+  countFilesProcessed?: number;
+  countFiles?: number;
+
+  constructor(data?: IEClassImportQueueItemDto) {
+    if (data) {
+      for (var property in data) {
+        if (data.hasOwnProperty(property)) (<any>this)[property] = (<any>data)[property];
+      }
+    }
+  }
+
+  init(_data?: any) {
+    if (_data) {
+      this.id = _data['id'];
+      this.benutzerId = _data['benutzerId'];
+      this.organisationId = _data['organisationId'];
+      this.dateImport = _data['dateImport'] ? new Date(_data['dateImport'].toString()) : <any>undefined;
+      this.started = _data['started'];
+      this.dateStarted = _data['dateStarted'] ? new Date(_data['dateStarted'].toString()) : <any>undefined;
+      this.error = _data['error'];
+      this.dateError = _data['dateError'] ? new Date(_data['dateError'].toString()) : <any>undefined;
+      this.errorMessage = _data['errorMessage'];
+      this.countFilesProcessed = _data['countFilesProcessed'];
+      this.countFiles = _data['countFiles'];
+    }
+  }
+
+  static fromJS(data: any): EClassImportQueueItemDto {
+    data = typeof data === 'object' ? data : {};
+    let result = new EClassImportQueueItemDto();
+    result.init(data);
+    return result;
+  }
+
+  toJSON(data?: any) {
+    data = typeof data === 'object' ? data : {};
+    data['id'] = this.id;
+    data['benutzerId'] = this.benutzerId;
+    data['organisationId'] = this.organisationId;
+    data['dateImport'] = this.dateImport ? this.dateImport.toISOString() : <any>undefined;
+    data['started'] = this.started;
+    data['dateStarted'] = this.dateStarted ? this.dateStarted.toISOString() : <any>undefined;
+    data['error'] = this.error;
+    data['dateError'] = this.dateError ? this.dateError.toISOString() : <any>undefined;
+    data['errorMessage'] = this.errorMessage;
+    data['countFilesProcessed'] = this.countFilesProcessed;
+    data['countFiles'] = this.countFiles;
+    return data;
+  }
+}
+
+export interface IEClassImportQueueItemDto {
+  id?: number | undefined;
+  benutzerId?: number;
+  organisationId?: number;
+  dateImport?: Date;
+  started?: boolean;
+  dateStarted?: Date | undefined;
+  error?: boolean;
+  dateError?: Date | undefined;
+  errorMessage?: string;
+  countFilesProcessed?: number;
+  countFiles?: number;
+}
+
+export class Invitation implements IInvitation {
+  id?: number;
+  name?: string;
+  vorname?: string;
+  email?: string;
+  benutzerRollen?: string[];
+  organisationId?: number;
+  validUntil?: Date;
+  invitationGuid?: string;
+  language?: string;
+  anlageDatum?: Date;
+  anlageBenutzer?: string;
+  aenderungsDatum?: Date;
+  aenderungsBenutzer?: string;
+  geloescht?: boolean;
+  aenderungsZaehler?: number;
+
+  constructor(data?: IInvitation) {
+    if (data) {
+      for (var property in data) {
+        if (data.hasOwnProperty(property)) (<any>this)[property] = (<any>data)[property];
+      }
+    }
+  }
+
+  init(_data?: any) {
+    if (_data) {
+      this.id = _data['id'];
+      this.name = _data['name'];
+      this.vorname = _data['vorname'];
+      this.email = _data['email'];
+      if (Array.isArray(_data['benutzerRollen'])) {
+        this.benutzerRollen = [] as any;
+        for (let item of _data['benutzerRollen']) this.benutzerRollen!.push(item);
+      }
+      this.organisationId = _data['organisationId'];
+      this.validUntil = _data['validUntil'] ? new Date(_data['validUntil'].toString()) : <any>undefined;
+      this.invitationGuid = _data['invitationGuid'];
+      this.language = _data['language'];
+      this.anlageDatum = _data['anlageDatum'] ? new Date(_data['anlageDatum'].toString()) : <any>undefined;
+      this.anlageBenutzer = _data['anlageBenutzer'];
+      this.aenderungsDatum = _data['aenderungsDatum'] ? new Date(_data['aenderungsDatum'].toString()) : <any>undefined;
+      this.aenderungsBenutzer = _data['aenderungsBenutzer'];
+      this.geloescht = _data['geloescht'];
+      this.aenderungsZaehler = _data['aenderungsZaehler'];
+    }
+  }
+
+  static fromJS(data: any): Invitation {
+    data = typeof data === 'object' ? data : {};
+    let result = new Invitation();
+    result.init(data);
+    return result;
+  }
+
+  toJSON(data?: any) {
+    data = typeof data === 'object' ? data : {};
+    data['id'] = this.id;
+    data['name'] = this.name;
+    data['vorname'] = this.vorname;
+    data['email'] = this.email;
+    if (Array.isArray(this.benutzerRollen)) {
+      data['benutzerRollen'] = [];
+      for (let item of this.benutzerRollen) data['benutzerRollen'].push(item);
+    }
+    data['organisationId'] = this.organisationId;
+    data['validUntil'] = this.validUntil ? this.validUntil.toISOString() : <any>undefined;
+    data['invitationGuid'] = this.invitationGuid;
+    data['language'] = this.language;
+    data['anlageDatum'] = this.anlageDatum ? this.anlageDatum.toISOString() : <any>undefined;
+    data['anlageBenutzer'] = this.anlageBenutzer;
+    data['aenderungsDatum'] = this.aenderungsDatum ? this.aenderungsDatum.toISOString() : <any>undefined;
+    data['aenderungsBenutzer'] = this.aenderungsBenutzer;
+    data['geloescht'] = this.geloescht;
+    data['aenderungsZaehler'] = this.aenderungsZaehler;
+    return data;
+  }
+}
+
+export interface IInvitation {
+  id?: number;
+  name?: string;
+  vorname?: string;
+  email?: string;
+  benutzerRollen?: string[];
+  organisationId?: number;
+  validUntil?: Date;
+  invitationGuid?: string;
+  language?: string;
+  anlageDatum?: Date;
+  anlageBenutzer?: string;
+  aenderungsDatum?: Date;
+  aenderungsBenutzer?: string;
+  geloescht?: boolean;
+  aenderungsZaehler?: number;
+}
+
+export class OrganisationAdminUebersichtDto implements IOrganisationAdminUebersichtDto {
+  id?: number;
+  orgaName?: string;
+  strasse?: string;
+  plz?: string;
+  ort?: string;
+  aktiv?: boolean;
+  wartung?: boolean;
+  hatGueltigesAbo?: boolean;
+  hatInfrastruktur?: boolean;
+  infrastrukturAktiv?: boolean;
+  anzahlInfrastrukturen?: number;
+  anzahlNutzer?: number;
+  anlageDatum?: Date | undefined;
+  aenderungsDatum?: Date | undefined;
+  orgaEmail?: string;
+
+  constructor(data?: IOrganisationAdminUebersichtDto) {
+    if (data) {
+      for (var property in data) {
+        if (data.hasOwnProperty(property)) (<any>this)[property] = (<any>data)[property];
+      }
+    }
+  }
+
+  init(_data?: any) {
+    if (_data) {
+      this.id = _data['id'];
+      this.orgaName = _data['orgaName'];
+      this.strasse = _data['strasse'];
+      this.plz = _data['plz'];
+      this.ort = _data['ort'];
+      this.aktiv = _data['aktiv'];
+      this.wartung = _data['wartung'];
+      this.hatGueltigesAbo = _data['hatGueltigesAbo'];
+      this.hatInfrastruktur = _data['hatInfrastruktur'];
+      this.infrastrukturAktiv = _data['infrastrukturAktiv'];
+      this.anzahlInfrastrukturen = _data['anzahlInfrastrukturen'];
+      this.anzahlNutzer = _data['anzahlNutzer'];
+      this.anlageDatum = _data['anlageDatum'] ? new Date(_data['anlageDatum'].toString()) : <any>undefined;
+      this.aenderungsDatum = _data['aenderungsDatum'] ? new Date(_data['aenderungsDatum'].toString()) : <any>undefined;
+      this.orgaEmail = _data['orgaEmail'];
+    }
+  }
+
+  static fromJS(data: any): OrganisationAdminUebersichtDto {
+    data = typeof data === 'object' ? data : {};
+    let result = new OrganisationAdminUebersichtDto();
+    result.init(data);
+    return result;
+  }
+
+  toJSON(data?: any) {
+    data = typeof data === 'object' ? data : {};
+    data['id'] = this.id;
+    data['orgaName'] = this.orgaName;
+    data['strasse'] = this.strasse;
+    data['plz'] = this.plz;
+    data['ort'] = this.ort;
+    data['aktiv'] = this.aktiv;
+    data['wartung'] = this.wartung;
+    data['hatGueltigesAbo'] = this.hatGueltigesAbo;
+    data['hatInfrastruktur'] = this.hatInfrastruktur;
+    data['infrastrukturAktiv'] = this.infrastrukturAktiv;
+    data['anzahlInfrastrukturen'] = this.anzahlInfrastrukturen;
+    data['anzahlNutzer'] = this.anzahlNutzer;
+    data['anlageDatum'] = this.anlageDatum ? this.anlageDatum.toISOString() : <any>undefined;
+    data['aenderungsDatum'] = this.aenderungsDatum ? this.aenderungsDatum.toISOString() : <any>undefined;
+    data['orgaEmail'] = this.orgaEmail;
+    return data;
+  }
+}
+
+export interface IOrganisationAdminUebersichtDto {
+  id?: number;
+  orgaName?: string;
+  strasse?: string;
+  plz?: string;
+  ort?: string;
+  aktiv?: boolean;
+  wartung?: boolean;
+  hatGueltigesAbo?: boolean;
+  hatInfrastruktur?: boolean;
+  infrastrukturAktiv?: boolean;
+  anzahlInfrastrukturen?: number;
+  anzahlNutzer?: number;
+  anlageDatum?: Date | undefined;
+  aenderungsDatum?: Date | undefined;
+  orgaEmail?: string;
+}
+
 export class StatisticCalculatorSettingsDto implements IStatisticCalculatorSettingsDto {
   intervalMinutes?: number;
   isEnabled?: boolean;
@@ -15998,2517 +19032,6 @@ export class ThemeDefinitionsImport implements IThemeDefinitionsImport {
 
 export interface IThemeDefinitionsImport {
   fileAsBase64?: string;
-}
-
-export class OrganisationUebersichtDto implements IOrganisationUebersichtDto {
-  id?: number;
-  name?: string;
-  telefon?: string;
-  email?: string;
-  fax?: string;
-  accountAktiv?: boolean;
-  geloescht?: boolean;
-  strasse?: string;
-  plz?: string;
-  ort?: string;
-  bundesland?: string;
-  laenderCode?: string;
-  iriPrefix?: string;
-  themeUrl?: string;
-  logoBase64?: string;
-  useInternalInfrastructure?: boolean;
-  aasDiscoveryUrl?: string;
-  aasRegistryUrl?: string;
-  aasRepositoryUrl?: string;
-  submodelRegistryUrl?: string;
-  submodelRepositoryUrl?: string;
-  conceptDescriptionRepositoryUrl?: string;
-  externalAasDiscoveryUrl?: string;
-  externalAasRegistryUrl?: string;
-  externalAasRepositoryUrl?: string;
-  externalSubmodelRegistryUrl?: string;
-  externalSubmodelRepositoryUrl?: string;
-  externalConceptDescriptionRepositoryUrl?: string;
-  headerParameters?: HeaderParameter[];
-  anlageDatum?: Date;
-  anlageBenutzer?: string;
-  aenderungsDatum?: Date;
-  aenderungsBenutzer?: string;
-  bezahlmodelle?: OrganisationPaymentModel[];
-  ownedEclassData?: EClassMetadata[];
-  maintenanceActive?: boolean;
-
-  constructor(data?: IOrganisationUebersichtDto) {
-    if (data) {
-      for (var property in data) {
-        if (data.hasOwnProperty(property)) (<any>this)[property] = (<any>data)[property];
-      }
-    }
-  }
-
-  init(_data?: any) {
-    if (_data) {
-      this.id = _data['id'];
-      this.name = _data['name'];
-      this.telefon = _data['telefon'];
-      this.email = _data['email'];
-      this.fax = _data['fax'];
-      this.accountAktiv = _data['accountAktiv'];
-      this.geloescht = _data['geloescht'];
-      this.strasse = _data['strasse'];
-      this.plz = _data['plz'];
-      this.ort = _data['ort'];
-      this.bundesland = _data['bundesland'];
-      this.laenderCode = _data['laenderCode'];
-      this.iriPrefix = _data['iriPrefix'];
-      this.themeUrl = _data['themeUrl'];
-      this.logoBase64 = _data['logoBase64'];
-      this.useInternalInfrastructure = _data['useInternalInfrastructure'];
-      this.aasDiscoveryUrl = _data['aasDiscoveryUrl'];
-      this.aasRegistryUrl = _data['aasRegistryUrl'];
-      this.aasRepositoryUrl = _data['aasRepositoryUrl'];
-      this.submodelRegistryUrl = _data['submodelRegistryUrl'];
-      this.submodelRepositoryUrl = _data['submodelRepositoryUrl'];
-      this.conceptDescriptionRepositoryUrl = _data['conceptDescriptionRepositoryUrl'];
-      this.externalAasDiscoveryUrl = _data['externalAasDiscoveryUrl'];
-      this.externalAasRegistryUrl = _data['externalAasRegistryUrl'];
-      this.externalAasRepositoryUrl = _data['externalAasRepositoryUrl'];
-      this.externalSubmodelRegistryUrl = _data['externalSubmodelRegistryUrl'];
-      this.externalSubmodelRepositoryUrl = _data['externalSubmodelRepositoryUrl'];
-      this.externalConceptDescriptionRepositoryUrl = _data['externalConceptDescriptionRepositoryUrl'];
-      if (Array.isArray(_data['headerParameters'])) {
-        this.headerParameters = [] as any;
-        for (let item of _data['headerParameters']) this.headerParameters!.push(HeaderParameter.fromJS(item));
-      }
-      this.anlageDatum = _data['anlageDatum'] ? new Date(_data['anlageDatum'].toString()) : <any>undefined;
-      this.anlageBenutzer = _data['anlageBenutzer'];
-      this.aenderungsDatum = _data['aenderungsDatum'] ? new Date(_data['aenderungsDatum'].toString()) : <any>undefined;
-      this.aenderungsBenutzer = _data['aenderungsBenutzer'];
-      if (Array.isArray(_data['bezahlmodelle'])) {
-        this.bezahlmodelle = [] as any;
-        for (let item of _data['bezahlmodelle']) this.bezahlmodelle!.push(OrganisationPaymentModel.fromJS(item));
-      }
-      if (Array.isArray(_data['ownedEclassData'])) {
-        this.ownedEclassData = [] as any;
-        for (let item of _data['ownedEclassData']) this.ownedEclassData!.push(EClassMetadata.fromJS(item));
-      }
-      this.maintenanceActive = _data['maintenanceActive'];
-    }
-  }
-
-  static fromJS(data: any): OrganisationUebersichtDto {
-    data = typeof data === 'object' ? data : {};
-    let result = new OrganisationUebersichtDto();
-    result.init(data);
-    return result;
-  }
-
-  toJSON(data?: any) {
-    data = typeof data === 'object' ? data : {};
-    data['id'] = this.id;
-    data['name'] = this.name;
-    data['telefon'] = this.telefon;
-    data['email'] = this.email;
-    data['fax'] = this.fax;
-    data['accountAktiv'] = this.accountAktiv;
-    data['geloescht'] = this.geloescht;
-    data['strasse'] = this.strasse;
-    data['plz'] = this.plz;
-    data['ort'] = this.ort;
-    data['bundesland'] = this.bundesland;
-    data['laenderCode'] = this.laenderCode;
-    data['iriPrefix'] = this.iriPrefix;
-    data['themeUrl'] = this.themeUrl;
-    data['logoBase64'] = this.logoBase64;
-    data['useInternalInfrastructure'] = this.useInternalInfrastructure;
-    data['aasDiscoveryUrl'] = this.aasDiscoveryUrl;
-    data['aasRegistryUrl'] = this.aasRegistryUrl;
-    data['aasRepositoryUrl'] = this.aasRepositoryUrl;
-    data['submodelRegistryUrl'] = this.submodelRegistryUrl;
-    data['submodelRepositoryUrl'] = this.submodelRepositoryUrl;
-    data['conceptDescriptionRepositoryUrl'] = this.conceptDescriptionRepositoryUrl;
-    data['externalAasDiscoveryUrl'] = this.externalAasDiscoveryUrl;
-    data['externalAasRegistryUrl'] = this.externalAasRegistryUrl;
-    data['externalAasRepositoryUrl'] = this.externalAasRepositoryUrl;
-    data['externalSubmodelRegistryUrl'] = this.externalSubmodelRegistryUrl;
-    data['externalSubmodelRepositoryUrl'] = this.externalSubmodelRepositoryUrl;
-    data['externalConceptDescriptionRepositoryUrl'] = this.externalConceptDescriptionRepositoryUrl;
-    if (Array.isArray(this.headerParameters)) {
-      data['headerParameters'] = [];
-      for (let item of this.headerParameters) data['headerParameters'].push(item.toJSON());
-    }
-    data['anlageDatum'] = this.anlageDatum ? this.anlageDatum.toISOString() : <any>undefined;
-    data['anlageBenutzer'] = this.anlageBenutzer;
-    data['aenderungsDatum'] = this.aenderungsDatum ? this.aenderungsDatum.toISOString() : <any>undefined;
-    data['aenderungsBenutzer'] = this.aenderungsBenutzer;
-    if (Array.isArray(this.bezahlmodelle)) {
-      data['bezahlmodelle'] = [];
-      for (let item of this.bezahlmodelle) data['bezahlmodelle'].push(item.toJSON());
-    }
-    if (Array.isArray(this.ownedEclassData)) {
-      data['ownedEclassData'] = [];
-      for (let item of this.ownedEclassData) data['ownedEclassData'].push(item.toJSON());
-    }
-    data['maintenanceActive'] = this.maintenanceActive;
-    return data;
-  }
-}
-
-export interface IOrganisationUebersichtDto {
-  id?: number;
-  name?: string;
-  telefon?: string;
-  email?: string;
-  fax?: string;
-  accountAktiv?: boolean;
-  geloescht?: boolean;
-  strasse?: string;
-  plz?: string;
-  ort?: string;
-  bundesland?: string;
-  laenderCode?: string;
-  iriPrefix?: string;
-  themeUrl?: string;
-  logoBase64?: string;
-  useInternalInfrastructure?: boolean;
-  aasDiscoveryUrl?: string;
-  aasRegistryUrl?: string;
-  aasRepositoryUrl?: string;
-  submodelRegistryUrl?: string;
-  submodelRepositoryUrl?: string;
-  conceptDescriptionRepositoryUrl?: string;
-  externalAasDiscoveryUrl?: string;
-  externalAasRegistryUrl?: string;
-  externalAasRepositoryUrl?: string;
-  externalSubmodelRegistryUrl?: string;
-  externalSubmodelRepositoryUrl?: string;
-  externalConceptDescriptionRepositoryUrl?: string;
-  headerParameters?: HeaderParameter[];
-  anlageDatum?: Date;
-  anlageBenutzer?: string;
-  aenderungsDatum?: Date;
-  aenderungsBenutzer?: string;
-  bezahlmodelle?: OrganisationPaymentModel[];
-  ownedEclassData?: EClassMetadata[];
-  maintenanceActive?: boolean;
-}
-
-export class OrganisationPaymentModel implements IOrganisationPaymentModel {
-  id?: number;
-  organisation?: Organisation;
-  organisationId?: number;
-  paymentModel?: PaymentModel;
-  paymentModelId?: number;
-  loeschDatum?: Date | undefined;
-  loeschBenutzer?: string;
-  endDate?: Date | undefined;
-  anlageDatum?: Date;
-  anlageBenutzer?: string;
-  aenderungsDatum?: Date;
-  aenderungsBenutzer?: string;
-  geloescht?: boolean;
-  aenderungsZaehler?: number;
-  shouldBeHardDeleted?: boolean;
-
-  constructor(data?: IOrganisationPaymentModel) {
-    if (data) {
-      for (var property in data) {
-        if (data.hasOwnProperty(property)) (<any>this)[property] = (<any>data)[property];
-      }
-    }
-  }
-
-  init(_data?: any) {
-    if (_data) {
-      this.id = _data['id'];
-      this.organisation = _data['organisation'] ? Organisation.fromJS(_data['organisation']) : <any>undefined;
-      this.organisationId = _data['organisationId'];
-      this.paymentModel = _data['paymentModel'] ? PaymentModel.fromJS(_data['paymentModel']) : <any>undefined;
-      this.paymentModelId = _data['paymentModelId'];
-      this.loeschDatum = _data['loeschDatum'] ? new Date(_data['loeschDatum'].toString()) : <any>undefined;
-      this.loeschBenutzer = _data['loeschBenutzer'];
-      this.endDate = _data['endDate'] ? new Date(_data['endDate'].toString()) : <any>undefined;
-      this.anlageDatum = _data['anlageDatum'] ? new Date(_data['anlageDatum'].toString()) : <any>undefined;
-      this.anlageBenutzer = _data['anlageBenutzer'];
-      this.aenderungsDatum = _data['aenderungsDatum'] ? new Date(_data['aenderungsDatum'].toString()) : <any>undefined;
-      this.aenderungsBenutzer = _data['aenderungsBenutzer'];
-      this.geloescht = _data['geloescht'];
-      this.aenderungsZaehler = _data['aenderungsZaehler'];
-      this.shouldBeHardDeleted = _data['shouldBeHardDeleted'];
-    }
-  }
-
-  static fromJS(data: any): OrganisationPaymentModel {
-    data = typeof data === 'object' ? data : {};
-    let result = new OrganisationPaymentModel();
-    result.init(data);
-    return result;
-  }
-
-  toJSON(data?: any) {
-    data = typeof data === 'object' ? data : {};
-    data['id'] = this.id;
-    data['organisation'] = this.organisation ? this.organisation.toJSON() : <any>undefined;
-    data['organisationId'] = this.organisationId;
-    data['paymentModel'] = this.paymentModel ? this.paymentModel.toJSON() : <any>undefined;
-    data['paymentModelId'] = this.paymentModelId;
-    data['loeschDatum'] = this.loeschDatum ? this.loeschDatum.toISOString() : <any>undefined;
-    data['loeschBenutzer'] = this.loeschBenutzer;
-    data['endDate'] = this.endDate ? this.endDate.toISOString() : <any>undefined;
-    data['anlageDatum'] = this.anlageDatum ? this.anlageDatum.toISOString() : <any>undefined;
-    data['anlageBenutzer'] = this.anlageBenutzer;
-    data['aenderungsDatum'] = this.aenderungsDatum ? this.aenderungsDatum.toISOString() : <any>undefined;
-    data['aenderungsBenutzer'] = this.aenderungsBenutzer;
-    data['geloescht'] = this.geloescht;
-    data['aenderungsZaehler'] = this.aenderungsZaehler;
-    data['shouldBeHardDeleted'] = this.shouldBeHardDeleted;
-    return data;
-  }
-}
-
-export interface IOrganisationPaymentModel {
-  id?: number;
-  organisation?: Organisation;
-  organisationId?: number;
-  paymentModel?: PaymentModel;
-  paymentModelId?: number;
-  loeschDatum?: Date | undefined;
-  loeschBenutzer?: string;
-  endDate?: Date | undefined;
-  anlageDatum?: Date;
-  anlageBenutzer?: string;
-  aenderungsDatum?: Date;
-  aenderungsBenutzer?: string;
-  geloescht?: boolean;
-  aenderungsZaehler?: number;
-  shouldBeHardDeleted?: boolean;
-}
-
-export class Organisation implements IOrganisation {
-  id?: number;
-  guid?: string;
-  name?: string;
-  strasse?: string | undefined;
-  plz?: string | undefined;
-  ort?: string | undefined;
-  bundesland?: string | undefined;
-  laenderCode?: string | undefined;
-  logoBase64?: string | undefined;
-  email!: string;
-  telefon?: string;
-  fax?: string;
-  accountAktiv?: boolean;
-  eclassCertificateId?: number | undefined;
-  eclassCertificate?: EclassCertificate | undefined;
-  iriPrefix?: string;
-  bezahlmodelle?: OrganisationPaymentModel[];
-  apikeys?: Apikey[];
-  anlageDatum?: Date;
-  anlageBenutzer?: string;
-  aenderungsDatum?: Date;
-  aenderungsBenutzer?: string;
-  geloescht?: boolean;
-  aenderungsZaehler?: number;
-  themeUrl?: string | undefined;
-  registryUrl?: string | undefined;
-  aasServerUrl?: string | undefined;
-  maintenanceActive?: boolean;
-  systemUserId?: number;
-  maxHostPort?: number;
-  expirationState?: ExpirationState | undefined;
-  expirationStateDate?: Date | undefined;
-  ownedEclassData?: EClassMetadata[];
-  aasInfrastructureSettings?: AasInfrastructureSettings[];
-  serializeForBackup?: boolean;
-  shouldBeHardDeleted?: boolean;
-
-  constructor(data?: IOrganisation) {
-    if (data) {
-      for (var property in data) {
-        if (data.hasOwnProperty(property)) (<any>this)[property] = (<any>data)[property];
-      }
-    }
-  }
-
-  init(_data?: any) {
-    if (_data) {
-      this.id = _data['id'];
-      this.guid = _data['guid'];
-      this.name = _data['name'];
-      this.strasse = _data['strasse'];
-      this.plz = _data['plz'];
-      this.ort = _data['ort'];
-      this.bundesland = _data['bundesland'];
-      this.laenderCode = _data['laenderCode'];
-      this.logoBase64 = _data['logoBase64'];
-      this.email = _data['email'];
-      this.telefon = _data['telefon'];
-      this.fax = _data['fax'];
-      this.accountAktiv = _data['accountAktiv'];
-      this.eclassCertificateId = _data['eclassCertificateId'];
-      this.eclassCertificate = _data['eclassCertificate']
-        ? EclassCertificate.fromJS(_data['eclassCertificate'])
-        : <any>undefined;
-      this.iriPrefix = _data['iriPrefix'];
-      if (Array.isArray(_data['bezahlmodelle'])) {
-        this.bezahlmodelle = [] as any;
-        for (let item of _data['bezahlmodelle']) this.bezahlmodelle!.push(OrganisationPaymentModel.fromJS(item));
-      }
-      if (Array.isArray(_data['apikeys'])) {
-        this.apikeys = [] as any;
-        for (let item of _data['apikeys']) this.apikeys!.push(Apikey.fromJS(item));
-      }
-      this.anlageDatum = _data['anlageDatum'] ? new Date(_data['anlageDatum'].toString()) : <any>undefined;
-      this.anlageBenutzer = _data['anlageBenutzer'];
-      this.aenderungsDatum = _data['aenderungsDatum'] ? new Date(_data['aenderungsDatum'].toString()) : <any>undefined;
-      this.aenderungsBenutzer = _data['aenderungsBenutzer'];
-      this.geloescht = _data['geloescht'];
-      this.aenderungsZaehler = _data['aenderungsZaehler'];
-      this.themeUrl = _data['themeUrl'];
-      this.registryUrl = _data['registryUrl'];
-      this.aasServerUrl = _data['aasServerUrl'];
-      this.maintenanceActive = _data['maintenanceActive'];
-      this.systemUserId = _data['systemUserId'];
-      this.maxHostPort = _data['maxHostPort'];
-      this.expirationState = _data['expirationState'];
-      this.expirationStateDate = _data['expirationStateDate']
-        ? new Date(_data['expirationStateDate'].toString())
-        : <any>undefined;
-      if (Array.isArray(_data['ownedEclassData'])) {
-        this.ownedEclassData = [] as any;
-        for (let item of _data['ownedEclassData']) this.ownedEclassData!.push(EClassMetadata.fromJS(item));
-      }
-      if (Array.isArray(_data['aasInfrastructureSettings'])) {
-        this.aasInfrastructureSettings = [] as any;
-        for (let item of _data['aasInfrastructureSettings'])
-          this.aasInfrastructureSettings!.push(AasInfrastructureSettings.fromJS(item));
-      }
-      this.serializeForBackup = _data['serializeForBackup'];
-      this.shouldBeHardDeleted = _data['shouldBeHardDeleted'];
-    }
-  }
-
-  static fromJS(data: any): Organisation {
-    data = typeof data === 'object' ? data : {};
-    let result = new Organisation();
-    result.init(data);
-    return result;
-  }
-
-  toJSON(data?: any) {
-    data = typeof data === 'object' ? data : {};
-    data['id'] = this.id;
-    data['guid'] = this.guid;
-    data['name'] = this.name;
-    data['strasse'] = this.strasse;
-    data['plz'] = this.plz;
-    data['ort'] = this.ort;
-    data['bundesland'] = this.bundesland;
-    data['laenderCode'] = this.laenderCode;
-    data['logoBase64'] = this.logoBase64;
-    data['email'] = this.email;
-    data['telefon'] = this.telefon;
-    data['fax'] = this.fax;
-    data['accountAktiv'] = this.accountAktiv;
-    data['eclassCertificateId'] = this.eclassCertificateId;
-    data['eclassCertificate'] = this.eclassCertificate ? this.eclassCertificate.toJSON() : <any>undefined;
-    data['iriPrefix'] = this.iriPrefix;
-    if (Array.isArray(this.bezahlmodelle)) {
-      data['bezahlmodelle'] = [];
-      for (let item of this.bezahlmodelle) data['bezahlmodelle'].push(item.toJSON());
-    }
-    if (Array.isArray(this.apikeys)) {
-      data['apikeys'] = [];
-      for (let item of this.apikeys) data['apikeys'].push(item.toJSON());
-    }
-    data['anlageDatum'] = this.anlageDatum ? this.anlageDatum.toISOString() : <any>undefined;
-    data['anlageBenutzer'] = this.anlageBenutzer;
-    data['aenderungsDatum'] = this.aenderungsDatum ? this.aenderungsDatum.toISOString() : <any>undefined;
-    data['aenderungsBenutzer'] = this.aenderungsBenutzer;
-    data['geloescht'] = this.geloescht;
-    data['aenderungsZaehler'] = this.aenderungsZaehler;
-    data['themeUrl'] = this.themeUrl;
-    data['registryUrl'] = this.registryUrl;
-    data['aasServerUrl'] = this.aasServerUrl;
-    data['maintenanceActive'] = this.maintenanceActive;
-    data['systemUserId'] = this.systemUserId;
-    data['maxHostPort'] = this.maxHostPort;
-    data['expirationState'] = this.expirationState;
-    data['expirationStateDate'] = this.expirationStateDate ? this.expirationStateDate.toISOString() : <any>undefined;
-    if (Array.isArray(this.ownedEclassData)) {
-      data['ownedEclassData'] = [];
-      for (let item of this.ownedEclassData) data['ownedEclassData'].push(item.toJSON());
-    }
-    if (Array.isArray(this.aasInfrastructureSettings)) {
-      data['aasInfrastructureSettings'] = [];
-      for (let item of this.aasInfrastructureSettings) data['aasInfrastructureSettings'].push(item.toJSON());
-    }
-    data['serializeForBackup'] = this.serializeForBackup;
-    data['shouldBeHardDeleted'] = this.shouldBeHardDeleted;
-    return data;
-  }
-}
-
-export interface IOrganisation {
-  id?: number;
-  guid?: string;
-  name?: string;
-  strasse?: string | undefined;
-  plz?: string | undefined;
-  ort?: string | undefined;
-  bundesland?: string | undefined;
-  laenderCode?: string | undefined;
-  logoBase64?: string | undefined;
-  email: string;
-  telefon?: string;
-  fax?: string;
-  accountAktiv?: boolean;
-  eclassCertificateId?: number | undefined;
-  eclassCertificate?: EclassCertificate | undefined;
-  iriPrefix?: string;
-  bezahlmodelle?: OrganisationPaymentModel[];
-  apikeys?: Apikey[];
-  anlageDatum?: Date;
-  anlageBenutzer?: string;
-  aenderungsDatum?: Date;
-  aenderungsBenutzer?: string;
-  geloescht?: boolean;
-  aenderungsZaehler?: number;
-  themeUrl?: string | undefined;
-  registryUrl?: string | undefined;
-  aasServerUrl?: string | undefined;
-  maintenanceActive?: boolean;
-  systemUserId?: number;
-  maxHostPort?: number;
-  expirationState?: ExpirationState | undefined;
-  expirationStateDate?: Date | undefined;
-  ownedEclassData?: EClassMetadata[];
-  aasInfrastructureSettings?: AasInfrastructureSettings[];
-  serializeForBackup?: boolean;
-  shouldBeHardDeleted?: boolean;
-}
-
-export class EclassCertificate implements IEclassCertificate {
-  id?: number;
-  filename?: string;
-  validTo?: Date;
-  validFrom?: Date;
-  serialNumber?: string;
-  issuingCertificate?: string;
-  issuedBy?: string;
-  signature?: string;
-  certificateBlob?: EclassCertificateBlob;
-  organisationId?: number;
-  organisation?: Organisation;
-  anlageDatum?: Date;
-  anlageBenutzer?: string;
-  aenderungsDatum?: Date;
-  aenderungsBenutzer?: string;
-  geloescht?: boolean;
-  aenderungsZaehler?: number;
-
-  constructor(data?: IEclassCertificate) {
-    if (data) {
-      for (var property in data) {
-        if (data.hasOwnProperty(property)) (<any>this)[property] = (<any>data)[property];
-      }
-    }
-  }
-
-  init(_data?: any) {
-    if (_data) {
-      this.id = _data['id'];
-      this.filename = _data['filename'];
-      this.validTo = _data['validTo'] ? new Date(_data['validTo'].toString()) : <any>undefined;
-      this.validFrom = _data['validFrom'] ? new Date(_data['validFrom'].toString()) : <any>undefined;
-      this.serialNumber = _data['serialNumber'];
-      this.issuingCertificate = _data['issuingCertificate'];
-      this.issuedBy = _data['issuedBy'];
-      this.signature = _data['signature'];
-      this.certificateBlob = _data['certificateBlob']
-        ? EclassCertificateBlob.fromJS(_data['certificateBlob'])
-        : <any>undefined;
-      this.organisationId = _data['organisationId'];
-      this.organisation = _data['organisation'] ? Organisation.fromJS(_data['organisation']) : <any>undefined;
-      this.anlageDatum = _data['anlageDatum'] ? new Date(_data['anlageDatum'].toString()) : <any>undefined;
-      this.anlageBenutzer = _data['anlageBenutzer'];
-      this.aenderungsDatum = _data['aenderungsDatum'] ? new Date(_data['aenderungsDatum'].toString()) : <any>undefined;
-      this.aenderungsBenutzer = _data['aenderungsBenutzer'];
-      this.geloescht = _data['geloescht'];
-      this.aenderungsZaehler = _data['aenderungsZaehler'];
-    }
-  }
-
-  static fromJS(data: any): EclassCertificate {
-    data = typeof data === 'object' ? data : {};
-    let result = new EclassCertificate();
-    result.init(data);
-    return result;
-  }
-
-  toJSON(data?: any) {
-    data = typeof data === 'object' ? data : {};
-    data['id'] = this.id;
-    data['filename'] = this.filename;
-    data['validTo'] = this.validTo ? this.validTo.toISOString() : <any>undefined;
-    data['validFrom'] = this.validFrom ? this.validFrom.toISOString() : <any>undefined;
-    data['serialNumber'] = this.serialNumber;
-    data['issuingCertificate'] = this.issuingCertificate;
-    data['issuedBy'] = this.issuedBy;
-    data['signature'] = this.signature;
-    data['certificateBlob'] = this.certificateBlob ? this.certificateBlob.toJSON() : <any>undefined;
-    data['organisationId'] = this.organisationId;
-    data['organisation'] = this.organisation ? this.organisation.toJSON() : <any>undefined;
-    data['anlageDatum'] = this.anlageDatum ? this.anlageDatum.toISOString() : <any>undefined;
-    data['anlageBenutzer'] = this.anlageBenutzer;
-    data['aenderungsDatum'] = this.aenderungsDatum ? this.aenderungsDatum.toISOString() : <any>undefined;
-    data['aenderungsBenutzer'] = this.aenderungsBenutzer;
-    data['geloescht'] = this.geloescht;
-    data['aenderungsZaehler'] = this.aenderungsZaehler;
-    return data;
-  }
-}
-
-export interface IEclassCertificate {
-  id?: number;
-  filename?: string;
-  validTo?: Date;
-  validFrom?: Date;
-  serialNumber?: string;
-  issuingCertificate?: string;
-  issuedBy?: string;
-  signature?: string;
-  certificateBlob?: EclassCertificateBlob;
-  organisationId?: number;
-  organisation?: Organisation;
-  anlageDatum?: Date;
-  anlageBenutzer?: string;
-  aenderungsDatum?: Date;
-  aenderungsBenutzer?: string;
-  geloescht?: boolean;
-  aenderungsZaehler?: number;
-}
-
-export class EclassCertificateBlob implements IEclassCertificateBlob {
-  id?: number;
-  datei?: string;
-  certificateId?: number;
-  certificate?: EclassCertificate;
-  anlageDatum?: Date;
-  anlageBenutzer?: string;
-  aenderungsDatum?: Date;
-  aenderungsBenutzer?: string;
-  geloescht?: boolean;
-  aenderungsZaehler?: number;
-
-  constructor(data?: IEclassCertificateBlob) {
-    if (data) {
-      for (var property in data) {
-        if (data.hasOwnProperty(property)) (<any>this)[property] = (<any>data)[property];
-      }
-    }
-  }
-
-  init(_data?: any) {
-    if (_data) {
-      this.id = _data['id'];
-      this.datei = _data['datei'];
-      this.certificateId = _data['certificateId'];
-      this.certificate = _data['certificate'] ? EclassCertificate.fromJS(_data['certificate']) : <any>undefined;
-      this.anlageDatum = _data['anlageDatum'] ? new Date(_data['anlageDatum'].toString()) : <any>undefined;
-      this.anlageBenutzer = _data['anlageBenutzer'];
-      this.aenderungsDatum = _data['aenderungsDatum'] ? new Date(_data['aenderungsDatum'].toString()) : <any>undefined;
-      this.aenderungsBenutzer = _data['aenderungsBenutzer'];
-      this.geloescht = _data['geloescht'];
-      this.aenderungsZaehler = _data['aenderungsZaehler'];
-    }
-  }
-
-  static fromJS(data: any): EclassCertificateBlob {
-    data = typeof data === 'object' ? data : {};
-    let result = new EclassCertificateBlob();
-    result.init(data);
-    return result;
-  }
-
-  toJSON(data?: any) {
-    data = typeof data === 'object' ? data : {};
-    data['id'] = this.id;
-    data['datei'] = this.datei;
-    data['certificateId'] = this.certificateId;
-    data['certificate'] = this.certificate ? this.certificate.toJSON() : <any>undefined;
-    data['anlageDatum'] = this.anlageDatum ? this.anlageDatum.toISOString() : <any>undefined;
-    data['anlageBenutzer'] = this.anlageBenutzer;
-    data['aenderungsDatum'] = this.aenderungsDatum ? this.aenderungsDatum.toISOString() : <any>undefined;
-    data['aenderungsBenutzer'] = this.aenderungsBenutzer;
-    data['geloescht'] = this.geloescht;
-    data['aenderungsZaehler'] = this.aenderungsZaehler;
-    return data;
-  }
-}
-
-export interface IEclassCertificateBlob {
-  id?: number;
-  datei?: string;
-  certificateId?: number;
-  certificate?: EclassCertificate;
-  anlageDatum?: Date;
-  anlageBenutzer?: string;
-  aenderungsDatum?: Date;
-  aenderungsBenutzer?: string;
-  geloescht?: boolean;
-  aenderungsZaehler?: number;
-}
-
-export class Apikey implements IApikey {
-  id?: number;
-  key?: string;
-  validUntil?: Date | undefined;
-  active?: boolean;
-  notice?: string;
-  scopes?: string[];
-  organisationId?: number | undefined;
-  organisation?: Organisation | undefined;
-  aasInfrastructureSettingsId?: number | undefined;
-  aasInfrastructureSettings?: AasInfrastructureSettings | undefined;
-  benutzerId?: number | undefined;
-  benutzer?: Benutzer | undefined;
-  anlageDatum?: Date;
-  anlageBenutzer?: string;
-  aenderungsDatum?: Date;
-  aenderungsBenutzer?: string;
-  geloescht?: boolean;
-  aenderungsZaehler?: number;
-
-  constructor(data?: IApikey) {
-    if (data) {
-      for (var property in data) {
-        if (data.hasOwnProperty(property)) (<any>this)[property] = (<any>data)[property];
-      }
-    }
-  }
-
-  init(_data?: any) {
-    if (_data) {
-      this.id = _data['id'];
-      this.key = _data['key'];
-      this.validUntil = _data['validUntil'] ? new Date(_data['validUntil'].toString()) : <any>undefined;
-      this.active = _data['active'];
-      this.notice = _data['notice'];
-      if (Array.isArray(_data['scopes'])) {
-        this.scopes = [] as any;
-        for (let item of _data['scopes']) this.scopes!.push(item);
-      }
-      this.organisationId = _data['organisationId'];
-      this.organisation = _data['organisation'] ? Organisation.fromJS(_data['organisation']) : <any>undefined;
-      this.aasInfrastructureSettingsId = _data['aasInfrastructureSettingsId'];
-      this.aasInfrastructureSettings = _data['aasInfrastructureSettings']
-        ? AasInfrastructureSettings.fromJS(_data['aasInfrastructureSettings'])
-        : <any>undefined;
-      this.benutzerId = _data['benutzerId'];
-      this.benutzer = _data['benutzer'] ? Benutzer.fromJS(_data['benutzer']) : <any>undefined;
-      this.anlageDatum = _data['anlageDatum'] ? new Date(_data['anlageDatum'].toString()) : <any>undefined;
-      this.anlageBenutzer = _data['anlageBenutzer'];
-      this.aenderungsDatum = _data['aenderungsDatum'] ? new Date(_data['aenderungsDatum'].toString()) : <any>undefined;
-      this.aenderungsBenutzer = _data['aenderungsBenutzer'];
-      this.geloescht = _data['geloescht'];
-      this.aenderungsZaehler = _data['aenderungsZaehler'];
-    }
-  }
-
-  static fromJS(data: any): Apikey {
-    data = typeof data === 'object' ? data : {};
-    let result = new Apikey();
-    result.init(data);
-    return result;
-  }
-
-  toJSON(data?: any) {
-    data = typeof data === 'object' ? data : {};
-    data['id'] = this.id;
-    data['key'] = this.key;
-    data['validUntil'] = this.validUntil ? this.validUntil.toISOString() : <any>undefined;
-    data['active'] = this.active;
-    data['notice'] = this.notice;
-    if (Array.isArray(this.scopes)) {
-      data['scopes'] = [];
-      for (let item of this.scopes) data['scopes'].push(item);
-    }
-    data['organisationId'] = this.organisationId;
-    data['organisation'] = this.organisation ? this.organisation.toJSON() : <any>undefined;
-    data['aasInfrastructureSettingsId'] = this.aasInfrastructureSettingsId;
-    data['aasInfrastructureSettings'] = this.aasInfrastructureSettings
-      ? this.aasInfrastructureSettings.toJSON()
-      : <any>undefined;
-    data['benutzerId'] = this.benutzerId;
-    data['benutzer'] = this.benutzer ? this.benutzer.toJSON() : <any>undefined;
-    data['anlageDatum'] = this.anlageDatum ? this.anlageDatum.toISOString() : <any>undefined;
-    data['anlageBenutzer'] = this.anlageBenutzer;
-    data['aenderungsDatum'] = this.aenderungsDatum ? this.aenderungsDatum.toISOString() : <any>undefined;
-    data['aenderungsBenutzer'] = this.aenderungsBenutzer;
-    data['geloescht'] = this.geloescht;
-    data['aenderungsZaehler'] = this.aenderungsZaehler;
-    return data;
-  }
-}
-
-export interface IApikey {
-  id?: number;
-  key?: string;
-  validUntil?: Date | undefined;
-  active?: boolean;
-  notice?: string;
-  scopes?: string[];
-  organisationId?: number | undefined;
-  organisation?: Organisation | undefined;
-  aasInfrastructureSettingsId?: number | undefined;
-  aasInfrastructureSettings?: AasInfrastructureSettings | undefined;
-  benutzerId?: number | undefined;
-  benutzer?: Benutzer | undefined;
-  anlageDatum?: Date;
-  anlageBenutzer?: string;
-  aenderungsDatum?: Date;
-  aenderungsBenutzer?: string;
-  geloescht?: boolean;
-  aenderungsZaehler?: number;
-}
-
-export class AasInfrastructureSettings implements IAasInfrastructureSettings {
-  id?: number;
-  organisationId?: number;
-  organisation?: Organisation;
-  name?: string;
-  description?: string;
-  aasDiscoveryUrl?: string;
-  aasDiscoveryVersion?: string;
-  aasDiscoveryHcUrl?: string;
-  aasDiscoveryHcEnabled?: boolean;
-  aasRegistryUrl?: string;
-  aasRegistryVersion?: string;
-  aasRegistryHcUrl?: string;
-  aasRegistryHcEnabled?: boolean;
-  aasRepositoryUrl?: string;
-  aasRepositoryVersion?: string;
-  aasRepositoryHcUrl?: string;
-  aasRepositoryHcEnabled?: boolean;
-  submodelRegistryUrl?: string;
-  submodelRegistryVersion?: string;
-  submodelRegistryHcUrl?: string;
-  submodelRegistryHcEnabled?: boolean;
-  submodelRepositoryUrl?: string;
-  submodelRepositoryVersion?: string;
-  submodelRepositoryHcUrl?: string;
-  submodelRepositoryHcEnabled?: boolean;
-  conceptDescriptionRepositoryUrl?: string;
-  conceptDescriptionRepositoryVersion?: string;
-  conceptDescriptionRepositoryHcUrl?: string;
-  conceptDescriptionRepositoryHcEnabled?: boolean;
-  headerParameters?: HeaderParameter[];
-  certificate?: string | undefined;
-  certificatePassword?: string;
-  sendCurrentJwt?: boolean;
-  isActive?: boolean;
-  isInternal?: boolean;
-  handleAsInternal?: boolean;
-  isReadonly?: boolean;
-  noShellsListEndpoint?: boolean;
-  isGoInfrastructure?: boolean;
-  goPostgresDbName?: string | undefined;
-  goPostgresUser?: string | undefined;
-  aasEnvContainer?: string;
-  hostPortAasEnv?: number;
-  aasEnvMemory?: number;
-  aasEnvMemSwap?: number;
-  aasDiscoveryContainer?: string;
-  hostPortAasDiscovery?: number;
-  discoveryMemory?: number;
-  discoveryMemSwap?: number;
-  aasRegistryContainer?: string;
-  hostPortAasRegistry?: number;
-  aasRegistryMemory?: number;
-  aasRegistryMemSwap?: number;
-  smRegistryContainer?: string;
-  hostPortSmRegistry?: number;
-  smRegistryMemory?: number;
-  smRegistryMemSwap?: number;
-  mqttContainer?: string;
-  hostPortMqtt?: number;
-  mqttMemory?: number;
-  mqttMemSwap?: number;
-  mongoContainer?: string;
-  mongoMemory?: number;
-  mongoMemSwap?: number;
-  containerGuid?: string;
-  internalPortAasEnv?: number;
-  internalPortAasRegistry?: number;
-  internalPortAasDiscovery?: number;
-  internalPortMqtt?: number;
-  internalPortSmRegistry?: number;
-  anlageDatum?: Date;
-  anlageBenutzer?: string;
-  aenderungsDatum?: Date;
-  aenderungsBenutzer?: string;
-  geloescht?: boolean;
-  aenderungsZaehler?: number;
-
-  constructor(data?: IAasInfrastructureSettings) {
-    if (data) {
-      for (var property in data) {
-        if (data.hasOwnProperty(property)) (<any>this)[property] = (<any>data)[property];
-      }
-    }
-  }
-
-  init(_data?: any) {
-    if (_data) {
-      this.id = _data['id'];
-      this.organisationId = _data['organisationId'];
-      this.organisation = _data['organisation'] ? Organisation.fromJS(_data['organisation']) : <any>undefined;
-      this.name = _data['name'];
-      this.description = _data['description'];
-      this.aasDiscoveryUrl = _data['aasDiscoveryUrl'];
-      this.aasDiscoveryVersion = _data['aasDiscoveryVersion'];
-      this.aasDiscoveryHcUrl = _data['aasDiscoveryHcUrl'];
-      this.aasDiscoveryHcEnabled = _data['aasDiscoveryHcEnabled'];
-      this.aasRegistryUrl = _data['aasRegistryUrl'];
-      this.aasRegistryVersion = _data['aasRegistryVersion'];
-      this.aasRegistryHcUrl = _data['aasRegistryHcUrl'];
-      this.aasRegistryHcEnabled = _data['aasRegistryHcEnabled'];
-      this.aasRepositoryUrl = _data['aasRepositoryUrl'];
-      this.aasRepositoryVersion = _data['aasRepositoryVersion'];
-      this.aasRepositoryHcUrl = _data['aasRepositoryHcUrl'];
-      this.aasRepositoryHcEnabled = _data['aasRepositoryHcEnabled'];
-      this.submodelRegistryUrl = _data['submodelRegistryUrl'];
-      this.submodelRegistryVersion = _data['submodelRegistryVersion'];
-      this.submodelRegistryHcUrl = _data['submodelRegistryHcUrl'];
-      this.submodelRegistryHcEnabled = _data['submodelRegistryHcEnabled'];
-      this.submodelRepositoryUrl = _data['submodelRepositoryUrl'];
-      this.submodelRepositoryVersion = _data['submodelRepositoryVersion'];
-      this.submodelRepositoryHcUrl = _data['submodelRepositoryHcUrl'];
-      this.submodelRepositoryHcEnabled = _data['submodelRepositoryHcEnabled'];
-      this.conceptDescriptionRepositoryUrl = _data['conceptDescriptionRepositoryUrl'];
-      this.conceptDescriptionRepositoryVersion = _data['conceptDescriptionRepositoryVersion'];
-      this.conceptDescriptionRepositoryHcUrl = _data['conceptDescriptionRepositoryHcUrl'];
-      this.conceptDescriptionRepositoryHcEnabled = _data['conceptDescriptionRepositoryHcEnabled'];
-      if (Array.isArray(_data['headerParameters'])) {
-        this.headerParameters = [] as any;
-        for (let item of _data['headerParameters']) this.headerParameters!.push(HeaderParameter.fromJS(item));
-      }
-      this.certificate = _data['certificate'];
-      this.certificatePassword = _data['certificatePassword'];
-      this.sendCurrentJwt = _data['sendCurrentJwt'];
-      this.isActive = _data['isActive'];
-      this.isInternal = _data['isInternal'];
-      this.handleAsInternal = _data['handleAsInternal'];
-      this.isReadonly = _data['isReadonly'];
-      this.noShellsListEndpoint = _data['noShellsListEndpoint'];
-      this.isGoInfrastructure = _data['isGoInfrastructure'];
-      this.goPostgresDbName = _data['goPostgresDbName'];
-      this.goPostgresUser = _data['goPostgresUser'];
-      this.aasEnvContainer = _data['aasEnvContainer'];
-      this.hostPortAasEnv = _data['hostPortAasEnv'];
-      this.aasEnvMemory = _data['aasEnvMemory'];
-      this.aasEnvMemSwap = _data['aasEnvMemSwap'];
-      this.aasDiscoveryContainer = _data['aasDiscoveryContainer'];
-      this.hostPortAasDiscovery = _data['hostPortAasDiscovery'];
-      this.discoveryMemory = _data['discoveryMemory'];
-      this.discoveryMemSwap = _data['discoveryMemSwap'];
-      this.aasRegistryContainer = _data['aasRegistryContainer'];
-      this.hostPortAasRegistry = _data['hostPortAasRegistry'];
-      this.aasRegistryMemory = _data['aasRegistryMemory'];
-      this.aasRegistryMemSwap = _data['aasRegistryMemSwap'];
-      this.smRegistryContainer = _data['smRegistryContainer'];
-      this.hostPortSmRegistry = _data['hostPortSmRegistry'];
-      this.smRegistryMemory = _data['smRegistryMemory'];
-      this.smRegistryMemSwap = _data['smRegistryMemSwap'];
-      this.mqttContainer = _data['mqttContainer'];
-      this.hostPortMqtt = _data['hostPortMqtt'];
-      this.mqttMemory = _data['mqttMemory'];
-      this.mqttMemSwap = _data['mqttMemSwap'];
-      this.mongoContainer = _data['mongoContainer'];
-      this.mongoMemory = _data['mongoMemory'];
-      this.mongoMemSwap = _data['mongoMemSwap'];
-      this.containerGuid = _data['containerGuid'];
-      this.internalPortAasEnv = _data['internalPortAasEnv'];
-      this.internalPortAasRegistry = _data['internalPortAasRegistry'];
-      this.internalPortAasDiscovery = _data['internalPortAasDiscovery'];
-      this.internalPortMqtt = _data['internalPortMqtt'];
-      this.internalPortSmRegistry = _data['internalPortSmRegistry'];
-      this.anlageDatum = _data['anlageDatum'] ? new Date(_data['anlageDatum'].toString()) : <any>undefined;
-      this.anlageBenutzer = _data['anlageBenutzer'];
-      this.aenderungsDatum = _data['aenderungsDatum'] ? new Date(_data['aenderungsDatum'].toString()) : <any>undefined;
-      this.aenderungsBenutzer = _data['aenderungsBenutzer'];
-      this.geloescht = _data['geloescht'];
-      this.aenderungsZaehler = _data['aenderungsZaehler'];
-    }
-  }
-
-  static fromJS(data: any): AasInfrastructureSettings {
-    data = typeof data === 'object' ? data : {};
-    let result = new AasInfrastructureSettings();
-    result.init(data);
-    return result;
-  }
-
-  toJSON(data?: any) {
-    data = typeof data === 'object' ? data : {};
-    data['id'] = this.id;
-    data['organisationId'] = this.organisationId;
-    data['organisation'] = this.organisation ? this.organisation.toJSON() : <any>undefined;
-    data['name'] = this.name;
-    data['description'] = this.description;
-    data['aasDiscoveryUrl'] = this.aasDiscoveryUrl;
-    data['aasDiscoveryVersion'] = this.aasDiscoveryVersion;
-    data['aasDiscoveryHcUrl'] = this.aasDiscoveryHcUrl;
-    data['aasDiscoveryHcEnabled'] = this.aasDiscoveryHcEnabled;
-    data['aasRegistryUrl'] = this.aasRegistryUrl;
-    data['aasRegistryVersion'] = this.aasRegistryVersion;
-    data['aasRegistryHcUrl'] = this.aasRegistryHcUrl;
-    data['aasRegistryHcEnabled'] = this.aasRegistryHcEnabled;
-    data['aasRepositoryUrl'] = this.aasRepositoryUrl;
-    data['aasRepositoryVersion'] = this.aasRepositoryVersion;
-    data['aasRepositoryHcUrl'] = this.aasRepositoryHcUrl;
-    data['aasRepositoryHcEnabled'] = this.aasRepositoryHcEnabled;
-    data['submodelRegistryUrl'] = this.submodelRegistryUrl;
-    data['submodelRegistryVersion'] = this.submodelRegistryVersion;
-    data['submodelRegistryHcUrl'] = this.submodelRegistryHcUrl;
-    data['submodelRegistryHcEnabled'] = this.submodelRegistryHcEnabled;
-    data['submodelRepositoryUrl'] = this.submodelRepositoryUrl;
-    data['submodelRepositoryVersion'] = this.submodelRepositoryVersion;
-    data['submodelRepositoryHcUrl'] = this.submodelRepositoryHcUrl;
-    data['submodelRepositoryHcEnabled'] = this.submodelRepositoryHcEnabled;
-    data['conceptDescriptionRepositoryUrl'] = this.conceptDescriptionRepositoryUrl;
-    data['conceptDescriptionRepositoryVersion'] = this.conceptDescriptionRepositoryVersion;
-    data['conceptDescriptionRepositoryHcUrl'] = this.conceptDescriptionRepositoryHcUrl;
-    data['conceptDescriptionRepositoryHcEnabled'] = this.conceptDescriptionRepositoryHcEnabled;
-    if (Array.isArray(this.headerParameters)) {
-      data['headerParameters'] = [];
-      for (let item of this.headerParameters) data['headerParameters'].push(item.toJSON());
-    }
-    data['certificate'] = this.certificate;
-    data['certificatePassword'] = this.certificatePassword;
-    data['sendCurrentJwt'] = this.sendCurrentJwt;
-    data['isActive'] = this.isActive;
-    data['isInternal'] = this.isInternal;
-    data['handleAsInternal'] = this.handleAsInternal;
-    data['isReadonly'] = this.isReadonly;
-    data['noShellsListEndpoint'] = this.noShellsListEndpoint;
-    data['isGoInfrastructure'] = this.isGoInfrastructure;
-    data['goPostgresDbName'] = this.goPostgresDbName;
-    data['goPostgresUser'] = this.goPostgresUser;
-    data['aasEnvContainer'] = this.aasEnvContainer;
-    data['hostPortAasEnv'] = this.hostPortAasEnv;
-    data['aasEnvMemory'] = this.aasEnvMemory;
-    data['aasEnvMemSwap'] = this.aasEnvMemSwap;
-    data['aasDiscoveryContainer'] = this.aasDiscoveryContainer;
-    data['hostPortAasDiscovery'] = this.hostPortAasDiscovery;
-    data['discoveryMemory'] = this.discoveryMemory;
-    data['discoveryMemSwap'] = this.discoveryMemSwap;
-    data['aasRegistryContainer'] = this.aasRegistryContainer;
-    data['hostPortAasRegistry'] = this.hostPortAasRegistry;
-    data['aasRegistryMemory'] = this.aasRegistryMemory;
-    data['aasRegistryMemSwap'] = this.aasRegistryMemSwap;
-    data['smRegistryContainer'] = this.smRegistryContainer;
-    data['hostPortSmRegistry'] = this.hostPortSmRegistry;
-    data['smRegistryMemory'] = this.smRegistryMemory;
-    data['smRegistryMemSwap'] = this.smRegistryMemSwap;
-    data['mqttContainer'] = this.mqttContainer;
-    data['hostPortMqtt'] = this.hostPortMqtt;
-    data['mqttMemory'] = this.mqttMemory;
-    data['mqttMemSwap'] = this.mqttMemSwap;
-    data['mongoContainer'] = this.mongoContainer;
-    data['mongoMemory'] = this.mongoMemory;
-    data['mongoMemSwap'] = this.mongoMemSwap;
-    data['containerGuid'] = this.containerGuid;
-    data['internalPortAasEnv'] = this.internalPortAasEnv;
-    data['internalPortAasRegistry'] = this.internalPortAasRegistry;
-    data['internalPortAasDiscovery'] = this.internalPortAasDiscovery;
-    data['internalPortMqtt'] = this.internalPortMqtt;
-    data['internalPortSmRegistry'] = this.internalPortSmRegistry;
-    data['anlageDatum'] = this.anlageDatum ? this.anlageDatum.toISOString() : <any>undefined;
-    data['anlageBenutzer'] = this.anlageBenutzer;
-    data['aenderungsDatum'] = this.aenderungsDatum ? this.aenderungsDatum.toISOString() : <any>undefined;
-    data['aenderungsBenutzer'] = this.aenderungsBenutzer;
-    data['geloescht'] = this.geloescht;
-    data['aenderungsZaehler'] = this.aenderungsZaehler;
-    return data;
-  }
-}
-
-export interface IAasInfrastructureSettings {
-  id?: number;
-  organisationId?: number;
-  organisation?: Organisation;
-  name?: string;
-  description?: string;
-  aasDiscoveryUrl?: string;
-  aasDiscoveryVersion?: string;
-  aasDiscoveryHcUrl?: string;
-  aasDiscoveryHcEnabled?: boolean;
-  aasRegistryUrl?: string;
-  aasRegistryVersion?: string;
-  aasRegistryHcUrl?: string;
-  aasRegistryHcEnabled?: boolean;
-  aasRepositoryUrl?: string;
-  aasRepositoryVersion?: string;
-  aasRepositoryHcUrl?: string;
-  aasRepositoryHcEnabled?: boolean;
-  submodelRegistryUrl?: string;
-  submodelRegistryVersion?: string;
-  submodelRegistryHcUrl?: string;
-  submodelRegistryHcEnabled?: boolean;
-  submodelRepositoryUrl?: string;
-  submodelRepositoryVersion?: string;
-  submodelRepositoryHcUrl?: string;
-  submodelRepositoryHcEnabled?: boolean;
-  conceptDescriptionRepositoryUrl?: string;
-  conceptDescriptionRepositoryVersion?: string;
-  conceptDescriptionRepositoryHcUrl?: string;
-  conceptDescriptionRepositoryHcEnabled?: boolean;
-  headerParameters?: HeaderParameter[];
-  certificate?: string | undefined;
-  certificatePassword?: string;
-  sendCurrentJwt?: boolean;
-  isActive?: boolean;
-  isInternal?: boolean;
-  handleAsInternal?: boolean;
-  isReadonly?: boolean;
-  noShellsListEndpoint?: boolean;
-  isGoInfrastructure?: boolean;
-  goPostgresDbName?: string | undefined;
-  goPostgresUser?: string | undefined;
-  aasEnvContainer?: string;
-  hostPortAasEnv?: number;
-  aasEnvMemory?: number;
-  aasEnvMemSwap?: number;
-  aasDiscoveryContainer?: string;
-  hostPortAasDiscovery?: number;
-  discoveryMemory?: number;
-  discoveryMemSwap?: number;
-  aasRegistryContainer?: string;
-  hostPortAasRegistry?: number;
-  aasRegistryMemory?: number;
-  aasRegistryMemSwap?: number;
-  smRegistryContainer?: string;
-  hostPortSmRegistry?: number;
-  smRegistryMemory?: number;
-  smRegistryMemSwap?: number;
-  mqttContainer?: string;
-  hostPortMqtt?: number;
-  mqttMemory?: number;
-  mqttMemSwap?: number;
-  mongoContainer?: string;
-  mongoMemory?: number;
-  mongoMemSwap?: number;
-  containerGuid?: string;
-  internalPortAasEnv?: number;
-  internalPortAasRegistry?: number;
-  internalPortAasDiscovery?: number;
-  internalPortMqtt?: number;
-  internalPortSmRegistry?: number;
-  anlageDatum?: Date;
-  anlageBenutzer?: string;
-  aenderungsDatum?: Date;
-  aenderungsBenutzer?: string;
-  geloescht?: boolean;
-  aenderungsZaehler?: number;
-}
-
-export class Benutzer implements IBenutzer {
-  id?: number;
-  guid?: string;
-  name?: string;
-  vorname?: string;
-  email?: string;
-  telefon?: string;
-  letzerLogin?: Date | undefined;
-  emailBestaetigt?: boolean;
-  accountAktiv?: boolean;
-  createdBySso?: boolean;
-  externalIdentityProvider?: string;
-  externalIdentitySubject?: string;
-  externalIdentityUsername?: string;
-  einstellungen?: BenutzerEinstellungen | undefined;
-  benutzerRollen?: string[];
-  benutzerOrganisationen?: BenutzerOrganisation[];
-  profilbildBase64?: string;
-  anlageDatum?: Date;
-  anlageBenutzer?: string;
-  aenderungsDatum?: Date;
-  aenderungsBenutzer?: string;
-  geloescht?: boolean;
-  aenderungsZaehler?: number;
-  tokenConfirmed?: boolean;
-  token?: string;
-  isSystemUser?: boolean;
-  datenschutzAccepted?: boolean;
-  datenschutzAcceptedDate?: Date | undefined;
-
-  constructor(data?: IBenutzer) {
-    if (data) {
-      for (var property in data) {
-        if (data.hasOwnProperty(property)) (<any>this)[property] = (<any>data)[property];
-      }
-    }
-  }
-
-  init(_data?: any) {
-    if (_data) {
-      this.id = _data['id'];
-      this.guid = _data['guid'];
-      this.name = _data['name'];
-      this.vorname = _data['vorname'];
-      this.email = _data['email'];
-      this.telefon = _data['telefon'];
-      this.letzerLogin = _data['letzerLogin'] ? new Date(_data['letzerLogin'].toString()) : <any>undefined;
-      this.emailBestaetigt = _data['emailBestaetigt'];
-      this.accountAktiv = _data['accountAktiv'];
-      this.createdBySso = _data['createdBySso'];
-      this.externalIdentityProvider = _data['externalIdentityProvider'];
-      this.externalIdentitySubject = _data['externalIdentitySubject'];
-      this.externalIdentityUsername = _data['externalIdentityUsername'];
-      this.einstellungen = _data['einstellungen']
-        ? BenutzerEinstellungen.fromJS(_data['einstellungen'])
-        : <any>undefined;
-      if (Array.isArray(_data['benutzerRollen'])) {
-        this.benutzerRollen = [] as any;
-        for (let item of _data['benutzerRollen']) this.benutzerRollen!.push(item);
-      }
-      if (Array.isArray(_data['benutzerOrganisationen'])) {
-        this.benutzerOrganisationen = [] as any;
-        for (let item of _data['benutzerOrganisationen'])
-          this.benutzerOrganisationen!.push(BenutzerOrganisation.fromJS(item));
-      }
-      this.profilbildBase64 = _data['profilbildBase64'];
-      this.anlageDatum = _data['anlageDatum'] ? new Date(_data['anlageDatum'].toString()) : <any>undefined;
-      this.anlageBenutzer = _data['anlageBenutzer'];
-      this.aenderungsDatum = _data['aenderungsDatum'] ? new Date(_data['aenderungsDatum'].toString()) : <any>undefined;
-      this.aenderungsBenutzer = _data['aenderungsBenutzer'];
-      this.geloescht = _data['geloescht'];
-      this.aenderungsZaehler = _data['aenderungsZaehler'];
-      this.tokenConfirmed = _data['tokenConfirmed'];
-      this.token = _data['token'];
-      this.isSystemUser = _data['isSystemUser'];
-      this.datenschutzAccepted = _data['datenschutzAccepted'];
-      this.datenschutzAcceptedDate = _data['datenschutzAcceptedDate']
-        ? new Date(_data['datenschutzAcceptedDate'].toString())
-        : <any>undefined;
-    }
-  }
-
-  static fromJS(data: any): Benutzer {
-    data = typeof data === 'object' ? data : {};
-    let result = new Benutzer();
-    result.init(data);
-    return result;
-  }
-
-  toJSON(data?: any) {
-    data = typeof data === 'object' ? data : {};
-    data['id'] = this.id;
-    data['guid'] = this.guid;
-    data['name'] = this.name;
-    data['vorname'] = this.vorname;
-    data['email'] = this.email;
-    data['telefon'] = this.telefon;
-    data['letzerLogin'] = this.letzerLogin ? this.letzerLogin.toISOString() : <any>undefined;
-    data['emailBestaetigt'] = this.emailBestaetigt;
-    data['accountAktiv'] = this.accountAktiv;
-    data['createdBySso'] = this.createdBySso;
-    data['externalIdentityProvider'] = this.externalIdentityProvider;
-    data['externalIdentitySubject'] = this.externalIdentitySubject;
-    data['externalIdentityUsername'] = this.externalIdentityUsername;
-    data['einstellungen'] = this.einstellungen ? this.einstellungen.toJSON() : <any>undefined;
-    if (Array.isArray(this.benutzerRollen)) {
-      data['benutzerRollen'] = [];
-      for (let item of this.benutzerRollen) data['benutzerRollen'].push(item);
-    }
-    if (Array.isArray(this.benutzerOrganisationen)) {
-      data['benutzerOrganisationen'] = [];
-      for (let item of this.benutzerOrganisationen) data['benutzerOrganisationen'].push(item.toJSON());
-    }
-    data['profilbildBase64'] = this.profilbildBase64;
-    data['anlageDatum'] = this.anlageDatum ? this.anlageDatum.toISOString() : <any>undefined;
-    data['anlageBenutzer'] = this.anlageBenutzer;
-    data['aenderungsDatum'] = this.aenderungsDatum ? this.aenderungsDatum.toISOString() : <any>undefined;
-    data['aenderungsBenutzer'] = this.aenderungsBenutzer;
-    data['geloescht'] = this.geloescht;
-    data['aenderungsZaehler'] = this.aenderungsZaehler;
-    data['tokenConfirmed'] = this.tokenConfirmed;
-    data['token'] = this.token;
-    data['isSystemUser'] = this.isSystemUser;
-    data['datenschutzAccepted'] = this.datenschutzAccepted;
-    data['datenschutzAcceptedDate'] = this.datenschutzAcceptedDate
-      ? this.datenschutzAcceptedDate.toISOString()
-      : <any>undefined;
-    return data;
-  }
-}
-
-export interface IBenutzer {
-  id?: number;
-  guid?: string;
-  name?: string;
-  vorname?: string;
-  email?: string;
-  telefon?: string;
-  letzerLogin?: Date | undefined;
-  emailBestaetigt?: boolean;
-  accountAktiv?: boolean;
-  createdBySso?: boolean;
-  externalIdentityProvider?: string;
-  externalIdentitySubject?: string;
-  externalIdentityUsername?: string;
-  einstellungen?: BenutzerEinstellungen | undefined;
-  benutzerRollen?: string[];
-  benutzerOrganisationen?: BenutzerOrganisation[];
-  profilbildBase64?: string;
-  anlageDatum?: Date;
-  anlageBenutzer?: string;
-  aenderungsDatum?: Date;
-  aenderungsBenutzer?: string;
-  geloescht?: boolean;
-  aenderungsZaehler?: number;
-  tokenConfirmed?: boolean;
-  token?: string;
-  isSystemUser?: boolean;
-  datenschutzAccepted?: boolean;
-  datenschutzAcceptedDate?: Date | undefined;
-}
-
-export class BenutzerEinstellungen implements IBenutzerEinstellungen {
-  hilfeInaktiv?: { [key: string]: string };
-  letzteSnippets?: SnippetVerwendung[];
-  viewedNewsIds?: number[];
-
-  constructor(data?: IBenutzerEinstellungen) {
-    if (data) {
-      for (var property in data) {
-        if (data.hasOwnProperty(property)) (<any>this)[property] = (<any>data)[property];
-      }
-    }
-  }
-
-  init(_data?: any) {
-    if (_data) {
-      if (_data['hilfeInaktiv']) {
-        this.hilfeInaktiv = {} as any;
-        for (let key in _data['hilfeInaktiv']) {
-          if (_data['hilfeInaktiv'].hasOwnProperty(key)) (<any>this.hilfeInaktiv)![key] = _data['hilfeInaktiv'][key];
-        }
-      }
-      if (Array.isArray(_data['letzteSnippets'])) {
-        this.letzteSnippets = [] as any;
-        for (let item of _data['letzteSnippets']) this.letzteSnippets!.push(SnippetVerwendung.fromJS(item));
-      }
-      if (Array.isArray(_data['viewedNewsIds'])) {
-        this.viewedNewsIds = [] as any;
-        for (let item of _data['viewedNewsIds']) this.viewedNewsIds!.push(item);
-      }
-    }
-  }
-
-  static fromJS(data: any): BenutzerEinstellungen {
-    data = typeof data === 'object' ? data : {};
-    let result = new BenutzerEinstellungen();
-    result.init(data);
-    return result;
-  }
-
-  toJSON(data?: any) {
-    data = typeof data === 'object' ? data : {};
-    if (this.hilfeInaktiv) {
-      data['hilfeInaktiv'] = {};
-      for (let key in this.hilfeInaktiv) {
-        if (this.hilfeInaktiv.hasOwnProperty(key)) (<any>data['hilfeInaktiv'])[key] = (<any>this.hilfeInaktiv)[key];
-      }
-    }
-    if (Array.isArray(this.letzteSnippets)) {
-      data['letzteSnippets'] = [];
-      for (let item of this.letzteSnippets) data['letzteSnippets'].push(item.toJSON());
-    }
-    if (Array.isArray(this.viewedNewsIds)) {
-      data['viewedNewsIds'] = [];
-      for (let item of this.viewedNewsIds) data['viewedNewsIds'].push(item);
-    }
-    return data;
-  }
-}
-
-export interface IBenutzerEinstellungen {
-  hilfeInaktiv?: { [key: string]: string };
-  letzteSnippets?: SnippetVerwendung[];
-  viewedNewsIds?: number[];
-}
-
-export class SnippetVerwendung implements ISnippetVerwendung {
-  datum?: Date;
-  snippetName?: string;
-  snippetTyp?: string;
-  snippetId?: number | undefined;
-
-  constructor(data?: ISnippetVerwendung) {
-    if (data) {
-      for (var property in data) {
-        if (data.hasOwnProperty(property)) (<any>this)[property] = (<any>data)[property];
-      }
-    }
-  }
-
-  init(_data?: any) {
-    if (_data) {
-      this.datum = _data['datum'] ? new Date(_data['datum'].toString()) : <any>undefined;
-      this.snippetName = _data['snippetName'];
-      this.snippetTyp = _data['snippetTyp'];
-      this.snippetId = _data['snippetId'];
-    }
-  }
-
-  static fromJS(data: any): SnippetVerwendung {
-    data = typeof data === 'object' ? data : {};
-    let result = new SnippetVerwendung();
-    result.init(data);
-    return result;
-  }
-
-  toJSON(data?: any) {
-    data = typeof data === 'object' ? data : {};
-    data['datum'] = this.datum ? this.datum.toISOString() : <any>undefined;
-    data['snippetName'] = this.snippetName;
-    data['snippetTyp'] = this.snippetTyp;
-    data['snippetId'] = this.snippetId;
-    return data;
-  }
-}
-
-export interface ISnippetVerwendung {
-  datum?: Date;
-  snippetName?: string;
-  snippetTyp?: string;
-  snippetId?: number | undefined;
-}
-
-export class BenutzerOrganisation implements IBenutzerOrganisation {
-  id?: number;
-  benutzerId?: number;
-  organisationId?: number;
-  benutzer?: Benutzer;
-  organisation?: Organisation;
-  anlageDatum?: Date;
-  anlageBenutzer?: string;
-  aenderungsDatum?: Date;
-  aenderungsBenutzer?: string;
-  geloescht?: boolean;
-  createdBySso?: boolean;
-  aenderungsZaehler?: number;
-  benutzerRollen?: string[];
-  accountAktiv?: boolean;
-  isStammOrga?: boolean;
-  lastLogin?: Date;
-  personalAccessToken?: string;
-  personalAccessTokenValidUntil?: Date;
-
-  constructor(data?: IBenutzerOrganisation) {
-    if (data) {
-      for (var property in data) {
-        if (data.hasOwnProperty(property)) (<any>this)[property] = (<any>data)[property];
-      }
-    }
-  }
-
-  init(_data?: any) {
-    if (_data) {
-      this.id = _data['id'];
-      this.benutzerId = _data['benutzerId'];
-      this.organisationId = _data['organisationId'];
-      this.benutzer = _data['benutzer'] ? Benutzer.fromJS(_data['benutzer']) : <any>undefined;
-      this.organisation = _data['organisation'] ? Organisation.fromJS(_data['organisation']) : <any>undefined;
-      this.anlageDatum = _data['anlageDatum'] ? new Date(_data['anlageDatum'].toString()) : <any>undefined;
-      this.anlageBenutzer = _data['anlageBenutzer'];
-      this.aenderungsDatum = _data['aenderungsDatum'] ? new Date(_data['aenderungsDatum'].toString()) : <any>undefined;
-      this.aenderungsBenutzer = _data['aenderungsBenutzer'];
-      this.geloescht = _data['geloescht'];
-      this.createdBySso = _data['createdBySso'];
-      this.aenderungsZaehler = _data['aenderungsZaehler'];
-      if (Array.isArray(_data['benutzerRollen'])) {
-        this.benutzerRollen = [] as any;
-        for (let item of _data['benutzerRollen']) this.benutzerRollen!.push(item);
-      }
-      this.accountAktiv = _data['accountAktiv'];
-      this.isStammOrga = _data['isStammOrga'];
-      this.lastLogin = _data['lastLogin'] ? new Date(_data['lastLogin'].toString()) : <any>undefined;
-      this.personalAccessToken = _data['personalAccessToken'];
-      this.personalAccessTokenValidUntil = _data['personalAccessTokenValidUntil']
-        ? new Date(_data['personalAccessTokenValidUntil'].toString())
-        : <any>undefined;
-    }
-  }
-
-  static fromJS(data: any): BenutzerOrganisation {
-    data = typeof data === 'object' ? data : {};
-    let result = new BenutzerOrganisation();
-    result.init(data);
-    return result;
-  }
-
-  toJSON(data?: any) {
-    data = typeof data === 'object' ? data : {};
-    data['id'] = this.id;
-    data['benutzerId'] = this.benutzerId;
-    data['organisationId'] = this.organisationId;
-    data['benutzer'] = this.benutzer ? this.benutzer.toJSON() : <any>undefined;
-    data['organisation'] = this.organisation ? this.organisation.toJSON() : <any>undefined;
-    data['anlageDatum'] = this.anlageDatum ? this.anlageDatum.toISOString() : <any>undefined;
-    data['anlageBenutzer'] = this.anlageBenutzer;
-    data['aenderungsDatum'] = this.aenderungsDatum ? this.aenderungsDatum.toISOString() : <any>undefined;
-    data['aenderungsBenutzer'] = this.aenderungsBenutzer;
-    data['geloescht'] = this.geloescht;
-    data['createdBySso'] = this.createdBySso;
-    data['aenderungsZaehler'] = this.aenderungsZaehler;
-    if (Array.isArray(this.benutzerRollen)) {
-      data['benutzerRollen'] = [];
-      for (let item of this.benutzerRollen) data['benutzerRollen'].push(item);
-    }
-    data['accountAktiv'] = this.accountAktiv;
-    data['isStammOrga'] = this.isStammOrga;
-    data['lastLogin'] = this.lastLogin ? this.lastLogin.toISOString() : <any>undefined;
-    data['personalAccessToken'] = this.personalAccessToken;
-    data['personalAccessTokenValidUntil'] = this.personalAccessTokenValidUntil
-      ? this.personalAccessTokenValidUntil.toISOString()
-      : <any>undefined;
-    return data;
-  }
-}
-
-export interface IBenutzerOrganisation {
-  id?: number;
-  benutzerId?: number;
-  organisationId?: number;
-  benutzer?: Benutzer;
-  organisation?: Organisation;
-  anlageDatum?: Date;
-  anlageBenutzer?: string;
-  aenderungsDatum?: Date;
-  aenderungsBenutzer?: string;
-  geloescht?: boolean;
-  createdBySso?: boolean;
-  aenderungsZaehler?: number;
-  benutzerRollen?: string[];
-  accountAktiv?: boolean;
-  isStammOrga?: boolean;
-  lastLogin?: Date;
-  personalAccessToken?: string;
-  personalAccessTokenValidUntil?: Date;
-}
-
-export enum ExpirationState {
-  NOTHING = 0,
-  WARNING_EXPIRIATION_IN_7_DAYS = 1,
-  WARNING_EXPIRIATION_TODAY = 2,
-  WARNING_DELETION_IN_14_DAYS = 3,
-  WARNING_DELETION_IN_7_DAYS = 4,
-  DELETION_TODAY = 5,
-}
-
-export class EClassMetadata implements IEClassMetadata {
-  id?: number | undefined;
-  schemaVersion?: string;
-  generatorVersion?: string;
-  generationDate?: Date | undefined;
-  creator?: string;
-  authorisation?: string;
-  contentDate?: Date | undefined;
-  contentIdentification?: string;
-  contentDescription?: string;
-  contentLanguage?: string;
-  originatingSystem?: string;
-  organisations?: Organisation[];
-  languages?: string[];
-
-  constructor(data?: IEClassMetadata) {
-    if (data) {
-      for (var property in data) {
-        if (data.hasOwnProperty(property)) (<any>this)[property] = (<any>data)[property];
-      }
-    }
-  }
-
-  init(_data?: any) {
-    if (_data) {
-      this.id = _data['id'];
-      this.schemaVersion = _data['schemaVersion'];
-      this.generatorVersion = _data['generatorVersion'];
-      this.generationDate = _data['generationDate'] ? new Date(_data['generationDate'].toString()) : <any>undefined;
-      this.creator = _data['creator'];
-      this.authorisation = _data['authorisation'];
-      this.contentDate = _data['contentDate'] ? new Date(_data['contentDate'].toString()) : <any>undefined;
-      this.contentIdentification = _data['contentIdentification'];
-      this.contentDescription = _data['contentDescription'];
-      this.contentLanguage = _data['contentLanguage'];
-      this.originatingSystem = _data['originatingSystem'];
-      if (Array.isArray(_data['organisations'])) {
-        this.organisations = [] as any;
-        for (let item of _data['organisations']) this.organisations!.push(Organisation.fromJS(item));
-      }
-      if (Array.isArray(_data['languages'])) {
-        this.languages = [] as any;
-        for (let item of _data['languages']) this.languages!.push(item);
-      }
-    }
-  }
-
-  static fromJS(data: any): EClassMetadata {
-    data = typeof data === 'object' ? data : {};
-    let result = new EClassMetadata();
-    result.init(data);
-    return result;
-  }
-
-  toJSON(data?: any) {
-    data = typeof data === 'object' ? data : {};
-    data['id'] = this.id;
-    data['schemaVersion'] = this.schemaVersion;
-    data['generatorVersion'] = this.generatorVersion;
-    data['generationDate'] = this.generationDate ? this.generationDate.toISOString() : <any>undefined;
-    data['creator'] = this.creator;
-    data['authorisation'] = this.authorisation;
-    data['contentDate'] = this.contentDate ? this.contentDate.toISOString() : <any>undefined;
-    data['contentIdentification'] = this.contentIdentification;
-    data['contentDescription'] = this.contentDescription;
-    data['contentLanguage'] = this.contentLanguage;
-    data['originatingSystem'] = this.originatingSystem;
-    if (Array.isArray(this.organisations)) {
-      data['organisations'] = [];
-      for (let item of this.organisations) data['organisations'].push(item.toJSON());
-    }
-    if (Array.isArray(this.languages)) {
-      data['languages'] = [];
-      for (let item of this.languages) data['languages'].push(item);
-    }
-    return data;
-  }
-}
-
-export interface IEClassMetadata {
-  id?: number | undefined;
-  schemaVersion?: string;
-  generatorVersion?: string;
-  generationDate?: Date | undefined;
-  creator?: string;
-  authorisation?: string;
-  contentDate?: Date | undefined;
-  contentIdentification?: string;
-  contentDescription?: string;
-  contentLanguage?: string;
-  originatingSystem?: string;
-  organisations?: Organisation[];
-  languages?: string[];
-}
-
-export class PaymentModel implements IPaymentModel {
-  id?: number;
-  name?: string;
-  nameLabel?: string;
-  beschreibungInternal?: string;
-  beschreibungLabel?: string;
-  anzahlNutzer?: number;
-  preis?: number;
-  mehrfachBuchbar?: boolean;
-  exklusivBuchbar?: boolean;
-  userSelectable?: boolean;
-  period?: PaymentPeriod;
-  isSystemModel?: boolean;
-  organisationPaymentModels?: OrganisationPaymentModel[] | undefined;
-  anlageDatum?: Date;
-  anlageBenutzer?: string;
-  aenderungsDatum?: Date;
-  aenderungsBenutzer?: string;
-  geloescht?: boolean;
-  aenderungsZaehler?: number;
-
-  constructor(data?: IPaymentModel) {
-    if (data) {
-      for (var property in data) {
-        if (data.hasOwnProperty(property)) (<any>this)[property] = (<any>data)[property];
-      }
-    }
-  }
-
-  init(_data?: any) {
-    if (_data) {
-      this.id = _data['id'];
-      this.name = _data['name'];
-      this.nameLabel = _data['nameLabel'];
-      this.beschreibungInternal = _data['beschreibungInternal'];
-      this.beschreibungLabel = _data['beschreibungLabel'];
-      this.anzahlNutzer = _data['anzahlNutzer'];
-      this.preis = _data['preis'];
-      this.mehrfachBuchbar = _data['mehrfachBuchbar'];
-      this.exklusivBuchbar = _data['exklusivBuchbar'];
-      this.userSelectable = _data['userSelectable'];
-      this.period = _data['period'];
-      this.isSystemModel = _data['isSystemModel'];
-      if (Array.isArray(_data['organisationPaymentModels'])) {
-        this.organisationPaymentModels = [] as any;
-        for (let item of _data['organisationPaymentModels'])
-          this.organisationPaymentModels!.push(OrganisationPaymentModel.fromJS(item));
-      }
-      this.anlageDatum = _data['anlageDatum'] ? new Date(_data['anlageDatum'].toString()) : <any>undefined;
-      this.anlageBenutzer = _data['anlageBenutzer'];
-      this.aenderungsDatum = _data['aenderungsDatum'] ? new Date(_data['aenderungsDatum'].toString()) : <any>undefined;
-      this.aenderungsBenutzer = _data['aenderungsBenutzer'];
-      this.geloescht = _data['geloescht'];
-      this.aenderungsZaehler = _data['aenderungsZaehler'];
-    }
-  }
-
-  static fromJS(data: any): PaymentModel {
-    data = typeof data === 'object' ? data : {};
-    let result = new PaymentModel();
-    result.init(data);
-    return result;
-  }
-
-  toJSON(data?: any) {
-    data = typeof data === 'object' ? data : {};
-    data['id'] = this.id;
-    data['name'] = this.name;
-    data['nameLabel'] = this.nameLabel;
-    data['beschreibungInternal'] = this.beschreibungInternal;
-    data['beschreibungLabel'] = this.beschreibungLabel;
-    data['anzahlNutzer'] = this.anzahlNutzer;
-    data['preis'] = this.preis;
-    data['mehrfachBuchbar'] = this.mehrfachBuchbar;
-    data['exklusivBuchbar'] = this.exklusivBuchbar;
-    data['userSelectable'] = this.userSelectable;
-    data['period'] = this.period;
-    data['isSystemModel'] = this.isSystemModel;
-    if (Array.isArray(this.organisationPaymentModels)) {
-      data['organisationPaymentModels'] = [];
-      for (let item of this.organisationPaymentModels) data['organisationPaymentModels'].push(item.toJSON());
-    }
-    data['anlageDatum'] = this.anlageDatum ? this.anlageDatum.toISOString() : <any>undefined;
-    data['anlageBenutzer'] = this.anlageBenutzer;
-    data['aenderungsDatum'] = this.aenderungsDatum ? this.aenderungsDatum.toISOString() : <any>undefined;
-    data['aenderungsBenutzer'] = this.aenderungsBenutzer;
-    data['geloescht'] = this.geloescht;
-    data['aenderungsZaehler'] = this.aenderungsZaehler;
-    return data;
-  }
-}
-
-export interface IPaymentModel {
-  id?: number;
-  name?: string;
-  nameLabel?: string;
-  beschreibungInternal?: string;
-  beschreibungLabel?: string;
-  anzahlNutzer?: number;
-  preis?: number;
-  mehrfachBuchbar?: boolean;
-  exklusivBuchbar?: boolean;
-  userSelectable?: boolean;
-  period?: PaymentPeriod;
-  isSystemModel?: boolean;
-  organisationPaymentModels?: OrganisationPaymentModel[] | undefined;
-  anlageDatum?: Date;
-  anlageBenutzer?: string;
-  aenderungsDatum?: Date;
-  aenderungsBenutzer?: string;
-  geloescht?: boolean;
-  aenderungsZaehler?: number;
-}
-
-export enum PaymentPeriod {
-  MONTHLY = 0,
-  QUARTERLY = 1,
-  HALF_YEARLY = 2,
-  YEARLY = 3,
-}
-
-export class AddOrgaData implements IAddOrgaData {
-  orga?: OrganisationDto;
-  admin?: CreateNewBenutzerDto;
-
-  constructor(data?: IAddOrgaData) {
-    if (data) {
-      for (var property in data) {
-        if (data.hasOwnProperty(property)) (<any>this)[property] = (<any>data)[property];
-      }
-    }
-  }
-
-  init(_data?: any) {
-    if (_data) {
-      this.orga = _data['orga'] ? OrganisationDto.fromJS(_data['orga']) : <any>undefined;
-      this.admin = _data['admin'] ? CreateNewBenutzerDto.fromJS(_data['admin']) : <any>undefined;
-    }
-  }
-
-  static fromJS(data: any): AddOrgaData {
-    data = typeof data === 'object' ? data : {};
-    let result = new AddOrgaData();
-    result.init(data);
-    return result;
-  }
-
-  toJSON(data?: any) {
-    data = typeof data === 'object' ? data : {};
-    data['orga'] = this.orga ? this.orga.toJSON() : <any>undefined;
-    data['admin'] = this.admin ? this.admin.toJSON() : <any>undefined;
-    return data;
-  }
-}
-
-export interface IAddOrgaData {
-  orga?: OrganisationDto;
-  admin?: CreateNewBenutzerDto;
-}
-
-export class OrganisationDto implements IOrganisationDto {
-  name!: string;
-  email!: string;
-  telefon?: string | undefined;
-  fax?: string | undefined;
-  strasse?: string | undefined;
-  plz?: string | undefined;
-  ort?: string | undefined;
-  bundesland?: string | undefined;
-  laenderCode?: string | undefined;
-  accountAktiv!: boolean;
-  bezahlmodelle?: PaymentModel[];
-
-  constructor(data?: IOrganisationDto) {
-    if (data) {
-      for (var property in data) {
-        if (data.hasOwnProperty(property)) (<any>this)[property] = (<any>data)[property];
-      }
-    }
-  }
-
-  init(_data?: any) {
-    if (_data) {
-      this.name = _data['name'];
-      this.email = _data['email'];
-      this.telefon = _data['telefon'];
-      this.fax = _data['fax'];
-      this.strasse = _data['strasse'];
-      this.plz = _data['plz'];
-      this.ort = _data['ort'];
-      this.bundesland = _data['bundesland'];
-      this.laenderCode = _data['laenderCode'];
-      this.accountAktiv = _data['accountAktiv'];
-      if (Array.isArray(_data['bezahlmodelle'])) {
-        this.bezahlmodelle = [] as any;
-        for (let item of _data['bezahlmodelle']) this.bezahlmodelle!.push(PaymentModel.fromJS(item));
-      }
-    }
-  }
-
-  static fromJS(data: any): OrganisationDto {
-    data = typeof data === 'object' ? data : {};
-    let result = new OrganisationDto();
-    result.init(data);
-    return result;
-  }
-
-  toJSON(data?: any) {
-    data = typeof data === 'object' ? data : {};
-    data['name'] = this.name;
-    data['email'] = this.email;
-    data['telefon'] = this.telefon;
-    data['fax'] = this.fax;
-    data['strasse'] = this.strasse;
-    data['plz'] = this.plz;
-    data['ort'] = this.ort;
-    data['bundesland'] = this.bundesland;
-    data['laenderCode'] = this.laenderCode;
-    data['accountAktiv'] = this.accountAktiv;
-    if (Array.isArray(this.bezahlmodelle)) {
-      data['bezahlmodelle'] = [];
-      for (let item of this.bezahlmodelle) data['bezahlmodelle'].push(item.toJSON());
-    }
-    return data;
-  }
-}
-
-export interface IOrganisationDto {
-  name: string;
-  email: string;
-  telefon?: string | undefined;
-  fax?: string | undefined;
-  strasse?: string | undefined;
-  plz?: string | undefined;
-  ort?: string | undefined;
-  bundesland?: string | undefined;
-  laenderCode?: string | undefined;
-  accountAktiv: boolean;
-  bezahlmodelle?: PaymentModel[];
-}
-
-export class CreateNewBenutzerDto implements ICreateNewBenutzerDto {
-  name!: string;
-  vorname!: string;
-  email!: string;
-  passwort?: string | undefined;
-  telefon?: string | undefined;
-  organisationId!: number;
-  benutzerRollen!: string[];
-
-  constructor(data?: ICreateNewBenutzerDto) {
-    if (data) {
-      for (var property in data) {
-        if (data.hasOwnProperty(property)) (<any>this)[property] = (<any>data)[property];
-      }
-    }
-    if (!data) {
-      this.benutzerRollen = [];
-    }
-  }
-
-  init(_data?: any) {
-    if (_data) {
-      this.name = _data['name'];
-      this.vorname = _data['vorname'];
-      this.email = _data['email'];
-      this.passwort = _data['passwort'];
-      this.telefon = _data['telefon'];
-      this.organisationId = _data['organisationId'];
-      if (Array.isArray(_data['benutzerRollen'])) {
-        this.benutzerRollen = [] as any;
-        for (let item of _data['benutzerRollen']) this.benutzerRollen!.push(item);
-      }
-    }
-  }
-
-  static fromJS(data: any): CreateNewBenutzerDto {
-    data = typeof data === 'object' ? data : {};
-    let result = new CreateNewBenutzerDto();
-    result.init(data);
-    return result;
-  }
-
-  toJSON(data?: any) {
-    data = typeof data === 'object' ? data : {};
-    data['name'] = this.name;
-    data['vorname'] = this.vorname;
-    data['email'] = this.email;
-    data['passwort'] = this.passwort;
-    data['telefon'] = this.telefon;
-    data['organisationId'] = this.organisationId;
-    if (Array.isArray(this.benutzerRollen)) {
-      data['benutzerRollen'] = [];
-      for (let item of this.benutzerRollen) data['benutzerRollen'].push(item);
-    }
-    return data;
-  }
-}
-
-export interface ICreateNewBenutzerDto {
-  name: string;
-  vorname: string;
-  email: string;
-  passwort?: string | undefined;
-  telefon?: string | undefined;
-  organisationId: number;
-  benutzerRollen: string[];
-}
-
-export class OrganisationUpdateDto implements IOrganisationUpdateDto {
-  name?: string;
-  email?: string;
-  telefon?: string | undefined;
-  fax?: string | undefined;
-  accountAktiv!: boolean;
-  strasse?: string;
-  plz?: string;
-  ort?: string;
-  bundesland?: string;
-  laenderCode?: string;
-  iriPrefix?: string;
-  themeUrl?: string;
-  logoBase64?: string;
-  useInternalInfrastructure?: boolean;
-  aasDiscoveryUrl?: string;
-  aasRegistryUrl?: string;
-  aasRepositoryUrl?: string;
-  submodelRegistryUrl?: string;
-  submodelRepositoryUrl?: string;
-  conceptDescriptionRepositoryUrl?: string;
-  externalAasDiscoveryUrl?: string;
-  externalAasRegistryUrl?: string;
-  externalAasRepositoryUrl?: string;
-  externalSubmodelRegistryUrl?: string;
-  externalSubmodelRepositoryUrl?: string;
-  externalConceptDescriptionRepositoryUrl?: string;
-  headerParameters?: HeaderParameter[];
-
-  constructor(data?: IOrganisationUpdateDto) {
-    if (data) {
-      for (var property in data) {
-        if (data.hasOwnProperty(property)) (<any>this)[property] = (<any>data)[property];
-      }
-    }
-  }
-
-  init(_data?: any) {
-    if (_data) {
-      this.name = _data['name'];
-      this.email = _data['email'];
-      this.telefon = _data['telefon'];
-      this.fax = _data['fax'];
-      this.accountAktiv = _data['accountAktiv'];
-      this.strasse = _data['strasse'];
-      this.plz = _data['plz'];
-      this.ort = _data['ort'];
-      this.bundesland = _data['bundesland'];
-      this.laenderCode = _data['laenderCode'];
-      this.iriPrefix = _data['iriPrefix'];
-      this.themeUrl = _data['themeUrl'];
-      this.logoBase64 = _data['logoBase64'];
-      this.useInternalInfrastructure = _data['useInternalInfrastructure'];
-      this.aasDiscoveryUrl = _data['aasDiscoveryUrl'];
-      this.aasRegistryUrl = _data['aasRegistryUrl'];
-      this.aasRepositoryUrl = _data['aasRepositoryUrl'];
-      this.submodelRegistryUrl = _data['submodelRegistryUrl'];
-      this.submodelRepositoryUrl = _data['submodelRepositoryUrl'];
-      this.conceptDescriptionRepositoryUrl = _data['conceptDescriptionRepositoryUrl'];
-      this.externalAasDiscoveryUrl = _data['externalAasDiscoveryUrl'];
-      this.externalAasRegistryUrl = _data['externalAasRegistryUrl'];
-      this.externalAasRepositoryUrl = _data['externalAasRepositoryUrl'];
-      this.externalSubmodelRegistryUrl = _data['externalSubmodelRegistryUrl'];
-      this.externalSubmodelRepositoryUrl = _data['externalSubmodelRepositoryUrl'];
-      this.externalConceptDescriptionRepositoryUrl = _data['externalConceptDescriptionRepositoryUrl'];
-      if (Array.isArray(_data['headerParameters'])) {
-        this.headerParameters = [] as any;
-        for (let item of _data['headerParameters']) this.headerParameters!.push(HeaderParameter.fromJS(item));
-      }
-    }
-  }
-
-  static fromJS(data: any): OrganisationUpdateDto {
-    data = typeof data === 'object' ? data : {};
-    let result = new OrganisationUpdateDto();
-    result.init(data);
-    return result;
-  }
-
-  toJSON(data?: any) {
-    data = typeof data === 'object' ? data : {};
-    data['name'] = this.name;
-    data['email'] = this.email;
-    data['telefon'] = this.telefon;
-    data['fax'] = this.fax;
-    data['accountAktiv'] = this.accountAktiv;
-    data['strasse'] = this.strasse;
-    data['plz'] = this.plz;
-    data['ort'] = this.ort;
-    data['bundesland'] = this.bundesland;
-    data['laenderCode'] = this.laenderCode;
-    data['iriPrefix'] = this.iriPrefix;
-    data['themeUrl'] = this.themeUrl;
-    data['logoBase64'] = this.logoBase64;
-    data['useInternalInfrastructure'] = this.useInternalInfrastructure;
-    data['aasDiscoveryUrl'] = this.aasDiscoveryUrl;
-    data['aasRegistryUrl'] = this.aasRegistryUrl;
-    data['aasRepositoryUrl'] = this.aasRepositoryUrl;
-    data['submodelRegistryUrl'] = this.submodelRegistryUrl;
-    data['submodelRepositoryUrl'] = this.submodelRepositoryUrl;
-    data['conceptDescriptionRepositoryUrl'] = this.conceptDescriptionRepositoryUrl;
-    data['externalAasDiscoveryUrl'] = this.externalAasDiscoveryUrl;
-    data['externalAasRegistryUrl'] = this.externalAasRegistryUrl;
-    data['externalAasRepositoryUrl'] = this.externalAasRepositoryUrl;
-    data['externalSubmodelRegistryUrl'] = this.externalSubmodelRegistryUrl;
-    data['externalSubmodelRepositoryUrl'] = this.externalSubmodelRepositoryUrl;
-    data['externalConceptDescriptionRepositoryUrl'] = this.externalConceptDescriptionRepositoryUrl;
-    if (Array.isArray(this.headerParameters)) {
-      data['headerParameters'] = [];
-      for (let item of this.headerParameters) data['headerParameters'].push(item.toJSON());
-    }
-    return data;
-  }
-}
-
-export interface IOrganisationUpdateDto {
-  name?: string;
-  email?: string;
-  telefon?: string | undefined;
-  fax?: string | undefined;
-  accountAktiv: boolean;
-  strasse?: string;
-  plz?: string;
-  ort?: string;
-  bundesland?: string;
-  laenderCode?: string;
-  iriPrefix?: string;
-  themeUrl?: string;
-  logoBase64?: string;
-  useInternalInfrastructure?: boolean;
-  aasDiscoveryUrl?: string;
-  aasRegistryUrl?: string;
-  aasRepositoryUrl?: string;
-  submodelRegistryUrl?: string;
-  submodelRepositoryUrl?: string;
-  conceptDescriptionRepositoryUrl?: string;
-  externalAasDiscoveryUrl?: string;
-  externalAasRegistryUrl?: string;
-  externalAasRepositoryUrl?: string;
-  externalSubmodelRegistryUrl?: string;
-  externalSubmodelRepositoryUrl?: string;
-  externalConceptDescriptionRepositoryUrl?: string;
-  headerParameters?: HeaderParameter[];
-}
-
-export class OrganisationUebersichtBenutzerDto implements IOrganisationUebersichtBenutzerDto {
-  id?: number;
-  name?: string;
-  vorname?: string;
-  email?: string;
-  telefon?: string;
-  geloescht?: boolean;
-  isSystemUser?: boolean;
-  accountAktiv?: boolean;
-  createdBySso?: boolean;
-  benutzerRollen?: string[];
-
-  constructor(data?: IOrganisationUebersichtBenutzerDto) {
-    if (data) {
-      for (var property in data) {
-        if (data.hasOwnProperty(property)) (<any>this)[property] = (<any>data)[property];
-      }
-    }
-  }
-
-  init(_data?: any) {
-    if (_data) {
-      this.id = _data['id'];
-      this.name = _data['name'];
-      this.vorname = _data['vorname'];
-      this.email = _data['email'];
-      this.telefon = _data['telefon'];
-      this.geloescht = _data['geloescht'];
-      this.isSystemUser = _data['isSystemUser'];
-      this.accountAktiv = _data['accountAktiv'];
-      this.createdBySso = _data['createdBySso'];
-      if (Array.isArray(_data['benutzerRollen'])) {
-        this.benutzerRollen = [] as any;
-        for (let item of _data['benutzerRollen']) this.benutzerRollen!.push(item);
-      }
-    }
-  }
-
-  static fromJS(data: any): OrganisationUebersichtBenutzerDto {
-    data = typeof data === 'object' ? data : {};
-    let result = new OrganisationUebersichtBenutzerDto();
-    result.init(data);
-    return result;
-  }
-
-  toJSON(data?: any) {
-    data = typeof data === 'object' ? data : {};
-    data['id'] = this.id;
-    data['name'] = this.name;
-    data['vorname'] = this.vorname;
-    data['email'] = this.email;
-    data['telefon'] = this.telefon;
-    data['geloescht'] = this.geloescht;
-    data['isSystemUser'] = this.isSystemUser;
-    data['accountAktiv'] = this.accountAktiv;
-    data['createdBySso'] = this.createdBySso;
-    if (Array.isArray(this.benutzerRollen)) {
-      data['benutzerRollen'] = [];
-      for (let item of this.benutzerRollen) data['benutzerRollen'].push(item);
-    }
-    return data;
-  }
-}
-
-export interface IOrganisationUebersichtBenutzerDto {
-  id?: number;
-  name?: string;
-  vorname?: string;
-  email?: string;
-  telefon?: string;
-  geloescht?: boolean;
-  isSystemUser?: boolean;
-  accountAktiv?: boolean;
-  createdBySso?: boolean;
-  benutzerRollen?: string[];
-}
-
-export class OrganisationUserSeatStats implements IOrganisationUserSeatStats {
-  maxUserSeatsCount?: number;
-  activeUserSeatsCount?: number;
-  totalUsersCount?: number;
-
-  constructor(data?: IOrganisationUserSeatStats) {
-    if (data) {
-      for (var property in data) {
-        if (data.hasOwnProperty(property)) (<any>this)[property] = (<any>data)[property];
-      }
-    }
-  }
-
-  init(_data?: any) {
-    if (_data) {
-      this.maxUserSeatsCount = _data['maxUserSeatsCount'];
-      this.activeUserSeatsCount = _data['activeUserSeatsCount'];
-      this.totalUsersCount = _data['totalUsersCount'];
-    }
-  }
-
-  static fromJS(data: any): OrganisationUserSeatStats {
-    data = typeof data === 'object' ? data : {};
-    let result = new OrganisationUserSeatStats();
-    result.init(data);
-    return result;
-  }
-
-  toJSON(data?: any) {
-    data = typeof data === 'object' ? data : {};
-    data['maxUserSeatsCount'] = this.maxUserSeatsCount;
-    data['activeUserSeatsCount'] = this.activeUserSeatsCount;
-    data['totalUsersCount'] = this.totalUsersCount;
-    return data;
-  }
-}
-
-export interface IOrganisationUserSeatStats {
-  maxUserSeatsCount?: number;
-  activeUserSeatsCount?: number;
-  totalUsersCount?: number;
-}
-
-export class OrgaTokenDto implements IOrgaTokenDto {
-  id?: number;
-  key?: string;
-  validUntil?: Date | undefined;
-  active?: boolean;
-  notice?: string;
-  aasInfrastructureName?: string;
-  aasInfrastructureId?: number | undefined;
-  scopes?: string[];
-
-  constructor(data?: IOrgaTokenDto) {
-    if (data) {
-      for (var property in data) {
-        if (data.hasOwnProperty(property)) (<any>this)[property] = (<any>data)[property];
-      }
-    }
-  }
-
-  init(_data?: any) {
-    if (_data) {
-      this.id = _data['id'];
-      this.key = _data['key'];
-      this.validUntil = _data['validUntil'] ? new Date(_data['validUntil'].toString()) : <any>undefined;
-      this.active = _data['active'];
-      this.notice = _data['notice'];
-      this.aasInfrastructureName = _data['aasInfrastructureName'];
-      this.aasInfrastructureId = _data['aasInfrastructureId'];
-      if (Array.isArray(_data['scopes'])) {
-        this.scopes = [] as any;
-        for (let item of _data['scopes']) this.scopes!.push(item);
-      }
-    }
-  }
-
-  static fromJS(data: any): OrgaTokenDto {
-    data = typeof data === 'object' ? data : {};
-    let result = new OrgaTokenDto();
-    result.init(data);
-    return result;
-  }
-
-  toJSON(data?: any) {
-    data = typeof data === 'object' ? data : {};
-    data['id'] = this.id;
-    data['key'] = this.key;
-    data['validUntil'] = this.validUntil ? this.validUntil.toISOString() : <any>undefined;
-    data['active'] = this.active;
-    data['notice'] = this.notice;
-    data['aasInfrastructureName'] = this.aasInfrastructureName;
-    data['aasInfrastructureId'] = this.aasInfrastructureId;
-    if (Array.isArray(this.scopes)) {
-      data['scopes'] = [];
-      for (let item of this.scopes) data['scopes'].push(item);
-    }
-    return data;
-  }
-}
-
-export interface IOrgaTokenDto {
-  id?: number;
-  key?: string;
-  validUntil?: Date | undefined;
-  active?: boolean;
-  notice?: string;
-  aasInfrastructureName?: string;
-  aasInfrastructureId?: number | undefined;
-  scopes?: string[];
-}
-
-export class EClassImportQueueItemDto implements IEClassImportQueueItemDto {
-  id?: number | undefined;
-  benutzerId?: number;
-  organisationId?: number;
-  dateImport?: Date;
-  started?: boolean;
-  dateStarted?: Date | undefined;
-  error?: boolean;
-  dateError?: Date | undefined;
-  errorMessage?: string;
-  countFilesProcessed?: number;
-  countFiles?: number;
-
-  constructor(data?: IEClassImportQueueItemDto) {
-    if (data) {
-      for (var property in data) {
-        if (data.hasOwnProperty(property)) (<any>this)[property] = (<any>data)[property];
-      }
-    }
-  }
-
-  init(_data?: any) {
-    if (_data) {
-      this.id = _data['id'];
-      this.benutzerId = _data['benutzerId'];
-      this.organisationId = _data['organisationId'];
-      this.dateImport = _data['dateImport'] ? new Date(_data['dateImport'].toString()) : <any>undefined;
-      this.started = _data['started'];
-      this.dateStarted = _data['dateStarted'] ? new Date(_data['dateStarted'].toString()) : <any>undefined;
-      this.error = _data['error'];
-      this.dateError = _data['dateError'] ? new Date(_data['dateError'].toString()) : <any>undefined;
-      this.errorMessage = _data['errorMessage'];
-      this.countFilesProcessed = _data['countFilesProcessed'];
-      this.countFiles = _data['countFiles'];
-    }
-  }
-
-  static fromJS(data: any): EClassImportQueueItemDto {
-    data = typeof data === 'object' ? data : {};
-    let result = new EClassImportQueueItemDto();
-    result.init(data);
-    return result;
-  }
-
-  toJSON(data?: any) {
-    data = typeof data === 'object' ? data : {};
-    data['id'] = this.id;
-    data['benutzerId'] = this.benutzerId;
-    data['organisationId'] = this.organisationId;
-    data['dateImport'] = this.dateImport ? this.dateImport.toISOString() : <any>undefined;
-    data['started'] = this.started;
-    data['dateStarted'] = this.dateStarted ? this.dateStarted.toISOString() : <any>undefined;
-    data['error'] = this.error;
-    data['dateError'] = this.dateError ? this.dateError.toISOString() : <any>undefined;
-    data['errorMessage'] = this.errorMessage;
-    data['countFilesProcessed'] = this.countFilesProcessed;
-    data['countFiles'] = this.countFiles;
-    return data;
-  }
-}
-
-export interface IEClassImportQueueItemDto {
-  id?: number | undefined;
-  benutzerId?: number;
-  organisationId?: number;
-  dateImport?: Date;
-  started?: boolean;
-  dateStarted?: Date | undefined;
-  error?: boolean;
-  dateError?: Date | undefined;
-  errorMessage?: string;
-  countFilesProcessed?: number;
-  countFiles?: number;
-}
-
-export class Invitation implements IInvitation {
-  id?: number;
-  name?: string;
-  vorname?: string;
-  email?: string;
-  benutzerRollen?: string[];
-  organisationId?: number;
-  validUntil?: Date;
-  invitationGuid?: string;
-  language?: string;
-  anlageDatum?: Date;
-  anlageBenutzer?: string;
-  aenderungsDatum?: Date;
-  aenderungsBenutzer?: string;
-  geloescht?: boolean;
-  aenderungsZaehler?: number;
-
-  constructor(data?: IInvitation) {
-    if (data) {
-      for (var property in data) {
-        if (data.hasOwnProperty(property)) (<any>this)[property] = (<any>data)[property];
-      }
-    }
-  }
-
-  init(_data?: any) {
-    if (_data) {
-      this.id = _data['id'];
-      this.name = _data['name'];
-      this.vorname = _data['vorname'];
-      this.email = _data['email'];
-      if (Array.isArray(_data['benutzerRollen'])) {
-        this.benutzerRollen = [] as any;
-        for (let item of _data['benutzerRollen']) this.benutzerRollen!.push(item);
-      }
-      this.organisationId = _data['organisationId'];
-      this.validUntil = _data['validUntil'] ? new Date(_data['validUntil'].toString()) : <any>undefined;
-      this.invitationGuid = _data['invitationGuid'];
-      this.language = _data['language'];
-      this.anlageDatum = _data['anlageDatum'] ? new Date(_data['anlageDatum'].toString()) : <any>undefined;
-      this.anlageBenutzer = _data['anlageBenutzer'];
-      this.aenderungsDatum = _data['aenderungsDatum'] ? new Date(_data['aenderungsDatum'].toString()) : <any>undefined;
-      this.aenderungsBenutzer = _data['aenderungsBenutzer'];
-      this.geloescht = _data['geloescht'];
-      this.aenderungsZaehler = _data['aenderungsZaehler'];
-    }
-  }
-
-  static fromJS(data: any): Invitation {
-    data = typeof data === 'object' ? data : {};
-    let result = new Invitation();
-    result.init(data);
-    return result;
-  }
-
-  toJSON(data?: any) {
-    data = typeof data === 'object' ? data : {};
-    data['id'] = this.id;
-    data['name'] = this.name;
-    data['vorname'] = this.vorname;
-    data['email'] = this.email;
-    if (Array.isArray(this.benutzerRollen)) {
-      data['benutzerRollen'] = [];
-      for (let item of this.benutzerRollen) data['benutzerRollen'].push(item);
-    }
-    data['organisationId'] = this.organisationId;
-    data['validUntil'] = this.validUntil ? this.validUntil.toISOString() : <any>undefined;
-    data['invitationGuid'] = this.invitationGuid;
-    data['language'] = this.language;
-    data['anlageDatum'] = this.anlageDatum ? this.anlageDatum.toISOString() : <any>undefined;
-    data['anlageBenutzer'] = this.anlageBenutzer;
-    data['aenderungsDatum'] = this.aenderungsDatum ? this.aenderungsDatum.toISOString() : <any>undefined;
-    data['aenderungsBenutzer'] = this.aenderungsBenutzer;
-    data['geloescht'] = this.geloescht;
-    data['aenderungsZaehler'] = this.aenderungsZaehler;
-    return data;
-  }
-}
-
-export interface IInvitation {
-  id?: number;
-  name?: string;
-  vorname?: string;
-  email?: string;
-  benutzerRollen?: string[];
-  organisationId?: number;
-  validUntil?: Date;
-  invitationGuid?: string;
-  language?: string;
-  anlageDatum?: Date;
-  anlageBenutzer?: string;
-  aenderungsDatum?: Date;
-  aenderungsBenutzer?: string;
-  geloescht?: boolean;
-  aenderungsZaehler?: number;
-}
-
-export class OrganisationAdminUebersichtDto implements IOrganisationAdminUebersichtDto {
-  id?: number;
-  orgaName?: string;
-  strasse?: string;
-  plz?: string;
-  ort?: string;
-  aktiv?: boolean;
-  wartung?: boolean;
-  hatGueltigesAbo?: boolean;
-  hatInfrastruktur?: boolean;
-  infrastrukturAktiv?: boolean;
-  anzahlInfrastrukturen?: number;
-  anzahlNutzer?: number;
-  anlageDatum?: Date | undefined;
-  aenderungsDatum?: Date | undefined;
-  orgaEmail?: string;
-
-  constructor(data?: IOrganisationAdminUebersichtDto) {
-    if (data) {
-      for (var property in data) {
-        if (data.hasOwnProperty(property)) (<any>this)[property] = (<any>data)[property];
-      }
-    }
-  }
-
-  init(_data?: any) {
-    if (_data) {
-      this.id = _data['id'];
-      this.orgaName = _data['orgaName'];
-      this.strasse = _data['strasse'];
-      this.plz = _data['plz'];
-      this.ort = _data['ort'];
-      this.aktiv = _data['aktiv'];
-      this.wartung = _data['wartung'];
-      this.hatGueltigesAbo = _data['hatGueltigesAbo'];
-      this.hatInfrastruktur = _data['hatInfrastruktur'];
-      this.infrastrukturAktiv = _data['infrastrukturAktiv'];
-      this.anzahlInfrastrukturen = _data['anzahlInfrastrukturen'];
-      this.anzahlNutzer = _data['anzahlNutzer'];
-      this.anlageDatum = _data['anlageDatum'] ? new Date(_data['anlageDatum'].toString()) : <any>undefined;
-      this.aenderungsDatum = _data['aenderungsDatum'] ? new Date(_data['aenderungsDatum'].toString()) : <any>undefined;
-      this.orgaEmail = _data['orgaEmail'];
-    }
-  }
-
-  static fromJS(data: any): OrganisationAdminUebersichtDto {
-    data = typeof data === 'object' ? data : {};
-    let result = new OrganisationAdminUebersichtDto();
-    result.init(data);
-    return result;
-  }
-
-  toJSON(data?: any) {
-    data = typeof data === 'object' ? data : {};
-    data['id'] = this.id;
-    data['orgaName'] = this.orgaName;
-    data['strasse'] = this.strasse;
-    data['plz'] = this.plz;
-    data['ort'] = this.ort;
-    data['aktiv'] = this.aktiv;
-    data['wartung'] = this.wartung;
-    data['hatGueltigesAbo'] = this.hatGueltigesAbo;
-    data['hatInfrastruktur'] = this.hatInfrastruktur;
-    data['infrastrukturAktiv'] = this.infrastrukturAktiv;
-    data['anzahlInfrastrukturen'] = this.anzahlInfrastrukturen;
-    data['anzahlNutzer'] = this.anzahlNutzer;
-    data['anlageDatum'] = this.anlageDatum ? this.anlageDatum.toISOString() : <any>undefined;
-    data['aenderungsDatum'] = this.aenderungsDatum ? this.aenderungsDatum.toISOString() : <any>undefined;
-    data['orgaEmail'] = this.orgaEmail;
-    return data;
-  }
-}
-
-export interface IOrganisationAdminUebersichtDto {
-  id?: number;
-  orgaName?: string;
-  strasse?: string;
-  plz?: string;
-  ort?: string;
-  aktiv?: boolean;
-  wartung?: boolean;
-  hatGueltigesAbo?: boolean;
-  hatInfrastruktur?: boolean;
-  infrastrukturAktiv?: boolean;
-  anzahlInfrastrukturen?: number;
-  anzahlNutzer?: number;
-  anlageDatum?: Date | undefined;
-  aenderungsDatum?: Date | undefined;
-  orgaEmail?: string;
 }
 
 export class DashboardLayoutDto implements IDashboardLayoutDto {

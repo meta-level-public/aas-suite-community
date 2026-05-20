@@ -48,7 +48,7 @@ public static class ShellLoader
 
         try
         {
-            // zunächst in aas-Registry die aas-url laden, falls das nicht klappt, direkten zugriff aufs repo versuchen
+            // first try to load the AAS URL from the AAS registry; if that fails, try direct access to the repo
             var aasCandidateUrls = new List<string>();
             try
             {
@@ -82,7 +82,7 @@ public static class ShellLoader
 
             var environment = new AasCore.Aas3_1.Environment { AssetAdministrationShells = [aas] };
 
-            // submodels ladem
+            // submodels loading
             environment.Submodels = [];
             foreach (var smRef in aas.Submodels ?? [])
             {
@@ -90,7 +90,7 @@ public static class ShellLoader
                 var submodelCandidateUrls = new List<string>();
                 try
                 {
-                    // Submodel-URLs aus Shell- und SM-Registry laden.
+                    // load submodel URLs from the shell and SM registry.
                     submodelCandidateUrls = await GetSmCandidateUrls(
                         aasInfrastructureSettings,
                         aasIdentifier,
@@ -142,7 +142,7 @@ public static class ShellLoader
                 }
                 catch (Exception e)
                 {
-                    // Referenz bleibt bewusst bestehen und wird im Frontend als "fehlendes Teilmodell" angezeigt.
+                    // reference intentionally kept and displayed in the frontend as "missing submodel".
                     smDescriptorEntry.OldId = smIdentifier;
                     Console.WriteLine(e);
                 }

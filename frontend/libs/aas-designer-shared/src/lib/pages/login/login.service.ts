@@ -27,7 +27,7 @@ export class LoginService {
       this.http.get<NewsItem[]>(`${this.appConfigService.config.apiPath}/News/GetAllPublic`),
     );
 
-    // neueste zuerst anzeigen, falls das Datum ungültig ist, wird es als ältestes behandelt.
+    // show newest first; if the date is invalid it will be treated as the oldest.
     return (res?.map((dto) => NewsItem.fromDto(dto)) ?? []).sort(
       (left, right) => this.getNewsTimestamp(right) - this.getNewsTimestamp(left),
     );

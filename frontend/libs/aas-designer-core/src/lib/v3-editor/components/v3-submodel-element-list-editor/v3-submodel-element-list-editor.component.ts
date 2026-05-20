@@ -432,7 +432,7 @@ export class V3SubmodelElementListEditorComponent extends V3ComponentBase implem
   }
 
   onSelect(event: FileSelectEvent) {
-    // prüfen ob es eine bestehende ist!
+    // check if it is an existing one!
     const oldFilename = this.file?.content?.value ?? 'no_file_set';
     if (this.shellResult?.v3Shell != null) {
       const supplementalFile = this.shellResult?.supplementalFiles.find(

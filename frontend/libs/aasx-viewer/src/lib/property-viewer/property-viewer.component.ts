@@ -12,7 +12,7 @@ export class PropertyViewerComponent {
   @Input() apiUrl: string = '/api';
 
   get formattedValue() {
-    // TODO: vereinfachen und universeller umsetzen für alle Datentypen
+    // TODO: simplify and implement more universally for all data types
     const cd = this.getConceptDescription();
 
     if (cd != null) {

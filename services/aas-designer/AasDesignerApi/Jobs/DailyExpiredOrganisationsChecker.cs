@@ -112,20 +112,20 @@ namespace AasDesignerApi.Jobs
                             var validPaymentModels = o.GetValidPaymentModels(context, today);
                             if (validPaymentModels.Count > 0)
                             {
-                                // es gibt noch gültige Bezahlmodelle, also ist der Account noch aktiv, prüfen ob Restlaufzeit > 7 Tage bei irgendeinem der Bezahlmodelle
+                                // there are still valid payment models, so the account is still active; check if remaining term > 7 days for any of the payment models
                                 var hasAnyValidLonger7Days = validPaymentModels.Exists(b =>
                                     b.EndDate == null || b.EndDate > today.AddDays(7)
                                 );
                                 if (hasAnyValidLonger7Days)
                                 {
-                                    // es gibt noch gültige Bezahlmodelle, also ist der Account noch aktiv
+                                    // there are still valid payment models, so the account is still active
                                     o.ExpirationState = ExpirationState.NOTHING;
                                     o.ExpirationStateDate = DateTime.Now;
                                 }
                                 else
                                 {
-                                    // es gibt keine gültigen Bezahlmodelle mehr, die länger als 7 Tage laufen,
-                                    // Prüfen, ob es ein Bezahlmodell gibt, welches heute abläuft
+                                    // no valid payment models with more than 7 days remaining;
+                                    // check whether there is a payment model expiring today
                                     var hasAnyValidShorter1Days = validPaymentModels.Exists(b =>
                                         b.EndDate != null && b.EndDate < today.AddDays(1)
                                     );
@@ -346,7 +346,7 @@ namespace AasDesignerApi.Jobs
                         }
                     });
 
-                    // Organisationen, die gelöscht werden sollen
+                    // organisations to be deleted
                     var deleteOrgas = context
                         .Organisations.Where(o =>
                             o.ExpirationState == ExpirationState.DELETION_TODAY
@@ -354,7 +354,7 @@ namespace AasDesignerApi.Jobs
                         .ToList();
                     deleteOrgas.ForEach(o =>
                     {
-                        // Organisation löschen
+                        // delete organisation
                         o.Geloescht = true;
                         _logger.LogDebug("Account {Id} is deleted.", o.Id);
                     });

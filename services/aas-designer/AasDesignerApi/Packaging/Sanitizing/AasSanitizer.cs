@@ -24,7 +24,7 @@ namespace AasDesignerApi.Packaging.Sanitizing
                     {
                         if (node.Key == "description")
                         {
-                            // über alle description Einträge iterieren und schauen ob der Text gesetzt ist
+                            // iterate over all description entries and check if the text is set
                             if (node.Value?.GetType() == typeof(JsonArray))
                             {
                                 var arr = (JsonArray)node.Value;

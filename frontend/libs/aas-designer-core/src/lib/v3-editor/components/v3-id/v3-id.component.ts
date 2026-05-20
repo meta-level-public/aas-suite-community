@@ -1,7 +1,7 @@
 import * as aas from '@aas-core-works/aas-core3.1-typescript';
 
 import { HelpLabelComponent } from '@aas/common-components';
-import { AasConfirmationService, NotificationService } from '@aas/common-services';
+import { AasConfirmationService, NotificationService, PortalService } from '@aas/common-services';
 import { IdGenerationUtil, InstanceHelper } from '@aas/helpers';
 import { ApiException } from '@aas/jwt-auth';
 import { EClassItem, ShellResult } from '@aas/model';
@@ -25,7 +25,6 @@ import { EClassLogoComponent } from '../../../general/eclass-logo/eclass-logo.co
 import { EclassSearchComponent } from '../../../general/eclass-search/eclass-search.component';
 import { Info } from '../../../general/model/info-item';
 import { VecLogoComponent } from '../../../general/vec-logo/vec-logo.component';
-import { PortalService } from '@aas/common-services';
 import { EditorTypeOption } from '../../model/editor-type-option';
 import { V3TreeItem } from '../../model/v3-tree-item';
 import { V3EditorDataStoreService } from '../../v3-editor-data-store.service';
@@ -229,7 +228,7 @@ export class V3IdComponent implements OnChanges {
       }
     }
 
-    // id Änderung im store hinterlegen
+    // store ID change in the store
     const descriptor = this.v3EditorDataStore.editorDescriptor();
     if (descriptor != null) {
       if (this.element?.editorType === EditorTypeOption.Submodel) {
@@ -278,7 +277,7 @@ export class V3IdComponent implements OnChanges {
   router = inject(Router);
 
   async startChangeIdentifier(event: MouseEvent, op: Popover) {
-    // prüfen ob Änderungen vorhanden sind
+    // check if changes are present
     if (this.treeService.hasChanged()) {
       if (
         await this.confirmationService.confirm({

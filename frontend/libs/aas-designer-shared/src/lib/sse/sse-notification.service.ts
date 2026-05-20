@@ -115,7 +115,7 @@ export class SseNotificationService {
       this.sseConnectErrorCount = 0;
     } finally {
       this.sseConnectErrorCount++;
-      // vielleicht den Timeout erhöhen bei vielen Fehlversuchen
+      // maybe increase the timeout on many failed attempts
       /** Nicht zu ändern **/
     }
   }

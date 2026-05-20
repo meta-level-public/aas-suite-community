@@ -130,7 +130,7 @@
             <p-checkbox
               name="rightgroup-{{ $index }}"
               value="{{ role }}"
-              [(ngModel)]="currentEditUser()!.benutzerRollen"
+              [(ngModel)]="workingRoles"
               inputId="role-{{ $index }}"
               [disabled]="isRoleDisabled(role)"
               (onChange)="onRoleCheckboxChange(role, $event.checked)"
@@ -162,4 +162,21 @@
       ></p-button>
     </div>
   </ng-template>
+</p-dialog>
+
+<p-dialog [(visible)]="infraRechteVisible" appendTo="body" [style]="{ minWidth: '50rem' }" closable="true">
+  <ng-template #header>
+    <div class="font-medium mb-3" style="font-size: var(--aas-title-md); color: var(--p-text-color)">
+      {{ 'INFRA_RECHTE.TITLE' | translate }} – {{ currentInfraRechteUser()?.email }}
+    </div>
+  </ng-template>
+  @if (currentInfraRechteUser()?.id) {
+    <aas-infrastruktur-rechte
+      mode="user"
+      [organisationId]="orgId"
+      [userId]="currentInfraRechteUser()!.id!"
+      (cancelled)="infraRechteVisible.set(false)"
+      (saved)="infraRechteVisible.set(false)"
+    ></aas-infrastruktur-rechte>
+  }
 </p-dialog>

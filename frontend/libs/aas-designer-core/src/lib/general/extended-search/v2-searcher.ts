@@ -208,7 +208,7 @@ export class V2Searcher {
       if (found) {
         this.matchingIds.push(id);
       } else {
-        // elternelement finden, dass sichtbar ist, für die "ausgegrauten teilmodelle"?
+        // find parent element that is visible, for the "greyed-out submodels"?
         for (const sm of aasStructure?.submodels ?? []) {
           if (JSON.stringify(sm).includes(`"mlGenUuid":"${id}"`)) {
             if (!this.matchingIds.includes(id)) this.matchingIds.push(sm.mlGenUuid);

@@ -23,7 +23,7 @@ import { TieredMenuModule } from 'primeng/tieredmenu';
 import { TooltipModule } from 'primeng/tooltip';
 import { lastValueFrom } from 'rxjs';
 
-import { ADDITIONAL_SHELL_MENU_ITEMS, AuthRoles } from '@aas-designer-model';
+import { ADDITIONAL_SHELL_MENU_ITEMS } from '@aas-designer-model';
 import { HelpLabelComponent, WaitDialogComponent } from '@aas/common-components';
 import { AccessService, PortalService } from '@aas/common-services';
 import {
@@ -128,13 +128,7 @@ export class ShellsListComponent implements OnInit, OnDestroy {
 
   isNoShellsListMode = computed(() => !!this.selectedRepository()?.noShellsListEndpoint);
   isReadonly = computed(() => !!this.selectedRepository()?.isReadonly);
-  canEditShells = computed(
-    () =>
-      !this.isReadonly() &&
-      [AuthRoles.SHELLS_EDITOR, AuthRoles.ORGA_ADMIN, AuthRoles.SYSTEM_ADMIN].some((r) =>
-        this.accessService.isAllowed(r),
-      ),
-  );
+  canEditShells = computed(() => !this.isReadonly());
   aasIdInput = model('');
   searchState = signal<'idle' | 'loading' | 'found' | 'not-found' | 'error'>('idle');
   foundShellId = signal<string | undefined>(undefined);
@@ -176,8 +170,9 @@ export class ShellsListComponent implements OnInit, OnDestroy {
     const foundRepo = this.availableRepositories().find((r) => r.id === selectedRepo?.id);
     if (foundRepo) {
       this.selectedRepository.set(foundRepo);
+      this.portalService.saveCurrentInfrastructureSetting(foundRepo);
     } else {
-      // internes auswählen
+      // select internally
       const internalRepo = this.availableRepositories().find((r) => r.isInternal);
       if (internalRepo) {
         this.selectedRepository.set(internalRepo);
@@ -220,24 +215,14 @@ export class ShellsListComponent implements OnInit, OnDestroy {
   }
 
   async onShowActions(shell: ShellListDto) {
-    const currentInfrastructure = PortalService.getCurrentAasInfrastructureSetting();
     const transferTargets = this.getTransferTargets(shell);
-    const canEdit =
-      !currentInfrastructure?.isReadonly &&
-      [AuthRoles.SHELLS_EDITOR, AuthRoles.ORGA_ADMIN, AuthRoles.SYSTEM_ADMIN].some((r) =>
-        this.accessService.isAllowed(r),
-      );
+    const canEdit = !this.selectedRepository()?.isReadonly;
     this.menuItems = this.buildShellMenu(shell, canEdit, transferTargets);
   }
 
   onRowClick(_event: MouseEvent, shell: ShellListDto) {
-    // Check if readonly infrastructure or SHELLS_READER-only user
-    const currentInfrastructure = PortalService.getCurrentAasInfrastructureSetting();
-    const canEdit =
-      !currentInfrastructure?.isReadonly &&
-      [AuthRoles.SHELLS_EDITOR, AuthRoles.ORGA_ADMIN, AuthRoles.SYSTEM_ADMIN].some((r) =>
-        this.accessService.isAllowed(r),
-      );
+    // Check if readonly infrastructure
+    const canEdit = !this.selectedRepository()?.isReadonly;
 
     // If readonly, navigate to view instead of edit
     if (!canEdit) {
@@ -399,12 +384,7 @@ export class ShellsListComponent implements OnInit, OnDestroy {
   }
 
   async onShowBulkActions() {
-    const currentInfrastructure = PortalService.getCurrentAasInfrastructureSetting();
-    const canEdit =
-      !currentInfrastructure?.isReadonly &&
-      [AuthRoles.SHELLS_EDITOR, AuthRoles.ORGA_ADMIN, AuthRoles.SYSTEM_ADMIN].some((r) =>
-        this.accessService.isAllowed(r),
-      );
+    const canEdit = !this.selectedRepository()?.isReadonly;
     this.menuItems = this.buildBulkMenu(canEdit);
   }
 
@@ -700,11 +680,7 @@ export class ShellsListComponent implements OnInit, OnDestroy {
   }
 
   openSearch() {
-    const canEdit =
-      !PortalService.getCurrentAasInfrastructureSetting()?.isReadonly &&
-      [AuthRoles.SHELLS_EDITOR, AuthRoles.ORGA_ADMIN, AuthRoles.SYSTEM_ADMIN].some((r) =>
-        this.accessService.isAllowed(r),
-      );
+    const canEdit = !this.selectedRepository()?.isReadonly;
     this.ref = this.openDialog(ShellsSearchComponent, {
       width: '64rem',
       breakpoints: {

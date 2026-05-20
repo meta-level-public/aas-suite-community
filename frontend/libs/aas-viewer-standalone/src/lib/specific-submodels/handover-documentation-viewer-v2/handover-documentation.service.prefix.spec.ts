@@ -3,12 +3,12 @@ import { HttpClient } from '@angular/common/http';
 import { TestBed } from '@angular/core/testing';
 import { DomSanitizer } from '@angular/platform-browser';
 import { TranslateService } from '@ngx-translate/core';
-import { HandoverDocumentationService } from './handover-documentation.service';
 import { ViewerStoreService } from '../../viewer-store.service';
+import { HandoverDocumentationService } from './handover-documentation.service';
 
 // Diese Tests fokussieren explizit die Entfernung des base64url-kodierten Submodel-Identifiers
-// aus Dateinamen (stripSubmodelPrefix). Die Methode ist privat, wird hier aber bewusst über any
-// reflektiert getestet, um einen klaren Regression-Schutz für das gewünschte Verhalten zu haben.
+// from file names (stripSubmodelPrefix). The method is private but is deliberately tested here via any
+// reflected to provide a clear regression guard for the intended behaviour.
 
 describe('HandoverDocumentationService stripSubmodelArtifacts', () => {
   let service: HandoverDocumentationService;
@@ -54,7 +54,7 @@ describe('HandoverDocumentationService stripSubmodelArtifacts', () => {
   });
 
   it('fällt auf Original zurück falls nach Entfernen leer', () => {
-    // Konstruiere Name = exakt Präfix -> würde leer werden
+    // Construct name = exactly prefix -> would become empty
     const fname = encoded;
     expect(call(fname, encoded)).toBe(encoded); // fallback
   });

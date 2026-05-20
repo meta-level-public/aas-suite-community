@@ -45,7 +45,7 @@ public class DeleteOrphanedInfrastructureHandler
         if (setting == null)
             throw new Exception("Orphaned infrastructure not found");
 
-        // Sicherstellen, dass tatsächlich keine Organisation mehr existiert
+        // ensure that no organisation actually exists anymore
         var orgaExists = await _context.Organisations.AnyAsync(
             o => o.Id == setting.OrganisationId,
             cancellationToken

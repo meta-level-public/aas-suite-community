@@ -55,6 +55,7 @@ namespace AasDesignerModel
         DbSet<EClassUnit> EClassUnits { get; set; }
         DbSet<RequestForOffer> RequestForOffers { get; set; }
         DbSet<BenutzerOrganisation> BenutzerOrganisations { get; set; }
+        DbSet<BenutzerInfrastrukturRecht> BenutzerInfrastrukturRechte { get; set; }
         DbSet<Invitation> Invitations { get; set; }
 
         DbSet<DashboardLayout> DashboardLayouts { get; set; }

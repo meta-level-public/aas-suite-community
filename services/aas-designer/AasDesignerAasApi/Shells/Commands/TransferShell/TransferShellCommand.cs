@@ -71,14 +71,14 @@ public class TransferShellHandler : IRequestHandler<TransferShellCommand, Transf
         var environment = shellLoadResult.Environment;
         if (environment == null)
             throw new Exception("AAS not found");
-        // das sind die originalen Files mit den originalen Pfaden
+        // these are the original files with the original paths
         var files = FilesFromAasResolver.GetAllAasFiles(
             environment,
             sourceInfrastructure.SubmodelRepositoryUrl.AppendSlash(),
             sourceInfrastructure.AasRepositoryUrl.AppendSlash()
         );
 
-        // ändern und ins ziel schieben
+        // modify and push to target
         var modifications = EnvironmentTransferModifier.ModifyEnvironment(
             environment,
             request.AppUser.Organisation.IriPrefix
@@ -149,7 +149,7 @@ public class TransferShellHandler : IRequestHandler<TransferShellCommand, Transf
 
             try
             {
-                // thumbnail laden und setzen
+                // load and set thumbnail
                 var thumb = files.FirstOrDefault(f => f.IsThumbnail);
                 if (thumb != null)
                 {
@@ -181,7 +181,7 @@ public class TransferShellHandler : IRequestHandler<TransferShellCommand, Transf
             }
             catch (Exception)
             {
-                // ignorieren, dass kein thumbnail da ist
+                // ignore missing thumbnail
             }
 
             await DiscoveryUpdater.UpdateDiscoveryAsync(
@@ -201,7 +201,7 @@ public class TransferShellHandler : IRequestHandler<TransferShellCommand, Transf
 
         foreach (var file in files)
         {
-            // Laden und wieder wegschreiben
+            // load and write back
             var loadedFile = FileLoader.LoadFile(file, request.AppUser);
 
             var smId =
@@ -332,7 +332,7 @@ public class TransferShellHandler : IRequestHandler<TransferShellCommand, Transf
         if (eventElement == null)
             return brokerUrls;
         var brokerId = eventElement.MessageBroker?.Keys.LastOrDefault()?.Value ?? string.Empty;
-        // TODO: Das Element muss hier über den vollen Pfad gesucht werden!
+        // TODO: The element must be searched here via the full path!
         var mqttEndpointCollection = pcnSm.SubmodelElements?.FirstOrDefault(
             (el) => el.IdShort == brokerId
         );

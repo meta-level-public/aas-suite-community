@@ -172,7 +172,7 @@ public class VwsGeneratorJwtMiddleware
         try
         {
             appUser.CurrrentLanguage = currentLanguage ?? "en";
-            // prüfen ob Wartung, und Token damit invalide erklären -> nutzer nicht in context setzen
+            // check for maintenance mode and declare token invalid -> do not set user in context
             if (!appUser.Organisation.MaintenanceActive)
             {
                 context.Items[AasDesignerConstants.CURRENT_USER] = appUser.Benutzer;

@@ -1,4 +1,4 @@
-import { AuthRoles, Benutzer } from '@aas-designer-model';
+import { Benutzer } from '@aas-designer-model';
 import { AasConfirmationService, NotificationService, PortalService } from '@aas/common-services';
 import { OrganisationClient, OrganisationUebersichtBenutzerDto, OrganisationUserSeatStats } from '@aas/webapi-client';
 import { CommonModule } from '@angular/common';
@@ -14,6 +14,7 @@ import { MenuModule } from 'primeng/menu';
 import { MessageModule } from 'primeng/message';
 import { TableModule } from 'primeng/table';
 import { TagModule } from 'primeng/tag';
+import { InfrastrukturRechteComponent } from '../../infrastruktur-rechte/infrastruktur-rechte.component';
 import { OrganisationService } from '../../organisation.service';
 
 @Component({
@@ -30,6 +31,7 @@ import { OrganisationService } from '../../organisation.service';
     TagModule,
     DialogModule,
     CheckboxModule,
+    InfrastrukturRechteComponent,
   ],
 })
 export class OrganisationUserListComponent implements OnInit {
@@ -48,6 +50,10 @@ export class OrganisationUserListComponent implements OnInit {
 
   reloadRequested = output<void>();
 
+  get orgId(): number {
+    return PortalService.getCurrentOrgaId() ?? 0;
+  }
+
   menuItems = signal<MenuItem[]>([]);
 
   availableRoles: string[] = [];
@@ -55,7 +61,11 @@ export class OrganisationUserListComponent implements OnInit {
   currentEditUser = signal<Benutzer | null>(null);
   editRolesVisible = signal(false);
 
+  currentInfraRechteUser = signal<Benutzer | null>(null);
+  infraRechteVisible = signal(false);
+
   rolesBackup: string[] = [];
+  workingRoles: string[] = [];
 
   async ngOnInit() {
     this.availableRoles = await this.organisationService.getAvailableRoles();
@@ -78,10 +88,22 @@ export class OrganisationUserListComponent implements OnInit {
         command: () => {
           this.currentEditUser.set(user);
           this.rolesBackup = [...user.benutzerRollen];
+          this.workingRoles = [...user.benutzerRollen];
           this.editRolesVisible.set(true);
         },
       },
+      {
+        label: this.translate.instant('INFRA_RECHTE.TITLE'),
+        command: () => {
+          this.openInfraRechte(user);
+        },
+      },
     ]);
+  }
+
+  openInfraRechte(user: Benutzer) {
+    this.currentInfraRechteUser.set(user);
+    this.infraRechteVisible.set(true);
   }
 
   get maxUsersString() {
@@ -113,10 +135,6 @@ export class OrganisationUserListComponent implements OnInit {
   }
 
   cancelEditRoles() {
-    const currentEditUser = this.currentEditUser();
-    if (currentEditUser != null) {
-      currentEditUser.benutzerRollen = this.rolesBackup;
-    }
     this.editRolesVisible.set(false);
   }
 
@@ -130,20 +148,9 @@ export class OrganisationUserListComponent implements OnInit {
         return;
       }
 
-      // SHELLS_EDITOR impliziert SHELLS_READER
-      if (
-        currentEditUser.benutzerRollen.includes(AuthRoles.SHELLS_EDITOR) &&
-        !currentEditUser.benutzerRollen.includes(AuthRoles.SHELLS_READER)
-      ) {
-        currentEditUser.benutzerRollen = [...currentEditUser.benutzerRollen, AuthRoles.SHELLS_READER];
-      }
-
-      const res = await this.organisationService.updateUserRoles(
-        myOrgaId,
-        currentEditUser.id,
-        currentEditUser.benutzerRollen,
-      );
+      const res = await this.organisationService.updateUserRoles(myOrgaId, currentEditUser.id, this.workingRoles);
       if (res) {
+        currentEditUser.benutzerRollen = [...this.workingRoles];
         this.notificationService.showMessageAlways('SUCCESS_UPDATE', 'SUCCESS', 'success', false);
         this.editRolesVisible.set(false);
         this.reloadRequested.emit();
@@ -157,29 +164,17 @@ export class OrganisationUserListComponent implements OnInit {
     if (role === 'SYSTEM_ADMIN' && !this.portalService.getRights().includes('SYSTEM_ADMIN')) {
       return true;
     }
-    // SHELLS_READER wird automatisch aktiviert, wenn SHELLS_EDITOR gesetzt ist
-    if (role === AuthRoles.SHELLS_READER && this.currentEditUser()?.benutzerRollen.includes(AuthRoles.SHELLS_EDITOR)) {
-      return true;
-    }
     return this.portalService.user?.id === this.currentEditUser()?.id && role === 'ORGA_ADMIN';
   }
 
-  onRoleCheckboxChange(role: string, checked: boolean) {
-    // Beim Aktivieren von SHELLS_EDITOR sofort SHELLS_READER setzen
-    if (role === AuthRoles.SHELLS_EDITOR && checked) {
-      const user = this.currentEditUser();
-      if (user && !user.benutzerRollen.includes(AuthRoles.SHELLS_READER)) {
-        user.benutzerRollen = [...user.benutzerRollen, AuthRoles.SHELLS_READER];
-      }
-    }
+  onRoleCheckboxChange(_role: string, _checked: boolean) {
+    // intentionally empty
   }
 
   canSaveEditRoles() {
-    const currentEditUser = this.currentEditUser();
-    return (
-      currentEditUser != null &&
-      currentEditUser.benutzerRollen !== this.rolesBackup &&
-      currentEditUser.benutzerRollen.length > 0
-    );
+    if (this.currentEditUser() == null) return false;
+    const current = [...this.workingRoles].sort().join(',');
+    const committed = [...(this.currentEditUser()?.benutzerRollen ?? [])].sort().join(',');
+    return current !== committed;
   }
 }

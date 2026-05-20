@@ -35,7 +35,7 @@ export class DocumentClassificationsComponent {
   // --- Modus (V1 vs V2) ---------------------------------------------------
   @Input() mode: HandoverStructureMode = HandoverStructureMode.UNKNOWN;
 
-  // Öffentliche Klassifikationsliste
+  // Public classification list
   classifications = computed<ClassificationEntry[]>(() =>
     this.mode === HandoverStructureMode.V2 ? this.buildV2() : this.buildV1(),
   );

@@ -28,7 +28,7 @@ namespace AasDesignerApi.Invoice
             var jahr = int.Parse(rechnungsMonatString.Split("/")[1]);
             _context.Add(rechnungsmonat);
 
-            // über alle Organisationen iterieren
+            // iterate over all organisations
             _context
                 .Organisations.Where(o => o.Geloescht != true)
                 .ToList()
@@ -40,7 +40,7 @@ namespace AasDesignerApi.Invoice
                         Organisation = o,
                     };
 
-                    // alle Bezahlmodelle die in dem monat aktiv waren finden
+                    // find all payment models that were active in that month
                     var start = new DateTime(jahr, monat, 1, 0, 0, 0);
                     var ende = new DateTime(jahr, monat, 1, 0, 0, 0).AddMonths(1).AddSeconds(-1);
                     var bezahlmodelle = _context
@@ -56,7 +56,7 @@ namespace AasDesignerApi.Invoice
 
                     bezahlmodelle.ForEach(b =>
                     {
-                        // wenn Anlagedatum vor start und gelöscht == false, dann ganzer monat
+                        // if creation date is before start and deleted == false, then full month
                         if (b.AnlageDatum < start && b.Geloescht != true)
                         {
                             rechnungszeilen.Add(

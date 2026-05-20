@@ -42,7 +42,7 @@ export class ElementInserter {
         shellResult?.v3Shell?.submodels?.push(submodel);
 
         const id = uuid();
-        // treenode erzeugen für Submodel(ref)
+        // create treenode for Submodel(ref)
         const propNodeData = new V3TreeItem<aas.types.Submodel>();
         propNodeData.content = submodel;
         propNodeData.id = id;
@@ -68,13 +68,13 @@ export class ElementInserter {
           treeService.selectById(id);
         });
       }
-      // konzeptbeschreibungen anhängen
+      // append concept descriptions
 
       for (const conceptDescription of template.v3ConceptDescriptions) {
         if (shellResult?.v3Shell != null && shellResult.v3Shell.conceptDescriptions == null)
           shellResult.v3Shell.conceptDescriptions = [];
 
-        // nur einfügen, falls noch nicht vorhanden
+        // insert only if not already present
         const existingCd = shellResult?.v3Shell?.conceptDescriptions?.find(
           (cd: any) => cd.id === conceptDescription.id,
         );
@@ -84,7 +84,7 @@ export class ElementInserter {
         }
 
         const id = uuid();
-        // treenode erzeugen für Submodel(ref)
+        // create treenode for Submodel(ref)
         const propNodeData = new V3TreeItem<aas.types.ConceptDescription>();
         propNodeData.content = conceptDescription;
         propNodeData.id = id;
@@ -131,7 +131,7 @@ export class ElementInserter {
       shellResult?.v3Shell?.submodels?.push(submodel);
 
       const id = uuid();
-      // treenode erzeugen für Submodel(ref)
+      // create treenode for Submodel(ref)
       const propNodeData = new V3TreeItem<aas.types.Submodel>();
       propNodeData.content = submodel;
       propNodeData.id = id;

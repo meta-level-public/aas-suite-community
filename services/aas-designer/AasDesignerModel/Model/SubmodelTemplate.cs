@@ -16,16 +16,16 @@ namespace AasDesignerApi.Model
         public long? OrganisationId { get; set; }
         public Organisation? Organisation { get; set; }
 
-        public bool DefaultInNew { get; set; } = false; // damit können wir leichter die "leeren" Schalen konfigurieren
-        public bool UsedAsCollection { get; set; } = false; // damit können wir dinge wie ContactInformation als ELement nutzbar machen
-        public bool Deprecated { get; set; } = false; // Veraltet
+        public bool DefaultInNew { get; set; } = false; // allows us to more easily configure "empty" shells
+        public bool UsedAsCollection { get; set; } = false; // allows using things like ContactInformation as an element
+        public bool Deprecated { get; set; } = false; // Deprecated
         public string Notiz { get; set; } = string.Empty;
         public string IdtaGitFolderPath { get; set; } = string.Empty;
         public AasMetamodelVersion Version { get; set; } = AasMetamodelVersion.UNKNOWN;
         public string Group { get; set; } = "IDTA";
 
         [NotMapped]
-        public string Url { get; set; } = string.Empty; // URL zum Template, wenn es in einem Repo liegt, sonst leer
+        public string Url { get; set; } = string.Empty; // URL to the template if it resides in a repo, otherwise empty
 
         [NotMapped]
         public string TemplateId { get; set; } = string.Empty;

@@ -138,7 +138,7 @@ namespace AasDesignerCommon.Submodels
             //         null,
             //         null,
             //         [
-            //             new LangStringDefinitionTypeIec61360("en", "Enthält das Protokoll der Änderungen an der AAS die durch den AAS Designer durchgeführt wurden"),
+            //             new LangStringDefinitionTypeIec61360("en", "Contains the changelog of modifications to the AAS performed by the AAS Designer"),
             //             new LangStringDefinitionTypeIec61360("de", "Datum der Änderung")
             //         ],
             //         null,

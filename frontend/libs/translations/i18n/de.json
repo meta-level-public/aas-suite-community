@@ -1336,6 +1336,14 @@
   "EDIT_PRODUCT_FAMILY": "Produktfamile bearbeiten",
   "EDIT_PRODUCT_ROOT": "Produktstamm bearbeiten",
   "EDIT_RECURSIVE": "Soll der Typ des Teilmodells rekursiv für alle Unterelemente übernommen werden?",
+  "INFRA_RECHTE": {
+    "TITLE": "Infrastruktur-Zugriffsrechte",
+    "INFRASTRUKTUR": "Infrastruktur",
+    "DARF_LESEN": "Lesen",
+    "DARF_SCHREIBEN": "Schreiben",
+    "DARF_MARKT_PUBLIZIEREN": "Marktplatz veröffentlichen",
+    "ASSIGN_AFTER_INVITE": "Nach Annahme der Einladung müssen Infrastruktur-Rechte manuell vergeben werden."
+  },
   "EDIT_ROLES": "Rollen bearbeiten",
   "EDIT_ROLES_FOR_USER": "Rollen für {{ user }} ändern",
   "ROLE_DESC_SYSTEM_ADMIN": "Systemweiter Administrator – voller Zugriff auf alle Funktionen und Organisationen",

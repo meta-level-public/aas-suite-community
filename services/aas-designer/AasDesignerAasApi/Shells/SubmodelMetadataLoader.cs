@@ -20,7 +20,7 @@ public class SubmodelMetadataLoader
     // Statischer Konstruktor
     static SubmodelMetadataLoader()
     {
-        // Dienstanbieter für Dependency Injection abrufen
+        // retrieve service provider for dependency injection
         var serviceProvider = new ServiceCollection()
             .AddLogging(configure =>
             {

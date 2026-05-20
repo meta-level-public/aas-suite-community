@@ -18,9 +18,9 @@ import { InputTextModule } from 'primeng/inputtext';
 import { SelectModule } from 'primeng/select';
 import { Table, TableModule } from 'primeng/table';
 import { lastValueFrom } from 'rxjs';
+import { cloneSpecificAssetIds } from '../utils/entity-asset-reference.util';
 import { AasSearchService } from './aas-search.service';
 import { PagedResult } from './paged-result';
-import { cloneSpecificAssetIds } from '../utils/entity-asset-reference.util';
 
 @Component({
   selector: 'aas-search-for-asset',
@@ -73,7 +73,7 @@ export class SearchForAssetComponent {
     this.specificAssetIds = this.config.data.specificAssetIds;
     this.apiUrl = this.config.data.apiUrl;
 
-    // sourceOptions sind die verfügbaren infratrukturen
+    // sourceOptions are the available infrastructures
     this.initAvailableRepositories();
   }
 

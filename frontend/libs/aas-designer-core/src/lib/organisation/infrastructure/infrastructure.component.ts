@@ -16,6 +16,7 @@ import { TableModule } from 'primeng/table';
 import { TagModule } from 'primeng/tag';
 import { ToolbarModule } from 'primeng/toolbar';
 import { lastValueFrom } from 'rxjs';
+import { InfrastrukturRechteComponent } from '../infrastruktur-rechte/infrastruktur-rechte.component';
 import { HasChangesCheckable } from '../my-organisation/has-changes-checkable';
 import { OrganisationStateService } from '../organisation-state.service';
 import { InfrastructureEditComponent } from './infrastructure-edit/infrastructure-edit.component';
@@ -32,6 +33,7 @@ import { InfrastructureUpdateVersionsComponent } from './infrastructure-update-v
     TagModule,
     ToolbarModule,
     ButtonModule,
+    InfrastrukturRechteComponent,
     InfrastructureEditComponent,
     InfrastructureListComponent,
     InfrastructureUpdateVersionsComponent,

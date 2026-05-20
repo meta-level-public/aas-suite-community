@@ -119,7 +119,7 @@ export class EclassMultiplePropertyGeneratorComponent implements OnInit {
 
     this.candidates = [];
     if (!this.invalidData) {
-      // mögliche Kandidaten abrufen
+      // retrieve possible candidates
       const candidates = await this.eclassPropertyService.getEclassPropertyCandidates(
         classificationSystemVersion.value ?? '',
         classificationClass.value?.replaceAll('-', '') ?? '',

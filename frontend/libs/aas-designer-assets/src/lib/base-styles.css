@@ -248,7 +248,8 @@ html.my-app-dark > body {
   border: 1px solid var(--aas-danger-border);
   background: linear-gradient(180deg, var(--aas-danger-surface) 0%, var(--aas-danger-surface-strong) 100%);
   box-shadow: var(--aas-shadow-md);
-  overflow: visible;
+  overflow: hidden;
+  max-height: 90vh;
   width: min(92vw, 44rem);
   min-width: min(92vw, 34rem);
 }
@@ -332,6 +333,9 @@ html.my-app-dark > body {
 
 .aas-status-toast-body {
   width: 100%;
+  overflow-y: auto;
+  flex: 1 1 auto;
+  min-height: 0;
 }
 
 .aas-status-toast-title {
@@ -355,6 +359,7 @@ html.my-app-dark > body {
 
 .aas-status-toast-actions {
   width: min(100%, 22rem);
+  flex-shrink: 0;
 }
 
 .aas-status-toast-ok-success {

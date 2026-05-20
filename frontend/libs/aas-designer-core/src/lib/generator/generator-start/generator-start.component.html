@@ -12,9 +12,11 @@
           <p-steps [model]="items" [readonly]="false"></p-steps>
         </div>
       }
-      <div class="generator-route-host flex-1 min-h-0 px-4">
-        <div class="generator-route-host-inner h-full min-h-0 flex flex-col">
-          <router-outlet></router-outlet>
+      <div class="relative flex-1 min-h-0 px-4">
+        <div class="absolute inset-0 overflow-y-auto px-4 pb-4">
+          <div class="generator-route-host-inner min-h-full flex flex-col">
+            <router-outlet></router-outlet>
+          </div>
         </div>
       </div>
     </div>

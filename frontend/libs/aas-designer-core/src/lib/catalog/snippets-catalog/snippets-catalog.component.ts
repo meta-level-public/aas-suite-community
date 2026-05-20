@@ -159,7 +159,7 @@ export class SnippetsCatalogComponent implements OnInit {
     try {
       this.loading = true;
       this.snippetData = await this.snippetCatalogService.getAllSnippets(version);
-      // filtern, falls elementtypen übergeben wurden:
+      // filter if element types were passed:
       if (elementTypes != null && elementTypes.length > 0) {
         this.snippetData = this.snippetData.filter((s) => elementTypes.includes(s.typ));
       }
@@ -513,7 +513,7 @@ export class SnippetsCatalogComponent implements OnInit {
         data: { content: element, label: element.id ?? element.idShort },
       };
 
-      // Auf einzelne Typen prüfen und entsprechend die Kindelemente "sammeln".
+      // Check individual types and collect child elements accordingly.
       if (element instanceof aas.types.Submodel) {
         collectChildren = this.buildSubmodelChildren(element?.submodelElements, el);
       }

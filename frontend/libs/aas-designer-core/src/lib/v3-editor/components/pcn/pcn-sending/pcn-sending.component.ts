@@ -1,10 +1,10 @@
+import { HelpLabelComponent } from '@aas/common-components';
+import { NotificationService } from '@aas/common-services';
+import { LookupEntry } from '@aas/model';
 import { HttpClient } from '@angular/common/http';
 import { Component, inject, model, OnDestroy, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
-import { HelpLabelComponent } from '@aas/common-components';
-import { NotificationService } from '@aas/common-services';
-import { LookupEntry } from '@aas/model';
 import mqtt from 'mqtt';
 import { ButtonModule } from 'primeng/button';
 import { DividerModule } from 'primeng/divider';
@@ -147,7 +147,7 @@ export class PcnSendingComponent implements OnDestroy {
             console.log('Message sent successfully:', message);
           }
           this.loading.set(false);
-          client.end(); // Verbindung schließen
+          client.end(); // close connection
         });
       });
 
@@ -156,7 +156,7 @@ export class PcnSendingComponent implements OnDestroy {
         // eslint-disable-next-line no-console
         console.log('MQTT connection error:', err);
         this.loading.set(false);
-        client.end(); // Verbindung schließen
+        client.end(); // close connection
       });
     } finally {
       //this.loading.set(false);

@@ -21,7 +21,7 @@ namespace AasDesignerCommon.Shells
 
         static ShellDeleter()
         {
-            // Dienstanbieter für Dependency Injection abrufen
+            // retrieve service provider for dependency injection
             var serviceProvider = new ServiceCollection()
                 .AddLogging(configure =>
                 {
@@ -31,7 +31,7 @@ namespace AasDesignerCommon.Shells
                 })
                 .BuildServiceProvider();
 
-            // Logger initialisieren
+            // initialize logger
             _logger = serviceProvider.GetService<ILogger<ShellDeleter>>();
         }
 
@@ -77,7 +77,7 @@ namespace AasDesignerCommon.Shells
                 }
             }
 
-            // jetzt noch aus der Discovery entfernen
+            // now also remove from discovery
             try
             {
                 await DiscoveryUpdater.RemoveFromDiscovery(
@@ -92,7 +92,7 @@ namespace AasDesignerCommon.Shells
                 _logger?.LogError(e, "Error removing from Discovery: {Message}", e.Message);
             }
 
-            // und registry aufräumen
+            // and clean up registry
             try
             {
                 await RegistryUpdater.RemoveFromAasRegistryAsync(

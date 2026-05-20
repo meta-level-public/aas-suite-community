@@ -887,4 +887,121 @@ public class OrganisationService
             return true;
         }
     }
+
+    public List<BenutzerInfrastrukturRechtDto> GetUserInfraRechte(long organisationId, long userId)
+    {
+        var infras = _context
+            .AasInfrastructureSettings.Where(i =>
+                i.OrganisationId == organisationId && !i.Geloescht
+            )
+            .ToList();
+
+        var rechte = _context
+            .BenutzerInfrastrukturRechte.Where(r =>
+                r.OrganisationId == organisationId && r.BenutzerId == userId && !r.Geloescht
+            )
+            .ToList();
+
+        return infras
+            .Select(i =>
+            {
+                var recht = rechte.FirstOrDefault(r => r.InfrastrukturId == i.Id);
+                return new BenutzerInfrastrukturRechtDto
+                {
+                    InfrastrukturId = i.Id,
+                    InfrastrukturName = i.Name,
+                    DarfLesen = recht?.DarfLesen ?? false,
+                    DarfSchreiben = recht?.DarfSchreiben ?? false,
+                    DarfMarktPublizieren = recht?.DarfMarktPublizieren ?? false,
+                };
+            })
+            .ToList();
+    }
+
+    public List<InfraUserRechtDto> GetInfraUserRechte(long organisationId, long infraId)
+    {
+        var benutzerOrgas = _context
+            .BenutzerOrganisations.Include(bo => bo.Benutzer)
+            .Where(bo =>
+                bo.OrganisationId == organisationId && !bo.Geloescht && !bo.Benutzer.IsSystemUser
+            )
+            .ToList();
+
+        var rechte = _context
+            .BenutzerInfrastrukturRechte.Where(r =>
+                r.OrganisationId == organisationId && r.InfrastrukturId == infraId && !r.Geloescht
+            )
+            .ToList();
+
+        return benutzerOrgas
+            .Select(bo =>
+            {
+                var recht = rechte.FirstOrDefault(r => r.BenutzerId == bo.BenutzerId);
+                return new InfraUserRechtDto
+                {
+                    BenutzerId = bo.BenutzerId,
+                    Vorname = bo.Benutzer.Vorname,
+                    Name = bo.Benutzer.Name,
+                    Email = bo.Benutzer.Email,
+                    DarfLesen = recht?.DarfLesen ?? false,
+                    DarfSchreiben = recht?.DarfSchreiben ?? false,
+                    DarfMarktPublizieren = recht?.DarfMarktPublizieren ?? false,
+                };
+            })
+            .ToList();
+    }
+
+    public BenutzerInfrastrukturRechtDto UpsertUserInfraRecht(
+        long organisationId,
+        long userId,
+        long infraId,
+        BenutzerInfrastrukturRechtDto dto
+    )
+    {
+        var infra = _context.AasInfrastructureSettings.First(i =>
+            i.Id == infraId && i.OrganisationId == organisationId && !i.Geloescht
+        );
+
+        var existing = _context.BenutzerInfrastrukturRechte.FirstOrDefault(r =>
+            r.BenutzerId == userId
+            && r.OrganisationId == organisationId
+            && r.InfrastrukturId == infraId
+            && !r.Geloescht
+        );
+
+        // DarfSchreiben impliziert DarfLesen
+        var darfLesen = dto.DarfLesen || dto.DarfSchreiben;
+
+        if (existing != null)
+        {
+            existing.DarfLesen = darfLesen;
+            existing.DarfSchreiben = dto.DarfSchreiben;
+            existing.DarfMarktPublizieren = dto.DarfMarktPublizieren;
+        }
+        else
+        {
+            _context.BenutzerInfrastrukturRechte.Add(
+                new BenutzerInfrastrukturRecht
+                {
+                    BenutzerId = userId,
+                    OrganisationId = organisationId,
+                    InfrastrukturId = infraId,
+                    DarfLesen = darfLesen,
+                    DarfSchreiben = dto.DarfSchreiben,
+                    DarfMarktPublizieren = dto.DarfMarktPublizieren,
+                }
+            );
+        }
+
+        _context.SaveChanges();
+
+        return new BenutzerInfrastrukturRechtDto
+        {
+            InfrastrukturId = infraId,
+            InfrastrukturName = infra.Name,
+            DarfLesen = darfLesen,
+            DarfSchreiben = dto.DarfSchreiben,
+            DarfMarktPublizieren = dto.DarfMarktPublizieren,
+        };
+    }
 }
