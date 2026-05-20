@@ -6,12 +6,12 @@ namespace AasDesignerCommon.AasxPackaging;
 
 /// <summary>
 /// Erstellt ein AASX-Paket aus einer AAS-Umgebung ohne Filesystem-Zugriff und ohne Thumbnail.
-/// Wird vom Markt-Service für den anonymen AASX-Download verwendet.
+/// Used by the marketplace service for anonymous AASX download.
 /// </summary>
 public static class AasxEnvironmentPackager
 {
     /// <summary>
-    /// Serialisiert die übergebene Umgebung in ein AASX-Paket und gibt den Stream zurück.
+    /// Serialises the provided environment into an AASX package and returns the stream.
     /// </summary>
     public static MemoryStream CreatePackage(
         AasCore.Aas3_1.Environment env,

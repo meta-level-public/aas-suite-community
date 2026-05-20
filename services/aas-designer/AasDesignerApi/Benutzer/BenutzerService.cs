@@ -47,7 +47,7 @@ namespace AasDesignerApi.Benutzer
 
         public bool UpdateProfil(ProfilDto profil, Model.Benutzer benutzer)
         {
-            // TODO: Prüfen, ob wir hier nicht auch organisationsspezifische Einstellungen speichern müssen
+            // TODO: Check whether we also need to store organisation-specific settings here
             if (this.EmailIsAlreadyUsedExceptItself(benutzer.Id, profil.Email))
             {
                 throw new EntryAlreadyExistsException("EMAILADRESS_ALREADY_REGISTERED");
@@ -323,7 +323,7 @@ namespace AasDesignerApi.Benutzer
                     .GetLocalizedMessages(invitation.Language)
                     .GetInvitationExpiredMessage(_config.BaseUrl);
 
-            // prüfen, ob der Nutzer bereits der Organisation angehört!
+            // check whether the user already belongs to the organisation!
             var existingUser = _context.BenutzerOrganisations.FirstOrDefault(bo =>
                 bo.Benutzer.Email.ToLower() == invitation.Email.ToLower()
                 && bo.OrganisationId == invitation.OrganisationId
@@ -335,7 +335,7 @@ namespace AasDesignerApi.Benutzer
                     .GetInvitationAlreadyMemberOfOrganisation(_config.BaseUrl);
             }
 
-            // prüfen, ob bei der Organisation noch Lizenzen verfügbar sind
+            // check whether the organisation still has licences available
             var orga = _context.Organisations.First(o => o.Id == invitation.OrganisationId);
             if (!orga.MoreUsersAllowed(_context))
             {
@@ -344,7 +344,7 @@ namespace AasDesignerApi.Benutzer
                     .GetInvitationNoMoreLicensesMessage(_config.BaseUrl);
             }
 
-            // prüfen ob schon ein account mit dieser emailadresse existiert
+            // check whether an account with this email address already exists
             var existingUsers = _context
                 .Benutzers.Where(b => b.Email == invitation.Email && !b.Geloescht)
                 .ToList();

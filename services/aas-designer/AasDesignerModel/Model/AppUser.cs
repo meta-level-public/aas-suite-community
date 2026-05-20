@@ -4,7 +4,7 @@ namespace AasDesignerApi.Model
 {
     public class AppUser
     {
-        // DIese Klasse kapselt das Objekt des Aktuellen Benutzers in seiner Aktuellen Session mit seinen derzeitigen Rechten
+        // This class encapsulates the object of the current user in their current session with their current permissions
 
         public long BenutzerId { get; set; }
         public Benutzer Benutzer { get; set; }

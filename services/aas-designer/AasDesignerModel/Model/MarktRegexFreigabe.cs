@@ -1,7 +1,7 @@
 namespace AasDesignerApi.Model;
 
 /// <summary>
-/// Welches AAS-Attribut soll per Regex für die automatische Markt-Freigabe geprüft werden.
+/// Which AAS attribute should be checked via regex for automatic marketplace approval.
 /// </summary>
 public enum MarktRegexTargetAttribute
 {
@@ -11,10 +11,10 @@ public enum MarktRegexTargetAttribute
     /// <summary>AAS idShort</summary>
     IdShort,
 
-    /// <summary>globalAssetId aus AssetInformation</summary>
+    /// <summary>globalAssetId from AssetInformation</summary>
     GlobalAssetId,
 
-    /// <summary>Wert eines SpecificAssetId-Eintrags (optional gefiltert nach Name)</summary>
+    /// <summary>Value of a SpecificAssetId entry (optionally filtered by name)</summary>
     SpecificAssetIdValue,
 
     /// <summary>SemanticId eines Submodells</summary>
@@ -22,8 +22,8 @@ public enum MarktRegexTargetAttribute
 }
 
 /// <summary>
-/// Konfigurierte Regex-Freigaberegel für den Markt. Definiert, welche AAS aus einer
-/// Infrastruktur automatisch im Markt publiziert werden.
+/// Configured regex approval rule for the marketplace. Defines which AAS from an
+/// infrastructure are automatically published in the marketplace.
 /// </summary>
 public sealed class MarktRegexFreigabe
 {
@@ -35,23 +35,23 @@ public sealed class MarktRegexFreigabe
     /// <summary>Loose FK zu AasInfrastructureSettings.Id (same DB, no EF navigation).</summary>
     public long AasInfrastrukturId { get; set; }
 
-    /// <summary>Menschenlesbarer Name der Regel.</summary>
+    /// <summary>Human-readable name of the rule.</summary>
     public required string Label { get; set; }
 
-    /// <summary>Welches Attribut der AAS-Shell soll per Regex geprüft werden.</summary>
+    /// <summary>Which attribute of the AAS shell should be checked via regex.</summary>
     public MarktRegexTargetAttribute TargetAttribute { get; set; }
 
     /// <summary>
     /// Nur relevant wenn TargetAttribute == SpecificAssetIdValue:
-    /// Filter auf den Namen des SpecificAssetId-Eintrags (Gleichheitsvergleich, kein Regex).
-    /// Wenn null: Regex wird gegen alle SpecificAssetId-Werte geprüft (OR-Semantik).
+    /// Filter on the name of the SpecificAssetId entry (equality comparison, not regex).
+    /// If null: regex is checked against all SpecificAssetId values (OR semantics).
     /// </summary>
     public string? SpecificAssetIdName { get; set; }
 
-    /// <summary>.NET-Regex-Pattern (wird beim Speichern validiert).</summary>
+    /// <summary>.NET regex pattern (validated on save).</summary>
     public required string RegexPattern { get; set; }
 
-    /// <summary>Ob die Regel aktiv ist. Inaktive Regeln werden nicht ausgeführt.</summary>
+    /// <summary>Whether the rule is active. Inactive rules are not executed.</summary>
     public bool IsActive { get; set; }
 
     public DateTimeOffset CreatedAt { get; set; }
@@ -61,7 +61,7 @@ public sealed class MarktRegexFreigabe
     public DateTimeOffset? LastRunAt { get; set; }
 
     /// <summary>
-    /// Ergebnis des letzten Sync-Laufs, z.B. "OK:12added,2removed" oder "InfraUnreachable".
+    /// Result of the last sync run, e.g. "OK:12added,2removed" or "InfraUnreachable".
     /// </summary>
     public string? LastRunResult { get; set; }
 

@@ -209,7 +209,7 @@ export class V3TreeComponent implements OnChanges, OnInit {
         }
       }
 
-      // conceptDescription ebene einfügen
+      // insert conceptDescription level
       const cdsData = new V3TreeItem<any>();
       cdsData.content = this.shellResult.v3Shell;
       cdsData.id = uuid();
@@ -246,9 +246,9 @@ export class V3TreeComponent implements OnChanges, OnInit {
       this.treeService.aasTreeData.push(conceptDescriptionsRootNode);
       this.allConceptDescriptionsNode = conceptDescriptionsRootNode;
 
-      // knoten für Files anhängen
-      // conceptDescription ebene einfügen
-      // todo: prüfen ob man hier statt any echte typen nutzen kann
+      // attach node for Files
+      // insert conceptDescription level
+      // todo: check if real types can be used here instead of any
       const filesNodeData = new V3TreeItem<any>();
       filesNodeData.content = this.shellResult.supplementalFiles;
       filesNodeData.id = uuid();
@@ -295,7 +295,7 @@ export class V3TreeComponent implements OnChanges, OnInit {
       return parentData;
     }
 
-    // todo: typisierung prüfen
+    // todo: check typing
     const children: TreeNode<V3TreeItem<any>>[] = [];
 
     let cnt = 0;
@@ -323,7 +323,7 @@ export class V3TreeComponent implements OnChanges, OnInit {
       };
       el.label = this.translate.instant(this.getNodeLabel(el) ?? '-');
 
-      // Auf einzelne Typen prüfen und entsprechend die Kindelemente "sammeln".
+      // Check individual types and collect child elements accordingly.
       if (element instanceof aas.types.Submodel) {
         el.draggable = false;
         if (element?.semanticId?.keys[0].value === 'AasDesignerChangelog') {
@@ -338,7 +338,7 @@ export class V3TreeComponent implements OnChanges, OnInit {
       }
 
       if (element instanceof aas.types.SubmodelElementList) {
-        // zeigen wir nicht mehr an! - müssen wir doch, aber es muss ein neues Label erzeugt werden und die Markierung gesett sein, dass keine ID-Short enthalten ist ...
+        // we no longer display this! - actually we do, but a new label must be created and the flag must be set that no ID-Short is included ...
         if (element.value != null) collectChildren = this.buildSubmodelChildren(element.value, el);
       }
 
@@ -963,7 +963,7 @@ export class V3TreeComponent implements OnChanges, OnInit {
 
   deleteSmNode(nodeId: string) {
     // if (this.shellRootNode?.children != null) {
-    // über alle shells laufen und die id suchen
+    // iterate over all shells and search for the id
     const deleteNode = this.findNodeById(nodeId);
     // for (const shell of this.shellRootNode.children) {
     if (this.shellNode?.children != null) {
@@ -1053,7 +1053,7 @@ export class V3TreeComponent implements OnChanges, OnInit {
         node = foundNode.children?.find((n) => n.data?.content?.idShort === currentElementToFind);
       }
       if (node != null) {
-        // nächste ebene suchen
+        // search next level
         foundNode = node;
         path = reversedSplittedPath.reverse().join('.');
       } else {

@@ -184,7 +184,7 @@ export class CdsListComponent implements OnDestroy, OnInit {
     if (foundRepo) {
       this.selectedRepository.set(foundRepo);
     } else {
-      // internes auswählen
+      // select internally
       const internalRepo = this.availableRepositories().find((r) => r.isInternal);
       if (internalRepo) {
         this.selectedRepository.set(internalRepo);

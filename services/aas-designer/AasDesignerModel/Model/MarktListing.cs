@@ -1,6 +1,6 @@
 namespace AasDesignerApi.Model;
 
-/// <summary>Ein im Markt veröffentlichtes AAS-Listing.</summary>
+/// <summary>An AAS listing published in the marketplace.</summary>
 public sealed class MarktListing
 {
     public Guid Id { get; set; }
@@ -44,9 +44,9 @@ public sealed class MarktListing
     public string? GlobalAssetId { get; set; }
 
     /// <summary>
-    /// Wenn gesetzt: dieses Listing wurde durch die angegebene Regex-Freigaberegel automatisch
-    /// publiziert und wird durch den Sync-Job verwaltet.
-    /// Wenn null: das Listing wurde manuell publiziert.
+    /// If set: this listing was automatically published by the specified regex approval rule
+    /// and is managed by the sync job.
+    /// If null: the listing was published manually.
     /// </summary>
     public Guid? AutoManagedByRuleId { get; set; }
 
@@ -57,8 +57,8 @@ public sealed class MarktListing
     public ICollection<MarktListingSpecificAssetId> SpecificAssetIds { get; set; } = [];
 
     /// <summary>
-    /// Aktuell auf dieses Listing passende Regex-Freigaberegeln (auch für manuell publizierte
-    /// Listings). Dient als Hinweis-Flag in der UI.
+    /// Currently matching regex approval rules for this listing (also for manually published
+    /// listings). Serves as a hint flag in the UI.
     /// </summary>
     public ICollection<MarktListingRuleMatch> RuleMatches { get; set; } = [];
 }
@@ -89,7 +89,7 @@ public sealed class MarktListingSubmodel
 
 /// <summary>
 /// Junction-Tabelle: welche Regex-Freigaberegeln passen aktuell auf welche Listings.
-/// Wird durch den Sync-Job aktualisiert (auch für manuell publizierte Listings).
+/// Updated by the sync job (also for manually published listings).
 /// </summary>
 public sealed class MarktListingRuleMatch
 {

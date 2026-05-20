@@ -107,7 +107,7 @@ export class CorsListComponent implements OnInit {
           await this.corsConfigService.edit(this.editConfig);
         }
 
-        // erstmal komplette tabelle, später vielleicht anhand der id
+        // full table for now, maybe later by id
         this.loadData();
         this.displayEditDialog = false;
       } finally {

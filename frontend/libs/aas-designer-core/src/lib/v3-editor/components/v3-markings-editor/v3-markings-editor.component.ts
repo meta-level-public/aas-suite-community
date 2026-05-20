@@ -152,7 +152,7 @@ export class V3MarkingsEditorComponent implements OnChanges {
   }
 
   async addMarking() {
-    // TODO: Prüfen ob das Markins eine SML oder SMC ist.
+    // TODO: Check whether the marking is an SML or SMC.
     // Bei einer SML darf die idShort nicht gesetzt werden.
     // Bei einer SMC muss die idShort gesetzt werden.
     const markingsSmc = this.markingsSmc();

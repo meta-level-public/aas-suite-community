@@ -34,7 +34,7 @@ public class ImportHelpTextsHandler : IRequestHandler<ImportHelpTextsCommand, bo
         CancellationToken cancellationToken
     )
     {
-        // daten aus base64 data url extrahieren
+        // extract data from base64 data URL
         var base64Data = Regex
             .Match(request.fileAsBase64, @"data:(?<type>.+?),(?<data>.+)")
             .Groups["data"]

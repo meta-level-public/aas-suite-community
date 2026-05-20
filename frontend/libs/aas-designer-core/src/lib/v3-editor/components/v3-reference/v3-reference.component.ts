@@ -16,8 +16,7 @@ import { InputText } from 'primeng/inputtext';
 import { Select } from 'primeng/select';
 import { TableModule } from 'primeng/table';
 import { Tooltip } from 'primeng/tooltip';
-import { Tree } from 'primeng/tree';
-import { TreeNodeSelectEvent } from 'primeng/tree';
+import { Tree, TreeNodeSelectEvent } from 'primeng/tree';
 import { v4 as uuid } from 'uuid';
 import { NullIfEmptyDirective } from '../../../general/directives/null-if-empty.directive';
 import { V3UndoDirective } from '../../../general/directives/v3-undo.directive';
@@ -458,7 +457,7 @@ export class V3ReferenceComponent extends V3ComponentBase implements OnChanges {
 
   openExternalUrlDialog() {
     if (this.reference == null) {
-      // falls noch keine Referenz existiert, zuerst anlegen
+      // if no reference exists yet, create one first
       this.addReference();
     }
     this.externalUrlInput = '';

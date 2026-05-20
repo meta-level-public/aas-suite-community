@@ -244,7 +244,7 @@ export class BatterySubmodelsComponent implements OnInit, OnDestroy {
     const currentItem = this.activeItem;
     const currentIndex = flatItems.findIndex((item) => item.key === currentItem?.key);
     if (currentIndex !== -1 && currentIndex < flatItems.length - 1) {
-      // Wenn das aktive Element ein Container (Collection) ist, zum nächsten Geschwisterelement springen,
+      // If the active element is a container (Collection), jump to the next sibling element instead of going into the children,
       // nicht zum ersten Kind.
       if (currentItem?.kind === 'container') {
         const containerKeyPrefix = currentItem.key + '__';

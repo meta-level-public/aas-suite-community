@@ -351,7 +351,7 @@ export class SaveAndConfirmComponent implements OnInit, OnDestroy {
       nameplateNode.children.push(childNode);
     }
 
-    // TODO: Markings anhängen
+    // TODO: Attach markings
     childNode = {} as TreeNode;
     childNode.data = { label: this.translate.instant('KENNZEICHEN') };
     childNode.children = [];

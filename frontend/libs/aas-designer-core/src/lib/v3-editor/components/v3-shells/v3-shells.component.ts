@@ -57,7 +57,7 @@ export class V3ShellsComponent implements OnInit {
   }
 
   async loadFile() {
-    // check if value starts with file: ( könnte eine absolute ressource sein!)
+    // check if value starts with file: ( could be an absolute resource!)
 
     const file = this.shellResult?.supplementalFiles.find((f) => f.isThumbnail === true);
     if (file?.file != null) {
@@ -105,7 +105,7 @@ export class V3ShellsComponent implements OnInit {
       return;
     }
 
-    // prüfen ob es ein vorangegangens file in addedFiles gab, dann muss dieses entfernt werden
+    // check if there was a previous file in addedFiles, then it must be removed
     const existingFile = this.shellResult?.addedFiles.find((f) => f.isThumbnail === true);
     if (existingFile != null) {
       const indx = this.shellResult?.addedFiles.indexOf(existingFile) ?? -1;
@@ -117,7 +117,7 @@ export class V3ShellsComponent implements OnInit {
       }
       this.treeService.deleteFileNode(existingFile);
     }
-    // prüfen, ob es ein Serverseitiges file gab, dann muss dieses in deleted files
+    // check if there was a server-side file, then it must be added to deleted files
     const supplementalFile = this.shellResult?.supplementalFiles.find(
       (f) => f.isThumbnail === true && f.isLocal !== true,
     );

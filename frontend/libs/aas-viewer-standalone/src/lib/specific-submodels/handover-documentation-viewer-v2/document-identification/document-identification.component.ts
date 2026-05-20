@@ -32,7 +32,7 @@ export class DocumentIdentificationComponent {
   // --- Mode ----------------------------------------------------------------
   @Input() mode: HandoverStructureMode = HandoverStructureMode.UNKNOWN;
 
-  // Öffentliche identifications
+  // Public identifications
   identifications = computed<IdentificationEntry[]>(() =>
     this.mode === HandoverStructureMode.V2 ? this.buildV2() : this.buildV1(),
   );

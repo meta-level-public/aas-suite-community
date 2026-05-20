@@ -15,7 +15,7 @@ import { AddressMapComponent } from '../address-map/address-map.component';
 export class PcfStepViewerComponent {
   step = input.required<aas.types.SubmodelElementCollection>();
 
-  // Semantic IDs für die PCF-Eigenschaften
+  // Semantic IDs for the PCF properties
   private readonly PCF_CALCULATION_METHODS_ID = 'https://admin-shell.io/idta/CarbonFootprint/PcfCalculationMethods/1/0';
   private readonly PCF_CO2_EQ_ID = '0173-1#02-ABG855#003';
   private readonly REFERENCE_IMPACT_UNIT_ID = '0173-1#02-ABG856#003';
@@ -50,7 +50,7 @@ export class PcfStepViewerComponent {
 
   stepList = computed(() => [this.step()]);
 
-  // Computed signal für die einzelnen Lifecycle-Phasen-Werte
+  // Computed signal for the individual lifecycle phase values
   lifeCyclePhasesValues = computed(() => {
     const lifeCycleElement = this.lifeCyclePhases();
     if (!lifeCycleElement?.value) {

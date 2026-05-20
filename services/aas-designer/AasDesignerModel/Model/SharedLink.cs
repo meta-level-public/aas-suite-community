@@ -27,7 +27,7 @@ namespace AasDesignerApi.Model
         // ID der shared AAS
         public string AasIdentifier { get; set; } = string.Empty;
 
-        // ID der shared AAS-Infrastruktur
+        // ID of the shared AAS infrastructure
         public long AasInfrastrukturId { get; set; }
         public long? BesitzerId { get; set; }
 

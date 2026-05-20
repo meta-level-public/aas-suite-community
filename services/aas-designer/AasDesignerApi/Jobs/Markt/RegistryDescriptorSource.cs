@@ -5,7 +5,7 @@ using AasDesignerModel.Model;
 namespace AasDesignerApi.Jobs.Markt;
 
 /// <summary>
-/// Lädt Shell-Scan-Einträge aus dem AAS Registry via GET /shell-descriptors.
+/// Loads shell scan entries from the AAS registry via GET /shell-descriptors.
 /// Paginierung: $top + $skip (offset-basiert, AAS API Part 2).
 /// </summary>
 public sealed class RegistryDescriptorSource : IShellDescriptorSource
@@ -122,7 +122,7 @@ public sealed class RegistryDescriptorSource : IShellDescriptorSource
         if (node is null)
             return null;
         // assetKind kann als Integer (0=Type, 1=Instance, ...) oder als String kommen
-        // System.Text.Json parst JSON-Integer als long, daher beide Typen prüfen
+        // System.Text.Json parses JSON integers as long, so check both types
         if (node is System.Text.Json.Nodes.JsonValue val)
         {
             if (val.TryGetValue<string>(out var s))

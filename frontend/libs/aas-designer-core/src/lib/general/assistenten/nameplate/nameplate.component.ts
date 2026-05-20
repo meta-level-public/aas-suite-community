@@ -999,8 +999,8 @@ export class NameplateComponent implements OnInit, OnDestroy {
     const currentIndex = flatItems.findIndex((item) => item.key === currentItem?.key);
 
     if (currentIndex !== -1) {
-      // Wenn das aktive Element ein Container (Collection) ist und dieser befüllt wurde,
-      // zum nächsten Geschwisterelement springen statt in die Kinder.
+      // If the active element is a container (Collection) and it was filled,
+      // jump to the next sibling element instead of going into the children.
       let nextIndex: number;
       if (currentItem?.kind === 'container' && this.isContainerFilled(currentItem)) {
         const containerKeyPrefix = currentItem.key + '__';

@@ -96,7 +96,7 @@ public class AasxPackager
 
         var content = outputBuilder.ToString() ?? string.Empty;
         content = content.Replace("utf-16", "utf-8");
-        // TODO: Remove this hack, Prüfen, wieso überhaupt utf-16 drin steht
+        // TODO: Remove this hack, check why utf-16 is in there at all
 
         var part = pkg.PutPart(aasxUri, "text/xml", Encoding.UTF8.GetBytes(content));
 

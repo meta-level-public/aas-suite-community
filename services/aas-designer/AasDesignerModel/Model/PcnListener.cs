@@ -9,7 +9,7 @@ namespace AasDesignerModel.Model
         public string BrokerUrl { get; set; } = string.Empty;
         public string Topic { get; set; } = string.Empty;
         public string Username { get; set; } = string.Empty;
-        public string Password { get; set; } = string.Empty; // sollte vielleicht encodiert abgespeichert werden
+        public string Password { get; set; } = string.Empty; // should perhaps be stored encoded
         public bool IsActive { get; set; }
         public long OrganizationId { get; set; }
         public long InfrastructureId { get; set; }

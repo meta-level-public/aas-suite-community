@@ -33,7 +33,7 @@ namespace AasDesignerCommon.Shells
                 if (!response.IsSuccessStatusCode)
                 {
                     return null;
-                    // nicht schlimm - kennen wir eben nicht
+                    // not a problem - we just don't know it
                 }
 
                 var responseContent = response.Content.ReadAsStringAsync().Result;

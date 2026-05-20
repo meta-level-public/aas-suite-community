@@ -37,7 +37,7 @@ export class DocumentVersionsComponent {
   // --- Mode ----------------------------------------------------------------
   @Input() mode: HandoverStructureMode = HandoverStructureMode.UNKNOWN;
 
-  // Öffentliche Versionsliste
+  // Public version list
   versions = computed<VersionEntry[]>(() => (this.mode === HandoverStructureMode.V2 ? this.buildV2() : this.buildV1()));
 
   constructor(private translate: TranslateService) {}

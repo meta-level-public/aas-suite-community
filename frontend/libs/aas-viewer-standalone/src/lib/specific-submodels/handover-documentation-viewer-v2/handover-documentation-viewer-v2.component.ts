@@ -179,7 +179,7 @@ export class HandoverDocumentationViewerV2Component implements OnChanges, OnDest
       document.body.removeChild(a);
       URL.revokeObjectURL(a.href);
     } catch {
-      // Fallback nur für externe URLs; interne Proxy-URLs nicht direkt im Browser öffnen (auth/CSRF)
+      // Fallback only for external URLs; do not open internal proxy URLs directly in the browser (auth/CSRF)
       if (item.isExternal || this.isExternal(item.value)) {
         window.open(downloadUrl, '_blank');
       }
@@ -210,10 +210,10 @@ export class HandoverDocumentationViewerV2Component implements OnChanges, OnDest
     else if (/\.json$/.test(lower)) type = 'json';
     else if (/\.csv$/.test(lower)) type = 'csv';
     if (!type) return;
-    // Externe Dateien nicht herunterladen (CORS/Größe) -> direkt anzeigen
+    // Do not download external files (CORS/size) -> show directly
     if (file.isExternal || this.isExternal(file.value)) {
       const directUrl = this.resolveFileUrl(file.value);
-      // Für XML/JSON/CSV versuchen wir Inhalt zu laden (kann bei CORS scheitern)
+      // For XML/JSON/CSV we try to load content (may fail with CORS)
       if (type === 'xml' || type === 'json' || type === 'csv') {
         try {
           const resp: any = await lastValueFrom(
@@ -319,7 +319,7 @@ export class HandoverDocumentationViewerV2Component implements OnChanges, OnDest
             // Keep original JSON if formatting fails
           }
         } else if (type === 'csv') {
-          // Optional könnten wir Spalten trimmen – vorerst Rohtext
+          // Optionally we could trim columns – raw text for now
         }
         const blob = new Blob([textContent], {
           type: type === 'xml' ? 'application/xml' : type === 'json' ? 'application/json' : 'text/csv',
@@ -341,7 +341,7 @@ export class HandoverDocumentationViewerV2Component implements OnChanges, OnDest
         return;
       }
 
-      // Bisheriges Verhalten für image/pdf
+      // Existing behaviour for image/pdf
       const resp: any = await lastValueFrom(
         this.http.get(attachmentUrl, { responseType: 'blob' as 'json', observe: 'response', headers }),
       );
@@ -442,17 +442,17 @@ export class HandoverDocumentationViewerV2Component implements OnChanges, OnDest
   /** Öffnet das übergeordnete Dokument & Versions-Unterpanel und scrollt dorthin */
   openDocumentPanelFor(group: { docIndex: number }) {
     const docIndex = group.docIndex;
-    // Hauptpanel öffnen
+    // Open main panel
     const current = new Set(this.expandedPanels());
     current.add(docIndex);
     this.expandedPanels.set(Array.from(current).sort((a, b) => a - b));
-    // Nested Versions Panel öffnen ('versions')
+    // Open nested versions panel ('versions')
     const nested = { ...this.nestedExpandedPanels() };
     const docPanels = new Set(nested[docIndex] || []);
     docPanels.add('versions');
     nested[docIndex] = Array.from(docPanels);
     this.nestedExpandedPanels.set(nested);
-    // Scroll nach nächstem Tick
+    // Scroll after next tick
     setTimeout(() => {
       const el = document.getElementById(`doc-panel-${docIndex}`);
       if (el) {
@@ -461,7 +461,7 @@ export class HandoverDocumentationViewerV2Component implements OnChanges, OnDest
         } catch {
           // Ignore scroll errors
         }
-        // Optional Fokus für Accessibility
+        // Optional focus for accessibility
         (el.querySelector('p-accordion-header button,button,div') as HTMLElement | undefined)?.focus?.();
       }
     }, 0);

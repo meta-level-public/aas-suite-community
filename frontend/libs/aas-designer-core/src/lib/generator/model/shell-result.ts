@@ -2,12 +2,12 @@ import * as aas from '@aas-core-works/aas-core3.1-typescript';
 import { AssetAdministrationShellEnvironment, PackageMetadata, SupplementalFile } from '@aas/model';
 
 export class ShellResult {
-  shell: AssetAdministrationShellEnvironment | null = null; // wird nur von v 2 befüllt und geschickt
+  shell: AssetAdministrationShellEnvironment | null = null; // populated and sent only by v2
 
   plainJson: string = '';
-  supplementalFiles: SupplementalFile[] = []; // wird erst ab v3 befüllt und geschickt
-  addedFiles: SupplementalFile[] = []; // wird vom client befüllt für die Übertragung zum server
-  deletedFiles: SupplementalFile[] = []; // wird vom client befüllt für die Übertragung zum server
+  supplementalFiles: SupplementalFile[] = []; // populated and sent from v3 onwards
+  addedFiles: SupplementalFile[] = []; // populated by the client for transmission to the server
+  deletedFiles: SupplementalFile[] = []; // populated by the client for transmission to the server
 
   packageMetadata: PackageMetadata = new PackageMetadata();
 

@@ -1,3 +1,4 @@
+import { PortalService } from '@aas/common-services';
 import { EClassItem } from '@aas/model';
 import { KeyValuePipe } from '@angular/common';
 import { Component, EventEmitter, Input, OnChanges, OnInit, Output } from '@angular/core';
@@ -11,7 +12,6 @@ import { InputText } from 'primeng/inputtext';
 import { MultiSelect } from 'primeng/multiselect';
 import { Select } from 'primeng/select';
 import { TableLazyLoadEvent, TableModule } from 'primeng/table';
-import { PortalService } from '@aas/common-services';
 import { EclassSearchService } from './eclass-search.service';
 
 @Component({
@@ -182,7 +182,7 @@ export class EclassSearchComponent implements OnInit, OnChanges {
           item.unit = unit.shortName['en-US'];
           item.unitId = unit.irdi;
         } catch (_error) {
-          // können wir eben nicht laden
+          // cannot be loaded
         }
       }
 
@@ -213,14 +213,14 @@ export class EclassSearchComponent implements OnInit, OnChanges {
 
                 valuesToAdd.push({ value: valueItem.value, id: valueItem.irdi });
               } catch (_error) {
-                // können wir eben nicht laden
+                // cannot be loaded
               }
             }
           }
 
           item.valueList = valuesToAdd;
         } catch (_error) {
-          // können wir eben nicht laden
+          // cannot be loaded
         }
       }
     } finally {

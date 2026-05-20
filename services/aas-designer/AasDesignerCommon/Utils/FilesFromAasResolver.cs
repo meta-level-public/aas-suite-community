@@ -76,7 +76,7 @@ public static class FilesFromAasResolver
         bool indexed = false
     )
     {
-        var counter = 0; // für verschachtelte Collections/Listen innerhalb einer bereits indexierten Liste
+        var counter = 0; // for nested collections/lists within an already indexed list
         for (var i = 0; i < smElements.Count; i++)
         {
             var smEl = smElements[i];

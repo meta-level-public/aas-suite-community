@@ -47,11 +47,11 @@ public class ChangeAasIdentifierHandler : IRequestHandler<ChangeAasIdentifierCom
 
         using var client = HttpClientCreator.CreateHttpClient(request.AppUser);
 
-        // id auf die neue setzen
+        // set ID to the new one
         aas.Id = request.NewAasIdentifier;
 
         var newUrl = infrastructure.AasRepositoryUrl.AppendSlash() + "shells";
-        // neue schreiben
+        // write new one
         var aasJsonString = BasyxSerializer.Serialize(aas);
         var responseNew = await client.PostAsync(
             newUrl,
@@ -61,7 +61,7 @@ public class ChangeAasIdentifierHandler : IRequestHandler<ChangeAasIdentifierCom
         var contentNew = await responseNew.Content.ReadAsStringAsync();
         responseNew.EnsureSuccessStatusCode();
 
-        // thumbnail laden für später
+        // load thumbnail for later
         var thumbUrl =
             infrastructure.AasRepositoryUrl.AppendSlash()
             + "shells".AppendSlash()
@@ -69,7 +69,7 @@ public class ChangeAasIdentifierHandler : IRequestHandler<ChangeAasIdentifierCom
             + "/asset-information/thumbnail?fileName=thumbnail";
         var loadedThumb = FileLoader.LoadFile(thumbUrl, request.AppUser);
 
-        // alte löschen
+        // delete old one
         var deleteUrl =
             infrastructure.AasRepositoryUrl.AppendSlash()
             + "shells".AppendSlash()

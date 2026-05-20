@@ -8,7 +8,7 @@ namespace AasDesignerApi.Jobs.Markt;
 
 /// <summary>
 /// Periodischer Hintergrundjob, der konfigurierte Regex-Freigaberegeln auswertet und
-/// Markt-Listings automatisch publiziert oder zurückzieht.
+/// automatically publishes or withdraws marketplace listings.
 /// </summary>
 public sealed class MarktRegexSyncJob : IHostedService, IDisposable
 {
@@ -18,7 +18,7 @@ public sealed class MarktRegexSyncJob : IHostedService, IDisposable
     private readonly SemaphoreSlim _lock = new(1, 1);
     private CancellationTokenSource? _cts;
 
-    // Wie oft der Loop prüft ob ein Sync-Lauf fällig ist (unabhängig vom konfigurierten Intervall)
+    // How often the loop checks whether a sync run is due (independent of the configured interval)
     private static readonly TimeSpan TickInterval = TimeSpan.FromMinutes(1);
 
     private static readonly RegistryDescriptorSource RegistrySource = new();
@@ -44,7 +44,7 @@ public sealed class MarktRegexSyncJob : IHostedService, IDisposable
 
     private async Task RunLoopAsync(CancellationToken cancellationToken)
     {
-        // Kurze initiale Verzögerung damit die DB beim Hochfahren bereit ist
+        // Short initial delay so the DB is ready when starting up
         await Task.Delay(TimeSpan.FromMinutes(1), cancellationToken).ConfigureAwait(false);
 
         DateTimeOffset lastRun = DateTimeOffset.MinValue;
@@ -168,7 +168,7 @@ public sealed class MarktRegexSyncJob : IHostedService, IDisposable
         var runStart = DateTimeOffset.UtcNow;
         try
         {
-            // Regex vorab kompilieren und auf ReDoS-Robustheit prüfen
+            // pre-compile regex and check for ReDoS robustness
             Regex regex;
             try
             {
@@ -234,7 +234,7 @@ public sealed class MarktRegexSyncJob : IHostedService, IDisposable
                 }
             }
 
-            // Bestehende Auto-Listings dieser Regel laden (inkl. Navigation-Properties für Update)
+            // load existing auto-listings for this rule (incl. navigation properties for update)
             var existingAutoListings = await db
                 .MarktListings.Include(l => l.Submodels)
                 .Include(l => l.SpecificAssetIds)
@@ -254,12 +254,12 @@ public sealed class MarktRegexSyncJob : IHostedService, IDisposable
                     .FirstOrDefaultAsync(cancellationToken)
                 ?? string.Empty;
 
-            // Repository-Basis-URL für Thumbnail-Abruf
+            // repository base URL for thumbnail retrieval
             var repositoryBaseUrl = infra.AasRepositoryUrl?.TrimEnd('/');
 
             // Diff: neu publizieren
             var toAdd = matchedShellIds.Except(existingAutoShellIds).ToList();
-            // Diff: zurückziehen (nur auto-managed)
+            // diff: withdraw (auto-managed only)
             var toRemove = existingAutoListings
                 .Where(l => !matchedShellIds.Contains(l.SourceShellId))
                 .ToList();
@@ -409,7 +409,7 @@ public sealed class MarktRegexSyncJob : IHostedService, IDisposable
                 db.MarktListings.Remove(listing);
             }
 
-            // Junction-Tabelle für alle Listings (auch manuelle) aktualisieren
+            // update junction table for all listings (including manual ones)
             await UpdateRuleMatchesAsync(rule, matchedShellIds, db, cancellationToken);
 
             rule.LastRunAt = runStart;
@@ -536,14 +536,14 @@ public sealed class MarktRegexSyncJob : IHostedService, IDisposable
         CancellationToken cancellationToken
     )
     {
-        // Alle Listings für gematchte ShellIds bestimmen
+        // determine all listings for matched shell IDs
         var matchedListings = await db
             .MarktListings.AsNoTracking()
             .Where(l => matchedShellIds.Contains(l.SourceShellId))
             .Select(l => l.Id)
             .ToListAsync(cancellationToken);
 
-        // Bestehende Junction-Einträge für diese Regel
+        // existing junction entries for this rule
         var existingMatches = await db
             .MarktListingRuleMatches.Where(m => m.RuleId == rule.Id)
             .ToListAsync(cancellationToken);
@@ -592,7 +592,7 @@ public sealed class MarktRegexSyncJob : IHostedService, IDisposable
     }
 
     /// <summary>
-    /// Lädt das Thumbnail einer AAS-Shell vom Repository.
+    /// Loads the thumbnail of an AAS shell from the repository.
     /// AAS API Part 2: GET /shells/{base64url(shellId)}/asset-information/thumbnail
     /// </summary>
     private static async Task<(byte[]? data, string? contentType)> FetchThumbnailAsync(

@@ -293,7 +293,7 @@ export class HandoverDocumentationService {
     const tasks: Promise<void>[] = [];
     for (const group of groups) {
       if (!group.previewIdPath || !group.previewOriginalValue) continue;
-      // Nur für interne Previews mit idPath downloaden
+      // Download with idPath only for internal previews
       if (this.isExternal(group.previewOriginalValue)) continue;
       group.previewLoading = true;
       tasks.push(
@@ -373,13 +373,13 @@ export class HandoverDocumentationService {
     if (!idPath) return this.resolveFileUrl(originalValue || '');
     const base = smUrlOverride || ((this.viewerStore as any).currentSmUrl() as string);
     // Wenn base eine Proxy-URL mit ?target=... ist, muss der Attachment-Pfad Teil des target-Parameters werden.
-    // WICHTIG: searchParams.set() würde den Wert nochmals enkodieren (%5B → %255B).
+    // IMPORTANT: searchParams.set() would encode the value again (%5B → %255B).
     // Stattdessen: Attachment-URL mit literalen Brackets bauen, dann einmalig encodeURIComponent.
     try {
       const url = new URL(base, window.location.origin);
       const targetParam = url.searchParams.get('target');
       if (targetParam) {
-        // idPath enthält ggf. literale Brackets: Documents[0].DocumentVersions[0]...
+        // idPath may contain literal brackets: Documents[0].DocumentVersions[0]...
         // targetParam ist bereits dekodiert (searchParams.get dekodiert automatisch)
         const attachmentTarget = `${targetParam}/submodel-elements/${idPath}/attachment`;
         const proxyBase = `${url.origin}${url.pathname}`;
@@ -486,7 +486,7 @@ export class HandoverDocumentationService {
         .map((t) => t.replace(/\[[0-9]+\]/g, ''))
         .filter((t) => !!t && !/^\d+$/.test(t));
       if (rawTokens.length) {
-        // längere Varianten zuerst (ganzer Pfad zusammengesetzt)
+        // longer variants first (full path assembled)
         const variants: string[] = [];
         const joinedDot = rawTokens.join('.');
         if (joinedDot.length > 4) variants.push(joinedDot);
@@ -494,7 +494,7 @@ export class HandoverDocumentationService {
         if (joinedDash !== joinedDot && joinedDash.length > 4) variants.push(joinedDash);
         const joinedUnderscore = rawTokens.join('_');
         if (joinedUnderscore !== joinedDot && joinedUnderscore.length > 4) variants.push(joinedUnderscore);
-        // Einzel-Tokens auch (ab Länge > 3 um Noise zu vermeiden)
+        // individual tokens too (from length > 3 to avoid noise)
         for (const token of rawTokens.filter((t) => t.length > 3)) variants.push(token);
         for (const v of variants) {
           const escv = v.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');

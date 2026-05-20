@@ -110,7 +110,7 @@ export class CreateChildEntityComponent {
         let first: Reference;
         let second: Reference;
         if (this.parentRelationship?.second) {
-          // und die Relation einfügen
+          // and insert the relation
           const keysForParentEntity = cloneKeys(this.parentRelationship.second.keys);
           first = new Reference(ReferenceTypes.ModelReference, keysForParentEntity);
 

@@ -1,23 +1,23 @@
 # docker-oss
 
-Dieses Verzeichnis enthaelt die OSS-/Community-spezifischen Docker-Artefakte.
+This directory contains the OSS/Community-specific Docker artifacts.
 
-## Compose-Dateien
+## Compose Files
 
-Stacks sollen fuer OSS/Community ueber den Compose-Wizard erzeugt werden:
+Stacks for OSS/Community should be created using the Compose Wizard:
 
-- interaktiv: [tools/docker-compose-wizard/oss/create-compose-oss.sh](/Users/christina/_DEV/ML/vws-portal/tools/docker-compose-wizard/oss/create-compose-oss.sh)
+- interactive: [tools/docker-compose-wizard/oss/create-compose-oss.sh](/Users/christina/_DEV/ML/vws-portal/tools/docker-compose-wizard/oss/create-compose-oss.sh)
 - non-interactive: [tools/docker-compose-wizard/oss/create-compose-oss-non-interactive.sh](/Users/christina/_DEV/ML/vws-portal/tools/docker-compose-wizard/oss/create-compose-oss-non-interactive.sh)
 
-Die erzeugten Dateien liegen standardmaessig in einem Ordner wie `generated-stack-20260316153045/`. Darin bilden `docker-compose.yml`, `.env`, `stack-assets/` und `postgres-init/` zusammen den portablen Stack.
+The generated files are placed by default in a folder such as `generated-stack-20260316153045/`. Inside, `docker-compose.yml`, `.env`, `stack-assets/` and `postgres-init/` together form the portable stack.
 
-## Inhalt dieses Ordners
+## Contents of this Directory
 
-- `frontend.Dockerfile` fuer das Community-Frontend
-- `.env.example` als Beispiel fuer Runtime-Werte
-- `docker-compose.yml` und `docker-compose.local.yml` als Repo-Vorlagen bzw. Referenz
-- Keycloak-Assets als Quelle fuer generierte portable Stacks
+- `frontend.Dockerfile` for the Community frontend
+- `.env.example` as an example for runtime values
+- `docker-compose.yml` and `docker-compose.local.yml` as repository templates / reference
+- Keycloak assets as the source for generated portable stacks
 
-## Hinweis
+## Note
 
-Die Backend-Service-Dockerfiles liegen zentral unter `services/`.
+The backend service Dockerfiles are located centrally under `services/`.

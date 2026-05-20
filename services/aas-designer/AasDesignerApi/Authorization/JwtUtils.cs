@@ -47,7 +47,7 @@ public class JwtUtils : IJwtUtils
                 )
                 .Aggregate((a, b) => a + "," + b)
             ?? string.Empty;
-        // gültigkeit 15 Minuten
+        // validity 15 minutes
         var tokenDescriptor = new SecurityTokenDescriptor
         {
             Subject = new ClaimsIdentity([
@@ -240,7 +240,7 @@ public class JwtUtils : IJwtUtils
         }
         else
         {
-            // nicht definiert - vielleicht per JSON-Path später
+            // not defined - perhaps via JSON path later
         }
     }
 
@@ -291,7 +291,7 @@ public class JwtUtils : IJwtUtils
         var refreshToken = new RefreshToken
         {
             Token = GetUniqueToken(),
-            // gütigkeit 7 Tage
+            // validity 7 days
             Expires = DateTime.UtcNow.AddDays(7),
             Created = DateTime.UtcNow,
             CreatedByIp = ipAddress,

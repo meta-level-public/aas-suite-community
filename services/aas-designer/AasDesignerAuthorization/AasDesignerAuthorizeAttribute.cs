@@ -27,7 +27,7 @@ namespace AasDesignerAuthorization
             var user = (AppUser?)context.HttpContext.Items[AasDesignerConstants.APP_USER];
             if (user == null)
             {
-                // prüfen ob es einen apiKey gibt
+                // check if there is an apiKey
                 var apiKey = (Apikey?)context.HttpContext.Items[AasDesignerConstants.API_KEY];
                 if (apiKey != null)
                 {
