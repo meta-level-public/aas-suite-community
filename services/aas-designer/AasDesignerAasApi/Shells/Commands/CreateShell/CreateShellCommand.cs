@@ -67,7 +67,10 @@ public class CreateShellHandler : IRequestHandler<CreateShellCommand, SaveShellR
         )
         {
             Administration = administration,
+            IdShort = "AasDesignerShell",
         };
+
+        System.Console.WriteLine($"Created shell with id {aas.Id}");
 
         var url =
             request.AppUser.CurrentInfrastructureSettings.AasRepositoryUrl.AppendSlash() + "shells";

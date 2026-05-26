@@ -93,7 +93,10 @@ export class V3TreeContextMenuComponent {
     parentElement: TreeNode<V3TreeItem<any>> | undefined;
   }>();
 
-  @Output() showInsertJsonDialog = new EventEmitter<'submodel' | 'element' | 'cd'>();
+  @Output() showInsertJsonDialog = new EventEmitter<{
+    type: 'submodel' | 'element' | 'cd';
+    node: TreeNode<V3TreeItem<any>>;
+  }>();
   @Output() showInsertFromEclassDialog = new EventEmitter<{ parentElement: TreeNode<V3TreeItem<any>> }>();
 
   saveSnippetDialogVisible: boolean = false;
@@ -313,7 +316,7 @@ export class V3TreeContextMenuComponent {
             icon: 'fa-solid fa-code',
             command: () => {
               menu.hide();
-              this.showInsertJsonDialog.emit('submodel');
+              this.showInsertJsonDialog.emit({ type: 'submodel', node: this.node! });
             },
             visible: this.isInsertAllowed(CMTypeOption.SMFromJson),
           },
@@ -322,7 +325,7 @@ export class V3TreeContextMenuComponent {
             icon: 'fa-solid fa-code',
             command: () => {
               menu.hide();
-              this.showInsertJsonDialog.emit('element');
+              this.showInsertJsonDialog.emit({ type: 'element', node: this.node! });
             },
             visible: this.isInsertAllowed(CMTypeOption.ElFromJson),
           },
@@ -331,7 +334,7 @@ export class V3TreeContextMenuComponent {
             icon: 'fa-solid fa-code',
             command: () => {
               menu.hide();
-              this.showInsertJsonDialog.emit('cd');
+              this.showInsertJsonDialog.emit({ type: 'cd', node: this.node! });
             },
             visible: this.isInsertAllowed(CMTypeOption.CdFromJson),
           },

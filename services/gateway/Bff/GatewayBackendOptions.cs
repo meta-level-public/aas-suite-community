@@ -6,6 +6,12 @@ public sealed class GatewayBackendOptions
     public string FrontendLoginPath { get; set; } = "/designer-ui/login";
 
     /// <summary>
+    /// Externer Pfad-Präfix, unter dem die gesamte Suite bereitgestellt wird (z.B. "/aas_testing").
+    /// Leer lassen, wenn die Suite direkt am Root läuft.
+    /// </summary>
+    public string ExternalBasePath { get; set; } = string.Empty;
+
+    /// <summary>
     /// The base path prefix under which the frontend SPA is served (e.g. "/designer-ui").
     /// Derived from FrontendLoginPath by stripping the last path segment.
     /// </summary>
