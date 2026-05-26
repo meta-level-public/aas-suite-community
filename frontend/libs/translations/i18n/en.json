@@ -1952,7 +1952,7 @@
   "PROXY": "Proxy",
   "SM_REGISTRY_SHORT": "SM Reg.",
   "SM_REGISTRY_VERSION": "SM Registry Version",
-  "NESTED_COLLECTION_SHOWING": "Showing {start} to {end} of {total}",
+  "NESTED_COLLECTION_SHOWING": "Showing {{start}} to {{end}} of {{total}}",
   "NEXT": "Next",
   "NEXT_MATCH": "Next",
   "NEXT_NEWS_ARIA": "Show next news",

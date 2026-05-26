@@ -2346,7 +2346,7 @@
         "tags": [
           "InfrastrukturRechte"
         ],
-        "summary": "Alle Infrastrukturen einer Organisation mit den Rechten eines bestimmten Nutzers.",
+        "summary": "All infrastructures of an organisation with the permissions of a specific user.",
         "operationId": "InfrastrukturRechte_GetUserInfraRechte",
         "parameters": [
           {
@@ -2390,7 +2390,7 @@
         "tags": [
           "InfrastrukturRechte"
         ],
-        "summary": "Rechte eines Nutzers für eine bestimmte Infrastruktur setzen (Upsert).\nDarfSchreiben impliziert DarfLesen.",
+        "summary": "Set the permissions of a user for a specific infrastructure (upsert).\nDarfSchreiben implies DarfLesen.",
         "operationId": "InfrastrukturRechte_UpsertUserInfraRecht",
         "parameters": [
           {
@@ -2452,7 +2452,7 @@
         "tags": [
           "InfrastrukturRechte"
         ],
-        "summary": "Alle Nutzer einer Organisation mit ihren Rechten für eine bestimmte Infrastruktur.",
+        "summary": "All users of an organisation with their permissions for a specific infrastructure.",
         "operationId": "InfrastrukturRechte_GetInfraUserRechte",
         "parameters": [
           {

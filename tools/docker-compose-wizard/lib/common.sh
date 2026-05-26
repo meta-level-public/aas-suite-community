@@ -652,6 +652,7 @@ append_gateway_service() {
   local market_cluster_url="${12:-}"
   local market_ui_cluster_url="${13:-}"
   local frontend_login_path="${14:-/designer-ui/login}"
+  local external_base_path="${15:-}"
 
   cat >> "$compose_file" <<EOF_COMPOSE
   gateway:
@@ -680,6 +681,12 @@ append_gateway_service() {
       AppSettings__KeycloakScopes: \${KEYCLOAK_SCOPES}
       GatewayBackend__FrontendLoginPath: ${frontend_login_path}
 EOF_COMPOSE
+
+  if [ -n "$external_base_path" ]; then
+    cat >> "$compose_file" <<EOF_COMPOSE
+      GatewayBackend__ExternalBasePath: ${external_base_path}
+EOF_COMPOSE
+  fi
 
   if [ "$include_feedmapping" = "true" ]; then
     cat >> "$compose_file" <<EOF_COMPOSE
@@ -778,7 +785,7 @@ append_frontend_service() {
   local network_name="$2"
   local container_port="$3"
   local designer_service_name="${4:-designer-backend}"
-  local patch_base_href="${5:-false}"
+  local designer_base_href="${5:-}"
 
   cat >> "$compose_file" <<EOF_COMPOSE
   frontend:
@@ -850,8 +857,8 @@ append_frontend_service() {
         if [ -f "\$\$INDEX_FILE" ] && ! grep -q "runtime-config.js" "\$\$INDEX_FILE"; then
           sed -i 's#<head>#<head><script src="runtime-config.js"></script>#' "\$\$INDEX_FILE"
         fi
-        if [ "${patch_base_href}" = "true" ] && [ -f "\$\$INDEX_FILE" ]; then
-          sed -i 's#<base href="/" />#<base href="/designer-ui/" />#' "\$\$INDEX_FILE"
+        if [ -n "${designer_base_href}" ] && [ -f "\$\$INDEX_FILE" ]; then
+          sed -i "s#<base href=\"/\" />#<base href=\"${designer_base_href}\" />#" "\$\$INDEX_FILE"
         fi
         cat >/tmp/Caddyfile <<EOF
         {
@@ -914,6 +921,7 @@ EOF_COMPOSE
 append_markt_ui_service() {
   local compose_file="$1"
   local network_name="$2"
+  local markt_base_href="${3:-}"
 
   cat >> "$compose_file" <<EOF_COMPOSE
   markt-ui:
@@ -921,6 +929,15 @@ append_markt_ui_service() {
     container_name: \${PROJECT_NAME}-markt-ui
     environment:
       MARKT_API_BASE_URL: \${MARKT_API_BASE_URL}
+EOF_COMPOSE
+
+  if [ -n "$markt_base_href" ]; then
+    cat >> "$compose_file" <<EOF_COMPOSE
+      MARKT_BASE_HREF: ${markt_base_href}
+EOF_COMPOSE
+  fi
+
+  cat >> "$compose_file" <<EOF_COMPOSE
     networks:
       - ${network_name}
     depends_on:

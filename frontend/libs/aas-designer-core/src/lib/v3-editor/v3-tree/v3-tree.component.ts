@@ -101,6 +101,7 @@ export class V3TreeComponent implements OnChanges, OnInit {
   @ViewChild('snippetTable') snippetTable: SnippetsCatalogComponent | undefined;
   @ViewChild('cm') cm: V3TreeContextMenuComponent | undefined;
   @ViewChild(CdkVirtualScrollViewport) viewport: CdkVirtualScrollViewport | undefined;
+  @ViewChild('jsonFileUpload') jsonFileUpload: FileUpload | undefined;
   // shellRootNode: TreeNode<V3TreeItem<PackageMetadata>> | undefined;
   shellNode: TreeNode<V3TreeItem<aas.types.AssetAdministrationShell>> | undefined;
 
@@ -1153,9 +1154,11 @@ export class V3TreeComponent implements OnChanges, OnInit {
     }
   }
 
-  showInsertJsonDialog(type: 'submodel' | 'element' | 'cd') {
+  showInsertJsonDialog(event: { type: 'submodel' | 'element' | 'cd'; node: TreeNode<V3TreeItem<any>> }) {
+    this.treeService.selectedTreeNode = event.node;
+    this.selectedTreeNode = event.node;
     this.importJsonDialogVisible = true;
-    this.importType = type;
+    this.importType = event.type;
     this.plainJson = '';
   }
 
@@ -1376,6 +1379,7 @@ export class V3TreeComponent implements OnChanges, OnInit {
       if (instanceOrErrorPlain.value != null) {
         ElementInserter.insertSubmodel(instanceOrErrorPlain.value, this.treeService, this.shellResult);
         this.importJsonDialogVisible = false;
+        this.selectedElementChanged.emit((this.treeService.selectedTreeNode as TreeNode<V3TreeItem<any>> | null)?.data);
       } else if (instanceOrErrorPlain.value == null) {
         if (instanceOrErrorPlain.error != null) {
           // eslint-disable-next-line no-console
@@ -1413,6 +1417,14 @@ export class V3TreeComponent implements OnChanges, OnInit {
             break;
         }
         this.importJsonDialogVisible = false;
+        const insertedNode = node.children?.[node.children.length - 1];
+        if (insertedNode != null) {
+          this.onNodeClicked(insertedNode);
+        } else {
+          this.selectedElementChanged.emit(
+            (this.treeService.selectedTreeNode as TreeNode<V3TreeItem<any>> | null)?.data,
+          );
+        }
       } else if (instanceOrErrorPlain.value == null) {
         if (instanceOrErrorPlain.error != null) {
           // eslint-disable-next-line no-console
@@ -1439,6 +1451,7 @@ export class V3TreeComponent implements OnChanges, OnInit {
       if (instanceOrErrorPlain.value != null) {
         ElementInserter.insertConceptDescription(instanceOrErrorPlain.value, this.treeService);
         this.importJsonDialogVisible = false;
+        this.selectedElementChanged.emit((this.treeService.selectedTreeNode as TreeNode<V3TreeItem<any>> | null)?.data);
       } else if (instanceOrErrorPlain.value == null) {
         if (instanceOrErrorPlain.error != null) {
           // eslint-disable-next-line no-console
@@ -1469,6 +1482,7 @@ export class V3TreeComponent implements OnChanges, OnInit {
       // you can perform an action with readed data here
       this.plainJson = myReader.result as string;
       this.checkJsonValidity();
+      this.jsonFileUpload?.clear();
     };
 
     myReader.readAsText(event.files[0]);
@@ -1488,30 +1502,39 @@ export class V3TreeComponent implements OnChanges, OnInit {
   }
 
   jsonValid = signal(false);
+  jsonValidationError = signal<string | null>(null);
 
   checkJsonValidity() {
     let valid = true;
+    let errorDetail: string | null = null;
 
     if (this.importType === 'submodel') {
       try {
         const instanceOrErrorPlain = aas.jsonization.conceptDescriptionFromJsonable(JSON.parse(this.plainJson ?? ''));
         if (instanceOrErrorPlain.error != null) {
           valid = false;
+          const err = instanceOrErrorPlain.error;
+          errorDetail = err.path ? `${err.path}: ${err.message}` : err.message;
         }
-      } catch {
+      } catch (e) {
         valid = false;
+        errorDetail = e instanceof Error ? e.message : String(e);
       }
     } else if (this.importType === 'element') {
       try {
         const instanceOrErrorPlain = aas.jsonization.submodelElementFromJsonable(JSON.parse(this.plainJson ?? ''));
         if (instanceOrErrorPlain.error != null) {
           valid = false;
+          const err = instanceOrErrorPlain.error;
+          errorDetail = err.path ? `${err.path}: ${err.message}` : err.message;
         }
-      } catch {
+      } catch (e) {
         valid = false;
+        errorDetail = e instanceof Error ? e.message : String(e);
       }
     }
 
     this.jsonValid.set(valid);
+    this.jsonValidationError.set(valid ? null : errorDetail);
   }
 }
