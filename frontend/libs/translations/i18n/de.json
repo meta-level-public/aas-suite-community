@@ -1977,7 +1977,7 @@
   "PROXY": "Proxy",
   "SM_REGISTRY_SHORT": "SM-Reg.",
   "SM_REGISTRY_VERSION": "SM-Registry-Version",
-  "NESTED_COLLECTION_SHOWING": "Zeige {start} bis {end} von {total}",
+  "NESTED_COLLECTION_SHOWING": "Zeige {{start}} bis {{end}} von {{total}}",
   "NEXT": "Weiter",
   "NEXT_MATCH": "Nächstes",
   "NEXT_NEWS_ARIA": "Nächste News anzeigen",

@@ -5565,7 +5565,7 @@ export class AasViewerClient implements IAasViewerClient {
 
 export interface IInfrastrukturRechteClient {
   /**
-   * Alle Infrastrukturen einer Organisation mit den Rechten eines bestimmten Nutzers.
+   * All infrastructures of an organisation with the permissions of a specific user.
    * @param organisationId (optional)
    * @param userId (optional)
    */
@@ -5574,8 +5574,8 @@ export interface IInfrastrukturRechteClient {
     userId: number | undefined,
   ): Observable<BenutzerInfrastrukturRechtDto[]>;
   /**
-     * Rechte eines Nutzers für eine bestimmte Infrastruktur setzen (Upsert).
-    DarfSchreiben impliziert DarfLesen.
+     * Set the permissions of a user for a specific infrastructure (upsert).
+    DarfSchreiben implies DarfLesen.
      * @param organisationId (optional) 
      * @param userId (optional) 
      * @param infraId (optional) 
@@ -5587,7 +5587,7 @@ export interface IInfrastrukturRechteClient {
     dto: BenutzerInfrastrukturRechtDto,
   ): Observable<BenutzerInfrastrukturRechtDto>;
   /**
-   * Alle Nutzer einer Organisation mit ihren Rechten für eine bestimmte Infrastruktur.
+   * All users of an organisation with their permissions for a specific infrastructure.
    * @param organisationId (optional)
    * @param infraId (optional)
    */
@@ -5611,7 +5611,7 @@ export class InfrastrukturRechteClient implements IInfrastrukturRechteClient {
   }
 
   /**
-   * Alle Infrastrukturen einer Organisation mit den Rechten eines bestimmten Nutzers.
+   * All infrastructures of an organisation with the permissions of a specific user.
    * @param organisationId (optional)
    * @param userId (optional)
    */
@@ -5696,8 +5696,8 @@ export class InfrastrukturRechteClient implements IInfrastrukturRechteClient {
   }
 
   /**
-     * Rechte eines Nutzers für eine bestimmte Infrastruktur setzen (Upsert).
-    DarfSchreiben impliziert DarfLesen.
+     * Set the permissions of a user for a specific infrastructure (upsert).
+    DarfSchreiben implies DarfLesen.
      * @param organisationId (optional) 
      * @param userId (optional) 
      * @param infraId (optional) 
@@ -5786,7 +5786,7 @@ export class InfrastrukturRechteClient implements IInfrastrukturRechteClient {
   }
 
   /**
-   * Alle Nutzer einer Organisation mit ihren Rechten für eine bestimmte Infrastruktur.
+   * All users of an organisation with their permissions for a specific infrastructure.
    * @param organisationId (optional)
    * @param infraId (optional)
    */
