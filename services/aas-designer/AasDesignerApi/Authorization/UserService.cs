@@ -14,6 +14,7 @@ using AasShared.Configuration;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Primitives;
 
 public class UserService : IUserService
@@ -21,12 +22,19 @@ public class UserService : IUserService
     private readonly IApplicationDbContext _context;
     private readonly JwtUtils _jwtUtils;
     private readonly AppSettings _appSettings;
+    private readonly ILogger<UserService> _logger;
 
-    public UserService(IApplicationDbContext context, JwtUtils jwtUtils, AppSettings appSettings)
+    public UserService(
+        IApplicationDbContext context,
+        JwtUtils jwtUtils,
+        AppSettings appSettings,
+        ILogger<UserService> logger
+    )
     {
         _context = context;
         _jwtUtils = jwtUtils;
         _appSettings = appSettings;
+        _logger = logger;
     }
 
     public AuthenticateResponse Authenticate(AuthenticateRequest model, string ipAddress)
@@ -359,6 +367,13 @@ public class UserService : IUserService
         rollen = rollen.Distinct().ToList();
 
         // resolve infra permissions for all users (no bypass for admins)
+        _logger.LogDebug(
+            "[AuthDiag] GetAppUser benutzerId={BenutzerId} orgaId={OrgaId} aasSettingId={AasSettingId} baseRoles=[{BaseRoles}]",
+            benutzerId,
+            orgaId,
+            aasSettingId,
+            string.Join(", ", rollen)
+        );
         if (aasSettingId > 0)
         {
             // resolve infra permissions and translate to virtual roles
@@ -379,7 +394,31 @@ public class UserService : IUserService
                 }
                 if (infraRecht.DarfMarktPublizieren)
                     rollen.Add(AuthRoles.MARKT_PUBLISHER);
+                _logger.LogDebug(
+                    "[AuthDiag] InfraRecht found for benutzerId={BenutzerId} infraId={InfraId}: DarfLesen={Lesen} DarfSchreiben={Schreiben}",
+                    benutzerId,
+                    aasSettingId,
+                    infraRecht.DarfLesen,
+                    infraRecht.DarfSchreiben
+                );
             }
+            else
+            {
+                _logger.LogWarning(
+                    "[AuthDiag] No InfraRecht found for benutzerId={BenutzerId} orgaId={OrgaId} infraId={InfraId} — SHELLS_READER/SHELLS_EDITOR not granted",
+                    benutzerId,
+                    orgaId,
+                    aasSettingId
+                );
+            }
+        }
+        else
+        {
+            _logger.LogWarning(
+                "[AuthDiag] aasSettingId={AasSettingId} is not > 0 for benutzerId={BenutzerId} — infra rights check skipped, SHELLS_READER/SHELLS_EDITOR not granted",
+                aasSettingId,
+                benutzerId
+            );
         }
 
         rollen = rollen.Distinct().ToList();

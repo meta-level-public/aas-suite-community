@@ -646,7 +646,27 @@ public sealed class GatewayBffSessionService
         CancellationToken cancellationToken
     )
     {
-        var response = await _httpClient.SendAsync(request, cancellationToken);
+        HttpResponseMessage response;
+        try
+        {
+            response = await _httpClient.SendAsync(request, cancellationToken);
+        }
+        catch (HttpRequestException ex)
+        {
+            var endpointPath = request.RequestUri?.AbsolutePath ?? "(unknown)";
+            var endpointAuthority = request.RequestUri?.Authority ?? "(unknown)";
+            var (requestPath, traceIdentifier) = GetCurrentRequestContext();
+            _logger.LogWarning(
+                ex,
+                "BFF auth request to {EndpointPath} on {EndpointAuthority} failed before a response was received, trace id {TraceIdentifier}, request path {RequestPath}.",
+                endpointPath,
+                endpointAuthority,
+                traceIdentifier,
+                requestPath
+            );
+            return null;
+        }
+
         if (!response.IsSuccessStatusCode)
         {
             var endpointPath = request.RequestUri?.AbsolutePath ?? "(unknown)";

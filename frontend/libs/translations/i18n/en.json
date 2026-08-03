@@ -1082,7 +1082,7 @@
   "DELETE_CURRENT_ORGANIZATION": "The following organization is going to be deleted: ",
   "DELETE_ELEMENT_Q": "Do you really want to delete the element?",
   "DELETE_ENTITY_TREE": "Should the element and all child elements really be deleted?",
-  "DELETE_INFRASTRUCTURE_Q": "Do you really want to delete these AAS infrastructure settings?",
+  "DELETE_INFRASTRUCTURE_Q": "Do you really want to delete these AAS infrastructure settings? All associated API keys will be deleted as well.",
   "DELETE_INVITATION_Q": "Should the invitation really be deleted?",
   "RESEND_INVITATION": "Resend invitation",
   "REMOVE_TEMPLATE_QUALIFIERS_Q": "Do you really want to remove all template qualifiers in this submodel and its contained elements?",

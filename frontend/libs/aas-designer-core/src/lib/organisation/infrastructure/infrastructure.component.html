@@ -121,13 +121,16 @@
         ></aas-infrastructure-migrate-go>
       }
       @if (accessService.isAllowed('ORGA_ADMIN') && settings()?.id) {
-        <p-fieldset [legend]="'INFRA_RECHTE.TITLE' | translate" class="mt-4">
+        <div class="detail-card mt-4">
+          <h3 class="text-sm font-semibold mb-3" style="color: var(--p-primary-color)">
+            {{ 'INFRA_RECHTE.TITLE' | translate }}
+          </h3>
           <aas-infrastruktur-rechte
             mode="infra"
             [organisationId]="orgaStateService.myOrgaId"
             [infraId]="settings()!.id!"
           ></aas-infrastruktur-rechte>
-        </p-fieldset>
+        </div>
       }
     }
   </div>

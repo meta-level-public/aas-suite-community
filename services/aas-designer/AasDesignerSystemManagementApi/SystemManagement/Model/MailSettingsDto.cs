@@ -11,7 +11,7 @@ public class MailSettingsDto
 public class ApplicationMailSettingsDto
 {
     public string SmtpServer { get; set; } = string.Empty;
-    public int SmtpPort { get; set; } = 587;
+    public int SmtpPort { get; set; } = 0;
     public bool SmtpUseSsl { get; set; }
     public bool SmtpUseTls { get; set; }
     public bool SmtpNeedsAuthentication { get; set; }

@@ -38,6 +38,11 @@ public class DeleteInfrastructureHandler : IRequestHandler<DeleteInfrastructureC
         if (setting == null)
             throw new Exception("Setting not found");
 
+        var relatedApikeys = await _context
+            .Apikeys.Where(k => k.AasInfrastructureSettingsId == request.SettingId)
+            .ToListAsync();
+        _context.RemoveRange(relatedApikeys);
+
         _context.Remove(setting);
 
         var deleteProtocol = new DeleteProtocol
