@@ -15,6 +15,7 @@
   <ItemGroup>
     <PackageReference Include="AspNetCore.HealthChecks.UI.Client" />
     <PackageReference Include="Microsoft.AspNetCore.OpenApi" />
+    <PackageReference Include="Microsoft.OpenApi" />
     <PackageReference Include="Microsoft.Extensions.Caching.Postgres" />
     <PackageReference Include="Yarp.ReverseProxy" />
   </ItemGroup>
