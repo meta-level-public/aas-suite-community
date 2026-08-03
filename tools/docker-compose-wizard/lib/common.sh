@@ -625,6 +625,8 @@ append_keycloak_internal_service() {
     networks:
       - ${network_name}
     depends_on:
+      postgres:
+        condition: service_healthy
       postgres-init:
         condition: service_completed_successfully
     healthcheck:
@@ -1131,13 +1133,29 @@ EOF_COMPOSE
 append_basyx_internal_services() {
   local compose_file="$1"
   local network_name="$2"
+  local expose_ports="${3:-yes}"
 
   cat >> "$compose_file" <<EOF_COMPOSE
+  basyx-config-init:
+    image: \${BASYX_CONFIG_SERVICE_IMAGE_REPO}:\${AAS_REGISTRY_IMAGE_TAG}
+    container_name: \${PROJECT_NAME}-basyx-config-init
+    environment:
+      POSTGRES_HOST: postgres
+      POSTGRES_PORT: "5432"
+      POSTGRES_USER: \${POSTGRES_USER}
+      POSTGRES_PASSWORD: \${POSTGRES_PASSWORD}
+      POSTGRES_DBNAME: \${BASYX_POSTGRES_DB}
+    networks:
+      - ${network_name}
+    depends_on:
+      postgres-init:
+        condition: service_completed_successfully
+    restart: "no"
+
   aasregistry-go:
     image: \${AAS_REGISTRY_IMAGE_REPO}:\${AAS_REGISTRY_IMAGE_TAG}
     container_name: \${PROJECT_NAME}-aasregistry-go
-    ports:
-      - "\${AAS_REGISTRY_HOST_PORT}:\${AASREG_SERVER_PORT}"
+$([ "$expose_ports" = "yes" ] && printf '    ports:\n      - "${AAS_REGISTRY_HOST_PORT}:${AASREG_SERVER_PORT}"\n')
     environment:
       CORS_ALLOWEDORIGINS: \${AASREG_CORS_ALLOWEDORIGINS}
       CORS_ALLOWEDHEADERS: \${AASREG_CORS_ALLOWEDHEADERS}
@@ -1161,15 +1179,14 @@ append_basyx_internal_services() {
     networks:
       - ${network_name}
     depends_on:
-      postgres-init:
+      basyx-config-init:
         condition: service_completed_successfully
     restart: unless-stopped
 
   submodelregistry-go:
     image: \${SUBMODEL_REGISTRY_IMAGE_REPO}:\${SUBMODEL_REGISTRY_IMAGE_TAG}
     container_name: \${PROJECT_NAME}-submodelregistry-go
-    ports:
-      - "\${SUBMODEL_REGISTRY_HOST_PORT}:\${SMREG_SERVER_PORT}"
+$([ "$expose_ports" = "yes" ] && printf '    ports:\n      - "${SUBMODEL_REGISTRY_HOST_PORT}:${SMREG_SERVER_PORT}"\n')
     environment:
       CORS_ALLOWEDORIGINS: \${SMREG_CORS_ALLOWEDORIGINS}
       CORS_ALLOWEDHEADERS: \${SMREG_CORS_ALLOWEDHEADERS}
@@ -1193,15 +1210,14 @@ append_basyx_internal_services() {
     networks:
       - ${network_name}
     depends_on:
-      postgres-init:
+      basyx-config-init:
         condition: service_completed_successfully
     restart: unless-stopped
 
   aasdiscovery-go:
     image: \${AAS_DISCOVERY_IMAGE_REPO}:\${AAS_DISCOVERY_IMAGE_TAG}
     container_name: \${PROJECT_NAME}-aasdiscovery-go
-    ports:
-      - "\${AAS_DISCOVERY_HOST_PORT}:\${AASDISC_SERVER_PORT}"
+$([ "$expose_ports" = "yes" ] && printf '    ports:\n      - "${AAS_DISCOVERY_HOST_PORT}:${AASDISC_SERVER_PORT}"\n')
     environment:
       CORS_ALLOWEDORIGINS: \${AASDISC_CORS_ALLOWEDORIGINS}
       CORS_ALLOWEDHEADERS: \${AASDISC_CORS_ALLOWEDHEADERS}
@@ -1225,15 +1241,14 @@ append_basyx_internal_services() {
     networks:
       - ${network_name}
     depends_on:
-      postgres-init:
+      basyx-config-init:
         condition: service_completed_successfully
     restart: unless-stopped
 
   aasrepository-go:
     image: \${AAS_REPOSITORY_IMAGE_REPO}:\${AAS_REPOSITORY_IMAGE_TAG}
     container_name: \${PROJECT_NAME}-aasrepository-go
-    ports:
-      - "\${AAS_REPOSITORY_HOST_PORT}:\${AASREPO_SERVER_PORT}"
+$([ "$expose_ports" = "yes" ] && printf '    ports:\n      - "${AAS_REPOSITORY_HOST_PORT}:${AASREPO_SERVER_PORT}"\n')
     environment:
       CORS_ALLOWEDORIGINS: \${AASREPO_CORS_ALLOWEDORIGINS}
       CORS_ALLOWEDHEADERS: \${AASREPO_CORS_ALLOWEDHEADERS}
@@ -1256,15 +1271,14 @@ append_basyx_internal_services() {
     networks:
       - ${network_name}
     depends_on:
-      postgres-init:
+      basyx-config-init:
         condition: service_completed_successfully
     restart: unless-stopped
 
   submodelrepository-go:
     image: \${SUBMODEL_REPOSITORY_IMAGE_REPO}:\${SUBMODEL_REPOSITORY_IMAGE_TAG}
     container_name: \${PROJECT_NAME}-submodelrepository-go
-    ports:
-      - "\${SUBMODEL_REPOSITORY_HOST_PORT}:\${SMREPO_SERVER_PORT}"
+$([ "$expose_ports" = "yes" ] && printf '    ports:\n      - "${SUBMODEL_REPOSITORY_HOST_PORT}:${SMREPO_SERVER_PORT}"\n')
     environment:
       CORS_ALLOWEDORIGINS: \${SMREPO_CORS_ALLOWEDORIGINS}
       CORS_ALLOWEDHEADERS: \${SMREPO_CORS_ALLOWEDHEADERS}
@@ -1288,15 +1302,14 @@ append_basyx_internal_services() {
     networks:
       - ${network_name}
     depends_on:
-      postgres-init:
+      basyx-config-init:
         condition: service_completed_successfully
     restart: unless-stopped
 
   conceptdescriptionrepository-go:
     image: \${CONCEPT_DESCRIPTION_REPOSITORY_IMAGE_REPO}:\${CONCEPT_DESCRIPTION_REPOSITORY_IMAGE_TAG}
     container_name: \${PROJECT_NAME}-conceptdescriptionrepository-go
-    ports:
-      - "\${CONCEPT_DESCRIPTION_REPOSITORY_HOST_PORT}:\${CDREPO_SERVER_PORT}"
+$([ "$expose_ports" = "yes" ] && printf '    ports:\n      - "${CONCEPT_DESCRIPTION_REPOSITORY_HOST_PORT}:${CDREPO_SERVER_PORT}"\n')
     environment:
       CORS_ALLOWEDORIGINS: \${CDREPO_CORS_ALLOWEDORIGINS}
       CORS_ALLOWEDHEADERS: \${CDREPO_CORS_ALLOWEDHEADERS}
@@ -1319,7 +1332,7 @@ append_basyx_internal_services() {
     networks:
       - ${network_name}
     depends_on:
-      postgres-init:
+      basyx-config-init:
         condition: service_completed_successfully
     restart: unless-stopped
 EOF_COMPOSE

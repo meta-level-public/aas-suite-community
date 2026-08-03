@@ -136,14 +136,22 @@ public class GetShellListHandler : IRequestHandler<GetShellListQuery, ShellListV
                 shellListDto.IdShort = jsonNode["idShort"]?.ToString() ?? string.Empty;
 
                 // weil in der Registry keine Bilder liegen, muss nun das Bild aus dem Repository geladen werden ...
-                var assetInformation = await ShellLoader.LoadAssetInformationOnly(
-                    request.AppUser.CurrentInfrastructureSettings,
-                    shellListDto.Id,
-                    cancellationToken,
-                    request.AppUser
-                );
-                shellListDto.ThumbnailPath =
-                    assetInformation?.DefaultThumbnail?.Path ?? string.Empty;
+                // Fehler (z. B. 401 bei externen Servern) werden ignoriert – Thumbnail bleibt leer.
+                try
+                {
+                    var assetInformation = await ShellLoader.LoadAssetInformationOnly(
+                        request.AppUser.CurrentInfrastructureSettings,
+                        shellListDto.Id,
+                        cancellationToken,
+                        request.AppUser
+                    );
+                    shellListDto.ThumbnailPath =
+                        assetInformation?.DefaultThumbnail?.Path ?? string.Empty;
+                }
+                catch
+                {
+                    shellListDto.ThumbnailPath = string.Empty;
+                }
 
                 result.Shells.Add(shellListDto);
             }

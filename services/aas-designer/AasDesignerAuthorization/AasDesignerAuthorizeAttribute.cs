@@ -5,6 +5,8 @@ using AasShared.Model.AasApi;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 
 namespace AasDesignerAuthorization
 {
@@ -52,6 +54,27 @@ namespace AasDesignerAuthorization
             }
             else if (!IsAllowed(user))
             {
+                var logger = context
+                    .HttpContext.RequestServices.GetService<ILoggerFactory>()
+                    ?.CreateLogger(nameof(AasDesignerAuthorizeAttribute));
+                var infraHeader =
+                    context.HttpContext.Request.Headers["X-Infrastructure-ID"].FirstOrDefault()
+                    ?? "(missing)";
+                var orgaHeader =
+                    context.HttpContext.Request.Headers["X-Organisation-ID"].FirstOrDefault()
+                    ?? "(missing)";
+                logger?.LogWarning(
+                    "[AuthDiag] 403 Forbidden: userId={UserId} path={Path} method={Method} "
+                        + "X-Infrastructure-ID={InfraId} X-Organisation-ID={OrgaId} "
+                        + "userRoles=[{UserRoles}] requiredRoles=[{RequiredRoles}]",
+                    user.BenutzerId,
+                    context.HttpContext.Request.Path.Value,
+                    context.HttpContext.Request.Method,
+                    infraHeader,
+                    orgaHeader,
+                    string.Join(", ", user.BenutzerRollen),
+                    string.Join(", ", RequiredRoles)
+                );
                 // Forbidden
                 context.Result = GetResult(StatusCodes.Status403Forbidden, context, "Forbidden");
             }

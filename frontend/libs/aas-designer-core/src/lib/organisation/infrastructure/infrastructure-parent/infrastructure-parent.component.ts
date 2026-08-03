@@ -3,15 +3,24 @@ import { AasInfrastructureClient, AasInfrastructureSettingsDto } from '@aas/weba
 import { Component, ElementRef, inject, output, signal, viewChild } from '@angular/core';
 import { TranslateModule } from '@ngx-translate/core';
 import { ButtonModule } from 'primeng/button';
+import { DialogModule } from 'primeng/dialog';
 import { ToolbarModule } from 'primeng/toolbar';
 import { lastValueFrom } from 'rxjs';
+import { InfrastrukturRechteComponent } from '../../infrastruktur-rechte/infrastruktur-rechte.component';
 import { HasChangesCheckable } from '../../my-organisation/has-changes-checkable';
 import { OrganisationStateService } from '../../organisation-state.service';
 import { InfrastructureAddComponent } from '../infrastructure-add/infrastructure-add.component';
 
 @Component({
   selector: 'aas-infrastructure-parent',
-  imports: [ToolbarModule, TranslateModule, ButtonModule, InfrastructureAddComponent],
+  imports: [
+    ToolbarModule,
+    TranslateModule,
+    ButtonModule,
+    DialogModule,
+    InfrastructureAddComponent,
+    InfrastrukturRechteComponent,
+  ],
   templateUrl: './infrastructure-parent.component.html',
   providers: [{ provide: HasChangesCheckable, useExisting: InfrastructureParentComponent }],
 })
@@ -25,6 +34,8 @@ export class InfrastructureParentComponent extends HasChangesCheckable {
   mode = signal<'add' | 'view'>('view');
   settings = signal<AasInfrastructureSettingsDto>(new AasInfrastructureSettingsDto());
   reloadInfrastuctureList = output();
+  newInfraId = signal<number | undefined>(undefined);
+  rechteDialogVisible = signal(false);
 
   addComponent = viewChild(InfrastructureAddComponent);
   contentScroll = viewChild<ElementRef<HTMLDivElement>>('contentScroll');
@@ -56,14 +67,15 @@ export class InfrastructureParentComponent extends HasChangesCheckable {
   async saveSettings() {
     try {
       this.loading.set(true);
-      const res = await lastValueFrom(this.infrastructureClient.aasInfrastructure_AddInfrastructure(this.settings()));
-      if (res) {
-        this.notificationService.showMessageAlways('INFRASTRUCTURE_SAVED', 'SUCCESS', 'success', false);
-      }
+      const newId = await lastValueFrom(this.infrastructureClient.aasInfrastructure_AddInfrastructure(this.settings()));
       this.mode.set('view');
       this.scrollToTop();
       this.orgaStateService.requestInfrastructureTreeReload();
       this.reloadInfrastuctureList.emit();
+      if (newId) {
+        this.newInfraId.set(newId);
+        this.rechteDialogVisible.set(true);
+      }
     } finally {
       this.loading.set(false);
     }

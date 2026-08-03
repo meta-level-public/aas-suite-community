@@ -7,13 +7,13 @@ using Microsoft.EntityFrameworkCore;
 
 namespace AasDesignerAasApi.Infrastructure.Commands.CreateInfrastructure;
 
-public class CreateInfrastructureCommand : IRequest<bool>
+public class CreateInfrastructureCommand : IRequest<long>
 {
     public AppUser AppUser { get; set; } = null!;
     public AasInfrastructureSettingsDto AasInfrastructureSettings { get; set; } = null!;
 }
 
-public class CreateInfrastructureHandler : IRequestHandler<CreateInfrastructureCommand, bool>
+public class CreateInfrastructureHandler : IRequestHandler<CreateInfrastructureCommand, long>
 {
     private readonly IApplicationDbContext _context;
     private readonly IMapper _mapper;
@@ -24,14 +24,14 @@ public class CreateInfrastructureHandler : IRequestHandler<CreateInfrastructureC
         _mapper = mapper;
     }
 
-    public async Task<bool> Handle(
+    public async Task<long> Handle(
         CreateInfrastructureCommand request,
         CancellationToken cancellationToken
     )
     {
         var orga = await _context
             .Organisations.Where(o => o.Id == request.AppUser.OrganisationId)
-            .FirstOrDefaultAsync();
+            .FirstOrDefaultAsync(cancellationToken);
 
         if (orga == null)
             throw new Exception("Organisation not found");
@@ -42,6 +42,6 @@ public class CreateInfrastructureHandler : IRequestHandler<CreateInfrastructureC
         orga.AasInfrastructureSettings.Add(newInfra);
         _context.SaveChanges();
 
-        return true;
+        return newInfra.Id;
     }
 }

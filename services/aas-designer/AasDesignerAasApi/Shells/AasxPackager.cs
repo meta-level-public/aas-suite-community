@@ -207,7 +207,7 @@ public class AasxPackager
 
     private static void CreateDefaultThumbnail(PackageReadWrite pkg)
     {
-        var path = Path.Combine("Packaging", "Thumbnail.png");
+        var path = Path.Combine(AppContext.BaseDirectory, "Packaging", "Thumbnail.png");
         using (FileStream fileStream = new FileStream(path, FileMode.Open, FileAccess.Read))
         {
             var thumbnail = pkg.PutPart(

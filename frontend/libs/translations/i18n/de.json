@@ -1089,7 +1089,7 @@
   "DELETE_CURRENT_ORGANIZATION": "Folgende Organisation wird gelöscht: ",
   "DELETE_ELEMENT_Q": "Soll das Element wirklich gelöscht werden?",
   "DELETE_ENTITY_TREE": "Soll das Element und alle Kindelemente wirklich gelöscht werden?",
-  "DELETE_INFRASTRUCTURE_Q": "Wollen sie diese AAS-Infrastruktureinstellungen wirklich löschen?",
+  "DELETE_INFRASTRUCTURE_Q": "Wollen sie diese AAS-Infrastruktureinstellungen wirklich löschen? Alle zugehörigen API-Keys werden ebenfalls gelöscht.",
   "DELETE_INVITATION_Q": "Soll die Einladung wirklich gelöscht werden?",
   "RESEND_INVITATION": "Einladung erneut senden",
   "REMOVE_TEMPLATE_QUALIFIERS_Q": "Sollen alle Template Qualifier in diesem Teilmodell und seinen enthaltenen Elementen wirklich entfernt werden?",

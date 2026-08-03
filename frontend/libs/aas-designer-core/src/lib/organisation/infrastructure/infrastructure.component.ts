@@ -8,7 +8,7 @@ import {
   SystemManagementClient,
 } from '@aas/webapi-client';
 import { Component, computed, ElementRef, inject, OnInit, output, signal, ViewChild } from '@angular/core';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { ButtonModule } from 'primeng/button';
 import { FieldsetModule } from 'primeng/fieldset';
@@ -53,6 +53,7 @@ export class InfrastructureComponent extends HasChangesCheckable implements OnIn
   systemManagementClient = inject(SystemManagementClient);
   orgaStateService = inject(OrganisationStateService);
   route = inject(ActivatedRoute);
+  router = inject(Router);
 
   loading = signal<boolean>(false);
   mode = signal<'list' | 'edit' | 'updateVersions'>('list');
@@ -229,6 +230,7 @@ export class InfrastructureComponent extends HasChangesCheckable implements OnIn
       );
       this.orgaStateService.requestInfrastructureTreeReload();
       this.reloadInfrastuctureList.emit();
+      this.router.navigate(['../'], { relativeTo: this.route });
     }
   }
 

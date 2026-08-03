@@ -402,6 +402,8 @@ public class AasProxyController : InternalApiBaseController
         RequiredRoles = [
             AuthRoles.VIEWER_NUTZER,
             AuthRoles.BENUTZER,
+            AuthRoles.SHELLS_READER,
+            AuthRoles.SHELLS_EDITOR,
             AuthRoles.ORGA_ADMIN,
             AuthRoles.SYSTEM_ADMIN,
         ]
@@ -438,6 +440,8 @@ public class AasProxyController : InternalApiBaseController
         RequiredRoles = [
             AuthRoles.VIEWER_NUTZER,
             AuthRoles.BENUTZER,
+            AuthRoles.SHELLS_READER,
+            AuthRoles.SHELLS_EDITOR,
             AuthRoles.ORGA_ADMIN,
             AuthRoles.SYSTEM_ADMIN,
         ]
@@ -474,6 +478,8 @@ public class AasProxyController : InternalApiBaseController
         RequiredRoles = [
             AuthRoles.VIEWER_NUTZER,
             AuthRoles.BENUTZER,
+            AuthRoles.SHELLS_READER,
+            AuthRoles.SHELLS_EDITOR,
             AuthRoles.ORGA_ADMIN,
             AuthRoles.SYSTEM_ADMIN,
         ]
@@ -510,6 +516,8 @@ public class AasProxyController : InternalApiBaseController
         RequiredRoles = [
             AuthRoles.VIEWER_NUTZER,
             AuthRoles.BENUTZER,
+            AuthRoles.SHELLS_READER,
+            AuthRoles.SHELLS_EDITOR,
             AuthRoles.ORGA_ADMIN,
             AuthRoles.SYSTEM_ADMIN,
         ]
@@ -545,6 +553,8 @@ public class AasProxyController : InternalApiBaseController
         RequiredRoles = [
             AuthRoles.VIEWER_NUTZER,
             AuthRoles.BENUTZER,
+            AuthRoles.SHELLS_READER,
+            AuthRoles.SHELLS_EDITOR,
             AuthRoles.ORGA_ADMIN,
             AuthRoles.SYSTEM_ADMIN,
         ]
@@ -580,6 +590,8 @@ public class AasProxyController : InternalApiBaseController
         RequiredRoles = [
             AuthRoles.VIEWER_NUTZER,
             AuthRoles.BENUTZER,
+            AuthRoles.SHELLS_READER,
+            AuthRoles.SHELLS_EDITOR,
             AuthRoles.ORGA_ADMIN,
             AuthRoles.SYSTEM_ADMIN,
         ]
@@ -616,6 +628,7 @@ public class AasProxyController : InternalApiBaseController
         RequiredRoles = [
             AuthRoles.VIEWER_NUTZER,
             AuthRoles.BENUTZER,
+            AuthRoles.SHELLS_EDITOR,
             AuthRoles.ORGA_ADMIN,
             AuthRoles.SYSTEM_ADMIN,
         ]
@@ -652,6 +665,7 @@ public class AasProxyController : InternalApiBaseController
         RequiredRoles = [
             AuthRoles.VIEWER_NUTZER,
             AuthRoles.BENUTZER,
+            AuthRoles.SHELLS_EDITOR,
             AuthRoles.ORGA_ADMIN,
             AuthRoles.SYSTEM_ADMIN,
         ]
@@ -688,6 +702,7 @@ public class AasProxyController : InternalApiBaseController
         RequiredRoles = [
             AuthRoles.VIEWER_NUTZER,
             AuthRoles.BENUTZER,
+            AuthRoles.SHELLS_EDITOR,
             AuthRoles.ORGA_ADMIN,
             AuthRoles.SYSTEM_ADMIN,
         ]
@@ -724,6 +739,7 @@ public class AasProxyController : InternalApiBaseController
         RequiredRoles = [
             AuthRoles.VIEWER_NUTZER,
             AuthRoles.BENUTZER,
+            AuthRoles.SHELLS_EDITOR,
             AuthRoles.ORGA_ADMIN,
             AuthRoles.SYSTEM_ADMIN,
         ]
@@ -760,6 +776,7 @@ public class AasProxyController : InternalApiBaseController
         RequiredRoles = [
             AuthRoles.VIEWER_NUTZER,
             AuthRoles.BENUTZER,
+            AuthRoles.SHELLS_EDITOR,
             AuthRoles.ORGA_ADMIN,
             AuthRoles.SYSTEM_ADMIN,
         ]
@@ -796,6 +813,7 @@ public class AasProxyController : InternalApiBaseController
         RequiredRoles = [
             AuthRoles.VIEWER_NUTZER,
             AuthRoles.BENUTZER,
+            AuthRoles.SHELLS_EDITOR,
             AuthRoles.ORGA_ADMIN,
             AuthRoles.SYSTEM_ADMIN,
         ]

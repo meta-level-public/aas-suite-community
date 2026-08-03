@@ -19,7 +19,7 @@ export interface IAasInfrastructureClient {
   aasInfrastructure_GetAvailableInfrastructures(): Observable<AvailableInfastructure[]>;
   aasInfrastructure_GetAllSavedInfrastructures(): Observable<AvailableInfastructure[]>;
   aasInfrastructure_GetInfrastructureDetails(id: number | undefined): Observable<AasInfrastructureSettingsDto>;
-  aasInfrastructure_AddInfrastructure(settings: AasInfrastructureSettingsDto): Observable<boolean>;
+  aasInfrastructure_AddInfrastructure(settings: AasInfrastructureSettingsDto): Observable<number>;
   aasInfrastructure_CreateGoInfrastructure(): Observable<boolean>;
   aasInfrastructure_UpdateInfrastructure(settings: AasInfrastructureSettingsDto): Observable<boolean>;
   aasInfrastructure_DeleteInfrastructure(settingId: number | undefined): Observable<boolean>;
@@ -268,7 +268,7 @@ export class AasInfrastructureClient implements IAasInfrastructureClient {
     return _observableOf(null as any);
   }
 
-  aasInfrastructure_AddInfrastructure(settings: AasInfrastructureSettingsDto): Observable<boolean> {
+  aasInfrastructure_AddInfrastructure(settings: AasInfrastructureSettingsDto): Observable<number> {
     let url_ = this.baseUrl + '/aas-api/AasInfrastructure/AddInfrastructure';
     url_ = url_.replace(/[?&]$/, '');
 
@@ -297,14 +297,14 @@ export class AasInfrastructureClient implements IAasInfrastructureClient {
             try {
               return this.processAasInfrastructure_AddInfrastructure(response_ as any);
             } catch (e) {
-              return _observableThrow(e) as any as Observable<boolean>;
+              return _observableThrow(e) as any as Observable<number>;
             }
-          } else return _observableThrow(response_) as any as Observable<boolean>;
+          } else return _observableThrow(response_) as any as Observable<number>;
         }),
       );
   }
 
-  protected processAasInfrastructure_AddInfrastructure(response: HttpResponseBase): Observable<boolean> {
+  protected processAasInfrastructure_AddInfrastructure(response: HttpResponseBase): Observable<number> {
     const status = response.status;
     const responseBlob =
       response instanceof HttpResponse
