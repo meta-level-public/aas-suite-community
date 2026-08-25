@@ -120,6 +120,18 @@
           (goInfraCreated)="requestReload.emit(); reloadInfrastuctureList.emit()"
         ></aas-infrastructure-migrate-go>
       }
+      @if (accessService.isAllowed('ORGA_ADMIN') && settings()?.id) {
+        <div class="detail-card mt-4">
+          <h3 class="text-sm font-semibold mb-3" style="color: var(--p-primary-color)">
+            {{ 'INFRA_RECHTE.TITLE' | translate }}
+          </h3>
+          <aas-infrastruktur-rechte
+            mode="infra"
+            [organisationId]="orgaStateService.myOrgaId"
+            [infraId]="settings()!.id!"
+          ></aas-infrastruktur-rechte>
+        </div>
+      }
     }
   </div>
 </div>

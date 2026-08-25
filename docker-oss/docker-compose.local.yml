@@ -79,6 +79,22 @@ services:
       - aas-oss-dev-network
     restart: unless-stopped
 
+  basyx-config-init:
+    image: eclipsebasyx/basyxconfigurationservice-go:SNAPSHOT
+    container_name: aas-basyx-config-init-oss-dev
+    environment:
+      POSTGRES_HOST: postgres
+      POSTGRES_PORT: "5432"
+      POSTGRES_USER: localPostgres
+      POSTGRES_PASSWORD: P@SSworDT!
+      POSTGRES_DBNAME: basyx_core
+    networks:
+      - aas-oss-dev-network
+    depends_on:
+      postgres-init:
+        condition: service_completed_successfully
+    restart: "no"
+
   aasregistry-go:
     image: eclipsebasyx/aasregistry-go:SNAPSHOT
     container_name: aasregistry-go-oss-dev
@@ -108,7 +124,7 @@ services:
       - aas-oss-dev-network
     restart: unless-stopped
     depends_on:
-      postgres-init:
+      basyx-config-init:
         condition: service_completed_successfully
 
   submodelregistry-go:
@@ -140,7 +156,7 @@ services:
       - aas-oss-dev-network
     restart: unless-stopped
     depends_on:
-      postgres-init:
+      basyx-config-init:
         condition: service_completed_successfully
 
   aasdiscovery-go:
@@ -172,7 +188,7 @@ services:
       - aas-oss-dev-network
     restart: unless-stopped
     depends_on:
-      postgres-init:
+      basyx-config-init:
         condition: service_completed_successfully
 
   aasrepository-go:
@@ -203,7 +219,7 @@ services:
       - aas-oss-dev-network
     restart: unless-stopped
     depends_on:
-      postgres-init:
+      basyx-config-init:
         condition: service_completed_successfully
 
   submodelrepository-go:
@@ -235,7 +251,7 @@ services:
       - aas-oss-dev-network
     restart: unless-stopped
     depends_on:
-      postgres-init:
+      basyx-config-init:
         condition: service_completed_successfully
 
   conceptdescriptionrepository-go:
@@ -266,7 +282,7 @@ services:
       - aas-oss-dev-network
     restart: unless-stopped
     depends_on:
-      postgres-init:
+      basyx-config-init:
         condition: service_completed_successfully
 
 volumes:

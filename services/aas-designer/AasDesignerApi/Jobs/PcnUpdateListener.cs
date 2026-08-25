@@ -207,8 +207,8 @@ namespace AasDesignerApi.Jobs
                     .WithTlsOptions(options =>
                     {
                         options.UseTls();
-                        options.WithIgnoreCertificateChainErrors(); // Nur für Tests
-                        options.WithIgnoreCertificateRevocationErrors(); // Nur für Tests
+                        options.WithIgnoreCertificateChainErrors(); // for tests only
+                        options.WithIgnoreCertificateRevocationErrors(); // for tests only
                     })
                     .WithTimeout(TimeSpan.FromSeconds(10))
                     .WithWebSocketServer(options =>

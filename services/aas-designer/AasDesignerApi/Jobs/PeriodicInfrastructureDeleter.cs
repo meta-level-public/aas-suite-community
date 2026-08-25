@@ -103,7 +103,7 @@ namespace AasDesignerApi.Jobs
                 var appSettings = scope.ServiceProvider.GetService<AppSettings>();
                 if (context != null && appSettings != null)
                 {
-                    // Verwaiste interne Infrastrukturen löschen: eine Infra gilt als verwaist,
+                    // delete orphaned internal infrastructures: an infra is considered orphaned when
                     // wenn keine Organisation mehr mit passender OrganisationId existiert.
                     var orphanedInfrastructures = context
                         .AasInfrastructureSettings.Where(s =>

@@ -60,10 +60,11 @@ public static class BffEndpointMappings
                 Microsoft.Extensions.Options.IOptions<GatewayBackendOptions> options
             ) =>
             {
+                var externalBasePath = options.Value.ExternalBasePath;
                 var loginPath = options.Value.FrontendLoginPath;
                 var response = await sessionService.RevokeAndClearSessionAsync(
                     context.Session,
-                    $"{context.Request.Scheme}://{context.Request.Host}{loginPath}",
+                    $"{context.Request.Scheme}://{context.Request.Host}{externalBasePath}{loginPath}",
                     context.RequestAborted
                 );
                 return Results.Json(response);
@@ -78,6 +79,7 @@ public static class BffEndpointMappings
                 Microsoft.Extensions.Options.IOptions<GatewayBackendOptions> options
             ) =>
             {
+                var externalBasePath = options.Value.ExternalBasePath;
                 var frontendBasePath = options.Value.FrontendBasePath;
                 var requestedSource = context.Request.Query["ssoSource"].ToString();
                 var returnUrl = context.Request.Query["returnUrl"].ToString();
@@ -88,12 +90,12 @@ public static class BffEndpointMappings
                 if (string.IsNullOrWhiteSpace(ssoSource))
                 {
                     return Results.Redirect(
-                        $"{frontendBasePath}/sso-login-success?resultCode=ERROR&message=SSO_CONFIG_NOT_FOUND"
+                        $"{externalBasePath}{frontendBasePath}/sso-login-success?resultCode=ERROR&message=SSO_CONFIG_NOT_FOUND"
                     );
                 }
 
                 var redirectUri =
-                    $"{context.Request.Scheme}://{context.Request.Host}/bff/auth/sso/callback";
+                    $"{context.Request.Scheme}://{context.Request.Host}{externalBasePath}/bff/auth/sso/callback";
                 var authorizationUrl = await sessionService.BuildSsoAuthorizationUrlAsync(
                     ssoSource,
                     redirectUri,
@@ -114,6 +116,7 @@ public static class BffEndpointMappings
                 Microsoft.Extensions.Options.IOptions<GatewayBackendOptions> options
             ) =>
             {
+                var externalBasePath = options.Value.ExternalBasePath;
                 var frontendBasePath = options.Value.FrontendBasePath;
                 var error = context.Request.Query["error"].ToString();
                 if (!string.IsNullOrWhiteSpace(error))
@@ -122,7 +125,7 @@ public static class BffEndpointMappings
                         context.Request.Query["error_description"].ToString()
                     );
                     return Results.Redirect(
-                        $"{frontendBasePath}/sso-login-success?resultCode=ERROR&message={description}"
+                        $"{externalBasePath}{frontendBasePath}/sso-login-success?resultCode=ERROR&message={description}"
                     );
                 }
 
@@ -131,13 +134,13 @@ public static class BffEndpointMappings
                 if (string.IsNullOrWhiteSpace(state) || string.IsNullOrWhiteSpace(code))
                 {
                     return Results.Redirect(
-                        $"{frontendBasePath}/sso-login-success?resultCode=ERROR&message=MISSING_OIDC_CALLBACK_DATA"
+                        $"{externalBasePath}{frontendBasePath}/sso-login-success?resultCode=ERROR&message=MISSING_OIDC_CALLBACK_DATA"
                     );
                 }
 
                 var returnUrl = sessionService.GetPendingReturnUrl(context.Session);
                 var redirectUri =
-                    $"{context.Request.Scheme}://{context.Request.Host}/bff/auth/sso/callback";
+                    $"{context.Request.Scheme}://{context.Request.Host}{externalBasePath}/bff/auth/sso/callback";
                 var authResponse = await sessionService.CompleteSsoLoginAsync(
                     state,
                     code,
@@ -149,7 +152,7 @@ public static class BffEndpointMappings
                 if (authResponse == null)
                 {
                     return Results.Redirect(
-                        $"{frontendBasePath}/sso-login-success?resultCode=INVALID_TOKEN&message=OIDC_LOGIN_FAILED"
+                        $"{externalBasePath}{frontendBasePath}/sso-login-success?resultCode=INVALID_TOKEN&message=OIDC_LOGIN_FAILED"
                     );
                 }
 
@@ -169,7 +172,7 @@ public static class BffEndpointMappings
                             : authResponse.ResultCode
                     );
                     return Results.Redirect(
-                        $"{frontendBasePath}/sso-login-success?resultCode={resultCode}&message={message}"
+                        $"{externalBasePath}{frontendBasePath}/sso-login-success?resultCode={resultCode}&message={message}"
                     );
                 }
 

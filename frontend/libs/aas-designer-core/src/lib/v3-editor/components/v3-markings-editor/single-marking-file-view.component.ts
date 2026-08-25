@@ -1,3 +1,4 @@
+import { AppConfigService, EncodingService, PortalService } from '@aas/common-services';
 import { UrlHelper } from '@aas/helpers';
 import { CommonModule } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
@@ -16,6 +17,7 @@ export class SingleMarkingFileViewComponent {
   submodelIdentifier = input<string>('');
 
   http = inject(HttpClient);
+  appConfigService = inject(AppConfigService);
 
   markingFilename = input<any>(undefined);
   markingFileContentType = input<any>(undefined);
@@ -30,11 +32,17 @@ export class SingleMarkingFileViewComponent {
         return markingFilename;
       } else {
         try {
+          const infrastructureId = PortalService.getCurrentAasInfrastructureId();
+          const submodelIdEncoded = EncodingService.base64urlEncode(this.submodelIdentifier());
+          const idShortPathEncoded = encodeURIComponent(this.idShortPath());
+          const aasApiPath = (this.appConfigService.config.aasApiPath ?? '').replace(/\/$/, '');
+          const aasProxyPath = aasApiPath !== '' ? aasApiPath.replace(/\/aas-api$/i, '/aas-proxy') : '/aas-proxy';
+
           const url =
-            UrlHelper.appendSlash(repositoryUrl) +
-            'submodel-elements/' +
-            encodeURIComponent(this.idShortPath()) +
-            '/attachment';
+            infrastructureId > 0
+              ? `${aasProxyPath}/${infrastructureId}/sm-repo/submodels/${submodelIdEncoded}/submodel-elements/${idShortPathEncoded}/attachment`
+              : UrlHelper.appendSlash(repositoryUrl) + 'submodel-elements/' + idShortPathEncoded + '/attachment';
+
           const res = await lastValueFrom(
             this.http.get<Blob>(url, {
               responseType: 'blob' as 'json',

@@ -130,7 +130,10 @@ export class V3TreeService {
 
   buildChildTree(data: any, node: TreeNode<V3TreeItem<any>>) {
     if (data != null && this.treeComponent != null) {
-      node.children?.push(...this.treeComponent.buildSubmodelChildren(data, node));
+      if (node.children == null) {
+        node.children = [];
+      }
+      node.children.push(...this.treeComponent.buildSubmodelChildren(data, node));
       this.aasTreeData = [...this.aasTreeData];
     }
   }

@@ -5,7 +5,7 @@ using AasDesignerModel.Model;
 namespace AasDesignerApi.Jobs.Markt;
 
 /// <summary>
-/// Lädt Shell-Scan-Einträge direkt aus dem AAS Repository via GET /shells.
+/// Loads shell scan entries directly from the AAS repository via GET /shells.
 /// Paginierung: cursor-basiert aus paging_metadata.cursor (AAS API Part 2).
 /// </summary>
 public sealed class RepositoryShellSource : IShellDescriptorSource
@@ -90,7 +90,7 @@ public sealed class RepositoryShellSource : IShellDescriptorSource
         var semanticIds = new List<string>();
         var submodelRefs = shell["submodels"]?.AsArray();
         // Im Repository-Shell sind Submodel-Referenzen vorhanden, aber keine SemanticIds.
-        // SemanticIds sind nur in den eigentlichen Submodel-Objekten – wir überspringen sie hier.
+        // SemanticIds are only in the actual submodel objects – skipping them here.
 
         return new ShellScanEntry
         {
@@ -113,7 +113,7 @@ public sealed class RepositoryShellSource : IShellDescriptorSource
         if (node is null)
             return null;
         // assetKind kann als Integer (0=Type, 1=Instance, ...) oder als String kommen
-        // System.Text.Json parst JSON-Integer als long, daher beide Typen prüfen
+        // System.Text.Json parses JSON integers as long, so check both types
         if (node is System.Text.Json.Nodes.JsonValue val)
         {
             if (val.TryGetValue<string>(out var s))

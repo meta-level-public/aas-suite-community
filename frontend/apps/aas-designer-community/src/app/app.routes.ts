@@ -89,12 +89,41 @@ export const appRoutes: Routes = [
       },
       {
         path: AppRouteSegments.submodels,
+        loadChildren: () => import('@aas/aas-designer-core').then((m) => m.SUBMODELS_LIST_ROUTES),
+        canActivate: [
+          () =>
+            canActivate([
+              AuthRoles.SHELLS_READER,
+              AuthRoles.SHELLS_EDITOR,
+              AuthRoles.BENUTZER,
+              AuthRoles.ORGA_ADMIN,
+              AuthRoles.SYSTEM_ADMIN,
+            ]),
+        ],
+      },
+      {
+        path: AppRoutePaths.submodelEditWithInfrastructure,
+        loadChildren: () => import('@aas/aas-designer-core').then((m) => m.SUBMODEL_EDITOR_ROUTES),
+        canActivate: [() => canActivate([AuthRoles.SHELLS_EDITOR, AuthRoles.ORGA_ADMIN, AuthRoles.SYSTEM_ADMIN])],
+      },
+      {
+        path: AppRoutePaths.submodelEdit,
+        loadChildren: () => import('@aas/aas-designer-core').then((m) => m.SUBMODEL_EDITOR_ROUTES),
+        canActivate: [() => canActivate([AuthRoles.SHELLS_EDITOR, AuthRoles.ORGA_ADMIN, AuthRoles.SYSTEM_ADMIN])],
+      },
+      {
+        path: AppRouteSegments.idtaSubmodels,
         loadChildren: () => import('@aas/aas-designer-core').then((m) => m.IDTA_SUBMODELS_ROUTES),
         canActivate: [() => canActivate([AuthRoles.BENUTZER, AuthRoles.ORGA_ADMIN, AuthRoles.SYSTEM_ADMIN])],
       },
       {
         path: AppRouteSegments.mySpace,
         loadChildren: () => import('@aas/aas-designer-core').then((m) => m.USER_ROUTES),
+        canActivate: [() => canActivate([AuthRoles.BENUTZER, AuthRoles.ORGA_ADMIN, AuthRoles.SYSTEM_ADMIN])],
+      },
+      {
+        path: AppRouteSegments.plugins,
+        loadChildren: () => import('@aas/aas-designer-core').then((m) => m.PLUGINS_ROUTES),
         canActivate: [() => canActivate([AuthRoles.BENUTZER, AuthRoles.ORGA_ADMIN, AuthRoles.SYSTEM_ADMIN])],
       },
       {

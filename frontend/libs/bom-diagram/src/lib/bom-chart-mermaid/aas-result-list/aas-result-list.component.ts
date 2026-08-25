@@ -101,7 +101,7 @@ export class AasResultListComponent implements OnChanges {
           try {
             res = await this.searchService.findAasByDiscovery(this.globalAssetId, discoveryUrl);
             if (res != null && res.result != null && res.result.length > 0) {
-              // jetzt müssen wir die AASen laden
+              // now we need to load the AASes
               const results = [];
               for (const r of res.result) {
                 const aas = await this.searchService.getAasById(r, url);

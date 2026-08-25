@@ -37,7 +37,7 @@ namespace AasDesignerApi.Jobs
             // _timer = new Timer(DoWork, null, TimeSpan.Zero,
             //     TimeSpan.FromSeconds(5));
 
-            // täglicher Lauf
+            // daily run
             _timer = new Timer(DoWork, null, getJobRunDelay(), new TimeSpan(24, 0, 0));
 
             return Task.CompletedTask;

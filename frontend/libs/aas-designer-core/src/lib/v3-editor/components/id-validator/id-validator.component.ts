@@ -1,9 +1,9 @@
+import { NotificationService, PortalService } from '@aas/common-services';
+import { ShellResult } from '@aas/model';
+import { ChangeIdsRequest, IdModification, ShellsClient } from '@aas/webapi-client';
 import { Component, computed, effect, inject, model, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
-import { NotificationService } from '@aas/common-services';
-import { ShellResult } from '@aas/model';
-import { ChangeIdsRequest, IdModification, ShellsClient } from '@aas/webapi-client';
 import { ButtonModule } from 'primeng/button';
 import { CheckboxModule } from 'primeng/checkbox';
 import { DynamicDialogConfig, DynamicDialogRef } from 'primeng/dynamicdialog';
@@ -14,7 +14,6 @@ import { TableModule } from 'primeng/table';
 import { TagModule } from 'primeng/tag';
 import { TooltipModule } from 'primeng/tooltip';
 import { lastValueFrom } from 'rxjs';
-import { PortalService } from '@aas/common-services';
 import { V3EditorDataStoreService } from '../../v3-editor-data-store.service';
 
 export interface IdToCheck {
@@ -185,7 +184,7 @@ export class IdValidatorComponent {
   });
 
   async save() {
-    // todo: speichern durchführen
+    // todo: perform save
     const modifications: IdModification[] = [];
     const idsToCheck = this.idsToCheck();
     idsToCheck.forEach((idToCheck) => {

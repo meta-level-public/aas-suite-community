@@ -171,8 +171,8 @@ public class DescriptorCreator
     }
 
     /// <summary>
-    /// Baut eine MyReference aus einer IReference.
-    /// Für ExternalReferences: korrigiert den ersten Key-Type auf GlobalReference (AASd-122).
+    /// Builds a MyReference from an IReference.
+    /// For ExternalReferences: corrects the first key type to GlobalReference (AASd-122).
     /// </summary>
     internal static MyReference? SanitizedExternalReference(IReference? reference)
     {

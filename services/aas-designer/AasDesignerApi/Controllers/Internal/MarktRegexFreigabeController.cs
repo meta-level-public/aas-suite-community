@@ -225,7 +225,7 @@ namespace AasDesignerApi.Controllers.Internal
             )
                 return Forbid();
 
-            // Auto-gemanagte Listings entfernen; manuell publizierte Listings bleiben (nur Junction-Einträge weg via Cascade)
+            // remove auto-managed listings; manually published listings remain (only junction entries removed via cascade)
             db.MarktListings.RemoveRange(rule.AutoManagedListings.ToList());
             db.MarktRegexFreigaben.Remove(rule);
             await db.SaveChangesAsync(cancellationToken);
@@ -293,7 +293,7 @@ namespace AasDesignerApi.Controllers.Internal
                 }
             }
 
-            // Bestehende Listings für Diff
+            // existing listings for diff
             var existingListings = await db
                 .MarktListings.AsNoTracking()
                 .Where(l => matchedShellIds.Contains(l.SourceShellId))
@@ -322,7 +322,7 @@ namespace AasDesignerApi.Controllers.Internal
                     matches.Count,
                     matches,
                     wouldAdd,
-                    0, // Würde-entfernen nur für eine bereits gespeicherte Regel berechenbar
+                    0, // would-remove only computable for an already saved rule
                     strategy
                 )
             );
@@ -352,7 +352,7 @@ namespace AasDesignerApi.Controllers.Internal
             )
                 return Forbid();
 
-            // Nur sinnvoll wenn: manuell publiziert UND mind. eine passende Regel vorhanden
+            // only meaningful if: manually published AND at least one matching rule present
             if (listing.AutoManagedByRuleId is not null)
                 return BadRequest("Listing ist bereits automatisch verwaltet.");
 
@@ -361,7 +361,7 @@ namespace AasDesignerApi.Controllers.Internal
                     "Keine passende Regex-Regel vorhanden – Listing kann nicht in automatische Verwaltung übergeben werden."
                 );
 
-            // Erste passende Regel übernimmt die Ownership
+            // first matching rule takes ownership
             var firstRuleId = listing.RuleMatches.First().RuleId;
             listing.AutoManagedByRuleId = firstRuleId;
             listing.LastModifiedAt = DateTimeOffset.UtcNow;

@@ -43,3 +43,20 @@
     }
   </div>
 </div>
+
+<p-dialog [(visible)]="rechteDialogVisible" appendTo="body" [style]="{ minWidth: '50rem' }" closable="true">
+  <ng-template #header>
+    <div class="font-medium mb-3" style="font-size: var(--aas-title-md); color: var(--p-text-color)">
+      {{ 'INFRA_RECHTE.TITLE' | translate }}
+    </div>
+  </ng-template>
+  @if (newInfraId()) {
+    <aas-infrastruktur-rechte
+      mode="infra"
+      [organisationId]="orgaStateService.myOrgaId"
+      [infraId]="newInfraId()!"
+      (cancelled)="rechteDialogVisible.set(false)"
+      (saved)="rechteDialogVisible.set(false)"
+    ></aas-infrastruktur-rechte>
+  }
+</p-dialog>

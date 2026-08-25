@@ -3,6 +3,7 @@ namespace AasDesignerAasApi.ConceptDescriptions.Queries.GetSmList;
 public class SmVm
 {
     public string? Cursor { get; set; }
+    public string Source { get; set; } = "repository";
     public List<SmDto> SmList { get; set; } = [];
 }
 

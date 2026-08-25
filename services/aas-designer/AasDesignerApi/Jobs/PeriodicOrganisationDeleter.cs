@@ -104,7 +104,7 @@ namespace AasDesignerApi.Jobs
                     {
                         try
                         {
-                            // hier müssen wir alle Referenzierten Objekte mit entfernen
+                            // here we need to remove all referenced objects
 
                             var orgaUsers = context
                                 .BenutzerOrganisations.Include(bo => bo.Benutzer)

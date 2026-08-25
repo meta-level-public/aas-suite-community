@@ -56,7 +56,7 @@ namespace AasDesignerApi.EClass
 
                             var metadata = EClassUtils.GetEClassMetadata(ms);
                             var existingMetadata = GetExistingMetadata(metadata);
-                            // TODO: enthaltene Sprachen setzen und prüfen ob import in der sprache schon da ist
+                            // TODO: set contained languages and check if import in that language already exists
                             if (existingMetadata == null)
                             {
                                 metadata.Languages = [metadata.ContentLanguage];
@@ -144,7 +144,7 @@ namespace AasDesignerApi.EClass
             var units = EClassUtils.GetEClassUnits(ms, entry.FullName, metadata);
             units?.ForEach(newUnit =>
             {
-                // prüfen ob vielleicht schon vorhanden anhand guid, dann nicht noch einmal importieren
+                // check if already present by guid, do not import again in that case
                 if (!metadata.Id.HasValue)
                 {
                     return;
@@ -190,7 +190,7 @@ namespace AasDesignerApi.EClass
             var datatypes = EClassUtils.GetEClassDatatypes(ms, entry.FullName, metadata);
             datatypes?.ForEach(newDatatype =>
             {
-                // prüfen ob vielleicht schon vorhanden anhand guid, dann nicht noch einmal importieren
+                // check if already present by guid, do not import again in that case
                 if (metadata.Id == null)
                 {
                     return;
@@ -270,7 +270,7 @@ namespace AasDesignerApi.EClass
             var properties = EClassUtils.GetEClassProperties(ms, entry.FullName, metadata);
             properties?.ForEach(newProperty =>
             {
-                // prüfen ob vielleicht schon vorhanden anhand guid, dann nicht noch einmal importieren
+                // check if already present by guid, do not import again in that case
                 if (metadata.Id == null)
                 {
                     return;
@@ -309,7 +309,7 @@ namespace AasDesignerApi.EClass
             var classes = EClassUtils.GetEClassClasses(ms, entry.FullName, metadata);
             classes?.ForEach(newClass =>
             {
-                // prüfen ob vielleicht schon vorhanden anhand guid, dann nicht noch einmal importieren
+                // check if already present by guid, do not import again in that case
                 if (metadata.Id == null)
                 {
                     return;

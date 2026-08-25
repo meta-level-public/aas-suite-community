@@ -35,6 +35,7 @@ using AasDesignerModel;
 using AasDesignerModel.Model;
 using AasDesignerSharedLinksApi.SharedLinks.Queries.GetMySharedLinks;
 using AasDesignerSystemManagementApi.SystemManagement.Model;
+using AasDesignerSystemManagementApi.SystemManagement.Plugins;
 using AasDesignerSystemManagementApi.SystemManagement.Queries.GetConfiguration;
 using AasShared.Configuration;
 using AasShared.Middleware;
@@ -112,6 +113,7 @@ var appSettings = AasDesignerBootstrap.GetRequiredConfiguration<AppSettings>(
     "AppSettings"
 );
 builder.Services.AddSingleton(appSettings);
+builder.Services.AddSingleton<IPluginRegistry, ZipPluginRegistry>();
 
 builder.Services.AddMediatR(cfg => cfg.RegisterServicesFromAssemblyContaining<Program>());
 builder.Services.AddMediatR(cfg =>

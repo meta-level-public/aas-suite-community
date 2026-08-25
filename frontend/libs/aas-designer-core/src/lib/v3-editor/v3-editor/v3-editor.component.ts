@@ -141,8 +141,17 @@ export class V3EditorComponent implements OnInit, OnChanges, OnDestroy {
   @Input() selectedElement: V3TreeItem<any> | undefined;
   @Input() shellResult: ShellResult | undefined;
   @Input({ required: true }) repositoryUrl: string = '';
+  @Input() showShellActions: boolean = true;
+  @Input() showExternalSaveAction: boolean = false;
+  @Input() externalSaveActionLoading: boolean = false;
+  @Input() externalSaveActionDisabled: boolean = false;
+  @Input() showInfoAction: boolean = false;
+  @Input() infoActionDisabled: boolean = false;
+  @Input() validationScope: 'full' | 'submodelOnly' = 'full';
 
   @Output() actionRequested: EventEmitter<'reset'> = new EventEmitter<'reset'>();
+  @Output() externalSaveActionRequested: EventEmitter<void> = new EventEmitter<void>();
+  @Output() infoActionRequested: EventEmitter<void> = new EventEmitter<void>();
 
   @ViewChild('exportComponent') exportComponent: AasxExportComponent | undefined;
   @ViewChild('diffViewer') diffViewer: DiffViewerComponent | undefined;
@@ -185,8 +194,17 @@ export class V3EditorComponent implements OnInit, OnChanges, OnDestroy {
     this.treeService.editorComponent = this;
   }
 
+  requestExternalSaveAction() {
+    this.externalSaveActionRequested.emit();
+  }
+
+  requestInfoAction() {
+    this.infoActionRequested.emit();
+  }
+
   ngOnInit(): void {
     this.validationService.shellResult = this.shellResult;
+    this.validationService.validationScope = this.validationScope;
     this.validationService.hasChanges = () => this.hasChanges();
     this.capabilityService.shellResult = this.shellResult;
 
@@ -287,6 +305,9 @@ export class V3EditorComponent implements OnInit, OnChanges, OnDestroy {
     if ('shellResult' in changes) {
       this.validationService.shellResult = this.shellResult;
       this.capabilityService.shellResult = this.shellResult;
+    }
+    if ('validationScope' in changes) {
+      this.validationService.validationScope = this.validationScope;
     }
   }
 

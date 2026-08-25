@@ -86,7 +86,7 @@ export class VecDataService {
             flattenedDataKeys.push(colShort);
           }
           if (colShort === 'label' || colShort === 'comment') {
-            // für alle Sprachen übernehmen!
+            // apply for all languages!
             if (obj[colShort] == null) {
               obj[colShort] = [];
             }

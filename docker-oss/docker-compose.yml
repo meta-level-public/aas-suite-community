@@ -112,6 +112,8 @@ services:
       - ConnectionStrings__DefaultConnection=Host=postgres;Database=aas_designer;Username=aas_user;Password=${POSTGRES_PASSWORD:-changeme}
       - AppSettings__JwtSecret=${JWT_SECRET:-your-secret-key-min-32-chars-long-please-change}
       - AppSettings__FileStoragePath=/app/storage
+      - AppSettings__PluginsEnabled=true
+      - AppSettings__PluginDirectory=/app/plugins
       - Gateway__Url=http://gateway:8080
       - AppSettings__KeycloakEnabled=true
       - AppSettings__KeycloakSsoSourceName=keycloak
@@ -133,6 +135,7 @@ services:
       - AppSettings__KeycloakAdminPassword=${KEYCLOAK_ADMIN_PASSWORD:-admin}
     volumes:
       - designer-storage:/app/storage
+      - ../plugins:/app/plugins:ro
     ports:
       - "8080:8080"
     networks:

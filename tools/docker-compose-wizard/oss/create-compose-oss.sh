@@ -57,7 +57,7 @@ main() {
       IMAGE_SOURCE \
       DESIGNER_BACKEND_IMAGE_REPO DESIGNER_BACKEND_IMAGE_TAG DESIGNER_BACKEND_CONTAINER_PORT \
       GATEWAY_IMAGE_REPO GATEWAY_IMAGE_TAG GATEWAY_HOST_PORT GATEWAY_CONTAINER_PORT \
-      FRONTEND_IMAGE_REPO FRONTEND_IMAGE_TAG FRONTEND_CONTAINER_PORT BASE_URL \
+      FRONTEND_IMAGE_REPO FRONTEND_IMAGE_TAG FRONTEND_CONTAINER_PORT BASE_URL EXTERNAL_BASE_PATH \
       POSTGRES_IMAGE_REPO POSTGRES_IMAGE_TAG POSTGRES_CONTAINER_PORT \
       POSTGRES_DB POSTGRES_USER POSTGRES_PASSWORD POSTGRES_VOLUME BASYX_POSTGRES_DB KEYCLOAK_POSTGRES_DB \
       KEYCLOAK_MODE KEYCLOAK_CLUSTER_URL KEYCLOAK_ISSUER KEYCLOAK_WELLKNOWN_URL KEYCLOAK_PUBLIC_ISSUER KEYCLOAK_PUBLIC_WELLKNOWN_URL \
@@ -99,8 +99,10 @@ main() {
       SUBMODEL_REPOSITORY_IMAGE_REPO SUBMODEL_REPOSITORY_IMAGE_TAG SUBMODEL_REPOSITORY_HOST_PORT \
       CONCEPT_DESCRIPTION_REPOSITORY_IMAGE_REPO CONCEPT_DESCRIPTION_REPOSITORY_IMAGE_TAG CONCEPT_DESCRIPTION_REPOSITORY_HOST_PORT \
       AAS_REGISTRY_IMAGE_REPO AAS_REGISTRY_IMAGE_TAG AAS_REGISTRY_HOST_PORT \
+      BASYX_CONFIG_SERVICE_IMAGE_REPO \
       SUBMODEL_REGISTRY_IMAGE_REPO SUBMODEL_REGISTRY_IMAGE_TAG SUBMODEL_REGISTRY_HOST_PORT \
       AAS_DISCOVERY_IMAGE_REPO AAS_DISCOVERY_IMAGE_TAG AAS_DISCOVERY_HOST_PORT \
+      BASYX_EXPOSE_PORTS \
       RUN_CONFIG_CHECK RUN_STACK_START
   }
 
@@ -163,6 +165,7 @@ main() {
   local GATEWAY_IMAGE_REPO="${GATEWAY_IMAGE_REPO-}" GATEWAY_IMAGE_TAG="${GATEWAY_IMAGE_TAG-}" GATEWAY_HOST_PORT="${GATEWAY_HOST_PORT-}" GATEWAY_CONTAINER_PORT="${GATEWAY_CONTAINER_PORT-}"
   local FRONTEND_IMAGE_REPO="${FRONTEND_IMAGE_REPO-}" FRONTEND_IMAGE_TAG="${FRONTEND_IMAGE_TAG-}" FRONTEND_CONTAINER_PORT="${FRONTEND_CONTAINER_PORT-}"
   local FRONTEND_API_BASE_URL="${FRONTEND_API_BASE_URL-}" FRONTEND_FEEDMAPPING_BASE_URL="${FRONTEND_FEEDMAPPING_BASE_URL-}" BASE_URL="${BASE_URL-}" PUBLIC_GATEWAY_URL="${PUBLIC_GATEWAY_URL-}"
+  local EXTERNAL_BASE_PATH="${EXTERNAL_BASE_PATH-}"
   local POSTGRES_IMAGE_REPO="${POSTGRES_IMAGE_REPO-}" POSTGRES_IMAGE_TAG="${POSTGRES_IMAGE_TAG-}" POSTGRES_CONTAINER_PORT="${POSTGRES_CONTAINER_PORT-}"
 
   if [ "$IMAGE_SOURCE" != "$IMAGE_SOURCE_PREV" ]; then
@@ -207,6 +210,7 @@ main() {
   ask_required_with_default FRONTEND_IMAGE_TAG "frontend Image Tag" "$(state_default FRONTEND_IMAGE_TAG "$FRONTEND_IMAGE_TAG_DEFAULT")"
   ask_required_with_default BASE_URL "Gateway / Basis-URL (extern)" "$(state_default BASE_URL "http://localhost:${GATEWAY_HOST_PORT}")"
   migrate_legacy_frontend_base_urls
+  ask_with_default EXTERNAL_BASE_PATH "Externer Pfad-Präfix bei Reverse-Proxy (z.B. /aas_testing, leer = keiner)" "$(state_default EXTERNAL_BASE_PATH "")"
 
   component_header "Postgres"
   ask_required_with_default POSTGRES_IMAGE_REPO "postgres Image Repository" "$(state_default POSTGRES_IMAGE_REPO "postgres")"
@@ -427,12 +431,14 @@ main() {
   local AAS_REGISTRY_IMAGE_REPO="${AAS_REGISTRY_IMAGE_REPO-}"
   local AAS_REGISTRY_IMAGE_TAG="${AAS_REGISTRY_IMAGE_TAG-}"
   local AAS_REGISTRY_HOST_PORT="${AAS_REGISTRY_HOST_PORT-}"
+  local BASYX_CONFIG_SERVICE_IMAGE_REPO="${BASYX_CONFIG_SERVICE_IMAGE_REPO-}"
   local SUBMODEL_REGISTRY_IMAGE_REPO="${SUBMODEL_REGISTRY_IMAGE_REPO-}"
   local SUBMODEL_REGISTRY_IMAGE_TAG="${SUBMODEL_REGISTRY_IMAGE_TAG-}"
   local SUBMODEL_REGISTRY_HOST_PORT="${SUBMODEL_REGISTRY_HOST_PORT-}"
   local AAS_DISCOVERY_IMAGE_REPO="${AAS_DISCOVERY_IMAGE_REPO-}"
   local AAS_DISCOVERY_IMAGE_TAG="${AAS_DISCOVERY_IMAGE_TAG-}"
   local AAS_DISCOVERY_HOST_PORT="${AAS_DISCOVERY_HOST_PORT-}"
+  local BASYX_EXPOSE_PORTS="${BASYX_EXPOSE_PORTS-}"
   local BASYX_HANDLE_AS_INTERNAL="${BASYX_HANDLE_AS_INTERNAL-}"
   local BASYX_AAS_REPOSITORY_CONTAINER="${BASYX_AAS_REPOSITORY_CONTAINER-}"
   local BASYX_AAS_REPOSITORY_CONTAINER_PORT="${BASYX_AAS_REPOSITORY_CONTAINER_PORT-}"
@@ -460,6 +466,7 @@ main() {
     AAS_REGISTRY_IMAGE_TAG="$(state_default AAS_REGISTRY_IMAGE_TAG "-")"
     SUBMODEL_REGISTRY_IMAGE_TAG="$(state_default SUBMODEL_REGISTRY_IMAGE_TAG "-")"
     AAS_DISCOVERY_IMAGE_TAG="$(state_default AAS_DISCOVERY_IMAGE_TAG "-")"
+    BASYX_CONFIG_SERVICE_IMAGE_REPO="$(state_default BASYX_CONFIG_SERVICE_IMAGE_REPO "eclipsebasyx/basyxconfigurationservice-go")"
     ask_required_with_default BASYX_AAS_REPOSITORY_URL "BaSyx AAS Repository URL" "$(state_default BASYX_AAS_REPOSITORY_URL "")"
     ask_required_with_default BASYX_SUBMODEL_REPOSITORY_URL "BaSyx Submodel Repository URL" "$(state_default BASYX_SUBMODEL_REPOSITORY_URL "")"
     ask_required_with_default BASYX_CONCEPT_DESCRIPTION_REPOSITORY_URL "BaSyx Concept Description Repository URL" "$(state_default BASYX_CONCEPT_DESCRIPTION_REPOSITORY_URL "")"
@@ -478,11 +485,16 @@ main() {
     AAS_REGISTRY_IMAGE_TAG_DEFAULT="$(state_default AAS_REGISTRY_IMAGE_TAG "SNAPSHOT")"
     SUBMODEL_REGISTRY_IMAGE_TAG_DEFAULT="$(state_default SUBMODEL_REGISTRY_IMAGE_TAG "SNAPSHOT")"
     AAS_DISCOVERY_IMAGE_TAG_DEFAULT="$(state_default AAS_DISCOVERY_IMAGE_TAG "SNAPSHOT")"
+    BASYX_CONFIG_SERVICE_IMAGE_REPO="$(state_default BASYX_CONFIG_SERVICE_IMAGE_REPO "eclipsebasyx/basyxconfigurationservice-go")"
+
+    ask_choice BASYX_EXPOSE_PORTS "BaSyx Ports auf Host mappen" "yes,no" "$(state_default BASYX_EXPOSE_PORTS "no")"
 
     component_header "BaSyx: aasrepository-go"
     ask_required_with_default AAS_REPOSITORY_IMAGE_REPO "aasrepository-go Image Repository" "$(state_default AAS_REPOSITORY_IMAGE_REPO "eclipsebasyx/aasrepository-go")"
     ask_required_with_default AAS_REPOSITORY_IMAGE_TAG "aasrepository-go Image Tag" "$(state_default AAS_REPOSITORY_IMAGE_TAG "SNAPSHOT")"
-    ask_port AAS_REPOSITORY_HOST_PORT "aasrepository-go Host-Port" "$(state_default AAS_REPOSITORY_HOST_PORT "5081")"
+    if [ "$BASYX_EXPOSE_PORTS" = "yes" ]; then
+      ask_port AAS_REPOSITORY_HOST_PORT "aasrepository-go Host-Port" "$(state_default AAS_REPOSITORY_HOST_PORT "5081")"
+    fi
     component_header "BaSyx: Shared Defaults"
     ask_required_with_default BASYX_REPO_CORS_ALLOWEDORIGINS "BaSyx CORS_ALLOWEDORIGINS" "$(state_default BASYX_REPO_CORS_ALLOWEDORIGINS "${AASREPO_CORS_ALLOWEDORIGINS-*}")"
     ask_required_with_default BASYX_REPO_CORS_ALLOWEDHEADERS "BaSyx CORS_ALLOWEDHEADERS" "$(state_default BASYX_REPO_CORS_ALLOWEDHEADERS "${AASREPO_CORS_ALLOWEDHEADERS-*}")"
@@ -508,7 +520,9 @@ main() {
     component_header "BaSyx: submodelrepository-go"
     ask_required_with_default SUBMODEL_REPOSITORY_IMAGE_REPO "submodelrepository-go Image Repository" "$(state_default SUBMODEL_REPOSITORY_IMAGE_REPO "eclipsebasyx/submodelrepository-go")"
     ask_required_with_default SUBMODEL_REPOSITORY_IMAGE_TAG "submodelrepository-go Image Tag" "$SUBMODEL_REPOSITORY_IMAGE_TAG_DEFAULT"
-    ask_port SUBMODEL_REPOSITORY_HOST_PORT "submodelrepository-go Host-Port" "$(state_default SUBMODEL_REPOSITORY_HOST_PORT "5085")"
+    if [ "$BASYX_EXPOSE_PORTS" = "yes" ]; then
+      ask_port SUBMODEL_REPOSITORY_HOST_PORT "submodelrepository-go Host-Port" "$(state_default SUBMODEL_REPOSITORY_HOST_PORT "5085")"
+    fi
     BASYX_SUBMODEL_REPOSITORY_CONTAINER="${PROJECT_NAME}-submodelrepository-go"
     BASYX_SUBMODEL_REPOSITORY_CONTAINER_PORT="${BASYX_REPO_SERVER_PORT}"
     BASYX_SUBMODEL_REPOSITORY_URL="http://${BASYX_SUBMODEL_REPOSITORY_CONTAINER}:${BASYX_SUBMODEL_REPOSITORY_CONTAINER_PORT}"
@@ -517,7 +531,9 @@ main() {
     component_header "BaSyx: conceptdescriptionrepository-go"
     ask_required_with_default CONCEPT_DESCRIPTION_REPOSITORY_IMAGE_REPO "conceptdescriptionrepository-go Image Repository" "$(state_default CONCEPT_DESCRIPTION_REPOSITORY_IMAGE_REPO "eclipsebasyx/conceptdescriptionrepository-go")"
     ask_required_with_default CONCEPT_DESCRIPTION_REPOSITORY_IMAGE_TAG "conceptdescriptionrepository-go Image Tag" "$CONCEPT_DESCRIPTION_REPOSITORY_IMAGE_TAG_DEFAULT"
-    ask_port CONCEPT_DESCRIPTION_REPOSITORY_HOST_PORT "conceptdescriptionrepository-go Host-Port" "$(state_default CONCEPT_DESCRIPTION_REPOSITORY_HOST_PORT "5086")"
+    if [ "$BASYX_EXPOSE_PORTS" = "yes" ]; then
+      ask_port CONCEPT_DESCRIPTION_REPOSITORY_HOST_PORT "conceptdescriptionrepository-go Host-Port" "$(state_default CONCEPT_DESCRIPTION_REPOSITORY_HOST_PORT "5086")"
+    fi
     BASYX_CONCEPT_DESCRIPTION_REPOSITORY_CONTAINER="${PROJECT_NAME}-conceptdescriptionrepository-go"
     BASYX_CONCEPT_DESCRIPTION_REPOSITORY_CONTAINER_PORT="${BASYX_REPO_SERVER_PORT}"
     BASYX_CONCEPT_DESCRIPTION_REPOSITORY_URL="http://${BASYX_CONCEPT_DESCRIPTION_REPOSITORY_CONTAINER}:${BASYX_CONCEPT_DESCRIPTION_REPOSITORY_CONTAINER_PORT}"
@@ -576,21 +592,27 @@ main() {
     component_header "BaSyx: aasregistry-go"
     ask_required_with_default AAS_REGISTRY_IMAGE_REPO "aasregistry-go Image Repository" "$(state_default AAS_REGISTRY_IMAGE_REPO "eclipsebasyx/aasregistry-go")"
     ask_required_with_default AAS_REGISTRY_IMAGE_TAG "aasregistry-go Image Tag" "$AAS_REGISTRY_IMAGE_TAG_DEFAULT"
-    ask_port AAS_REGISTRY_HOST_PORT "aasregistry-go Host-Port" "$(state_default AAS_REGISTRY_HOST_PORT "5082")"
+    if [ "$BASYX_EXPOSE_PORTS" = "yes" ]; then
+      ask_port AAS_REGISTRY_HOST_PORT "aasregistry-go Host-Port" "$(state_default AAS_REGISTRY_HOST_PORT "5082")"
+    fi
     ask_required_with_default AASREG_SERVER_PORT "aasregistry-go SERVER_PORT" "$(state_default AASREG_SERVER_PORT "8082")"
     ask_required_with_default AASREG_VIRTUAL_PORT "aasregistry-go VIRTUAL_PORT" "$(state_default AASREG_VIRTUAL_PORT "$AASREG_SERVER_PORT")"
 
     component_header "BaSyx: submodelregistry-go"
     ask_required_with_default SUBMODEL_REGISTRY_IMAGE_REPO "submodelregistry-go Image Repository" "$(state_default SUBMODEL_REGISTRY_IMAGE_REPO "eclipsebasyx/submodelregistry-go")"
     ask_required_with_default SUBMODEL_REGISTRY_IMAGE_TAG "submodelregistry-go Image Tag" "$SUBMODEL_REGISTRY_IMAGE_TAG_DEFAULT"
-    ask_port SUBMODEL_REGISTRY_HOST_PORT "submodelregistry-go Host-Port" "$(state_default SUBMODEL_REGISTRY_HOST_PORT "5083")"
+    if [ "$BASYX_EXPOSE_PORTS" = "yes" ]; then
+      ask_port SUBMODEL_REGISTRY_HOST_PORT "submodelregistry-go Host-Port" "$(state_default SUBMODEL_REGISTRY_HOST_PORT "5083")"
+    fi
     ask_required_with_default SMREG_SERVER_PORT "submodelregistry-go SERVER_PORT" "$(state_default SMREG_SERVER_PORT "8083")"
     ask_required_with_default SMREG_VIRTUAL_PORT "submodelregistry-go VIRTUAL_PORT" "$(state_default SMREG_VIRTUAL_PORT "$SMREG_SERVER_PORT")"
 
     component_header "BaSyx: aasdiscovery-go"
     ask_required_with_default AAS_DISCOVERY_IMAGE_REPO "aasdiscovery-go Image Repository" "$(state_default AAS_DISCOVERY_IMAGE_REPO "eclipsebasyx/aasdiscovery-go")"
     ask_required_with_default AAS_DISCOVERY_IMAGE_TAG "aasdiscovery-go Image Tag" "$AAS_DISCOVERY_IMAGE_TAG_DEFAULT"
-    ask_port AAS_DISCOVERY_HOST_PORT "aasdiscovery-go Host-Port" "$(state_default AAS_DISCOVERY_HOST_PORT "5084")"
+    if [ "$BASYX_EXPOSE_PORTS" = "yes" ]; then
+      ask_port AAS_DISCOVERY_HOST_PORT "aasdiscovery-go Host-Port" "$(state_default AAS_DISCOVERY_HOST_PORT "5084")"
+    fi
     ask_required_with_default AASDISC_SERVER_PORT "aasdiscovery-go SERVER_PORT" "$(state_default AASDISC_SERVER_PORT "8081")"
     ask_required_with_default AASDISC_VIRTUAL_PORT "aasdiscovery-go VIRTUAL_PORT" "$(state_default AASDISC_VIRTUAL_PORT "$AASDISC_SERVER_PORT")"
     AASREG_CORS_ALLOWEDORIGINS="$BASYX_REPO_CORS_ALLOWEDORIGINS"
@@ -658,7 +680,7 @@ main() {
   if [ "$KEYCLOAK_MODE" = "install" ]; then
     ports+=("$KEYCLOAK_HOST_PORT")
   fi
-  if [ "$BASYX_MODE" = "install" ]; then
+  if [ "$BASYX_MODE" = "install" ] && [ "$BASYX_EXPOSE_PORTS" = "yes" ]; then
     ports+=("$AAS_REPOSITORY_HOST_PORT" "$SUBMODEL_REPOSITORY_HOST_PORT" "$CONCEPT_DESCRIPTION_REPOSITORY_HOST_PORT" "$AAS_REGISTRY_HOST_PORT" "$SUBMODEL_REGISTRY_HOST_PORT" "$AAS_DISCOVERY_HOST_PORT")
   fi
   assert_unique_ports "${ports[@]}"
@@ -679,6 +701,7 @@ main() {
   write_env "$ENV_FILE" "FRONTEND_IMAGE_REPO" "$FRONTEND_IMAGE_REPO"
   write_env "$ENV_FILE" "FRONTEND_IMAGE_TAG" "$FRONTEND_IMAGE_TAG"
   write_env "$ENV_FILE" "BASE_URL" "$BASE_URL"
+  write_env "$ENV_FILE" "EXTERNAL_BASE_PATH" "$EXTERNAL_BASE_PATH"
   write_env "$ENV_FILE" "FRONTEND_API_BASE_URL" "$FRONTEND_API_BASE_URL"
   write_env "$ENV_FILE" "FRONTEND_FEEDMAPPING_BASE_URL" "$FRONTEND_FEEDMAPPING_BASE_URL"
   write_env "$ENV_FILE" "POSTGRES_IMAGE_REPO" "$POSTGRES_IMAGE_REPO"
@@ -860,17 +883,21 @@ main() {
 
   if [ "$BASYX_MODE" = "install" ]; then
     write_env "$ENV_FILE" "AAS_REPOSITORY_IMAGE_REPO" "$AAS_REPOSITORY_IMAGE_REPO"
-    write_env "$ENV_FILE" "AAS_REPOSITORY_HOST_PORT" "$AAS_REPOSITORY_HOST_PORT"
     write_env "$ENV_FILE" "SUBMODEL_REPOSITORY_IMAGE_REPO" "$SUBMODEL_REPOSITORY_IMAGE_REPO"
-    write_env "$ENV_FILE" "SUBMODEL_REPOSITORY_HOST_PORT" "$SUBMODEL_REPOSITORY_HOST_PORT"
     write_env "$ENV_FILE" "CONCEPT_DESCRIPTION_REPOSITORY_IMAGE_REPO" "$CONCEPT_DESCRIPTION_REPOSITORY_IMAGE_REPO"
-    write_env "$ENV_FILE" "CONCEPT_DESCRIPTION_REPOSITORY_HOST_PORT" "$CONCEPT_DESCRIPTION_REPOSITORY_HOST_PORT"
     write_env "$ENV_FILE" "AAS_REGISTRY_IMAGE_REPO" "$AAS_REGISTRY_IMAGE_REPO"
-    write_env "$ENV_FILE" "AAS_REGISTRY_HOST_PORT" "$AAS_REGISTRY_HOST_PORT"
+    write_env "$ENV_FILE" "BASYX_CONFIG_SERVICE_IMAGE_REPO" "$BASYX_CONFIG_SERVICE_IMAGE_REPO"
     write_env "$ENV_FILE" "SUBMODEL_REGISTRY_IMAGE_REPO" "$SUBMODEL_REGISTRY_IMAGE_REPO"
-    write_env "$ENV_FILE" "SUBMODEL_REGISTRY_HOST_PORT" "$SUBMODEL_REGISTRY_HOST_PORT"
     write_env "$ENV_FILE" "AAS_DISCOVERY_IMAGE_REPO" "$AAS_DISCOVERY_IMAGE_REPO"
-    write_env "$ENV_FILE" "AAS_DISCOVERY_HOST_PORT" "$AAS_DISCOVERY_HOST_PORT"
+    write_env "$ENV_FILE" "BASYX_EXPOSE_PORTS" "$BASYX_EXPOSE_PORTS"
+    if [ "$BASYX_EXPOSE_PORTS" = "yes" ]; then
+      write_env "$ENV_FILE" "AAS_REPOSITORY_HOST_PORT" "$AAS_REPOSITORY_HOST_PORT"
+      write_env "$ENV_FILE" "SUBMODEL_REPOSITORY_HOST_PORT" "$SUBMODEL_REPOSITORY_HOST_PORT"
+      write_env "$ENV_FILE" "CONCEPT_DESCRIPTION_REPOSITORY_HOST_PORT" "$CONCEPT_DESCRIPTION_REPOSITORY_HOST_PORT"
+      write_env "$ENV_FILE" "AAS_REGISTRY_HOST_PORT" "$AAS_REGISTRY_HOST_PORT"
+      write_env "$ENV_FILE" "SUBMODEL_REGISTRY_HOST_PORT" "$SUBMODEL_REGISTRY_HOST_PORT"
+      write_env "$ENV_FILE" "AAS_DISCOVERY_HOST_PORT" "$AAS_DISCOVERY_HOST_PORT"
+    fi
   fi
 
   {
@@ -890,17 +917,17 @@ main() {
   fi
 
   append_service_separator "$COMPOSE_FILE"
-  append_gateway_service "$COMPOSE_FILE" "$NETWORK_NAME" "$GATEWAY_HOST_PORT" "$GATEWAY_CONTAINER_PORT" "$KEYCLOAK_CLUSTER_URL" "http://aas-designer-community:${DESIGNER_BACKEND_CONTAINER_PORT}" "http://frontend:${FRONTEND_CONTAINER_PORT}" "false" "false" "$KEYCLOAK_MODE" "aas-designer-community" "" "" "/login"
+  append_gateway_service "$COMPOSE_FILE" "$NETWORK_NAME" "$GATEWAY_HOST_PORT" "$GATEWAY_CONTAINER_PORT" "$KEYCLOAK_CLUSTER_URL" "http://aas-designer-community:${DESIGNER_BACKEND_CONTAINER_PORT}" "http://frontend:${FRONTEND_CONTAINER_PORT}" "false" "false" "$KEYCLOAK_MODE" "aas-designer-community" "" "" "/login" "$EXTERNAL_BASE_PATH"
 
   append_service_separator "$COMPOSE_FILE"
   append_designer_backend_service "$COMPOSE_FILE" "$NETWORK_NAME" "$DESIGNER_BACKEND_CONTAINER_PORT" "$GATEWAY_CONTAINER_PORT" "$KEYCLOAK_MODE" "aas-designer-community"
 
   append_service_separator "$COMPOSE_FILE"
-  append_frontend_service "$COMPOSE_FILE" "$NETWORK_NAME" "$FRONTEND_CONTAINER_PORT" "aas-designer-community"
+  append_frontend_service "$COMPOSE_FILE" "$NETWORK_NAME" "$FRONTEND_CONTAINER_PORT" "aas-designer-community" "$EXTERNAL_BASE_PATH"
 
   if [ "$BASYX_MODE" = "install" ]; then
     append_service_separator "$COMPOSE_FILE"
-    append_basyx_internal_services "$COMPOSE_FILE" "$NETWORK_NAME"
+    append_basyx_internal_services "$COMPOSE_FILE" "$NETWORK_NAME" "$BASYX_EXPOSE_PORTS"
   fi
 
   append_networks_block "$COMPOSE_FILE" "$NETWORK_NAME"

@@ -192,6 +192,7 @@ main() {
   set_default_if_empty FRONTEND_CONTAINER_PORT "80"
   set_default_if_empty BASE_URL "http://localhost:${GATEWAY_HOST_PORT}"
   migrate_legacy_frontend_base_urls
+  set_default_if_empty EXTERNAL_BASE_PATH ""
 
   set_default_if_empty POSTGRES_IMAGE_REPO "postgres"
   set_default_if_empty POSTGRES_IMAGE_TAG "16-alpine"
@@ -577,6 +578,7 @@ main() {
   write_env "$ENV_FILE" "FRONTEND_IMAGE_REPO" "$FRONTEND_IMAGE_REPO"
   write_env "$ENV_FILE" "FRONTEND_IMAGE_TAG" "$FRONTEND_IMAGE_TAG"
   write_env "$ENV_FILE" "BASE_URL" "$BASE_URL"
+  write_env "$ENV_FILE" "EXTERNAL_BASE_PATH" "$EXTERNAL_BASE_PATH"
   write_env "$ENV_FILE" "FRONTEND_API_BASE_URL" "$FRONTEND_API_BASE_URL"
   write_env "$ENV_FILE" "FRONTEND_FEEDMAPPING_BASE_URL" "$FRONTEND_FEEDMAPPING_BASE_URL"
   write_env "$ENV_FILE" "POSTGRES_IMAGE_REPO" "$POSTGRES_IMAGE_REPO"
@@ -789,13 +791,13 @@ main() {
   fi
 
   append_service_separator "$COMPOSE_FILE"
-  append_gateway_service "$COMPOSE_FILE" "$NETWORK_NAME" "$GATEWAY_HOST_PORT" "$GATEWAY_CONTAINER_PORT" "$KEYCLOAK_CLUSTER_URL" "http://aas-designer-community:${DESIGNER_BACKEND_CONTAINER_PORT}" "http://frontend:${FRONTEND_CONTAINER_PORT}" "false" "false" "$KEYCLOAK_MODE" "aas-designer-community" "" "" "/login"
+  append_gateway_service "$COMPOSE_FILE" "$NETWORK_NAME" "$GATEWAY_HOST_PORT" "$GATEWAY_CONTAINER_PORT" "$KEYCLOAK_CLUSTER_URL" "http://aas-designer-community:${DESIGNER_BACKEND_CONTAINER_PORT}" "http://frontend:${FRONTEND_CONTAINER_PORT}" "false" "false" "$KEYCLOAK_MODE" "aas-designer-community" "" "" "/login" "$EXTERNAL_BASE_PATH"
 
   append_service_separator "$COMPOSE_FILE"
   append_designer_backend_service "$COMPOSE_FILE" "$NETWORK_NAME" "$DESIGNER_BACKEND_CONTAINER_PORT" "$GATEWAY_CONTAINER_PORT" "$KEYCLOAK_MODE" "aas-designer-community"
 
   append_service_separator "$COMPOSE_FILE"
-  append_frontend_service "$COMPOSE_FILE" "$NETWORK_NAME" "$FRONTEND_CONTAINER_PORT" "aas-designer-community"
+  append_frontend_service "$COMPOSE_FILE" "$NETWORK_NAME" "$FRONTEND_CONTAINER_PORT" "aas-designer-community" "$EXTERNAL_BASE_PATH"
 
   if [ "$BASYX_MODE" = "install" ]; then
     append_service_separator "$COMPOSE_FILE"

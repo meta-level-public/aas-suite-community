@@ -56,7 +56,7 @@ public class AasProxyController : InternalApiBaseController
         // var allComponents = new Dictionary<string, object>();
         // var allTags = new List<object>();
 
-        // Services mit ihren spezifischen Pfaden
+        // Services with their specific paths
         var services = new[]
         {
             ("aas-repository", infrastructure.GetResolvedServiceUrl("aas-repo"), "aas-repo"),
@@ -67,7 +67,7 @@ public class AasProxyController : InternalApiBaseController
             ("cd-repository", infrastructure.GetResolvedServiceUrl("cd-repo"), "cd-repo"),
         };
 
-        // aus den services muss die url aus dem übergebenen typen geladen werden
+        // the URL for the given type must be loaded from the services
         var baseUrl = services.FirstOrDefault(s => s.Item3 == type).Item2;
 
         var swaggerUrl = $"{baseUrl}/v3/api-docs";
@@ -402,6 +402,8 @@ public class AasProxyController : InternalApiBaseController
         RequiredRoles = [
             AuthRoles.VIEWER_NUTZER,
             AuthRoles.BENUTZER,
+            AuthRoles.SHELLS_READER,
+            AuthRoles.SHELLS_EDITOR,
             AuthRoles.ORGA_ADMIN,
             AuthRoles.SYSTEM_ADMIN,
         ]
@@ -438,6 +440,8 @@ public class AasProxyController : InternalApiBaseController
         RequiredRoles = [
             AuthRoles.VIEWER_NUTZER,
             AuthRoles.BENUTZER,
+            AuthRoles.SHELLS_READER,
+            AuthRoles.SHELLS_EDITOR,
             AuthRoles.ORGA_ADMIN,
             AuthRoles.SYSTEM_ADMIN,
         ]
@@ -474,6 +478,8 @@ public class AasProxyController : InternalApiBaseController
         RequiredRoles = [
             AuthRoles.VIEWER_NUTZER,
             AuthRoles.BENUTZER,
+            AuthRoles.SHELLS_READER,
+            AuthRoles.SHELLS_EDITOR,
             AuthRoles.ORGA_ADMIN,
             AuthRoles.SYSTEM_ADMIN,
         ]
@@ -510,6 +516,8 @@ public class AasProxyController : InternalApiBaseController
         RequiredRoles = [
             AuthRoles.VIEWER_NUTZER,
             AuthRoles.BENUTZER,
+            AuthRoles.SHELLS_READER,
+            AuthRoles.SHELLS_EDITOR,
             AuthRoles.ORGA_ADMIN,
             AuthRoles.SYSTEM_ADMIN,
         ]
@@ -545,6 +553,8 @@ public class AasProxyController : InternalApiBaseController
         RequiredRoles = [
             AuthRoles.VIEWER_NUTZER,
             AuthRoles.BENUTZER,
+            AuthRoles.SHELLS_READER,
+            AuthRoles.SHELLS_EDITOR,
             AuthRoles.ORGA_ADMIN,
             AuthRoles.SYSTEM_ADMIN,
         ]
@@ -580,6 +590,8 @@ public class AasProxyController : InternalApiBaseController
         RequiredRoles = [
             AuthRoles.VIEWER_NUTZER,
             AuthRoles.BENUTZER,
+            AuthRoles.SHELLS_READER,
+            AuthRoles.SHELLS_EDITOR,
             AuthRoles.ORGA_ADMIN,
             AuthRoles.SYSTEM_ADMIN,
         ]
@@ -616,6 +628,7 @@ public class AasProxyController : InternalApiBaseController
         RequiredRoles = [
             AuthRoles.VIEWER_NUTZER,
             AuthRoles.BENUTZER,
+            AuthRoles.SHELLS_EDITOR,
             AuthRoles.ORGA_ADMIN,
             AuthRoles.SYSTEM_ADMIN,
         ]
@@ -652,6 +665,7 @@ public class AasProxyController : InternalApiBaseController
         RequiredRoles = [
             AuthRoles.VIEWER_NUTZER,
             AuthRoles.BENUTZER,
+            AuthRoles.SHELLS_EDITOR,
             AuthRoles.ORGA_ADMIN,
             AuthRoles.SYSTEM_ADMIN,
         ]
@@ -688,6 +702,7 @@ public class AasProxyController : InternalApiBaseController
         RequiredRoles = [
             AuthRoles.VIEWER_NUTZER,
             AuthRoles.BENUTZER,
+            AuthRoles.SHELLS_EDITOR,
             AuthRoles.ORGA_ADMIN,
             AuthRoles.SYSTEM_ADMIN,
         ]
@@ -724,6 +739,7 @@ public class AasProxyController : InternalApiBaseController
         RequiredRoles = [
             AuthRoles.VIEWER_NUTZER,
             AuthRoles.BENUTZER,
+            AuthRoles.SHELLS_EDITOR,
             AuthRoles.ORGA_ADMIN,
             AuthRoles.SYSTEM_ADMIN,
         ]
@@ -760,6 +776,7 @@ public class AasProxyController : InternalApiBaseController
         RequiredRoles = [
             AuthRoles.VIEWER_NUTZER,
             AuthRoles.BENUTZER,
+            AuthRoles.SHELLS_EDITOR,
             AuthRoles.ORGA_ADMIN,
             AuthRoles.SYSTEM_ADMIN,
         ]
@@ -796,6 +813,7 @@ public class AasProxyController : InternalApiBaseController
         RequiredRoles = [
             AuthRoles.VIEWER_NUTZER,
             AuthRoles.BENUTZER,
+            AuthRoles.SHELLS_EDITOR,
             AuthRoles.ORGA_ADMIN,
             AuthRoles.SYSTEM_ADMIN,
         ]
@@ -860,7 +878,7 @@ public class AasProxyController : InternalApiBaseController
                 );
             }
 
-            // TODO: um die Sicherheit zu erhöhen, muss die Infrastruktur ID um die ORGA-ID erweitert werden und hier überprüft werden, ob die Daten aus appUser und übergebene ID zusammenpassen
+            // TODO: to increase security, the infrastructure ID must be extended with the ORG-ID and it should be verified here that the data from appUser and the provided ID match
             infrastructureSettings =
                 currentInfrastructure.Id == infrastructureId
                     ? currentInfrastructure

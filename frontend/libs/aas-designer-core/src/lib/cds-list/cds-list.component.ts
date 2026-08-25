@@ -5,7 +5,7 @@ import {
   MultiLanguageProperty,
 } from '@aas-core-works/aas-core3.1-typescript/types';
 import { HelpLabelComponent } from '@aas/common-components';
-import { AasConfirmationService, AccessService, EncodingService, PortalService } from '@aas/common-services';
+import { AasConfirmationService, EncodingService, PortalService } from '@aas/common-services';
 import { TagHelper } from '@aas/helpers';
 import { AasInfrastructureClient, AvailableInfastructure, ConceptDescriptionClient } from '@aas/webapi-client';
 import { CommonModule } from '@angular/common';
@@ -25,7 +25,6 @@ import { TableModule } from 'primeng/table';
 import { TagModule } from 'primeng/tag';
 import { TieredMenuModule } from 'primeng/tieredmenu';
 import { lastValueFrom, Subscription } from 'rxjs';
-import { AuthRoles } from '../general/model/auth-roles';
 
 interface Column {
   field: string;
@@ -66,7 +65,6 @@ export class CdsListComponent implements OnDestroy, OnInit {
   translate = inject(TranslateService);
   router = inject(Router);
   confirmService = inject(AasConfirmationService);
-  accessService = inject(AccessService);
 
   cdId = model<string>('');
   loading = signal(false);
@@ -184,7 +182,7 @@ export class CdsListComponent implements OnDestroy, OnInit {
     if (foundRepo) {
       this.selectedRepository.set(foundRepo);
     } else {
-      // internes auswählen
+      // select internally
       const internalRepo = this.availableRepositories().find((r) => r.isInternal);
       if (internalRepo) {
         this.selectedRepository.set(internalRepo);
@@ -252,11 +250,7 @@ export class CdsListComponent implements OnDestroy, OnInit {
 
   async onShowActions(shell: ConceptDescription) {
     const currentInfrastructure = PortalService.getCurrentAasInfrastructureSetting();
-    const canEdit =
-      !currentInfrastructure?.isReadonly &&
-      [AuthRoles.SHELLS_EDITOR, AuthRoles.ORGA_ADMIN, AuthRoles.SYSTEM_ADMIN].some((r) =>
-        this.accessService.isAllowed(r),
-      );
+    const canEdit = !currentInfrastructure?.isReadonly;
     this.menuItems = [
       {
         label: this.translate.instant('EDIT'),

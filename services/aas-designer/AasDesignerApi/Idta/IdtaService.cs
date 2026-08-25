@@ -90,7 +90,7 @@ namespace AasDesignerApi.Service
 
         static void TraverseDir(string sDir, IdtaItem item)
         {
-            // Zuerst alle Dateien im aktuellen Verzeichnis verarbeiten
+            // first process all files in the current directory
             foreach (string f in Directory.GetFiles(sDir))
             {
                 var fi = new FileInfo(f);
@@ -101,7 +101,7 @@ namespace AasDesignerApi.Service
                 }
             }
 
-            // Dann rekursiv alle Unterverzeichnisse durchlaufen
+            // then recursively traverse all subdirectories
             foreach (string d in Directory.GetDirectories(sDir))
             {
                 var di = new DirectoryInfo(d);

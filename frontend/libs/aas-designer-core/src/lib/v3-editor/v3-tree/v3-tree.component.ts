@@ -80,6 +80,7 @@ type FlatTreeNode = {
 export class V3TreeComponent implements OnChanges, OnInit {
   @Input() loading: boolean = false;
   @Input() shellResult: ShellResult | undefined;
+  @Input() submodelRootMode: boolean = false;
 
   @Output() selectedElementChanged: EventEmitter<V3TreeItem<any> | undefined> = new EventEmitter<
     V3TreeItem<any> | undefined
@@ -101,6 +102,7 @@ export class V3TreeComponent implements OnChanges, OnInit {
   @ViewChild('snippetTable') snippetTable: SnippetsCatalogComponent | undefined;
   @ViewChild('cm') cm: V3TreeContextMenuComponent | undefined;
   @ViewChild(CdkVirtualScrollViewport) viewport: CdkVirtualScrollViewport | undefined;
+  @ViewChild('jsonFileUpload') jsonFileUpload: FileUpload | undefined;
   // shellRootNode: TreeNode<V3TreeItem<PackageMetadata>> | undefined;
   shellNode: TreeNode<V3TreeItem<aas.types.AssetAdministrationShell>> | undefined;
 
@@ -156,6 +158,10 @@ export class V3TreeComponent implements OnChanges, OnInit {
       this.loading = true;
       this.treeService.aasTreeData = [];
 
+      const hasSingleShell = (this.shellResult?.v3Shell?.assetAdministrationShells?.length ?? 0) === 1;
+      const hasSingleSubmodel = (this.shellResult?.v3Shell?.submodels?.length ?? 0) === 1;
+      const useSubmodelRootMode = this.submodelRootMode && hasSingleShell && hasSingleSubmodel;
+
       if (this.shellResult?.v3Shell != null && this.shellResult.v3Shell.assetAdministrationShells != null) {
         for (const shell of this.shellResult.v3Shell.assetAdministrationShells) {
           // vorhandene Shells finden
@@ -204,12 +210,22 @@ export class V3TreeComponent implements OnChanges, OnInit {
 
           shellNode.label = this.translate.instant(key);
 
-          this.treeService.aasTreeData.push(shellNode);
-          this.shellNode = shellNode;
+          if (useSubmodelRootMode) {
+            const rootSubmodelNode = shellNode.children?.[0];
+            if (rootSubmodelNode != null) {
+              rootSubmodelNode.parent = undefined;
+              rootSubmodelNode.expanded = true;
+              this.treeService.aasTreeData.push(rootSubmodelNode);
+            }
+            this.shellNode = shellNode;
+          } else {
+            this.treeService.aasTreeData.push(shellNode);
+            this.shellNode = shellNode;
+          }
         }
       }
 
-      // conceptDescription ebene einfügen
+      // insert conceptDescription level
       const cdsData = new V3TreeItem<any>();
       cdsData.content = this.shellResult.v3Shell;
       cdsData.id = uuid();
@@ -246,9 +262,9 @@ export class V3TreeComponent implements OnChanges, OnInit {
       this.treeService.aasTreeData.push(conceptDescriptionsRootNode);
       this.allConceptDescriptionsNode = conceptDescriptionsRootNode;
 
-      // knoten für Files anhängen
-      // conceptDescription ebene einfügen
-      // todo: prüfen ob man hier statt any echte typen nutzen kann
+      // attach node for Files
+      // insert conceptDescription level
+      // todo: check if real types can be used here instead of any
       const filesNodeData = new V3TreeItem<any>();
       filesNodeData.content = this.shellResult.supplementalFiles;
       filesNodeData.id = uuid();
@@ -295,7 +311,7 @@ export class V3TreeComponent implements OnChanges, OnInit {
       return parentData;
     }
 
-    // todo: typisierung prüfen
+    // todo: check typing
     const children: TreeNode<V3TreeItem<any>>[] = [];
 
     let cnt = 0;
@@ -323,7 +339,7 @@ export class V3TreeComponent implements OnChanges, OnInit {
       };
       el.label = this.translate.instant(this.getNodeLabel(el) ?? '-');
 
-      // Auf einzelne Typen prüfen und entsprechend die Kindelemente "sammeln".
+      // Check individual types and collect child elements accordingly.
       if (element instanceof aas.types.Submodel) {
         el.draggable = false;
         if (element?.semanticId?.keys[0].value === 'AasDesignerChangelog') {
@@ -338,7 +354,7 @@ export class V3TreeComponent implements OnChanges, OnInit {
       }
 
       if (element instanceof aas.types.SubmodelElementList) {
-        // zeigen wir nicht mehr an! - müssen wir doch, aber es muss ein neues Label erzeugt werden und die Markierung gesett sein, dass keine ID-Short enthalten ist ...
+        // we no longer display this! - actually we do, but a new label must be created and the flag must be set that no ID-Short is included ...
         if (element.value != null) collectChildren = this.buildSubmodelChildren(element.value, el);
       }
 
@@ -963,7 +979,7 @@ export class V3TreeComponent implements OnChanges, OnInit {
 
   deleteSmNode(nodeId: string) {
     // if (this.shellRootNode?.children != null) {
-    // über alle shells laufen und die id suchen
+    // iterate over all shells and search for the id
     const deleteNode = this.findNodeById(nodeId);
     // for (const shell of this.shellRootNode.children) {
     if (this.shellNode?.children != null) {
@@ -1053,7 +1069,7 @@ export class V3TreeComponent implements OnChanges, OnInit {
         node = foundNode.children?.find((n) => n.data?.content?.idShort === currentElementToFind);
       }
       if (node != null) {
-        // nächste ebene suchen
+        // search next level
         foundNode = node;
         path = reversedSplittedPath.reverse().join('.');
       } else {
@@ -1153,9 +1169,11 @@ export class V3TreeComponent implements OnChanges, OnInit {
     }
   }
 
-  showInsertJsonDialog(type: 'submodel' | 'element' | 'cd') {
+  showInsertJsonDialog(event: { type: 'submodel' | 'element' | 'cd'; node: TreeNode<V3TreeItem<any>> }) {
+    this.treeService.selectedTreeNode = event.node;
+    this.selectedTreeNode = event.node;
     this.importJsonDialogVisible = true;
-    this.importType = type;
+    this.importType = event.type;
     this.plainJson = '';
   }
 
@@ -1376,6 +1394,7 @@ export class V3TreeComponent implements OnChanges, OnInit {
       if (instanceOrErrorPlain.value != null) {
         ElementInserter.insertSubmodel(instanceOrErrorPlain.value, this.treeService, this.shellResult);
         this.importJsonDialogVisible = false;
+        this.selectedElementChanged.emit((this.treeService.selectedTreeNode as TreeNode<V3TreeItem<any>> | null)?.data);
       } else if (instanceOrErrorPlain.value == null) {
         if (instanceOrErrorPlain.error != null) {
           // eslint-disable-next-line no-console
@@ -1413,6 +1432,14 @@ export class V3TreeComponent implements OnChanges, OnInit {
             break;
         }
         this.importJsonDialogVisible = false;
+        const insertedNode = node.children?.[node.children.length - 1];
+        if (insertedNode != null) {
+          this.onNodeClicked(insertedNode);
+        } else {
+          this.selectedElementChanged.emit(
+            (this.treeService.selectedTreeNode as TreeNode<V3TreeItem<any>> | null)?.data,
+          );
+        }
       } else if (instanceOrErrorPlain.value == null) {
         if (instanceOrErrorPlain.error != null) {
           // eslint-disable-next-line no-console
@@ -1439,6 +1466,7 @@ export class V3TreeComponent implements OnChanges, OnInit {
       if (instanceOrErrorPlain.value != null) {
         ElementInserter.insertConceptDescription(instanceOrErrorPlain.value, this.treeService);
         this.importJsonDialogVisible = false;
+        this.selectedElementChanged.emit((this.treeService.selectedTreeNode as TreeNode<V3TreeItem<any>> | null)?.data);
       } else if (instanceOrErrorPlain.value == null) {
         if (instanceOrErrorPlain.error != null) {
           // eslint-disable-next-line no-console
@@ -1469,6 +1497,7 @@ export class V3TreeComponent implements OnChanges, OnInit {
       // you can perform an action with readed data here
       this.plainJson = myReader.result as string;
       this.checkJsonValidity();
+      this.jsonFileUpload?.clear();
     };
 
     myReader.readAsText(event.files[0]);
@@ -1488,30 +1517,39 @@ export class V3TreeComponent implements OnChanges, OnInit {
   }
 
   jsonValid = signal(false);
+  jsonValidationError = signal<string | null>(null);
 
   checkJsonValidity() {
     let valid = true;
+    let errorDetail: string | null = null;
 
     if (this.importType === 'submodel') {
       try {
         const instanceOrErrorPlain = aas.jsonization.conceptDescriptionFromJsonable(JSON.parse(this.plainJson ?? ''));
         if (instanceOrErrorPlain.error != null) {
           valid = false;
+          const err = instanceOrErrorPlain.error;
+          errorDetail = err.path ? `${err.path}: ${err.message}` : err.message;
         }
-      } catch {
+      } catch (e) {
         valid = false;
+        errorDetail = e instanceof Error ? e.message : String(e);
       }
     } else if (this.importType === 'element') {
       try {
         const instanceOrErrorPlain = aas.jsonization.submodelElementFromJsonable(JSON.parse(this.plainJson ?? ''));
         if (instanceOrErrorPlain.error != null) {
           valid = false;
+          const err = instanceOrErrorPlain.error;
+          errorDetail = err.path ? `${err.path}: ${err.message}` : err.message;
         }
-      } catch {
+      } catch (e) {
         valid = false;
+        errorDetail = e instanceof Error ? e.message : String(e);
       }
     }
 
     this.jsonValid.set(valid);
+    this.jsonValidationError.set(valid ? null : errorDetail);
   }
 }

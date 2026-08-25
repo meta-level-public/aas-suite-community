@@ -1,92 +1,92 @@
 # AAS Suite Community
 
-Die AAS Suite Community Version stellt zentrale Open-Source-Komponenten für Entwicklung, Evaluierung und eigene Deployments rund um die Asset Administration Shell bereit.
+The AAS Suite Community version provides core open-source components for development, evaluation, and custom deployments around the Asset Administration Shell.
 
-## Überblick
+## Overview
 
-Dieses Repository enthält den Community-Kern der AAS Suite mit Quellcode, Docker-Compose-Artefakten und öffentlicher Dokumentation.
+This repository contains the community core of the AAS Suite with source code, Docker Compose artifacts, and public documentation.
 
-Geeignet ist es insbesondere für:
+It is particularly suited for:
 
-- den lokalen Einstieg mit Docker Compose
-- die technische Evaluierung der Community Version
-- die Weiterentwicklung der enthaltenen Open-Source-Komponenten
+- local getting-started with Docker Compose
+- technical evaluation of the Community version
+- further development of the included open-source components
 
-## Warum AAS Suite Community
+## Why AAS Suite Community
 
-Mit der AAS Suite Community können Sie Asset Administration Shells praxisnah aufbauen, bereitstellen und in bestehende technische Landschaften integrieren.
+With the AAS Suite Community you can build, deploy, and integrate Asset Administration Shells into existing technical landscapes in a practical way.
 
-Sie unterstützt unter anderem dabei:
+It supports, among other things:
 
-- AAS-bezogene Services und Oberflächen lokal schnell bereitzustellen
-- Datenmodelle, Integrationen und technische Abläufe in einer realistischen Umgebung zu evaluieren
-- manuelle Prozesse mit passenden Assistenten und geführten Abläufen effizient zu unterstützen
-- externe AAS-Infrastrukturen sowie angrenzende Systeme gezielt anzubinden
-- eigene Erweiterungen und Anpassungen auf Basis der Open-Source-Komponenten umzusetzen
-- Teams einen schnellen Einstieg in AAS-nahe Entwicklungs- und Betriebsszenarien zu ermöglichen
+- quickly deploying AAS-related services and interfaces locally
+- evaluating data models, integrations, and technical workflows in a realistic environment
+- efficiently supporting manual processes with suitable wizards and guided workflows
+- connecting external AAS infrastructures and adjacent systems
+- implementing custom extensions and adaptations based on the open-source components
+- giving teams a quick start into AAS-related development and operations scenarios
 
-## Schnellstart
+## Quick Start
 
-### Voraussetzungen
+### Prerequisites
 
 - Docker
 - Docker Compose
 
-### Mit Code-Checkout lokal starten
+### Starting locally with code checkout
 
 ```bash
 docker compose -p aas-dev-oss -f docker-oss/docker-compose.local.yml up -d
 ```
 
-Für weitergehende Setups und portable Stacks stehen im Verzeichnis [docker-oss/](docker-oss/) Compose-Vorlagen und Hilfsdateien bereit. Zusätzliche Hinweise finden Sie in [docker-oss/DOCKER_README.md](docker-oss/DOCKER_README.md).
+For more advanced setups and portable stacks, Compose templates and helper files are available in the [docker-oss/](docker-oss/) directory. Additional information can be found in [docker-oss/DOCKER_README.md](docker-oss/DOCKER_README.md).
 
-### Lokale Entwicklung mit VS Code
+### Local development with VS Code
 
-Das Repository enthält ein VS Code-Workspace-Profil unter \`.vscode-oss/\`, das auf die Community-Variante zugeschnitten ist.
+The repository includes a VS Code workspace profile under \`.vscode-oss/\` tailored to the Community variant.
 
-1. Das Projekt in VS Code öffnen (Workspace-Root: Repository-Root)
-2. Das Launch-Target **"Launch Community Stack"** starten – dieses startet gleichzeitig den Gateway-Service, die Designer-API (Community) und den Angular Dev-Server der Community-Frontend-App
-3. Sobald alle drei Prozesse laufen, kann das Frontend-Debugging über das Launch-Target **"Debug AAS Designer Community (Chrome)"** gestartet werden
+1. Open the project in VS Code (workspace root: repository root)
+2. Start the launch target **"Launch Community Stack"** – this simultaneously starts the Gateway service, the Designer API (Community), and the Angular dev server of the Community frontend app
+3. Once all three processes are running, frontend debugging can be started via the launch target **"Debug AAS Designer Community (Chrome)"**
 
-### Ohne Code-Checkout eine portable Umgebung erzeugen
+### Creating a portable environment without code checkout
 
-Wenn Sie keine lokale Entwicklungsumgebung mit Repository-Checkout aufsetzen möchten, können Sie stattdessen den Docker-Compose-Wizard verwenden. Damit lässt sich eine portable Laufzeitumgebung mit den benötigten Compose-Dateien und Assets erzeugen.
+If you do not want to set up a local development environment with a repository checkout, you can use the Docker Compose Wizard instead. This creates a portable runtime environment with the required Compose files and assets.
 
 ```bash
 bash tools/docker-compose-wizard/oss/create-compose-oss.sh
 ```
 
-Der Wizard erzeugt einen startbereiten Stack in einem separaten Verzeichnis. Weitere Informationen finden Sie in [tools/docker-compose-wizard/oss/README.md](tools/docker-compose-wizard/oss/README.md).
+The wizard creates a ready-to-start stack in a separate directory. More information can be found in [tools/docker-compose-wizard/oss/README.md](tools/docker-compose-wizard/oss/README.md).
 
-## Repository-Inhalt
+## Repository Contents
 
-- [docker-oss/](docker-oss/) enthält die Docker-Compose-Artefakte für die Community-Version.
-- [docs-oss/](docs-oss/) enthält die öffentliche OSS-Dokumentation.
-- [frontend/](frontend/) enthält die Frontend-Anteile der Community-Version.
-- [services/](services/) enthält die Backend-Services und gemeinsamen Komponenten.
+- [docker-oss/](docker-oss/) contains the Docker Compose artifacts for the Community version.
+- [docs-oss/](docs-oss/) contains the public OSS documentation.
+- [frontend/](frontend/) contains the frontend parts of the Community version.
+- [services/](services/) contains the backend services and shared components.
 
-## Dokumentation
+## Documentation
 
-Die weiterführende Dokumentation finden Sie unter [docs-oss/](docs-oss/).
+Further documentation can be found under [docs-oss/](docs-oss/).
 
-## Beitragen
+## Contributing
 
-Community-Beiträge, Issues und Pull Requests sind willkommen. Für Beitragsrichtlinien siehe [CONTRIBUTING.md](CONTRIBUTING.md).
+Community contributions, issues, and pull requests are welcome. For contribution guidelines see [CONTRIBUTING.md](CONTRIBUTING.md).
 
-Bitte beschreiben Sie Änderungen, Motivation und Anwendungsfall möglichst konkret, damit die Review effizient erfolgen kann.
+Please describe changes, motivation, and use case as specifically as possible so that the review can be done efficiently.
 
-Zur Transparenz: Dieses Repository wird als One-Way-Mirror aus der Hauptentwicklung bereitgestellt. Beiträge und Pull Requests werden daher geprüft und bei Annahme manuell in die primäre Entwicklungsumgebung übernommen.
+For transparency: This repository is provided as a one-way mirror from the main development. Contributions and pull requests are therefore reviewed and, if accepted, manually incorporated into the primary development environment.
 
-## Lizenz
+## License
 
-Die AAS Suite Community Version wird unter der MIT-Lizenz zur Verfügung gestellt.
+The AAS Suite Community version is made available under the MIT License.
 
-## Kontakt
+## Contact
 
-Weitere Informationen finden Sie unter [aassuite.de](https://aassuite.de) oder auf unserer Homepage [meta-level.de](https://meta-level.de).
+More information can be found at [aas-suite.de](https://aas-suite.de) or on our homepage [meta-level.de](https://meta-level.de).
 
-Wenn Sie Support, erweiterte Features oder konkrete Möglichkeiten suchen, projektspezifische Kundenwünsche und Anforderungen umzusetzen, finden Sie auf [aassuite.de](https://aassuite.de) auch Informationen zur Enterprise Version. Sprechen Sie uns gerne an.
+If you are looking for support, extended features, or concrete ways to implement project-specific requirements, you will also find information about the Enterprise version at [aas-suite.de](https://aas-suite.de). Feel free to contact us.
 
-## Hinweis
+## Note
 
-Diese README wird beim OSS-Export automatisch generiert.
+This README is automatically generated during the OSS export.

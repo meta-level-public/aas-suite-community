@@ -14,7 +14,7 @@ public class DiscoveryUpdater
         HttpClient client
     )
     {
-        // Discovery befüllen
+        // populate discovery
         var discoveryUrl =
             discoveryService.AppendSlash()
             + "lookup/shells/"
@@ -76,7 +76,7 @@ public class DiscoveryUpdater
         HttpClient client
     )
     {
-        // Discovery befüllen
+        // populate discovery
         var discoveryUrl =
             discoveryService.AppendSlash()
             + "lookup/shells/"

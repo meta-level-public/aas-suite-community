@@ -50,7 +50,7 @@ export class AasxViewerComponent implements OnChanges, OnInit {
         this.shells.push({ label: shell.idShort, value: shell });
       }
       if (this.shells.length > 0) {
-        // prüfen ob wir das nameplate finden können
+        // check if we can find the nameplate
         this.selectedShell = this.shells[0].value;
       }
 

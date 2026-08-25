@@ -5,7 +5,12 @@ namespace AasDesignerApi.Localization
         public string GetActivationSuccessMessage(string url)
         {
             var text = File.ReadAllText(
-                Path.Combine("Localization", "Templates", $"redirect.de.html")
+                Path.Combine(
+                    AppContext.BaseDirectory,
+                    "Localization",
+                    "Templates",
+                    $"redirect.de.html"
+                )
             );
 
             text = text.Replace(
@@ -24,7 +29,12 @@ namespace AasDesignerApi.Localization
         public string GetActivationUserNotFoundMessage(string url)
         {
             var text = File.ReadAllText(
-                Path.Combine("Localization", "Templates", $"redirect.de.html")
+                Path.Combine(
+                    AppContext.BaseDirectory,
+                    "Localization",
+                    "Templates",
+                    $"redirect.de.html"
+                )
             );
 
             text = text.Replace(
@@ -40,7 +50,12 @@ namespace AasDesignerApi.Localization
         public string GetInvitationAlreadyMemberOfOrganisation(string baseUrl)
         {
             var text = File.ReadAllText(
-                Path.Combine("Localization", "Templates", $"redirect.de.html")
+                Path.Combine(
+                    AppContext.BaseDirectory,
+                    "Localization",
+                    "Templates",
+                    $"redirect.de.html"
+                )
             );
 
             text = text.Replace(
@@ -56,7 +71,12 @@ namespace AasDesignerApi.Localization
         public string GetInvitationCreateAccountMessage(string baseUrl, string guid)
         {
             var text = File.ReadAllText(
-                Path.Combine("Localization", "Templates", $"redirect.de.html")
+                Path.Combine(
+                    AppContext.BaseDirectory,
+                    "Localization",
+                    "Templates",
+                    $"redirect.de.html"
+                )
             );
 
             text = text.Replace(
@@ -72,7 +92,12 @@ namespace AasDesignerApi.Localization
         public string GetInvitationExpiredMessage(string baseUrl)
         {
             var text = File.ReadAllText(
-                Path.Combine("Localization", "Templates", $"redirect.de.html")
+                Path.Combine(
+                    AppContext.BaseDirectory,
+                    "Localization",
+                    "Templates",
+                    $"redirect.de.html"
+                )
             );
 
             text = text.Replace(
@@ -88,7 +113,12 @@ namespace AasDesignerApi.Localization
         public string GetInvitationMultipleUsersMessage(string baseUrl)
         {
             var text = File.ReadAllText(
-                Path.Combine("Localization", "Templates", $"redirect.de.html")
+                Path.Combine(
+                    AppContext.BaseDirectory,
+                    "Localization",
+                    "Templates",
+                    $"redirect.de.html"
+                )
             );
 
             text = text.Replace(
@@ -104,7 +134,12 @@ namespace AasDesignerApi.Localization
         public string GetInvitationNoMoreLicensesMessage(string baseUrl)
         {
             var text = File.ReadAllText(
-                Path.Combine("Localization", "Templates", $"redirect.de.html")
+                Path.Combine(
+                    AppContext.BaseDirectory,
+                    "Localization",
+                    "Templates",
+                    $"redirect.de.html"
+                )
             );
 
             text = text.Replace(
@@ -120,7 +155,12 @@ namespace AasDesignerApi.Localization
         public string GetInvitationNotFoundMessage(string baseUrl)
         {
             var text = File.ReadAllText(
-                Path.Combine("Localization", "Templates", $"redirect.de.html")
+                Path.Combine(
+                    AppContext.BaseDirectory,
+                    "Localization",
+                    "Templates",
+                    $"redirect.de.html"
+                )
             );
 
             text = text.Replace(
@@ -136,7 +176,12 @@ namespace AasDesignerApi.Localization
         public string GetInvitationSuccessMessage(string baseUrl)
         {
             var text = File.ReadAllText(
-                Path.Combine("Localization", "Templates", $"redirect.de.html")
+                Path.Combine(
+                    AppContext.BaseDirectory,
+                    "Localization",
+                    "Templates",
+                    $"redirect.de.html"
+                )
             );
 
             text = text.Replace(
@@ -152,7 +197,12 @@ namespace AasDesignerApi.Localization
         public string GetTokenActivationSuccessMessage(string url)
         {
             var text = File.ReadAllText(
-                Path.Combine("Localization", "Templates", $"redirect.de.html")
+                Path.Combine(
+                    AppContext.BaseDirectory,
+                    "Localization",
+                    "Templates",
+                    $"redirect.de.html"
+                )
             );
 
             text = text.Replace("{{redirect-message}}", "Das Token wurde erfolgreich aktiviert.");
@@ -165,7 +215,12 @@ namespace AasDesignerApi.Localization
         public string GetTokenActivationUserNotFoundMessage(string url)
         {
             var text = File.ReadAllText(
-                Path.Combine("Localization", "Templates", $"redirect.de.html")
+                Path.Combine(
+                    AppContext.BaseDirectory,
+                    "Localization",
+                    "Templates",
+                    $"redirect.de.html"
+                )
             );
 
             text = text.Replace("{{redirect-message}}", "Das Token konnte nicht aktiviert werden.");

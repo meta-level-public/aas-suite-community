@@ -236,7 +236,7 @@ export class FileContentEditorComponent {
         this.fileValueOutgoing.emit(null);
         this.fileContentTypeOutgoing.emit('');
       } else {
-        // TODO: prüfen, ob die Datei noch irgendwo anders referenziert wird ...
+        // TODO: check whether the file is still referenced elsewhere ...
         this.fileValueOutgoing.emit(null);
         this.fileContentTypeOutgoing.emit('');
         const supplFile = this.supplementalFile();
@@ -321,7 +321,7 @@ export class FileContentEditorComponent {
     }
 
     const supplFile = this.supplementalFile();
-    // prüfen ob es eine bestehende gibt
+    // check if an existing one is present
     if (supplFile != null) {
       // TODO: prüfen, ob die Datei noch irgendwo anders referenziert wird ...
       this.shellResult()?.deletedFiles.push(supplFile);
@@ -330,7 +330,7 @@ export class FileContentEditorComponent {
     let newFileName = selectedFile.name;
     let santitizedFilename = FilenameHelper.sanitizeFilename(newFileName);
 
-    // überprüfen ob es bereits eine Datei mit diesem Namen gibt
+    // check whether a file with this name already exists
     let existing = this.shellResult()?.supplementalFiles.filter(
       (f) => f.path === FilenameHelper.replaceFileUri(santitizedFilename),
     );

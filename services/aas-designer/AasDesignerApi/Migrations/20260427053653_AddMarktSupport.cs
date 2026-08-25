@@ -61,7 +61,7 @@ namespace AasDesignerApi.Migrations
                 );
                 """);
 
-            // Neue Spalte für bestehende Deployments hinzufügen (idempotent).
+            // Add new column for existing deployments (idempotent).
             migrationBuilder.Sql("""
                 ALTER TABLE markt_listings
                     ADD COLUMN IF NOT EXISTS "AutoManagedByRuleId" uuid;
@@ -138,7 +138,7 @@ namespace AasDesignerApi.Migrations
                 table: "markt_listing_rule_matches",
                 column: "RuleId");
 
-            // Indizes für bestehende Tabellen idempotent anlegen.
+            // Create indexes for existing tables idempotently.
             migrationBuilder.Sql("""
                 CREATE INDEX IF NOT EXISTS "IX_markt_listing_specific_asset_ids_ListingId"
                     ON markt_listing_specific_asset_ids ("ListingId");

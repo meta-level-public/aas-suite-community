@@ -61,6 +61,33 @@ public class GetAvailableInfastructuresHandler
             }
         });
 
+        // Evaluate infra permissions for all users (no bypass for admins)
+        {
+            var userRechte = _context
+                .BenutzerInfrastrukturRechte.Where(r =>
+                    r.BenutzerId == request.AppUser.BenutzerId
+                    && r.OrganisationId == request.AppUser.OrganisationId
+                    && !r.Geloescht
+                )
+                .ToList();
+
+            // Remove infras without read permission; mark as readonly if write permission is missing
+            result = result
+                .Where(infra =>
+                {
+                    var recht = userRechte.FirstOrDefault(r => r.InfrastrukturId == infra.Id);
+                    return recht != null && recht.DarfLesen;
+                })
+                .Select(infra =>
+                {
+                    var recht = userRechte.First(r => r.InfrastrukturId == infra.Id);
+                    if (!recht.DarfSchreiben)
+                        infra.IsReadonly = true;
+                    return infra;
+                })
+                .ToList();
+        }
+
         return result;
     }
 }

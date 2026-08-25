@@ -100,7 +100,7 @@ public class AasInfrastructureController : InternalApiBaseController
 
     [HttpPost]
     [AasDesignerAuthorize(RequiredRoles = [AuthRoles.ORGA_ADMIN, AuthRoles.SYSTEM_ADMIN])]
-    public async Task<bool> AddInfrastructure([FromBody] AasInfrastructureSettingsDto settings)
+    public async Task<long> AddInfrastructure([FromBody] AasInfrastructureSettingsDto settings)
     {
         if (HttpContext.Items[AasDesignerConstants.APP_USER] is not AppUser benutzer)
             throw new UserNotFoundException();

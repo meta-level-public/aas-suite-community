@@ -177,30 +177,40 @@
   [closeOnEscape]="true"
   [closable]="true"
   header="{{ 'IMPORT_PLAIN_JSON' | translate }}"
-  [style]="{ width: '66vw' }"
+  [style]="{ width: '50rem' }"
+  [breakpoints]="{ '1199px': '75vw', '575px': '90vw' }" [maximizable]="true"
+  [contentStyle]="{ display: 'flex', 'flex-direction': 'column', overflow: 'hidden' }"
 >
-  <div class="col-span-12">
+  <div class="col-span-12 flex flex-col flex-1 min-h-0">
     <label class="flex items-center mt-2 mb-2" for="name">{{ 'PASTE_JSON_HERE' | translate }}</label>
     <textarea
       pTextarea
       type="text"
       id="name"
-      class="w-full"
+      class="w-full flex-1"
       name="name"
       rows="5"
+      style="resize: none; min-height: 8rem;"
       [(ngModel)]="plainJson"
       (ngModelChange)="checkJsonValidity()"
       required
     ></textarea>
     @if (jsonValid() == false && plainJson !== '' && importType === 'submodel') {
       <p-message severity="error">{{ 'JSON_IS_NOT_A_VALID_SM' | translate }}</p-message>
+      @if (jsonValidationError() !== null) {
+        <p class="text-sm font-mono mt-1" style="color: var(--p-message-error-color)">{{ jsonValidationError() }}</p>
+      }
     }
     @if (jsonValid() == false && plainJson !== '' && importType === 'element') {
       <p-message severity="error">{{ 'JSON_IS_NOT_A_VALID_ELEMENT' | translate }}</p-message>
+      @if (jsonValidationError() !== null) {
+        <p class="text-sm font-mono mt-1" style="color: var(--p-message-error-color)">{{ jsonValidationError() }}</p>
+      }
     }
   </div>
-  <div class="col-span-12">
+  <div class="col-span-12 mt-3">
     <p-fileUpload
+      #jsonFileUpload
       chooseIcon="pi pi-upload"
       accept=".json"
       [auto]="true"
@@ -215,7 +225,7 @@
     </p-fileUpload>
   </div>
 
-  <ng-template pTemplate="footer">
+  <ng-template #footer>
     <div class="flex flex-row gap-2 justify-end">
       <p-button
         pRipple

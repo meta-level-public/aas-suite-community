@@ -29,21 +29,21 @@ public class EnvironmentCreateInstanceModifier
                         Type = ModificationType.Aas,
                     }
                 );
-                // Referenzen auf die Originale AAS erstellen
+                // create references to the original AAS
                 aas.DerivedFrom = new Reference(
                     ReferenceTypes.ModelReference,
                     [new Key(KeyTypes.AssetAdministrationShell, aas.Id)]
                 );
                 aas.AssetInformation.AssetType = aas.AssetInformation.GlobalAssetId;
 
-                // neue Werte setzen
+                // set new values
                 aas.AssetInformation.GlobalAssetId = IdGenerationUtil.GenerateId(
                     IdType.Asset,
                     targetNamespace
                 );
                 aas.AssetInformation.AssetKind = AasCore.Aas3_1.AssetKind.Instance;
 
-                // alle SM umschreiben
+                // rewrite all SMs
                 aas.Submodels?.ForEach(smRef =>
                 {
                     var smRefKey = smRef.Keys.Find(k => k.Type == KeyTypes.Submodel);

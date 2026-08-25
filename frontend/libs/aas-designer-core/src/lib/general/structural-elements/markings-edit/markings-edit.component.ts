@@ -144,7 +144,7 @@ export class MarkingsEditComponent implements OnChanges {
 
   onRowEditSave(marking: any) {
     if (this.editableNode != null) {
-      // Werte übernehmen
+      // apply values
       const markingFound = this.editableNode.value.find((m: any) => m.tempId === marking.tempId);
       this.setMarkingText(markingFound, 'MarkingName', marking.name);
       // this.setMarkingText(markingFound, 'MarkingFile', marking.filename);
@@ -300,7 +300,7 @@ export class MarkingsEditComponent implements OnChanges {
             aasStructure.supplementalFiles.splice(indxSupplementalFile, 1);
           }
         }
-        // prüfen, ob es ein Serverseitiges file gab, dann muss dieses in deleted files
+        // check if there was a server-side file, then it must be added to deleted files
         const supplementalFile = aasStructure.supplementalFiles.find(
           (f) => f.filePath === this.editableNode.value && f.isLocal !== true,
         );
@@ -313,7 +313,7 @@ export class MarkingsEditComponent implements OnChanges {
 
         let newFileName = event.files[0].name;
         let newFilePath = `/aasx/files/${FilenameHelper.sanitizeFilename(newFileName)}`;
-        // prüfen, ob mit dem selben Dateinamen bereits eine Datei vorhanden ist!
+        // check whether a file with the same name already exists!
         const existing = aasStructure.supplementalFiles.filter((f) => f.filePath === newFilePath);
         if (existing != null && existing.length > 0) {
           newFileName = `${FilenameHelper.getNameWithoutExt(newFileName)}${

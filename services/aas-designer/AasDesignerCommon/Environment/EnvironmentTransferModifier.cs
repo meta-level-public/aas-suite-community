@@ -26,7 +26,7 @@ public class EnvironmentTransferModifier
                         Type = ModificationType.Aas,
                     }
                 );
-                // alle SM umschreiben
+                // rewrite all SMs
                 aas.Submodels?.ForEach(smRef =>
                 {
                     var smRefKey = smRef.Keys.Find(k => k.Type == KeyTypes.Submodel);

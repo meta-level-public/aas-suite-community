@@ -29,7 +29,7 @@ export class AddressMapComponent implements AfterViewInit {
   private readonly ADDRESS_INFORMATION_SEMANTIC_ID =
     'https://admin-shell.io/zvei/nameplate/1/0/ContactInformations/AddressInformation';
 
-  // Semantic IDs für die Adressfelder
+  // Semantic IDs for the address fields
   private readonly SEMANTIC_IDS = {
     STREET: '0173-1#02-AAO128#002',
     CITY_TOWN: '0173-1#02-AAO132#002',
@@ -48,7 +48,7 @@ export class AddressMapComponent implements AfterViewInit {
   overviewExpanded = signal(true);
   expandedStepIndexes = signal<number[]>([]);
 
-  // Computed signal für alle Adressen aus den Steps
+  // Computed signal for all addresses from the steps
   addresses = computed(() => {
     const stepList = this.steps();
     const addressList: AddressInfo[] = [];

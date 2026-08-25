@@ -97,7 +97,7 @@ export class SemanticIdHelper {
   }
 
   static hasSemanticId(sme: ISubmodelElement | IHasSemantics | undefined, semanticId: string) {
-    // TODO: Ggf müssen wir hier die Versionsnummern ignorieren
+    // TODO: If necessary we may need to ignore version numbers here
     return sme?.semanticId?.keys.find((k) => k.value.toLowerCase().startsWith(semanticId.toLowerCase())) != null;
   }
 }

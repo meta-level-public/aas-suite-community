@@ -54,14 +54,14 @@ public class CreateInstanceHandler : IRequestHandler<CreateInstanceCommand, stri
         var environment = shellLoadResult.Environment;
         if (environment == null)
             throw new Exception("AAS not found");
-        // das sind die originalen Files mit den originalen Pfaden
+        // these are the original files with the original paths
         var files = FilesFromAasResolver.GetAllAasFiles(
             environment,
             infrastructure.SubmodelRepositoryUrl.AppendSlash(),
             infrastructure.AasRepositoryUrl.AppendSlash()
         );
 
-        // ändern und ins ziel schieben
+        // modify and push to target
         var modifications = EnvironmentCreateInstanceModifier.ModifyEnvironment(
             environment,
             request.AppUser.Organisation.IriPrefix,
@@ -132,7 +132,7 @@ public class CreateInstanceHandler : IRequestHandler<CreateInstanceCommand, stri
                 editorDescriptor.SubmodelDescriptorEntries.Add(smDescriptorEntry);
             }
 
-            // thumbnail laden und setzen
+            // load and set thumbnail
             var thumb = files.FirstOrDefault(f => f.IsThumbnail);
             if (thumb != null)
             {
@@ -177,7 +177,7 @@ public class CreateInstanceHandler : IRequestHandler<CreateInstanceCommand, stri
 
         foreach (var file in files)
         {
-            // Laden und wieder wegschreiben
+            // load and write back
             var loadedFile = FileLoader.LoadFile(file, request.AppUser);
 
             var smId =

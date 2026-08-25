@@ -93,7 +93,10 @@ export class V3TreeContextMenuComponent {
     parentElement: TreeNode<V3TreeItem<any>> | undefined;
   }>();
 
-  @Output() showInsertJsonDialog = new EventEmitter<'submodel' | 'element' | 'cd'>();
+  @Output() showInsertJsonDialog = new EventEmitter<{
+    type: 'submodel' | 'element' | 'cd';
+    node: TreeNode<V3TreeItem<any>>;
+  }>();
   @Output() showInsertFromEclassDialog = new EventEmitter<{ parentElement: TreeNode<V3TreeItem<any>> }>();
 
   saveSnippetDialogVisible: boolean = false;
@@ -313,7 +316,7 @@ export class V3TreeContextMenuComponent {
             icon: 'fa-solid fa-code',
             command: () => {
               menu.hide();
-              this.showInsertJsonDialog.emit('submodel');
+              this.showInsertJsonDialog.emit({ type: 'submodel', node: this.node! });
             },
             visible: this.isInsertAllowed(CMTypeOption.SMFromJson),
           },
@@ -322,7 +325,7 @@ export class V3TreeContextMenuComponent {
             icon: 'fa-solid fa-code',
             command: () => {
               menu.hide();
-              this.showInsertJsonDialog.emit('element');
+              this.showInsertJsonDialog.emit({ type: 'element', node: this.node! });
             },
             visible: this.isInsertAllowed(CMTypeOption.ElFromJson),
           },
@@ -331,7 +334,7 @@ export class V3TreeContextMenuComponent {
             icon: 'fa-solid fa-code',
             command: () => {
               menu.hide();
-              this.showInsertJsonDialog.emit('cd');
+              this.showInsertJsonDialog.emit({ type: 'cd', node: this.node! });
             },
             visible: this.isInsertAllowed(CMTypeOption.CdFromJson),
           },
@@ -978,7 +981,7 @@ export class V3TreeContextMenuComponent {
         return addonElements;
       }
     } catch {
-      // ignorieren
+      // ignore
     }
     return [{ label: this.translate.instant('NOTHING_AVAILABLE') }];
   }
@@ -1037,7 +1040,7 @@ export class V3TreeContextMenuComponent {
               }
               if (documentItem.file != null) {
                 const sanitizedFilename = FilenameHelper.sanitizeFilename(documentItem.file?.name ?? 'newFile');
-                // Dokument in die Files übertragen
+                // copy document into files
                 const newSupplFile: SupplementalFile = {
                   path: sanitizedFilename,
                   filename: sanitizedFilename,
@@ -1078,7 +1081,7 @@ export class V3TreeContextMenuComponent {
             if (contactInfoItem != null) {
               const _requiredSemanticIds: string[] = [];
               // const contactInfo = this.generatorService.createContactInformation(count, requiredSemanticIds, documentItem);
-              // alle zurückgelieferten Elemente einfügen
+              // insert all returned elements
               contactInfoItem.value?.forEach((element) => {
                 if (element instanceof aas.types.SubmodelElementCollection) {
                   this.insertElement(element, EditorTypeOption.SubmodelElementCollection);
@@ -1541,7 +1544,7 @@ export class V3TreeContextMenuComponent {
         break;
       case CMTypeOption.SubmodelElementList:
         {
-          // erstmal mit property anlegen, kann der Benutzer später ändern
+          // create with property for now, the user can change it later
           const prop = new aas.types.SubmodelElementList(aas.types.AasSubmodelElements.Property);
           prop.idShort = 'newSubmodelElementList';
           this.insertElement(prop, EditorTypeOption.SubmodelElementList);
@@ -1664,7 +1667,7 @@ export class V3TreeContextMenuComponent {
           this.node.data.content.value.push(submodel.submodelElements[0]);
 
           const id = uuid();
-          // treenode erzeugen für Collection
+          // create treenode for Collection
           const propNodeData = new V3TreeItem<aas.types.SubmodelElementCollection>();
           propNodeData.content = submodel.submodelElements[0] as SubmodelElementCollection;
           propNodeData.id = id;
@@ -1688,7 +1691,7 @@ export class V3TreeContextMenuComponent {
           );
           setTimeout(() => this.treeService.selectById(id));
         }
-        // konzeptbeschreibungen anhängen
+        // append concept descriptions
 
         for (const conceptDescription of template.v3ConceptDescriptions) {
           if (this.shellResult?.v3Shell == null) break;
@@ -1698,7 +1701,7 @@ export class V3TreeContextMenuComponent {
           this.shellResult.v3Shell.conceptDescriptions.push(conceptDescription);
 
           const id = uuid();
-          // treenode erzeugen für Submodel(ref)
+          // create treenode for Submodel(ref)
           const propNodeData = new V3TreeItem<aas.types.ConceptDescription>();
           propNodeData.content = conceptDescription;
           propNodeData.id = id;
@@ -1744,7 +1747,7 @@ export class V3TreeContextMenuComponent {
         this.shellResult?.v3Shell?.submodels?.push(submodel);
 
         const id = uuid();
-        // treenode erzeugen für Submodel(ref)
+        // create treenode for Submodel(ref)
         const propNodeData = new V3TreeItem<aas.types.Submodel>();
         propNodeData.content = submodel;
         propNodeData.id = id;
@@ -1791,7 +1794,7 @@ export class V3TreeContextMenuComponent {
         this.shellResult?.v3Shell?.submodels?.push(submodel);
 
         const id = uuid();
-        // treenode erzeugen für Submodel(ref)
+        // create treenode for Submodel(ref)
         const propNodeData = new V3TreeItem<aas.types.Submodel>();
         propNodeData.content = submodel;
         propNodeData.id = id;
@@ -1829,7 +1832,7 @@ export class V3TreeContextMenuComponent {
         const cd = new aas.types.ConceptDescription('empty');
         this.node.data.content.conceptDescriptions.push(cd);
         const id = uuid();
-        // treenode erzeugen
+        // create treenode
         const cdData = new V3TreeItem<aas.types.ConceptDescription>();
 
         cdData.content = cd;
@@ -2023,7 +2026,7 @@ export class V3TreeContextMenuComponent {
     if (indx != null && indx > -1) {
       (this.conceptDescriptionsRootNode?.data?.content as ConceptDescriptionRoot)?.conceptDescriptions?.splice(indx, 1);
     }
-    // treeNode löschen
+    // delete treeNode
     this.conceptDescriptionsRootNode?.children?.splice(
       this.conceptDescriptionsRootNode?.children?.indexOf(this.node),
       1,
@@ -2050,7 +2053,7 @@ export class V3TreeContextMenuComponent {
         }
       }
 
-      // treeNode löschen
+      // delete treeNode
       this.node.parent?.children?.splice(this.node.parent.children?.indexOf(this.node), 1);
       this.treeService?.selectById(this.node.parent?.data?.id ?? '');
     }
@@ -2069,19 +2072,19 @@ export class V3TreeContextMenuComponent {
 
   async deleteNode() {
     if ((await this.confirmService.confirm({ message: this.translate.instant('DELETE_ELEMENT_Q') })) === true) {
-      // parent element suchen zum späteren selektieren
+      // find parent element for later selection
       const parent = this.node?.parent;
       switch (this.node?.data?.editorType) {
         case EditorTypeOption.AssetAdministrationShell:
-          // ganze shell entfernen
+          // remove entire shell
           this.removeShell();
           this.treeService.registerFieldUndoStep();
           this.treeService?.selectById(parent?.data?.id ?? '');
 
           break;
         case EditorTypeOption.Submodel:
-          // referenz und teilmodell löschen
-          // TODO: Nutzer fragen, ob nur die Referenz oder auch das SM gelöscht werden soll!
+          // delete reference and submodel
+          // TODO: Ask user whether only the reference or also the SM should be deleted!
 
           if (
             await this.confirmService.confirm({ message: this.translate.instant('DELETE_SUBMODEL_REMAIN_IN_REPO') })
@@ -2096,7 +2099,7 @@ export class V3TreeContextMenuComponent {
           }
           break;
         case EditorTypeOption.ConceptDescription:
-          // konzeptbeschreibung finden und löschen
+          // find and delete concept description
           this.removeConceptDescription();
           this.treeService.registerFieldUndoStep();
           this.treeService?.selectById(parent?.data?.id ?? '');
@@ -2116,14 +2119,14 @@ export class V3TreeContextMenuComponent {
         case EditorTypeOption.Range:
           if (this.node.parent?.children != null) {
             this.node.parent.children = this.node.parent.children.filter((x) => x !== this.node);
-            // daten aus parent content löschen
+            // delete data from parent content
             this.removeFromContent();
             this.treeService.registerFieldUndoStep();
             this.treeService?.selectById(parent?.data?.id ?? '');
           }
           break;
         case EditorTypeOption.SupplementalFile:
-          // ganze shell entfernen
+          // remove entire shell
           this.removeSupplementalFile();
           this.treeService.registerFieldUndoStep();
           this.treeService?.selectById(parent?.data?.id ?? '');
@@ -2224,7 +2227,7 @@ export class V3TreeContextMenuComponent {
             (k) => k.value === 'https://admin-shell.io/zvei/nameplate/1/0/ContactInformations/AddressInformation',
           )
         ) {
-          // Elemente für Kontaktinformationen hinzufügen
+          // add elements for contact information
           const smRes = await this.optionalElementsFinder.getContactInformationSm();
           // eslint-disable-next-line no-console
           console.log('Loaded contact information template', smRes);
@@ -2276,7 +2279,7 @@ export class V3TreeContextMenuComponent {
         return el;
       }
     } catch {
-      // ignorieren
+      // ignore
     }
     return [{ label: this.translate.instant('NOTHING_AVAILABLE') }];
   }
@@ -2301,7 +2304,7 @@ export class V3TreeContextMenuComponent {
             (k) => k.value === 'https://admin-shell.io/zvei/nameplate/1/0/ContactInformations/AddressInformation',
           )
         ) {
-          // Elemente für Kontaktinformationen hinzufügen
+          // add elements for contact information
           const smRes = await this.optionalElementsFinder.getContactInformationSm();
           // eslint-disable-next-line no-console
           console.log('Loaded contact information template', smRes);
@@ -2353,7 +2356,7 @@ export class V3TreeContextMenuComponent {
         return el;
       }
     } catch {
-      // ignorieren
+      // ignore
     }
     return [{ label: this.translate.instant('NOTHING_AVAILABLE') }];
   }

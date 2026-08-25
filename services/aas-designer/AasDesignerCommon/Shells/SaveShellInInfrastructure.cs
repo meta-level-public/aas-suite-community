@@ -208,7 +208,7 @@ public class SaveShellInInfrastructure
                 }
 
                 // do something with the file
-                // datei in der aasFiles-Liste finden und an den endpunkt schicken
+                // find file in the aasFiles list and send it to the endpoint
                 var aasFilesMatched = aasFiles
                     .Where(f => f.Filename.EndsWith(providedFile.Filename))
                     .ToList();
@@ -217,7 +217,7 @@ public class SaveShellInInfrastructure
                 {
                     if (aasFile == null || environment.AssetAdministrationShells == null)
                         continue;
-                    // datei zum endpunkt schicken
+                    // send file to the endpoint
 
                     if (aasFile.IsThumbnail)
                     {
@@ -287,7 +287,7 @@ public class SaveShellInInfrastructure
                             var filenameNew =
                                 contJson?["value"]?.ToString() ?? providedFile.Filename;
 
-                            // Liste bauen mit alt/neu
+                            // build list with old/new names
                             if (!result.OldNewFileNames.ContainsKey(providedFile.Filename))
                             {
                                 result.OldNewFileNames.Add(providedFile.Filename, filenameNew);
@@ -387,7 +387,7 @@ public class SaveShellInInfrastructure
         using var client = HttpClientCreator.CreateHttpClient(appUser);
         var aasId = string.Empty;
 
-        // Changelog Submodell hinzufügen, falls erforderlich und Changelog soll geschrieben werden
+        // add changelog submodel if required and changelog should be written
         if (CreateChangelogEntry)
         {
             var smListToAdd = new Dictionary<IAssetAdministrationShell, Submodel>();
@@ -525,7 +525,7 @@ public class SaveShellInInfrastructure
                     && !deletedSubmodels.Contains(id)
                 )
                 {
-                    // Wenn explizites Löschen angegeben, dann Löschen, sonst stehenlassen!
+                    // if explicit deletion is specified, delete; otherwise leave it!
                     var smUrl =
                         appUser.CurrentInfrastructureSettings.SubmodelRepositoryUrl.AppendSlash()
                         + "submodels/"
@@ -618,7 +618,7 @@ public class SaveShellInInfrastructure
                 else
                 {
                     // do something with the file
-                    // datei in der aasFiles-Liste finden und an den endpunkt schicken
+                    // find file in the aasFiles list and send it to the endpoint
                     var aasFilesMatched = aasFiles
                         .Where(f => f.Filename.EndsWith(providedFile.Filename))
                         .ToList();
@@ -629,7 +629,7 @@ public class SaveShellInInfrastructure
                         {
                             if (aasFile == null || environment.AssetAdministrationShells == null)
                                 continue;
-                            // datei zum endpunkt schicken
+                            // send file to the endpoint
 
                             var fileUrl = aasFile.Endpoint + "?fileName=" + providedFile.Filename;
                             using var httpRequest = new HttpRequestMessage(HttpMethod.Put, fileUrl);
@@ -668,7 +668,7 @@ public class SaveShellInInfrastructure
                                 var filenameNew =
                                     contJson?["value"]?.ToString() ?? providedFile.Filename;
 
-                                // Liste bauen mit alt/neu
+                                // build list with old/new names
                                 result.OldNewFileNames.Add(providedFile.Filename, filenameNew);
                             }
                         }

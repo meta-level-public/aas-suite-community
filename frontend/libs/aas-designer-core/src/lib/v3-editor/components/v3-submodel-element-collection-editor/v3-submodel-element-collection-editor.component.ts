@@ -29,7 +29,6 @@ import { V3SemanticDescriptionComponent } from '../v3-semantic-description/v3-se
 @Component({
   selector: 'aas-v3-submodel-element-collection-editor',
   templateUrl: './v3-submodel-element-collection-editor.component.html',
-  styleUrls: ['./v3-submodel-element-collection-editor.component.css'],
   imports: [
     Fieldset,
     HelpLabelComponent,

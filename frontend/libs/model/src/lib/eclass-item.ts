@@ -25,7 +25,7 @@ export class EClassItem {
   static parseDto(dto: any, language: string) {
     const eClassItem = new EClassItem();
 
-    //TODO eleganteren / dynamischere Lösung implementieren
+    //TODO implement a more elegant / dynamic solution
     language = language === 'de' ? 'de-DE' : 'en-US';
 
     eClassItem.irdi = dto?.irdi;

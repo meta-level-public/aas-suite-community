@@ -1,7 +1,7 @@
 import * as aas from '@aas-core-works/aas-core3.1-typescript';
 
 import { HelpLabelComponent } from '@aas/common-components';
-import { AasConfirmationService, NotificationService } from '@aas/common-services';
+import { AasConfirmationService, NotificationService, PortalService } from '@aas/common-services';
 import { IdGenerationUtil, InstanceHelper } from '@aas/helpers';
 import { ApiException } from '@aas/jwt-auth';
 import { EClassItem, ShellResult } from '@aas/model';
@@ -25,7 +25,6 @@ import { EClassLogoComponent } from '../../../general/eclass-logo/eclass-logo.co
 import { EclassSearchComponent } from '../../../general/eclass-search/eclass-search.component';
 import { Info } from '../../../general/model/info-item';
 import { VecLogoComponent } from '../../../general/vec-logo/vec-logo.component';
-import { PortalService } from '@aas/common-services';
 import { EditorTypeOption } from '../../model/editor-type-option';
 import { V3TreeItem } from '../../model/v3-tree-item';
 import { V3EditorDataStoreService } from '../../v3-editor-data-store.service';
@@ -207,6 +206,8 @@ export class V3IdComponent implements OnChanges {
       this.notificationService.showMessageAlways('ID_NOT_UNIQUE_WILL_BE_RESETTED', 'ERROR', 'error');
       this.element.content.id = this.idBackup;
     } else {
+      const previousId = this.idBackup;
+
       // ElementReferenz suchen gehen und dann auf die neue ID setzen
       if (this.element?.content instanceof aas.types.ConceptDescription) {
         this.shellResult?.v3Shell?.submodels?.forEach((submodel) => {
@@ -218,10 +219,9 @@ export class V3IdComponent implements OnChanges {
         this.shellResult?.v3Shell?.assetAdministrationShells?.forEach((shell) => {
           shell?.submodels?.forEach((submodel) => {
             submodel.keys.forEach((k) => {
-              if (k.value === this.idBackup) {
+              if (k.value === previousId) {
                 k.value = this.element?.content.id;
                 this.treeService.registerFieldUndoStep();
-                this.idBackup = this.element?.content.id;
               }
             });
           });
@@ -229,12 +229,12 @@ export class V3IdComponent implements OnChanges {
       }
     }
 
-    // id Änderung im store hinterlegen
+    // store ID change in the store
     const descriptor = this.v3EditorDataStore.editorDescriptor();
     if (descriptor != null) {
       if (this.element?.editorType === EditorTypeOption.Submodel) {
         descriptor.submodelDescriptorEntries?.forEach((sm) => {
-          if (sm.oldId === this.idBackup) {
+          if (sm.oldId === this.idBackup || sm.newId === this.idBackup) {
             sm.newId = this.element?.content.id;
           }
         });
@@ -246,6 +246,8 @@ export class V3IdComponent implements OnChanges {
         descriptor.aasDescriptorEntry.newId = this.element?.content.id;
       }
     }
+
+    this.idBackup = this.element?.content?.id;
   }
 
   syncSemanticIdRecursive(submodel: aas.types.ISubmodelElement) {
@@ -278,7 +280,7 @@ export class V3IdComponent implements OnChanges {
   router = inject(Router);
 
   async startChangeIdentifier(event: MouseEvent, op: Popover) {
-    // prüfen ob Änderungen vorhanden sind
+    // check if changes are present
     if (this.treeService.hasChanged()) {
       if (
         await this.confirmationService.confirm({

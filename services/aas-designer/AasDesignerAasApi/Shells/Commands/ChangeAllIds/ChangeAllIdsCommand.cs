@@ -69,7 +69,7 @@ public class ChangeAllIdsHandler : IRequestHandler<ChangeAllIdsCommand, string>
 
         bool aasIdChanged = false;
 
-        // über alle änderungen laufen und die ids anpassen
+        // iterate over all changes and adjust the IDs
         foreach (var mod in request.Modifications)
         {
             if (mod.Type == "AAS")
@@ -119,13 +119,13 @@ public class ChangeAllIdsHandler : IRequestHandler<ChangeAllIdsCommand, string>
             }
         }
 
-        // wenn AAS ID geändert, dann muss die alte gelöscht werden und die neue geschrieben
+        // if AAS ID changed, the old one must be deleted and the new one written
         if (aasIdChanged)
         {
             using var client = HttpClientCreator.CreateHttpClient(request.AppUser);
 
             var newUrl = infrastructure.AasRepositoryUrl.AppendSlash() + "shells";
-            // neue schreiben
+            // write new one
             var aasJsonString = BasyxSerializer.Serialize(
                 res.Environment.AssetAdministrationShells[0]
             );
@@ -137,7 +137,7 @@ public class ChangeAllIdsHandler : IRequestHandler<ChangeAllIdsCommand, string>
             var contentNew = await responseNew.Content.ReadAsStringAsync();
             responseNew.EnsureSuccessStatusCode();
 
-            // thumbnail laden für später
+            // load thumbnail for later
             var thumbUrl =
                 infrastructure.AasRepositoryUrl.AppendSlash()
                 + "shells".AppendSlash()
@@ -145,7 +145,7 @@ public class ChangeAllIdsHandler : IRequestHandler<ChangeAllIdsCommand, string>
                 + "/asset-information/thumbnail?fileName=thumbnail";
             var loadedThumb = FileLoader.LoadFile(thumbUrl, request.AppUser);
 
-            // alte löschen
+            // delete old one
             var deleteUrl =
                 infrastructure.AasRepositoryUrl.AppendSlash()
                 + "shells".AppendSlash()
@@ -185,7 +185,7 @@ public class ChangeAllIdsHandler : IRequestHandler<ChangeAllIdsCommand, string>
             );
         }
 
-        // jetzt noch das "normale" update hinterher, damit SMs geändert werden
+        // now also run the regular update to change SMs
         await SaveShellInInfrastructure.UpdateSingle(
             res.Environment,
             request.AppUser,
@@ -198,7 +198,7 @@ public class ChangeAllIdsHandler : IRequestHandler<ChangeAllIdsCommand, string>
             "IDs updated"
         );
 
-        // TODO: wir müssen noch einmal über angehängte Dateien nachdenken....
+        // TODO: we still need to think about attached files....
 
         return res.Environment.AssetAdministrationShells[0].Id;
     }

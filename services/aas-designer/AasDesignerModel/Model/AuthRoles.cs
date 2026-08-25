@@ -16,16 +16,7 @@ namespace AasDesignerApi.Model
 
         public static List<string> GetRoles()
         {
-            return
-            [
-                BENUTZER,
-                ORGA_ADMIN,
-                FEED_MAPPING_USER,
-                MARKT_PUBLISHER,
-                ORGA_HELP_EDITOR,
-                SHELLS_READER,
-                SHELLS_EDITOR,
-            ];
+            return [BENUTZER, ORGA_ADMIN, FEED_MAPPING_USER, ORGA_HELP_EDITOR];
         }
     }
 }

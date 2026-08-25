@@ -103,11 +103,6 @@ public static class MailSettingsStore
             },
         };
 
-        if (normalized.Application.SmtpPort <= 0)
-        {
-            normalized.Application.SmtpPort = 587;
-        }
-
         return normalized;
     }
 

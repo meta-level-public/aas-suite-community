@@ -49,7 +49,7 @@ public class CheckChangeAllIdsHandler
 
         var result = new List<ModificationCheckResult>();
 
-        // über alle änderungen laufen und die ids anpassen
+        // iterate over all changes and adjust the IDs
         foreach (var mod in request.Modifications)
         {
             if (mod.Type == "AAS" && mod.OldId != mod.NewId)

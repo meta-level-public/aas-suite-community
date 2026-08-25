@@ -90,7 +90,7 @@ export class QudtDatatypeDataService {
             flattenedDataKeys.push(shortPredicate);
           }
           if (shortPredicate === 'label' || shortPredicate === 'comment') {
-            // für alle Sprachen übernehmen!
+            // apply for all languages!
             if (obj[shortPredicate] == null) {
               obj[shortPredicate] = [];
             }

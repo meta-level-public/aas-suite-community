@@ -66,7 +66,7 @@ namespace AasDesignerApi.Jobs
                             {
                                 if (mqttClients.ContainsKey(infrastructure.Id.ToString()))
                                 {
-                                    // prüfen ob der noch "lebt" oder eigentlich "tot" sein muss
+                                    // check if it is still "alive" or should actually be "dead"
                                     if (infrastructure.Geloescht)
                                     {
                                         var client = mqttClients[infrastructure.Id.ToString()];
@@ -85,7 +85,7 @@ namespace AasDesignerApi.Jobs
                                         var client = mqttClients[infrastructure.Id.ToString()];
                                         if (!client.IsConnected)
                                         {
-                                            // löschen und neu erzeugen
+                                            // delete and recreate
                                             mqttClients.Remove(infrastructure.Id.ToString());
                                             await CreateClientIfNotEmpty(
                                                 mqttFactory,

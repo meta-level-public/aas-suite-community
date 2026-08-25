@@ -117,7 +117,7 @@ public class SearchShellsHandler : IRequestHandler<SearchShellsQuery, ShellListV
                 return await LoadFromRepository(request, cancellationToken, client);
             }
 
-            // TODO: Werte Verarbeiten und zurückliefern
+            // TODO: Process values and return them
             if (res.Hits != null)
             {
                 foreach (var descriptor in res.Hits)

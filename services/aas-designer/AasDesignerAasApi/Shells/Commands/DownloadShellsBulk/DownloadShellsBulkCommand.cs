@@ -38,7 +38,7 @@ public class DownloadShellsBulkHandler : IRequestHandler<DownloadShellsBulkComma
         CancellationToken cancellationToken
     )
     {
-        // alle Dateien besorgen und dann packen
+        // collect all files and then pack them
         var zipFileMemoryStream = new MemoryStream();
         using (
             ZipArchive archive = new ZipArchive(

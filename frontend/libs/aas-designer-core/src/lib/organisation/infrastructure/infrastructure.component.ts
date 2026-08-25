@@ -8,7 +8,7 @@ import {
   SystemManagementClient,
 } from '@aas/webapi-client';
 import { Component, computed, ElementRef, inject, OnInit, output, signal, ViewChild } from '@angular/core';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { ButtonModule } from 'primeng/button';
 import { FieldsetModule } from 'primeng/fieldset';
@@ -16,6 +16,7 @@ import { TableModule } from 'primeng/table';
 import { TagModule } from 'primeng/tag';
 import { ToolbarModule } from 'primeng/toolbar';
 import { lastValueFrom } from 'rxjs';
+import { InfrastrukturRechteComponent } from '../infrastruktur-rechte/infrastruktur-rechte.component';
 import { HasChangesCheckable } from '../my-organisation/has-changes-checkable';
 import { OrganisationStateService } from '../organisation-state.service';
 import { InfrastructureEditComponent } from './infrastructure-edit/infrastructure-edit.component';
@@ -32,6 +33,7 @@ import { InfrastructureUpdateVersionsComponent } from './infrastructure-update-v
     TagModule,
     ToolbarModule,
     ButtonModule,
+    InfrastrukturRechteComponent,
     InfrastructureEditComponent,
     InfrastructureListComponent,
     InfrastructureUpdateVersionsComponent,
@@ -51,6 +53,7 @@ export class InfrastructureComponent extends HasChangesCheckable implements OnIn
   systemManagementClient = inject(SystemManagementClient);
   orgaStateService = inject(OrganisationStateService);
   route = inject(ActivatedRoute);
+  router = inject(Router);
 
   loading = signal<boolean>(false);
   mode = signal<'list' | 'edit' | 'updateVersions'>('list');
@@ -227,6 +230,7 @@ export class InfrastructureComponent extends HasChangesCheckable implements OnIn
       );
       this.orgaStateService.requestInfrastructureTreeReload();
       this.reloadInfrastuctureList.emit();
+      this.router.navigate(['../'], { relativeTo: this.route });
     }
   }
 

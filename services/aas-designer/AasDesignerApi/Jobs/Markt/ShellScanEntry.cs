@@ -1,7 +1,7 @@
 namespace AasDesignerApi.Jobs.Markt;
 
 /// <summary>
-/// Gemeinsames DTO für AAS-Shell-Scan-Ergebnisse, unabhängig davon ob die Daten
+/// Common DTO for AAS shell scan results, regardless of whether the data
 /// aus der Registry (Descriptors) oder direkt aus dem Repository (Shells) kommen.
 /// </summary>
 public sealed record ShellScanEntry
@@ -13,7 +13,7 @@ public sealed record ShellScanEntry
     public IReadOnlyList<string> SubmodelSemanticIds { get; init; } = [];
     public IReadOnlyList<(string Name, string Value)> SpecificAssetIds { get; init; } = [];
 
-    // Für Auto-Listing-Metadaten
+    // For auto-listing metadata
     public string? DisplayNameDe { get; init; }
     public string? DisplayNameEn { get; init; }
     public string? DescriptionDe { get; init; }

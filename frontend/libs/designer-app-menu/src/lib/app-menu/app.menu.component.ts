@@ -1,5 +1,5 @@
 import { HelpService } from '@aas/common-components';
-import { AppConfigService } from '@aas/common-services';
+import { AppConfigService, AppRouteUrls, PluginRegistryService } from '@aas/common-services';
 
 import { ADDITIONAL_MENU_ITEMS, AuthRoles } from '@aas-designer-model';
 import { AccessService, PortalService } from '@aas/common-services';
@@ -24,6 +24,7 @@ export class AppMenuComponent implements OnInit {
   portalService = inject(PortalService);
   helpService = inject(HelpService);
   additionalMenuItems = inject(ADDITIONAL_MENU_ITEMS);
+  pluginRegistry = inject(PluginRegistryService);
   private router = inject(Router);
 
   constructor(
@@ -66,13 +67,22 @@ export class AppMenuComponent implements OnInit {
       this.tabs = [
         {
           label: this.translate.instant('SHELLS_LIST'),
-          icon: 'pi pi-fw pi-box',
+          icon: 'pi pi-fw pi-folder',
+          shortLabel: 'AAS',
           routerLink: ['/shells-list'],
           preventExact: true,
         },
         {
+          label: this.translate.instant('SUBMODELS'),
+          icon: 'pi pi-fw pi-file',
+          shortLabel: 'SM',
+          routerLink: ['/submodels'],
+          preventExact: true,
+        },
+        {
           label: this.translate.instant('CD_LIST'),
-          icon: 'pi pi-fw pi-database',
+          icon: 'pi pi-fw pi-book',
+          shortLabel: 'CD',
           routerLink: ['/cds-list'],
           preventExact: true,
         },
@@ -89,10 +99,19 @@ export class AppMenuComponent implements OnInit {
       }
       this.tabs.push({
         label: this.translate.instant('IDTA_TEMPLATES'),
-        icon: 'pi pi-fw pi-file-edit',
-        routerLink: ['/submodels'],
+        icon: 'pi pi-fw pi-file',
+        shortLabel: 'IDTA',
+        routerLink: ['/idta-submodels'],
         preventExact: true,
       });
+      if (this.pluginRegistry.plugins().length > 0) {
+        this.tabs.push({
+          label: this.translate.instant('PLUGINS'),
+          icon: 'pi pi-fw pi-box',
+          routerLink: [AppRouteUrls.plugins],
+          preventExact: true,
+        });
+      }
       // this.tabs.push({
       //   label: this.translate.instant('INSTANCE_VIEWER'),
       //   icon: 'fa-solid fa-magnifying-glass-arrow-right',

@@ -53,7 +53,7 @@ namespace AasDesignerApi.Model
 
         public int MaxHostPort { get; set; } = 0;
 
-        // Daten für die Ablaufwarnung
+        // Data for the expiration warning
         public ExpirationState? ExpirationState { get; set; }
         public DateTime? ExpirationStateDate { get; set; }
 

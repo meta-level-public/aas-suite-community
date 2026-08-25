@@ -1334,7 +1334,7 @@ namespace AasDesignerApi.SubmodelTemplate
                     }
                     catch
                     {
-                        // Einzelnes Element überspringen, Rest verarbeiten
+                        // skip individual element, continue processing the rest
                     }
                 }
             }
@@ -1394,7 +1394,7 @@ namespace AasDesignerApi.SubmodelTemplate
                 }
                 catch
                 {
-                    // Einzelnes Element überspringen, Rest verarbeiten
+                    // skip individual element, continue processing the rest
                 }
             }
 

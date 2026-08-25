@@ -17,7 +17,7 @@ import { ContactInformation, createEmptyContactInformation } from './contact-inf
   imports: [FormsModule, TranslateModule, FieldsetModule, InputTextModule, ButtonModule],
 })
 export class ContactInformationAddonComponent {
-  // Signal für die ContactInformation Daten
+  // Signal for the ContactInformation data
   contactInfo = signal<ContactInformation>(createEmptyContactInformation());
 
   ref: DynamicDialogRef = inject(DynamicDialogRef);
@@ -35,18 +35,18 @@ export class ContactInformationAddonComponent {
     // AAS-Objekt aus JSON-Template erstellen
     const instanceOrError = aas.jsonization.submodelElementCollectionFromJsonable(contactInformationTemplate as any);
 
-    // Either-Handling: Prüfen ob Deserialisierung erfolgreich war
+    // Either handling: check if deserialisation was successful
     if (instanceOrError.error == null) {
       const collection = instanceOrError.value;
       if (collection) {
-        // Werte aus ContactInformation übernehmen
+        // apply values from ContactInformation
         this.updateCollectionValues(collection, contactData);
       }
       return collection ?? new aas.types.SubmodelElementCollection();
     } else {
       // eslint-disable-next-line no-console
       console.log('De-serialization failed: ' + `${instanceOrError.error.path}: ` + `${instanceOrError.error.message}`);
-      // Fallback: Leere SubmodelElementCollection zurückgeben
+      // Fallback: return empty SubmodelElementCollection
       return new aas.types.SubmodelElementCollection();
     }
   }

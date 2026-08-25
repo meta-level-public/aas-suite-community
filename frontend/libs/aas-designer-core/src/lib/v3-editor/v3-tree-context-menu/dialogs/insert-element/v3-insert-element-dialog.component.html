@@ -35,7 +35,7 @@
         <td class="justify-center" style="min-width: 10rem; max-width: 10rem">
           <p-button label="{{ 'APPLY' | translate }}" (onClick)="onApply(element)" size="small"></p-button>
         </td>
-        <td><lib-help-label [tag]="element.label"></lib-help-label></td>
+        <td style="white-space: nowrap; min-width: 16rem; width: 16rem"><lib-help-label [tag]="element.label"></lib-help-label></td>
         <td class="text-sm">{{ element.description | translate }}</td>
       </tr>
     </ng-template>

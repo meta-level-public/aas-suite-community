@@ -31,9 +31,20 @@ export class PermissionService {
       return false;
     }
 
+    // SHELLS_READER und SHELLS_EDITOR sind virtuelle Server-Rollen, die nie ins sessionStorage
+    // geschrieben werden. Sie werden stattdessen aus der gewählten Infrastruktur abgeleitet:
+    // isReadonly=false → SHELLS_EDITOR; Infra vorhanden (Backend filtert ohne DarfLesen raus) → SHELLS_READER.
+    const currentInfra = PortalService.getCurrentAasInfrastructureSetting();
+
     let allowed = false;
     requiredAccessRights.forEach((r) => {
       if (this.accessService.isAllowed(r)) {
+        allowed = true;
+      }
+      if (!allowed && r === AuthRoles.SHELLS_READER && currentInfra != null) {
+        allowed = true;
+      }
+      if (!allowed && r === AuthRoles.SHELLS_EDITOR && currentInfra != null && currentInfra.isReadonly === false) {
         allowed = true;
       }
     });

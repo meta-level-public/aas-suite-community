@@ -23,7 +23,7 @@ namespace AasDesignerCommon.Lookup
             // ProductRoot
             ExtractAdresse(environment, appUser, context);
             ExtractProduktfamilie(environment, appUser, context);
-            // Wunsch von Rentschler
+            // request from Rentschler
             ExtractProductRoot(environment, appUser, context);
             ExtractProductDesignation(environment, appUser, context);
         }

@@ -43,7 +43,7 @@ public class GetDashboardHandler : IRequestHandler<GetDashboardQuery, DashboardL
             .Where(d =>
                 d.BenutzerId == request.AppUser.BenutzerId
                 && d.OrganisationId == request.AppUser.OrganisationId
-            ) // nur das Dashboard aus der aktuellen Organisation!
+            ) // only the dashboard from the current organisation!
             .FirstOrDefaultAsync();
 
         if (mapping == null)

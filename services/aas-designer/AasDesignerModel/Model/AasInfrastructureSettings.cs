@@ -7,6 +7,7 @@ namespace AasDesignerModel.Model
         public long Id { get; set; }
         public long OrganisationId { get; set; }
         public Organisation Organisation { get; set; } = null!;
+        public List<BenutzerInfrastrukturRecht> BenutzerRechte { get; set; } = [];
         public string Name { get; set; } = string.Empty;
         public string Description { get; set; } = string.Empty;
 

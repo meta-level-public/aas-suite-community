@@ -113,4 +113,9 @@ public class AppSettings
     public bool HandleInitialInfrastructureAsInternal { get; set; } = false;
 
     public string ViewerAppUrl { get; set; } = "https://viewer.aas-suite.de";
+
+    public bool PluginsEnabled { get; set; } = true;
+    public string PluginDirectory { get; set; } = string.Empty;
+    public long PluginMaxArchiveSizeBytes { get; set; } = 50 * 1024 * 1024;
+    public long PluginMaxEntrySizeBytes { get; set; } = 25 * 1024 * 1024;
 }

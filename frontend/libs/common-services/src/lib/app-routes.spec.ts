@@ -8,6 +8,7 @@ import {
   buildMappingCreateRoute,
   buildMappingEditRoute,
   buildMySpaceProfileRoute,
+  buildPluginsRoute,
   buildRepoEditRoute,
   buildShellRegistryCorrectionRoute,
   buildShellsListRoute,
@@ -30,6 +31,7 @@ describe('app-routes', () => {
     expect(buildMappingCreateRoute('aas-1')).toEqual(['/', 'mapping', 'create', 'aas-1']);
     expect(buildMappingEditRoute(12, 'aas-1')).toEqual(['/', 'mapping', 12, 'aas-1']);
     expect(buildMySpaceProfileRoute()).toEqual(['/', 'my-space', 'profile']);
+    expect(buildPluginsRoute()).toEqual(['/', 'plugins']);
     expect(buildLicenseUpdateRoute()).toEqual(['/', 'system-management', 'license-update']);
     expect(buildDashboardRoute()).toEqual(['/', 'dashboard']);
     expect(buildShellsListRoute()).toEqual(['/', 'shells-list']);
@@ -41,6 +43,7 @@ describe('app-routes', () => {
     expect(AppRoutePaths.mappingEdit).toBe(':mappingId/:aasIdentifier');
     expect(AppRoutePaths.mySpaceProfile).toBe('profile');
     expect(AppRoutePaths.systemManagementLicenseUpdate).toBe('license-update');
+    expect(AppRouteUrls.plugins).toBe('/plugins');
   });
 
   it('normalizes valid post login redirects and rejects forbidden targets', () => {

@@ -19,7 +19,7 @@ export interface IAasInfrastructureClient {
   aasInfrastructure_GetAvailableInfrastructures(): Observable<AvailableInfastructure[]>;
   aasInfrastructure_GetAllSavedInfrastructures(): Observable<AvailableInfastructure[]>;
   aasInfrastructure_GetInfrastructureDetails(id: number | undefined): Observable<AasInfrastructureSettingsDto>;
-  aasInfrastructure_AddInfrastructure(settings: AasInfrastructureSettingsDto): Observable<boolean>;
+  aasInfrastructure_AddInfrastructure(settings: AasInfrastructureSettingsDto): Observable<number>;
   aasInfrastructure_CreateGoInfrastructure(): Observable<boolean>;
   aasInfrastructure_UpdateInfrastructure(settings: AasInfrastructureSettingsDto): Observable<boolean>;
   aasInfrastructure_DeleteInfrastructure(settingId: number | undefined): Observable<boolean>;
@@ -268,7 +268,7 @@ export class AasInfrastructureClient implements IAasInfrastructureClient {
     return _observableOf(null as any);
   }
 
-  aasInfrastructure_AddInfrastructure(settings: AasInfrastructureSettingsDto): Observable<boolean> {
+  aasInfrastructure_AddInfrastructure(settings: AasInfrastructureSettingsDto): Observable<number> {
     let url_ = this.baseUrl + '/aas-api/AasInfrastructure/AddInfrastructure';
     url_ = url_.replace(/[?&]$/, '');
 
@@ -297,14 +297,14 @@ export class AasInfrastructureClient implements IAasInfrastructureClient {
             try {
               return this.processAasInfrastructure_AddInfrastructure(response_ as any);
             } catch (e) {
-              return _observableThrow(e) as any as Observable<boolean>;
+              return _observableThrow(e) as any as Observable<number>;
             }
-          } else return _observableThrow(response_) as any as Observable<boolean>;
+          } else return _observableThrow(response_) as any as Observable<number>;
         }),
       );
   }
 
-  protected processAasInfrastructure_AddInfrastructure(response: HttpResponseBase): Observable<boolean> {
+  protected processAasInfrastructure_AddInfrastructure(response: HttpResponseBase): Observable<number> {
     const status = response.status;
     const responseBlob =
       response instanceof HttpResponse
@@ -5161,6 +5161,7 @@ export interface ISubmodelClient {
     filterIdShort: string | undefined,
   ): Observable<SmVm>;
   submodel_GetSmPlain(smIdentifier: string | undefined): Observable<string>;
+  submodel_SaveSm(data: any[] | undefined): Observable<boolean>;
 }
 
 @Injectable({
@@ -5286,6 +5287,82 @@ export class SubmodelClient implements ISubmodelClient {
   }
 
   protected processSubmodel_GetSmPlain(response: HttpResponseBase): Observable<string> {
+    const status = response.status;
+    const responseBlob =
+      response instanceof HttpResponse
+        ? response.body
+        : (response as any).error instanceof Blob
+          ? (response as any).error
+          : undefined;
+
+    let _headers: any = {};
+    if (response.headers) {
+      for (let key of response.headers.keys()) {
+        _headers[key] = response.headers.get(key);
+      }
+    }
+    if (status === 200) {
+      return blobToText(responseBlob).pipe(
+        _observableMergeMap((_responseText: string) => {
+          let result200: any = null;
+          let resultData200 = _responseText === '' ? null : JSON.parse(_responseText, this.jsonParseReviver);
+          result200 = resultData200 !== undefined ? resultData200 : <any>null;
+
+          return _observableOf(result200);
+        }),
+      );
+    } else if (status !== 200 && status !== 204) {
+      return blobToText(responseBlob).pipe(
+        _observableMergeMap((_responseText: string) => {
+          return throwException('An unexpected server error occurred.', status, _responseText, _headers);
+        }),
+      );
+    }
+    return _observableOf(null as any);
+  }
+
+  submodel_SaveSm(data: any[] | undefined): Observable<boolean> {
+    let url_ = this.baseUrl + '/aas-api/Submodel/SaveSm?';
+    if (data === null) throw new Error("The parameter 'data' cannot be null.");
+    else if (data !== undefined)
+      data &&
+        data.forEach((item, index) => {
+          for (const attr in item)
+            if (item.hasOwnProperty(attr)) {
+              url_ += 'data[' + index + '].' + attr + '=' + encodeURIComponent('' + (item as any)[attr]) + '&';
+            }
+        });
+    url_ = url_.replace(/[?&]$/, '');
+
+    let options_: any = {
+      observe: 'response',
+      responseType: 'blob',
+      headers: new HttpHeaders({
+        Accept: 'application/json',
+      }),
+    };
+
+    return this.http
+      .request('post', url_, options_)
+      .pipe(
+        _observableMergeMap((response_: any) => {
+          return this.processSubmodel_SaveSm(response_);
+        }),
+      )
+      .pipe(
+        _observableCatch((response_: any) => {
+          if (response_ instanceof HttpResponseBase) {
+            try {
+              return this.processSubmodel_SaveSm(response_ as any);
+            } catch (e) {
+              return _observableThrow(e) as any as Observable<boolean>;
+            }
+          } else return _observableThrow(response_) as any as Observable<boolean>;
+        }),
+      );
+  }
+
+  protected processSubmodel_SaveSm(response: HttpResponseBase): Observable<boolean> {
     const status = response.status;
     const responseBlob =
       response instanceof HttpResponse
@@ -5563,35 +5640,44 @@ export class AasViewerClient implements IAasViewerClient {
   }
 }
 
-export interface IJobSettingsClient {
-  jobSettings_GetStatisticCalculatorSettings(): Observable<FileResponse>;
-  jobSettings_UpdateStatisticCalculatorSettings(request: StatisticCalculatorSettingsDto): Observable<FileResponse>;
-  jobSettings_GetDailyStatisticCalculatorSettings(): Observable<FileResponse>;
-  jobSettings_UpdateDailyStatisticCalculatorSettings(
-    request: DailyStatisticCalculatorSettingsDto,
-  ): Observable<FileResponse>;
-  jobSettings_GetDailyExpiredOrganisationsCheckerSettings(): Observable<FileResponse>;
-  jobSettings_UpdateDailyExpiredOrganisationsCheckerSettings(
-    request: DailyExpiredOrganisationsCheckerSettingsDto,
-  ): Observable<FileResponse>;
-  jobSettings_GetPeriodicOrganisationDeleterSettings(): Observable<FileResponse>;
-  jobSettings_UpdatePeriodicOrganisationDeleterSettings(
-    request: PeriodicOrganisationDeleterSettingsDto,
-  ): Observable<FileResponse>;
-  jobSettings_GetPeriodicInfrastructureDeleterSettings(): Observable<FileResponse>;
-  jobSettings_UpdatePeriodicInfrastructureDeleterSettings(
-    request: PeriodicInfrastructureDeleterSettingsDto,
-  ): Observable<FileResponse>;
-  jobSettings_GetIdtaCrawlerSettings(): Observable<FileResponse>;
-  jobSettings_UpdateIdtaCrawlerSettings(request: IdtaCrawlerSettingsDto): Observable<FileResponse>;
-  jobSettings_GetPcnUpdateListenerSettings(): Observable<FileResponse>;
-  jobSettings_UpdatePcnUpdateListenerSettings(request: PcnUpdateListenerSettingsDto): Observable<FileResponse>;
+export interface IInfrastrukturRechteClient {
+  /**
+   * All infrastructures of an organisation with the permissions of a specific user.
+   * @param organisationId (optional)
+   * @param userId (optional)
+   */
+  infrastrukturRechte_GetUserInfraRechte(
+    organisationId: number | undefined,
+    userId: number | undefined,
+  ): Observable<BenutzerInfrastrukturRechtDto[]>;
+  /**
+     * Set the permissions of a user for a specific infrastructure (upsert).
+    DarfSchreiben implies DarfLesen.
+     * @param organisationId (optional) 
+     * @param userId (optional) 
+     * @param infraId (optional) 
+     */
+  infrastrukturRechte_UpsertUserInfraRecht(
+    organisationId: number | undefined,
+    userId: number | undefined,
+    infraId: number | undefined,
+    dto: BenutzerInfrastrukturRechtDto,
+  ): Observable<BenutzerInfrastrukturRechtDto>;
+  /**
+   * All users of an organisation with their permissions for a specific infrastructure.
+   * @param organisationId (optional)
+   * @param infraId (optional)
+   */
+  infrastrukturRechte_GetInfraUserRechte(
+    organisationId: number | undefined,
+    infraId: number | undefined,
+  ): Observable<InfraUserRechtDto[]>;
 }
 
 @Injectable({
   providedIn: 'root',
 })
-export class JobSettingsClient implements IJobSettingsClient {
+export class InfrastrukturRechteClient implements IInfrastrukturRechteClient {
   private http: HttpClient;
   private baseUrl: string;
   protected jsonParseReviver: ((key: string, value: any) => any) | undefined = undefined;
@@ -5601,1080 +5687,20 @@ export class JobSettingsClient implements IJobSettingsClient {
     this.baseUrl = baseUrl ?? '';
   }
 
-  jobSettings_GetStatisticCalculatorSettings(): Observable<FileResponse> {
-    let url_ = this.baseUrl + '/api/job-settings/statistic-calculator';
-    url_ = url_.replace(/[?&]$/, '');
-
-    let options_: any = {
-      observe: 'response',
-      responseType: 'blob',
-      headers: new HttpHeaders({
-        Accept: 'application/octet-stream',
-      }),
-    };
-
-    return this.http
-      .request('get', url_, options_)
-      .pipe(
-        _observableMergeMap((response_: any) => {
-          return this.processJobSettings_GetStatisticCalculatorSettings(response_);
-        }),
-      )
-      .pipe(
-        _observableCatch((response_: any) => {
-          if (response_ instanceof HttpResponseBase) {
-            try {
-              return this.processJobSettings_GetStatisticCalculatorSettings(response_ as any);
-            } catch (e) {
-              return _observableThrow(e) as any as Observable<FileResponse>;
-            }
-          } else return _observableThrow(response_) as any as Observable<FileResponse>;
-        }),
-      );
-  }
-
-  protected processJobSettings_GetStatisticCalculatorSettings(response: HttpResponseBase): Observable<FileResponse> {
-    const status = response.status;
-    const responseBlob =
-      response instanceof HttpResponse
-        ? response.body
-        : (response as any).error instanceof Blob
-          ? (response as any).error
-          : undefined;
-
-    let _headers: any = {};
-    if (response.headers) {
-      for (let key of response.headers.keys()) {
-        _headers[key] = response.headers.get(key);
-      }
-    }
-    if (status === 200 || status === 206) {
-      const contentDisposition = response.headers ? response.headers.get('content-disposition') : undefined;
-      let fileNameMatch = contentDisposition
-        ? /filename\*=(?:(\\?['"])(.*?)\1|(?:[^\s]+'.*?')?([^;\n]*))/g.exec(contentDisposition)
-        : undefined;
-      let fileName = fileNameMatch && fileNameMatch.length > 1 ? fileNameMatch[3] || fileNameMatch[2] : undefined;
-      if (fileName) {
-        fileName = decodeURIComponent(fileName);
-      } else {
-        fileNameMatch = contentDisposition ? /filename="?([^"]*?)"?(;|$)/g.exec(contentDisposition) : undefined;
-        fileName = fileNameMatch && fileNameMatch.length > 1 ? fileNameMatch[1] : undefined;
-      }
-      return _observableOf({ fileName: fileName, data: responseBlob as any, status: status, headers: _headers });
-    } else if (status !== 200 && status !== 204) {
-      return blobToText(responseBlob).pipe(
-        _observableMergeMap((_responseText: string) => {
-          return throwException('An unexpected server error occurred.', status, _responseText, _headers);
-        }),
-      );
-    }
-    return _observableOf(null as any);
-  }
-
-  jobSettings_UpdateStatisticCalculatorSettings(request: StatisticCalculatorSettingsDto): Observable<FileResponse> {
-    let url_ = this.baseUrl + '/api/job-settings/statistic-calculator';
-    url_ = url_.replace(/[?&]$/, '');
-
-    const content_ = JSON.stringify(request);
-
-    let options_: any = {
-      body: content_,
-      observe: 'response',
-      responseType: 'blob',
-      headers: new HttpHeaders({
-        'Content-Type': 'application/json',
-        Accept: 'application/octet-stream',
-      }),
-    };
-
-    return this.http
-      .request('put', url_, options_)
-      .pipe(
-        _observableMergeMap((response_: any) => {
-          return this.processJobSettings_UpdateStatisticCalculatorSettings(response_);
-        }),
-      )
-      .pipe(
-        _observableCatch((response_: any) => {
-          if (response_ instanceof HttpResponseBase) {
-            try {
-              return this.processJobSettings_UpdateStatisticCalculatorSettings(response_ as any);
-            } catch (e) {
-              return _observableThrow(e) as any as Observable<FileResponse>;
-            }
-          } else return _observableThrow(response_) as any as Observable<FileResponse>;
-        }),
-      );
-  }
-
-  protected processJobSettings_UpdateStatisticCalculatorSettings(response: HttpResponseBase): Observable<FileResponse> {
-    const status = response.status;
-    const responseBlob =
-      response instanceof HttpResponse
-        ? response.body
-        : (response as any).error instanceof Blob
-          ? (response as any).error
-          : undefined;
-
-    let _headers: any = {};
-    if (response.headers) {
-      for (let key of response.headers.keys()) {
-        _headers[key] = response.headers.get(key);
-      }
-    }
-    if (status === 200 || status === 206) {
-      const contentDisposition = response.headers ? response.headers.get('content-disposition') : undefined;
-      let fileNameMatch = contentDisposition
-        ? /filename\*=(?:(\\?['"])(.*?)\1|(?:[^\s]+'.*?')?([^;\n]*))/g.exec(contentDisposition)
-        : undefined;
-      let fileName = fileNameMatch && fileNameMatch.length > 1 ? fileNameMatch[3] || fileNameMatch[2] : undefined;
-      if (fileName) {
-        fileName = decodeURIComponent(fileName);
-      } else {
-        fileNameMatch = contentDisposition ? /filename="?([^"]*?)"?(;|$)/g.exec(contentDisposition) : undefined;
-        fileName = fileNameMatch && fileNameMatch.length > 1 ? fileNameMatch[1] : undefined;
-      }
-      return _observableOf({ fileName: fileName, data: responseBlob as any, status: status, headers: _headers });
-    } else if (status !== 200 && status !== 204) {
-      return blobToText(responseBlob).pipe(
-        _observableMergeMap((_responseText: string) => {
-          return throwException('An unexpected server error occurred.', status, _responseText, _headers);
-        }),
-      );
-    }
-    return _observableOf(null as any);
-  }
-
-  jobSettings_GetDailyStatisticCalculatorSettings(): Observable<FileResponse> {
-    let url_ = this.baseUrl + '/api/job-settings/daily-statistic-calculator';
-    url_ = url_.replace(/[?&]$/, '');
-
-    let options_: any = {
-      observe: 'response',
-      responseType: 'blob',
-      headers: new HttpHeaders({
-        Accept: 'application/octet-stream',
-      }),
-    };
-
-    return this.http
-      .request('get', url_, options_)
-      .pipe(
-        _observableMergeMap((response_: any) => {
-          return this.processJobSettings_GetDailyStatisticCalculatorSettings(response_);
-        }),
-      )
-      .pipe(
-        _observableCatch((response_: any) => {
-          if (response_ instanceof HttpResponseBase) {
-            try {
-              return this.processJobSettings_GetDailyStatisticCalculatorSettings(response_ as any);
-            } catch (e) {
-              return _observableThrow(e) as any as Observable<FileResponse>;
-            }
-          } else return _observableThrow(response_) as any as Observable<FileResponse>;
-        }),
-      );
-  }
-
-  protected processJobSettings_GetDailyStatisticCalculatorSettings(
-    response: HttpResponseBase,
-  ): Observable<FileResponse> {
-    const status = response.status;
-    const responseBlob =
-      response instanceof HttpResponse
-        ? response.body
-        : (response as any).error instanceof Blob
-          ? (response as any).error
-          : undefined;
-
-    let _headers: any = {};
-    if (response.headers) {
-      for (let key of response.headers.keys()) {
-        _headers[key] = response.headers.get(key);
-      }
-    }
-    if (status === 200 || status === 206) {
-      const contentDisposition = response.headers ? response.headers.get('content-disposition') : undefined;
-      let fileNameMatch = contentDisposition
-        ? /filename\*=(?:(\\?['"])(.*?)\1|(?:[^\s]+'.*?')?([^;\n]*))/g.exec(contentDisposition)
-        : undefined;
-      let fileName = fileNameMatch && fileNameMatch.length > 1 ? fileNameMatch[3] || fileNameMatch[2] : undefined;
-      if (fileName) {
-        fileName = decodeURIComponent(fileName);
-      } else {
-        fileNameMatch = contentDisposition ? /filename="?([^"]*?)"?(;|$)/g.exec(contentDisposition) : undefined;
-        fileName = fileNameMatch && fileNameMatch.length > 1 ? fileNameMatch[1] : undefined;
-      }
-      return _observableOf({ fileName: fileName, data: responseBlob as any, status: status, headers: _headers });
-    } else if (status !== 200 && status !== 204) {
-      return blobToText(responseBlob).pipe(
-        _observableMergeMap((_responseText: string) => {
-          return throwException('An unexpected server error occurred.', status, _responseText, _headers);
-        }),
-      );
-    }
-    return _observableOf(null as any);
-  }
-
-  jobSettings_UpdateDailyStatisticCalculatorSettings(
-    request: DailyStatisticCalculatorSettingsDto,
-  ): Observable<FileResponse> {
-    let url_ = this.baseUrl + '/api/job-settings/daily-statistic-calculator';
-    url_ = url_.replace(/[?&]$/, '');
-
-    const content_ = JSON.stringify(request);
-
-    let options_: any = {
-      body: content_,
-      observe: 'response',
-      responseType: 'blob',
-      headers: new HttpHeaders({
-        'Content-Type': 'application/json',
-        Accept: 'application/octet-stream',
-      }),
-    };
-
-    return this.http
-      .request('put', url_, options_)
-      .pipe(
-        _observableMergeMap((response_: any) => {
-          return this.processJobSettings_UpdateDailyStatisticCalculatorSettings(response_);
-        }),
-      )
-      .pipe(
-        _observableCatch((response_: any) => {
-          if (response_ instanceof HttpResponseBase) {
-            try {
-              return this.processJobSettings_UpdateDailyStatisticCalculatorSettings(response_ as any);
-            } catch (e) {
-              return _observableThrow(e) as any as Observable<FileResponse>;
-            }
-          } else return _observableThrow(response_) as any as Observable<FileResponse>;
-        }),
-      );
-  }
-
-  protected processJobSettings_UpdateDailyStatisticCalculatorSettings(
-    response: HttpResponseBase,
-  ): Observable<FileResponse> {
-    const status = response.status;
-    const responseBlob =
-      response instanceof HttpResponse
-        ? response.body
-        : (response as any).error instanceof Blob
-          ? (response as any).error
-          : undefined;
-
-    let _headers: any = {};
-    if (response.headers) {
-      for (let key of response.headers.keys()) {
-        _headers[key] = response.headers.get(key);
-      }
-    }
-    if (status === 200 || status === 206) {
-      const contentDisposition = response.headers ? response.headers.get('content-disposition') : undefined;
-      let fileNameMatch = contentDisposition
-        ? /filename\*=(?:(\\?['"])(.*?)\1|(?:[^\s]+'.*?')?([^;\n]*))/g.exec(contentDisposition)
-        : undefined;
-      let fileName = fileNameMatch && fileNameMatch.length > 1 ? fileNameMatch[3] || fileNameMatch[2] : undefined;
-      if (fileName) {
-        fileName = decodeURIComponent(fileName);
-      } else {
-        fileNameMatch = contentDisposition ? /filename="?([^"]*?)"?(;|$)/g.exec(contentDisposition) : undefined;
-        fileName = fileNameMatch && fileNameMatch.length > 1 ? fileNameMatch[1] : undefined;
-      }
-      return _observableOf({ fileName: fileName, data: responseBlob as any, status: status, headers: _headers });
-    } else if (status !== 200 && status !== 204) {
-      return blobToText(responseBlob).pipe(
-        _observableMergeMap((_responseText: string) => {
-          return throwException('An unexpected server error occurred.', status, _responseText, _headers);
-        }),
-      );
-    }
-    return _observableOf(null as any);
-  }
-
-  jobSettings_GetDailyExpiredOrganisationsCheckerSettings(): Observable<FileResponse> {
-    let url_ = this.baseUrl + '/api/job-settings/daily-expired-organisations-checker';
-    url_ = url_.replace(/[?&]$/, '');
-
-    let options_: any = {
-      observe: 'response',
-      responseType: 'blob',
-      headers: new HttpHeaders({
-        Accept: 'application/octet-stream',
-      }),
-    };
-
-    return this.http
-      .request('get', url_, options_)
-      .pipe(
-        _observableMergeMap((response_: any) => {
-          return this.processJobSettings_GetDailyExpiredOrganisationsCheckerSettings(response_);
-        }),
-      )
-      .pipe(
-        _observableCatch((response_: any) => {
-          if (response_ instanceof HttpResponseBase) {
-            try {
-              return this.processJobSettings_GetDailyExpiredOrganisationsCheckerSettings(response_ as any);
-            } catch (e) {
-              return _observableThrow(e) as any as Observable<FileResponse>;
-            }
-          } else return _observableThrow(response_) as any as Observable<FileResponse>;
-        }),
-      );
-  }
-
-  protected processJobSettings_GetDailyExpiredOrganisationsCheckerSettings(
-    response: HttpResponseBase,
-  ): Observable<FileResponse> {
-    const status = response.status;
-    const responseBlob =
-      response instanceof HttpResponse
-        ? response.body
-        : (response as any).error instanceof Blob
-          ? (response as any).error
-          : undefined;
-
-    let _headers: any = {};
-    if (response.headers) {
-      for (let key of response.headers.keys()) {
-        _headers[key] = response.headers.get(key);
-      }
-    }
-    if (status === 200 || status === 206) {
-      const contentDisposition = response.headers ? response.headers.get('content-disposition') : undefined;
-      let fileNameMatch = contentDisposition
-        ? /filename\*=(?:(\\?['"])(.*?)\1|(?:[^\s]+'.*?')?([^;\n]*))/g.exec(contentDisposition)
-        : undefined;
-      let fileName = fileNameMatch && fileNameMatch.length > 1 ? fileNameMatch[3] || fileNameMatch[2] : undefined;
-      if (fileName) {
-        fileName = decodeURIComponent(fileName);
-      } else {
-        fileNameMatch = contentDisposition ? /filename="?([^"]*?)"?(;|$)/g.exec(contentDisposition) : undefined;
-        fileName = fileNameMatch && fileNameMatch.length > 1 ? fileNameMatch[1] : undefined;
-      }
-      return _observableOf({ fileName: fileName, data: responseBlob as any, status: status, headers: _headers });
-    } else if (status !== 200 && status !== 204) {
-      return blobToText(responseBlob).pipe(
-        _observableMergeMap((_responseText: string) => {
-          return throwException('An unexpected server error occurred.', status, _responseText, _headers);
-        }),
-      );
-    }
-    return _observableOf(null as any);
-  }
-
-  jobSettings_UpdateDailyExpiredOrganisationsCheckerSettings(
-    request: DailyExpiredOrganisationsCheckerSettingsDto,
-  ): Observable<FileResponse> {
-    let url_ = this.baseUrl + '/api/job-settings/daily-expired-organisations-checker';
-    url_ = url_.replace(/[?&]$/, '');
-
-    const content_ = JSON.stringify(request);
-
-    let options_: any = {
-      body: content_,
-      observe: 'response',
-      responseType: 'blob',
-      headers: new HttpHeaders({
-        'Content-Type': 'application/json',
-        Accept: 'application/octet-stream',
-      }),
-    };
-
-    return this.http
-      .request('put', url_, options_)
-      .pipe(
-        _observableMergeMap((response_: any) => {
-          return this.processJobSettings_UpdateDailyExpiredOrganisationsCheckerSettings(response_);
-        }),
-      )
-      .pipe(
-        _observableCatch((response_: any) => {
-          if (response_ instanceof HttpResponseBase) {
-            try {
-              return this.processJobSettings_UpdateDailyExpiredOrganisationsCheckerSettings(response_ as any);
-            } catch (e) {
-              return _observableThrow(e) as any as Observable<FileResponse>;
-            }
-          } else return _observableThrow(response_) as any as Observable<FileResponse>;
-        }),
-      );
-  }
-
-  protected processJobSettings_UpdateDailyExpiredOrganisationsCheckerSettings(
-    response: HttpResponseBase,
-  ): Observable<FileResponse> {
-    const status = response.status;
-    const responseBlob =
-      response instanceof HttpResponse
-        ? response.body
-        : (response as any).error instanceof Blob
-          ? (response as any).error
-          : undefined;
-
-    let _headers: any = {};
-    if (response.headers) {
-      for (let key of response.headers.keys()) {
-        _headers[key] = response.headers.get(key);
-      }
-    }
-    if (status === 200 || status === 206) {
-      const contentDisposition = response.headers ? response.headers.get('content-disposition') : undefined;
-      let fileNameMatch = contentDisposition
-        ? /filename\*=(?:(\\?['"])(.*?)\1|(?:[^\s]+'.*?')?([^;\n]*))/g.exec(contentDisposition)
-        : undefined;
-      let fileName = fileNameMatch && fileNameMatch.length > 1 ? fileNameMatch[3] || fileNameMatch[2] : undefined;
-      if (fileName) {
-        fileName = decodeURIComponent(fileName);
-      } else {
-        fileNameMatch = contentDisposition ? /filename="?([^"]*?)"?(;|$)/g.exec(contentDisposition) : undefined;
-        fileName = fileNameMatch && fileNameMatch.length > 1 ? fileNameMatch[1] : undefined;
-      }
-      return _observableOf({ fileName: fileName, data: responseBlob as any, status: status, headers: _headers });
-    } else if (status !== 200 && status !== 204) {
-      return blobToText(responseBlob).pipe(
-        _observableMergeMap((_responseText: string) => {
-          return throwException('An unexpected server error occurred.', status, _responseText, _headers);
-        }),
-      );
-    }
-    return _observableOf(null as any);
-  }
-
-  jobSettings_GetPeriodicOrganisationDeleterSettings(): Observable<FileResponse> {
-    let url_ = this.baseUrl + '/api/job-settings/periodic-organisation-deleter';
-    url_ = url_.replace(/[?&]$/, '');
-
-    let options_: any = {
-      observe: 'response',
-      responseType: 'blob',
-      headers: new HttpHeaders({
-        Accept: 'application/octet-stream',
-      }),
-    };
-
-    return this.http
-      .request('get', url_, options_)
-      .pipe(
-        _observableMergeMap((response_: any) => {
-          return this.processJobSettings_GetPeriodicOrganisationDeleterSettings(response_);
-        }),
-      )
-      .pipe(
-        _observableCatch((response_: any) => {
-          if (response_ instanceof HttpResponseBase) {
-            try {
-              return this.processJobSettings_GetPeriodicOrganisationDeleterSettings(response_ as any);
-            } catch (e) {
-              return _observableThrow(e) as any as Observable<FileResponse>;
-            }
-          } else return _observableThrow(response_) as any as Observable<FileResponse>;
-        }),
-      );
-  }
-
-  protected processJobSettings_GetPeriodicOrganisationDeleterSettings(
-    response: HttpResponseBase,
-  ): Observable<FileResponse> {
-    const status = response.status;
-    const responseBlob =
-      response instanceof HttpResponse
-        ? response.body
-        : (response as any).error instanceof Blob
-          ? (response as any).error
-          : undefined;
-
-    let _headers: any = {};
-    if (response.headers) {
-      for (let key of response.headers.keys()) {
-        _headers[key] = response.headers.get(key);
-      }
-    }
-    if (status === 200 || status === 206) {
-      const contentDisposition = response.headers ? response.headers.get('content-disposition') : undefined;
-      let fileNameMatch = contentDisposition
-        ? /filename\*=(?:(\\?['"])(.*?)\1|(?:[^\s]+'.*?')?([^;\n]*))/g.exec(contentDisposition)
-        : undefined;
-      let fileName = fileNameMatch && fileNameMatch.length > 1 ? fileNameMatch[3] || fileNameMatch[2] : undefined;
-      if (fileName) {
-        fileName = decodeURIComponent(fileName);
-      } else {
-        fileNameMatch = contentDisposition ? /filename="?([^"]*?)"?(;|$)/g.exec(contentDisposition) : undefined;
-        fileName = fileNameMatch && fileNameMatch.length > 1 ? fileNameMatch[1] : undefined;
-      }
-      return _observableOf({ fileName: fileName, data: responseBlob as any, status: status, headers: _headers });
-    } else if (status !== 200 && status !== 204) {
-      return blobToText(responseBlob).pipe(
-        _observableMergeMap((_responseText: string) => {
-          return throwException('An unexpected server error occurred.', status, _responseText, _headers);
-        }),
-      );
-    }
-    return _observableOf(null as any);
-  }
-
-  jobSettings_UpdatePeriodicOrganisationDeleterSettings(
-    request: PeriodicOrganisationDeleterSettingsDto,
-  ): Observable<FileResponse> {
-    let url_ = this.baseUrl + '/api/job-settings/periodic-organisation-deleter';
-    url_ = url_.replace(/[?&]$/, '');
-
-    const content_ = JSON.stringify(request);
-
-    let options_: any = {
-      body: content_,
-      observe: 'response',
-      responseType: 'blob',
-      headers: new HttpHeaders({
-        'Content-Type': 'application/json',
-        Accept: 'application/octet-stream',
-      }),
-    };
-
-    return this.http
-      .request('put', url_, options_)
-      .pipe(
-        _observableMergeMap((response_: any) => {
-          return this.processJobSettings_UpdatePeriodicOrganisationDeleterSettings(response_);
-        }),
-      )
-      .pipe(
-        _observableCatch((response_: any) => {
-          if (response_ instanceof HttpResponseBase) {
-            try {
-              return this.processJobSettings_UpdatePeriodicOrganisationDeleterSettings(response_ as any);
-            } catch (e) {
-              return _observableThrow(e) as any as Observable<FileResponse>;
-            }
-          } else return _observableThrow(response_) as any as Observable<FileResponse>;
-        }),
-      );
-  }
-
-  protected processJobSettings_UpdatePeriodicOrganisationDeleterSettings(
-    response: HttpResponseBase,
-  ): Observable<FileResponse> {
-    const status = response.status;
-    const responseBlob =
-      response instanceof HttpResponse
-        ? response.body
-        : (response as any).error instanceof Blob
-          ? (response as any).error
-          : undefined;
-
-    let _headers: any = {};
-    if (response.headers) {
-      for (let key of response.headers.keys()) {
-        _headers[key] = response.headers.get(key);
-      }
-    }
-    if (status === 200 || status === 206) {
-      const contentDisposition = response.headers ? response.headers.get('content-disposition') : undefined;
-      let fileNameMatch = contentDisposition
-        ? /filename\*=(?:(\\?['"])(.*?)\1|(?:[^\s]+'.*?')?([^;\n]*))/g.exec(contentDisposition)
-        : undefined;
-      let fileName = fileNameMatch && fileNameMatch.length > 1 ? fileNameMatch[3] || fileNameMatch[2] : undefined;
-      if (fileName) {
-        fileName = decodeURIComponent(fileName);
-      } else {
-        fileNameMatch = contentDisposition ? /filename="?([^"]*?)"?(;|$)/g.exec(contentDisposition) : undefined;
-        fileName = fileNameMatch && fileNameMatch.length > 1 ? fileNameMatch[1] : undefined;
-      }
-      return _observableOf({ fileName: fileName, data: responseBlob as any, status: status, headers: _headers });
-    } else if (status !== 200 && status !== 204) {
-      return blobToText(responseBlob).pipe(
-        _observableMergeMap((_responseText: string) => {
-          return throwException('An unexpected server error occurred.', status, _responseText, _headers);
-        }),
-      );
-    }
-    return _observableOf(null as any);
-  }
-
-  jobSettings_GetPeriodicInfrastructureDeleterSettings(): Observable<FileResponse> {
-    let url_ = this.baseUrl + '/api/job-settings/periodic-infrastructure-deleter';
-    url_ = url_.replace(/[?&]$/, '');
-
-    let options_: any = {
-      observe: 'response',
-      responseType: 'blob',
-      headers: new HttpHeaders({
-        Accept: 'application/octet-stream',
-      }),
-    };
-
-    return this.http
-      .request('get', url_, options_)
-      .pipe(
-        _observableMergeMap((response_: any) => {
-          return this.processJobSettings_GetPeriodicInfrastructureDeleterSettings(response_);
-        }),
-      )
-      .pipe(
-        _observableCatch((response_: any) => {
-          if (response_ instanceof HttpResponseBase) {
-            try {
-              return this.processJobSettings_GetPeriodicInfrastructureDeleterSettings(response_ as any);
-            } catch (e) {
-              return _observableThrow(e) as any as Observable<FileResponse>;
-            }
-          } else return _observableThrow(response_) as any as Observable<FileResponse>;
-        }),
-      );
-  }
-
-  protected processJobSettings_GetPeriodicInfrastructureDeleterSettings(
-    response: HttpResponseBase,
-  ): Observable<FileResponse> {
-    const status = response.status;
-    const responseBlob =
-      response instanceof HttpResponse
-        ? response.body
-        : (response as any).error instanceof Blob
-          ? (response as any).error
-          : undefined;
-
-    let _headers: any = {};
-    if (response.headers) {
-      for (let key of response.headers.keys()) {
-        _headers[key] = response.headers.get(key);
-      }
-    }
-    if (status === 200 || status === 206) {
-      const contentDisposition = response.headers ? response.headers.get('content-disposition') : undefined;
-      let fileNameMatch = contentDisposition
-        ? /filename\*=(?:(\\?['"])(.*?)\1|(?:[^\s]+'.*?')?([^;\n]*))/g.exec(contentDisposition)
-        : undefined;
-      let fileName = fileNameMatch && fileNameMatch.length > 1 ? fileNameMatch[3] || fileNameMatch[2] : undefined;
-      if (fileName) {
-        fileName = decodeURIComponent(fileName);
-      } else {
-        fileNameMatch = contentDisposition ? /filename="?([^"]*?)"?(;|$)/g.exec(contentDisposition) : undefined;
-        fileName = fileNameMatch && fileNameMatch.length > 1 ? fileNameMatch[1] : undefined;
-      }
-      return _observableOf({ fileName: fileName, data: responseBlob as any, status: status, headers: _headers });
-    } else if (status !== 200 && status !== 204) {
-      return blobToText(responseBlob).pipe(
-        _observableMergeMap((_responseText: string) => {
-          return throwException('An unexpected server error occurred.', status, _responseText, _headers);
-        }),
-      );
-    }
-    return _observableOf(null as any);
-  }
-
-  jobSettings_UpdatePeriodicInfrastructureDeleterSettings(
-    request: PeriodicInfrastructureDeleterSettingsDto,
-  ): Observable<FileResponse> {
-    let url_ = this.baseUrl + '/api/job-settings/periodic-infrastructure-deleter';
-    url_ = url_.replace(/[?&]$/, '');
-
-    const content_ = JSON.stringify(request);
-
-    let options_: any = {
-      body: content_,
-      observe: 'response',
-      responseType: 'blob',
-      headers: new HttpHeaders({
-        'Content-Type': 'application/json',
-        Accept: 'application/octet-stream',
-      }),
-    };
-
-    return this.http
-      .request('put', url_, options_)
-      .pipe(
-        _observableMergeMap((response_: any) => {
-          return this.processJobSettings_UpdatePeriodicInfrastructureDeleterSettings(response_);
-        }),
-      )
-      .pipe(
-        _observableCatch((response_: any) => {
-          if (response_ instanceof HttpResponseBase) {
-            try {
-              return this.processJobSettings_UpdatePeriodicInfrastructureDeleterSettings(response_ as any);
-            } catch (e) {
-              return _observableThrow(e) as any as Observable<FileResponse>;
-            }
-          } else return _observableThrow(response_) as any as Observable<FileResponse>;
-        }),
-      );
-  }
-
-  protected processJobSettings_UpdatePeriodicInfrastructureDeleterSettings(
-    response: HttpResponseBase,
-  ): Observable<FileResponse> {
-    const status = response.status;
-    const responseBlob =
-      response instanceof HttpResponse
-        ? response.body
-        : (response as any).error instanceof Blob
-          ? (response as any).error
-          : undefined;
-
-    let _headers: any = {};
-    if (response.headers) {
-      for (let key of response.headers.keys()) {
-        _headers[key] = response.headers.get(key);
-      }
-    }
-    if (status === 200 || status === 206) {
-      const contentDisposition = response.headers ? response.headers.get('content-disposition') : undefined;
-      let fileNameMatch = contentDisposition
-        ? /filename\*=(?:(\\?['"])(.*?)\1|(?:[^\s]+'.*?')?([^;\n]*))/g.exec(contentDisposition)
-        : undefined;
-      let fileName = fileNameMatch && fileNameMatch.length > 1 ? fileNameMatch[3] || fileNameMatch[2] : undefined;
-      if (fileName) {
-        fileName = decodeURIComponent(fileName);
-      } else {
-        fileNameMatch = contentDisposition ? /filename="?([^"]*?)"?(;|$)/g.exec(contentDisposition) : undefined;
-        fileName = fileNameMatch && fileNameMatch.length > 1 ? fileNameMatch[1] : undefined;
-      }
-      return _observableOf({ fileName: fileName, data: responseBlob as any, status: status, headers: _headers });
-    } else if (status !== 200 && status !== 204) {
-      return blobToText(responseBlob).pipe(
-        _observableMergeMap((_responseText: string) => {
-          return throwException('An unexpected server error occurred.', status, _responseText, _headers);
-        }),
-      );
-    }
-    return _observableOf(null as any);
-  }
-
-  jobSettings_GetIdtaCrawlerSettings(): Observable<FileResponse> {
-    let url_ = this.baseUrl + '/api/job-settings/idta-crawler';
-    url_ = url_.replace(/[?&]$/, '');
-
-    let options_: any = {
-      observe: 'response',
-      responseType: 'blob',
-      headers: new HttpHeaders({
-        Accept: 'application/octet-stream',
-      }),
-    };
-
-    return this.http
-      .request('get', url_, options_)
-      .pipe(
-        _observableMergeMap((response_: any) => {
-          return this.processJobSettings_GetIdtaCrawlerSettings(response_);
-        }),
-      )
-      .pipe(
-        _observableCatch((response_: any) => {
-          if (response_ instanceof HttpResponseBase) {
-            try {
-              return this.processJobSettings_GetIdtaCrawlerSettings(response_ as any);
-            } catch (e) {
-              return _observableThrow(e) as any as Observable<FileResponse>;
-            }
-          } else return _observableThrow(response_) as any as Observable<FileResponse>;
-        }),
-      );
-  }
-
-  protected processJobSettings_GetIdtaCrawlerSettings(response: HttpResponseBase): Observable<FileResponse> {
-    const status = response.status;
-    const responseBlob =
-      response instanceof HttpResponse
-        ? response.body
-        : (response as any).error instanceof Blob
-          ? (response as any).error
-          : undefined;
-
-    let _headers: any = {};
-    if (response.headers) {
-      for (let key of response.headers.keys()) {
-        _headers[key] = response.headers.get(key);
-      }
-    }
-    if (status === 200 || status === 206) {
-      const contentDisposition = response.headers ? response.headers.get('content-disposition') : undefined;
-      let fileNameMatch = contentDisposition
-        ? /filename\*=(?:(\\?['"])(.*?)\1|(?:[^\s]+'.*?')?([^;\n]*))/g.exec(contentDisposition)
-        : undefined;
-      let fileName = fileNameMatch && fileNameMatch.length > 1 ? fileNameMatch[3] || fileNameMatch[2] : undefined;
-      if (fileName) {
-        fileName = decodeURIComponent(fileName);
-      } else {
-        fileNameMatch = contentDisposition ? /filename="?([^"]*?)"?(;|$)/g.exec(contentDisposition) : undefined;
-        fileName = fileNameMatch && fileNameMatch.length > 1 ? fileNameMatch[1] : undefined;
-      }
-      return _observableOf({ fileName: fileName, data: responseBlob as any, status: status, headers: _headers });
-    } else if (status !== 200 && status !== 204) {
-      return blobToText(responseBlob).pipe(
-        _observableMergeMap((_responseText: string) => {
-          return throwException('An unexpected server error occurred.', status, _responseText, _headers);
-        }),
-      );
-    }
-    return _observableOf(null as any);
-  }
-
-  jobSettings_UpdateIdtaCrawlerSettings(request: IdtaCrawlerSettingsDto): Observable<FileResponse> {
-    let url_ = this.baseUrl + '/api/job-settings/idta-crawler';
-    url_ = url_.replace(/[?&]$/, '');
-
-    const content_ = JSON.stringify(request);
-
-    let options_: any = {
-      body: content_,
-      observe: 'response',
-      responseType: 'blob',
-      headers: new HttpHeaders({
-        'Content-Type': 'application/json',
-        Accept: 'application/octet-stream',
-      }),
-    };
-
-    return this.http
-      .request('put', url_, options_)
-      .pipe(
-        _observableMergeMap((response_: any) => {
-          return this.processJobSettings_UpdateIdtaCrawlerSettings(response_);
-        }),
-      )
-      .pipe(
-        _observableCatch((response_: any) => {
-          if (response_ instanceof HttpResponseBase) {
-            try {
-              return this.processJobSettings_UpdateIdtaCrawlerSettings(response_ as any);
-            } catch (e) {
-              return _observableThrow(e) as any as Observable<FileResponse>;
-            }
-          } else return _observableThrow(response_) as any as Observable<FileResponse>;
-        }),
-      );
-  }
-
-  protected processJobSettings_UpdateIdtaCrawlerSettings(response: HttpResponseBase): Observable<FileResponse> {
-    const status = response.status;
-    const responseBlob =
-      response instanceof HttpResponse
-        ? response.body
-        : (response as any).error instanceof Blob
-          ? (response as any).error
-          : undefined;
-
-    let _headers: any = {};
-    if (response.headers) {
-      for (let key of response.headers.keys()) {
-        _headers[key] = response.headers.get(key);
-      }
-    }
-    if (status === 200 || status === 206) {
-      const contentDisposition = response.headers ? response.headers.get('content-disposition') : undefined;
-      let fileNameMatch = contentDisposition
-        ? /filename\*=(?:(\\?['"])(.*?)\1|(?:[^\s]+'.*?')?([^;\n]*))/g.exec(contentDisposition)
-        : undefined;
-      let fileName = fileNameMatch && fileNameMatch.length > 1 ? fileNameMatch[3] || fileNameMatch[2] : undefined;
-      if (fileName) {
-        fileName = decodeURIComponent(fileName);
-      } else {
-        fileNameMatch = contentDisposition ? /filename="?([^"]*?)"?(;|$)/g.exec(contentDisposition) : undefined;
-        fileName = fileNameMatch && fileNameMatch.length > 1 ? fileNameMatch[1] : undefined;
-      }
-      return _observableOf({ fileName: fileName, data: responseBlob as any, status: status, headers: _headers });
-    } else if (status !== 200 && status !== 204) {
-      return blobToText(responseBlob).pipe(
-        _observableMergeMap((_responseText: string) => {
-          return throwException('An unexpected server error occurred.', status, _responseText, _headers);
-        }),
-      );
-    }
-    return _observableOf(null as any);
-  }
-
-  jobSettings_GetPcnUpdateListenerSettings(): Observable<FileResponse> {
-    let url_ = this.baseUrl + '/api/job-settings/pcn-update-listener';
-    url_ = url_.replace(/[?&]$/, '');
-
-    let options_: any = {
-      observe: 'response',
-      responseType: 'blob',
-      headers: new HttpHeaders({
-        Accept: 'application/octet-stream',
-      }),
-    };
-
-    return this.http
-      .request('get', url_, options_)
-      .pipe(
-        _observableMergeMap((response_: any) => {
-          return this.processJobSettings_GetPcnUpdateListenerSettings(response_);
-        }),
-      )
-      .pipe(
-        _observableCatch((response_: any) => {
-          if (response_ instanceof HttpResponseBase) {
-            try {
-              return this.processJobSettings_GetPcnUpdateListenerSettings(response_ as any);
-            } catch (e) {
-              return _observableThrow(e) as any as Observable<FileResponse>;
-            }
-          } else return _observableThrow(response_) as any as Observable<FileResponse>;
-        }),
-      );
-  }
-
-  protected processJobSettings_GetPcnUpdateListenerSettings(response: HttpResponseBase): Observable<FileResponse> {
-    const status = response.status;
-    const responseBlob =
-      response instanceof HttpResponse
-        ? response.body
-        : (response as any).error instanceof Blob
-          ? (response as any).error
-          : undefined;
-
-    let _headers: any = {};
-    if (response.headers) {
-      for (let key of response.headers.keys()) {
-        _headers[key] = response.headers.get(key);
-      }
-    }
-    if (status === 200 || status === 206) {
-      const contentDisposition = response.headers ? response.headers.get('content-disposition') : undefined;
-      let fileNameMatch = contentDisposition
-        ? /filename\*=(?:(\\?['"])(.*?)\1|(?:[^\s]+'.*?')?([^;\n]*))/g.exec(contentDisposition)
-        : undefined;
-      let fileName = fileNameMatch && fileNameMatch.length > 1 ? fileNameMatch[3] || fileNameMatch[2] : undefined;
-      if (fileName) {
-        fileName = decodeURIComponent(fileName);
-      } else {
-        fileNameMatch = contentDisposition ? /filename="?([^"]*?)"?(;|$)/g.exec(contentDisposition) : undefined;
-        fileName = fileNameMatch && fileNameMatch.length > 1 ? fileNameMatch[1] : undefined;
-      }
-      return _observableOf({ fileName: fileName, data: responseBlob as any, status: status, headers: _headers });
-    } else if (status !== 200 && status !== 204) {
-      return blobToText(responseBlob).pipe(
-        _observableMergeMap((_responseText: string) => {
-          return throwException('An unexpected server error occurred.', status, _responseText, _headers);
-        }),
-      );
-    }
-    return _observableOf(null as any);
-  }
-
-  jobSettings_UpdatePcnUpdateListenerSettings(request: PcnUpdateListenerSettingsDto): Observable<FileResponse> {
-    let url_ = this.baseUrl + '/api/job-settings/pcn-update-listener';
-    url_ = url_.replace(/[?&]$/, '');
-
-    const content_ = JSON.stringify(request);
-
-    let options_: any = {
-      body: content_,
-      observe: 'response',
-      responseType: 'blob',
-      headers: new HttpHeaders({
-        'Content-Type': 'application/json',
-        Accept: 'application/octet-stream',
-      }),
-    };
-
-    return this.http
-      .request('put', url_, options_)
-      .pipe(
-        _observableMergeMap((response_: any) => {
-          return this.processJobSettings_UpdatePcnUpdateListenerSettings(response_);
-        }),
-      )
-      .pipe(
-        _observableCatch((response_: any) => {
-          if (response_ instanceof HttpResponseBase) {
-            try {
-              return this.processJobSettings_UpdatePcnUpdateListenerSettings(response_ as any);
-            } catch (e) {
-              return _observableThrow(e) as any as Observable<FileResponse>;
-            }
-          } else return _observableThrow(response_) as any as Observable<FileResponse>;
-        }),
-      );
-  }
-
-  protected processJobSettings_UpdatePcnUpdateListenerSettings(response: HttpResponseBase): Observable<FileResponse> {
-    const status = response.status;
-    const responseBlob =
-      response instanceof HttpResponse
-        ? response.body
-        : (response as any).error instanceof Blob
-          ? (response as any).error
-          : undefined;
-
-    let _headers: any = {};
-    if (response.headers) {
-      for (let key of response.headers.keys()) {
-        _headers[key] = response.headers.get(key);
-      }
-    }
-    if (status === 200 || status === 206) {
-      const contentDisposition = response.headers ? response.headers.get('content-disposition') : undefined;
-      let fileNameMatch = contentDisposition
-        ? /filename\*=(?:(\\?['"])(.*?)\1|(?:[^\s]+'.*?')?([^;\n]*))/g.exec(contentDisposition)
-        : undefined;
-      let fileName = fileNameMatch && fileNameMatch.length > 1 ? fileNameMatch[3] || fileNameMatch[2] : undefined;
-      if (fileName) {
-        fileName = decodeURIComponent(fileName);
-      } else {
-        fileNameMatch = contentDisposition ? /filename="?([^"]*?)"?(;|$)/g.exec(contentDisposition) : undefined;
-        fileName = fileNameMatch && fileNameMatch.length > 1 ? fileNameMatch[1] : undefined;
-      }
-      return _observableOf({ fileName: fileName, data: responseBlob as any, status: status, headers: _headers });
-    } else if (status !== 200 && status !== 204) {
-      return blobToText(responseBlob).pipe(
-        _observableMergeMap((_responseText: string) => {
-          return throwException('An unexpected server error occurred.', status, _responseText, _headers);
-        }),
-      );
-    }
-    return _observableOf(null as any);
-  }
-}
-
-export interface ISystemManagementClient {
-  systemManagement_GetConfiguration(): Observable<SystemConfigurationDto>;
-  systemManagement_GetStatus(
-    systemType: SystemType | undefined,
-    infrastructureId: number | undefined,
-  ): Observable<SystemStatusDto>;
-  systemManagement_GetHelpInfo(): Observable<HelpInfoDto>;
-  systemManagement_ExportHelpTexts(): Observable<FileResponse>;
-  systemManagement_ImportHelpTexts(helpUpdate: HelpUpdate): Observable<boolean>;
-  systemManagement_GetThemeDefinitions(): Observable<ThemeDefinitionDto[]>;
-  systemManagement_GetDeleteProtocols(): Observable<DeleteProtocolDto[]>;
-  systemManagement_GetMailSettings(): Observable<MailSettingsDto>;
-  systemManagement_UpdateMailSettings(settings: MailSettingsDto): Observable<MailSettingsDto>;
-  systemManagement_GetLegalLinksSettings(): Observable<LegalLinksSettingsDto>;
-  systemManagement_GetLegalDocument(fieldName: string): Observable<FileResponse>;
-  systemManagement_UpdateLegalLinksSettings(
-    request: UpdateLegalLinksSettingsRequest,
-  ): Observable<LegalLinksSettingsDto>;
-  systemManagement_SendApplicationTestMail(request: SendApplicationTestMailRequestDto): Observable<void>;
-  systemManagement_SendKeycloakTestMail(request: SendKeycloakTestMailRequestDto): Observable<void>;
-  systemManagement_UpsertThemeDefinition(theme: ThemeDefinitionDto): Observable<ThemeDefinitionDto>;
-  systemManagement_DeleteThemeDefinition(key: string | undefined): Observable<boolean>;
-  systemManagement_ExportThemeDefinitions(): Observable<FileResponse>;
-  systemManagement_ImportThemeDefinitions(themeImport: ThemeDefinitionsImport): Observable<boolean>;
-}
-
-@Injectable({
-  providedIn: 'root',
-})
-export class SystemManagementClient implements ISystemManagementClient {
-  private http: HttpClient;
-  private baseUrl: string;
-  protected jsonParseReviver: ((key: string, value: any) => any) | undefined = undefined;
-
-  constructor(@Inject(HttpClient) http: HttpClient, @Optional() @Inject(API_BASE_URL) baseUrl?: string) {
-    this.http = http;
-    this.baseUrl = baseUrl ?? '';
-  }
-
-  systemManagement_GetConfiguration(): Observable<SystemConfigurationDto> {
-    let url_ = this.baseUrl + '/system-management-api/SystemManagement/GetConfiguration';
+  /**
+   * All infrastructures of an organisation with the permissions of a specific user.
+   * @param organisationId (optional)
+   * @param userId (optional)
+   */
+  infrastrukturRechte_GetUserInfraRechte(
+    organisationId: number | undefined,
+    userId: number | undefined,
+  ): Observable<BenutzerInfrastrukturRechtDto[]> {
+    let url_ = this.baseUrl + '/api/InfrastrukturRechte/GetUserInfraRechte?';
+    if (organisationId === null) throw new Error("The parameter 'organisationId' cannot be null.");
+    else if (organisationId !== undefined) url_ += 'organisationId=' + encodeURIComponent('' + organisationId) + '&';
+    if (userId === null) throw new Error("The parameter 'userId' cannot be null.");
+    else if (userId !== undefined) url_ += 'userId=' + encodeURIComponent('' + userId) + '&';
     url_ = url_.replace(/[?&]$/, '');
 
     let options_: any = {
@@ -6689,370 +5715,25 @@ export class SystemManagementClient implements ISystemManagementClient {
       .request('get', url_, options_)
       .pipe(
         _observableMergeMap((response_: any) => {
-          return this.processSystemManagement_GetConfiguration(response_);
+          return this.processInfrastrukturRechte_GetUserInfraRechte(response_);
         }),
       )
       .pipe(
         _observableCatch((response_: any) => {
           if (response_ instanceof HttpResponseBase) {
             try {
-              return this.processSystemManagement_GetConfiguration(response_ as any);
+              return this.processInfrastrukturRechte_GetUserInfraRechte(response_ as any);
             } catch (e) {
-              return _observableThrow(e) as any as Observable<SystemConfigurationDto>;
+              return _observableThrow(e) as any as Observable<BenutzerInfrastrukturRechtDto[]>;
             }
-          } else return _observableThrow(response_) as any as Observable<SystemConfigurationDto>;
+          } else return _observableThrow(response_) as any as Observable<BenutzerInfrastrukturRechtDto[]>;
         }),
       );
   }
 
-  protected processSystemManagement_GetConfiguration(response: HttpResponseBase): Observable<SystemConfigurationDto> {
-    const status = response.status;
-    const responseBlob =
-      response instanceof HttpResponse
-        ? response.body
-        : (response as any).error instanceof Blob
-          ? (response as any).error
-          : undefined;
-
-    let _headers: any = {};
-    if (response.headers) {
-      for (let key of response.headers.keys()) {
-        _headers[key] = response.headers.get(key);
-      }
-    }
-    if (status === 200) {
-      return blobToText(responseBlob).pipe(
-        _observableMergeMap((_responseText: string) => {
-          let result200: any = null;
-          let resultData200 = _responseText === '' ? null : JSON.parse(_responseText, this.jsonParseReviver);
-          result200 = SystemConfigurationDto.fromJS(resultData200);
-          return _observableOf(result200);
-        }),
-      );
-    } else if (status !== 200 && status !== 204) {
-      return blobToText(responseBlob).pipe(
-        _observableMergeMap((_responseText: string) => {
-          return throwException('An unexpected server error occurred.', status, _responseText, _headers);
-        }),
-      );
-    }
-    return _observableOf(null as any);
-  }
-
-  systemManagement_GetStatus(
-    systemType: SystemType | undefined,
-    infrastructureId: number | undefined,
-  ): Observable<SystemStatusDto> {
-    let url_ = this.baseUrl + '/system-management-api/SystemManagement/GetStatus?';
-    if (systemType === null) throw new Error("The parameter 'systemType' cannot be null.");
-    else if (systemType !== undefined) url_ += 'systemType=' + encodeURIComponent('' + systemType) + '&';
-    if (infrastructureId === null) throw new Error("The parameter 'infrastructureId' cannot be null.");
-    else if (infrastructureId !== undefined)
-      url_ += 'infrastructureId=' + encodeURIComponent('' + infrastructureId) + '&';
-    url_ = url_.replace(/[?&]$/, '');
-
-    let options_: any = {
-      observe: 'response',
-      responseType: 'blob',
-      headers: new HttpHeaders({
-        Accept: 'application/json',
-      }),
-    };
-
-    return this.http
-      .request('get', url_, options_)
-      .pipe(
-        _observableMergeMap((response_: any) => {
-          return this.processSystemManagement_GetStatus(response_);
-        }),
-      )
-      .pipe(
-        _observableCatch((response_: any) => {
-          if (response_ instanceof HttpResponseBase) {
-            try {
-              return this.processSystemManagement_GetStatus(response_ as any);
-            } catch (e) {
-              return _observableThrow(e) as any as Observable<SystemStatusDto>;
-            }
-          } else return _observableThrow(response_) as any as Observable<SystemStatusDto>;
-        }),
-      );
-  }
-
-  protected processSystemManagement_GetStatus(response: HttpResponseBase): Observable<SystemStatusDto> {
-    const status = response.status;
-    const responseBlob =
-      response instanceof HttpResponse
-        ? response.body
-        : (response as any).error instanceof Blob
-          ? (response as any).error
-          : undefined;
-
-    let _headers: any = {};
-    if (response.headers) {
-      for (let key of response.headers.keys()) {
-        _headers[key] = response.headers.get(key);
-      }
-    }
-    if (status === 200) {
-      return blobToText(responseBlob).pipe(
-        _observableMergeMap((_responseText: string) => {
-          let result200: any = null;
-          let resultData200 = _responseText === '' ? null : JSON.parse(_responseText, this.jsonParseReviver);
-          result200 = SystemStatusDto.fromJS(resultData200);
-          return _observableOf(result200);
-        }),
-      );
-    } else if (status !== 200 && status !== 204) {
-      return blobToText(responseBlob).pipe(
-        _observableMergeMap((_responseText: string) => {
-          return throwException('An unexpected server error occurred.', status, _responseText, _headers);
-        }),
-      );
-    }
-    return _observableOf(null as any);
-  }
-
-  systemManagement_GetHelpInfo(): Observable<HelpInfoDto> {
-    let url_ = this.baseUrl + '/system-management-api/SystemManagement/GetHelpInfo';
-    url_ = url_.replace(/[?&]$/, '');
-
-    let options_: any = {
-      observe: 'response',
-      responseType: 'blob',
-      headers: new HttpHeaders({
-        Accept: 'application/json',
-      }),
-    };
-
-    return this.http
-      .request('get', url_, options_)
-      .pipe(
-        _observableMergeMap((response_: any) => {
-          return this.processSystemManagement_GetHelpInfo(response_);
-        }),
-      )
-      .pipe(
-        _observableCatch((response_: any) => {
-          if (response_ instanceof HttpResponseBase) {
-            try {
-              return this.processSystemManagement_GetHelpInfo(response_ as any);
-            } catch (e) {
-              return _observableThrow(e) as any as Observable<HelpInfoDto>;
-            }
-          } else return _observableThrow(response_) as any as Observable<HelpInfoDto>;
-        }),
-      );
-  }
-
-  protected processSystemManagement_GetHelpInfo(response: HttpResponseBase): Observable<HelpInfoDto> {
-    const status = response.status;
-    const responseBlob =
-      response instanceof HttpResponse
-        ? response.body
-        : (response as any).error instanceof Blob
-          ? (response as any).error
-          : undefined;
-
-    let _headers: any = {};
-    if (response.headers) {
-      for (let key of response.headers.keys()) {
-        _headers[key] = response.headers.get(key);
-      }
-    }
-    if (status === 200) {
-      return blobToText(responseBlob).pipe(
-        _observableMergeMap((_responseText: string) => {
-          let result200: any = null;
-          let resultData200 = _responseText === '' ? null : JSON.parse(_responseText, this.jsonParseReviver);
-          result200 = HelpInfoDto.fromJS(resultData200);
-          return _observableOf(result200);
-        }),
-      );
-    } else if (status !== 200 && status !== 204) {
-      return blobToText(responseBlob).pipe(
-        _observableMergeMap((_responseText: string) => {
-          return throwException('An unexpected server error occurred.', status, _responseText, _headers);
-        }),
-      );
-    }
-    return _observableOf(null as any);
-  }
-
-  systemManagement_ExportHelpTexts(): Observable<FileResponse> {
-    let url_ = this.baseUrl + '/system-management-api/SystemManagement/ExportHelpTexts';
-    url_ = url_.replace(/[?&]$/, '');
-
-    let options_: any = {
-      observe: 'response',
-      responseType: 'blob',
-      headers: new HttpHeaders({
-        Accept: 'application/octet-stream',
-      }),
-    };
-
-    return this.http
-      .request('post', url_, options_)
-      .pipe(
-        _observableMergeMap((response_: any) => {
-          return this.processSystemManagement_ExportHelpTexts(response_);
-        }),
-      )
-      .pipe(
-        _observableCatch((response_: any) => {
-          if (response_ instanceof HttpResponseBase) {
-            try {
-              return this.processSystemManagement_ExportHelpTexts(response_ as any);
-            } catch (e) {
-              return _observableThrow(e) as any as Observable<FileResponse>;
-            }
-          } else return _observableThrow(response_) as any as Observable<FileResponse>;
-        }),
-      );
-  }
-
-  protected processSystemManagement_ExportHelpTexts(response: HttpResponseBase): Observable<FileResponse> {
-    const status = response.status;
-    const responseBlob =
-      response instanceof HttpResponse
-        ? response.body
-        : (response as any).error instanceof Blob
-          ? (response as any).error
-          : undefined;
-
-    let _headers: any = {};
-    if (response.headers) {
-      for (let key of response.headers.keys()) {
-        _headers[key] = response.headers.get(key);
-      }
-    }
-    if (status === 200 || status === 206) {
-      const contentDisposition = response.headers ? response.headers.get('content-disposition') : undefined;
-      let fileNameMatch = contentDisposition
-        ? /filename\*=(?:(\\?['"])(.*?)\1|(?:[^\s]+'.*?')?([^;\n]*))/g.exec(contentDisposition)
-        : undefined;
-      let fileName = fileNameMatch && fileNameMatch.length > 1 ? fileNameMatch[3] || fileNameMatch[2] : undefined;
-      if (fileName) {
-        fileName = decodeURIComponent(fileName);
-      } else {
-        fileNameMatch = contentDisposition ? /filename="?([^"]*?)"?(;|$)/g.exec(contentDisposition) : undefined;
-        fileName = fileNameMatch && fileNameMatch.length > 1 ? fileNameMatch[1] : undefined;
-      }
-      return _observableOf({ fileName: fileName, data: responseBlob as any, status: status, headers: _headers });
-    } else if (status !== 200 && status !== 204) {
-      return blobToText(responseBlob).pipe(
-        _observableMergeMap((_responseText: string) => {
-          return throwException('An unexpected server error occurred.', status, _responseText, _headers);
-        }),
-      );
-    }
-    return _observableOf(null as any);
-  }
-
-  systemManagement_ImportHelpTexts(helpUpdate: HelpUpdate): Observable<boolean> {
-    let url_ = this.baseUrl + '/system-management-api/SystemManagement/ImportHelpTexts';
-    url_ = url_.replace(/[?&]$/, '');
-
-    const content_ = JSON.stringify(helpUpdate);
-
-    let options_: any = {
-      body: content_,
-      observe: 'response',
-      responseType: 'blob',
-      headers: new HttpHeaders({
-        'Content-Type': 'application/json',
-        Accept: 'application/json',
-      }),
-    };
-
-    return this.http
-      .request('post', url_, options_)
-      .pipe(
-        _observableMergeMap((response_: any) => {
-          return this.processSystemManagement_ImportHelpTexts(response_);
-        }),
-      )
-      .pipe(
-        _observableCatch((response_: any) => {
-          if (response_ instanceof HttpResponseBase) {
-            try {
-              return this.processSystemManagement_ImportHelpTexts(response_ as any);
-            } catch (e) {
-              return _observableThrow(e) as any as Observable<boolean>;
-            }
-          } else return _observableThrow(response_) as any as Observable<boolean>;
-        }),
-      );
-  }
-
-  protected processSystemManagement_ImportHelpTexts(response: HttpResponseBase): Observable<boolean> {
-    const status = response.status;
-    const responseBlob =
-      response instanceof HttpResponse
-        ? response.body
-        : (response as any).error instanceof Blob
-          ? (response as any).error
-          : undefined;
-
-    let _headers: any = {};
-    if (response.headers) {
-      for (let key of response.headers.keys()) {
-        _headers[key] = response.headers.get(key);
-      }
-    }
-    if (status === 200) {
-      return blobToText(responseBlob).pipe(
-        _observableMergeMap((_responseText: string) => {
-          let result200: any = null;
-          let resultData200 = _responseText === '' ? null : JSON.parse(_responseText, this.jsonParseReviver);
-          result200 = resultData200 !== undefined ? resultData200 : <any>null;
-
-          return _observableOf(result200);
-        }),
-      );
-    } else if (status !== 200 && status !== 204) {
-      return blobToText(responseBlob).pipe(
-        _observableMergeMap((_responseText: string) => {
-          return throwException('An unexpected server error occurred.', status, _responseText, _headers);
-        }),
-      );
-    }
-    return _observableOf(null as any);
-  }
-
-  systemManagement_GetThemeDefinitions(): Observable<ThemeDefinitionDto[]> {
-    let url_ = this.baseUrl + '/system-management-api/SystemManagement/GetThemeDefinitions';
-    url_ = url_.replace(/[?&]$/, '');
-
-    let options_: any = {
-      observe: 'response',
-      responseType: 'blob',
-      headers: new HttpHeaders({
-        Accept: 'application/json',
-      }),
-    };
-
-    return this.http
-      .request('get', url_, options_)
-      .pipe(
-        _observableMergeMap((response_: any) => {
-          return this.processSystemManagement_GetThemeDefinitions(response_);
-        }),
-      )
-      .pipe(
-        _observableCatch((response_: any) => {
-          if (response_ instanceof HttpResponseBase) {
-            try {
-              return this.processSystemManagement_GetThemeDefinitions(response_ as any);
-            } catch (e) {
-              return _observableThrow(e) as any as Observable<ThemeDefinitionDto[]>;
-            }
-          } else return _observableThrow(response_) as any as Observable<ThemeDefinitionDto[]>;
-        }),
-      );
-  }
-
-  protected processSystemManagement_GetThemeDefinitions(response: HttpResponseBase): Observable<ThemeDefinitionDto[]> {
+  protected processInfrastrukturRechte_GetUserInfraRechte(
+    response: HttpResponseBase,
+  ): Observable<BenutzerInfrastrukturRechtDto[]> {
     const status = response.status;
     const responseBlob =
       response instanceof HttpResponse
@@ -7074,7 +5755,7 @@ export class SystemManagementClient implements ISystemManagementClient {
           let resultData200 = _responseText === '' ? null : JSON.parse(_responseText, this.jsonParseReviver);
           if (Array.isArray(resultData200)) {
             result200 = [] as any;
-            for (let item of resultData200) result200!.push(ThemeDefinitionDto.fromJS(item));
+            for (let item of resultData200) result200!.push(BenutzerInfrastrukturRechtDto.fromJS(item));
           } else {
             result200 = <any>null;
           }
@@ -7091,8 +5772,110 @@ export class SystemManagementClient implements ISystemManagementClient {
     return _observableOf(null as any);
   }
 
-  systemManagement_GetDeleteProtocols(): Observable<DeleteProtocolDto[]> {
-    let url_ = this.baseUrl + '/system-management-api/SystemManagement/GetDeleteProtocols';
+  /**
+     * Set the permissions of a user for a specific infrastructure (upsert).
+    DarfSchreiben implies DarfLesen.
+     * @param organisationId (optional) 
+     * @param userId (optional) 
+     * @param infraId (optional) 
+     */
+  infrastrukturRechte_UpsertUserInfraRecht(
+    organisationId: number | undefined,
+    userId: number | undefined,
+    infraId: number | undefined,
+    dto: BenutzerInfrastrukturRechtDto,
+  ): Observable<BenutzerInfrastrukturRechtDto> {
+    let url_ = this.baseUrl + '/api/InfrastrukturRechte/UpsertUserInfraRecht?';
+    if (organisationId === null) throw new Error("The parameter 'organisationId' cannot be null.");
+    else if (organisationId !== undefined) url_ += 'organisationId=' + encodeURIComponent('' + organisationId) + '&';
+    if (userId === null) throw new Error("The parameter 'userId' cannot be null.");
+    else if (userId !== undefined) url_ += 'userId=' + encodeURIComponent('' + userId) + '&';
+    if (infraId === null) throw new Error("The parameter 'infraId' cannot be null.");
+    else if (infraId !== undefined) url_ += 'infraId=' + encodeURIComponent('' + infraId) + '&';
+    url_ = url_.replace(/[?&]$/, '');
+
+    const content_ = JSON.stringify(dto);
+
+    let options_: any = {
+      body: content_,
+      observe: 'response',
+      responseType: 'blob',
+      headers: new HttpHeaders({
+        'Content-Type': 'application/json',
+        Accept: 'application/json',
+      }),
+    };
+
+    return this.http
+      .request('put', url_, options_)
+      .pipe(
+        _observableMergeMap((response_: any) => {
+          return this.processInfrastrukturRechte_UpsertUserInfraRecht(response_);
+        }),
+      )
+      .pipe(
+        _observableCatch((response_: any) => {
+          if (response_ instanceof HttpResponseBase) {
+            try {
+              return this.processInfrastrukturRechte_UpsertUserInfraRecht(response_ as any);
+            } catch (e) {
+              return _observableThrow(e) as any as Observable<BenutzerInfrastrukturRechtDto>;
+            }
+          } else return _observableThrow(response_) as any as Observable<BenutzerInfrastrukturRechtDto>;
+        }),
+      );
+  }
+
+  protected processInfrastrukturRechte_UpsertUserInfraRecht(
+    response: HttpResponseBase,
+  ): Observable<BenutzerInfrastrukturRechtDto> {
+    const status = response.status;
+    const responseBlob =
+      response instanceof HttpResponse
+        ? response.body
+        : (response as any).error instanceof Blob
+          ? (response as any).error
+          : undefined;
+
+    let _headers: any = {};
+    if (response.headers) {
+      for (let key of response.headers.keys()) {
+        _headers[key] = response.headers.get(key);
+      }
+    }
+    if (status === 200) {
+      return blobToText(responseBlob).pipe(
+        _observableMergeMap((_responseText: string) => {
+          let result200: any = null;
+          let resultData200 = _responseText === '' ? null : JSON.parse(_responseText, this.jsonParseReviver);
+          result200 = BenutzerInfrastrukturRechtDto.fromJS(resultData200);
+          return _observableOf(result200);
+        }),
+      );
+    } else if (status !== 200 && status !== 204) {
+      return blobToText(responseBlob).pipe(
+        _observableMergeMap((_responseText: string) => {
+          return throwException('An unexpected server error occurred.', status, _responseText, _headers);
+        }),
+      );
+    }
+    return _observableOf(null as any);
+  }
+
+  /**
+   * All users of an organisation with their permissions for a specific infrastructure.
+   * @param organisationId (optional)
+   * @param infraId (optional)
+   */
+  infrastrukturRechte_GetInfraUserRechte(
+    organisationId: number | undefined,
+    infraId: number | undefined,
+  ): Observable<InfraUserRechtDto[]> {
+    let url_ = this.baseUrl + '/api/InfrastrukturRechte/GetInfraUserRechte?';
+    if (organisationId === null) throw new Error("The parameter 'organisationId' cannot be null.");
+    else if (organisationId !== undefined) url_ += 'organisationId=' + encodeURIComponent('' + organisationId) + '&';
+    if (infraId === null) throw new Error("The parameter 'infraId' cannot be null.");
+    else if (infraId !== undefined) url_ += 'infraId=' + encodeURIComponent('' + infraId) + '&';
     url_ = url_.replace(/[?&]$/, '');
 
     let options_: any = {
@@ -7107,23 +5890,23 @@ export class SystemManagementClient implements ISystemManagementClient {
       .request('get', url_, options_)
       .pipe(
         _observableMergeMap((response_: any) => {
-          return this.processSystemManagement_GetDeleteProtocols(response_);
+          return this.processInfrastrukturRechte_GetInfraUserRechte(response_);
         }),
       )
       .pipe(
         _observableCatch((response_: any) => {
           if (response_ instanceof HttpResponseBase) {
             try {
-              return this.processSystemManagement_GetDeleteProtocols(response_ as any);
+              return this.processInfrastrukturRechte_GetInfraUserRechte(response_ as any);
             } catch (e) {
-              return _observableThrow(e) as any as Observable<DeleteProtocolDto[]>;
+              return _observableThrow(e) as any as Observable<InfraUserRechtDto[]>;
             }
-          } else return _observableThrow(response_) as any as Observable<DeleteProtocolDto[]>;
+          } else return _observableThrow(response_) as any as Observable<InfraUserRechtDto[]>;
         }),
       );
   }
 
-  protected processSystemManagement_GetDeleteProtocols(response: HttpResponseBase): Observable<DeleteProtocolDto[]> {
+  protected processInfrastrukturRechte_GetInfraUserRechte(response: HttpResponseBase): Observable<InfraUserRechtDto[]> {
     const status = response.status;
     const responseBlob =
       response instanceof HttpResponse
@@ -7145,772 +5928,10 @@ export class SystemManagementClient implements ISystemManagementClient {
           let resultData200 = _responseText === '' ? null : JSON.parse(_responseText, this.jsonParseReviver);
           if (Array.isArray(resultData200)) {
             result200 = [] as any;
-            for (let item of resultData200) result200!.push(DeleteProtocolDto.fromJS(item));
+            for (let item of resultData200) result200!.push(InfraUserRechtDto.fromJS(item));
           } else {
             result200 = <any>null;
           }
-          return _observableOf(result200);
-        }),
-      );
-    } else if (status !== 200 && status !== 204) {
-      return blobToText(responseBlob).pipe(
-        _observableMergeMap((_responseText: string) => {
-          return throwException('An unexpected server error occurred.', status, _responseText, _headers);
-        }),
-      );
-    }
-    return _observableOf(null as any);
-  }
-
-  systemManagement_GetMailSettings(): Observable<MailSettingsDto> {
-    let url_ = this.baseUrl + '/system-management-api/SystemManagement/GetMailSettings';
-    url_ = url_.replace(/[?&]$/, '');
-
-    let options_: any = {
-      observe: 'response',
-      responseType: 'blob',
-      headers: new HttpHeaders({
-        Accept: 'application/json',
-      }),
-    };
-
-    return this.http
-      .request('get', url_, options_)
-      .pipe(
-        _observableMergeMap((response_: any) => {
-          return this.processSystemManagement_GetMailSettings(response_);
-        }),
-      )
-      .pipe(
-        _observableCatch((response_: any) => {
-          if (response_ instanceof HttpResponseBase) {
-            try {
-              return this.processSystemManagement_GetMailSettings(response_ as any);
-            } catch (e) {
-              return _observableThrow(e) as any as Observable<MailSettingsDto>;
-            }
-          } else return _observableThrow(response_) as any as Observable<MailSettingsDto>;
-        }),
-      );
-  }
-
-  protected processSystemManagement_GetMailSettings(response: HttpResponseBase): Observable<MailSettingsDto> {
-    const status = response.status;
-    const responseBlob =
-      response instanceof HttpResponse
-        ? response.body
-        : (response as any).error instanceof Blob
-          ? (response as any).error
-          : undefined;
-
-    let _headers: any = {};
-    if (response.headers) {
-      for (let key of response.headers.keys()) {
-        _headers[key] = response.headers.get(key);
-      }
-    }
-    if (status === 200) {
-      return blobToText(responseBlob).pipe(
-        _observableMergeMap((_responseText: string) => {
-          let result200: any = null;
-          let resultData200 = _responseText === '' ? null : JSON.parse(_responseText, this.jsonParseReviver);
-          result200 = MailSettingsDto.fromJS(resultData200);
-          return _observableOf(result200);
-        }),
-      );
-    } else if (status !== 200 && status !== 204) {
-      return blobToText(responseBlob).pipe(
-        _observableMergeMap((_responseText: string) => {
-          return throwException('An unexpected server error occurred.', status, _responseText, _headers);
-        }),
-      );
-    }
-    return _observableOf(null as any);
-  }
-
-  systemManagement_UpdateMailSettings(settings: MailSettingsDto): Observable<MailSettingsDto> {
-    let url_ = this.baseUrl + '/system-management-api/SystemManagement/UpdateMailSettings';
-    url_ = url_.replace(/[?&]$/, '');
-
-    const content_ = JSON.stringify(settings);
-
-    let options_: any = {
-      body: content_,
-      observe: 'response',
-      responseType: 'blob',
-      headers: new HttpHeaders({
-        'Content-Type': 'application/json',
-        Accept: 'application/json',
-      }),
-    };
-
-    return this.http
-      .request('put', url_, options_)
-      .pipe(
-        _observableMergeMap((response_: any) => {
-          return this.processSystemManagement_UpdateMailSettings(response_);
-        }),
-      )
-      .pipe(
-        _observableCatch((response_: any) => {
-          if (response_ instanceof HttpResponseBase) {
-            try {
-              return this.processSystemManagement_UpdateMailSettings(response_ as any);
-            } catch (e) {
-              return _observableThrow(e) as any as Observable<MailSettingsDto>;
-            }
-          } else return _observableThrow(response_) as any as Observable<MailSettingsDto>;
-        }),
-      );
-  }
-
-  protected processSystemManagement_UpdateMailSettings(response: HttpResponseBase): Observable<MailSettingsDto> {
-    const status = response.status;
-    const responseBlob =
-      response instanceof HttpResponse
-        ? response.body
-        : (response as any).error instanceof Blob
-          ? (response as any).error
-          : undefined;
-
-    let _headers: any = {};
-    if (response.headers) {
-      for (let key of response.headers.keys()) {
-        _headers[key] = response.headers.get(key);
-      }
-    }
-    if (status === 200) {
-      return blobToText(responseBlob).pipe(
-        _observableMergeMap((_responseText: string) => {
-          let result200: any = null;
-          let resultData200 = _responseText === '' ? null : JSON.parse(_responseText, this.jsonParseReviver);
-          result200 = MailSettingsDto.fromJS(resultData200);
-          return _observableOf(result200);
-        }),
-      );
-    } else if (status !== 200 && status !== 204) {
-      return blobToText(responseBlob).pipe(
-        _observableMergeMap((_responseText: string) => {
-          return throwException('An unexpected server error occurred.', status, _responseText, _headers);
-        }),
-      );
-    }
-    return _observableOf(null as any);
-  }
-
-  systemManagement_GetLegalLinksSettings(): Observable<LegalLinksSettingsDto> {
-    let url_ = this.baseUrl + '/system-management-api/SystemManagement/GetLegalLinksSettings';
-    url_ = url_.replace(/[?&]$/, '');
-
-    let options_: any = {
-      observe: 'response',
-      responseType: 'blob',
-      headers: new HttpHeaders({
-        Accept: 'application/json',
-      }),
-    };
-
-    return this.http
-      .request('get', url_, options_)
-      .pipe(
-        _observableMergeMap((response_: any) => {
-          return this.processSystemManagement_GetLegalLinksSettings(response_);
-        }),
-      )
-      .pipe(
-        _observableCatch((response_: any) => {
-          if (response_ instanceof HttpResponseBase) {
-            try {
-              return this.processSystemManagement_GetLegalLinksSettings(response_ as any);
-            } catch (e) {
-              return _observableThrow(e) as any as Observable<LegalLinksSettingsDto>;
-            }
-          } else return _observableThrow(response_) as any as Observable<LegalLinksSettingsDto>;
-        }),
-      );
-  }
-
-  protected processSystemManagement_GetLegalLinksSettings(
-    response: HttpResponseBase,
-  ): Observable<LegalLinksSettingsDto> {
-    const status = response.status;
-    const responseBlob =
-      response instanceof HttpResponse
-        ? response.body
-        : (response as any).error instanceof Blob
-          ? (response as any).error
-          : undefined;
-
-    let _headers: any = {};
-    if (response.headers) {
-      for (let key of response.headers.keys()) {
-        _headers[key] = response.headers.get(key);
-      }
-    }
-    if (status === 200) {
-      return blobToText(responseBlob).pipe(
-        _observableMergeMap((_responseText: string) => {
-          let result200: any = null;
-          let resultData200 = _responseText === '' ? null : JSON.parse(_responseText, this.jsonParseReviver);
-          result200 = LegalLinksSettingsDto.fromJS(resultData200);
-          return _observableOf(result200);
-        }),
-      );
-    } else if (status !== 200 && status !== 204) {
-      return blobToText(responseBlob).pipe(
-        _observableMergeMap((_responseText: string) => {
-          return throwException('An unexpected server error occurred.', status, _responseText, _headers);
-        }),
-      );
-    }
-    return _observableOf(null as any);
-  }
-
-  systemManagement_GetLegalDocument(fieldName: string): Observable<FileResponse> {
-    let url_ = this.baseUrl + '/system-management-api/SystemManagement/GetLegalDocument/{fieldName}';
-    if (fieldName === undefined || fieldName === null) throw new Error("The parameter 'fieldName' must be defined.");
-    url_ = url_.replace('{fieldName}', encodeURIComponent('' + fieldName));
-    url_ = url_.replace(/[?&]$/, '');
-
-    let options_: any = {
-      observe: 'response',
-      responseType: 'blob',
-      headers: new HttpHeaders({
-        Accept: 'application/octet-stream',
-      }),
-    };
-
-    return this.http
-      .request('get', url_, options_)
-      .pipe(
-        _observableMergeMap((response_: any) => {
-          return this.processSystemManagement_GetLegalDocument(response_);
-        }),
-      )
-      .pipe(
-        _observableCatch((response_: any) => {
-          if (response_ instanceof HttpResponseBase) {
-            try {
-              return this.processSystemManagement_GetLegalDocument(response_ as any);
-            } catch (e) {
-              return _observableThrow(e) as any as Observable<FileResponse>;
-            }
-          } else return _observableThrow(response_) as any as Observable<FileResponse>;
-        }),
-      );
-  }
-
-  protected processSystemManagement_GetLegalDocument(response: HttpResponseBase): Observable<FileResponse> {
-    const status = response.status;
-    const responseBlob =
-      response instanceof HttpResponse
-        ? response.body
-        : (response as any).error instanceof Blob
-          ? (response as any).error
-          : undefined;
-
-    let _headers: any = {};
-    if (response.headers) {
-      for (let key of response.headers.keys()) {
-        _headers[key] = response.headers.get(key);
-      }
-    }
-    if (status === 200 || status === 206) {
-      const contentDisposition = response.headers ? response.headers.get('content-disposition') : undefined;
-      let fileNameMatch = contentDisposition
-        ? /filename\*=(?:(\\?['"])(.*?)\1|(?:[^\s]+'.*?')?([^;\n]*))/g.exec(contentDisposition)
-        : undefined;
-      let fileName = fileNameMatch && fileNameMatch.length > 1 ? fileNameMatch[3] || fileNameMatch[2] : undefined;
-      if (fileName) {
-        fileName = decodeURIComponent(fileName);
-      } else {
-        fileNameMatch = contentDisposition ? /filename="?([^"]*?)"?(;|$)/g.exec(contentDisposition) : undefined;
-        fileName = fileNameMatch && fileNameMatch.length > 1 ? fileNameMatch[1] : undefined;
-      }
-      return _observableOf({ fileName: fileName, data: responseBlob as any, status: status, headers: _headers });
-    } else if (status !== 200 && status !== 204) {
-      return blobToText(responseBlob).pipe(
-        _observableMergeMap((_responseText: string) => {
-          return throwException('An unexpected server error occurred.', status, _responseText, _headers);
-        }),
-      );
-    }
-    return _observableOf(null as any);
-  }
-
-  systemManagement_UpdateLegalLinksSettings(
-    request: UpdateLegalLinksSettingsRequest,
-  ): Observable<LegalLinksSettingsDto> {
-    let url_ = this.baseUrl + '/system-management-api/SystemManagement/UpdateLegalLinksSettings';
-    url_ = url_.replace(/[?&]$/, '');
-
-    const content_ = JSON.stringify(request);
-
-    let options_: any = {
-      body: content_,
-      observe: 'response',
-      responseType: 'blob',
-      headers: new HttpHeaders({
-        'Content-Type': 'application/json',
-        Accept: 'application/json',
-      }),
-    };
-
-    return this.http
-      .request('put', url_, options_)
-      .pipe(
-        _observableMergeMap((response_: any) => {
-          return this.processSystemManagement_UpdateLegalLinksSettings(response_);
-        }),
-      )
-      .pipe(
-        _observableCatch((response_: any) => {
-          if (response_ instanceof HttpResponseBase) {
-            try {
-              return this.processSystemManagement_UpdateLegalLinksSettings(response_ as any);
-            } catch (e) {
-              return _observableThrow(e) as any as Observable<LegalLinksSettingsDto>;
-            }
-          } else return _observableThrow(response_) as any as Observable<LegalLinksSettingsDto>;
-        }),
-      );
-  }
-
-  protected processSystemManagement_UpdateLegalLinksSettings(
-    response: HttpResponseBase,
-  ): Observable<LegalLinksSettingsDto> {
-    const status = response.status;
-    const responseBlob =
-      response instanceof HttpResponse
-        ? response.body
-        : (response as any).error instanceof Blob
-          ? (response as any).error
-          : undefined;
-
-    let _headers: any = {};
-    if (response.headers) {
-      for (let key of response.headers.keys()) {
-        _headers[key] = response.headers.get(key);
-      }
-    }
-    if (status === 200) {
-      return blobToText(responseBlob).pipe(
-        _observableMergeMap((_responseText: string) => {
-          let result200: any = null;
-          let resultData200 = _responseText === '' ? null : JSON.parse(_responseText, this.jsonParseReviver);
-          result200 = LegalLinksSettingsDto.fromJS(resultData200);
-          return _observableOf(result200);
-        }),
-      );
-    } else if (status !== 200 && status !== 204) {
-      return blobToText(responseBlob).pipe(
-        _observableMergeMap((_responseText: string) => {
-          return throwException('An unexpected server error occurred.', status, _responseText, _headers);
-        }),
-      );
-    }
-    return _observableOf(null as any);
-  }
-
-  systemManagement_SendApplicationTestMail(request: SendApplicationTestMailRequestDto): Observable<void> {
-    let url_ = this.baseUrl + '/system-management-api/SystemManagement/SendApplicationTestMail';
-    url_ = url_.replace(/[?&]$/, '');
-
-    const content_ = JSON.stringify(request);
-
-    let options_: any = {
-      body: content_,
-      observe: 'response',
-      responseType: 'blob',
-      headers: new HttpHeaders({
-        'Content-Type': 'application/json',
-      }),
-    };
-
-    return this.http
-      .request('post', url_, options_)
-      .pipe(
-        _observableMergeMap((response_: any) => {
-          return this.processSystemManagement_SendApplicationTestMail(response_);
-        }),
-      )
-      .pipe(
-        _observableCatch((response_: any) => {
-          if (response_ instanceof HttpResponseBase) {
-            try {
-              return this.processSystemManagement_SendApplicationTestMail(response_ as any);
-            } catch (e) {
-              return _observableThrow(e) as any as Observable<void>;
-            }
-          } else return _observableThrow(response_) as any as Observable<void>;
-        }),
-      );
-  }
-
-  protected processSystemManagement_SendApplicationTestMail(response: HttpResponseBase): Observable<void> {
-    const status = response.status;
-    const responseBlob =
-      response instanceof HttpResponse
-        ? response.body
-        : (response as any).error instanceof Blob
-          ? (response as any).error
-          : undefined;
-
-    let _headers: any = {};
-    if (response.headers) {
-      for (let key of response.headers.keys()) {
-        _headers[key] = response.headers.get(key);
-      }
-    }
-    if (status === 200) {
-      return blobToText(responseBlob).pipe(
-        _observableMergeMap((_responseText: string) => {
-          return _observableOf(null as any);
-        }),
-      );
-    } else if (status !== 200 && status !== 204) {
-      return blobToText(responseBlob).pipe(
-        _observableMergeMap((_responseText: string) => {
-          return throwException('An unexpected server error occurred.', status, _responseText, _headers);
-        }),
-      );
-    }
-    return _observableOf(null as any);
-  }
-
-  systemManagement_SendKeycloakTestMail(request: SendKeycloakTestMailRequestDto): Observable<void> {
-    let url_ = this.baseUrl + '/system-management-api/SystemManagement/SendKeycloakTestMail';
-    url_ = url_.replace(/[?&]$/, '');
-
-    const content_ = JSON.stringify(request);
-
-    let options_: any = {
-      body: content_,
-      observe: 'response',
-      responseType: 'blob',
-      headers: new HttpHeaders({
-        'Content-Type': 'application/json',
-      }),
-    };
-
-    return this.http
-      .request('post', url_, options_)
-      .pipe(
-        _observableMergeMap((response_: any) => {
-          return this.processSystemManagement_SendKeycloakTestMail(response_);
-        }),
-      )
-      .pipe(
-        _observableCatch((response_: any) => {
-          if (response_ instanceof HttpResponseBase) {
-            try {
-              return this.processSystemManagement_SendKeycloakTestMail(response_ as any);
-            } catch (e) {
-              return _observableThrow(e) as any as Observable<void>;
-            }
-          } else return _observableThrow(response_) as any as Observable<void>;
-        }),
-      );
-  }
-
-  protected processSystemManagement_SendKeycloakTestMail(response: HttpResponseBase): Observable<void> {
-    const status = response.status;
-    const responseBlob =
-      response instanceof HttpResponse
-        ? response.body
-        : (response as any).error instanceof Blob
-          ? (response as any).error
-          : undefined;
-
-    let _headers: any = {};
-    if (response.headers) {
-      for (let key of response.headers.keys()) {
-        _headers[key] = response.headers.get(key);
-      }
-    }
-    if (status === 200) {
-      return blobToText(responseBlob).pipe(
-        _observableMergeMap((_responseText: string) => {
-          return _observableOf(null as any);
-        }),
-      );
-    } else if (status !== 200 && status !== 204) {
-      return blobToText(responseBlob).pipe(
-        _observableMergeMap((_responseText: string) => {
-          return throwException('An unexpected server error occurred.', status, _responseText, _headers);
-        }),
-      );
-    }
-    return _observableOf(null as any);
-  }
-
-  systemManagement_UpsertThemeDefinition(theme: ThemeDefinitionDto): Observable<ThemeDefinitionDto> {
-    let url_ = this.baseUrl + '/system-management-api/SystemManagement/UpsertThemeDefinition';
-    url_ = url_.replace(/[?&]$/, '');
-
-    const content_ = JSON.stringify(theme);
-
-    let options_: any = {
-      body: content_,
-      observe: 'response',
-      responseType: 'blob',
-      headers: new HttpHeaders({
-        'Content-Type': 'application/json',
-        Accept: 'application/json',
-      }),
-    };
-
-    return this.http
-      .request('post', url_, options_)
-      .pipe(
-        _observableMergeMap((response_: any) => {
-          return this.processSystemManagement_UpsertThemeDefinition(response_);
-        }),
-      )
-      .pipe(
-        _observableCatch((response_: any) => {
-          if (response_ instanceof HttpResponseBase) {
-            try {
-              return this.processSystemManagement_UpsertThemeDefinition(response_ as any);
-            } catch (e) {
-              return _observableThrow(e) as any as Observable<ThemeDefinitionDto>;
-            }
-          } else return _observableThrow(response_) as any as Observable<ThemeDefinitionDto>;
-        }),
-      );
-  }
-
-  protected processSystemManagement_UpsertThemeDefinition(response: HttpResponseBase): Observable<ThemeDefinitionDto> {
-    const status = response.status;
-    const responseBlob =
-      response instanceof HttpResponse
-        ? response.body
-        : (response as any).error instanceof Blob
-          ? (response as any).error
-          : undefined;
-
-    let _headers: any = {};
-    if (response.headers) {
-      for (let key of response.headers.keys()) {
-        _headers[key] = response.headers.get(key);
-      }
-    }
-    if (status === 200) {
-      return blobToText(responseBlob).pipe(
-        _observableMergeMap((_responseText: string) => {
-          let result200: any = null;
-          let resultData200 = _responseText === '' ? null : JSON.parse(_responseText, this.jsonParseReviver);
-          result200 = ThemeDefinitionDto.fromJS(resultData200);
-          return _observableOf(result200);
-        }),
-      );
-    } else if (status !== 200 && status !== 204) {
-      return blobToText(responseBlob).pipe(
-        _observableMergeMap((_responseText: string) => {
-          return throwException('An unexpected server error occurred.', status, _responseText, _headers);
-        }),
-      );
-    }
-    return _observableOf(null as any);
-  }
-
-  systemManagement_DeleteThemeDefinition(key: string | undefined): Observable<boolean> {
-    let url_ = this.baseUrl + '/system-management-api/SystemManagement/DeleteThemeDefinition?';
-    if (key === null) throw new Error("The parameter 'key' cannot be null.");
-    else if (key !== undefined) url_ += 'key=' + encodeURIComponent('' + key) + '&';
-    url_ = url_.replace(/[?&]$/, '');
-
-    let options_: any = {
-      observe: 'response',
-      responseType: 'blob',
-      headers: new HttpHeaders({
-        Accept: 'application/json',
-      }),
-    };
-
-    return this.http
-      .request('delete', url_, options_)
-      .pipe(
-        _observableMergeMap((response_: any) => {
-          return this.processSystemManagement_DeleteThemeDefinition(response_);
-        }),
-      )
-      .pipe(
-        _observableCatch((response_: any) => {
-          if (response_ instanceof HttpResponseBase) {
-            try {
-              return this.processSystemManagement_DeleteThemeDefinition(response_ as any);
-            } catch (e) {
-              return _observableThrow(e) as any as Observable<boolean>;
-            }
-          } else return _observableThrow(response_) as any as Observable<boolean>;
-        }),
-      );
-  }
-
-  protected processSystemManagement_DeleteThemeDefinition(response: HttpResponseBase): Observable<boolean> {
-    const status = response.status;
-    const responseBlob =
-      response instanceof HttpResponse
-        ? response.body
-        : (response as any).error instanceof Blob
-          ? (response as any).error
-          : undefined;
-
-    let _headers: any = {};
-    if (response.headers) {
-      for (let key of response.headers.keys()) {
-        _headers[key] = response.headers.get(key);
-      }
-    }
-    if (status === 200) {
-      return blobToText(responseBlob).pipe(
-        _observableMergeMap((_responseText: string) => {
-          let result200: any = null;
-          let resultData200 = _responseText === '' ? null : JSON.parse(_responseText, this.jsonParseReviver);
-          result200 = resultData200 !== undefined ? resultData200 : <any>null;
-
-          return _observableOf(result200);
-        }),
-      );
-    } else if (status !== 200 && status !== 204) {
-      return blobToText(responseBlob).pipe(
-        _observableMergeMap((_responseText: string) => {
-          return throwException('An unexpected server error occurred.', status, _responseText, _headers);
-        }),
-      );
-    }
-    return _observableOf(null as any);
-  }
-
-  systemManagement_ExportThemeDefinitions(): Observable<FileResponse> {
-    let url_ = this.baseUrl + '/system-management-api/SystemManagement/ExportThemeDefinitions';
-    url_ = url_.replace(/[?&]$/, '');
-
-    let options_: any = {
-      observe: 'response',
-      responseType: 'blob',
-      headers: new HttpHeaders({
-        Accept: 'application/octet-stream',
-      }),
-    };
-
-    return this.http
-      .request('post', url_, options_)
-      .pipe(
-        _observableMergeMap((response_: any) => {
-          return this.processSystemManagement_ExportThemeDefinitions(response_);
-        }),
-      )
-      .pipe(
-        _observableCatch((response_: any) => {
-          if (response_ instanceof HttpResponseBase) {
-            try {
-              return this.processSystemManagement_ExportThemeDefinitions(response_ as any);
-            } catch (e) {
-              return _observableThrow(e) as any as Observable<FileResponse>;
-            }
-          } else return _observableThrow(response_) as any as Observable<FileResponse>;
-        }),
-      );
-  }
-
-  protected processSystemManagement_ExportThemeDefinitions(response: HttpResponseBase): Observable<FileResponse> {
-    const status = response.status;
-    const responseBlob =
-      response instanceof HttpResponse
-        ? response.body
-        : (response as any).error instanceof Blob
-          ? (response as any).error
-          : undefined;
-
-    let _headers: any = {};
-    if (response.headers) {
-      for (let key of response.headers.keys()) {
-        _headers[key] = response.headers.get(key);
-      }
-    }
-    if (status === 200 || status === 206) {
-      const contentDisposition = response.headers ? response.headers.get('content-disposition') : undefined;
-      let fileNameMatch = contentDisposition
-        ? /filename\*=(?:(\\?['"])(.*?)\1|(?:[^\s]+'.*?')?([^;\n]*))/g.exec(contentDisposition)
-        : undefined;
-      let fileName = fileNameMatch && fileNameMatch.length > 1 ? fileNameMatch[3] || fileNameMatch[2] : undefined;
-      if (fileName) {
-        fileName = decodeURIComponent(fileName);
-      } else {
-        fileNameMatch = contentDisposition ? /filename="?([^"]*?)"?(;|$)/g.exec(contentDisposition) : undefined;
-        fileName = fileNameMatch && fileNameMatch.length > 1 ? fileNameMatch[1] : undefined;
-      }
-      return _observableOf({ fileName: fileName, data: responseBlob as any, status: status, headers: _headers });
-    } else if (status !== 200 && status !== 204) {
-      return blobToText(responseBlob).pipe(
-        _observableMergeMap((_responseText: string) => {
-          return throwException('An unexpected server error occurred.', status, _responseText, _headers);
-        }),
-      );
-    }
-    return _observableOf(null as any);
-  }
-
-  systemManagement_ImportThemeDefinitions(themeImport: ThemeDefinitionsImport): Observable<boolean> {
-    let url_ = this.baseUrl + '/system-management-api/SystemManagement/ImportThemeDefinitions';
-    url_ = url_.replace(/[?&]$/, '');
-
-    const content_ = JSON.stringify(themeImport);
-
-    let options_: any = {
-      body: content_,
-      observe: 'response',
-      responseType: 'blob',
-      headers: new HttpHeaders({
-        'Content-Type': 'application/json',
-        Accept: 'application/json',
-      }),
-    };
-
-    return this.http
-      .request('post', url_, options_)
-      .pipe(
-        _observableMergeMap((response_: any) => {
-          return this.processSystemManagement_ImportThemeDefinitions(response_);
-        }),
-      )
-      .pipe(
-        _observableCatch((response_: any) => {
-          if (response_ instanceof HttpResponseBase) {
-            try {
-              return this.processSystemManagement_ImportThemeDefinitions(response_ as any);
-            } catch (e) {
-              return _observableThrow(e) as any as Observable<boolean>;
-            }
-          } else return _observableThrow(response_) as any as Observable<boolean>;
-        }),
-      );
-  }
-
-  protected processSystemManagement_ImportThemeDefinitions(response: HttpResponseBase): Observable<boolean> {
-    const status = response.status;
-    const responseBlob =
-      response instanceof HttpResponse
-        ? response.body
-        : (response as any).error instanceof Blob
-          ? (response as any).error
-          : undefined;
-
-    let _headers: any = {};
-    if (response.headers) {
-      for (let key of response.headers.keys()) {
-        _headers[key] = response.headers.get(key);
-      }
-    }
-    if (status === 200) {
-      return blobToText(responseBlob).pipe(
-        _observableMergeMap((_responseText: string) => {
-          let result200: any = null;
-          let resultData200 = _responseText === '' ? null : JSON.parse(_responseText, this.jsonParseReviver);
-          result200 = resultData200 !== undefined ? resultData200 : <any>null;
-
           return _observableOf(result200);
         }),
       );
@@ -10621,6 +8642,2532 @@ export class OrganisationClient implements IOrganisationClient {
   }
 
   protected processOrganisation_CreateInfrastructure(response: HttpResponseBase): Observable<boolean> {
+    const status = response.status;
+    const responseBlob =
+      response instanceof HttpResponse
+        ? response.body
+        : (response as any).error instanceof Blob
+          ? (response as any).error
+          : undefined;
+
+    let _headers: any = {};
+    if (response.headers) {
+      for (let key of response.headers.keys()) {
+        _headers[key] = response.headers.get(key);
+      }
+    }
+    if (status === 200) {
+      return blobToText(responseBlob).pipe(
+        _observableMergeMap((_responseText: string) => {
+          let result200: any = null;
+          let resultData200 = _responseText === '' ? null : JSON.parse(_responseText, this.jsonParseReviver);
+          result200 = resultData200 !== undefined ? resultData200 : <any>null;
+
+          return _observableOf(result200);
+        }),
+      );
+    } else if (status !== 200 && status !== 204) {
+      return blobToText(responseBlob).pipe(
+        _observableMergeMap((_responseText: string) => {
+          return throwException('An unexpected server error occurred.', status, _responseText, _headers);
+        }),
+      );
+    }
+    return _observableOf(null as any);
+  }
+}
+
+export interface IJobSettingsClient {
+  jobSettings_GetStatisticCalculatorSettings(): Observable<FileResponse>;
+  jobSettings_UpdateStatisticCalculatorSettings(request: StatisticCalculatorSettingsDto): Observable<FileResponse>;
+  jobSettings_GetDailyStatisticCalculatorSettings(): Observable<FileResponse>;
+  jobSettings_UpdateDailyStatisticCalculatorSettings(
+    request: DailyStatisticCalculatorSettingsDto,
+  ): Observable<FileResponse>;
+  jobSettings_GetDailyExpiredOrganisationsCheckerSettings(): Observable<FileResponse>;
+  jobSettings_UpdateDailyExpiredOrganisationsCheckerSettings(
+    request: DailyExpiredOrganisationsCheckerSettingsDto,
+  ): Observable<FileResponse>;
+  jobSettings_GetPeriodicOrganisationDeleterSettings(): Observable<FileResponse>;
+  jobSettings_UpdatePeriodicOrganisationDeleterSettings(
+    request: PeriodicOrganisationDeleterSettingsDto,
+  ): Observable<FileResponse>;
+  jobSettings_GetPeriodicInfrastructureDeleterSettings(): Observable<FileResponse>;
+  jobSettings_UpdatePeriodicInfrastructureDeleterSettings(
+    request: PeriodicInfrastructureDeleterSettingsDto,
+  ): Observable<FileResponse>;
+  jobSettings_GetIdtaCrawlerSettings(): Observable<FileResponse>;
+  jobSettings_UpdateIdtaCrawlerSettings(request: IdtaCrawlerSettingsDto): Observable<FileResponse>;
+  jobSettings_GetPcnUpdateListenerSettings(): Observable<FileResponse>;
+  jobSettings_UpdatePcnUpdateListenerSettings(request: PcnUpdateListenerSettingsDto): Observable<FileResponse>;
+}
+
+@Injectable({
+  providedIn: 'root',
+})
+export class JobSettingsClient implements IJobSettingsClient {
+  private http: HttpClient;
+  private baseUrl: string;
+  protected jsonParseReviver: ((key: string, value: any) => any) | undefined = undefined;
+
+  constructor(@Inject(HttpClient) http: HttpClient, @Optional() @Inject(API_BASE_URL) baseUrl?: string) {
+    this.http = http;
+    this.baseUrl = baseUrl ?? '';
+  }
+
+  jobSettings_GetStatisticCalculatorSettings(): Observable<FileResponse> {
+    let url_ = this.baseUrl + '/api/job-settings/statistic-calculator';
+    url_ = url_.replace(/[?&]$/, '');
+
+    let options_: any = {
+      observe: 'response',
+      responseType: 'blob',
+      headers: new HttpHeaders({
+        Accept: 'application/octet-stream',
+      }),
+    };
+
+    return this.http
+      .request('get', url_, options_)
+      .pipe(
+        _observableMergeMap((response_: any) => {
+          return this.processJobSettings_GetStatisticCalculatorSettings(response_);
+        }),
+      )
+      .pipe(
+        _observableCatch((response_: any) => {
+          if (response_ instanceof HttpResponseBase) {
+            try {
+              return this.processJobSettings_GetStatisticCalculatorSettings(response_ as any);
+            } catch (e) {
+              return _observableThrow(e) as any as Observable<FileResponse>;
+            }
+          } else return _observableThrow(response_) as any as Observable<FileResponse>;
+        }),
+      );
+  }
+
+  protected processJobSettings_GetStatisticCalculatorSettings(response: HttpResponseBase): Observable<FileResponse> {
+    const status = response.status;
+    const responseBlob =
+      response instanceof HttpResponse
+        ? response.body
+        : (response as any).error instanceof Blob
+          ? (response as any).error
+          : undefined;
+
+    let _headers: any = {};
+    if (response.headers) {
+      for (let key of response.headers.keys()) {
+        _headers[key] = response.headers.get(key);
+      }
+    }
+    if (status === 200 || status === 206) {
+      const contentDisposition = response.headers ? response.headers.get('content-disposition') : undefined;
+      let fileNameMatch = contentDisposition
+        ? /filename\*=(?:(\\?['"])(.*?)\1|(?:[^\s]+'.*?')?([^;\n]*))/g.exec(contentDisposition)
+        : undefined;
+      let fileName = fileNameMatch && fileNameMatch.length > 1 ? fileNameMatch[3] || fileNameMatch[2] : undefined;
+      if (fileName) {
+        fileName = decodeURIComponent(fileName);
+      } else {
+        fileNameMatch = contentDisposition ? /filename="?([^"]*?)"?(;|$)/g.exec(contentDisposition) : undefined;
+        fileName = fileNameMatch && fileNameMatch.length > 1 ? fileNameMatch[1] : undefined;
+      }
+      return _observableOf({ fileName: fileName, data: responseBlob as any, status: status, headers: _headers });
+    } else if (status !== 200 && status !== 204) {
+      return blobToText(responseBlob).pipe(
+        _observableMergeMap((_responseText: string) => {
+          return throwException('An unexpected server error occurred.', status, _responseText, _headers);
+        }),
+      );
+    }
+    return _observableOf(null as any);
+  }
+
+  jobSettings_UpdateStatisticCalculatorSettings(request: StatisticCalculatorSettingsDto): Observable<FileResponse> {
+    let url_ = this.baseUrl + '/api/job-settings/statistic-calculator';
+    url_ = url_.replace(/[?&]$/, '');
+
+    const content_ = JSON.stringify(request);
+
+    let options_: any = {
+      body: content_,
+      observe: 'response',
+      responseType: 'blob',
+      headers: new HttpHeaders({
+        'Content-Type': 'application/json',
+        Accept: 'application/octet-stream',
+      }),
+    };
+
+    return this.http
+      .request('put', url_, options_)
+      .pipe(
+        _observableMergeMap((response_: any) => {
+          return this.processJobSettings_UpdateStatisticCalculatorSettings(response_);
+        }),
+      )
+      .pipe(
+        _observableCatch((response_: any) => {
+          if (response_ instanceof HttpResponseBase) {
+            try {
+              return this.processJobSettings_UpdateStatisticCalculatorSettings(response_ as any);
+            } catch (e) {
+              return _observableThrow(e) as any as Observable<FileResponse>;
+            }
+          } else return _observableThrow(response_) as any as Observable<FileResponse>;
+        }),
+      );
+  }
+
+  protected processJobSettings_UpdateStatisticCalculatorSettings(response: HttpResponseBase): Observable<FileResponse> {
+    const status = response.status;
+    const responseBlob =
+      response instanceof HttpResponse
+        ? response.body
+        : (response as any).error instanceof Blob
+          ? (response as any).error
+          : undefined;
+
+    let _headers: any = {};
+    if (response.headers) {
+      for (let key of response.headers.keys()) {
+        _headers[key] = response.headers.get(key);
+      }
+    }
+    if (status === 200 || status === 206) {
+      const contentDisposition = response.headers ? response.headers.get('content-disposition') : undefined;
+      let fileNameMatch = contentDisposition
+        ? /filename\*=(?:(\\?['"])(.*?)\1|(?:[^\s]+'.*?')?([^;\n]*))/g.exec(contentDisposition)
+        : undefined;
+      let fileName = fileNameMatch && fileNameMatch.length > 1 ? fileNameMatch[3] || fileNameMatch[2] : undefined;
+      if (fileName) {
+        fileName = decodeURIComponent(fileName);
+      } else {
+        fileNameMatch = contentDisposition ? /filename="?([^"]*?)"?(;|$)/g.exec(contentDisposition) : undefined;
+        fileName = fileNameMatch && fileNameMatch.length > 1 ? fileNameMatch[1] : undefined;
+      }
+      return _observableOf({ fileName: fileName, data: responseBlob as any, status: status, headers: _headers });
+    } else if (status !== 200 && status !== 204) {
+      return blobToText(responseBlob).pipe(
+        _observableMergeMap((_responseText: string) => {
+          return throwException('An unexpected server error occurred.', status, _responseText, _headers);
+        }),
+      );
+    }
+    return _observableOf(null as any);
+  }
+
+  jobSettings_GetDailyStatisticCalculatorSettings(): Observable<FileResponse> {
+    let url_ = this.baseUrl + '/api/job-settings/daily-statistic-calculator';
+    url_ = url_.replace(/[?&]$/, '');
+
+    let options_: any = {
+      observe: 'response',
+      responseType: 'blob',
+      headers: new HttpHeaders({
+        Accept: 'application/octet-stream',
+      }),
+    };
+
+    return this.http
+      .request('get', url_, options_)
+      .pipe(
+        _observableMergeMap((response_: any) => {
+          return this.processJobSettings_GetDailyStatisticCalculatorSettings(response_);
+        }),
+      )
+      .pipe(
+        _observableCatch((response_: any) => {
+          if (response_ instanceof HttpResponseBase) {
+            try {
+              return this.processJobSettings_GetDailyStatisticCalculatorSettings(response_ as any);
+            } catch (e) {
+              return _observableThrow(e) as any as Observable<FileResponse>;
+            }
+          } else return _observableThrow(response_) as any as Observable<FileResponse>;
+        }),
+      );
+  }
+
+  protected processJobSettings_GetDailyStatisticCalculatorSettings(
+    response: HttpResponseBase,
+  ): Observable<FileResponse> {
+    const status = response.status;
+    const responseBlob =
+      response instanceof HttpResponse
+        ? response.body
+        : (response as any).error instanceof Blob
+          ? (response as any).error
+          : undefined;
+
+    let _headers: any = {};
+    if (response.headers) {
+      for (let key of response.headers.keys()) {
+        _headers[key] = response.headers.get(key);
+      }
+    }
+    if (status === 200 || status === 206) {
+      const contentDisposition = response.headers ? response.headers.get('content-disposition') : undefined;
+      let fileNameMatch = contentDisposition
+        ? /filename\*=(?:(\\?['"])(.*?)\1|(?:[^\s]+'.*?')?([^;\n]*))/g.exec(contentDisposition)
+        : undefined;
+      let fileName = fileNameMatch && fileNameMatch.length > 1 ? fileNameMatch[3] || fileNameMatch[2] : undefined;
+      if (fileName) {
+        fileName = decodeURIComponent(fileName);
+      } else {
+        fileNameMatch = contentDisposition ? /filename="?([^"]*?)"?(;|$)/g.exec(contentDisposition) : undefined;
+        fileName = fileNameMatch && fileNameMatch.length > 1 ? fileNameMatch[1] : undefined;
+      }
+      return _observableOf({ fileName: fileName, data: responseBlob as any, status: status, headers: _headers });
+    } else if (status !== 200 && status !== 204) {
+      return blobToText(responseBlob).pipe(
+        _observableMergeMap((_responseText: string) => {
+          return throwException('An unexpected server error occurred.', status, _responseText, _headers);
+        }),
+      );
+    }
+    return _observableOf(null as any);
+  }
+
+  jobSettings_UpdateDailyStatisticCalculatorSettings(
+    request: DailyStatisticCalculatorSettingsDto,
+  ): Observable<FileResponse> {
+    let url_ = this.baseUrl + '/api/job-settings/daily-statistic-calculator';
+    url_ = url_.replace(/[?&]$/, '');
+
+    const content_ = JSON.stringify(request);
+
+    let options_: any = {
+      body: content_,
+      observe: 'response',
+      responseType: 'blob',
+      headers: new HttpHeaders({
+        'Content-Type': 'application/json',
+        Accept: 'application/octet-stream',
+      }),
+    };
+
+    return this.http
+      .request('put', url_, options_)
+      .pipe(
+        _observableMergeMap((response_: any) => {
+          return this.processJobSettings_UpdateDailyStatisticCalculatorSettings(response_);
+        }),
+      )
+      .pipe(
+        _observableCatch((response_: any) => {
+          if (response_ instanceof HttpResponseBase) {
+            try {
+              return this.processJobSettings_UpdateDailyStatisticCalculatorSettings(response_ as any);
+            } catch (e) {
+              return _observableThrow(e) as any as Observable<FileResponse>;
+            }
+          } else return _observableThrow(response_) as any as Observable<FileResponse>;
+        }),
+      );
+  }
+
+  protected processJobSettings_UpdateDailyStatisticCalculatorSettings(
+    response: HttpResponseBase,
+  ): Observable<FileResponse> {
+    const status = response.status;
+    const responseBlob =
+      response instanceof HttpResponse
+        ? response.body
+        : (response as any).error instanceof Blob
+          ? (response as any).error
+          : undefined;
+
+    let _headers: any = {};
+    if (response.headers) {
+      for (let key of response.headers.keys()) {
+        _headers[key] = response.headers.get(key);
+      }
+    }
+    if (status === 200 || status === 206) {
+      const contentDisposition = response.headers ? response.headers.get('content-disposition') : undefined;
+      let fileNameMatch = contentDisposition
+        ? /filename\*=(?:(\\?['"])(.*?)\1|(?:[^\s]+'.*?')?([^;\n]*))/g.exec(contentDisposition)
+        : undefined;
+      let fileName = fileNameMatch && fileNameMatch.length > 1 ? fileNameMatch[3] || fileNameMatch[2] : undefined;
+      if (fileName) {
+        fileName = decodeURIComponent(fileName);
+      } else {
+        fileNameMatch = contentDisposition ? /filename="?([^"]*?)"?(;|$)/g.exec(contentDisposition) : undefined;
+        fileName = fileNameMatch && fileNameMatch.length > 1 ? fileNameMatch[1] : undefined;
+      }
+      return _observableOf({ fileName: fileName, data: responseBlob as any, status: status, headers: _headers });
+    } else if (status !== 200 && status !== 204) {
+      return blobToText(responseBlob).pipe(
+        _observableMergeMap((_responseText: string) => {
+          return throwException('An unexpected server error occurred.', status, _responseText, _headers);
+        }),
+      );
+    }
+    return _observableOf(null as any);
+  }
+
+  jobSettings_GetDailyExpiredOrganisationsCheckerSettings(): Observable<FileResponse> {
+    let url_ = this.baseUrl + '/api/job-settings/daily-expired-organisations-checker';
+    url_ = url_.replace(/[?&]$/, '');
+
+    let options_: any = {
+      observe: 'response',
+      responseType: 'blob',
+      headers: new HttpHeaders({
+        Accept: 'application/octet-stream',
+      }),
+    };
+
+    return this.http
+      .request('get', url_, options_)
+      .pipe(
+        _observableMergeMap((response_: any) => {
+          return this.processJobSettings_GetDailyExpiredOrganisationsCheckerSettings(response_);
+        }),
+      )
+      .pipe(
+        _observableCatch((response_: any) => {
+          if (response_ instanceof HttpResponseBase) {
+            try {
+              return this.processJobSettings_GetDailyExpiredOrganisationsCheckerSettings(response_ as any);
+            } catch (e) {
+              return _observableThrow(e) as any as Observable<FileResponse>;
+            }
+          } else return _observableThrow(response_) as any as Observable<FileResponse>;
+        }),
+      );
+  }
+
+  protected processJobSettings_GetDailyExpiredOrganisationsCheckerSettings(
+    response: HttpResponseBase,
+  ): Observable<FileResponse> {
+    const status = response.status;
+    const responseBlob =
+      response instanceof HttpResponse
+        ? response.body
+        : (response as any).error instanceof Blob
+          ? (response as any).error
+          : undefined;
+
+    let _headers: any = {};
+    if (response.headers) {
+      for (let key of response.headers.keys()) {
+        _headers[key] = response.headers.get(key);
+      }
+    }
+    if (status === 200 || status === 206) {
+      const contentDisposition = response.headers ? response.headers.get('content-disposition') : undefined;
+      let fileNameMatch = contentDisposition
+        ? /filename\*=(?:(\\?['"])(.*?)\1|(?:[^\s]+'.*?')?([^;\n]*))/g.exec(contentDisposition)
+        : undefined;
+      let fileName = fileNameMatch && fileNameMatch.length > 1 ? fileNameMatch[3] || fileNameMatch[2] : undefined;
+      if (fileName) {
+        fileName = decodeURIComponent(fileName);
+      } else {
+        fileNameMatch = contentDisposition ? /filename="?([^"]*?)"?(;|$)/g.exec(contentDisposition) : undefined;
+        fileName = fileNameMatch && fileNameMatch.length > 1 ? fileNameMatch[1] : undefined;
+      }
+      return _observableOf({ fileName: fileName, data: responseBlob as any, status: status, headers: _headers });
+    } else if (status !== 200 && status !== 204) {
+      return blobToText(responseBlob).pipe(
+        _observableMergeMap((_responseText: string) => {
+          return throwException('An unexpected server error occurred.', status, _responseText, _headers);
+        }),
+      );
+    }
+    return _observableOf(null as any);
+  }
+
+  jobSettings_UpdateDailyExpiredOrganisationsCheckerSettings(
+    request: DailyExpiredOrganisationsCheckerSettingsDto,
+  ): Observable<FileResponse> {
+    let url_ = this.baseUrl + '/api/job-settings/daily-expired-organisations-checker';
+    url_ = url_.replace(/[?&]$/, '');
+
+    const content_ = JSON.stringify(request);
+
+    let options_: any = {
+      body: content_,
+      observe: 'response',
+      responseType: 'blob',
+      headers: new HttpHeaders({
+        'Content-Type': 'application/json',
+        Accept: 'application/octet-stream',
+      }),
+    };
+
+    return this.http
+      .request('put', url_, options_)
+      .pipe(
+        _observableMergeMap((response_: any) => {
+          return this.processJobSettings_UpdateDailyExpiredOrganisationsCheckerSettings(response_);
+        }),
+      )
+      .pipe(
+        _observableCatch((response_: any) => {
+          if (response_ instanceof HttpResponseBase) {
+            try {
+              return this.processJobSettings_UpdateDailyExpiredOrganisationsCheckerSettings(response_ as any);
+            } catch (e) {
+              return _observableThrow(e) as any as Observable<FileResponse>;
+            }
+          } else return _observableThrow(response_) as any as Observable<FileResponse>;
+        }),
+      );
+  }
+
+  protected processJobSettings_UpdateDailyExpiredOrganisationsCheckerSettings(
+    response: HttpResponseBase,
+  ): Observable<FileResponse> {
+    const status = response.status;
+    const responseBlob =
+      response instanceof HttpResponse
+        ? response.body
+        : (response as any).error instanceof Blob
+          ? (response as any).error
+          : undefined;
+
+    let _headers: any = {};
+    if (response.headers) {
+      for (let key of response.headers.keys()) {
+        _headers[key] = response.headers.get(key);
+      }
+    }
+    if (status === 200 || status === 206) {
+      const contentDisposition = response.headers ? response.headers.get('content-disposition') : undefined;
+      let fileNameMatch = contentDisposition
+        ? /filename\*=(?:(\\?['"])(.*?)\1|(?:[^\s]+'.*?')?([^;\n]*))/g.exec(contentDisposition)
+        : undefined;
+      let fileName = fileNameMatch && fileNameMatch.length > 1 ? fileNameMatch[3] || fileNameMatch[2] : undefined;
+      if (fileName) {
+        fileName = decodeURIComponent(fileName);
+      } else {
+        fileNameMatch = contentDisposition ? /filename="?([^"]*?)"?(;|$)/g.exec(contentDisposition) : undefined;
+        fileName = fileNameMatch && fileNameMatch.length > 1 ? fileNameMatch[1] : undefined;
+      }
+      return _observableOf({ fileName: fileName, data: responseBlob as any, status: status, headers: _headers });
+    } else if (status !== 200 && status !== 204) {
+      return blobToText(responseBlob).pipe(
+        _observableMergeMap((_responseText: string) => {
+          return throwException('An unexpected server error occurred.', status, _responseText, _headers);
+        }),
+      );
+    }
+    return _observableOf(null as any);
+  }
+
+  jobSettings_GetPeriodicOrganisationDeleterSettings(): Observable<FileResponse> {
+    let url_ = this.baseUrl + '/api/job-settings/periodic-organisation-deleter';
+    url_ = url_.replace(/[?&]$/, '');
+
+    let options_: any = {
+      observe: 'response',
+      responseType: 'blob',
+      headers: new HttpHeaders({
+        Accept: 'application/octet-stream',
+      }),
+    };
+
+    return this.http
+      .request('get', url_, options_)
+      .pipe(
+        _observableMergeMap((response_: any) => {
+          return this.processJobSettings_GetPeriodicOrganisationDeleterSettings(response_);
+        }),
+      )
+      .pipe(
+        _observableCatch((response_: any) => {
+          if (response_ instanceof HttpResponseBase) {
+            try {
+              return this.processJobSettings_GetPeriodicOrganisationDeleterSettings(response_ as any);
+            } catch (e) {
+              return _observableThrow(e) as any as Observable<FileResponse>;
+            }
+          } else return _observableThrow(response_) as any as Observable<FileResponse>;
+        }),
+      );
+  }
+
+  protected processJobSettings_GetPeriodicOrganisationDeleterSettings(
+    response: HttpResponseBase,
+  ): Observable<FileResponse> {
+    const status = response.status;
+    const responseBlob =
+      response instanceof HttpResponse
+        ? response.body
+        : (response as any).error instanceof Blob
+          ? (response as any).error
+          : undefined;
+
+    let _headers: any = {};
+    if (response.headers) {
+      for (let key of response.headers.keys()) {
+        _headers[key] = response.headers.get(key);
+      }
+    }
+    if (status === 200 || status === 206) {
+      const contentDisposition = response.headers ? response.headers.get('content-disposition') : undefined;
+      let fileNameMatch = contentDisposition
+        ? /filename\*=(?:(\\?['"])(.*?)\1|(?:[^\s]+'.*?')?([^;\n]*))/g.exec(contentDisposition)
+        : undefined;
+      let fileName = fileNameMatch && fileNameMatch.length > 1 ? fileNameMatch[3] || fileNameMatch[2] : undefined;
+      if (fileName) {
+        fileName = decodeURIComponent(fileName);
+      } else {
+        fileNameMatch = contentDisposition ? /filename="?([^"]*?)"?(;|$)/g.exec(contentDisposition) : undefined;
+        fileName = fileNameMatch && fileNameMatch.length > 1 ? fileNameMatch[1] : undefined;
+      }
+      return _observableOf({ fileName: fileName, data: responseBlob as any, status: status, headers: _headers });
+    } else if (status !== 200 && status !== 204) {
+      return blobToText(responseBlob).pipe(
+        _observableMergeMap((_responseText: string) => {
+          return throwException('An unexpected server error occurred.', status, _responseText, _headers);
+        }),
+      );
+    }
+    return _observableOf(null as any);
+  }
+
+  jobSettings_UpdatePeriodicOrganisationDeleterSettings(
+    request: PeriodicOrganisationDeleterSettingsDto,
+  ): Observable<FileResponse> {
+    let url_ = this.baseUrl + '/api/job-settings/periodic-organisation-deleter';
+    url_ = url_.replace(/[?&]$/, '');
+
+    const content_ = JSON.stringify(request);
+
+    let options_: any = {
+      body: content_,
+      observe: 'response',
+      responseType: 'blob',
+      headers: new HttpHeaders({
+        'Content-Type': 'application/json',
+        Accept: 'application/octet-stream',
+      }),
+    };
+
+    return this.http
+      .request('put', url_, options_)
+      .pipe(
+        _observableMergeMap((response_: any) => {
+          return this.processJobSettings_UpdatePeriodicOrganisationDeleterSettings(response_);
+        }),
+      )
+      .pipe(
+        _observableCatch((response_: any) => {
+          if (response_ instanceof HttpResponseBase) {
+            try {
+              return this.processJobSettings_UpdatePeriodicOrganisationDeleterSettings(response_ as any);
+            } catch (e) {
+              return _observableThrow(e) as any as Observable<FileResponse>;
+            }
+          } else return _observableThrow(response_) as any as Observable<FileResponse>;
+        }),
+      );
+  }
+
+  protected processJobSettings_UpdatePeriodicOrganisationDeleterSettings(
+    response: HttpResponseBase,
+  ): Observable<FileResponse> {
+    const status = response.status;
+    const responseBlob =
+      response instanceof HttpResponse
+        ? response.body
+        : (response as any).error instanceof Blob
+          ? (response as any).error
+          : undefined;
+
+    let _headers: any = {};
+    if (response.headers) {
+      for (let key of response.headers.keys()) {
+        _headers[key] = response.headers.get(key);
+      }
+    }
+    if (status === 200 || status === 206) {
+      const contentDisposition = response.headers ? response.headers.get('content-disposition') : undefined;
+      let fileNameMatch = contentDisposition
+        ? /filename\*=(?:(\\?['"])(.*?)\1|(?:[^\s]+'.*?')?([^;\n]*))/g.exec(contentDisposition)
+        : undefined;
+      let fileName = fileNameMatch && fileNameMatch.length > 1 ? fileNameMatch[3] || fileNameMatch[2] : undefined;
+      if (fileName) {
+        fileName = decodeURIComponent(fileName);
+      } else {
+        fileNameMatch = contentDisposition ? /filename="?([^"]*?)"?(;|$)/g.exec(contentDisposition) : undefined;
+        fileName = fileNameMatch && fileNameMatch.length > 1 ? fileNameMatch[1] : undefined;
+      }
+      return _observableOf({ fileName: fileName, data: responseBlob as any, status: status, headers: _headers });
+    } else if (status !== 200 && status !== 204) {
+      return blobToText(responseBlob).pipe(
+        _observableMergeMap((_responseText: string) => {
+          return throwException('An unexpected server error occurred.', status, _responseText, _headers);
+        }),
+      );
+    }
+    return _observableOf(null as any);
+  }
+
+  jobSettings_GetPeriodicInfrastructureDeleterSettings(): Observable<FileResponse> {
+    let url_ = this.baseUrl + '/api/job-settings/periodic-infrastructure-deleter';
+    url_ = url_.replace(/[?&]$/, '');
+
+    let options_: any = {
+      observe: 'response',
+      responseType: 'blob',
+      headers: new HttpHeaders({
+        Accept: 'application/octet-stream',
+      }),
+    };
+
+    return this.http
+      .request('get', url_, options_)
+      .pipe(
+        _observableMergeMap((response_: any) => {
+          return this.processJobSettings_GetPeriodicInfrastructureDeleterSettings(response_);
+        }),
+      )
+      .pipe(
+        _observableCatch((response_: any) => {
+          if (response_ instanceof HttpResponseBase) {
+            try {
+              return this.processJobSettings_GetPeriodicInfrastructureDeleterSettings(response_ as any);
+            } catch (e) {
+              return _observableThrow(e) as any as Observable<FileResponse>;
+            }
+          } else return _observableThrow(response_) as any as Observable<FileResponse>;
+        }),
+      );
+  }
+
+  protected processJobSettings_GetPeriodicInfrastructureDeleterSettings(
+    response: HttpResponseBase,
+  ): Observable<FileResponse> {
+    const status = response.status;
+    const responseBlob =
+      response instanceof HttpResponse
+        ? response.body
+        : (response as any).error instanceof Blob
+          ? (response as any).error
+          : undefined;
+
+    let _headers: any = {};
+    if (response.headers) {
+      for (let key of response.headers.keys()) {
+        _headers[key] = response.headers.get(key);
+      }
+    }
+    if (status === 200 || status === 206) {
+      const contentDisposition = response.headers ? response.headers.get('content-disposition') : undefined;
+      let fileNameMatch = contentDisposition
+        ? /filename\*=(?:(\\?['"])(.*?)\1|(?:[^\s]+'.*?')?([^;\n]*))/g.exec(contentDisposition)
+        : undefined;
+      let fileName = fileNameMatch && fileNameMatch.length > 1 ? fileNameMatch[3] || fileNameMatch[2] : undefined;
+      if (fileName) {
+        fileName = decodeURIComponent(fileName);
+      } else {
+        fileNameMatch = contentDisposition ? /filename="?([^"]*?)"?(;|$)/g.exec(contentDisposition) : undefined;
+        fileName = fileNameMatch && fileNameMatch.length > 1 ? fileNameMatch[1] : undefined;
+      }
+      return _observableOf({ fileName: fileName, data: responseBlob as any, status: status, headers: _headers });
+    } else if (status !== 200 && status !== 204) {
+      return blobToText(responseBlob).pipe(
+        _observableMergeMap((_responseText: string) => {
+          return throwException('An unexpected server error occurred.', status, _responseText, _headers);
+        }),
+      );
+    }
+    return _observableOf(null as any);
+  }
+
+  jobSettings_UpdatePeriodicInfrastructureDeleterSettings(
+    request: PeriodicInfrastructureDeleterSettingsDto,
+  ): Observable<FileResponse> {
+    let url_ = this.baseUrl + '/api/job-settings/periodic-infrastructure-deleter';
+    url_ = url_.replace(/[?&]$/, '');
+
+    const content_ = JSON.stringify(request);
+
+    let options_: any = {
+      body: content_,
+      observe: 'response',
+      responseType: 'blob',
+      headers: new HttpHeaders({
+        'Content-Type': 'application/json',
+        Accept: 'application/octet-stream',
+      }),
+    };
+
+    return this.http
+      .request('put', url_, options_)
+      .pipe(
+        _observableMergeMap((response_: any) => {
+          return this.processJobSettings_UpdatePeriodicInfrastructureDeleterSettings(response_);
+        }),
+      )
+      .pipe(
+        _observableCatch((response_: any) => {
+          if (response_ instanceof HttpResponseBase) {
+            try {
+              return this.processJobSettings_UpdatePeriodicInfrastructureDeleterSettings(response_ as any);
+            } catch (e) {
+              return _observableThrow(e) as any as Observable<FileResponse>;
+            }
+          } else return _observableThrow(response_) as any as Observable<FileResponse>;
+        }),
+      );
+  }
+
+  protected processJobSettings_UpdatePeriodicInfrastructureDeleterSettings(
+    response: HttpResponseBase,
+  ): Observable<FileResponse> {
+    const status = response.status;
+    const responseBlob =
+      response instanceof HttpResponse
+        ? response.body
+        : (response as any).error instanceof Blob
+          ? (response as any).error
+          : undefined;
+
+    let _headers: any = {};
+    if (response.headers) {
+      for (let key of response.headers.keys()) {
+        _headers[key] = response.headers.get(key);
+      }
+    }
+    if (status === 200 || status === 206) {
+      const contentDisposition = response.headers ? response.headers.get('content-disposition') : undefined;
+      let fileNameMatch = contentDisposition
+        ? /filename\*=(?:(\\?['"])(.*?)\1|(?:[^\s]+'.*?')?([^;\n]*))/g.exec(contentDisposition)
+        : undefined;
+      let fileName = fileNameMatch && fileNameMatch.length > 1 ? fileNameMatch[3] || fileNameMatch[2] : undefined;
+      if (fileName) {
+        fileName = decodeURIComponent(fileName);
+      } else {
+        fileNameMatch = contentDisposition ? /filename="?([^"]*?)"?(;|$)/g.exec(contentDisposition) : undefined;
+        fileName = fileNameMatch && fileNameMatch.length > 1 ? fileNameMatch[1] : undefined;
+      }
+      return _observableOf({ fileName: fileName, data: responseBlob as any, status: status, headers: _headers });
+    } else if (status !== 200 && status !== 204) {
+      return blobToText(responseBlob).pipe(
+        _observableMergeMap((_responseText: string) => {
+          return throwException('An unexpected server error occurred.', status, _responseText, _headers);
+        }),
+      );
+    }
+    return _observableOf(null as any);
+  }
+
+  jobSettings_GetIdtaCrawlerSettings(): Observable<FileResponse> {
+    let url_ = this.baseUrl + '/api/job-settings/idta-crawler';
+    url_ = url_.replace(/[?&]$/, '');
+
+    let options_: any = {
+      observe: 'response',
+      responseType: 'blob',
+      headers: new HttpHeaders({
+        Accept: 'application/octet-stream',
+      }),
+    };
+
+    return this.http
+      .request('get', url_, options_)
+      .pipe(
+        _observableMergeMap((response_: any) => {
+          return this.processJobSettings_GetIdtaCrawlerSettings(response_);
+        }),
+      )
+      .pipe(
+        _observableCatch((response_: any) => {
+          if (response_ instanceof HttpResponseBase) {
+            try {
+              return this.processJobSettings_GetIdtaCrawlerSettings(response_ as any);
+            } catch (e) {
+              return _observableThrow(e) as any as Observable<FileResponse>;
+            }
+          } else return _observableThrow(response_) as any as Observable<FileResponse>;
+        }),
+      );
+  }
+
+  protected processJobSettings_GetIdtaCrawlerSettings(response: HttpResponseBase): Observable<FileResponse> {
+    const status = response.status;
+    const responseBlob =
+      response instanceof HttpResponse
+        ? response.body
+        : (response as any).error instanceof Blob
+          ? (response as any).error
+          : undefined;
+
+    let _headers: any = {};
+    if (response.headers) {
+      for (let key of response.headers.keys()) {
+        _headers[key] = response.headers.get(key);
+      }
+    }
+    if (status === 200 || status === 206) {
+      const contentDisposition = response.headers ? response.headers.get('content-disposition') : undefined;
+      let fileNameMatch = contentDisposition
+        ? /filename\*=(?:(\\?['"])(.*?)\1|(?:[^\s]+'.*?')?([^;\n]*))/g.exec(contentDisposition)
+        : undefined;
+      let fileName = fileNameMatch && fileNameMatch.length > 1 ? fileNameMatch[3] || fileNameMatch[2] : undefined;
+      if (fileName) {
+        fileName = decodeURIComponent(fileName);
+      } else {
+        fileNameMatch = contentDisposition ? /filename="?([^"]*?)"?(;|$)/g.exec(contentDisposition) : undefined;
+        fileName = fileNameMatch && fileNameMatch.length > 1 ? fileNameMatch[1] : undefined;
+      }
+      return _observableOf({ fileName: fileName, data: responseBlob as any, status: status, headers: _headers });
+    } else if (status !== 200 && status !== 204) {
+      return blobToText(responseBlob).pipe(
+        _observableMergeMap((_responseText: string) => {
+          return throwException('An unexpected server error occurred.', status, _responseText, _headers);
+        }),
+      );
+    }
+    return _observableOf(null as any);
+  }
+
+  jobSettings_UpdateIdtaCrawlerSettings(request: IdtaCrawlerSettingsDto): Observable<FileResponse> {
+    let url_ = this.baseUrl + '/api/job-settings/idta-crawler';
+    url_ = url_.replace(/[?&]$/, '');
+
+    const content_ = JSON.stringify(request);
+
+    let options_: any = {
+      body: content_,
+      observe: 'response',
+      responseType: 'blob',
+      headers: new HttpHeaders({
+        'Content-Type': 'application/json',
+        Accept: 'application/octet-stream',
+      }),
+    };
+
+    return this.http
+      .request('put', url_, options_)
+      .pipe(
+        _observableMergeMap((response_: any) => {
+          return this.processJobSettings_UpdateIdtaCrawlerSettings(response_);
+        }),
+      )
+      .pipe(
+        _observableCatch((response_: any) => {
+          if (response_ instanceof HttpResponseBase) {
+            try {
+              return this.processJobSettings_UpdateIdtaCrawlerSettings(response_ as any);
+            } catch (e) {
+              return _observableThrow(e) as any as Observable<FileResponse>;
+            }
+          } else return _observableThrow(response_) as any as Observable<FileResponse>;
+        }),
+      );
+  }
+
+  protected processJobSettings_UpdateIdtaCrawlerSettings(response: HttpResponseBase): Observable<FileResponse> {
+    const status = response.status;
+    const responseBlob =
+      response instanceof HttpResponse
+        ? response.body
+        : (response as any).error instanceof Blob
+          ? (response as any).error
+          : undefined;
+
+    let _headers: any = {};
+    if (response.headers) {
+      for (let key of response.headers.keys()) {
+        _headers[key] = response.headers.get(key);
+      }
+    }
+    if (status === 200 || status === 206) {
+      const contentDisposition = response.headers ? response.headers.get('content-disposition') : undefined;
+      let fileNameMatch = contentDisposition
+        ? /filename\*=(?:(\\?['"])(.*?)\1|(?:[^\s]+'.*?')?([^;\n]*))/g.exec(contentDisposition)
+        : undefined;
+      let fileName = fileNameMatch && fileNameMatch.length > 1 ? fileNameMatch[3] || fileNameMatch[2] : undefined;
+      if (fileName) {
+        fileName = decodeURIComponent(fileName);
+      } else {
+        fileNameMatch = contentDisposition ? /filename="?([^"]*?)"?(;|$)/g.exec(contentDisposition) : undefined;
+        fileName = fileNameMatch && fileNameMatch.length > 1 ? fileNameMatch[1] : undefined;
+      }
+      return _observableOf({ fileName: fileName, data: responseBlob as any, status: status, headers: _headers });
+    } else if (status !== 200 && status !== 204) {
+      return blobToText(responseBlob).pipe(
+        _observableMergeMap((_responseText: string) => {
+          return throwException('An unexpected server error occurred.', status, _responseText, _headers);
+        }),
+      );
+    }
+    return _observableOf(null as any);
+  }
+
+  jobSettings_GetPcnUpdateListenerSettings(): Observable<FileResponse> {
+    let url_ = this.baseUrl + '/api/job-settings/pcn-update-listener';
+    url_ = url_.replace(/[?&]$/, '');
+
+    let options_: any = {
+      observe: 'response',
+      responseType: 'blob',
+      headers: new HttpHeaders({
+        Accept: 'application/octet-stream',
+      }),
+    };
+
+    return this.http
+      .request('get', url_, options_)
+      .pipe(
+        _observableMergeMap((response_: any) => {
+          return this.processJobSettings_GetPcnUpdateListenerSettings(response_);
+        }),
+      )
+      .pipe(
+        _observableCatch((response_: any) => {
+          if (response_ instanceof HttpResponseBase) {
+            try {
+              return this.processJobSettings_GetPcnUpdateListenerSettings(response_ as any);
+            } catch (e) {
+              return _observableThrow(e) as any as Observable<FileResponse>;
+            }
+          } else return _observableThrow(response_) as any as Observable<FileResponse>;
+        }),
+      );
+  }
+
+  protected processJobSettings_GetPcnUpdateListenerSettings(response: HttpResponseBase): Observable<FileResponse> {
+    const status = response.status;
+    const responseBlob =
+      response instanceof HttpResponse
+        ? response.body
+        : (response as any).error instanceof Blob
+          ? (response as any).error
+          : undefined;
+
+    let _headers: any = {};
+    if (response.headers) {
+      for (let key of response.headers.keys()) {
+        _headers[key] = response.headers.get(key);
+      }
+    }
+    if (status === 200 || status === 206) {
+      const contentDisposition = response.headers ? response.headers.get('content-disposition') : undefined;
+      let fileNameMatch = contentDisposition
+        ? /filename\*=(?:(\\?['"])(.*?)\1|(?:[^\s]+'.*?')?([^;\n]*))/g.exec(contentDisposition)
+        : undefined;
+      let fileName = fileNameMatch && fileNameMatch.length > 1 ? fileNameMatch[3] || fileNameMatch[2] : undefined;
+      if (fileName) {
+        fileName = decodeURIComponent(fileName);
+      } else {
+        fileNameMatch = contentDisposition ? /filename="?([^"]*?)"?(;|$)/g.exec(contentDisposition) : undefined;
+        fileName = fileNameMatch && fileNameMatch.length > 1 ? fileNameMatch[1] : undefined;
+      }
+      return _observableOf({ fileName: fileName, data: responseBlob as any, status: status, headers: _headers });
+    } else if (status !== 200 && status !== 204) {
+      return blobToText(responseBlob).pipe(
+        _observableMergeMap((_responseText: string) => {
+          return throwException('An unexpected server error occurred.', status, _responseText, _headers);
+        }),
+      );
+    }
+    return _observableOf(null as any);
+  }
+
+  jobSettings_UpdatePcnUpdateListenerSettings(request: PcnUpdateListenerSettingsDto): Observable<FileResponse> {
+    let url_ = this.baseUrl + '/api/job-settings/pcn-update-listener';
+    url_ = url_.replace(/[?&]$/, '');
+
+    const content_ = JSON.stringify(request);
+
+    let options_: any = {
+      body: content_,
+      observe: 'response',
+      responseType: 'blob',
+      headers: new HttpHeaders({
+        'Content-Type': 'application/json',
+        Accept: 'application/octet-stream',
+      }),
+    };
+
+    return this.http
+      .request('put', url_, options_)
+      .pipe(
+        _observableMergeMap((response_: any) => {
+          return this.processJobSettings_UpdatePcnUpdateListenerSettings(response_);
+        }),
+      )
+      .pipe(
+        _observableCatch((response_: any) => {
+          if (response_ instanceof HttpResponseBase) {
+            try {
+              return this.processJobSettings_UpdatePcnUpdateListenerSettings(response_ as any);
+            } catch (e) {
+              return _observableThrow(e) as any as Observable<FileResponse>;
+            }
+          } else return _observableThrow(response_) as any as Observable<FileResponse>;
+        }),
+      );
+  }
+
+  protected processJobSettings_UpdatePcnUpdateListenerSettings(response: HttpResponseBase): Observable<FileResponse> {
+    const status = response.status;
+    const responseBlob =
+      response instanceof HttpResponse
+        ? response.body
+        : (response as any).error instanceof Blob
+          ? (response as any).error
+          : undefined;
+
+    let _headers: any = {};
+    if (response.headers) {
+      for (let key of response.headers.keys()) {
+        _headers[key] = response.headers.get(key);
+      }
+    }
+    if (status === 200 || status === 206) {
+      const contentDisposition = response.headers ? response.headers.get('content-disposition') : undefined;
+      let fileNameMatch = contentDisposition
+        ? /filename\*=(?:(\\?['"])(.*?)\1|(?:[^\s]+'.*?')?([^;\n]*))/g.exec(contentDisposition)
+        : undefined;
+      let fileName = fileNameMatch && fileNameMatch.length > 1 ? fileNameMatch[3] || fileNameMatch[2] : undefined;
+      if (fileName) {
+        fileName = decodeURIComponent(fileName);
+      } else {
+        fileNameMatch = contentDisposition ? /filename="?([^"]*?)"?(;|$)/g.exec(contentDisposition) : undefined;
+        fileName = fileNameMatch && fileNameMatch.length > 1 ? fileNameMatch[1] : undefined;
+      }
+      return _observableOf({ fileName: fileName, data: responseBlob as any, status: status, headers: _headers });
+    } else if (status !== 200 && status !== 204) {
+      return blobToText(responseBlob).pipe(
+        _observableMergeMap((_responseText: string) => {
+          return throwException('An unexpected server error occurred.', status, _responseText, _headers);
+        }),
+      );
+    }
+    return _observableOf(null as any);
+  }
+}
+
+export interface IPluginsClient {
+  plugins_GetMenuItems(): Observable<PluginMenuItemDto[]>;
+  plugins_GetAsset(pluginId: string, assetPath: string): Observable<FileResponse>;
+}
+
+@Injectable({
+  providedIn: 'root',
+})
+export class PluginsClient implements IPluginsClient {
+  private http: HttpClient;
+  private baseUrl: string;
+  protected jsonParseReviver: ((key: string, value: any) => any) | undefined = undefined;
+
+  constructor(@Inject(HttpClient) http: HttpClient, @Optional() @Inject(API_BASE_URL) baseUrl?: string) {
+    this.http = http;
+    this.baseUrl = baseUrl ?? '';
+  }
+
+  plugins_GetMenuItems(): Observable<PluginMenuItemDto[]> {
+    let url_ = this.baseUrl + '/system-management-api/Plugins/menu-items';
+    url_ = url_.replace(/[?&]$/, '');
+
+    let options_: any = {
+      observe: 'response',
+      responseType: 'blob',
+      headers: new HttpHeaders({
+        Accept: 'application/json',
+      }),
+    };
+
+    return this.http
+      .request('get', url_, options_)
+      .pipe(
+        _observableMergeMap((response_: any) => {
+          return this.processPlugins_GetMenuItems(response_);
+        }),
+      )
+      .pipe(
+        _observableCatch((response_: any) => {
+          if (response_ instanceof HttpResponseBase) {
+            try {
+              return this.processPlugins_GetMenuItems(response_ as any);
+            } catch (e) {
+              return _observableThrow(e) as any as Observable<PluginMenuItemDto[]>;
+            }
+          } else return _observableThrow(response_) as any as Observable<PluginMenuItemDto[]>;
+        }),
+      );
+  }
+
+  protected processPlugins_GetMenuItems(response: HttpResponseBase): Observable<PluginMenuItemDto[]> {
+    const status = response.status;
+    const responseBlob =
+      response instanceof HttpResponse
+        ? response.body
+        : (response as any).error instanceof Blob
+          ? (response as any).error
+          : undefined;
+
+    let _headers: any = {};
+    if (response.headers) {
+      for (let key of response.headers.keys()) {
+        _headers[key] = response.headers.get(key);
+      }
+    }
+    if (status === 200) {
+      return blobToText(responseBlob).pipe(
+        _observableMergeMap((_responseText: string) => {
+          let result200: any = null;
+          let resultData200 = _responseText === '' ? null : JSON.parse(_responseText, this.jsonParseReviver);
+          if (Array.isArray(resultData200)) {
+            result200 = [] as any;
+            for (let item of resultData200) result200!.push(PluginMenuItemDto.fromJS(item));
+          } else {
+            result200 = <any>null;
+          }
+          return _observableOf(result200);
+        }),
+      );
+    } else if (status !== 200 && status !== 204) {
+      return blobToText(responseBlob).pipe(
+        _observableMergeMap((_responseText: string) => {
+          return throwException('An unexpected server error occurred.', status, _responseText, _headers);
+        }),
+      );
+    }
+    return _observableOf(null as any);
+  }
+
+  plugins_GetAsset(pluginId: string, assetPath: string): Observable<FileResponse> {
+    let url_ = this.baseUrl + '/system-management-api/Plugins/{pluginId}/assets/{assetPath}';
+    if (pluginId === undefined || pluginId === null) throw new Error("The parameter 'pluginId' must be defined.");
+    url_ = url_.replace('{pluginId}', encodeURIComponent('' + pluginId));
+    if (assetPath === undefined || assetPath === null) throw new Error("The parameter 'assetPath' must be defined.");
+    url_ = url_.replace('{assetPath}', encodeURIComponent('' + assetPath));
+    url_ = url_.replace(/[?&]$/, '');
+
+    let options_: any = {
+      observe: 'response',
+      responseType: 'blob',
+      headers: new HttpHeaders({
+        Accept: 'application/octet-stream',
+      }),
+    };
+
+    return this.http
+      .request('get', url_, options_)
+      .pipe(
+        _observableMergeMap((response_: any) => {
+          return this.processPlugins_GetAsset(response_);
+        }),
+      )
+      .pipe(
+        _observableCatch((response_: any) => {
+          if (response_ instanceof HttpResponseBase) {
+            try {
+              return this.processPlugins_GetAsset(response_ as any);
+            } catch (e) {
+              return _observableThrow(e) as any as Observable<FileResponse>;
+            }
+          } else return _observableThrow(response_) as any as Observable<FileResponse>;
+        }),
+      );
+  }
+
+  protected processPlugins_GetAsset(response: HttpResponseBase): Observable<FileResponse> {
+    const status = response.status;
+    const responseBlob =
+      response instanceof HttpResponse
+        ? response.body
+        : (response as any).error instanceof Blob
+          ? (response as any).error
+          : undefined;
+
+    let _headers: any = {};
+    if (response.headers) {
+      for (let key of response.headers.keys()) {
+        _headers[key] = response.headers.get(key);
+      }
+    }
+    if (status === 200 || status === 206) {
+      const contentDisposition = response.headers ? response.headers.get('content-disposition') : undefined;
+      let fileNameMatch = contentDisposition
+        ? /filename\*=(?:(\\?['"])(.*?)\1|(?:[^\s]+'.*?')?([^;\n]*))/g.exec(contentDisposition)
+        : undefined;
+      let fileName = fileNameMatch && fileNameMatch.length > 1 ? fileNameMatch[3] || fileNameMatch[2] : undefined;
+      if (fileName) {
+        fileName = decodeURIComponent(fileName);
+      } else {
+        fileNameMatch = contentDisposition ? /filename="?([^"]*?)"?(;|$)/g.exec(contentDisposition) : undefined;
+        fileName = fileNameMatch && fileNameMatch.length > 1 ? fileNameMatch[1] : undefined;
+      }
+      return _observableOf({ fileName: fileName, data: responseBlob as any, status: status, headers: _headers });
+    } else if (status !== 200 && status !== 204) {
+      return blobToText(responseBlob).pipe(
+        _observableMergeMap((_responseText: string) => {
+          return throwException('An unexpected server error occurred.', status, _responseText, _headers);
+        }),
+      );
+    }
+    return _observableOf(null as any);
+  }
+}
+
+export interface ISystemManagementClient {
+  systemManagement_GetConfiguration(): Observable<SystemConfigurationDto>;
+  systemManagement_GetStatus(
+    systemType: SystemType | undefined,
+    infrastructureId: number | undefined,
+  ): Observable<SystemStatusDto>;
+  systemManagement_GetHelpInfo(): Observable<HelpInfoDto>;
+  systemManagement_ExportHelpTexts(): Observable<FileResponse>;
+  systemManagement_ImportHelpTexts(helpUpdate: HelpUpdate): Observable<boolean>;
+  systemManagement_GetThemeDefinitions(): Observable<ThemeDefinitionDto[]>;
+  systemManagement_GetDeleteProtocols(): Observable<DeleteProtocolDto[]>;
+  systemManagement_GetMailSettings(): Observable<MailSettingsDto>;
+  systemManagement_UpdateMailSettings(settings: MailSettingsDto): Observable<MailSettingsDto>;
+  systemManagement_GetLegalLinksSettings(): Observable<LegalLinksSettingsDto>;
+  systemManagement_GetLegalDocument(fieldName: string): Observable<FileResponse>;
+  systemManagement_UpdateLegalLinksSettings(
+    request: UpdateLegalLinksSettingsRequest,
+  ): Observable<LegalLinksSettingsDto>;
+  systemManagement_SendApplicationTestMail(request: SendApplicationTestMailRequestDto): Observable<void>;
+  systemManagement_SendKeycloakTestMail(request: SendKeycloakTestMailRequestDto): Observable<void>;
+  systemManagement_UpsertThemeDefinition(theme: ThemeDefinitionDto): Observable<ThemeDefinitionDto>;
+  systemManagement_DeleteThemeDefinition(key: string | undefined): Observable<boolean>;
+  systemManagement_ExportThemeDefinitions(): Observable<FileResponse>;
+  systemManagement_ImportThemeDefinitions(themeImport: ThemeDefinitionsImport): Observable<boolean>;
+}
+
+@Injectable({
+  providedIn: 'root',
+})
+export class SystemManagementClient implements ISystemManagementClient {
+  private http: HttpClient;
+  private baseUrl: string;
+  protected jsonParseReviver: ((key: string, value: any) => any) | undefined = undefined;
+
+  constructor(@Inject(HttpClient) http: HttpClient, @Optional() @Inject(API_BASE_URL) baseUrl?: string) {
+    this.http = http;
+    this.baseUrl = baseUrl ?? '';
+  }
+
+  systemManagement_GetConfiguration(): Observable<SystemConfigurationDto> {
+    let url_ = this.baseUrl + '/system-management-api/SystemManagement/GetConfiguration';
+    url_ = url_.replace(/[?&]$/, '');
+
+    let options_: any = {
+      observe: 'response',
+      responseType: 'blob',
+      headers: new HttpHeaders({
+        Accept: 'application/json',
+      }),
+    };
+
+    return this.http
+      .request('get', url_, options_)
+      .pipe(
+        _observableMergeMap((response_: any) => {
+          return this.processSystemManagement_GetConfiguration(response_);
+        }),
+      )
+      .pipe(
+        _observableCatch((response_: any) => {
+          if (response_ instanceof HttpResponseBase) {
+            try {
+              return this.processSystemManagement_GetConfiguration(response_ as any);
+            } catch (e) {
+              return _observableThrow(e) as any as Observable<SystemConfigurationDto>;
+            }
+          } else return _observableThrow(response_) as any as Observable<SystemConfigurationDto>;
+        }),
+      );
+  }
+
+  protected processSystemManagement_GetConfiguration(response: HttpResponseBase): Observable<SystemConfigurationDto> {
+    const status = response.status;
+    const responseBlob =
+      response instanceof HttpResponse
+        ? response.body
+        : (response as any).error instanceof Blob
+          ? (response as any).error
+          : undefined;
+
+    let _headers: any = {};
+    if (response.headers) {
+      for (let key of response.headers.keys()) {
+        _headers[key] = response.headers.get(key);
+      }
+    }
+    if (status === 200) {
+      return blobToText(responseBlob).pipe(
+        _observableMergeMap((_responseText: string) => {
+          let result200: any = null;
+          let resultData200 = _responseText === '' ? null : JSON.parse(_responseText, this.jsonParseReviver);
+          result200 = SystemConfigurationDto.fromJS(resultData200);
+          return _observableOf(result200);
+        }),
+      );
+    } else if (status !== 200 && status !== 204) {
+      return blobToText(responseBlob).pipe(
+        _observableMergeMap((_responseText: string) => {
+          return throwException('An unexpected server error occurred.', status, _responseText, _headers);
+        }),
+      );
+    }
+    return _observableOf(null as any);
+  }
+
+  systemManagement_GetStatus(
+    systemType: SystemType | undefined,
+    infrastructureId: number | undefined,
+  ): Observable<SystemStatusDto> {
+    let url_ = this.baseUrl + '/system-management-api/SystemManagement/GetStatus?';
+    if (systemType === null) throw new Error("The parameter 'systemType' cannot be null.");
+    else if (systemType !== undefined) url_ += 'systemType=' + encodeURIComponent('' + systemType) + '&';
+    if (infrastructureId === null) throw new Error("The parameter 'infrastructureId' cannot be null.");
+    else if (infrastructureId !== undefined)
+      url_ += 'infrastructureId=' + encodeURIComponent('' + infrastructureId) + '&';
+    url_ = url_.replace(/[?&]$/, '');
+
+    let options_: any = {
+      observe: 'response',
+      responseType: 'blob',
+      headers: new HttpHeaders({
+        Accept: 'application/json',
+      }),
+    };
+
+    return this.http
+      .request('get', url_, options_)
+      .pipe(
+        _observableMergeMap((response_: any) => {
+          return this.processSystemManagement_GetStatus(response_);
+        }),
+      )
+      .pipe(
+        _observableCatch((response_: any) => {
+          if (response_ instanceof HttpResponseBase) {
+            try {
+              return this.processSystemManagement_GetStatus(response_ as any);
+            } catch (e) {
+              return _observableThrow(e) as any as Observable<SystemStatusDto>;
+            }
+          } else return _observableThrow(response_) as any as Observable<SystemStatusDto>;
+        }),
+      );
+  }
+
+  protected processSystemManagement_GetStatus(response: HttpResponseBase): Observable<SystemStatusDto> {
+    const status = response.status;
+    const responseBlob =
+      response instanceof HttpResponse
+        ? response.body
+        : (response as any).error instanceof Blob
+          ? (response as any).error
+          : undefined;
+
+    let _headers: any = {};
+    if (response.headers) {
+      for (let key of response.headers.keys()) {
+        _headers[key] = response.headers.get(key);
+      }
+    }
+    if (status === 200) {
+      return blobToText(responseBlob).pipe(
+        _observableMergeMap((_responseText: string) => {
+          let result200: any = null;
+          let resultData200 = _responseText === '' ? null : JSON.parse(_responseText, this.jsonParseReviver);
+          result200 = SystemStatusDto.fromJS(resultData200);
+          return _observableOf(result200);
+        }),
+      );
+    } else if (status !== 200 && status !== 204) {
+      return blobToText(responseBlob).pipe(
+        _observableMergeMap((_responseText: string) => {
+          return throwException('An unexpected server error occurred.', status, _responseText, _headers);
+        }),
+      );
+    }
+    return _observableOf(null as any);
+  }
+
+  systemManagement_GetHelpInfo(): Observable<HelpInfoDto> {
+    let url_ = this.baseUrl + '/system-management-api/SystemManagement/GetHelpInfo';
+    url_ = url_.replace(/[?&]$/, '');
+
+    let options_: any = {
+      observe: 'response',
+      responseType: 'blob',
+      headers: new HttpHeaders({
+        Accept: 'application/json',
+      }),
+    };
+
+    return this.http
+      .request('get', url_, options_)
+      .pipe(
+        _observableMergeMap((response_: any) => {
+          return this.processSystemManagement_GetHelpInfo(response_);
+        }),
+      )
+      .pipe(
+        _observableCatch((response_: any) => {
+          if (response_ instanceof HttpResponseBase) {
+            try {
+              return this.processSystemManagement_GetHelpInfo(response_ as any);
+            } catch (e) {
+              return _observableThrow(e) as any as Observable<HelpInfoDto>;
+            }
+          } else return _observableThrow(response_) as any as Observable<HelpInfoDto>;
+        }),
+      );
+  }
+
+  protected processSystemManagement_GetHelpInfo(response: HttpResponseBase): Observable<HelpInfoDto> {
+    const status = response.status;
+    const responseBlob =
+      response instanceof HttpResponse
+        ? response.body
+        : (response as any).error instanceof Blob
+          ? (response as any).error
+          : undefined;
+
+    let _headers: any = {};
+    if (response.headers) {
+      for (let key of response.headers.keys()) {
+        _headers[key] = response.headers.get(key);
+      }
+    }
+    if (status === 200) {
+      return blobToText(responseBlob).pipe(
+        _observableMergeMap((_responseText: string) => {
+          let result200: any = null;
+          let resultData200 = _responseText === '' ? null : JSON.parse(_responseText, this.jsonParseReviver);
+          result200 = HelpInfoDto.fromJS(resultData200);
+          return _observableOf(result200);
+        }),
+      );
+    } else if (status !== 200 && status !== 204) {
+      return blobToText(responseBlob).pipe(
+        _observableMergeMap((_responseText: string) => {
+          return throwException('An unexpected server error occurred.', status, _responseText, _headers);
+        }),
+      );
+    }
+    return _observableOf(null as any);
+  }
+
+  systemManagement_ExportHelpTexts(): Observable<FileResponse> {
+    let url_ = this.baseUrl + '/system-management-api/SystemManagement/ExportHelpTexts';
+    url_ = url_.replace(/[?&]$/, '');
+
+    let options_: any = {
+      observe: 'response',
+      responseType: 'blob',
+      headers: new HttpHeaders({
+        Accept: 'application/octet-stream',
+      }),
+    };
+
+    return this.http
+      .request('post', url_, options_)
+      .pipe(
+        _observableMergeMap((response_: any) => {
+          return this.processSystemManagement_ExportHelpTexts(response_);
+        }),
+      )
+      .pipe(
+        _observableCatch((response_: any) => {
+          if (response_ instanceof HttpResponseBase) {
+            try {
+              return this.processSystemManagement_ExportHelpTexts(response_ as any);
+            } catch (e) {
+              return _observableThrow(e) as any as Observable<FileResponse>;
+            }
+          } else return _observableThrow(response_) as any as Observable<FileResponse>;
+        }),
+      );
+  }
+
+  protected processSystemManagement_ExportHelpTexts(response: HttpResponseBase): Observable<FileResponse> {
+    const status = response.status;
+    const responseBlob =
+      response instanceof HttpResponse
+        ? response.body
+        : (response as any).error instanceof Blob
+          ? (response as any).error
+          : undefined;
+
+    let _headers: any = {};
+    if (response.headers) {
+      for (let key of response.headers.keys()) {
+        _headers[key] = response.headers.get(key);
+      }
+    }
+    if (status === 200 || status === 206) {
+      const contentDisposition = response.headers ? response.headers.get('content-disposition') : undefined;
+      let fileNameMatch = contentDisposition
+        ? /filename\*=(?:(\\?['"])(.*?)\1|(?:[^\s]+'.*?')?([^;\n]*))/g.exec(contentDisposition)
+        : undefined;
+      let fileName = fileNameMatch && fileNameMatch.length > 1 ? fileNameMatch[3] || fileNameMatch[2] : undefined;
+      if (fileName) {
+        fileName = decodeURIComponent(fileName);
+      } else {
+        fileNameMatch = contentDisposition ? /filename="?([^"]*?)"?(;|$)/g.exec(contentDisposition) : undefined;
+        fileName = fileNameMatch && fileNameMatch.length > 1 ? fileNameMatch[1] : undefined;
+      }
+      return _observableOf({ fileName: fileName, data: responseBlob as any, status: status, headers: _headers });
+    } else if (status !== 200 && status !== 204) {
+      return blobToText(responseBlob).pipe(
+        _observableMergeMap((_responseText: string) => {
+          return throwException('An unexpected server error occurred.', status, _responseText, _headers);
+        }),
+      );
+    }
+    return _observableOf(null as any);
+  }
+
+  systemManagement_ImportHelpTexts(helpUpdate: HelpUpdate): Observable<boolean> {
+    let url_ = this.baseUrl + '/system-management-api/SystemManagement/ImportHelpTexts';
+    url_ = url_.replace(/[?&]$/, '');
+
+    const content_ = JSON.stringify(helpUpdate);
+
+    let options_: any = {
+      body: content_,
+      observe: 'response',
+      responseType: 'blob',
+      headers: new HttpHeaders({
+        'Content-Type': 'application/json',
+        Accept: 'application/json',
+      }),
+    };
+
+    return this.http
+      .request('post', url_, options_)
+      .pipe(
+        _observableMergeMap((response_: any) => {
+          return this.processSystemManagement_ImportHelpTexts(response_);
+        }),
+      )
+      .pipe(
+        _observableCatch((response_: any) => {
+          if (response_ instanceof HttpResponseBase) {
+            try {
+              return this.processSystemManagement_ImportHelpTexts(response_ as any);
+            } catch (e) {
+              return _observableThrow(e) as any as Observable<boolean>;
+            }
+          } else return _observableThrow(response_) as any as Observable<boolean>;
+        }),
+      );
+  }
+
+  protected processSystemManagement_ImportHelpTexts(response: HttpResponseBase): Observable<boolean> {
+    const status = response.status;
+    const responseBlob =
+      response instanceof HttpResponse
+        ? response.body
+        : (response as any).error instanceof Blob
+          ? (response as any).error
+          : undefined;
+
+    let _headers: any = {};
+    if (response.headers) {
+      for (let key of response.headers.keys()) {
+        _headers[key] = response.headers.get(key);
+      }
+    }
+    if (status === 200) {
+      return blobToText(responseBlob).pipe(
+        _observableMergeMap((_responseText: string) => {
+          let result200: any = null;
+          let resultData200 = _responseText === '' ? null : JSON.parse(_responseText, this.jsonParseReviver);
+          result200 = resultData200 !== undefined ? resultData200 : <any>null;
+
+          return _observableOf(result200);
+        }),
+      );
+    } else if (status !== 200 && status !== 204) {
+      return blobToText(responseBlob).pipe(
+        _observableMergeMap((_responseText: string) => {
+          return throwException('An unexpected server error occurred.', status, _responseText, _headers);
+        }),
+      );
+    }
+    return _observableOf(null as any);
+  }
+
+  systemManagement_GetThemeDefinitions(): Observable<ThemeDefinitionDto[]> {
+    let url_ = this.baseUrl + '/system-management-api/SystemManagement/GetThemeDefinitions';
+    url_ = url_.replace(/[?&]$/, '');
+
+    let options_: any = {
+      observe: 'response',
+      responseType: 'blob',
+      headers: new HttpHeaders({
+        Accept: 'application/json',
+      }),
+    };
+
+    return this.http
+      .request('get', url_, options_)
+      .pipe(
+        _observableMergeMap((response_: any) => {
+          return this.processSystemManagement_GetThemeDefinitions(response_);
+        }),
+      )
+      .pipe(
+        _observableCatch((response_: any) => {
+          if (response_ instanceof HttpResponseBase) {
+            try {
+              return this.processSystemManagement_GetThemeDefinitions(response_ as any);
+            } catch (e) {
+              return _observableThrow(e) as any as Observable<ThemeDefinitionDto[]>;
+            }
+          } else return _observableThrow(response_) as any as Observable<ThemeDefinitionDto[]>;
+        }),
+      );
+  }
+
+  protected processSystemManagement_GetThemeDefinitions(response: HttpResponseBase): Observable<ThemeDefinitionDto[]> {
+    const status = response.status;
+    const responseBlob =
+      response instanceof HttpResponse
+        ? response.body
+        : (response as any).error instanceof Blob
+          ? (response as any).error
+          : undefined;
+
+    let _headers: any = {};
+    if (response.headers) {
+      for (let key of response.headers.keys()) {
+        _headers[key] = response.headers.get(key);
+      }
+    }
+    if (status === 200) {
+      return blobToText(responseBlob).pipe(
+        _observableMergeMap((_responseText: string) => {
+          let result200: any = null;
+          let resultData200 = _responseText === '' ? null : JSON.parse(_responseText, this.jsonParseReviver);
+          if (Array.isArray(resultData200)) {
+            result200 = [] as any;
+            for (let item of resultData200) result200!.push(ThemeDefinitionDto.fromJS(item));
+          } else {
+            result200 = <any>null;
+          }
+          return _observableOf(result200);
+        }),
+      );
+    } else if (status !== 200 && status !== 204) {
+      return blobToText(responseBlob).pipe(
+        _observableMergeMap((_responseText: string) => {
+          return throwException('An unexpected server error occurred.', status, _responseText, _headers);
+        }),
+      );
+    }
+    return _observableOf(null as any);
+  }
+
+  systemManagement_GetDeleteProtocols(): Observable<DeleteProtocolDto[]> {
+    let url_ = this.baseUrl + '/system-management-api/SystemManagement/GetDeleteProtocols';
+    url_ = url_.replace(/[?&]$/, '');
+
+    let options_: any = {
+      observe: 'response',
+      responseType: 'blob',
+      headers: new HttpHeaders({
+        Accept: 'application/json',
+      }),
+    };
+
+    return this.http
+      .request('get', url_, options_)
+      .pipe(
+        _observableMergeMap((response_: any) => {
+          return this.processSystemManagement_GetDeleteProtocols(response_);
+        }),
+      )
+      .pipe(
+        _observableCatch((response_: any) => {
+          if (response_ instanceof HttpResponseBase) {
+            try {
+              return this.processSystemManagement_GetDeleteProtocols(response_ as any);
+            } catch (e) {
+              return _observableThrow(e) as any as Observable<DeleteProtocolDto[]>;
+            }
+          } else return _observableThrow(response_) as any as Observable<DeleteProtocolDto[]>;
+        }),
+      );
+  }
+
+  protected processSystemManagement_GetDeleteProtocols(response: HttpResponseBase): Observable<DeleteProtocolDto[]> {
+    const status = response.status;
+    const responseBlob =
+      response instanceof HttpResponse
+        ? response.body
+        : (response as any).error instanceof Blob
+          ? (response as any).error
+          : undefined;
+
+    let _headers: any = {};
+    if (response.headers) {
+      for (let key of response.headers.keys()) {
+        _headers[key] = response.headers.get(key);
+      }
+    }
+    if (status === 200) {
+      return blobToText(responseBlob).pipe(
+        _observableMergeMap((_responseText: string) => {
+          let result200: any = null;
+          let resultData200 = _responseText === '' ? null : JSON.parse(_responseText, this.jsonParseReviver);
+          if (Array.isArray(resultData200)) {
+            result200 = [] as any;
+            for (let item of resultData200) result200!.push(DeleteProtocolDto.fromJS(item));
+          } else {
+            result200 = <any>null;
+          }
+          return _observableOf(result200);
+        }),
+      );
+    } else if (status !== 200 && status !== 204) {
+      return blobToText(responseBlob).pipe(
+        _observableMergeMap((_responseText: string) => {
+          return throwException('An unexpected server error occurred.', status, _responseText, _headers);
+        }),
+      );
+    }
+    return _observableOf(null as any);
+  }
+
+  systemManagement_GetMailSettings(): Observable<MailSettingsDto> {
+    let url_ = this.baseUrl + '/system-management-api/SystemManagement/GetMailSettings';
+    url_ = url_.replace(/[?&]$/, '');
+
+    let options_: any = {
+      observe: 'response',
+      responseType: 'blob',
+      headers: new HttpHeaders({
+        Accept: 'application/json',
+      }),
+    };
+
+    return this.http
+      .request('get', url_, options_)
+      .pipe(
+        _observableMergeMap((response_: any) => {
+          return this.processSystemManagement_GetMailSettings(response_);
+        }),
+      )
+      .pipe(
+        _observableCatch((response_: any) => {
+          if (response_ instanceof HttpResponseBase) {
+            try {
+              return this.processSystemManagement_GetMailSettings(response_ as any);
+            } catch (e) {
+              return _observableThrow(e) as any as Observable<MailSettingsDto>;
+            }
+          } else return _observableThrow(response_) as any as Observable<MailSettingsDto>;
+        }),
+      );
+  }
+
+  protected processSystemManagement_GetMailSettings(response: HttpResponseBase): Observable<MailSettingsDto> {
+    const status = response.status;
+    const responseBlob =
+      response instanceof HttpResponse
+        ? response.body
+        : (response as any).error instanceof Blob
+          ? (response as any).error
+          : undefined;
+
+    let _headers: any = {};
+    if (response.headers) {
+      for (let key of response.headers.keys()) {
+        _headers[key] = response.headers.get(key);
+      }
+    }
+    if (status === 200) {
+      return blobToText(responseBlob).pipe(
+        _observableMergeMap((_responseText: string) => {
+          let result200: any = null;
+          let resultData200 = _responseText === '' ? null : JSON.parse(_responseText, this.jsonParseReviver);
+          result200 = MailSettingsDto.fromJS(resultData200);
+          return _observableOf(result200);
+        }),
+      );
+    } else if (status !== 200 && status !== 204) {
+      return blobToText(responseBlob).pipe(
+        _observableMergeMap((_responseText: string) => {
+          return throwException('An unexpected server error occurred.', status, _responseText, _headers);
+        }),
+      );
+    }
+    return _observableOf(null as any);
+  }
+
+  systemManagement_UpdateMailSettings(settings: MailSettingsDto): Observable<MailSettingsDto> {
+    let url_ = this.baseUrl + '/system-management-api/SystemManagement/UpdateMailSettings';
+    url_ = url_.replace(/[?&]$/, '');
+
+    const content_ = JSON.stringify(settings);
+
+    let options_: any = {
+      body: content_,
+      observe: 'response',
+      responseType: 'blob',
+      headers: new HttpHeaders({
+        'Content-Type': 'application/json',
+        Accept: 'application/json',
+      }),
+    };
+
+    return this.http
+      .request('put', url_, options_)
+      .pipe(
+        _observableMergeMap((response_: any) => {
+          return this.processSystemManagement_UpdateMailSettings(response_);
+        }),
+      )
+      .pipe(
+        _observableCatch((response_: any) => {
+          if (response_ instanceof HttpResponseBase) {
+            try {
+              return this.processSystemManagement_UpdateMailSettings(response_ as any);
+            } catch (e) {
+              return _observableThrow(e) as any as Observable<MailSettingsDto>;
+            }
+          } else return _observableThrow(response_) as any as Observable<MailSettingsDto>;
+        }),
+      );
+  }
+
+  protected processSystemManagement_UpdateMailSettings(response: HttpResponseBase): Observable<MailSettingsDto> {
+    const status = response.status;
+    const responseBlob =
+      response instanceof HttpResponse
+        ? response.body
+        : (response as any).error instanceof Blob
+          ? (response as any).error
+          : undefined;
+
+    let _headers: any = {};
+    if (response.headers) {
+      for (let key of response.headers.keys()) {
+        _headers[key] = response.headers.get(key);
+      }
+    }
+    if (status === 200) {
+      return blobToText(responseBlob).pipe(
+        _observableMergeMap((_responseText: string) => {
+          let result200: any = null;
+          let resultData200 = _responseText === '' ? null : JSON.parse(_responseText, this.jsonParseReviver);
+          result200 = MailSettingsDto.fromJS(resultData200);
+          return _observableOf(result200);
+        }),
+      );
+    } else if (status !== 200 && status !== 204) {
+      return blobToText(responseBlob).pipe(
+        _observableMergeMap((_responseText: string) => {
+          return throwException('An unexpected server error occurred.', status, _responseText, _headers);
+        }),
+      );
+    }
+    return _observableOf(null as any);
+  }
+
+  systemManagement_GetLegalLinksSettings(): Observable<LegalLinksSettingsDto> {
+    let url_ = this.baseUrl + '/system-management-api/SystemManagement/GetLegalLinksSettings';
+    url_ = url_.replace(/[?&]$/, '');
+
+    let options_: any = {
+      observe: 'response',
+      responseType: 'blob',
+      headers: new HttpHeaders({
+        Accept: 'application/json',
+      }),
+    };
+
+    return this.http
+      .request('get', url_, options_)
+      .pipe(
+        _observableMergeMap((response_: any) => {
+          return this.processSystemManagement_GetLegalLinksSettings(response_);
+        }),
+      )
+      .pipe(
+        _observableCatch((response_: any) => {
+          if (response_ instanceof HttpResponseBase) {
+            try {
+              return this.processSystemManagement_GetLegalLinksSettings(response_ as any);
+            } catch (e) {
+              return _observableThrow(e) as any as Observable<LegalLinksSettingsDto>;
+            }
+          } else return _observableThrow(response_) as any as Observable<LegalLinksSettingsDto>;
+        }),
+      );
+  }
+
+  protected processSystemManagement_GetLegalLinksSettings(
+    response: HttpResponseBase,
+  ): Observable<LegalLinksSettingsDto> {
+    const status = response.status;
+    const responseBlob =
+      response instanceof HttpResponse
+        ? response.body
+        : (response as any).error instanceof Blob
+          ? (response as any).error
+          : undefined;
+
+    let _headers: any = {};
+    if (response.headers) {
+      for (let key of response.headers.keys()) {
+        _headers[key] = response.headers.get(key);
+      }
+    }
+    if (status === 200) {
+      return blobToText(responseBlob).pipe(
+        _observableMergeMap((_responseText: string) => {
+          let result200: any = null;
+          let resultData200 = _responseText === '' ? null : JSON.parse(_responseText, this.jsonParseReviver);
+          result200 = LegalLinksSettingsDto.fromJS(resultData200);
+          return _observableOf(result200);
+        }),
+      );
+    } else if (status !== 200 && status !== 204) {
+      return blobToText(responseBlob).pipe(
+        _observableMergeMap((_responseText: string) => {
+          return throwException('An unexpected server error occurred.', status, _responseText, _headers);
+        }),
+      );
+    }
+    return _observableOf(null as any);
+  }
+
+  systemManagement_GetLegalDocument(fieldName: string): Observable<FileResponse> {
+    let url_ = this.baseUrl + '/system-management-api/SystemManagement/GetLegalDocument/{fieldName}';
+    if (fieldName === undefined || fieldName === null) throw new Error("The parameter 'fieldName' must be defined.");
+    url_ = url_.replace('{fieldName}', encodeURIComponent('' + fieldName));
+    url_ = url_.replace(/[?&]$/, '');
+
+    let options_: any = {
+      observe: 'response',
+      responseType: 'blob',
+      headers: new HttpHeaders({
+        Accept: 'application/octet-stream',
+      }),
+    };
+
+    return this.http
+      .request('get', url_, options_)
+      .pipe(
+        _observableMergeMap((response_: any) => {
+          return this.processSystemManagement_GetLegalDocument(response_);
+        }),
+      )
+      .pipe(
+        _observableCatch((response_: any) => {
+          if (response_ instanceof HttpResponseBase) {
+            try {
+              return this.processSystemManagement_GetLegalDocument(response_ as any);
+            } catch (e) {
+              return _observableThrow(e) as any as Observable<FileResponse>;
+            }
+          } else return _observableThrow(response_) as any as Observable<FileResponse>;
+        }),
+      );
+  }
+
+  protected processSystemManagement_GetLegalDocument(response: HttpResponseBase): Observable<FileResponse> {
+    const status = response.status;
+    const responseBlob =
+      response instanceof HttpResponse
+        ? response.body
+        : (response as any).error instanceof Blob
+          ? (response as any).error
+          : undefined;
+
+    let _headers: any = {};
+    if (response.headers) {
+      for (let key of response.headers.keys()) {
+        _headers[key] = response.headers.get(key);
+      }
+    }
+    if (status === 200 || status === 206) {
+      const contentDisposition = response.headers ? response.headers.get('content-disposition') : undefined;
+      let fileNameMatch = contentDisposition
+        ? /filename\*=(?:(\\?['"])(.*?)\1|(?:[^\s]+'.*?')?([^;\n]*))/g.exec(contentDisposition)
+        : undefined;
+      let fileName = fileNameMatch && fileNameMatch.length > 1 ? fileNameMatch[3] || fileNameMatch[2] : undefined;
+      if (fileName) {
+        fileName = decodeURIComponent(fileName);
+      } else {
+        fileNameMatch = contentDisposition ? /filename="?([^"]*?)"?(;|$)/g.exec(contentDisposition) : undefined;
+        fileName = fileNameMatch && fileNameMatch.length > 1 ? fileNameMatch[1] : undefined;
+      }
+      return _observableOf({ fileName: fileName, data: responseBlob as any, status: status, headers: _headers });
+    } else if (status !== 200 && status !== 204) {
+      return blobToText(responseBlob).pipe(
+        _observableMergeMap((_responseText: string) => {
+          return throwException('An unexpected server error occurred.', status, _responseText, _headers);
+        }),
+      );
+    }
+    return _observableOf(null as any);
+  }
+
+  systemManagement_UpdateLegalLinksSettings(
+    request: UpdateLegalLinksSettingsRequest,
+  ): Observable<LegalLinksSettingsDto> {
+    let url_ = this.baseUrl + '/system-management-api/SystemManagement/UpdateLegalLinksSettings';
+    url_ = url_.replace(/[?&]$/, '');
+
+    const content_ = JSON.stringify(request);
+
+    let options_: any = {
+      body: content_,
+      observe: 'response',
+      responseType: 'blob',
+      headers: new HttpHeaders({
+        'Content-Type': 'application/json',
+        Accept: 'application/json',
+      }),
+    };
+
+    return this.http
+      .request('put', url_, options_)
+      .pipe(
+        _observableMergeMap((response_: any) => {
+          return this.processSystemManagement_UpdateLegalLinksSettings(response_);
+        }),
+      )
+      .pipe(
+        _observableCatch((response_: any) => {
+          if (response_ instanceof HttpResponseBase) {
+            try {
+              return this.processSystemManagement_UpdateLegalLinksSettings(response_ as any);
+            } catch (e) {
+              return _observableThrow(e) as any as Observable<LegalLinksSettingsDto>;
+            }
+          } else return _observableThrow(response_) as any as Observable<LegalLinksSettingsDto>;
+        }),
+      );
+  }
+
+  protected processSystemManagement_UpdateLegalLinksSettings(
+    response: HttpResponseBase,
+  ): Observable<LegalLinksSettingsDto> {
+    const status = response.status;
+    const responseBlob =
+      response instanceof HttpResponse
+        ? response.body
+        : (response as any).error instanceof Blob
+          ? (response as any).error
+          : undefined;
+
+    let _headers: any = {};
+    if (response.headers) {
+      for (let key of response.headers.keys()) {
+        _headers[key] = response.headers.get(key);
+      }
+    }
+    if (status === 200) {
+      return blobToText(responseBlob).pipe(
+        _observableMergeMap((_responseText: string) => {
+          let result200: any = null;
+          let resultData200 = _responseText === '' ? null : JSON.parse(_responseText, this.jsonParseReviver);
+          result200 = LegalLinksSettingsDto.fromJS(resultData200);
+          return _observableOf(result200);
+        }),
+      );
+    } else if (status !== 200 && status !== 204) {
+      return blobToText(responseBlob).pipe(
+        _observableMergeMap((_responseText: string) => {
+          return throwException('An unexpected server error occurred.', status, _responseText, _headers);
+        }),
+      );
+    }
+    return _observableOf(null as any);
+  }
+
+  systemManagement_SendApplicationTestMail(request: SendApplicationTestMailRequestDto): Observable<void> {
+    let url_ = this.baseUrl + '/system-management-api/SystemManagement/SendApplicationTestMail';
+    url_ = url_.replace(/[?&]$/, '');
+
+    const content_ = JSON.stringify(request);
+
+    let options_: any = {
+      body: content_,
+      observe: 'response',
+      responseType: 'blob',
+      headers: new HttpHeaders({
+        'Content-Type': 'application/json',
+      }),
+    };
+
+    return this.http
+      .request('post', url_, options_)
+      .pipe(
+        _observableMergeMap((response_: any) => {
+          return this.processSystemManagement_SendApplicationTestMail(response_);
+        }),
+      )
+      .pipe(
+        _observableCatch((response_: any) => {
+          if (response_ instanceof HttpResponseBase) {
+            try {
+              return this.processSystemManagement_SendApplicationTestMail(response_ as any);
+            } catch (e) {
+              return _observableThrow(e) as any as Observable<void>;
+            }
+          } else return _observableThrow(response_) as any as Observable<void>;
+        }),
+      );
+  }
+
+  protected processSystemManagement_SendApplicationTestMail(response: HttpResponseBase): Observable<void> {
+    const status = response.status;
+    const responseBlob =
+      response instanceof HttpResponse
+        ? response.body
+        : (response as any).error instanceof Blob
+          ? (response as any).error
+          : undefined;
+
+    let _headers: any = {};
+    if (response.headers) {
+      for (let key of response.headers.keys()) {
+        _headers[key] = response.headers.get(key);
+      }
+    }
+    if (status === 200) {
+      return blobToText(responseBlob).pipe(
+        _observableMergeMap((_responseText: string) => {
+          return _observableOf(null as any);
+        }),
+      );
+    } else if (status !== 200 && status !== 204) {
+      return blobToText(responseBlob).pipe(
+        _observableMergeMap((_responseText: string) => {
+          return throwException('An unexpected server error occurred.', status, _responseText, _headers);
+        }),
+      );
+    }
+    return _observableOf(null as any);
+  }
+
+  systemManagement_SendKeycloakTestMail(request: SendKeycloakTestMailRequestDto): Observable<void> {
+    let url_ = this.baseUrl + '/system-management-api/SystemManagement/SendKeycloakTestMail';
+    url_ = url_.replace(/[?&]$/, '');
+
+    const content_ = JSON.stringify(request);
+
+    let options_: any = {
+      body: content_,
+      observe: 'response',
+      responseType: 'blob',
+      headers: new HttpHeaders({
+        'Content-Type': 'application/json',
+      }),
+    };
+
+    return this.http
+      .request('post', url_, options_)
+      .pipe(
+        _observableMergeMap((response_: any) => {
+          return this.processSystemManagement_SendKeycloakTestMail(response_);
+        }),
+      )
+      .pipe(
+        _observableCatch((response_: any) => {
+          if (response_ instanceof HttpResponseBase) {
+            try {
+              return this.processSystemManagement_SendKeycloakTestMail(response_ as any);
+            } catch (e) {
+              return _observableThrow(e) as any as Observable<void>;
+            }
+          } else return _observableThrow(response_) as any as Observable<void>;
+        }),
+      );
+  }
+
+  protected processSystemManagement_SendKeycloakTestMail(response: HttpResponseBase): Observable<void> {
+    const status = response.status;
+    const responseBlob =
+      response instanceof HttpResponse
+        ? response.body
+        : (response as any).error instanceof Blob
+          ? (response as any).error
+          : undefined;
+
+    let _headers: any = {};
+    if (response.headers) {
+      for (let key of response.headers.keys()) {
+        _headers[key] = response.headers.get(key);
+      }
+    }
+    if (status === 200) {
+      return blobToText(responseBlob).pipe(
+        _observableMergeMap((_responseText: string) => {
+          return _observableOf(null as any);
+        }),
+      );
+    } else if (status !== 200 && status !== 204) {
+      return blobToText(responseBlob).pipe(
+        _observableMergeMap((_responseText: string) => {
+          return throwException('An unexpected server error occurred.', status, _responseText, _headers);
+        }),
+      );
+    }
+    return _observableOf(null as any);
+  }
+
+  systemManagement_UpsertThemeDefinition(theme: ThemeDefinitionDto): Observable<ThemeDefinitionDto> {
+    let url_ = this.baseUrl + '/system-management-api/SystemManagement/UpsertThemeDefinition';
+    url_ = url_.replace(/[?&]$/, '');
+
+    const content_ = JSON.stringify(theme);
+
+    let options_: any = {
+      body: content_,
+      observe: 'response',
+      responseType: 'blob',
+      headers: new HttpHeaders({
+        'Content-Type': 'application/json',
+        Accept: 'application/json',
+      }),
+    };
+
+    return this.http
+      .request('post', url_, options_)
+      .pipe(
+        _observableMergeMap((response_: any) => {
+          return this.processSystemManagement_UpsertThemeDefinition(response_);
+        }),
+      )
+      .pipe(
+        _observableCatch((response_: any) => {
+          if (response_ instanceof HttpResponseBase) {
+            try {
+              return this.processSystemManagement_UpsertThemeDefinition(response_ as any);
+            } catch (e) {
+              return _observableThrow(e) as any as Observable<ThemeDefinitionDto>;
+            }
+          } else return _observableThrow(response_) as any as Observable<ThemeDefinitionDto>;
+        }),
+      );
+  }
+
+  protected processSystemManagement_UpsertThemeDefinition(response: HttpResponseBase): Observable<ThemeDefinitionDto> {
+    const status = response.status;
+    const responseBlob =
+      response instanceof HttpResponse
+        ? response.body
+        : (response as any).error instanceof Blob
+          ? (response as any).error
+          : undefined;
+
+    let _headers: any = {};
+    if (response.headers) {
+      for (let key of response.headers.keys()) {
+        _headers[key] = response.headers.get(key);
+      }
+    }
+    if (status === 200) {
+      return blobToText(responseBlob).pipe(
+        _observableMergeMap((_responseText: string) => {
+          let result200: any = null;
+          let resultData200 = _responseText === '' ? null : JSON.parse(_responseText, this.jsonParseReviver);
+          result200 = ThemeDefinitionDto.fromJS(resultData200);
+          return _observableOf(result200);
+        }),
+      );
+    } else if (status !== 200 && status !== 204) {
+      return blobToText(responseBlob).pipe(
+        _observableMergeMap((_responseText: string) => {
+          return throwException('An unexpected server error occurred.', status, _responseText, _headers);
+        }),
+      );
+    }
+    return _observableOf(null as any);
+  }
+
+  systemManagement_DeleteThemeDefinition(key: string | undefined): Observable<boolean> {
+    let url_ = this.baseUrl + '/system-management-api/SystemManagement/DeleteThemeDefinition?';
+    if (key === null) throw new Error("The parameter 'key' cannot be null.");
+    else if (key !== undefined) url_ += 'key=' + encodeURIComponent('' + key) + '&';
+    url_ = url_.replace(/[?&]$/, '');
+
+    let options_: any = {
+      observe: 'response',
+      responseType: 'blob',
+      headers: new HttpHeaders({
+        Accept: 'application/json',
+      }),
+    };
+
+    return this.http
+      .request('delete', url_, options_)
+      .pipe(
+        _observableMergeMap((response_: any) => {
+          return this.processSystemManagement_DeleteThemeDefinition(response_);
+        }),
+      )
+      .pipe(
+        _observableCatch((response_: any) => {
+          if (response_ instanceof HttpResponseBase) {
+            try {
+              return this.processSystemManagement_DeleteThemeDefinition(response_ as any);
+            } catch (e) {
+              return _observableThrow(e) as any as Observable<boolean>;
+            }
+          } else return _observableThrow(response_) as any as Observable<boolean>;
+        }),
+      );
+  }
+
+  protected processSystemManagement_DeleteThemeDefinition(response: HttpResponseBase): Observable<boolean> {
+    const status = response.status;
+    const responseBlob =
+      response instanceof HttpResponse
+        ? response.body
+        : (response as any).error instanceof Blob
+          ? (response as any).error
+          : undefined;
+
+    let _headers: any = {};
+    if (response.headers) {
+      for (let key of response.headers.keys()) {
+        _headers[key] = response.headers.get(key);
+      }
+    }
+    if (status === 200) {
+      return blobToText(responseBlob).pipe(
+        _observableMergeMap((_responseText: string) => {
+          let result200: any = null;
+          let resultData200 = _responseText === '' ? null : JSON.parse(_responseText, this.jsonParseReviver);
+          result200 = resultData200 !== undefined ? resultData200 : <any>null;
+
+          return _observableOf(result200);
+        }),
+      );
+    } else if (status !== 200 && status !== 204) {
+      return blobToText(responseBlob).pipe(
+        _observableMergeMap((_responseText: string) => {
+          return throwException('An unexpected server error occurred.', status, _responseText, _headers);
+        }),
+      );
+    }
+    return _observableOf(null as any);
+  }
+
+  systemManagement_ExportThemeDefinitions(): Observable<FileResponse> {
+    let url_ = this.baseUrl + '/system-management-api/SystemManagement/ExportThemeDefinitions';
+    url_ = url_.replace(/[?&]$/, '');
+
+    let options_: any = {
+      observe: 'response',
+      responseType: 'blob',
+      headers: new HttpHeaders({
+        Accept: 'application/octet-stream',
+      }),
+    };
+
+    return this.http
+      .request('post', url_, options_)
+      .pipe(
+        _observableMergeMap((response_: any) => {
+          return this.processSystemManagement_ExportThemeDefinitions(response_);
+        }),
+      )
+      .pipe(
+        _observableCatch((response_: any) => {
+          if (response_ instanceof HttpResponseBase) {
+            try {
+              return this.processSystemManagement_ExportThemeDefinitions(response_ as any);
+            } catch (e) {
+              return _observableThrow(e) as any as Observable<FileResponse>;
+            }
+          } else return _observableThrow(response_) as any as Observable<FileResponse>;
+        }),
+      );
+  }
+
+  protected processSystemManagement_ExportThemeDefinitions(response: HttpResponseBase): Observable<FileResponse> {
+    const status = response.status;
+    const responseBlob =
+      response instanceof HttpResponse
+        ? response.body
+        : (response as any).error instanceof Blob
+          ? (response as any).error
+          : undefined;
+
+    let _headers: any = {};
+    if (response.headers) {
+      for (let key of response.headers.keys()) {
+        _headers[key] = response.headers.get(key);
+      }
+    }
+    if (status === 200 || status === 206) {
+      const contentDisposition = response.headers ? response.headers.get('content-disposition') : undefined;
+      let fileNameMatch = contentDisposition
+        ? /filename\*=(?:(\\?['"])(.*?)\1|(?:[^\s]+'.*?')?([^;\n]*))/g.exec(contentDisposition)
+        : undefined;
+      let fileName = fileNameMatch && fileNameMatch.length > 1 ? fileNameMatch[3] || fileNameMatch[2] : undefined;
+      if (fileName) {
+        fileName = decodeURIComponent(fileName);
+      } else {
+        fileNameMatch = contentDisposition ? /filename="?([^"]*?)"?(;|$)/g.exec(contentDisposition) : undefined;
+        fileName = fileNameMatch && fileNameMatch.length > 1 ? fileNameMatch[1] : undefined;
+      }
+      return _observableOf({ fileName: fileName, data: responseBlob as any, status: status, headers: _headers });
+    } else if (status !== 200 && status !== 204) {
+      return blobToText(responseBlob).pipe(
+        _observableMergeMap((_responseText: string) => {
+          return throwException('An unexpected server error occurred.', status, _responseText, _headers);
+        }),
+      );
+    }
+    return _observableOf(null as any);
+  }
+
+  systemManagement_ImportThemeDefinitions(themeImport: ThemeDefinitionsImport): Observable<boolean> {
+    let url_ = this.baseUrl + '/system-management-api/SystemManagement/ImportThemeDefinitions';
+    url_ = url_.replace(/[?&]$/, '');
+
+    const content_ = JSON.stringify(themeImport);
+
+    let options_: any = {
+      body: content_,
+      observe: 'response',
+      responseType: 'blob',
+      headers: new HttpHeaders({
+        'Content-Type': 'application/json',
+        Accept: 'application/json',
+      }),
+    };
+
+    return this.http
+      .request('post', url_, options_)
+      .pipe(
+        _observableMergeMap((response_: any) => {
+          return this.processSystemManagement_ImportThemeDefinitions(response_);
+        }),
+      )
+      .pipe(
+        _observableCatch((response_: any) => {
+          if (response_ instanceof HttpResponseBase) {
+            try {
+              return this.processSystemManagement_ImportThemeDefinitions(response_ as any);
+            } catch (e) {
+              return _observableThrow(e) as any as Observable<boolean>;
+            }
+          } else return _observableThrow(response_) as any as Observable<boolean>;
+        }),
+      );
+  }
+
+  protected processSystemManagement_ImportThemeDefinitions(response: HttpResponseBase): Observable<boolean> {
     const status = response.status;
     const responseBlob =
       response instanceof HttpResponse
@@ -14232,6 +14779,7 @@ export interface IModificationCheckResult {
 
 export class SmVm implements ISmVm {
   cursor?: string | undefined;
+  source?: string;
   smList?: SmDto[];
 
   constructor(data?: ISmVm) {
@@ -14245,6 +14793,7 @@ export class SmVm implements ISmVm {
   init(_data?: any) {
     if (_data) {
       this.cursor = _data['cursor'];
+      this.source = _data['source'];
       if (Array.isArray(_data['smList'])) {
         this.smList = [] as any;
         for (let item of _data['smList']) this.smList!.push(SmDto.fromJS(item));
@@ -14262,6 +14811,7 @@ export class SmVm implements ISmVm {
   toJSON(data?: any) {
     data = typeof data === 'object' ? data : {};
     data['cursor'] = this.cursor;
+    data['source'] = this.source;
     if (Array.isArray(this.smList)) {
       data['smList'] = [];
       for (let item of this.smList) data['smList'].push(item.toJSON());
@@ -14272,6 +14822,7 @@ export class SmVm implements ISmVm {
 
 export interface ISmVm {
   cursor?: string | undefined;
+  source?: string;
   smList?: SmDto[];
 }
 
@@ -14548,11 +15099,14 @@ export interface ISpecificAssetIdEntry {
   value?: string;
 }
 
-export class StatisticCalculatorSettingsDto implements IStatisticCalculatorSettingsDto {
-  intervalMinutes?: number;
-  isEnabled?: boolean;
+export class BenutzerInfrastrukturRechtDto implements IBenutzerInfrastrukturRechtDto {
+  infrastrukturId?: number;
+  infrastrukturName?: string;
+  darfLesen?: boolean;
+  darfSchreiben?: boolean;
+  darfMarktPublizieren?: boolean;
 
-  constructor(data?: IStatisticCalculatorSettingsDto) {
+  constructor(data?: IBenutzerInfrastrukturRechtDto) {
     if (data) {
       for (var property in data) {
         if (data.hasOwnProperty(property)) (<any>this)[property] = (<any>data)[property];
@@ -14562,732 +15116,50 @@ export class StatisticCalculatorSettingsDto implements IStatisticCalculatorSetti
 
   init(_data?: any) {
     if (_data) {
-      this.intervalMinutes = _data['intervalMinutes'];
-      this.isEnabled = _data['isEnabled'];
+      this.infrastrukturId = _data['infrastrukturId'];
+      this.infrastrukturName = _data['infrastrukturName'];
+      this.darfLesen = _data['darfLesen'];
+      this.darfSchreiben = _data['darfSchreiben'];
+      this.darfMarktPublizieren = _data['darfMarktPublizieren'];
     }
   }
 
-  static fromJS(data: any): StatisticCalculatorSettingsDto {
+  static fromJS(data: any): BenutzerInfrastrukturRechtDto {
     data = typeof data === 'object' ? data : {};
-    let result = new StatisticCalculatorSettingsDto();
+    let result = new BenutzerInfrastrukturRechtDto();
     result.init(data);
     return result;
   }
 
   toJSON(data?: any) {
     data = typeof data === 'object' ? data : {};
-    data['intervalMinutes'] = this.intervalMinutes;
-    data['isEnabled'] = this.isEnabled;
+    data['infrastrukturId'] = this.infrastrukturId;
+    data['infrastrukturName'] = this.infrastrukturName;
+    data['darfLesen'] = this.darfLesen;
+    data['darfSchreiben'] = this.darfSchreiben;
+    data['darfMarktPublizieren'] = this.darfMarktPublizieren;
     return data;
   }
 }
 
-export interface IStatisticCalculatorSettingsDto {
-  intervalMinutes?: number;
-  isEnabled?: boolean;
+export interface IBenutzerInfrastrukturRechtDto {
+  infrastrukturId?: number;
+  infrastrukturName?: string;
+  darfLesen?: boolean;
+  darfSchreiben?: boolean;
+  darfMarktPublizieren?: boolean;
 }
 
-export class DailyStatisticCalculatorSettingsDto implements IDailyStatisticCalculatorSettingsDto {
-  intervalMinutes?: number;
-  isEnabled?: boolean;
-
-  constructor(data?: IDailyStatisticCalculatorSettingsDto) {
-    if (data) {
-      for (var property in data) {
-        if (data.hasOwnProperty(property)) (<any>this)[property] = (<any>data)[property];
-      }
-    }
-  }
-
-  init(_data?: any) {
-    if (_data) {
-      this.intervalMinutes = _data['intervalMinutes'];
-      this.isEnabled = _data['isEnabled'];
-    }
-  }
-
-  static fromJS(data: any): DailyStatisticCalculatorSettingsDto {
-    data = typeof data === 'object' ? data : {};
-    let result = new DailyStatisticCalculatorSettingsDto();
-    result.init(data);
-    return result;
-  }
-
-  toJSON(data?: any) {
-    data = typeof data === 'object' ? data : {};
-    data['intervalMinutes'] = this.intervalMinutes;
-    data['isEnabled'] = this.isEnabled;
-    return data;
-  }
-}
-
-export interface IDailyStatisticCalculatorSettingsDto {
-  intervalMinutes?: number;
-  isEnabled?: boolean;
-}
-
-export class DailyExpiredOrganisationsCheckerSettingsDto implements IDailyExpiredOrganisationsCheckerSettingsDto {
-  intervalMinutes?: number;
-  isEnabled?: boolean;
-
-  constructor(data?: IDailyExpiredOrganisationsCheckerSettingsDto) {
-    if (data) {
-      for (var property in data) {
-        if (data.hasOwnProperty(property)) (<any>this)[property] = (<any>data)[property];
-      }
-    }
-  }
-
-  init(_data?: any) {
-    if (_data) {
-      this.intervalMinutes = _data['intervalMinutes'];
-      this.isEnabled = _data['isEnabled'];
-    }
-  }
-
-  static fromJS(data: any): DailyExpiredOrganisationsCheckerSettingsDto {
-    data = typeof data === 'object' ? data : {};
-    let result = new DailyExpiredOrganisationsCheckerSettingsDto();
-    result.init(data);
-    return result;
-  }
-
-  toJSON(data?: any) {
-    data = typeof data === 'object' ? data : {};
-    data['intervalMinutes'] = this.intervalMinutes;
-    data['isEnabled'] = this.isEnabled;
-    return data;
-  }
-}
-
-export interface IDailyExpiredOrganisationsCheckerSettingsDto {
-  intervalMinutes?: number;
-  isEnabled?: boolean;
-}
-
-export class PeriodicOrganisationDeleterSettingsDto implements IPeriodicOrganisationDeleterSettingsDto {
-  intervalMinutes?: number;
-  isEnabled?: boolean;
-
-  constructor(data?: IPeriodicOrganisationDeleterSettingsDto) {
-    if (data) {
-      for (var property in data) {
-        if (data.hasOwnProperty(property)) (<any>this)[property] = (<any>data)[property];
-      }
-    }
-  }
-
-  init(_data?: any) {
-    if (_data) {
-      this.intervalMinutes = _data['intervalMinutes'];
-      this.isEnabled = _data['isEnabled'];
-    }
-  }
-
-  static fromJS(data: any): PeriodicOrganisationDeleterSettingsDto {
-    data = typeof data === 'object' ? data : {};
-    let result = new PeriodicOrganisationDeleterSettingsDto();
-    result.init(data);
-    return result;
-  }
-
-  toJSON(data?: any) {
-    data = typeof data === 'object' ? data : {};
-    data['intervalMinutes'] = this.intervalMinutes;
-    data['isEnabled'] = this.isEnabled;
-    return data;
-  }
-}
-
-export interface IPeriodicOrganisationDeleterSettingsDto {
-  intervalMinutes?: number;
-  isEnabled?: boolean;
-}
-
-export class PeriodicInfrastructureDeleterSettingsDto implements IPeriodicInfrastructureDeleterSettingsDto {
-  intervalMinutes?: number;
-  isEnabled?: boolean;
-
-  constructor(data?: IPeriodicInfrastructureDeleterSettingsDto) {
-    if (data) {
-      for (var property in data) {
-        if (data.hasOwnProperty(property)) (<any>this)[property] = (<any>data)[property];
-      }
-    }
-  }
-
-  init(_data?: any) {
-    if (_data) {
-      this.intervalMinutes = _data['intervalMinutes'];
-      this.isEnabled = _data['isEnabled'];
-    }
-  }
-
-  static fromJS(data: any): PeriodicInfrastructureDeleterSettingsDto {
-    data = typeof data === 'object' ? data : {};
-    let result = new PeriodicInfrastructureDeleterSettingsDto();
-    result.init(data);
-    return result;
-  }
-
-  toJSON(data?: any) {
-    data = typeof data === 'object' ? data : {};
-    data['intervalMinutes'] = this.intervalMinutes;
-    data['isEnabled'] = this.isEnabled;
-    return data;
-  }
-}
-
-export interface IPeriodicInfrastructureDeleterSettingsDto {
-  intervalMinutes?: number;
-  isEnabled?: boolean;
-}
-
-export class IdtaCrawlerSettingsDto implements IIdtaCrawlerSettingsDto {
-  intervalMinutes?: number;
-  isEnabled?: boolean;
-
-  constructor(data?: IIdtaCrawlerSettingsDto) {
-    if (data) {
-      for (var property in data) {
-        if (data.hasOwnProperty(property)) (<any>this)[property] = (<any>data)[property];
-      }
-    }
-  }
-
-  init(_data?: any) {
-    if (_data) {
-      this.intervalMinutes = _data['intervalMinutes'];
-      this.isEnabled = _data['isEnabled'];
-    }
-  }
-
-  static fromJS(data: any): IdtaCrawlerSettingsDto {
-    data = typeof data === 'object' ? data : {};
-    let result = new IdtaCrawlerSettingsDto();
-    result.init(data);
-    return result;
-  }
-
-  toJSON(data?: any) {
-    data = typeof data === 'object' ? data : {};
-    data['intervalMinutes'] = this.intervalMinutes;
-    data['isEnabled'] = this.isEnabled;
-    return data;
-  }
-}
-
-export interface IIdtaCrawlerSettingsDto {
-  intervalMinutes?: number;
-  isEnabled?: boolean;
-}
-
-export class PcnUpdateListenerSettingsDto implements IPcnUpdateListenerSettingsDto {
-  intervalMinutes?: number;
-  isEnabled?: boolean;
-
-  constructor(data?: IPcnUpdateListenerSettingsDto) {
-    if (data) {
-      for (var property in data) {
-        if (data.hasOwnProperty(property)) (<any>this)[property] = (<any>data)[property];
-      }
-    }
-  }
-
-  init(_data?: any) {
-    if (_data) {
-      this.intervalMinutes = _data['intervalMinutes'];
-      this.isEnabled = _data['isEnabled'];
-    }
-  }
-
-  static fromJS(data: any): PcnUpdateListenerSettingsDto {
-    data = typeof data === 'object' ? data : {};
-    let result = new PcnUpdateListenerSettingsDto();
-    result.init(data);
-    return result;
-  }
-
-  toJSON(data?: any) {
-    data = typeof data === 'object' ? data : {};
-    data['intervalMinutes'] = this.intervalMinutes;
-    data['isEnabled'] = this.isEnabled;
-    return data;
-  }
-}
-
-export interface IPcnUpdateListenerSettingsDto {
-  intervalMinutes?: number;
-  isEnabled?: boolean;
-}
-
-export class SystemConfigurationDto implements ISystemConfigurationDto {
-  singleTenantMode?: boolean;
-  isSsoAvailableSingleTenant?: boolean;
-  ssoConfigName?: string;
-  singleTenantTheme?: string;
-  datenschutzLinkDe?: string;
-  datenschutzLinkEn?: string;
-  agbLinkDe?: string;
-  agbLinkEn?: string;
-  avvLinkDe?: string;
-  avvLinkEn?: string;
-  imprintLink?: string;
-
-  constructor(data?: ISystemConfigurationDto) {
-    if (data) {
-      for (var property in data) {
-        if (data.hasOwnProperty(property)) (<any>this)[property] = (<any>data)[property];
-      }
-    }
-  }
-
-  init(_data?: any) {
-    if (_data) {
-      this.singleTenantMode = _data['singleTenantMode'];
-      this.isSsoAvailableSingleTenant = _data['isSsoAvailableSingleTenant'];
-      this.ssoConfigName = _data['ssoConfigName'];
-      this.singleTenantTheme = _data['singleTenantTheme'];
-      this.datenschutzLinkDe = _data['datenschutzLinkDe'];
-      this.datenschutzLinkEn = _data['datenschutzLinkEn'];
-      this.agbLinkDe = _data['agbLinkDe'];
-      this.agbLinkEn = _data['agbLinkEn'];
-      this.avvLinkDe = _data['avvLinkDe'];
-      this.avvLinkEn = _data['avvLinkEn'];
-      this.imprintLink = _data['imprintLink'];
-    }
-  }
-
-  static fromJS(data: any): SystemConfigurationDto {
-    data = typeof data === 'object' ? data : {};
-    let result = new SystemConfigurationDto();
-    result.init(data);
-    return result;
-  }
-
-  toJSON(data?: any) {
-    data = typeof data === 'object' ? data : {};
-    data['singleTenantMode'] = this.singleTenantMode;
-    data['isSsoAvailableSingleTenant'] = this.isSsoAvailableSingleTenant;
-    data['ssoConfigName'] = this.ssoConfigName;
-    data['singleTenantTheme'] = this.singleTenantTheme;
-    data['datenschutzLinkDe'] = this.datenschutzLinkDe;
-    data['datenschutzLinkEn'] = this.datenschutzLinkEn;
-    data['agbLinkDe'] = this.agbLinkDe;
-    data['agbLinkEn'] = this.agbLinkEn;
-    data['avvLinkDe'] = this.avvLinkDe;
-    data['avvLinkEn'] = this.avvLinkEn;
-    data['imprintLink'] = this.imprintLink;
-    return data;
-  }
-}
-
-export interface ISystemConfigurationDto {
-  singleTenantMode?: boolean;
-  isSsoAvailableSingleTenant?: boolean;
-  ssoConfigName?: string;
-  singleTenantTheme?: string;
-  datenschutzLinkDe?: string;
-  datenschutzLinkEn?: string;
-  agbLinkDe?: string;
-  agbLinkEn?: string;
-  avvLinkDe?: string;
-  avvLinkEn?: string;
-  imprintLink?: string;
-}
-
-export class SystemStatusDto implements ISystemStatusDto {
-  available?: boolean;
-
-  constructor(data?: ISystemStatusDto) {
-    if (data) {
-      for (var property in data) {
-        if (data.hasOwnProperty(property)) (<any>this)[property] = (<any>data)[property];
-      }
-    }
-  }
-
-  init(_data?: any) {
-    if (_data) {
-      this.available = _data['available'];
-    }
-  }
-
-  static fromJS(data: any): SystemStatusDto {
-    data = typeof data === 'object' ? data : {};
-    let result = new SystemStatusDto();
-    result.init(data);
-    return result;
-  }
-
-  toJSON(data?: any) {
-    data = typeof data === 'object' ? data : {};
-    data['available'] = this.available;
-    return data;
-  }
-}
-
-export interface ISystemStatusDto {
-  available?: boolean;
-}
-
-export enum SystemType {
-  Discovery = 0,
-  AasRegistry = 1,
-  AasRepository = 2,
-  SubmodelRepository = 3,
-  SubmodelRegistry = 4,
-  ConceptDescriptionRepository = 5,
-}
-
-export class HelpInfoDto implements IHelpInfoDto {
-  lastModification?: Date;
-  amountTexts?: number;
-
-  constructor(data?: IHelpInfoDto) {
-    if (data) {
-      for (var property in data) {
-        if (data.hasOwnProperty(property)) (<any>this)[property] = (<any>data)[property];
-      }
-    }
-  }
-
-  init(_data?: any) {
-    if (_data) {
-      this.lastModification = _data['lastModification']
-        ? new Date(_data['lastModification'].toString())
-        : <any>undefined;
-      this.amountTexts = _data['amountTexts'];
-    }
-  }
-
-  static fromJS(data: any): HelpInfoDto {
-    data = typeof data === 'object' ? data : {};
-    let result = new HelpInfoDto();
-    result.init(data);
-    return result;
-  }
-
-  toJSON(data?: any) {
-    data = typeof data === 'object' ? data : {};
-    data['lastModification'] = this.lastModification ? this.lastModification.toISOString() : <any>undefined;
-    data['amountTexts'] = this.amountTexts;
-    return data;
-  }
-}
-
-export interface IHelpInfoDto {
-  lastModification?: Date;
-  amountTexts?: number;
-}
-
-export class HelpUpdate implements IHelpUpdate {
-  fileAsBase64?: string;
-
-  constructor(data?: IHelpUpdate) {
-    if (data) {
-      for (var property in data) {
-        if (data.hasOwnProperty(property)) (<any>this)[property] = (<any>data)[property];
-      }
-    }
-  }
-
-  init(_data?: any) {
-    if (_data) {
-      this.fileAsBase64 = _data['fileAsBase64'];
-    }
-  }
-
-  static fromJS(data: any): HelpUpdate {
-    data = typeof data === 'object' ? data : {};
-    let result = new HelpUpdate();
-    result.init(data);
-    return result;
-  }
-
-  toJSON(data?: any) {
-    data = typeof data === 'object' ? data : {};
-    data['fileAsBase64'] = this.fileAsBase64;
-    return data;
-  }
-}
-
-export interface IHelpUpdate {
-  fileAsBase64?: string;
-}
-
-export class ThemeDefinitionDto implements IThemeDefinitionDto {
-  key?: string;
-  displayName?: string;
-  baseTheme?: string;
-  customCss?: string;
-  darkCustomCss?: string;
-  customerLogoUrl?: string;
-  backgroundImageUrl?: string;
-  darkBackgroundImageUrl?: string;
-  backgroundColor?: string;
-  darkBackgroundColor?: string;
-  backgroundMode?: string;
-  darkBackgroundMode?: string;
-  fontFamily?: string;
-  darkFontFamily?: string;
-  baseFontSize?: string;
-  darkBaseFontSize?: string;
-  primaryColor?: string;
-  darkPrimaryColor?: string;
-  highlightColor?: string;
-  darkHighlightColor?: string;
-  highlightTextColor?: string;
-  darkHighlightTextColor?: string;
-  primaryHoverColor?: string;
-  darkPrimaryHoverColor?: string;
-  surfaceColor?: string;
-  darkSurfaceColor?: string;
-  textColor?: string;
-  darkTextColor?: string;
-  inputTextColor?: string;
-  darkInputTextColor?: string;
-  primaryOpacity?: string;
-  darkPrimaryOpacity?: string;
-  surfaceOpacity?: string;
-  darkSurfaceOpacity?: string;
-  textOpacity?: string;
-  darkTextOpacity?: string;
-  borderRadius?: string;
-  darkBorderRadius?: string;
-  darkInheritFromLight?: boolean;
-  isBuiltIn?: boolean;
-
-  constructor(data?: IThemeDefinitionDto) {
-    if (data) {
-      for (var property in data) {
-        if (data.hasOwnProperty(property)) (<any>this)[property] = (<any>data)[property];
-      }
-    }
-  }
-
-  init(_data?: any) {
-    if (_data) {
-      this.key = _data['key'];
-      this.displayName = _data['displayName'];
-      this.baseTheme = _data['baseTheme'];
-      this.customCss = _data['customCss'];
-      this.darkCustomCss = _data['darkCustomCss'];
-      this.customerLogoUrl = _data['customerLogoUrl'];
-      this.backgroundImageUrl = _data['backgroundImageUrl'];
-      this.darkBackgroundImageUrl = _data['darkBackgroundImageUrl'];
-      this.backgroundColor = _data['backgroundColor'];
-      this.darkBackgroundColor = _data['darkBackgroundColor'];
-      this.backgroundMode = _data['backgroundMode'];
-      this.darkBackgroundMode = _data['darkBackgroundMode'];
-      this.fontFamily = _data['fontFamily'];
-      this.darkFontFamily = _data['darkFontFamily'];
-      this.baseFontSize = _data['baseFontSize'];
-      this.darkBaseFontSize = _data['darkBaseFontSize'];
-      this.primaryColor = _data['primaryColor'];
-      this.darkPrimaryColor = _data['darkPrimaryColor'];
-      this.highlightColor = _data['highlightColor'];
-      this.darkHighlightColor = _data['darkHighlightColor'];
-      this.highlightTextColor = _data['highlightTextColor'];
-      this.darkHighlightTextColor = _data['darkHighlightTextColor'];
-      this.primaryHoverColor = _data['primaryHoverColor'];
-      this.darkPrimaryHoverColor = _data['darkPrimaryHoverColor'];
-      this.surfaceColor = _data['surfaceColor'];
-      this.darkSurfaceColor = _data['darkSurfaceColor'];
-      this.textColor = _data['textColor'];
-      this.darkTextColor = _data['darkTextColor'];
-      this.inputTextColor = _data['inputTextColor'];
-      this.darkInputTextColor = _data['darkInputTextColor'];
-      this.primaryOpacity = _data['primaryOpacity'];
-      this.darkPrimaryOpacity = _data['darkPrimaryOpacity'];
-      this.surfaceOpacity = _data['surfaceOpacity'];
-      this.darkSurfaceOpacity = _data['darkSurfaceOpacity'];
-      this.textOpacity = _data['textOpacity'];
-      this.darkTextOpacity = _data['darkTextOpacity'];
-      this.borderRadius = _data['borderRadius'];
-      this.darkBorderRadius = _data['darkBorderRadius'];
-      this.darkInheritFromLight = _data['darkInheritFromLight'];
-      this.isBuiltIn = _data['isBuiltIn'];
-    }
-  }
-
-  static fromJS(data: any): ThemeDefinitionDto {
-    data = typeof data === 'object' ? data : {};
-    let result = new ThemeDefinitionDto();
-    result.init(data);
-    return result;
-  }
-
-  toJSON(data?: any) {
-    data = typeof data === 'object' ? data : {};
-    data['key'] = this.key;
-    data['displayName'] = this.displayName;
-    data['baseTheme'] = this.baseTheme;
-    data['customCss'] = this.customCss;
-    data['darkCustomCss'] = this.darkCustomCss;
-    data['customerLogoUrl'] = this.customerLogoUrl;
-    data['backgroundImageUrl'] = this.backgroundImageUrl;
-    data['darkBackgroundImageUrl'] = this.darkBackgroundImageUrl;
-    data['backgroundColor'] = this.backgroundColor;
-    data['darkBackgroundColor'] = this.darkBackgroundColor;
-    data['backgroundMode'] = this.backgroundMode;
-    data['darkBackgroundMode'] = this.darkBackgroundMode;
-    data['fontFamily'] = this.fontFamily;
-    data['darkFontFamily'] = this.darkFontFamily;
-    data['baseFontSize'] = this.baseFontSize;
-    data['darkBaseFontSize'] = this.darkBaseFontSize;
-    data['primaryColor'] = this.primaryColor;
-    data['darkPrimaryColor'] = this.darkPrimaryColor;
-    data['highlightColor'] = this.highlightColor;
-    data['darkHighlightColor'] = this.darkHighlightColor;
-    data['highlightTextColor'] = this.highlightTextColor;
-    data['darkHighlightTextColor'] = this.darkHighlightTextColor;
-    data['primaryHoverColor'] = this.primaryHoverColor;
-    data['darkPrimaryHoverColor'] = this.darkPrimaryHoverColor;
-    data['surfaceColor'] = this.surfaceColor;
-    data['darkSurfaceColor'] = this.darkSurfaceColor;
-    data['textColor'] = this.textColor;
-    data['darkTextColor'] = this.darkTextColor;
-    data['inputTextColor'] = this.inputTextColor;
-    data['darkInputTextColor'] = this.darkInputTextColor;
-    data['primaryOpacity'] = this.primaryOpacity;
-    data['darkPrimaryOpacity'] = this.darkPrimaryOpacity;
-    data['surfaceOpacity'] = this.surfaceOpacity;
-    data['darkSurfaceOpacity'] = this.darkSurfaceOpacity;
-    data['textOpacity'] = this.textOpacity;
-    data['darkTextOpacity'] = this.darkTextOpacity;
-    data['borderRadius'] = this.borderRadius;
-    data['darkBorderRadius'] = this.darkBorderRadius;
-    data['darkInheritFromLight'] = this.darkInheritFromLight;
-    data['isBuiltIn'] = this.isBuiltIn;
-    return data;
-  }
-}
-
-export interface IThemeDefinitionDto {
-  key?: string;
-  displayName?: string;
-  baseTheme?: string;
-  customCss?: string;
-  darkCustomCss?: string;
-  customerLogoUrl?: string;
-  backgroundImageUrl?: string;
-  darkBackgroundImageUrl?: string;
-  backgroundColor?: string;
-  darkBackgroundColor?: string;
-  backgroundMode?: string;
-  darkBackgroundMode?: string;
-  fontFamily?: string;
-  darkFontFamily?: string;
-  baseFontSize?: string;
-  darkBaseFontSize?: string;
-  primaryColor?: string;
-  darkPrimaryColor?: string;
-  highlightColor?: string;
-  darkHighlightColor?: string;
-  highlightTextColor?: string;
-  darkHighlightTextColor?: string;
-  primaryHoverColor?: string;
-  darkPrimaryHoverColor?: string;
-  surfaceColor?: string;
-  darkSurfaceColor?: string;
-  textColor?: string;
-  darkTextColor?: string;
-  inputTextColor?: string;
-  darkInputTextColor?: string;
-  primaryOpacity?: string;
-  darkPrimaryOpacity?: string;
-  surfaceOpacity?: string;
-  darkSurfaceOpacity?: string;
-  textOpacity?: string;
-  darkTextOpacity?: string;
-  borderRadius?: string;
-  darkBorderRadius?: string;
-  darkInheritFromLight?: boolean;
-  isBuiltIn?: boolean;
-}
-
-export class DeleteProtocolDto implements IDeleteProtocolDto {
-  id?: number;
-  deleteType?: DeleteType;
-  createdAt?: Date;
-  createdBy?: string;
-  additionalData?: string;
-  organisation?: OrganisationDeleteProtocolDto | undefined;
-  userAccount?: UserAccountDeleteProtocolDto | undefined;
-  infrastructure?: InfrastructureDeleteProtocolDto | undefined;
-
-  constructor(data?: IDeleteProtocolDto) {
-    if (data) {
-      for (var property in data) {
-        if (data.hasOwnProperty(property)) (<any>this)[property] = (<any>data)[property];
-      }
-    }
-  }
-
-  init(_data?: any) {
-    if (_data) {
-      this.id = _data['id'];
-      this.deleteType = _data['deleteType'];
-      this.createdAt = _data['createdAt'] ? new Date(_data['createdAt'].toString()) : <any>undefined;
-      this.createdBy = _data['createdBy'];
-      this.additionalData = _data['additionalData'];
-      this.organisation = _data['organisation']
-        ? OrganisationDeleteProtocolDto.fromJS(_data['organisation'])
-        : <any>undefined;
-      this.userAccount = _data['userAccount']
-        ? UserAccountDeleteProtocolDto.fromJS(_data['userAccount'])
-        : <any>undefined;
-      this.infrastructure = _data['infrastructure']
-        ? InfrastructureDeleteProtocolDto.fromJS(_data['infrastructure'])
-        : <any>undefined;
-    }
-  }
-
-  static fromJS(data: any): DeleteProtocolDto {
-    data = typeof data === 'object' ? data : {};
-    let result = new DeleteProtocolDto();
-    result.init(data);
-    return result;
-  }
-
-  toJSON(data?: any) {
-    data = typeof data === 'object' ? data : {};
-    data['id'] = this.id;
-    data['deleteType'] = this.deleteType;
-    data['createdAt'] = this.createdAt ? this.createdAt.toISOString() : <any>undefined;
-    data['createdBy'] = this.createdBy;
-    data['additionalData'] = this.additionalData;
-    data['organisation'] = this.organisation ? this.organisation.toJSON() : <any>undefined;
-    data['userAccount'] = this.userAccount ? this.userAccount.toJSON() : <any>undefined;
-    data['infrastructure'] = this.infrastructure ? this.infrastructure.toJSON() : <any>undefined;
-    return data;
-  }
-}
-
-export interface IDeleteProtocolDto {
-  id?: number;
-  deleteType?: DeleteType;
-  createdAt?: Date;
-  createdBy?: string;
-  additionalData?: string;
-  organisation?: OrganisationDeleteProtocolDto | undefined;
-  userAccount?: UserAccountDeleteProtocolDto | undefined;
-  infrastructure?: InfrastructureDeleteProtocolDto | undefined;
-}
-
-export enum DeleteType {
-  Unknown = 0,
-  Organisation = 1,
-  UserAccount = 2,
-  Infrastructure = 3,
-}
-
-export class OrganisationDeleteProtocolDto implements IOrganisationDeleteProtocolDto {
+export class InfraUserRechtDto implements IInfraUserRechtDto {
+  benutzerId?: number;
+  vorname?: string;
   name?: string;
   email?: string;
+  darfLesen?: boolean;
+  darfSchreiben?: boolean;
+  darfMarktPublizieren?: boolean;
 
-  constructor(data?: IOrganisationDeleteProtocolDto) {
+  constructor(data?: IInfraUserRechtDto) {
     if (data) {
       for (var property in data) {
         if (data.hasOwnProperty(property)) (<any>this)[property] = (<any>data)[property];
@@ -15297,707 +15169,44 @@ export class OrganisationDeleteProtocolDto implements IOrganisationDeleteProtoco
 
   init(_data?: any) {
     if (_data) {
+      this.benutzerId = _data['benutzerId'];
+      this.vorname = _data['vorname'];
       this.name = _data['name'];
       this.email = _data['email'];
+      this.darfLesen = _data['darfLesen'];
+      this.darfSchreiben = _data['darfSchreiben'];
+      this.darfMarktPublizieren = _data['darfMarktPublizieren'];
     }
   }
 
-  static fromJS(data: any): OrganisationDeleteProtocolDto {
+  static fromJS(data: any): InfraUserRechtDto {
     data = typeof data === 'object' ? data : {};
-    let result = new OrganisationDeleteProtocolDto();
+    let result = new InfraUserRechtDto();
     result.init(data);
     return result;
   }
 
   toJSON(data?: any) {
     data = typeof data === 'object' ? data : {};
+    data['benutzerId'] = this.benutzerId;
+    data['vorname'] = this.vorname;
     data['name'] = this.name;
     data['email'] = this.email;
+    data['darfLesen'] = this.darfLesen;
+    data['darfSchreiben'] = this.darfSchreiben;
+    data['darfMarktPublizieren'] = this.darfMarktPublizieren;
     return data;
   }
 }
 
-export interface IOrganisationDeleteProtocolDto {
+export interface IInfraUserRechtDto {
+  benutzerId?: number;
+  vorname?: string;
   name?: string;
   email?: string;
-}
-
-export class UserAccountDeleteProtocolDto implements IUserAccountDeleteProtocolDto {
-  email?: string;
-
-  constructor(data?: IUserAccountDeleteProtocolDto) {
-    if (data) {
-      for (var property in data) {
-        if (data.hasOwnProperty(property)) (<any>this)[property] = (<any>data)[property];
-      }
-    }
-  }
-
-  init(_data?: any) {
-    if (_data) {
-      this.email = _data['email'];
-    }
-  }
-
-  static fromJS(data: any): UserAccountDeleteProtocolDto {
-    data = typeof data === 'object' ? data : {};
-    let result = new UserAccountDeleteProtocolDto();
-    result.init(data);
-    return result;
-  }
-
-  toJSON(data?: any) {
-    data = typeof data === 'object' ? data : {};
-    data['email'] = this.email;
-    return data;
-  }
-}
-
-export interface IUserAccountDeleteProtocolDto {
-  email?: string;
-}
-
-export class InfrastructureDeleteProtocolDto implements IInfrastructureDeleteProtocolDto {
-  infraName?: string;
-  infraGuid?: string;
-
-  constructor(data?: IInfrastructureDeleteProtocolDto) {
-    if (data) {
-      for (var property in data) {
-        if (data.hasOwnProperty(property)) (<any>this)[property] = (<any>data)[property];
-      }
-    }
-  }
-
-  init(_data?: any) {
-    if (_data) {
-      this.infraName = _data['infraName'];
-      this.infraGuid = _data['infraGuid'];
-    }
-  }
-
-  static fromJS(data: any): InfrastructureDeleteProtocolDto {
-    data = typeof data === 'object' ? data : {};
-    let result = new InfrastructureDeleteProtocolDto();
-    result.init(data);
-    return result;
-  }
-
-  toJSON(data?: any) {
-    data = typeof data === 'object' ? data : {};
-    data['infraName'] = this.infraName;
-    data['infraGuid'] = this.infraGuid;
-    return data;
-  }
-}
-
-export interface IInfrastructureDeleteProtocolDto {
-  infraName?: string;
-  infraGuid?: string;
-}
-
-export class MailSettingsDto implements IMailSettingsDto {
-  keycloakEnabled?: boolean;
-  canManageKeycloakMailSettings?: boolean;
-  application?: ApplicationMailSettingsDto;
-  keycloak?: KeycloakMailSettingsDto;
-
-  constructor(data?: IMailSettingsDto) {
-    if (data) {
-      for (var property in data) {
-        if (data.hasOwnProperty(property)) (<any>this)[property] = (<any>data)[property];
-      }
-    }
-  }
-
-  init(_data?: any) {
-    if (_data) {
-      this.keycloakEnabled = _data['keycloakEnabled'];
-      this.canManageKeycloakMailSettings = _data['canManageKeycloakMailSettings'];
-      this.application = _data['application']
-        ? ApplicationMailSettingsDto.fromJS(_data['application'])
-        : <any>undefined;
-      this.keycloak = _data['keycloak'] ? KeycloakMailSettingsDto.fromJS(_data['keycloak']) : <any>undefined;
-    }
-  }
-
-  static fromJS(data: any): MailSettingsDto {
-    data = typeof data === 'object' ? data : {};
-    let result = new MailSettingsDto();
-    result.init(data);
-    return result;
-  }
-
-  toJSON(data?: any) {
-    data = typeof data === 'object' ? data : {};
-    data['keycloakEnabled'] = this.keycloakEnabled;
-    data['canManageKeycloakMailSettings'] = this.canManageKeycloakMailSettings;
-    data['application'] = this.application ? this.application.toJSON() : <any>undefined;
-    data['keycloak'] = this.keycloak ? this.keycloak.toJSON() : <any>undefined;
-    return data;
-  }
-}
-
-export interface IMailSettingsDto {
-  keycloakEnabled?: boolean;
-  canManageKeycloakMailSettings?: boolean;
-  application?: ApplicationMailSettingsDto;
-  keycloak?: KeycloakMailSettingsDto;
-}
-
-export class ApplicationMailSettingsDto implements IApplicationMailSettingsDto {
-  smtpServer?: string;
-  smtpPort?: number;
-  smtpUseSsl?: boolean;
-  smtpUseTls?: boolean;
-  smtpNeedsAuthentication?: boolean;
-  senderAddress?: string;
-  senderUsername?: string;
-  senderPassword?: string;
-  newOrgaNotificationAddress?: string;
-  subjectPrefix?: string;
-
-  constructor(data?: IApplicationMailSettingsDto) {
-    if (data) {
-      for (var property in data) {
-        if (data.hasOwnProperty(property)) (<any>this)[property] = (<any>data)[property];
-      }
-    }
-  }
-
-  init(_data?: any) {
-    if (_data) {
-      this.smtpServer = _data['smtpServer'];
-      this.smtpPort = _data['smtpPort'];
-      this.smtpUseSsl = _data['smtpUseSsl'];
-      this.smtpUseTls = _data['smtpUseTls'];
-      this.smtpNeedsAuthentication = _data['smtpNeedsAuthentication'];
-      this.senderAddress = _data['senderAddress'];
-      this.senderUsername = _data['senderUsername'];
-      this.senderPassword = _data['senderPassword'];
-      this.newOrgaNotificationAddress = _data['newOrgaNotificationAddress'];
-      this.subjectPrefix = _data['subjectPrefix'];
-    }
-  }
-
-  static fromJS(data: any): ApplicationMailSettingsDto {
-    data = typeof data === 'object' ? data : {};
-    let result = new ApplicationMailSettingsDto();
-    result.init(data);
-    return result;
-  }
-
-  toJSON(data?: any) {
-    data = typeof data === 'object' ? data : {};
-    data['smtpServer'] = this.smtpServer;
-    data['smtpPort'] = this.smtpPort;
-    data['smtpUseSsl'] = this.smtpUseSsl;
-    data['smtpUseTls'] = this.smtpUseTls;
-    data['smtpNeedsAuthentication'] = this.smtpNeedsAuthentication;
-    data['senderAddress'] = this.senderAddress;
-    data['senderUsername'] = this.senderUsername;
-    data['senderPassword'] = this.senderPassword;
-    data['newOrgaNotificationAddress'] = this.newOrgaNotificationAddress;
-    data['subjectPrefix'] = this.subjectPrefix;
-    return data;
-  }
-}
-
-export interface IApplicationMailSettingsDto {
-  smtpServer?: string;
-  smtpPort?: number;
-  smtpUseSsl?: boolean;
-  smtpUseTls?: boolean;
-  smtpNeedsAuthentication?: boolean;
-  senderAddress?: string;
-  senderUsername?: string;
-  senderPassword?: string;
-  newOrgaNotificationAddress?: string;
-  subjectPrefix?: string;
-}
-
-export class KeycloakMailSettingsDto implements IKeycloakMailSettingsDto {
-  host?: string;
-  port?: string;
-  from?: string;
-  fromDisplayName?: string;
-  replyTo?: string;
-  replyToDisplayName?: string;
-  user?: string;
-  password?: string;
-  auth?: boolean;
-  startTls?: boolean;
-  ssl?: boolean;
-
-  constructor(data?: IKeycloakMailSettingsDto) {
-    if (data) {
-      for (var property in data) {
-        if (data.hasOwnProperty(property)) (<any>this)[property] = (<any>data)[property];
-      }
-    }
-  }
-
-  init(_data?: any) {
-    if (_data) {
-      this.host = _data['host'];
-      this.port = _data['port'];
-      this.from = _data['from'];
-      this.fromDisplayName = _data['fromDisplayName'];
-      this.replyTo = _data['replyTo'];
-      this.replyToDisplayName = _data['replyToDisplayName'];
-      this.user = _data['user'];
-      this.password = _data['password'];
-      this.auth = _data['auth'];
-      this.startTls = _data['startTls'];
-      this.ssl = _data['ssl'];
-    }
-  }
-
-  static fromJS(data: any): KeycloakMailSettingsDto {
-    data = typeof data === 'object' ? data : {};
-    let result = new KeycloakMailSettingsDto();
-    result.init(data);
-    return result;
-  }
-
-  toJSON(data?: any) {
-    data = typeof data === 'object' ? data : {};
-    data['host'] = this.host;
-    data['port'] = this.port;
-    data['from'] = this.from;
-    data['fromDisplayName'] = this.fromDisplayName;
-    data['replyTo'] = this.replyTo;
-    data['replyToDisplayName'] = this.replyToDisplayName;
-    data['user'] = this.user;
-    data['password'] = this.password;
-    data['auth'] = this.auth;
-    data['startTls'] = this.startTls;
-    data['ssl'] = this.ssl;
-    return data;
-  }
-}
-
-export interface IKeycloakMailSettingsDto {
-  host?: string;
-  port?: string;
-  from?: string;
-  fromDisplayName?: string;
-  replyTo?: string;
-  replyToDisplayName?: string;
-  user?: string;
-  password?: string;
-  auth?: boolean;
-  startTls?: boolean;
-  ssl?: boolean;
-}
-
-export class LegalLinksSettingsDto implements ILegalLinksSettingsDto {
-  datenschutzLinkDe?: string;
-  datenschutzLinkEn?: string;
-  agbLinkDe?: string;
-  agbLinkEn?: string;
-  avvLinkDe?: string;
-  avvLinkEn?: string;
-  imprintLink?: string;
-  datenschutzLinkDeDocument?: LegalLinksDocumentInfoDto | undefined;
-  datenschutzLinkEnDocument?: LegalLinksDocumentInfoDto | undefined;
-  agbLinkDeDocument?: LegalLinksDocumentInfoDto | undefined;
-  agbLinkEnDocument?: LegalLinksDocumentInfoDto | undefined;
-  avvLinkDeDocument?: LegalLinksDocumentInfoDto | undefined;
-  avvLinkEnDocument?: LegalLinksDocumentInfoDto | undefined;
-  imprintLinkDocument?: LegalLinksDocumentInfoDto | undefined;
-
-  constructor(data?: ILegalLinksSettingsDto) {
-    if (data) {
-      for (var property in data) {
-        if (data.hasOwnProperty(property)) (<any>this)[property] = (<any>data)[property];
-      }
-    }
-  }
-
-  init(_data?: any) {
-    if (_data) {
-      this.datenschutzLinkDe = _data['datenschutzLinkDe'];
-      this.datenschutzLinkEn = _data['datenschutzLinkEn'];
-      this.agbLinkDe = _data['agbLinkDe'];
-      this.agbLinkEn = _data['agbLinkEn'];
-      this.avvLinkDe = _data['avvLinkDe'];
-      this.avvLinkEn = _data['avvLinkEn'];
-      this.imprintLink = _data['imprintLink'];
-      this.datenschutzLinkDeDocument = _data['datenschutzLinkDeDocument']
-        ? LegalLinksDocumentInfoDto.fromJS(_data['datenschutzLinkDeDocument'])
-        : <any>undefined;
-      this.datenschutzLinkEnDocument = _data['datenschutzLinkEnDocument']
-        ? LegalLinksDocumentInfoDto.fromJS(_data['datenschutzLinkEnDocument'])
-        : <any>undefined;
-      this.agbLinkDeDocument = _data['agbLinkDeDocument']
-        ? LegalLinksDocumentInfoDto.fromJS(_data['agbLinkDeDocument'])
-        : <any>undefined;
-      this.agbLinkEnDocument = _data['agbLinkEnDocument']
-        ? LegalLinksDocumentInfoDto.fromJS(_data['agbLinkEnDocument'])
-        : <any>undefined;
-      this.avvLinkDeDocument = _data['avvLinkDeDocument']
-        ? LegalLinksDocumentInfoDto.fromJS(_data['avvLinkDeDocument'])
-        : <any>undefined;
-      this.avvLinkEnDocument = _data['avvLinkEnDocument']
-        ? LegalLinksDocumentInfoDto.fromJS(_data['avvLinkEnDocument'])
-        : <any>undefined;
-      this.imprintLinkDocument = _data['imprintLinkDocument']
-        ? LegalLinksDocumentInfoDto.fromJS(_data['imprintLinkDocument'])
-        : <any>undefined;
-    }
-  }
-
-  static fromJS(data: any): LegalLinksSettingsDto {
-    data = typeof data === 'object' ? data : {};
-    let result = new LegalLinksSettingsDto();
-    result.init(data);
-    return result;
-  }
-
-  toJSON(data?: any) {
-    data = typeof data === 'object' ? data : {};
-    data['datenschutzLinkDe'] = this.datenschutzLinkDe;
-    data['datenschutzLinkEn'] = this.datenschutzLinkEn;
-    data['agbLinkDe'] = this.agbLinkDe;
-    data['agbLinkEn'] = this.agbLinkEn;
-    data['avvLinkDe'] = this.avvLinkDe;
-    data['avvLinkEn'] = this.avvLinkEn;
-    data['imprintLink'] = this.imprintLink;
-    data['datenschutzLinkDeDocument'] = this.datenschutzLinkDeDocument
-      ? this.datenschutzLinkDeDocument.toJSON()
-      : <any>undefined;
-    data['datenschutzLinkEnDocument'] = this.datenschutzLinkEnDocument
-      ? this.datenschutzLinkEnDocument.toJSON()
-      : <any>undefined;
-    data['agbLinkDeDocument'] = this.agbLinkDeDocument ? this.agbLinkDeDocument.toJSON() : <any>undefined;
-    data['agbLinkEnDocument'] = this.agbLinkEnDocument ? this.agbLinkEnDocument.toJSON() : <any>undefined;
-    data['avvLinkDeDocument'] = this.avvLinkDeDocument ? this.avvLinkDeDocument.toJSON() : <any>undefined;
-    data['avvLinkEnDocument'] = this.avvLinkEnDocument ? this.avvLinkEnDocument.toJSON() : <any>undefined;
-    data['imprintLinkDocument'] = this.imprintLinkDocument ? this.imprintLinkDocument.toJSON() : <any>undefined;
-    return data;
-  }
-}
-
-export interface ILegalLinksSettingsDto {
-  datenschutzLinkDe?: string;
-  datenschutzLinkEn?: string;
-  agbLinkDe?: string;
-  agbLinkEn?: string;
-  avvLinkDe?: string;
-  avvLinkEn?: string;
-  imprintLink?: string;
-  datenschutzLinkDeDocument?: LegalLinksDocumentInfoDto | undefined;
-  datenschutzLinkEnDocument?: LegalLinksDocumentInfoDto | undefined;
-  agbLinkDeDocument?: LegalLinksDocumentInfoDto | undefined;
-  agbLinkEnDocument?: LegalLinksDocumentInfoDto | undefined;
-  avvLinkDeDocument?: LegalLinksDocumentInfoDto | undefined;
-  avvLinkEnDocument?: LegalLinksDocumentInfoDto | undefined;
-  imprintLinkDocument?: LegalLinksDocumentInfoDto | undefined;
-}
-
-export class LegalLinksDocumentInfoDto implements ILegalLinksDocumentInfoDto {
-  fileName?: string;
-  contentType?: string;
-
-  constructor(data?: ILegalLinksDocumentInfoDto) {
-    if (data) {
-      for (var property in data) {
-        if (data.hasOwnProperty(property)) (<any>this)[property] = (<any>data)[property];
-      }
-    }
-  }
-
-  init(_data?: any) {
-    if (_data) {
-      this.fileName = _data['fileName'];
-      this.contentType = _data['contentType'];
-    }
-  }
-
-  static fromJS(data: any): LegalLinksDocumentInfoDto {
-    data = typeof data === 'object' ? data : {};
-    let result = new LegalLinksDocumentInfoDto();
-    result.init(data);
-    return result;
-  }
-
-  toJSON(data?: any) {
-    data = typeof data === 'object' ? data : {};
-    data['fileName'] = this.fileName;
-    data['contentType'] = this.contentType;
-    return data;
-  }
-}
-
-export interface ILegalLinksDocumentInfoDto {
-  fileName?: string;
-  contentType?: string;
-}
-
-export class UpdateLegalLinksSettingsRequest implements IUpdateLegalLinksSettingsRequest {
-  datenschutzLinkDe?: string;
-  datenschutzLinkEn?: string;
-  agbLinkDe?: string;
-  agbLinkEn?: string;
-  avvLinkDe?: string;
-  avvLinkEn?: string;
-  imprintLink?: string;
-  datenschutzLinkDeDocument?: LegalLinksDocumentUploadDto | undefined;
-  datenschutzLinkEnDocument?: LegalLinksDocumentUploadDto | undefined;
-  agbLinkDeDocument?: LegalLinksDocumentUploadDto | undefined;
-  agbLinkEnDocument?: LegalLinksDocumentUploadDto | undefined;
-  avvLinkDeDocument?: LegalLinksDocumentUploadDto | undefined;
-  avvLinkEnDocument?: LegalLinksDocumentUploadDto | undefined;
-  imprintLinkDocument?: LegalLinksDocumentUploadDto | undefined;
-  servingBaseUrl?: string;
-
-  constructor(data?: IUpdateLegalLinksSettingsRequest) {
-    if (data) {
-      for (var property in data) {
-        if (data.hasOwnProperty(property)) (<any>this)[property] = (<any>data)[property];
-      }
-    }
-  }
-
-  init(_data?: any) {
-    if (_data) {
-      this.datenschutzLinkDe = _data['datenschutzLinkDe'];
-      this.datenschutzLinkEn = _data['datenschutzLinkEn'];
-      this.agbLinkDe = _data['agbLinkDe'];
-      this.agbLinkEn = _data['agbLinkEn'];
-      this.avvLinkDe = _data['avvLinkDe'];
-      this.avvLinkEn = _data['avvLinkEn'];
-      this.imprintLink = _data['imprintLink'];
-      this.datenschutzLinkDeDocument = _data['datenschutzLinkDeDocument']
-        ? LegalLinksDocumentUploadDto.fromJS(_data['datenschutzLinkDeDocument'])
-        : <any>undefined;
-      this.datenschutzLinkEnDocument = _data['datenschutzLinkEnDocument']
-        ? LegalLinksDocumentUploadDto.fromJS(_data['datenschutzLinkEnDocument'])
-        : <any>undefined;
-      this.agbLinkDeDocument = _data['agbLinkDeDocument']
-        ? LegalLinksDocumentUploadDto.fromJS(_data['agbLinkDeDocument'])
-        : <any>undefined;
-      this.agbLinkEnDocument = _data['agbLinkEnDocument']
-        ? LegalLinksDocumentUploadDto.fromJS(_data['agbLinkEnDocument'])
-        : <any>undefined;
-      this.avvLinkDeDocument = _data['avvLinkDeDocument']
-        ? LegalLinksDocumentUploadDto.fromJS(_data['avvLinkDeDocument'])
-        : <any>undefined;
-      this.avvLinkEnDocument = _data['avvLinkEnDocument']
-        ? LegalLinksDocumentUploadDto.fromJS(_data['avvLinkEnDocument'])
-        : <any>undefined;
-      this.imprintLinkDocument = _data['imprintLinkDocument']
-        ? LegalLinksDocumentUploadDto.fromJS(_data['imprintLinkDocument'])
-        : <any>undefined;
-      this.servingBaseUrl = _data['servingBaseUrl'];
-    }
-  }
-
-  static fromJS(data: any): UpdateLegalLinksSettingsRequest {
-    data = typeof data === 'object' ? data : {};
-    let result = new UpdateLegalLinksSettingsRequest();
-    result.init(data);
-    return result;
-  }
-
-  toJSON(data?: any) {
-    data = typeof data === 'object' ? data : {};
-    data['datenschutzLinkDe'] = this.datenschutzLinkDe;
-    data['datenschutzLinkEn'] = this.datenschutzLinkEn;
-    data['agbLinkDe'] = this.agbLinkDe;
-    data['agbLinkEn'] = this.agbLinkEn;
-    data['avvLinkDe'] = this.avvLinkDe;
-    data['avvLinkEn'] = this.avvLinkEn;
-    data['imprintLink'] = this.imprintLink;
-    data['datenschutzLinkDeDocument'] = this.datenschutzLinkDeDocument
-      ? this.datenschutzLinkDeDocument.toJSON()
-      : <any>undefined;
-    data['datenschutzLinkEnDocument'] = this.datenschutzLinkEnDocument
-      ? this.datenschutzLinkEnDocument.toJSON()
-      : <any>undefined;
-    data['agbLinkDeDocument'] = this.agbLinkDeDocument ? this.agbLinkDeDocument.toJSON() : <any>undefined;
-    data['agbLinkEnDocument'] = this.agbLinkEnDocument ? this.agbLinkEnDocument.toJSON() : <any>undefined;
-    data['avvLinkDeDocument'] = this.avvLinkDeDocument ? this.avvLinkDeDocument.toJSON() : <any>undefined;
-    data['avvLinkEnDocument'] = this.avvLinkEnDocument ? this.avvLinkEnDocument.toJSON() : <any>undefined;
-    data['imprintLinkDocument'] = this.imprintLinkDocument ? this.imprintLinkDocument.toJSON() : <any>undefined;
-    data['servingBaseUrl'] = this.servingBaseUrl;
-    return data;
-  }
-}
-
-export interface IUpdateLegalLinksSettingsRequest {
-  datenschutzLinkDe?: string;
-  datenschutzLinkEn?: string;
-  agbLinkDe?: string;
-  agbLinkEn?: string;
-  avvLinkDe?: string;
-  avvLinkEn?: string;
-  imprintLink?: string;
-  datenschutzLinkDeDocument?: LegalLinksDocumentUploadDto | undefined;
-  datenschutzLinkEnDocument?: LegalLinksDocumentUploadDto | undefined;
-  agbLinkDeDocument?: LegalLinksDocumentUploadDto | undefined;
-  agbLinkEnDocument?: LegalLinksDocumentUploadDto | undefined;
-  avvLinkDeDocument?: LegalLinksDocumentUploadDto | undefined;
-  avvLinkEnDocument?: LegalLinksDocumentUploadDto | undefined;
-  imprintLinkDocument?: LegalLinksDocumentUploadDto | undefined;
-  servingBaseUrl?: string;
-}
-
-export class LegalLinksDocumentUploadDto implements ILegalLinksDocumentUploadDto {
-  fileName?: string;
-  contentType?: string;
-  contentBase64?: string;
-
-  constructor(data?: ILegalLinksDocumentUploadDto) {
-    if (data) {
-      for (var property in data) {
-        if (data.hasOwnProperty(property)) (<any>this)[property] = (<any>data)[property];
-      }
-    }
-  }
-
-  init(_data?: any) {
-    if (_data) {
-      this.fileName = _data['fileName'];
-      this.contentType = _data['contentType'];
-      this.contentBase64 = _data['contentBase64'];
-    }
-  }
-
-  static fromJS(data: any): LegalLinksDocumentUploadDto {
-    data = typeof data === 'object' ? data : {};
-    let result = new LegalLinksDocumentUploadDto();
-    result.init(data);
-    return result;
-  }
-
-  toJSON(data?: any) {
-    data = typeof data === 'object' ? data : {};
-    data['fileName'] = this.fileName;
-    data['contentType'] = this.contentType;
-    data['contentBase64'] = this.contentBase64;
-    return data;
-  }
-}
-
-export interface ILegalLinksDocumentUploadDto {
-  fileName?: string;
-  contentType?: string;
-  contentBase64?: string;
-}
-
-export class SendApplicationTestMailRequestDto implements ISendApplicationTestMailRequestDto {
-  targetEmail?: string;
-  settings?: ApplicationMailSettingsDto;
-
-  constructor(data?: ISendApplicationTestMailRequestDto) {
-    if (data) {
-      for (var property in data) {
-        if (data.hasOwnProperty(property)) (<any>this)[property] = (<any>data)[property];
-      }
-    }
-  }
-
-  init(_data?: any) {
-    if (_data) {
-      this.targetEmail = _data['targetEmail'];
-      this.settings = _data['settings'] ? ApplicationMailSettingsDto.fromJS(_data['settings']) : <any>undefined;
-    }
-  }
-
-  static fromJS(data: any): SendApplicationTestMailRequestDto {
-    data = typeof data === 'object' ? data : {};
-    let result = new SendApplicationTestMailRequestDto();
-    result.init(data);
-    return result;
-  }
-
-  toJSON(data?: any) {
-    data = typeof data === 'object' ? data : {};
-    data['targetEmail'] = this.targetEmail;
-    data['settings'] = this.settings ? this.settings.toJSON() : <any>undefined;
-    return data;
-  }
-}
-
-export interface ISendApplicationTestMailRequestDto {
-  targetEmail?: string;
-  settings?: ApplicationMailSettingsDto;
-}
-
-export class SendKeycloakTestMailRequestDto implements ISendKeycloakTestMailRequestDto {
-  targetEmail?: string;
-  settings?: KeycloakMailSettingsDto;
-
-  constructor(data?: ISendKeycloakTestMailRequestDto) {
-    if (data) {
-      for (var property in data) {
-        if (data.hasOwnProperty(property)) (<any>this)[property] = (<any>data)[property];
-      }
-    }
-  }
-
-  init(_data?: any) {
-    if (_data) {
-      this.targetEmail = _data['targetEmail'];
-      this.settings = _data['settings'] ? KeycloakMailSettingsDto.fromJS(_data['settings']) : <any>undefined;
-    }
-  }
-
-  static fromJS(data: any): SendKeycloakTestMailRequestDto {
-    data = typeof data === 'object' ? data : {};
-    let result = new SendKeycloakTestMailRequestDto();
-    result.init(data);
-    return result;
-  }
-
-  toJSON(data?: any) {
-    data = typeof data === 'object' ? data : {};
-    data['targetEmail'] = this.targetEmail;
-    data['settings'] = this.settings ? this.settings.toJSON() : <any>undefined;
-    return data;
-  }
-}
-
-export interface ISendKeycloakTestMailRequestDto {
-  targetEmail?: string;
-  settings?: KeycloakMailSettingsDto;
-}
-
-export class ThemeDefinitionsImport implements IThemeDefinitionsImport {
-  fileAsBase64?: string;
-
-  constructor(data?: IThemeDefinitionsImport) {
-    if (data) {
-      for (var property in data) {
-        if (data.hasOwnProperty(property)) (<any>this)[property] = (<any>data)[property];
-      }
-    }
-  }
-
-  init(_data?: any) {
-    if (_data) {
-      this.fileAsBase64 = _data['fileAsBase64'];
-    }
-  }
-
-  static fromJS(data: any): ThemeDefinitionsImport {
-    data = typeof data === 'object' ? data : {};
-    let result = new ThemeDefinitionsImport();
-    result.init(data);
-    return result;
-  }
-
-  toJSON(data?: any) {
-    data = typeof data === 'object' ? data : {};
-    data['fileAsBase64'] = this.fileAsBase64;
-    return data;
-  }
-}
-
-export interface IThemeDefinitionsImport {
-  fileAsBase64?: string;
+  darfLesen?: boolean;
+  darfSchreiben?: boolean;
+  darfMarktPublizieren?: boolean;
 }
 
 export class OrganisationUebersichtDto implements IOrganisationUebersichtDto {
@@ -16777,6 +15986,7 @@ export class AasInfrastructureSettings implements IAasInfrastructureSettings {
   id?: number;
   organisationId?: number;
   organisation?: Organisation;
+  benutzerRechte?: BenutzerInfrastrukturRecht[];
   name?: string;
   description?: string;
   aasDiscoveryUrl?: string;
@@ -16864,6 +16074,10 @@ export class AasInfrastructureSettings implements IAasInfrastructureSettings {
       this.id = _data['id'];
       this.organisationId = _data['organisationId'];
       this.organisation = _data['organisation'] ? Organisation.fromJS(_data['organisation']) : <any>undefined;
+      if (Array.isArray(_data['benutzerRechte'])) {
+        this.benutzerRechte = [] as any;
+        for (let item of _data['benutzerRechte']) this.benutzerRechte!.push(BenutzerInfrastrukturRecht.fromJS(item));
+      }
       this.name = _data['name'];
       this.description = _data['description'];
       this.aasDiscoveryUrl = _data['aasDiscoveryUrl'];
@@ -16955,6 +16169,10 @@ export class AasInfrastructureSettings implements IAasInfrastructureSettings {
     data['id'] = this.id;
     data['organisationId'] = this.organisationId;
     data['organisation'] = this.organisation ? this.organisation.toJSON() : <any>undefined;
+    if (Array.isArray(this.benutzerRechte)) {
+      data['benutzerRechte'] = [];
+      for (let item of this.benutzerRechte) data['benutzerRechte'].push(item.toJSON());
+    }
     data['name'] = this.name;
     data['description'] = this.description;
     data['aasDiscoveryUrl'] = this.aasDiscoveryUrl;
@@ -17039,6 +16257,7 @@ export interface IAasInfrastructureSettings {
   id?: number;
   organisationId?: number;
   organisation?: Organisation;
+  benutzerRechte?: BenutzerInfrastrukturRecht[];
   name?: string;
   description?: string;
   aasDiscoveryUrl?: string;
@@ -17106,6 +16325,103 @@ export interface IAasInfrastructureSettings {
   internalPortAasDiscovery?: number;
   internalPortMqtt?: number;
   internalPortSmRegistry?: number;
+  anlageDatum?: Date;
+  anlageBenutzer?: string;
+  aenderungsDatum?: Date;
+  aenderungsBenutzer?: string;
+  geloescht?: boolean;
+  aenderungsZaehler?: number;
+}
+
+export class BenutzerInfrastrukturRecht implements IBenutzerInfrastrukturRecht {
+  id?: number;
+  benutzerId?: number;
+  organisationId?: number;
+  infrastrukturId?: number;
+  benutzer?: Benutzer;
+  organisation?: Organisation;
+  infrastruktur?: AasInfrastructureSettings;
+  darfLesen?: boolean;
+  darfSchreiben?: boolean;
+  darfMarktPublizieren?: boolean;
+  anlageDatum?: Date;
+  anlageBenutzer?: string;
+  aenderungsDatum?: Date;
+  aenderungsBenutzer?: string;
+  geloescht?: boolean;
+  aenderungsZaehler?: number;
+
+  constructor(data?: IBenutzerInfrastrukturRecht) {
+    if (data) {
+      for (var property in data) {
+        if (data.hasOwnProperty(property)) (<any>this)[property] = (<any>data)[property];
+      }
+    }
+  }
+
+  init(_data?: any) {
+    if (_data) {
+      this.id = _data['id'];
+      this.benutzerId = _data['benutzerId'];
+      this.organisationId = _data['organisationId'];
+      this.infrastrukturId = _data['infrastrukturId'];
+      this.benutzer = _data['benutzer'] ? Benutzer.fromJS(_data['benutzer']) : <any>undefined;
+      this.organisation = _data['organisation'] ? Organisation.fromJS(_data['organisation']) : <any>undefined;
+      this.infrastruktur = _data['infrastruktur']
+        ? AasInfrastructureSettings.fromJS(_data['infrastruktur'])
+        : <any>undefined;
+      this.darfLesen = _data['darfLesen'];
+      this.darfSchreiben = _data['darfSchreiben'];
+      this.darfMarktPublizieren = _data['darfMarktPublizieren'];
+      this.anlageDatum = _data['anlageDatum'] ? new Date(_data['anlageDatum'].toString()) : <any>undefined;
+      this.anlageBenutzer = _data['anlageBenutzer'];
+      this.aenderungsDatum = _data['aenderungsDatum'] ? new Date(_data['aenderungsDatum'].toString()) : <any>undefined;
+      this.aenderungsBenutzer = _data['aenderungsBenutzer'];
+      this.geloescht = _data['geloescht'];
+      this.aenderungsZaehler = _data['aenderungsZaehler'];
+    }
+  }
+
+  static fromJS(data: any): BenutzerInfrastrukturRecht {
+    data = typeof data === 'object' ? data : {};
+    let result = new BenutzerInfrastrukturRecht();
+    result.init(data);
+    return result;
+  }
+
+  toJSON(data?: any) {
+    data = typeof data === 'object' ? data : {};
+    data['id'] = this.id;
+    data['benutzerId'] = this.benutzerId;
+    data['organisationId'] = this.organisationId;
+    data['infrastrukturId'] = this.infrastrukturId;
+    data['benutzer'] = this.benutzer ? this.benutzer.toJSON() : <any>undefined;
+    data['organisation'] = this.organisation ? this.organisation.toJSON() : <any>undefined;
+    data['infrastruktur'] = this.infrastruktur ? this.infrastruktur.toJSON() : <any>undefined;
+    data['darfLesen'] = this.darfLesen;
+    data['darfSchreiben'] = this.darfSchreiben;
+    data['darfMarktPublizieren'] = this.darfMarktPublizieren;
+    data['anlageDatum'] = this.anlageDatum ? this.anlageDatum.toISOString() : <any>undefined;
+    data['anlageBenutzer'] = this.anlageBenutzer;
+    data['aenderungsDatum'] = this.aenderungsDatum ? this.aenderungsDatum.toISOString() : <any>undefined;
+    data['aenderungsBenutzer'] = this.aenderungsBenutzer;
+    data['geloescht'] = this.geloescht;
+    data['aenderungsZaehler'] = this.aenderungsZaehler;
+    return data;
+  }
+}
+
+export interface IBenutzerInfrastrukturRecht {
+  id?: number;
+  benutzerId?: number;
+  organisationId?: number;
+  infrastrukturId?: number;
+  benutzer?: Benutzer;
+  organisation?: Organisation;
+  infrastruktur?: AasInfrastructureSettings;
+  darfLesen?: boolean;
+  darfSchreiben?: boolean;
+  darfMarktPublizieren?: boolean;
   anlageDatum?: Date;
   anlageBenutzer?: string;
   aenderungsDatum?: Date;
@@ -18509,6 +17825,1541 @@ export interface IOrganisationAdminUebersichtDto {
   anlageDatum?: Date | undefined;
   aenderungsDatum?: Date | undefined;
   orgaEmail?: string;
+}
+
+export class StatisticCalculatorSettingsDto implements IStatisticCalculatorSettingsDto {
+  intervalMinutes?: number;
+  isEnabled?: boolean;
+
+  constructor(data?: IStatisticCalculatorSettingsDto) {
+    if (data) {
+      for (var property in data) {
+        if (data.hasOwnProperty(property)) (<any>this)[property] = (<any>data)[property];
+      }
+    }
+  }
+
+  init(_data?: any) {
+    if (_data) {
+      this.intervalMinutes = _data['intervalMinutes'];
+      this.isEnabled = _data['isEnabled'];
+    }
+  }
+
+  static fromJS(data: any): StatisticCalculatorSettingsDto {
+    data = typeof data === 'object' ? data : {};
+    let result = new StatisticCalculatorSettingsDto();
+    result.init(data);
+    return result;
+  }
+
+  toJSON(data?: any) {
+    data = typeof data === 'object' ? data : {};
+    data['intervalMinutes'] = this.intervalMinutes;
+    data['isEnabled'] = this.isEnabled;
+    return data;
+  }
+}
+
+export interface IStatisticCalculatorSettingsDto {
+  intervalMinutes?: number;
+  isEnabled?: boolean;
+}
+
+export class DailyStatisticCalculatorSettingsDto implements IDailyStatisticCalculatorSettingsDto {
+  intervalMinutes?: number;
+  isEnabled?: boolean;
+
+  constructor(data?: IDailyStatisticCalculatorSettingsDto) {
+    if (data) {
+      for (var property in data) {
+        if (data.hasOwnProperty(property)) (<any>this)[property] = (<any>data)[property];
+      }
+    }
+  }
+
+  init(_data?: any) {
+    if (_data) {
+      this.intervalMinutes = _data['intervalMinutes'];
+      this.isEnabled = _data['isEnabled'];
+    }
+  }
+
+  static fromJS(data: any): DailyStatisticCalculatorSettingsDto {
+    data = typeof data === 'object' ? data : {};
+    let result = new DailyStatisticCalculatorSettingsDto();
+    result.init(data);
+    return result;
+  }
+
+  toJSON(data?: any) {
+    data = typeof data === 'object' ? data : {};
+    data['intervalMinutes'] = this.intervalMinutes;
+    data['isEnabled'] = this.isEnabled;
+    return data;
+  }
+}
+
+export interface IDailyStatisticCalculatorSettingsDto {
+  intervalMinutes?: number;
+  isEnabled?: boolean;
+}
+
+export class DailyExpiredOrganisationsCheckerSettingsDto implements IDailyExpiredOrganisationsCheckerSettingsDto {
+  intervalMinutes?: number;
+  isEnabled?: boolean;
+
+  constructor(data?: IDailyExpiredOrganisationsCheckerSettingsDto) {
+    if (data) {
+      for (var property in data) {
+        if (data.hasOwnProperty(property)) (<any>this)[property] = (<any>data)[property];
+      }
+    }
+  }
+
+  init(_data?: any) {
+    if (_data) {
+      this.intervalMinutes = _data['intervalMinutes'];
+      this.isEnabled = _data['isEnabled'];
+    }
+  }
+
+  static fromJS(data: any): DailyExpiredOrganisationsCheckerSettingsDto {
+    data = typeof data === 'object' ? data : {};
+    let result = new DailyExpiredOrganisationsCheckerSettingsDto();
+    result.init(data);
+    return result;
+  }
+
+  toJSON(data?: any) {
+    data = typeof data === 'object' ? data : {};
+    data['intervalMinutes'] = this.intervalMinutes;
+    data['isEnabled'] = this.isEnabled;
+    return data;
+  }
+}
+
+export interface IDailyExpiredOrganisationsCheckerSettingsDto {
+  intervalMinutes?: number;
+  isEnabled?: boolean;
+}
+
+export class PeriodicOrganisationDeleterSettingsDto implements IPeriodicOrganisationDeleterSettingsDto {
+  intervalMinutes?: number;
+  isEnabled?: boolean;
+
+  constructor(data?: IPeriodicOrganisationDeleterSettingsDto) {
+    if (data) {
+      for (var property in data) {
+        if (data.hasOwnProperty(property)) (<any>this)[property] = (<any>data)[property];
+      }
+    }
+  }
+
+  init(_data?: any) {
+    if (_data) {
+      this.intervalMinutes = _data['intervalMinutes'];
+      this.isEnabled = _data['isEnabled'];
+    }
+  }
+
+  static fromJS(data: any): PeriodicOrganisationDeleterSettingsDto {
+    data = typeof data === 'object' ? data : {};
+    let result = new PeriodicOrganisationDeleterSettingsDto();
+    result.init(data);
+    return result;
+  }
+
+  toJSON(data?: any) {
+    data = typeof data === 'object' ? data : {};
+    data['intervalMinutes'] = this.intervalMinutes;
+    data['isEnabled'] = this.isEnabled;
+    return data;
+  }
+}
+
+export interface IPeriodicOrganisationDeleterSettingsDto {
+  intervalMinutes?: number;
+  isEnabled?: boolean;
+}
+
+export class PeriodicInfrastructureDeleterSettingsDto implements IPeriodicInfrastructureDeleterSettingsDto {
+  intervalMinutes?: number;
+  isEnabled?: boolean;
+
+  constructor(data?: IPeriodicInfrastructureDeleterSettingsDto) {
+    if (data) {
+      for (var property in data) {
+        if (data.hasOwnProperty(property)) (<any>this)[property] = (<any>data)[property];
+      }
+    }
+  }
+
+  init(_data?: any) {
+    if (_data) {
+      this.intervalMinutes = _data['intervalMinutes'];
+      this.isEnabled = _data['isEnabled'];
+    }
+  }
+
+  static fromJS(data: any): PeriodicInfrastructureDeleterSettingsDto {
+    data = typeof data === 'object' ? data : {};
+    let result = new PeriodicInfrastructureDeleterSettingsDto();
+    result.init(data);
+    return result;
+  }
+
+  toJSON(data?: any) {
+    data = typeof data === 'object' ? data : {};
+    data['intervalMinutes'] = this.intervalMinutes;
+    data['isEnabled'] = this.isEnabled;
+    return data;
+  }
+}
+
+export interface IPeriodicInfrastructureDeleterSettingsDto {
+  intervalMinutes?: number;
+  isEnabled?: boolean;
+}
+
+export class IdtaCrawlerSettingsDto implements IIdtaCrawlerSettingsDto {
+  intervalMinutes?: number;
+  isEnabled?: boolean;
+
+  constructor(data?: IIdtaCrawlerSettingsDto) {
+    if (data) {
+      for (var property in data) {
+        if (data.hasOwnProperty(property)) (<any>this)[property] = (<any>data)[property];
+      }
+    }
+  }
+
+  init(_data?: any) {
+    if (_data) {
+      this.intervalMinutes = _data['intervalMinutes'];
+      this.isEnabled = _data['isEnabled'];
+    }
+  }
+
+  static fromJS(data: any): IdtaCrawlerSettingsDto {
+    data = typeof data === 'object' ? data : {};
+    let result = new IdtaCrawlerSettingsDto();
+    result.init(data);
+    return result;
+  }
+
+  toJSON(data?: any) {
+    data = typeof data === 'object' ? data : {};
+    data['intervalMinutes'] = this.intervalMinutes;
+    data['isEnabled'] = this.isEnabled;
+    return data;
+  }
+}
+
+export interface IIdtaCrawlerSettingsDto {
+  intervalMinutes?: number;
+  isEnabled?: boolean;
+}
+
+export class PcnUpdateListenerSettingsDto implements IPcnUpdateListenerSettingsDto {
+  intervalMinutes?: number;
+  isEnabled?: boolean;
+
+  constructor(data?: IPcnUpdateListenerSettingsDto) {
+    if (data) {
+      for (var property in data) {
+        if (data.hasOwnProperty(property)) (<any>this)[property] = (<any>data)[property];
+      }
+    }
+  }
+
+  init(_data?: any) {
+    if (_data) {
+      this.intervalMinutes = _data['intervalMinutes'];
+      this.isEnabled = _data['isEnabled'];
+    }
+  }
+
+  static fromJS(data: any): PcnUpdateListenerSettingsDto {
+    data = typeof data === 'object' ? data : {};
+    let result = new PcnUpdateListenerSettingsDto();
+    result.init(data);
+    return result;
+  }
+
+  toJSON(data?: any) {
+    data = typeof data === 'object' ? data : {};
+    data['intervalMinutes'] = this.intervalMinutes;
+    data['isEnabled'] = this.isEnabled;
+    return data;
+  }
+}
+
+export interface IPcnUpdateListenerSettingsDto {
+  intervalMinutes?: number;
+  isEnabled?: boolean;
+}
+
+export class PluginMenuItemDto implements IPluginMenuItemDto {
+  id?: string;
+  route?: string;
+  name?: string;
+  icon?: string;
+  description?: string;
+  shortLabel?: string;
+  requiredRole?: string;
+  requiresWritableRepo?: boolean;
+  sortOrder?: number;
+  version?: string;
+  author?: string;
+  assetPath?: string;
+  entryPointPath?: string;
+
+  constructor(data?: IPluginMenuItemDto) {
+    if (data) {
+      for (var property in data) {
+        if (data.hasOwnProperty(property)) (<any>this)[property] = (<any>data)[property];
+      }
+    }
+  }
+
+  init(_data?: any) {
+    if (_data) {
+      this.id = _data['id'];
+      this.route = _data['route'];
+      this.name = _data['name'];
+      this.icon = _data['icon'];
+      this.description = _data['description'];
+      this.shortLabel = _data['shortLabel'];
+      this.requiredRole = _data['requiredRole'];
+      this.requiresWritableRepo = _data['requiresWritableRepo'];
+      this.sortOrder = _data['sortOrder'];
+      this.version = _data['version'];
+      this.author = _data['author'];
+      this.assetPath = _data['assetPath'];
+      this.entryPointPath = _data['entryPointPath'];
+    }
+  }
+
+  static fromJS(data: any): PluginMenuItemDto {
+    data = typeof data === 'object' ? data : {};
+    let result = new PluginMenuItemDto();
+    result.init(data);
+    return result;
+  }
+
+  toJSON(data?: any) {
+    data = typeof data === 'object' ? data : {};
+    data['id'] = this.id;
+    data['route'] = this.route;
+    data['name'] = this.name;
+    data['icon'] = this.icon;
+    data['description'] = this.description;
+    data['shortLabel'] = this.shortLabel;
+    data['requiredRole'] = this.requiredRole;
+    data['requiresWritableRepo'] = this.requiresWritableRepo;
+    data['sortOrder'] = this.sortOrder;
+    data['version'] = this.version;
+    data['author'] = this.author;
+    data['assetPath'] = this.assetPath;
+    data['entryPointPath'] = this.entryPointPath;
+    return data;
+  }
+}
+
+export interface IPluginMenuItemDto {
+  id?: string;
+  route?: string;
+  name?: string;
+  icon?: string;
+  description?: string;
+  shortLabel?: string;
+  requiredRole?: string;
+  requiresWritableRepo?: boolean;
+  sortOrder?: number;
+  version?: string;
+  author?: string;
+  assetPath?: string;
+  entryPointPath?: string;
+}
+
+export class SystemConfigurationDto implements ISystemConfigurationDto {
+  singleTenantMode?: boolean;
+  isSsoAvailableSingleTenant?: boolean;
+  ssoConfigName?: string;
+  singleTenantTheme?: string;
+  datenschutzLinkDe?: string;
+  datenschutzLinkEn?: string;
+  agbLinkDe?: string;
+  agbLinkEn?: string;
+  avvLinkDe?: string;
+  avvLinkEn?: string;
+  imprintLink?: string;
+
+  constructor(data?: ISystemConfigurationDto) {
+    if (data) {
+      for (var property in data) {
+        if (data.hasOwnProperty(property)) (<any>this)[property] = (<any>data)[property];
+      }
+    }
+  }
+
+  init(_data?: any) {
+    if (_data) {
+      this.singleTenantMode = _data['singleTenantMode'];
+      this.isSsoAvailableSingleTenant = _data['isSsoAvailableSingleTenant'];
+      this.ssoConfigName = _data['ssoConfigName'];
+      this.singleTenantTheme = _data['singleTenantTheme'];
+      this.datenschutzLinkDe = _data['datenschutzLinkDe'];
+      this.datenschutzLinkEn = _data['datenschutzLinkEn'];
+      this.agbLinkDe = _data['agbLinkDe'];
+      this.agbLinkEn = _data['agbLinkEn'];
+      this.avvLinkDe = _data['avvLinkDe'];
+      this.avvLinkEn = _data['avvLinkEn'];
+      this.imprintLink = _data['imprintLink'];
+    }
+  }
+
+  static fromJS(data: any): SystemConfigurationDto {
+    data = typeof data === 'object' ? data : {};
+    let result = new SystemConfigurationDto();
+    result.init(data);
+    return result;
+  }
+
+  toJSON(data?: any) {
+    data = typeof data === 'object' ? data : {};
+    data['singleTenantMode'] = this.singleTenantMode;
+    data['isSsoAvailableSingleTenant'] = this.isSsoAvailableSingleTenant;
+    data['ssoConfigName'] = this.ssoConfigName;
+    data['singleTenantTheme'] = this.singleTenantTheme;
+    data['datenschutzLinkDe'] = this.datenschutzLinkDe;
+    data['datenschutzLinkEn'] = this.datenschutzLinkEn;
+    data['agbLinkDe'] = this.agbLinkDe;
+    data['agbLinkEn'] = this.agbLinkEn;
+    data['avvLinkDe'] = this.avvLinkDe;
+    data['avvLinkEn'] = this.avvLinkEn;
+    data['imprintLink'] = this.imprintLink;
+    return data;
+  }
+}
+
+export interface ISystemConfigurationDto {
+  singleTenantMode?: boolean;
+  isSsoAvailableSingleTenant?: boolean;
+  ssoConfigName?: string;
+  singleTenantTheme?: string;
+  datenschutzLinkDe?: string;
+  datenschutzLinkEn?: string;
+  agbLinkDe?: string;
+  agbLinkEn?: string;
+  avvLinkDe?: string;
+  avvLinkEn?: string;
+  imprintLink?: string;
+}
+
+export class SystemStatusDto implements ISystemStatusDto {
+  available?: boolean;
+
+  constructor(data?: ISystemStatusDto) {
+    if (data) {
+      for (var property in data) {
+        if (data.hasOwnProperty(property)) (<any>this)[property] = (<any>data)[property];
+      }
+    }
+  }
+
+  init(_data?: any) {
+    if (_data) {
+      this.available = _data['available'];
+    }
+  }
+
+  static fromJS(data: any): SystemStatusDto {
+    data = typeof data === 'object' ? data : {};
+    let result = new SystemStatusDto();
+    result.init(data);
+    return result;
+  }
+
+  toJSON(data?: any) {
+    data = typeof data === 'object' ? data : {};
+    data['available'] = this.available;
+    return data;
+  }
+}
+
+export interface ISystemStatusDto {
+  available?: boolean;
+}
+
+export enum SystemType {
+  Discovery = 0,
+  AasRegistry = 1,
+  AasRepository = 2,
+  SubmodelRepository = 3,
+  SubmodelRegistry = 4,
+  ConceptDescriptionRepository = 5,
+}
+
+export class HelpInfoDto implements IHelpInfoDto {
+  lastModification?: Date;
+  amountTexts?: number;
+
+  constructor(data?: IHelpInfoDto) {
+    if (data) {
+      for (var property in data) {
+        if (data.hasOwnProperty(property)) (<any>this)[property] = (<any>data)[property];
+      }
+    }
+  }
+
+  init(_data?: any) {
+    if (_data) {
+      this.lastModification = _data['lastModification']
+        ? new Date(_data['lastModification'].toString())
+        : <any>undefined;
+      this.amountTexts = _data['amountTexts'];
+    }
+  }
+
+  static fromJS(data: any): HelpInfoDto {
+    data = typeof data === 'object' ? data : {};
+    let result = new HelpInfoDto();
+    result.init(data);
+    return result;
+  }
+
+  toJSON(data?: any) {
+    data = typeof data === 'object' ? data : {};
+    data['lastModification'] = this.lastModification ? this.lastModification.toISOString() : <any>undefined;
+    data['amountTexts'] = this.amountTexts;
+    return data;
+  }
+}
+
+export interface IHelpInfoDto {
+  lastModification?: Date;
+  amountTexts?: number;
+}
+
+export class HelpUpdate implements IHelpUpdate {
+  fileAsBase64?: string;
+
+  constructor(data?: IHelpUpdate) {
+    if (data) {
+      for (var property in data) {
+        if (data.hasOwnProperty(property)) (<any>this)[property] = (<any>data)[property];
+      }
+    }
+  }
+
+  init(_data?: any) {
+    if (_data) {
+      this.fileAsBase64 = _data['fileAsBase64'];
+    }
+  }
+
+  static fromJS(data: any): HelpUpdate {
+    data = typeof data === 'object' ? data : {};
+    let result = new HelpUpdate();
+    result.init(data);
+    return result;
+  }
+
+  toJSON(data?: any) {
+    data = typeof data === 'object' ? data : {};
+    data['fileAsBase64'] = this.fileAsBase64;
+    return data;
+  }
+}
+
+export interface IHelpUpdate {
+  fileAsBase64?: string;
+}
+
+export class ThemeDefinitionDto implements IThemeDefinitionDto {
+  key?: string;
+  displayName?: string;
+  baseTheme?: string;
+  customCss?: string;
+  darkCustomCss?: string;
+  customerLogoUrl?: string;
+  backgroundImageUrl?: string;
+  darkBackgroundImageUrl?: string;
+  backgroundColor?: string;
+  darkBackgroundColor?: string;
+  backgroundMode?: string;
+  darkBackgroundMode?: string;
+  fontFamily?: string;
+  darkFontFamily?: string;
+  baseFontSize?: string;
+  darkBaseFontSize?: string;
+  primaryColor?: string;
+  darkPrimaryColor?: string;
+  highlightColor?: string;
+  darkHighlightColor?: string;
+  highlightTextColor?: string;
+  darkHighlightTextColor?: string;
+  primaryHoverColor?: string;
+  darkPrimaryHoverColor?: string;
+  surfaceColor?: string;
+  darkSurfaceColor?: string;
+  textColor?: string;
+  darkTextColor?: string;
+  inputTextColor?: string;
+  darkInputTextColor?: string;
+  primaryOpacity?: string;
+  darkPrimaryOpacity?: string;
+  surfaceOpacity?: string;
+  darkSurfaceOpacity?: string;
+  textOpacity?: string;
+  darkTextOpacity?: string;
+  borderRadius?: string;
+  darkBorderRadius?: string;
+  darkInheritFromLight?: boolean;
+  isBuiltIn?: boolean;
+
+  constructor(data?: IThemeDefinitionDto) {
+    if (data) {
+      for (var property in data) {
+        if (data.hasOwnProperty(property)) (<any>this)[property] = (<any>data)[property];
+      }
+    }
+  }
+
+  init(_data?: any) {
+    if (_data) {
+      this.key = _data['key'];
+      this.displayName = _data['displayName'];
+      this.baseTheme = _data['baseTheme'];
+      this.customCss = _data['customCss'];
+      this.darkCustomCss = _data['darkCustomCss'];
+      this.customerLogoUrl = _data['customerLogoUrl'];
+      this.backgroundImageUrl = _data['backgroundImageUrl'];
+      this.darkBackgroundImageUrl = _data['darkBackgroundImageUrl'];
+      this.backgroundColor = _data['backgroundColor'];
+      this.darkBackgroundColor = _data['darkBackgroundColor'];
+      this.backgroundMode = _data['backgroundMode'];
+      this.darkBackgroundMode = _data['darkBackgroundMode'];
+      this.fontFamily = _data['fontFamily'];
+      this.darkFontFamily = _data['darkFontFamily'];
+      this.baseFontSize = _data['baseFontSize'];
+      this.darkBaseFontSize = _data['darkBaseFontSize'];
+      this.primaryColor = _data['primaryColor'];
+      this.darkPrimaryColor = _data['darkPrimaryColor'];
+      this.highlightColor = _data['highlightColor'];
+      this.darkHighlightColor = _data['darkHighlightColor'];
+      this.highlightTextColor = _data['highlightTextColor'];
+      this.darkHighlightTextColor = _data['darkHighlightTextColor'];
+      this.primaryHoverColor = _data['primaryHoverColor'];
+      this.darkPrimaryHoverColor = _data['darkPrimaryHoverColor'];
+      this.surfaceColor = _data['surfaceColor'];
+      this.darkSurfaceColor = _data['darkSurfaceColor'];
+      this.textColor = _data['textColor'];
+      this.darkTextColor = _data['darkTextColor'];
+      this.inputTextColor = _data['inputTextColor'];
+      this.darkInputTextColor = _data['darkInputTextColor'];
+      this.primaryOpacity = _data['primaryOpacity'];
+      this.darkPrimaryOpacity = _data['darkPrimaryOpacity'];
+      this.surfaceOpacity = _data['surfaceOpacity'];
+      this.darkSurfaceOpacity = _data['darkSurfaceOpacity'];
+      this.textOpacity = _data['textOpacity'];
+      this.darkTextOpacity = _data['darkTextOpacity'];
+      this.borderRadius = _data['borderRadius'];
+      this.darkBorderRadius = _data['darkBorderRadius'];
+      this.darkInheritFromLight = _data['darkInheritFromLight'];
+      this.isBuiltIn = _data['isBuiltIn'];
+    }
+  }
+
+  static fromJS(data: any): ThemeDefinitionDto {
+    data = typeof data === 'object' ? data : {};
+    let result = new ThemeDefinitionDto();
+    result.init(data);
+    return result;
+  }
+
+  toJSON(data?: any) {
+    data = typeof data === 'object' ? data : {};
+    data['key'] = this.key;
+    data['displayName'] = this.displayName;
+    data['baseTheme'] = this.baseTheme;
+    data['customCss'] = this.customCss;
+    data['darkCustomCss'] = this.darkCustomCss;
+    data['customerLogoUrl'] = this.customerLogoUrl;
+    data['backgroundImageUrl'] = this.backgroundImageUrl;
+    data['darkBackgroundImageUrl'] = this.darkBackgroundImageUrl;
+    data['backgroundColor'] = this.backgroundColor;
+    data['darkBackgroundColor'] = this.darkBackgroundColor;
+    data['backgroundMode'] = this.backgroundMode;
+    data['darkBackgroundMode'] = this.darkBackgroundMode;
+    data['fontFamily'] = this.fontFamily;
+    data['darkFontFamily'] = this.darkFontFamily;
+    data['baseFontSize'] = this.baseFontSize;
+    data['darkBaseFontSize'] = this.darkBaseFontSize;
+    data['primaryColor'] = this.primaryColor;
+    data['darkPrimaryColor'] = this.darkPrimaryColor;
+    data['highlightColor'] = this.highlightColor;
+    data['darkHighlightColor'] = this.darkHighlightColor;
+    data['highlightTextColor'] = this.highlightTextColor;
+    data['darkHighlightTextColor'] = this.darkHighlightTextColor;
+    data['primaryHoverColor'] = this.primaryHoverColor;
+    data['darkPrimaryHoverColor'] = this.darkPrimaryHoverColor;
+    data['surfaceColor'] = this.surfaceColor;
+    data['darkSurfaceColor'] = this.darkSurfaceColor;
+    data['textColor'] = this.textColor;
+    data['darkTextColor'] = this.darkTextColor;
+    data['inputTextColor'] = this.inputTextColor;
+    data['darkInputTextColor'] = this.darkInputTextColor;
+    data['primaryOpacity'] = this.primaryOpacity;
+    data['darkPrimaryOpacity'] = this.darkPrimaryOpacity;
+    data['surfaceOpacity'] = this.surfaceOpacity;
+    data['darkSurfaceOpacity'] = this.darkSurfaceOpacity;
+    data['textOpacity'] = this.textOpacity;
+    data['darkTextOpacity'] = this.darkTextOpacity;
+    data['borderRadius'] = this.borderRadius;
+    data['darkBorderRadius'] = this.darkBorderRadius;
+    data['darkInheritFromLight'] = this.darkInheritFromLight;
+    data['isBuiltIn'] = this.isBuiltIn;
+    return data;
+  }
+}
+
+export interface IThemeDefinitionDto {
+  key?: string;
+  displayName?: string;
+  baseTheme?: string;
+  customCss?: string;
+  darkCustomCss?: string;
+  customerLogoUrl?: string;
+  backgroundImageUrl?: string;
+  darkBackgroundImageUrl?: string;
+  backgroundColor?: string;
+  darkBackgroundColor?: string;
+  backgroundMode?: string;
+  darkBackgroundMode?: string;
+  fontFamily?: string;
+  darkFontFamily?: string;
+  baseFontSize?: string;
+  darkBaseFontSize?: string;
+  primaryColor?: string;
+  darkPrimaryColor?: string;
+  highlightColor?: string;
+  darkHighlightColor?: string;
+  highlightTextColor?: string;
+  darkHighlightTextColor?: string;
+  primaryHoverColor?: string;
+  darkPrimaryHoverColor?: string;
+  surfaceColor?: string;
+  darkSurfaceColor?: string;
+  textColor?: string;
+  darkTextColor?: string;
+  inputTextColor?: string;
+  darkInputTextColor?: string;
+  primaryOpacity?: string;
+  darkPrimaryOpacity?: string;
+  surfaceOpacity?: string;
+  darkSurfaceOpacity?: string;
+  textOpacity?: string;
+  darkTextOpacity?: string;
+  borderRadius?: string;
+  darkBorderRadius?: string;
+  darkInheritFromLight?: boolean;
+  isBuiltIn?: boolean;
+}
+
+export class DeleteProtocolDto implements IDeleteProtocolDto {
+  id?: number;
+  deleteType?: DeleteType;
+  createdAt?: Date;
+  createdBy?: string;
+  additionalData?: string;
+  organisation?: OrganisationDeleteProtocolDto | undefined;
+  userAccount?: UserAccountDeleteProtocolDto | undefined;
+  infrastructure?: InfrastructureDeleteProtocolDto | undefined;
+
+  constructor(data?: IDeleteProtocolDto) {
+    if (data) {
+      for (var property in data) {
+        if (data.hasOwnProperty(property)) (<any>this)[property] = (<any>data)[property];
+      }
+    }
+  }
+
+  init(_data?: any) {
+    if (_data) {
+      this.id = _data['id'];
+      this.deleteType = _data['deleteType'];
+      this.createdAt = _data['createdAt'] ? new Date(_data['createdAt'].toString()) : <any>undefined;
+      this.createdBy = _data['createdBy'];
+      this.additionalData = _data['additionalData'];
+      this.organisation = _data['organisation']
+        ? OrganisationDeleteProtocolDto.fromJS(_data['organisation'])
+        : <any>undefined;
+      this.userAccount = _data['userAccount']
+        ? UserAccountDeleteProtocolDto.fromJS(_data['userAccount'])
+        : <any>undefined;
+      this.infrastructure = _data['infrastructure']
+        ? InfrastructureDeleteProtocolDto.fromJS(_data['infrastructure'])
+        : <any>undefined;
+    }
+  }
+
+  static fromJS(data: any): DeleteProtocolDto {
+    data = typeof data === 'object' ? data : {};
+    let result = new DeleteProtocolDto();
+    result.init(data);
+    return result;
+  }
+
+  toJSON(data?: any) {
+    data = typeof data === 'object' ? data : {};
+    data['id'] = this.id;
+    data['deleteType'] = this.deleteType;
+    data['createdAt'] = this.createdAt ? this.createdAt.toISOString() : <any>undefined;
+    data['createdBy'] = this.createdBy;
+    data['additionalData'] = this.additionalData;
+    data['organisation'] = this.organisation ? this.organisation.toJSON() : <any>undefined;
+    data['userAccount'] = this.userAccount ? this.userAccount.toJSON() : <any>undefined;
+    data['infrastructure'] = this.infrastructure ? this.infrastructure.toJSON() : <any>undefined;
+    return data;
+  }
+}
+
+export interface IDeleteProtocolDto {
+  id?: number;
+  deleteType?: DeleteType;
+  createdAt?: Date;
+  createdBy?: string;
+  additionalData?: string;
+  organisation?: OrganisationDeleteProtocolDto | undefined;
+  userAccount?: UserAccountDeleteProtocolDto | undefined;
+  infrastructure?: InfrastructureDeleteProtocolDto | undefined;
+}
+
+export enum DeleteType {
+  Unknown = 0,
+  Organisation = 1,
+  UserAccount = 2,
+  Infrastructure = 3,
+}
+
+export class OrganisationDeleteProtocolDto implements IOrganisationDeleteProtocolDto {
+  name?: string;
+  email?: string;
+
+  constructor(data?: IOrganisationDeleteProtocolDto) {
+    if (data) {
+      for (var property in data) {
+        if (data.hasOwnProperty(property)) (<any>this)[property] = (<any>data)[property];
+      }
+    }
+  }
+
+  init(_data?: any) {
+    if (_data) {
+      this.name = _data['name'];
+      this.email = _data['email'];
+    }
+  }
+
+  static fromJS(data: any): OrganisationDeleteProtocolDto {
+    data = typeof data === 'object' ? data : {};
+    let result = new OrganisationDeleteProtocolDto();
+    result.init(data);
+    return result;
+  }
+
+  toJSON(data?: any) {
+    data = typeof data === 'object' ? data : {};
+    data['name'] = this.name;
+    data['email'] = this.email;
+    return data;
+  }
+}
+
+export interface IOrganisationDeleteProtocolDto {
+  name?: string;
+  email?: string;
+}
+
+export class UserAccountDeleteProtocolDto implements IUserAccountDeleteProtocolDto {
+  email?: string;
+
+  constructor(data?: IUserAccountDeleteProtocolDto) {
+    if (data) {
+      for (var property in data) {
+        if (data.hasOwnProperty(property)) (<any>this)[property] = (<any>data)[property];
+      }
+    }
+  }
+
+  init(_data?: any) {
+    if (_data) {
+      this.email = _data['email'];
+    }
+  }
+
+  static fromJS(data: any): UserAccountDeleteProtocolDto {
+    data = typeof data === 'object' ? data : {};
+    let result = new UserAccountDeleteProtocolDto();
+    result.init(data);
+    return result;
+  }
+
+  toJSON(data?: any) {
+    data = typeof data === 'object' ? data : {};
+    data['email'] = this.email;
+    return data;
+  }
+}
+
+export interface IUserAccountDeleteProtocolDto {
+  email?: string;
+}
+
+export class InfrastructureDeleteProtocolDto implements IInfrastructureDeleteProtocolDto {
+  infraName?: string;
+  infraGuid?: string;
+
+  constructor(data?: IInfrastructureDeleteProtocolDto) {
+    if (data) {
+      for (var property in data) {
+        if (data.hasOwnProperty(property)) (<any>this)[property] = (<any>data)[property];
+      }
+    }
+  }
+
+  init(_data?: any) {
+    if (_data) {
+      this.infraName = _data['infraName'];
+      this.infraGuid = _data['infraGuid'];
+    }
+  }
+
+  static fromJS(data: any): InfrastructureDeleteProtocolDto {
+    data = typeof data === 'object' ? data : {};
+    let result = new InfrastructureDeleteProtocolDto();
+    result.init(data);
+    return result;
+  }
+
+  toJSON(data?: any) {
+    data = typeof data === 'object' ? data : {};
+    data['infraName'] = this.infraName;
+    data['infraGuid'] = this.infraGuid;
+    return data;
+  }
+}
+
+export interface IInfrastructureDeleteProtocolDto {
+  infraName?: string;
+  infraGuid?: string;
+}
+
+export class MailSettingsDto implements IMailSettingsDto {
+  keycloakEnabled?: boolean;
+  canManageKeycloakMailSettings?: boolean;
+  application?: ApplicationMailSettingsDto;
+  keycloak?: KeycloakMailSettingsDto;
+
+  constructor(data?: IMailSettingsDto) {
+    if (data) {
+      for (var property in data) {
+        if (data.hasOwnProperty(property)) (<any>this)[property] = (<any>data)[property];
+      }
+    }
+  }
+
+  init(_data?: any) {
+    if (_data) {
+      this.keycloakEnabled = _data['keycloakEnabled'];
+      this.canManageKeycloakMailSettings = _data['canManageKeycloakMailSettings'];
+      this.application = _data['application']
+        ? ApplicationMailSettingsDto.fromJS(_data['application'])
+        : <any>undefined;
+      this.keycloak = _data['keycloak'] ? KeycloakMailSettingsDto.fromJS(_data['keycloak']) : <any>undefined;
+    }
+  }
+
+  static fromJS(data: any): MailSettingsDto {
+    data = typeof data === 'object' ? data : {};
+    let result = new MailSettingsDto();
+    result.init(data);
+    return result;
+  }
+
+  toJSON(data?: any) {
+    data = typeof data === 'object' ? data : {};
+    data['keycloakEnabled'] = this.keycloakEnabled;
+    data['canManageKeycloakMailSettings'] = this.canManageKeycloakMailSettings;
+    data['application'] = this.application ? this.application.toJSON() : <any>undefined;
+    data['keycloak'] = this.keycloak ? this.keycloak.toJSON() : <any>undefined;
+    return data;
+  }
+}
+
+export interface IMailSettingsDto {
+  keycloakEnabled?: boolean;
+  canManageKeycloakMailSettings?: boolean;
+  application?: ApplicationMailSettingsDto;
+  keycloak?: KeycloakMailSettingsDto;
+}
+
+export class ApplicationMailSettingsDto implements IApplicationMailSettingsDto {
+  smtpServer?: string;
+  smtpPort?: number;
+  smtpUseSsl?: boolean;
+  smtpUseTls?: boolean;
+  smtpNeedsAuthentication?: boolean;
+  senderAddress?: string;
+  senderUsername?: string;
+  senderPassword?: string;
+  newOrgaNotificationAddress?: string;
+  subjectPrefix?: string;
+
+  constructor(data?: IApplicationMailSettingsDto) {
+    if (data) {
+      for (var property in data) {
+        if (data.hasOwnProperty(property)) (<any>this)[property] = (<any>data)[property];
+      }
+    }
+  }
+
+  init(_data?: any) {
+    if (_data) {
+      this.smtpServer = _data['smtpServer'];
+      this.smtpPort = _data['smtpPort'];
+      this.smtpUseSsl = _data['smtpUseSsl'];
+      this.smtpUseTls = _data['smtpUseTls'];
+      this.smtpNeedsAuthentication = _data['smtpNeedsAuthentication'];
+      this.senderAddress = _data['senderAddress'];
+      this.senderUsername = _data['senderUsername'];
+      this.senderPassword = _data['senderPassword'];
+      this.newOrgaNotificationAddress = _data['newOrgaNotificationAddress'];
+      this.subjectPrefix = _data['subjectPrefix'];
+    }
+  }
+
+  static fromJS(data: any): ApplicationMailSettingsDto {
+    data = typeof data === 'object' ? data : {};
+    let result = new ApplicationMailSettingsDto();
+    result.init(data);
+    return result;
+  }
+
+  toJSON(data?: any) {
+    data = typeof data === 'object' ? data : {};
+    data['smtpServer'] = this.smtpServer;
+    data['smtpPort'] = this.smtpPort;
+    data['smtpUseSsl'] = this.smtpUseSsl;
+    data['smtpUseTls'] = this.smtpUseTls;
+    data['smtpNeedsAuthentication'] = this.smtpNeedsAuthentication;
+    data['senderAddress'] = this.senderAddress;
+    data['senderUsername'] = this.senderUsername;
+    data['senderPassword'] = this.senderPassword;
+    data['newOrgaNotificationAddress'] = this.newOrgaNotificationAddress;
+    data['subjectPrefix'] = this.subjectPrefix;
+    return data;
+  }
+}
+
+export interface IApplicationMailSettingsDto {
+  smtpServer?: string;
+  smtpPort?: number;
+  smtpUseSsl?: boolean;
+  smtpUseTls?: boolean;
+  smtpNeedsAuthentication?: boolean;
+  senderAddress?: string;
+  senderUsername?: string;
+  senderPassword?: string;
+  newOrgaNotificationAddress?: string;
+  subjectPrefix?: string;
+}
+
+export class KeycloakMailSettingsDto implements IKeycloakMailSettingsDto {
+  host?: string;
+  port?: string;
+  from?: string;
+  fromDisplayName?: string;
+  replyTo?: string;
+  replyToDisplayName?: string;
+  user?: string;
+  password?: string;
+  auth?: boolean;
+  startTls?: boolean;
+  ssl?: boolean;
+
+  constructor(data?: IKeycloakMailSettingsDto) {
+    if (data) {
+      for (var property in data) {
+        if (data.hasOwnProperty(property)) (<any>this)[property] = (<any>data)[property];
+      }
+    }
+  }
+
+  init(_data?: any) {
+    if (_data) {
+      this.host = _data['host'];
+      this.port = _data['port'];
+      this.from = _data['from'];
+      this.fromDisplayName = _data['fromDisplayName'];
+      this.replyTo = _data['replyTo'];
+      this.replyToDisplayName = _data['replyToDisplayName'];
+      this.user = _data['user'];
+      this.password = _data['password'];
+      this.auth = _data['auth'];
+      this.startTls = _data['startTls'];
+      this.ssl = _data['ssl'];
+    }
+  }
+
+  static fromJS(data: any): KeycloakMailSettingsDto {
+    data = typeof data === 'object' ? data : {};
+    let result = new KeycloakMailSettingsDto();
+    result.init(data);
+    return result;
+  }
+
+  toJSON(data?: any) {
+    data = typeof data === 'object' ? data : {};
+    data['host'] = this.host;
+    data['port'] = this.port;
+    data['from'] = this.from;
+    data['fromDisplayName'] = this.fromDisplayName;
+    data['replyTo'] = this.replyTo;
+    data['replyToDisplayName'] = this.replyToDisplayName;
+    data['user'] = this.user;
+    data['password'] = this.password;
+    data['auth'] = this.auth;
+    data['startTls'] = this.startTls;
+    data['ssl'] = this.ssl;
+    return data;
+  }
+}
+
+export interface IKeycloakMailSettingsDto {
+  host?: string;
+  port?: string;
+  from?: string;
+  fromDisplayName?: string;
+  replyTo?: string;
+  replyToDisplayName?: string;
+  user?: string;
+  password?: string;
+  auth?: boolean;
+  startTls?: boolean;
+  ssl?: boolean;
+}
+
+export class LegalLinksSettingsDto implements ILegalLinksSettingsDto {
+  datenschutzLinkDe?: string;
+  datenschutzLinkEn?: string;
+  agbLinkDe?: string;
+  agbLinkEn?: string;
+  avvLinkDe?: string;
+  avvLinkEn?: string;
+  imprintLink?: string;
+  datenschutzLinkDeDocument?: LegalLinksDocumentInfoDto | undefined;
+  datenschutzLinkEnDocument?: LegalLinksDocumentInfoDto | undefined;
+  agbLinkDeDocument?: LegalLinksDocumentInfoDto | undefined;
+  agbLinkEnDocument?: LegalLinksDocumentInfoDto | undefined;
+  avvLinkDeDocument?: LegalLinksDocumentInfoDto | undefined;
+  avvLinkEnDocument?: LegalLinksDocumentInfoDto | undefined;
+  imprintLinkDocument?: LegalLinksDocumentInfoDto | undefined;
+
+  constructor(data?: ILegalLinksSettingsDto) {
+    if (data) {
+      for (var property in data) {
+        if (data.hasOwnProperty(property)) (<any>this)[property] = (<any>data)[property];
+      }
+    }
+  }
+
+  init(_data?: any) {
+    if (_data) {
+      this.datenschutzLinkDe = _data['datenschutzLinkDe'];
+      this.datenschutzLinkEn = _data['datenschutzLinkEn'];
+      this.agbLinkDe = _data['agbLinkDe'];
+      this.agbLinkEn = _data['agbLinkEn'];
+      this.avvLinkDe = _data['avvLinkDe'];
+      this.avvLinkEn = _data['avvLinkEn'];
+      this.imprintLink = _data['imprintLink'];
+      this.datenschutzLinkDeDocument = _data['datenschutzLinkDeDocument']
+        ? LegalLinksDocumentInfoDto.fromJS(_data['datenschutzLinkDeDocument'])
+        : <any>undefined;
+      this.datenschutzLinkEnDocument = _data['datenschutzLinkEnDocument']
+        ? LegalLinksDocumentInfoDto.fromJS(_data['datenschutzLinkEnDocument'])
+        : <any>undefined;
+      this.agbLinkDeDocument = _data['agbLinkDeDocument']
+        ? LegalLinksDocumentInfoDto.fromJS(_data['agbLinkDeDocument'])
+        : <any>undefined;
+      this.agbLinkEnDocument = _data['agbLinkEnDocument']
+        ? LegalLinksDocumentInfoDto.fromJS(_data['agbLinkEnDocument'])
+        : <any>undefined;
+      this.avvLinkDeDocument = _data['avvLinkDeDocument']
+        ? LegalLinksDocumentInfoDto.fromJS(_data['avvLinkDeDocument'])
+        : <any>undefined;
+      this.avvLinkEnDocument = _data['avvLinkEnDocument']
+        ? LegalLinksDocumentInfoDto.fromJS(_data['avvLinkEnDocument'])
+        : <any>undefined;
+      this.imprintLinkDocument = _data['imprintLinkDocument']
+        ? LegalLinksDocumentInfoDto.fromJS(_data['imprintLinkDocument'])
+        : <any>undefined;
+    }
+  }
+
+  static fromJS(data: any): LegalLinksSettingsDto {
+    data = typeof data === 'object' ? data : {};
+    let result = new LegalLinksSettingsDto();
+    result.init(data);
+    return result;
+  }
+
+  toJSON(data?: any) {
+    data = typeof data === 'object' ? data : {};
+    data['datenschutzLinkDe'] = this.datenschutzLinkDe;
+    data['datenschutzLinkEn'] = this.datenschutzLinkEn;
+    data['agbLinkDe'] = this.agbLinkDe;
+    data['agbLinkEn'] = this.agbLinkEn;
+    data['avvLinkDe'] = this.avvLinkDe;
+    data['avvLinkEn'] = this.avvLinkEn;
+    data['imprintLink'] = this.imprintLink;
+    data['datenschutzLinkDeDocument'] = this.datenschutzLinkDeDocument
+      ? this.datenschutzLinkDeDocument.toJSON()
+      : <any>undefined;
+    data['datenschutzLinkEnDocument'] = this.datenschutzLinkEnDocument
+      ? this.datenschutzLinkEnDocument.toJSON()
+      : <any>undefined;
+    data['agbLinkDeDocument'] = this.agbLinkDeDocument ? this.agbLinkDeDocument.toJSON() : <any>undefined;
+    data['agbLinkEnDocument'] = this.agbLinkEnDocument ? this.agbLinkEnDocument.toJSON() : <any>undefined;
+    data['avvLinkDeDocument'] = this.avvLinkDeDocument ? this.avvLinkDeDocument.toJSON() : <any>undefined;
+    data['avvLinkEnDocument'] = this.avvLinkEnDocument ? this.avvLinkEnDocument.toJSON() : <any>undefined;
+    data['imprintLinkDocument'] = this.imprintLinkDocument ? this.imprintLinkDocument.toJSON() : <any>undefined;
+    return data;
+  }
+}
+
+export interface ILegalLinksSettingsDto {
+  datenschutzLinkDe?: string;
+  datenschutzLinkEn?: string;
+  agbLinkDe?: string;
+  agbLinkEn?: string;
+  avvLinkDe?: string;
+  avvLinkEn?: string;
+  imprintLink?: string;
+  datenschutzLinkDeDocument?: LegalLinksDocumentInfoDto | undefined;
+  datenschutzLinkEnDocument?: LegalLinksDocumentInfoDto | undefined;
+  agbLinkDeDocument?: LegalLinksDocumentInfoDto | undefined;
+  agbLinkEnDocument?: LegalLinksDocumentInfoDto | undefined;
+  avvLinkDeDocument?: LegalLinksDocumentInfoDto | undefined;
+  avvLinkEnDocument?: LegalLinksDocumentInfoDto | undefined;
+  imprintLinkDocument?: LegalLinksDocumentInfoDto | undefined;
+}
+
+export class LegalLinksDocumentInfoDto implements ILegalLinksDocumentInfoDto {
+  fileName?: string;
+  contentType?: string;
+
+  constructor(data?: ILegalLinksDocumentInfoDto) {
+    if (data) {
+      for (var property in data) {
+        if (data.hasOwnProperty(property)) (<any>this)[property] = (<any>data)[property];
+      }
+    }
+  }
+
+  init(_data?: any) {
+    if (_data) {
+      this.fileName = _data['fileName'];
+      this.contentType = _data['contentType'];
+    }
+  }
+
+  static fromJS(data: any): LegalLinksDocumentInfoDto {
+    data = typeof data === 'object' ? data : {};
+    let result = new LegalLinksDocumentInfoDto();
+    result.init(data);
+    return result;
+  }
+
+  toJSON(data?: any) {
+    data = typeof data === 'object' ? data : {};
+    data['fileName'] = this.fileName;
+    data['contentType'] = this.contentType;
+    return data;
+  }
+}
+
+export interface ILegalLinksDocumentInfoDto {
+  fileName?: string;
+  contentType?: string;
+}
+
+export class UpdateLegalLinksSettingsRequest implements IUpdateLegalLinksSettingsRequest {
+  datenschutzLinkDe?: string;
+  datenschutzLinkEn?: string;
+  agbLinkDe?: string;
+  agbLinkEn?: string;
+  avvLinkDe?: string;
+  avvLinkEn?: string;
+  imprintLink?: string;
+  datenschutzLinkDeDocument?: LegalLinksDocumentUploadDto | undefined;
+  datenschutzLinkEnDocument?: LegalLinksDocumentUploadDto | undefined;
+  agbLinkDeDocument?: LegalLinksDocumentUploadDto | undefined;
+  agbLinkEnDocument?: LegalLinksDocumentUploadDto | undefined;
+  avvLinkDeDocument?: LegalLinksDocumentUploadDto | undefined;
+  avvLinkEnDocument?: LegalLinksDocumentUploadDto | undefined;
+  imprintLinkDocument?: LegalLinksDocumentUploadDto | undefined;
+  servingBaseUrl?: string;
+
+  constructor(data?: IUpdateLegalLinksSettingsRequest) {
+    if (data) {
+      for (var property in data) {
+        if (data.hasOwnProperty(property)) (<any>this)[property] = (<any>data)[property];
+      }
+    }
+  }
+
+  init(_data?: any) {
+    if (_data) {
+      this.datenschutzLinkDe = _data['datenschutzLinkDe'];
+      this.datenschutzLinkEn = _data['datenschutzLinkEn'];
+      this.agbLinkDe = _data['agbLinkDe'];
+      this.agbLinkEn = _data['agbLinkEn'];
+      this.avvLinkDe = _data['avvLinkDe'];
+      this.avvLinkEn = _data['avvLinkEn'];
+      this.imprintLink = _data['imprintLink'];
+      this.datenschutzLinkDeDocument = _data['datenschutzLinkDeDocument']
+        ? LegalLinksDocumentUploadDto.fromJS(_data['datenschutzLinkDeDocument'])
+        : <any>undefined;
+      this.datenschutzLinkEnDocument = _data['datenschutzLinkEnDocument']
+        ? LegalLinksDocumentUploadDto.fromJS(_data['datenschutzLinkEnDocument'])
+        : <any>undefined;
+      this.agbLinkDeDocument = _data['agbLinkDeDocument']
+        ? LegalLinksDocumentUploadDto.fromJS(_data['agbLinkDeDocument'])
+        : <any>undefined;
+      this.agbLinkEnDocument = _data['agbLinkEnDocument']
+        ? LegalLinksDocumentUploadDto.fromJS(_data['agbLinkEnDocument'])
+        : <any>undefined;
+      this.avvLinkDeDocument = _data['avvLinkDeDocument']
+        ? LegalLinksDocumentUploadDto.fromJS(_data['avvLinkDeDocument'])
+        : <any>undefined;
+      this.avvLinkEnDocument = _data['avvLinkEnDocument']
+        ? LegalLinksDocumentUploadDto.fromJS(_data['avvLinkEnDocument'])
+        : <any>undefined;
+      this.imprintLinkDocument = _data['imprintLinkDocument']
+        ? LegalLinksDocumentUploadDto.fromJS(_data['imprintLinkDocument'])
+        : <any>undefined;
+      this.servingBaseUrl = _data['servingBaseUrl'];
+    }
+  }
+
+  static fromJS(data: any): UpdateLegalLinksSettingsRequest {
+    data = typeof data === 'object' ? data : {};
+    let result = new UpdateLegalLinksSettingsRequest();
+    result.init(data);
+    return result;
+  }
+
+  toJSON(data?: any) {
+    data = typeof data === 'object' ? data : {};
+    data['datenschutzLinkDe'] = this.datenschutzLinkDe;
+    data['datenschutzLinkEn'] = this.datenschutzLinkEn;
+    data['agbLinkDe'] = this.agbLinkDe;
+    data['agbLinkEn'] = this.agbLinkEn;
+    data['avvLinkDe'] = this.avvLinkDe;
+    data['avvLinkEn'] = this.avvLinkEn;
+    data['imprintLink'] = this.imprintLink;
+    data['datenschutzLinkDeDocument'] = this.datenschutzLinkDeDocument
+      ? this.datenschutzLinkDeDocument.toJSON()
+      : <any>undefined;
+    data['datenschutzLinkEnDocument'] = this.datenschutzLinkEnDocument
+      ? this.datenschutzLinkEnDocument.toJSON()
+      : <any>undefined;
+    data['agbLinkDeDocument'] = this.agbLinkDeDocument ? this.agbLinkDeDocument.toJSON() : <any>undefined;
+    data['agbLinkEnDocument'] = this.agbLinkEnDocument ? this.agbLinkEnDocument.toJSON() : <any>undefined;
+    data['avvLinkDeDocument'] = this.avvLinkDeDocument ? this.avvLinkDeDocument.toJSON() : <any>undefined;
+    data['avvLinkEnDocument'] = this.avvLinkEnDocument ? this.avvLinkEnDocument.toJSON() : <any>undefined;
+    data['imprintLinkDocument'] = this.imprintLinkDocument ? this.imprintLinkDocument.toJSON() : <any>undefined;
+    data['servingBaseUrl'] = this.servingBaseUrl;
+    return data;
+  }
+}
+
+export interface IUpdateLegalLinksSettingsRequest {
+  datenschutzLinkDe?: string;
+  datenschutzLinkEn?: string;
+  agbLinkDe?: string;
+  agbLinkEn?: string;
+  avvLinkDe?: string;
+  avvLinkEn?: string;
+  imprintLink?: string;
+  datenschutzLinkDeDocument?: LegalLinksDocumentUploadDto | undefined;
+  datenschutzLinkEnDocument?: LegalLinksDocumentUploadDto | undefined;
+  agbLinkDeDocument?: LegalLinksDocumentUploadDto | undefined;
+  agbLinkEnDocument?: LegalLinksDocumentUploadDto | undefined;
+  avvLinkDeDocument?: LegalLinksDocumentUploadDto | undefined;
+  avvLinkEnDocument?: LegalLinksDocumentUploadDto | undefined;
+  imprintLinkDocument?: LegalLinksDocumentUploadDto | undefined;
+  servingBaseUrl?: string;
+}
+
+export class LegalLinksDocumentUploadDto implements ILegalLinksDocumentUploadDto {
+  fileName?: string;
+  contentType?: string;
+  contentBase64?: string;
+
+  constructor(data?: ILegalLinksDocumentUploadDto) {
+    if (data) {
+      for (var property in data) {
+        if (data.hasOwnProperty(property)) (<any>this)[property] = (<any>data)[property];
+      }
+    }
+  }
+
+  init(_data?: any) {
+    if (_data) {
+      this.fileName = _data['fileName'];
+      this.contentType = _data['contentType'];
+      this.contentBase64 = _data['contentBase64'];
+    }
+  }
+
+  static fromJS(data: any): LegalLinksDocumentUploadDto {
+    data = typeof data === 'object' ? data : {};
+    let result = new LegalLinksDocumentUploadDto();
+    result.init(data);
+    return result;
+  }
+
+  toJSON(data?: any) {
+    data = typeof data === 'object' ? data : {};
+    data['fileName'] = this.fileName;
+    data['contentType'] = this.contentType;
+    data['contentBase64'] = this.contentBase64;
+    return data;
+  }
+}
+
+export interface ILegalLinksDocumentUploadDto {
+  fileName?: string;
+  contentType?: string;
+  contentBase64?: string;
+}
+
+export class SendApplicationTestMailRequestDto implements ISendApplicationTestMailRequestDto {
+  targetEmail?: string;
+  settings?: ApplicationMailSettingsDto;
+
+  constructor(data?: ISendApplicationTestMailRequestDto) {
+    if (data) {
+      for (var property in data) {
+        if (data.hasOwnProperty(property)) (<any>this)[property] = (<any>data)[property];
+      }
+    }
+  }
+
+  init(_data?: any) {
+    if (_data) {
+      this.targetEmail = _data['targetEmail'];
+      this.settings = _data['settings'] ? ApplicationMailSettingsDto.fromJS(_data['settings']) : <any>undefined;
+    }
+  }
+
+  static fromJS(data: any): SendApplicationTestMailRequestDto {
+    data = typeof data === 'object' ? data : {};
+    let result = new SendApplicationTestMailRequestDto();
+    result.init(data);
+    return result;
+  }
+
+  toJSON(data?: any) {
+    data = typeof data === 'object' ? data : {};
+    data['targetEmail'] = this.targetEmail;
+    data['settings'] = this.settings ? this.settings.toJSON() : <any>undefined;
+    return data;
+  }
+}
+
+export interface ISendApplicationTestMailRequestDto {
+  targetEmail?: string;
+  settings?: ApplicationMailSettingsDto;
+}
+
+export class SendKeycloakTestMailRequestDto implements ISendKeycloakTestMailRequestDto {
+  targetEmail?: string;
+  settings?: KeycloakMailSettingsDto;
+
+  constructor(data?: ISendKeycloakTestMailRequestDto) {
+    if (data) {
+      for (var property in data) {
+        if (data.hasOwnProperty(property)) (<any>this)[property] = (<any>data)[property];
+      }
+    }
+  }
+
+  init(_data?: any) {
+    if (_data) {
+      this.targetEmail = _data['targetEmail'];
+      this.settings = _data['settings'] ? KeycloakMailSettingsDto.fromJS(_data['settings']) : <any>undefined;
+    }
+  }
+
+  static fromJS(data: any): SendKeycloakTestMailRequestDto {
+    data = typeof data === 'object' ? data : {};
+    let result = new SendKeycloakTestMailRequestDto();
+    result.init(data);
+    return result;
+  }
+
+  toJSON(data?: any) {
+    data = typeof data === 'object' ? data : {};
+    data['targetEmail'] = this.targetEmail;
+    data['settings'] = this.settings ? this.settings.toJSON() : <any>undefined;
+    return data;
+  }
+}
+
+export interface ISendKeycloakTestMailRequestDto {
+  targetEmail?: string;
+  settings?: KeycloakMailSettingsDto;
+}
+
+export class ThemeDefinitionsImport implements IThemeDefinitionsImport {
+  fileAsBase64?: string;
+
+  constructor(data?: IThemeDefinitionsImport) {
+    if (data) {
+      for (var property in data) {
+        if (data.hasOwnProperty(property)) (<any>this)[property] = (<any>data)[property];
+      }
+    }
+  }
+
+  init(_data?: any) {
+    if (_data) {
+      this.fileAsBase64 = _data['fileAsBase64'];
+    }
+  }
+
+  static fromJS(data: any): ThemeDefinitionsImport {
+    data = typeof data === 'object' ? data : {};
+    let result = new ThemeDefinitionsImport();
+    result.init(data);
+    return result;
+  }
+
+  toJSON(data?: any) {
+    data = typeof data === 'object' ? data : {};
+    data['fileAsBase64'] = this.fileAsBase64;
+    return data;
+  }
+}
+
+export interface IThemeDefinitionsImport {
+  fileAsBase64?: string;
 }
 
 export class DashboardLayoutDto implements IDashboardLayoutDto {
