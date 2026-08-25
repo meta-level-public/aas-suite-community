@@ -11,6 +11,7 @@
     <PackageReference Include="AspNetCore.Proxy"></PackageReference>
 
     <ProjectReference Include="..\..\shared\AasShared\AasShared.csproj" />
+    <ProjectReference Include="..\..\shared\AasSuitePluginAbstractions\AasSuitePluginAbstractions.csproj" />
     <ProjectReference Include="..\AasDesignerModel\AasDesignerModel.csproj" />
     <ProjectReference Include="..\AasDesignerAuthorization\AasDesignerAuthorization.csproj" />
     <ProjectReference Include="..\AasDesignerCommon\AasDesignerCommon.csproj" />

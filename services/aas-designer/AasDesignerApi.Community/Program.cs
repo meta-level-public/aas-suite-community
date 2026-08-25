@@ -114,6 +114,7 @@ var appSettings = AasDesignerBootstrap.GetRequiredConfiguration<AppSettings>(
 );
 builder.Services.AddSingleton(appSettings);
 builder.Services.AddSingleton<IPluginRegistry, ZipPluginRegistry>();
+var backendPluginLoader = BackendPluginLoader.Load(builder.Services, appSettings, logger);
 
 builder.Services.AddMediatR(cfg => cfg.RegisterServicesFromAssemblyContaining<Program>());
 builder.Services.AddMediatR(cfg =>
@@ -353,6 +354,7 @@ app.UseMiddleware<NoCacheMiddleware>();
 app.UseMiddleware<VwsGeneratorJwtMiddleware>();
 app.UseMiddleware<VwsGeneratorApikeyMiddleware>();
 app.MapControllers();
+backendPluginLoader.MapEndpoints(app);
 
 app.UseResponseCompression();
 
