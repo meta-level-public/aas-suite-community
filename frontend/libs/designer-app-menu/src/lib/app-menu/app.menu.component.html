@@ -20,7 +20,12 @@
           [pTooltip]="!sidebarExpanded() ? tab.label : ''"
           tooltipPosition="right"
         >
-          <i [class]="tab.icon" class="sidebar-icon"></i>
+          <span class="sidebar-icon-wrap">
+            <i [class]="tab.icon" class="sidebar-icon"></i>
+            @if (!sidebarExpanded() && tab.shortLabel) {
+              <span class="sidebar-mini-label">{{ tab.shortLabel }}</span>
+            }
+          </span>
           @if (sidebarExpanded()) {
             <span class="sidebar-label">{{ tab.label }}</span>
           }

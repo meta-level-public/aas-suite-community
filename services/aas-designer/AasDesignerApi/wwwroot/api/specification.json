@@ -2251,6 +2251,39 @@
         }
       }
     },
+    "/aas-api/Submodel/SaveSm": {
+      "post": {
+        "tags": [
+          "Submodel"
+        ],
+        "operationId": "Submodel_SaveSm",
+        "parameters": [
+          {
+            "name": "data",
+            "in": "query",
+            "style": "form",
+            "explode": true,
+            "schema": {
+              "type": "array",
+              "items": {}
+            },
+            "x-position": 1
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "boolean"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/aas-api/Settings/GetViewerSettings": {
       "get": {
         "tags": [
@@ -4061,6 +4094,70 @@
           "required": true,
           "x-position": 1
         },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/octet-stream": {
+                "schema": {
+                  "type": "string",
+                  "format": "binary"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/system-management-api/Plugins/menu-items": {
+      "get": {
+        "tags": [
+          "Plugins"
+        ],
+        "operationId": "Plugins_GetMenuItems",
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/PluginMenuItemDto"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/system-management-api/Plugins/{pluginId}/assets/{assetPath}": {
+      "get": {
+        "tags": [
+          "Plugins"
+        ],
+        "operationId": "Plugins_GetAsset",
+        "parameters": [
+          {
+            "name": "pluginId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "x-position": 1
+          },
+          {
+            "name": "assetPath",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "x-position": 2
+          }
+        ],
         "responses": {
           "200": {
             "description": "",
@@ -6300,6 +6397,9 @@
             "type": "string",
             "nullable": true
           },
+          "source": {
+            "type": "string"
+          },
           "smList": {
             "type": "array",
             "items": {
@@ -8308,6 +8408,52 @@
           },
           "isEnabled": {
             "type": "boolean"
+          }
+        }
+      },
+      "PluginMenuItemDto": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "route": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "icon": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          },
+          "shortLabel": {
+            "type": "string"
+          },
+          "requiredRole": {
+            "type": "string"
+          },
+          "requiresWritableRepo": {
+            "type": "boolean"
+          },
+          "sortOrder": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "version": {
+            "type": "string"
+          },
+          "author": {
+            "type": "string"
+          },
+          "assetPath": {
+            "type": "string"
+          },
+          "entryPointPath": {
+            "type": "string"
           }
         }
       },

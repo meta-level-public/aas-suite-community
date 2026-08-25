@@ -5,6 +5,8 @@ export * from './lib/app-routes';
 export * from './lib/confirmation.service';
 export * from './lib/encoding.serice';
 export * from './lib/notification.service';
+export * from './lib/plugins/plugin-menu-item';
+export * from './lib/plugins/plugin-registry.service';
 export * from './lib/portal.service';
 export * from './lib/theme-definition';
 export * from './lib/theme-definition.service';

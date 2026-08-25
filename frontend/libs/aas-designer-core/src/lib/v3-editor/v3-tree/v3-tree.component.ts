@@ -80,6 +80,7 @@ type FlatTreeNode = {
 export class V3TreeComponent implements OnChanges, OnInit {
   @Input() loading: boolean = false;
   @Input() shellResult: ShellResult | undefined;
+  @Input() submodelRootMode: boolean = false;
 
   @Output() selectedElementChanged: EventEmitter<V3TreeItem<any> | undefined> = new EventEmitter<
     V3TreeItem<any> | undefined
@@ -157,6 +158,10 @@ export class V3TreeComponent implements OnChanges, OnInit {
       this.loading = true;
       this.treeService.aasTreeData = [];
 
+      const hasSingleShell = (this.shellResult?.v3Shell?.assetAdministrationShells?.length ?? 0) === 1;
+      const hasSingleSubmodel = (this.shellResult?.v3Shell?.submodels?.length ?? 0) === 1;
+      const useSubmodelRootMode = this.submodelRootMode && hasSingleShell && hasSingleSubmodel;
+
       if (this.shellResult?.v3Shell != null && this.shellResult.v3Shell.assetAdministrationShells != null) {
         for (const shell of this.shellResult.v3Shell.assetAdministrationShells) {
           // vorhandene Shells finden
@@ -205,8 +210,18 @@ export class V3TreeComponent implements OnChanges, OnInit {
 
           shellNode.label = this.translate.instant(key);
 
-          this.treeService.aasTreeData.push(shellNode);
-          this.shellNode = shellNode;
+          if (useSubmodelRootMode) {
+            const rootSubmodelNode = shellNode.children?.[0];
+            if (rootSubmodelNode != null) {
+              rootSubmodelNode.parent = undefined;
+              rootSubmodelNode.expanded = true;
+              this.treeService.aasTreeData.push(rootSubmodelNode);
+            }
+            this.shellNode = shellNode;
+          } else {
+            this.treeService.aasTreeData.push(shellNode);
+            this.shellNode = shellNode;
+          }
         }
       }
 

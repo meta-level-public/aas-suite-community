@@ -1,0 +1,130 @@
+<div class="aas-page-surface">
+  <div class="aas-page-layout w-full h-full">
+    <div class="aas-page-fill">
+      <div class="aas-page-abs-fill">
+        <div class="aas-page-panel aas-page-panel-inset viewer-content-area rounded-lg overflow-hidden">
+          @if (loading()) {
+            <div class="flex items-center gap-2 p-3">
+              <i class="pi pi-spin pi-spinner"></i>
+              <span>{{ 'LOADING' | translate }}</span>
+            </div>
+          } @else if (shellResult() != null) {
+            <p-splitter stateKey="submodelEditorTree" stateStorage="local" [panelSizes]="[20, 80]" class="h-full">
+              <ng-template pTemplate>
+                <aas-v3-tree
+                  class="w-full h-full"
+                  [loading]="loading()"
+                  [shellResult]="shellResult()!"
+                  [submodelRootMode]="true"
+                  (selectedElementChanged)="selectElement($event)"
+                ></aas-v3-tree>
+              </ng-template>
+              <ng-template pTemplate>
+                <aas-v3-editor
+                  class="w-full h-full"
+                  [loading]="loading()"
+                  [selectedElement]="selectedElement()"
+                  [shellResult]="shellResult()!"
+                  [repositoryUrl]="PortalService.getRepositoryUrl()"
+                  [showShellActions]="false"
+                  [validationScope]="'submodelOnly'"
+                  [showExternalSaveAction]="true"
+                  [showInfoAction]="true"
+                  [externalSaveActionLoading]="saving()"
+                  [externalSaveActionDisabled]="loading() || shellResult() == null"
+                  [infoActionDisabled]="loading() || shellResult() == null"
+                  (externalSaveActionRequested)="saveSubmodel()"
+                  (infoActionRequested)="openInfoDialog()"
+                ></aas-v3-editor>
+              </ng-template>
+            </p-splitter>
+          } @else {
+            <div class="p-3">{{ 'NO_DATA_FOUND' | translate }}</div>
+          }
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<p-dialog
+  [header]="'SUBMODEL_INFO' | translate"
+  [visible]="infoDialogVisible()"
+  [modal]="true"
+  [draggable]="false"
+  [resizable]="false"
+  [style]="{ width: '56rem', maxWidth: '95vw' }"
+  appendTo="body"
+  (onHide)="infoDialogVisible.set(false)"
+>
+  @if (infoDialogLoading()) {
+    <div class="detail-card flex items-center gap-2 py-3">
+      <i class="pi pi-spin pi-spinner" style="color: var(--p-primary-color)"></i>
+      <span class="font-medium">{{ 'LOADING' | translate }}</span>
+    </div>
+  } @else if (infoDialogError()) {
+    <div class="detail-card py-3">{{ 'SUBMODEL_INFO_LOAD_ERROR' | translate }}</div>
+  } @else if (infoSummary(); as info) {
+    <div class="flex flex-col gap-4">
+      <div class="detail-card flex flex-col gap-3">
+        <div class="font-semibold text-lg">{{ 'SUMMARY' | translate }}</div>
+
+        <div class="flex flex-col gap-3">
+          <p-inputgroup>
+            <p-inputgroup-addon class="font-bold w-48">{{ 'SUBMODEL' | translate }}</p-inputgroup-addon>
+            <input pInputText [readonly]="true" [ngModel]="info.submodelId" class="w-full" />
+          </p-inputgroup>
+
+          <p-inputgroup>
+            <p-inputgroup-addon class="font-bold w-48">{{ 'ID_SHORT' | translate }}</p-inputgroup-addon>
+            <input pInputText [readonly]="true" [ngModel]="info.submodelIdShort !== '' ? info.submodelIdShort : '-'" />
+          </p-inputgroup>
+
+          <p-inputgroup>
+            <p-inputgroup-addon class="font-bold w-48">{{ 'FILES' | translate }}</p-inputgroup-addon>
+            <input pInputText [readonly]="true" [ngModel]="info.fileCount" />
+          </p-inputgroup>
+
+          <p-inputgroup>
+            <p-inputgroup-addon class="font-bold w-48">{{ 'CONCEPT_DESCRIPTIONS' | translate }}</p-inputgroup-addon>
+            <input pInputText [readonly]="true" [ngModel]="info.conceptDescriptionCount" />
+          </p-inputgroup>
+
+          <p-inputgroup>
+            <p-inputgroup-addon class="font-bold w-48">{{ 'AAS_REFERENCES' | translate }}</p-inputgroup-addon>
+            <input pInputText [readonly]="true" [ngModel]="info.referencingAas.length" />
+          </p-inputgroup>
+        </div>
+      </div>
+
+      <div class="detail-card flex flex-col gap-3">
+        <div class="font-semibold">{{ 'SHELLS_LIST' | translate }}</div>
+
+        @if (info.referencingAas.length > 0) {
+          <div class="max-h-72 overflow-auto border-1 border-round border-300 p-2">
+            @for (aasRef of info.referencingAas; track aasRef.id) {
+              <div class="py-2 border-bottom-1 border-200 last:border-none">
+                <div class="font-medium">{{ aasRef.idShort !== '' ? aasRef.idShort : '-' }}</div>
+                <div class="text-sm opacity-80 break-all">{{ aasRef.id }}</div>
+              </div>
+            }
+          </div>
+        } @else {
+          <div class="text-sm opacity-80">{{ 'AAS_REFERENCES_NONE' | translate }}</div>
+        }
+      </div>
+    </div>
+  }
+
+  <ng-template pTemplate="footer">
+    <div class="flex justify-end gap-2">
+      <p-button
+        [label]="'CLOSE' | translate"
+        icon="pi pi-times"
+        severity="secondary"
+        [outlined]="true"
+        (onClick)="infoDialogVisible.set(false)"
+      ></p-button>
+    </div>
+  </ng-template>
+</p-dialog>

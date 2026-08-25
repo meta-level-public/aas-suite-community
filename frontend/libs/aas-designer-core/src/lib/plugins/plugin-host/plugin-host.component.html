@@ -1,0 +1,8 @@
+@if (pluginUrl(); as sourceUrl) {
+  <iframe class="plugin-frame" [src]="sourceUrl" [title]="plugin()?.name ?? ('PLUGIN' | translate)"></iframe>
+} @else {
+  <div class="plugin-not-found">
+    <i class="pi pi-exclamation-triangle"></i>
+    <span>{{ 'PLUGIN_NOT_FOUND' | translate }}</span>
+  </div>
+}

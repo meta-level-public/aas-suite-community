@@ -102,6 +102,34 @@
   justify-content: center;
 }
 
+.sidebar-icon-wrap {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.sidebar-mini-label {
+  position: absolute;
+  right: -0.7rem;
+  bottom: -0.62rem;
+  font-size: 0.58rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  border-radius: 999px;
+  padding: 0.07rem 0.3rem;
+  line-height: 1;
+  color: var(--text-color);
+  border: 1px solid var(--surface-border);
+  background: var(--surface-0);
+}
+
+.sidebar-item.active .sidebar-mini-label {
+  color: var(--p-highlight-color);
+  border-color: color-mix(in srgb, var(--p-highlight-color) 35%, transparent);
+  background: color-mix(in srgb, var(--p-highlight-background) 80%, var(--surface-0));
+}
+
 .sidebar-label {
   margin-left: 1rem;
   font-size: var(--aas-text-md);

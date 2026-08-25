@@ -1,0 +1,36 @@
+<div class="hero-section aas-page-header-inset">
+  <div class="flex items-center justify-between gap-4">
+    <h1 class="hero-title">{{ 'PLUGINS' | translate }}</h1>
+    <div class="flex items-center gap-2 flex-nowrap">
+      <p-select
+        [options]="availableRepositories()"
+        [(ngModel)]="selectedRepository"
+        appendTo="body"
+        (ngModelChange)="setInfrastructure()"
+        optionLabel="name"
+      />
+    </div>
+  </div>
+</div>
+
+@if (plugins().length > 0) {
+  <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 p-4">
+    @for (plugin of plugins(); track plugin.id) {
+      <div class="flex">
+        <aas-selection-card
+          [title]="plugin.name"
+          [description]="plugin.description ?? ''"
+          [icon]="plugin.icon"
+          severity="info"
+          [buttonLabel]="'OPEN' | translate"
+          (choose)="openPlugin(plugin.route)"
+        ></aas-selection-card>
+      </div>
+    }
+  </div>
+} @else {
+  <div class="empty-state">
+    <i class="pi pi-box"></i>
+    <span>{{ 'NO_PLUGINS_AVAILABLE' | translate }}</span>
+  </div>
+}

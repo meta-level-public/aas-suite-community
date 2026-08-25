@@ -14,7 +14,6 @@ import { TagModule } from 'primeng/tag';
 import { ToolbarModule } from 'primeng/toolbar';
 import { TooltipModule } from 'primeng/tooltip';
 import { lastValueFrom } from 'rxjs';
-import { ViewerSetupCodeComponent } from '../../../viewer-setup-code/viewer-setup-code.component';
 import { HasChangesCheckable } from '../../my-organisation/has-changes-checkable';
 
 @Component({
@@ -31,7 +30,6 @@ import { HasChangesCheckable } from '../../my-organisation/has-changes-checkable
     InputGroupAddonModule,
     InputTextModule,
     HelpLabelComponent,
-    ViewerSetupCodeComponent,
     TooltipModule,
   ],
   templateUrl: './infrastructure-list.component.html',

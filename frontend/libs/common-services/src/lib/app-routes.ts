@@ -39,6 +39,7 @@ export const AppRouteSegments = {
   mySpace: 'my-space',
   notFound: 'notfound',
   organisations: 'organisations',
+  plugins: 'plugins',
   productDesignation: 'product-designation',
   productFamily: 'product-family',
   productRoot: 'product-root',
@@ -51,7 +52,9 @@ export const AppRouteSegments = {
   snippets: 'snippets',
   ssoLoginStatusLegacy: 'sso-login-status',
   ssoLoginSuccess: 'sso-login-success',
+  submodelEdit: 'submodel-edit',
   submodels: 'submodels',
+  idtaSubmodels: 'idta-submodels',
   systemManagement: 'system-management',
   v3: 'v3',
   view: 'view',
@@ -71,6 +74,8 @@ export const AppRoutePaths = {
   mySpaceProfile: AppRouteSegments.profile,
   repoEdit: `${AppRouteSegments.repoEdit}/:aasId`,
   repoEditWithInfrastructure: `${AppRouteSegments.repoEdit}/:infrastructureId/:aasId`,
+  submodelEdit: `${AppRouteSegments.submodelEdit}/:submodelId`,
+  submodelEditWithInfrastructure: `${AppRouteSegments.submodelEdit}/:infrastructureId/:submodelId`,
   aasView: `${AppRouteSegments.aasView}/:aasId`,
   aasViewWithInfrastructure: `${AppRouteSegments.aasView}/:infrastructureId/:aasId`,
   systemManagementLicenseUpdate: AppRouteSegments.licenseUpdate,
@@ -88,6 +93,10 @@ export function buildShellRegistryCorrectionRoute(aasId: string): AppRouteSegmen
 
 export function buildMySpaceRoute(...segments: Array<AppRouteSegment | null | undefined>): AppRouteSegment[] {
   return buildAbsoluteRoute(AppRouteSegments.mySpace, ...segments);
+}
+
+export function buildPluginsRoute(...segments: Array<AppRouteSegment | null | undefined>): AppRouteSegment[] {
+  return buildAbsoluteRoute(AppRouteSegments.plugins, ...segments);
 }
 
 export function buildForbiddenRoute(): AppRouteSegment[] {
@@ -149,6 +158,17 @@ export function buildViewerRoute(infrastructureId: number | null | undefined, aa
   );
 }
 
+export function buildSubmodelEditRoute(
+  infrastructureId: number | null | undefined,
+  submodelId: string,
+): AppRouteSegment[] {
+  return buildAbsoluteRoute(
+    AppRouteSegments.submodelEdit,
+    infrastructureId != null && infrastructureId >= 0 ? infrastructureId : null,
+    submodelId,
+  );
+}
+
 export const AppRouteUrls = {
   access: buildAbsoluteRoutePath(AppRouteSegments.access),
   contact: buildAbsoluteRoutePath(AppRouteSegments.contact),
@@ -157,6 +177,7 @@ export const AppRouteUrls = {
   login: buildAbsoluteRoutePath(AppRouteSegments.login),
   mapping: buildAbsoluteRoutePath(AppRouteSegments.mapping),
   myOrganization: buildAbsoluteRoutePath(AppRouteSegments.myOrganization),
+  plugins: buildAbsoluteRoutePath(AppRouteSegments.plugins),
   root: buildAbsoluteRoutePath(),
   shellsList: buildAbsoluteRoutePath(AppRouteSegments.shellsList),
   ssoLoginStatusLegacy: buildAbsoluteRoutePath(AppRouteSegments.ssoLoginStatusLegacy),
