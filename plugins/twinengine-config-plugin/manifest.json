@@ -1,0 +1,17 @@
+{
+  "manifestVersion": 1,
+  "id": "twinengine-config-plugin",
+  "route": "/twinengine-config",
+  "name": "TwinEngine Configuration",
+  "icon": "pi pi-sliders-h",
+  "entryPoint": "index.html",
+  "description": "Configure and export the TwinEngine DataEngine settings.",
+  "shortLabel": "TWIN",
+  "sortOrder": 40,
+  "version": "1.0.0",
+  "author": "AAS Suite",
+  "backend": {
+    "assembly": "backend/TwinEngineConfigBackendPlugin.dll",
+    "type": "TwinEngineConfigBackendPlugin.TwinEngineConfigBackendPlugin"
+  }
+}

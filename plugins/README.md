@@ -28,6 +28,10 @@ index.html
 main-ABC123.js
 styles-ABC123.css
 assets/logo.svg
+backend/
+  MyPlugin.dll
+  MyPlugin.deps.json
+  MyPlugin.runtimeconfig.json
 ```
 
 ## Manifest Fields
@@ -59,6 +63,17 @@ Optional fields:
 }
 ```
 
+For a backend extension, add the optional `backend` object. The assembly must implement `IAasSuiteBackendPlugin` from the shipped `AasSuitePluginAbstractions` contract:
+
+```json
+{
+  "backend": {
+    "assembly": "backend/MyPlugin.dll",
+    "type": "MyPlugin.MyPluginBackend"
+  }
+}
+```
+
 Rules enforced by the backend:
 
 - `manifestVersion` must be `1`.
@@ -74,7 +89,13 @@ Rules enforced by the backend:
 2. Make sure it can run as a static app inside an iframe.
 3. Use relative asset paths. For Angular, set `<base href="./">` or build with an equivalent base href.
 4. Build the app.
-5. Run `node plugins/bundle-plugin.mjs` from this folder and answer the prompts.
-6. Place the generated ZIP in the backend plugin directory. For the repository Docker templates, this is this `plugins/` folder.
+5. Optionally create a .NET 10 class library in a `backend/` folder. Reference the `AasSuitePluginAbstractions` project or a compatible published contract package, implement `IAasSuiteBackendPlugin`, and expose only the routes/services your plugin needs.
+6. Run `node plugins/bundle-plugin.mjs` from this folder and answer the prompts. The script can build the frontend and backend and asks for all required and optional manifest values.
+7. Place the generated ZIP in the backend plugin directory. For the repository Docker templates, this is this `plugins/` folder.
 
-The plugin backend does not execute server code from the ZIP. It only serves static files and exposes the metadata from `manifest.json`.
+Use `node plugins/bundle-plugin.mjs --defaults` only for the included demo. It builds the default demo values non-interactively.
+
+The backend plugin loader is intended for trusted code only. A loaded .NET DLL runs in the same process and with the same permissions as the AAS Suite backend. Invalid plugins are logged and skipped, but backend plugin installation still requires a backend restart.
+
+The demo backend exposes `GET /plugin-api/hello-world-demo/message` and is packaged together with the frontend when the bundler's backend option is enabled.
+When the AAS Suite gateway is used, the same endpoint is available below `/designer-api/plugin-api/hello-world-demo/message`.
