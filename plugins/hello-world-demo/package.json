@@ -1,0 +1,26 @@
+{
+  "name": "hello-world-demo",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "build": "ng build",
+    "start": "ng serve --host 0.0.0.0 --port 4290"
+  },
+  "dependencies": {
+    "@angular/animations": "21.1.4",
+    "@angular/common": "21.1.4",
+    "@angular/compiler": "21.1.4",
+    "@angular/core": "21.1.4",
+    "@angular/platform-browser": "21.1.4",
+    "@angular/router": "21.1.4",
+    "rxjs": "~7.8.0",
+    "tslib": "^2.3.0",
+    "zone.js": "0.16.0"
+  },
+  "devDependencies": {
+    "@angular/build": "21.1.4",
+    "@angular/cli": "21.1.4",
+    "@angular/compiler-cli": "21.1.4",
+    "typescript": "~5.9.3"
+  }
+}

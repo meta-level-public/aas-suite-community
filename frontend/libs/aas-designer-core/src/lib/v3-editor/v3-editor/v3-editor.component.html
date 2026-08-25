@@ -49,32 +49,58 @@
         size="small"
       ></p-splitButton>
 
-      <p-splitButton
-        icon="pi pi-save"
-        appendTo="body"
-        severity="success"
-        (onClick)="save(true, null)"
-        [model]="saveMenuItems"
-        [disabled]="loading || !hasChanges()"
-        size="small"
-      ></p-splitButton>
+      @if (showExternalSaveAction) {
+        <p-button
+          icon="pi pi-save"
+          pTooltip="{{ 'SAVE' | translate }}"
+          severity="success"
+          [loading]="externalSaveActionLoading"
+          [disabled]="externalSaveActionDisabled"
+          (onClick)="requestExternalSaveAction()"
+          size="small"
+        ></p-button>
+      }
 
-      <p-button
-        pTooltip="{{ 'DELETE' | translate }}"
-        icon="pi pi-trash"
-        severity="danger"
-        (onClick)="deleteShell()"
-        [disabled]="loading || hasChanges()"
-        size="small"
-      ></p-button>
-      <p-button
-        pTooltip="{{ 'RESET' | translate }}"
-        icon="pi pi-times"
-        severity="danger"
-        (onClick)="reset()"
-        [disabled]="loading || !hasChanges()"
-        size="small"
-      ></p-button>
+      @if (showInfoAction) {
+        <p-button
+          icon="pi pi-info-circle"
+          pTooltip="{{ 'INFO' | translate }}"
+          severity="secondary"
+          [outlined]="true"
+          [disabled]="loading || infoActionDisabled"
+          (onClick)="requestInfoAction()"
+          size="small"
+        ></p-button>
+      }
+
+      @if (showShellActions) {
+        <p-splitButton
+          icon="pi pi-save"
+          appendTo="body"
+          severity="success"
+          (onClick)="save(true, null)"
+          [model]="saveMenuItems"
+          [disabled]="loading || !hasChanges()"
+          size="small"
+        ></p-splitButton>
+
+        <p-button
+          pTooltip="{{ 'DELETE' | translate }}"
+          icon="pi pi-trash"
+          severity="danger"
+          (onClick)="deleteShell()"
+          [disabled]="loading || hasChanges()"
+          size="small"
+        ></p-button>
+        <p-button
+          pTooltip="{{ 'RESET' | translate }}"
+          icon="pi pi-times"
+          severity="danger"
+          (onClick)="reset()"
+          [disabled]="loading || !hasChanges()"
+          size="small"
+        ></p-button>
+      }
       <p-button
         pTooltip="{{ 'UNDO' | translate }}"
         icon="pi pi-undo"

@@ -1,0 +1,113 @@
+<div class="aas-page-surface">
+  <div class="hero-section aas-page-header-inset">
+    <div class="flex items-center justify-between gap-4">
+      <h1 class="hero-title">{{ 'SUBMODELS' | translate }}</h1>
+      <div class="flex items-center gap-2 flex-nowrap">
+        <p-inputgroup>
+          <p-inputgroup-addon>
+            <i class="pi pi-tag"></i>
+          </p-inputgroup-addon>
+          <input
+            pInputText
+            [(ngModel)]="submodelIdShortFilter"
+            placeholder="{{ 'ID_SHORT' | translate }}"
+            (keydown.enter)="loadFirstPage()"
+          />
+          <p-inputgroup-addon>
+            <p-button icon="pi pi-search" severity="secondary" (onClick)="loadFirstPage()" />
+          </p-inputgroup-addon>
+        </p-inputgroup>
+        <lib-help-label tag="SOURCE_SELECTION" [showLabel]="false"></lib-help-label>
+
+        <p-select
+          [options]="availableRepositories()"
+          [(ngModel)]="selectedRepository"
+          appendTo="body"
+          (ngModelChange)="setInfrastructure(); loadFirstPage()"
+          optionLabel="name"
+        />
+
+        <p-button icon="pi pi-refresh" (onClick)="loadFirstPage()" [outlined]="true" [loading]="loading()"></p-button>
+      </div>
+    </div>
+  </div>
+
+  <div class="aas-page-layout w-full">
+    <div class="aas-page-fill">
+      <div class="aas-page-abs-fill">
+        <div class="aas-page-panel aas-page-panel-inset viewer-content-area rounded-lg overflow-hidden">
+          <p-table
+            [value]="submodels()"
+            [loading]="loading()"
+            [scrollable]="true"
+            scrollHeight="flex"
+            [rowHover]="true"
+            dataKey="id"
+            responsiveLayout="scroll"
+            sortField="idShort"
+            [sortOrder]="1"
+            (onRowSelect)="onRowClick($event.data)"
+            selectionMode="single"
+            [selection]="null"
+          >
+            <ng-template #header>
+              <tr>
+                <th>{{ 'ID' | translate }}</th>
+                <th>{{ 'ID_SHORT' | translate }}</th>
+                <th>{{ 'DUPLICATES' | translate }}</th>
+              </tr>
+            </ng-template>
+
+            <ng-template #body let-submodel>
+              <tr [pSelectableRow]="submodel" class="cursor-pointer">
+                <td style="white-space: normal !important; word-wrap: break-word">{{ submodel.id }}</td>
+                <td style="white-space: normal !important; word-wrap: break-word">{{ submodel.idShort }}</td>
+                <td>
+                  @if (submodel.hasDuplicateId) {
+                    <p-tag severity="warn" [value]="submodel.duplicateIndex + '/' + submodel.duplicateCount"></p-tag>
+                  } @else {
+                    <p-tag severity="success" value="1/1"></p-tag>
+                  }
+                </td>
+              </tr>
+            </ng-template>
+
+            <ng-template pTemplate="emptymessage">
+              <tr>
+                <td [attr.colspan]="3">{{ 'NO_DATA_FOUND' | translate }}</td>
+              </tr>
+            </ng-template>
+
+            <ng-template pTemplate="footer">
+              <tr>
+                <td [attr.colspan]="3">
+                  <div class="flex flex-row gap-2 justify-center">
+                    <p-button
+                      label="{{ 'FIRST' | translate }}"
+                      icon="pi pi-angle-left"
+                      (onClick)="loadFirstPage()"
+                      [disabled]="firstPage()"
+                    ></p-button>
+                    <p-select
+                      [options]="pageOptions"
+                      [(ngModel)]="pageSize"
+                      appendTo="body"
+                      (ngModelChange)="loadFirstPage()"
+                    ></p-select>
+                    <p-button
+                      label="{{ 'NEXT' | translate }}"
+                      icon="pi pi-angle-right"
+                      iconPos="right"
+                      (onClick)="loadNextPage()"
+                      [disabled]="cursor == null"
+                    ></p-button>
+                  </div>
+                </td>
+              </tr>
+            </ng-template>
+          </p-table>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

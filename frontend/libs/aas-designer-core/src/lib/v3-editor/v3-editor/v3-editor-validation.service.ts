@@ -26,6 +26,7 @@ export class V3EditorValidationService {
   private ref: DynamicDialogRef | undefined | null;
 
   shellResult: ShellResult | undefined;
+  validationScope: 'full' | 'submodelOnly' = 'full';
   hasChanges: () => boolean = () => false;
 
   validationErrors = signal<AasDesignerVerificationError[]>([]);
@@ -74,6 +75,7 @@ export class V3EditorValidationService {
         this.constraintOptions = [];
         for (const error of errs ?? []) {
           if (error.message.includes('RFC 8089')) continue;
+          if (!this.shouldIncludeValidationError(error)) continue;
           const myError = new AasDesignerVerificationError(error);
           myError.messageTranslated = this.translate.instant('errorMessages.' + error.message);
           myError.number = number++;
@@ -97,6 +99,15 @@ export class V3EditorValidationService {
     this.validationErrorCount = this.validationErrors().length;
     if (this.validationErrorCount > 0) this.showValidationResult();
     else this.notificationService.showMessageAlways('NO_ERRORS_FOUND', 'SUCCESS', 'success', false);
+  }
+
+  private shouldIncludeValidationError(error: VerificationError): boolean {
+    if (this.validationScope !== 'submodelOnly') {
+      return true;
+    }
+
+    const path = error.path?.toString() ?? '';
+    return path.startsWith('.submodels[') || path.startsWith('.conceptDescriptions[');
   }
 
   validateIds(): void {

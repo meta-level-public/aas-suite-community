@@ -6,7 +6,7 @@ import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import * as aas from '@aas-core-works/aas-core3.1-typescript';
 
 import { HelpLabelComponent } from '@aas/common-components';
-import { AasConfirmationService } from '@aas/common-services';
+import { AasConfirmationService, NotificationService } from '@aas/common-services';
 import { FilenameHelper, SemanticIdHelper } from '@aas/helpers';
 import { MarkingType, MarkingTypeCatalog, ShellResult, SupplementalFile } from '@aas/model';
 import { FormsModule } from '@angular/forms';
@@ -82,6 +82,7 @@ export class V3MarkingsEditorComponent implements OnChanges {
     private sanitizer: DomSanitizer,
     private http: HttpClient,
     private confirmationService: AasConfirmationService,
+    private notificationService: NotificationService,
     private translate: TranslateService,
     private treeService: V3TreeService,
     private editorService: V3EditorService,
@@ -117,25 +118,40 @@ export class V3MarkingsEditorComponent implements OnChanges {
 
   async loadFile(supplementalFile: SupplementalFile) {
     if (supplementalFile?.isLoaded) return;
-    if (supplementalFile?.file != null) {
-      supplementalFile.fileUrl = this.sanitizer.bypassSecurityTrustResourceUrl(
-        URL.createObjectURL(supplementalFile.file),
-      );
-    } else if (this.shellResult?.id != null && supplementalFile?.path != null) {
-      try {
-        this.loading = true;
+
+    const localFile = supplementalFile?.file;
+    if (localFile instanceof Blob) {
+      supplementalFile.fileUrl = this.sanitizer.bypassSecurityTrustResourceUrl(URL.createObjectURL(localFile));
+      supplementalFile.isLoaded = true;
+      return;
+    }
+
+    try {
+      this.loading = true;
+
+      if (supplementalFile?.fileApiUrl != null && supplementalFile.fileApiUrl !== '') {
+        supplementalFile.fileData = await lastValueFrom(
+          this.http.get<Blob>(supplementalFile.fileApiUrl, {
+            responseType: 'blob' as 'json',
+          }),
+        );
+      } else if (this.shellResult?.id != null && supplementalFile?.path != null) {
         supplementalFile.fileData = await this.editorService.getSupplementalFile(
           this.shellResult.id,
           supplementalFile.path,
         );
-        if (supplementalFile.fileData != null) {
-          supplementalFile.fileUrl = this.sanitizer.bypassSecurityTrustResourceUrl(
-            URL.createObjectURL(supplementalFile.fileData),
-          );
-        }
-      } finally {
-        this.loading = false;
       }
+
+      if (supplementalFile.fileData instanceof Blob) {
+        supplementalFile.fileUrl = this.sanitizer.bypassSecurityTrustResourceUrl(
+          URL.createObjectURL(supplementalFile.fileData),
+        );
+        supplementalFile.isLoaded = true;
+      }
+    } catch {
+      this.notificationService.showMessageAlways('ERROR_LOADING_FILE', 'ERROR', 'error', false);
+    } finally {
+      this.loading = false;
     }
   }
 
@@ -409,7 +425,11 @@ export class V3MarkingsEditorComponent implements OnChanges {
     if (this.parentSml) {
       return this.idShortPath + '[' + parentIndex + '].' + val.idShort;
     } else {
-      return this.idShortPath + '.' + this.markingsSmc()?.idShort + '.' + val.idShort;
+      const markingSegment = marking.idShort ?? (parentIndex != null && parentIndex >= 0 ? `[${parentIndex}]` : '');
+      if (markingSegment.startsWith('[')) {
+        return this.idShortPath + markingSegment + '.' + val.idShort;
+      }
+      return this.idShortPath + '.' + markingSegment + '.' + val.idShort;
     }
   }
 

@@ -5161,6 +5161,7 @@ export interface ISubmodelClient {
     filterIdShort: string | undefined,
   ): Observable<SmVm>;
   submodel_GetSmPlain(smIdentifier: string | undefined): Observable<string>;
+  submodel_SaveSm(data: any[] | undefined): Observable<boolean>;
 }
 
 @Injectable({
@@ -5286,6 +5287,82 @@ export class SubmodelClient implements ISubmodelClient {
   }
 
   protected processSubmodel_GetSmPlain(response: HttpResponseBase): Observable<string> {
+    const status = response.status;
+    const responseBlob =
+      response instanceof HttpResponse
+        ? response.body
+        : (response as any).error instanceof Blob
+          ? (response as any).error
+          : undefined;
+
+    let _headers: any = {};
+    if (response.headers) {
+      for (let key of response.headers.keys()) {
+        _headers[key] = response.headers.get(key);
+      }
+    }
+    if (status === 200) {
+      return blobToText(responseBlob).pipe(
+        _observableMergeMap((_responseText: string) => {
+          let result200: any = null;
+          let resultData200 = _responseText === '' ? null : JSON.parse(_responseText, this.jsonParseReviver);
+          result200 = resultData200 !== undefined ? resultData200 : <any>null;
+
+          return _observableOf(result200);
+        }),
+      );
+    } else if (status !== 200 && status !== 204) {
+      return blobToText(responseBlob).pipe(
+        _observableMergeMap((_responseText: string) => {
+          return throwException('An unexpected server error occurred.', status, _responseText, _headers);
+        }),
+      );
+    }
+    return _observableOf(null as any);
+  }
+
+  submodel_SaveSm(data: any[] | undefined): Observable<boolean> {
+    let url_ = this.baseUrl + '/aas-api/Submodel/SaveSm?';
+    if (data === null) throw new Error("The parameter 'data' cannot be null.");
+    else if (data !== undefined)
+      data &&
+        data.forEach((item, index) => {
+          for (const attr in item)
+            if (item.hasOwnProperty(attr)) {
+              url_ += 'data[' + index + '].' + attr + '=' + encodeURIComponent('' + (item as any)[attr]) + '&';
+            }
+        });
+    url_ = url_.replace(/[?&]$/, '');
+
+    let options_: any = {
+      observe: 'response',
+      responseType: 'blob',
+      headers: new HttpHeaders({
+        Accept: 'application/json',
+      }),
+    };
+
+    return this.http
+      .request('post', url_, options_)
+      .pipe(
+        _observableMergeMap((response_: any) => {
+          return this.processSubmodel_SaveSm(response_);
+        }),
+      )
+      .pipe(
+        _observableCatch((response_: any) => {
+          if (response_ instanceof HttpResponseBase) {
+            try {
+              return this.processSubmodel_SaveSm(response_ as any);
+            } catch (e) {
+              return _observableThrow(e) as any as Observable<boolean>;
+            }
+          } else return _observableThrow(response_) as any as Observable<boolean>;
+        }),
+      );
+  }
+
+  protected processSubmodel_SaveSm(response: HttpResponseBase): Observable<boolean> {
     const status = response.status;
     const responseBlob =
       response instanceof HttpResponse
@@ -9633,6 +9710,170 @@ export class JobSettingsClient implements IJobSettingsClient {
   }
 
   protected processJobSettings_UpdatePcnUpdateListenerSettings(response: HttpResponseBase): Observable<FileResponse> {
+    const status = response.status;
+    const responseBlob =
+      response instanceof HttpResponse
+        ? response.body
+        : (response as any).error instanceof Blob
+          ? (response as any).error
+          : undefined;
+
+    let _headers: any = {};
+    if (response.headers) {
+      for (let key of response.headers.keys()) {
+        _headers[key] = response.headers.get(key);
+      }
+    }
+    if (status === 200 || status === 206) {
+      const contentDisposition = response.headers ? response.headers.get('content-disposition') : undefined;
+      let fileNameMatch = contentDisposition
+        ? /filename\*=(?:(\\?['"])(.*?)\1|(?:[^\s]+'.*?')?([^;\n]*))/g.exec(contentDisposition)
+        : undefined;
+      let fileName = fileNameMatch && fileNameMatch.length > 1 ? fileNameMatch[3] || fileNameMatch[2] : undefined;
+      if (fileName) {
+        fileName = decodeURIComponent(fileName);
+      } else {
+        fileNameMatch = contentDisposition ? /filename="?([^"]*?)"?(;|$)/g.exec(contentDisposition) : undefined;
+        fileName = fileNameMatch && fileNameMatch.length > 1 ? fileNameMatch[1] : undefined;
+      }
+      return _observableOf({ fileName: fileName, data: responseBlob as any, status: status, headers: _headers });
+    } else if (status !== 200 && status !== 204) {
+      return blobToText(responseBlob).pipe(
+        _observableMergeMap((_responseText: string) => {
+          return throwException('An unexpected server error occurred.', status, _responseText, _headers);
+        }),
+      );
+    }
+    return _observableOf(null as any);
+  }
+}
+
+export interface IPluginsClient {
+  plugins_GetMenuItems(): Observable<PluginMenuItemDto[]>;
+  plugins_GetAsset(pluginId: string, assetPath: string): Observable<FileResponse>;
+}
+
+@Injectable({
+  providedIn: 'root',
+})
+export class PluginsClient implements IPluginsClient {
+  private http: HttpClient;
+  private baseUrl: string;
+  protected jsonParseReviver: ((key: string, value: any) => any) | undefined = undefined;
+
+  constructor(@Inject(HttpClient) http: HttpClient, @Optional() @Inject(API_BASE_URL) baseUrl?: string) {
+    this.http = http;
+    this.baseUrl = baseUrl ?? '';
+  }
+
+  plugins_GetMenuItems(): Observable<PluginMenuItemDto[]> {
+    let url_ = this.baseUrl + '/system-management-api/Plugins/menu-items';
+    url_ = url_.replace(/[?&]$/, '');
+
+    let options_: any = {
+      observe: 'response',
+      responseType: 'blob',
+      headers: new HttpHeaders({
+        Accept: 'application/json',
+      }),
+    };
+
+    return this.http
+      .request('get', url_, options_)
+      .pipe(
+        _observableMergeMap((response_: any) => {
+          return this.processPlugins_GetMenuItems(response_);
+        }),
+      )
+      .pipe(
+        _observableCatch((response_: any) => {
+          if (response_ instanceof HttpResponseBase) {
+            try {
+              return this.processPlugins_GetMenuItems(response_ as any);
+            } catch (e) {
+              return _observableThrow(e) as any as Observable<PluginMenuItemDto[]>;
+            }
+          } else return _observableThrow(response_) as any as Observable<PluginMenuItemDto[]>;
+        }),
+      );
+  }
+
+  protected processPlugins_GetMenuItems(response: HttpResponseBase): Observable<PluginMenuItemDto[]> {
+    const status = response.status;
+    const responseBlob =
+      response instanceof HttpResponse
+        ? response.body
+        : (response as any).error instanceof Blob
+          ? (response as any).error
+          : undefined;
+
+    let _headers: any = {};
+    if (response.headers) {
+      for (let key of response.headers.keys()) {
+        _headers[key] = response.headers.get(key);
+      }
+    }
+    if (status === 200) {
+      return blobToText(responseBlob).pipe(
+        _observableMergeMap((_responseText: string) => {
+          let result200: any = null;
+          let resultData200 = _responseText === '' ? null : JSON.parse(_responseText, this.jsonParseReviver);
+          if (Array.isArray(resultData200)) {
+            result200 = [] as any;
+            for (let item of resultData200) result200!.push(PluginMenuItemDto.fromJS(item));
+          } else {
+            result200 = <any>null;
+          }
+          return _observableOf(result200);
+        }),
+      );
+    } else if (status !== 200 && status !== 204) {
+      return blobToText(responseBlob).pipe(
+        _observableMergeMap((_responseText: string) => {
+          return throwException('An unexpected server error occurred.', status, _responseText, _headers);
+        }),
+      );
+    }
+    return _observableOf(null as any);
+  }
+
+  plugins_GetAsset(pluginId: string, assetPath: string): Observable<FileResponse> {
+    let url_ = this.baseUrl + '/system-management-api/Plugins/{pluginId}/assets/{assetPath}';
+    if (pluginId === undefined || pluginId === null) throw new Error("The parameter 'pluginId' must be defined.");
+    url_ = url_.replace('{pluginId}', encodeURIComponent('' + pluginId));
+    if (assetPath === undefined || assetPath === null) throw new Error("The parameter 'assetPath' must be defined.");
+    url_ = url_.replace('{assetPath}', encodeURIComponent('' + assetPath));
+    url_ = url_.replace(/[?&]$/, '');
+
+    let options_: any = {
+      observe: 'response',
+      responseType: 'blob',
+      headers: new HttpHeaders({
+        Accept: 'application/octet-stream',
+      }),
+    };
+
+    return this.http
+      .request('get', url_, options_)
+      .pipe(
+        _observableMergeMap((response_: any) => {
+          return this.processPlugins_GetAsset(response_);
+        }),
+      )
+      .pipe(
+        _observableCatch((response_: any) => {
+          if (response_ instanceof HttpResponseBase) {
+            try {
+              return this.processPlugins_GetAsset(response_ as any);
+            } catch (e) {
+              return _observableThrow(e) as any as Observable<FileResponse>;
+            }
+          } else return _observableThrow(response_) as any as Observable<FileResponse>;
+        }),
+      );
+  }
+
+  protected processPlugins_GetAsset(response: HttpResponseBase): Observable<FileResponse> {
     const status = response.status;
     const responseBlob =
       response instanceof HttpResponse
@@ -14538,6 +14779,7 @@ export interface IModificationCheckResult {
 
 export class SmVm implements ISmVm {
   cursor?: string | undefined;
+  source?: string;
   smList?: SmDto[];
 
   constructor(data?: ISmVm) {
@@ -14551,6 +14793,7 @@ export class SmVm implements ISmVm {
   init(_data?: any) {
     if (_data) {
       this.cursor = _data['cursor'];
+      this.source = _data['source'];
       if (Array.isArray(_data['smList'])) {
         this.smList = [] as any;
         for (let item of _data['smList']) this.smList!.push(SmDto.fromJS(item));
@@ -14568,6 +14811,7 @@ export class SmVm implements ISmVm {
   toJSON(data?: any) {
     data = typeof data === 'object' ? data : {};
     data['cursor'] = this.cursor;
+    data['source'] = this.source;
     if (Array.isArray(this.smList)) {
       data['smList'] = [];
       for (let item of this.smList) data['smList'].push(item.toJSON());
@@ -14578,6 +14822,7 @@ export class SmVm implements ISmVm {
 
 export interface ISmVm {
   cursor?: string | undefined;
+  source?: string;
   smList?: SmDto[];
 }
 
@@ -17853,6 +18098,89 @@ export class PcnUpdateListenerSettingsDto implements IPcnUpdateListenerSettingsD
 export interface IPcnUpdateListenerSettingsDto {
   intervalMinutes?: number;
   isEnabled?: boolean;
+}
+
+export class PluginMenuItemDto implements IPluginMenuItemDto {
+  id?: string;
+  route?: string;
+  name?: string;
+  icon?: string;
+  description?: string;
+  shortLabel?: string;
+  requiredRole?: string;
+  requiresWritableRepo?: boolean;
+  sortOrder?: number;
+  version?: string;
+  author?: string;
+  assetPath?: string;
+  entryPointPath?: string;
+
+  constructor(data?: IPluginMenuItemDto) {
+    if (data) {
+      for (var property in data) {
+        if (data.hasOwnProperty(property)) (<any>this)[property] = (<any>data)[property];
+      }
+    }
+  }
+
+  init(_data?: any) {
+    if (_data) {
+      this.id = _data['id'];
+      this.route = _data['route'];
+      this.name = _data['name'];
+      this.icon = _data['icon'];
+      this.description = _data['description'];
+      this.shortLabel = _data['shortLabel'];
+      this.requiredRole = _data['requiredRole'];
+      this.requiresWritableRepo = _data['requiresWritableRepo'];
+      this.sortOrder = _data['sortOrder'];
+      this.version = _data['version'];
+      this.author = _data['author'];
+      this.assetPath = _data['assetPath'];
+      this.entryPointPath = _data['entryPointPath'];
+    }
+  }
+
+  static fromJS(data: any): PluginMenuItemDto {
+    data = typeof data === 'object' ? data : {};
+    let result = new PluginMenuItemDto();
+    result.init(data);
+    return result;
+  }
+
+  toJSON(data?: any) {
+    data = typeof data === 'object' ? data : {};
+    data['id'] = this.id;
+    data['route'] = this.route;
+    data['name'] = this.name;
+    data['icon'] = this.icon;
+    data['description'] = this.description;
+    data['shortLabel'] = this.shortLabel;
+    data['requiredRole'] = this.requiredRole;
+    data['requiresWritableRepo'] = this.requiresWritableRepo;
+    data['sortOrder'] = this.sortOrder;
+    data['version'] = this.version;
+    data['author'] = this.author;
+    data['assetPath'] = this.assetPath;
+    data['entryPointPath'] = this.entryPointPath;
+    return data;
+  }
+}
+
+export interface IPluginMenuItemDto {
+  id?: string;
+  route?: string;
+  name?: string;
+  icon?: string;
+  description?: string;
+  shortLabel?: string;
+  requiredRole?: string;
+  requiresWritableRepo?: boolean;
+  sortOrder?: number;
+  version?: string;
+  author?: string;
+  assetPath?: string;
+  entryPointPath?: string;
 }
 
 export class SystemConfigurationDto implements ISystemConfigurationDto {

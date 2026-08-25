@@ -21,3 +21,7 @@ The generated files are placed by default in a folder such as `generated-stack-2
 ## Note
 
 The backend service Dockerfiles are located centrally under `services/`.
+
+## GUI Plugins
+
+Place GUI plugin ZIP files in the repository-level `plugins/` folder when using this compose template. The backend mounts this directory read-only at `/app/plugins` and scans every ZIP for a root-level `manifest.json`. A plugin ZIP may contain a compiled static Angular app; its manifest route, for example `/my-plugin`, is exposed in the AAS Suite plugin area.
