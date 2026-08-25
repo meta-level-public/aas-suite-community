@@ -15,4 +15,11 @@ public class PluginManifestDto
     public int SortOrder { get; set; }
     public string Version { get; set; } = string.Empty;
     public string Author { get; set; } = string.Empty;
+    public PluginBackendManifestDto? Backend { get; set; }
+}
+
+public class PluginBackendManifestDto
+{
+    public string Assembly { get; set; } = string.Empty;
+    public string Type { get; set; } = string.Empty;
 }
