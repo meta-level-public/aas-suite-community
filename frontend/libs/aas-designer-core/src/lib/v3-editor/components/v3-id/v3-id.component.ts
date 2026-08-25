@@ -206,6 +206,8 @@ export class V3IdComponent implements OnChanges {
       this.notificationService.showMessageAlways('ID_NOT_UNIQUE_WILL_BE_RESETTED', 'ERROR', 'error');
       this.element.content.id = this.idBackup;
     } else {
+      const previousId = this.idBackup;
+
       // ElementReferenz suchen gehen und dann auf die neue ID setzen
       if (this.element?.content instanceof aas.types.ConceptDescription) {
         this.shellResult?.v3Shell?.submodels?.forEach((submodel) => {
@@ -217,10 +219,9 @@ export class V3IdComponent implements OnChanges {
         this.shellResult?.v3Shell?.assetAdministrationShells?.forEach((shell) => {
           shell?.submodels?.forEach((submodel) => {
             submodel.keys.forEach((k) => {
-              if (k.value === this.idBackup) {
+              if (k.value === previousId) {
                 k.value = this.element?.content.id;
                 this.treeService.registerFieldUndoStep();
-                this.idBackup = this.element?.content.id;
               }
             });
           });
@@ -233,7 +234,7 @@ export class V3IdComponent implements OnChanges {
     if (descriptor != null) {
       if (this.element?.editorType === EditorTypeOption.Submodel) {
         descriptor.submodelDescriptorEntries?.forEach((sm) => {
-          if (sm.oldId === this.idBackup) {
+          if (sm.oldId === this.idBackup || sm.newId === this.idBackup) {
             sm.newId = this.element?.content.id;
           }
         });
@@ -245,6 +246,8 @@ export class V3IdComponent implements OnChanges {
         descriptor.aasDescriptorEntry.newId = this.element?.content.id;
       }
     }
+
+    this.idBackup = this.element?.content?.id;
   }
 
   syncSemanticIdRecursive(submodel: aas.types.ISubmodelElement) {

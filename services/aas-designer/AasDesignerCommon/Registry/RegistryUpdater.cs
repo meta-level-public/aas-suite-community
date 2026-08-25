@@ -164,6 +164,7 @@ public class RegistryUpdater
                 }
             }
             // sm registry updaten
+            var removedLegacySubmodelDescriptorIds = new HashSet<string>(StringComparer.Ordinal);
             foreach (var sm in submodelsToAdd)
             {
                 var smRegistryUrl =
@@ -178,6 +179,26 @@ public class RegistryUpdater
                     entry.NewId == sm.Id || entry.OldId == sm.Id
                 );
 
+                if (
+                    !string.IsNullOrWhiteSpace(infrastructure.SubmodelRegistryUrl)
+                    && editorDescriptorEntry != null
+                    && !string.IsNullOrWhiteSpace(editorDescriptorEntry.OldId)
+                    && !string.Equals(
+                        editorDescriptorEntry.OldId,
+                        editorDescriptorEntry.NewId,
+                        StringComparison.Ordinal
+                    )
+                    && removedLegacySubmodelDescriptorIds.Add(editorDescriptorEntry.OldId)
+                )
+                {
+                    await RemoveFromSmRegistryAsync(
+                        infrastructure.SubmodelRegistryUrl,
+                        editorDescriptorEntry.OldId,
+                        cancellationToken,
+                        client
+                    );
+                }
+
                 // aas Registry updaten
                 try
                 {
@@ -189,7 +210,10 @@ public class RegistryUpdater
                         )
                             ? DescriptorCreator.CreateSubmodelDescriptorWithFullUrl(
                                 sm,
-                                DescriptorUpdater.GetDesiredEndpointHref(editorDescriptorEntry!)
+                                DescriptorUpdater.GetDesiredEndpointHref(
+                                    editorDescriptorEntry!,
+                                    editorDescriptor.AasDescriptorEntry
+                                )
                             )
                             : DescriptorCreator.CreateSubmodelDescriptor(
                                 sm,
@@ -222,7 +246,8 @@ public class RegistryUpdater
                         DescriptorUpdater.UpdateSubmodelDescriptor(
                             smDescriptor,
                             sm,
-                            editorDescriptorEntry
+                            editorDescriptorEntry,
+                            editorDescriptor.AasDescriptorEntry
                         );
 
                         await PutDescriptorAsync(

@@ -54,7 +54,12 @@ public class DescriptorUpdater
 
             if (existingDescriptor != null)
             {
-                UpdateSubmodelDescriptor(existingDescriptor, submodel, editorDescriptorEntry);
+                UpdateSubmodelDescriptor(
+                    existingDescriptor,
+                    submodel,
+                    editorDescriptorEntry,
+                    editorDescriptor.AasDescriptorEntry
+                );
                 continue;
             }
 
@@ -66,7 +71,10 @@ public class DescriptorUpdater
             aasDescriptor.SubmodelDescriptors.Add(
                 DescriptorCreator.CreateSubmodelDescriptorWithFullUrl(
                     submodel,
-                    GetDesiredEndpointHref(editorDescriptorEntry)
+                    GetDesiredEndpointHref(
+                        editorDescriptorEntry,
+                        editorDescriptor.AasDescriptorEntry
+                    )
                 )
             );
         }
@@ -78,7 +86,8 @@ public class DescriptorUpdater
     public static void UpdateSubmodelDescriptor(
         SubmodelDescriptor smDescriptor,
         Submodel submodel,
-        EditorDescriptorEntry? editorDescriptorEntry
+        EditorDescriptorEntry? editorDescriptorEntry,
+        EditorDescriptorEntry? aasDescriptorEntry = null
     )
     {
         smDescriptor.Id = submodel.Id;
@@ -95,19 +104,38 @@ public class DescriptorUpdater
         smDescriptor.Endpoints ??= [];
         if (editorDescriptorEntry != null)
         {
-            UpdateEndpointList(smDescriptor.Endpoints, editorDescriptorEntry, "SUBMODEL-3.0");
+            UpdateEndpointList(
+                smDescriptor.Endpoints,
+                editorDescriptorEntry,
+                "SUBMODEL-3.0",
+                aasDescriptorEntry
+            );
         }
     }
 
-    public static string GetDesiredEndpointHref(EditorDescriptorEntry entry)
+    public static string GetDesiredEndpointHref(
+        EditorDescriptorEntry entry,
+        EditorDescriptorEntry? aasDescriptorEntry = null
+    )
     {
         var endpoint = NormalizeEndpointUrl(entry.Endpoint);
-        if (string.IsNullOrWhiteSpace(endpoint) || entry.OldId == entry.NewId)
+        if (string.IsNullOrWhiteSpace(endpoint))
         {
             return endpoint;
         }
 
-        return ReplaceEncodedId(endpoint, entry.OldId, entry.NewId);
+        endpoint = ReplaceEncodedId(endpoint, entry.OldId, entry.NewId);
+
+        if (aasDescriptorEntry != null)
+        {
+            endpoint = ReplaceEncodedId(
+                endpoint,
+                aasDescriptorEntry.OldId,
+                aasDescriptorEntry.NewId
+            );
+        }
+
+        return endpoint;
     }
 
     private static EditorDescriptorEntry? FindDescriptorEntry(
@@ -160,10 +188,11 @@ public class DescriptorUpdater
     private static void UpdateEndpointList(
         List<Endpoint> endpoints,
         EditorDescriptorEntry entry,
-        string descriptorInterface
+        string descriptorInterface,
+        EditorDescriptorEntry? aasDescriptorEntry = null
     )
     {
-        var desiredHref = GetDesiredEndpointHref(entry);
+        var desiredHref = GetDesiredEndpointHref(entry, aasDescriptorEntry);
         if (string.IsNullOrWhiteSpace(desiredHref))
         {
             return;
@@ -173,7 +202,7 @@ public class DescriptorUpdater
         {
             NormalizeEndpointUrl(entry.Endpoint),
             NormalizeEndpointUrl(desiredHref),
-            NormalizeEndpointUrl(GetHistoricalEndpointHref(entry)),
+            NormalizeEndpointUrl(GetHistoricalEndpointHref(entry, aasDescriptorEntry)),
         };
 
         var matchingEndpoint = endpoints.FirstOrDefault(endpoint =>
@@ -220,15 +249,29 @@ public class DescriptorUpdater
         };
     }
 
-    private static string GetHistoricalEndpointHref(EditorDescriptorEntry entry)
+    private static string GetHistoricalEndpointHref(
+        EditorDescriptorEntry entry,
+        EditorDescriptorEntry? aasDescriptorEntry = null
+    )
     {
         var endpoint = NormalizeEndpointUrl(entry.Endpoint);
-        if (string.IsNullOrWhiteSpace(endpoint) || entry.OldId == entry.NewId)
+        if (string.IsNullOrWhiteSpace(endpoint))
         {
             return endpoint;
         }
 
-        return ReplaceEncodedId(endpoint, entry.NewId, entry.OldId);
+        endpoint = ReplaceEncodedId(endpoint, entry.NewId, entry.OldId);
+
+        if (aasDescriptorEntry != null)
+        {
+            endpoint = ReplaceEncodedId(
+                endpoint,
+                aasDescriptorEntry.NewId,
+                aasDescriptorEntry.OldId
+            );
+        }
+
+        return endpoint;
     }
 
     private static string ReplaceEncodedId(string endpoint, string sourceId, string targetId)
