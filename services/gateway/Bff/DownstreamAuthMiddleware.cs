@@ -25,6 +25,11 @@ public sealed class DownstreamAuthMiddleware
 
     public async Task Invoke(HttpContext context, GatewayBffSessionService sessionService)
     {
+        var isPluginMenuRequest = context.Request.Path.Equals(
+            "/designer-api/system-management-api/Plugins/menu-items",
+            StringComparison.OrdinalIgnoreCase
+        );
+
         if (IsAasProxyWriteRequest(context.Request))
         {
             _logger.LogInformation(

@@ -1,6 +1,9 @@
+using AasDesignerApi.Model;
+using AasDesignerAuthorization;
 using AasDesignerSystemManagementApi.SystemManagement.Model;
 using AasDesignerSystemManagementApi.SystemManagement.Plugins;
 using AasShared.Controllers;
+using AasShared.Utils;
 using Microsoft.AspNetCore.Mvc;
 
 namespace AasDesignerSystemManagementApi.Controllers;
@@ -20,13 +23,19 @@ public class PluginsController : InternalApiBaseController
     [HttpGet("menu-items")]
     public IReadOnlyList<PluginMenuItemDto> GetMenuItems()
     {
-        return _pluginRegistry.GetPluginMenuItems();
+        if (HttpContext.Items[AasDesignerConstants.APP_USER] is not AppUser appUser)
+            return [];
+
+        return _pluginRegistry.GetPluginMenuItems(appUser);
     }
 
     [HttpGet("{pluginId}/assets/{**assetPath}")]
     public IActionResult GetAsset(string pluginId, string? assetPath)
     {
-        var asset = _pluginRegistry.OpenAsset(pluginId, assetPath);
+        if (HttpContext.Items[AasDesignerConstants.APP_USER] is not AppUser appUser)
+            return NotFound();
+
+        var asset = _pluginRegistry.OpenAsset(appUser, pluginId, assetPath);
         if (asset == null)
             return NotFound();
 

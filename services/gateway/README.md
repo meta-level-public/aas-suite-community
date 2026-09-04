@@ -47,6 +47,8 @@ cd services/gateway
 dotnet run
 ```
 
+The local development launch profiles persist BFF sessions in the PostgreSQL instance from `docker-enterprise/docker-compose.local.yml` (`localhost:5434`). Start that PostgreSQL service before launching the gateway.
+
 Gateway läuft auf: `http://localhost:5000`
 
 ### Mit Docker

@@ -16,7 +16,13 @@
       "launchUrl": "swagger",
       "applicationUrl": "http://localhost:5214",
       "environmentVariables": {
-        "ASPNETCORE_ENVIRONMENT": "Development"
+        "ASPNETCORE_ENVIRONMENT": "Development",
+        "Session__Postgres__ConnectionString": "Host=localhost;Port=5434;Database=designer;Username=localPostgres;Password=P@SSworDT!",
+        "Session__Postgres__SchemaName": "public",
+        "Session__Postgres__TableName": "gateway_session_cache",
+        "Session__Postgres__CreateIfNotExists": "true",
+        "Session__Postgres__ExpiredItemsDeletionInterval": "00:30:00",
+        "Session__Postgres__DefaultSlidingExpiration": "08:00:00"
       }
     },
     "https": {
@@ -26,7 +32,13 @@
       "launchUrl": "swagger",
       "applicationUrl": "https://localhost:7041;http://localhost:5214",
       "environmentVariables": {
-        "ASPNETCORE_ENVIRONMENT": "Development"
+        "ASPNETCORE_ENVIRONMENT": "Development",
+        "Session__Postgres__ConnectionString": "Host=localhost;Port=5434;Database=designer;Username=localPostgres;Password=P@SSworDT!",
+        "Session__Postgres__SchemaName": "public",
+        "Session__Postgres__TableName": "gateway_session_cache",
+        "Session__Postgres__CreateIfNotExists": "true",
+        "Session__Postgres__ExpiredItemsDeletionInterval": "00:30:00",
+        "Session__Postgres__DefaultSlidingExpiration": "08:00:00"
       }
     },
     "IIS Express": {

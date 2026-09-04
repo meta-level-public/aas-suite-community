@@ -45,7 +45,8 @@ Required fields:
   "route": "/hello-world-demo",
   "name": "Hello World Demo",
   "icon": "pi pi-question-circle",
-  "entryPoint": "index.html"
+  "entryPoint": "index.html",
+  "type": "GuiApp"
 }
 ```
 
@@ -59,9 +60,13 @@ Optional fields:
   "requiresWritableRepo": false,
   "sortOrder": 100,
   "version": "1.0.0",
-  "author": "Your company"
+  "author": "Your company",
+  "organizationIds": [42, 84],
+  "roles": ["BENUTZER", "ORGA_ADMIN"]
 }
 ```
+
+`type` is required and currently must be `GuiApp`. `SubmodelViewer` and `SaveInterceptor` are reserved for future plugin implementations and are ignored by the current GUI plugin registry. Empty `organizationIds` or `roles` lists mean that the corresponding restriction is disabled. When both lists are set, both restrictions must match; multiple roles are combined with OR. The plugin is visible only for the current organization and roles, and direct asset requests are protected by the same rules.
 
 For a backend extension, add the optional `backend` object. The assembly must implement `IAasSuiteBackendPlugin` from the shipped `AasSuitePluginAbstractions` contract:
 

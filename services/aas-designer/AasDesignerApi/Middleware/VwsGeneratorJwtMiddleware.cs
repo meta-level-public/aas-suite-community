@@ -61,20 +61,25 @@ public class VwsGeneratorJwtMiddleware
             );
         }
 
+        var hasInfrastructureId = long.TryParse(aasInfrastructureId, out var infrastructureId);
+        var hasOrganisationId = long.TryParse(orgaId, out var organisationId);
+        var isProxyWrite = IsAasProxyWriteRequest(context.Request);
+
         if (
             !string.IsNullOrEmpty(token)
-            && !string.IsNullOrEmpty(orgaId)
-            && !string.IsNullOrEmpty(aasInfrastructureId)
+            && hasOrganisationId
+            && (!isProxyWrite || hasInfrastructureId)
         )
         {
+            var resolvedOrganisationId = organisationId.ToString();
             var userId = jwtUtils.ValidateJwtToken(token);
             if (userId != null)
             {
                 AttachUserToContext(
                     userId.Value,
                     userService,
-                    aasInfrastructureId,
-                    orgaId,
+                    hasInfrastructureId ? infrastructureId.ToString() : "-1",
+                    resolvedOrganisationId,
                     currentLanguage,
                     context,
                     token
@@ -82,14 +87,14 @@ public class VwsGeneratorJwtMiddleware
             }
             else
             {
-                userId = await jwtUtils.ValidateExternalJwtToken(token, orgaId);
+                userId = await jwtUtils.ValidateExternalJwtToken(token, orgaId ?? string.Empty);
                 if (userId != null)
                 {
                     AttachUserToContext(
                         userId.Value,
                         userService,
-                        aasInfrastructureId,
-                        orgaId,
+                        hasInfrastructureId ? infrastructureId.ToString() : "-1",
+                        resolvedOrganisationId,
                         currentLanguage,
                         context,
                         token
@@ -167,6 +172,23 @@ public class VwsGeneratorJwtMiddleware
         );
 
         appUser.JwtToken = token;
+
+        if (
+            context.Request.Path.Equals(
+                "/system-management-api/Plugins/menu-items",
+                StringComparison.OrdinalIgnoreCase
+            )
+        )
+        {
+            _logger.LogInformation(
+                "Plugin menu resolved AppUser: userId={UserId}, organisationId={OrganisationId}, infrastructureId={InfrastructureId}, maintenance={Maintenance}, roles=[{Roles}].",
+                appUser.BenutzerId,
+                appUser.OrganisationId,
+                aasInfrastructureId,
+                appUser.Organisation.MaintenanceActive,
+                string.Join(", ", appUser.BenutzerRollen)
+            );
+        }
 
         // attach user to context on successful jwt validation
         try

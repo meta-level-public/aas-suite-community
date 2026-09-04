@@ -1,6 +1,7 @@
 using System.IO.Compression;
 using System.Text.Json;
 using System.Text.RegularExpressions;
+using AasDesignerApi.Model;
 using AasDesignerSystemManagementApi.SystemManagement.Model;
 using AasShared.Configuration;
 using Microsoft.AspNetCore.StaticFiles;
@@ -57,7 +58,7 @@ public sealed partial class ZipPluginRegistry : IPluginRegistry
         _logger = logger;
     }
 
-    public IReadOnlyList<PluginMenuItemDto> GetPluginMenuItems()
+    public IReadOnlyList<PluginMenuItemDto> GetPluginMenuItems(AppUser appUser)
     {
         if (!CanScanPluginDirectory())
             return [];
@@ -70,6 +71,9 @@ public sealed partial class ZipPluginRegistry : IPluginRegistry
         {
             var plugin = TryReadPlugin(archivePath);
             if (plugin == null)
+                continue;
+
+            if (!IsAllowed(plugin, appUser))
                 continue;
 
             if (!usedIds.Add(plugin.Id) || !usedRoutes.Add(plugin.Route))
@@ -89,13 +93,13 @@ public sealed partial class ZipPluginRegistry : IPluginRegistry
         return plugins.OrderBy(plugin => plugin.SortOrder).ThenBy(plugin => plugin.Name).ToList();
     }
 
-    public PluginAssetResult? OpenAsset(string pluginId, string? assetPath)
+    public PluginAssetResult? OpenAsset(AppUser appUser, string pluginId, string? assetPath)
     {
         if (!CanScanPluginDirectory() || !PluginIdRegex().IsMatch(pluginId))
             return null;
 
         var pluginArchive = FindPluginArchive(pluginId);
-        if (pluginArchive == null)
+        if (pluginArchive == null || !IsAllowed(pluginArchive.Manifest, appUser))
             return null;
 
         var requestedPath = NormalizeAssetPath(assetPath);
@@ -232,6 +236,15 @@ public sealed partial class ZipPluginRegistry : IPluginRegistry
             return null;
         }
 
+        if (manifest.Type != PluginType.GuiApp)
+        {
+            _logger.LogWarning(
+                "Ignoring plugin archive {ArchivePath} because its plugin type is unsupported.",
+                archivePath
+            );
+            return null;
+        }
+
         var id = manifest.Id.Trim();
         var route = NormalizePluginRoute(manifest.Route);
         var entryPoint = NormalizeAssetPath(manifest.EntryPoint);
@@ -259,6 +272,7 @@ public sealed partial class ZipPluginRegistry : IPluginRegistry
 
         return new PluginMenuItemDto
         {
+            Type = manifest.Type.Value,
             Id = id,
             Route = route,
             Name = name,
@@ -266,6 +280,14 @@ public sealed partial class ZipPluginRegistry : IPluginRegistry
             Description = TrimToLength(manifest.Description, 500),
             ShortLabel = TrimToLength(manifest.ShortLabel, 12),
             RequiredRole = TrimToLength(manifest.RequiredRole, 80),
+            OrganizationIds = [.. manifest.OrganizationIds.Distinct()],
+            Roles =
+            [
+                .. manifest
+                    .Roles.Where(role => !string.IsNullOrWhiteSpace(role))
+                    .Select(role => role.Trim())
+                    .Distinct(StringComparer.OrdinalIgnoreCase),
+            ],
             RequiresWritableRepo = manifest.RequiresWritableRepo,
             SortOrder = manifest.SortOrder,
             Version = TrimToLength(manifest.Version, 40),
@@ -312,6 +334,40 @@ public sealed partial class ZipPluginRegistry : IPluginRegistry
         }
 
         return null;
+    }
+
+    private static bool IsAllowed(PluginMenuItemDto plugin, AppUser appUser)
+    {
+        return (
+                plugin.OrganizationIds.Count == 0
+                || plugin.OrganizationIds.Contains(appUser.OrganisationId)
+            ) && HasAllowedRole(appUser, plugin.Roles, plugin.RequiredRole);
+    }
+
+    private static bool IsAllowed(PluginManifestDto manifest, AppUser appUser)
+    {
+        return (
+                manifest.OrganizationIds.Count == 0
+                || manifest.OrganizationIds.Contains(appUser.OrganisationId)
+            ) && HasAllowedRole(appUser, manifest.Roles, manifest.RequiredRole);
+    }
+
+    private static bool HasAllowedRole(
+        AppUser appUser,
+        IEnumerable<string> roles,
+        string requiredRole
+    )
+    {
+        var allowedRoles = roles
+            .Append(requiredRole)
+            .Where(role => !string.IsNullOrWhiteSpace(role))
+            .Select(role => role.Trim())
+            .ToList();
+
+        return allowedRoles.Count == 0
+            || allowedRoles.Any(role =>
+                appUser.BenutzerRollen.Contains(role, StringComparer.OrdinalIgnoreCase)
+            );
     }
 
     private static ZipArchiveEntry? FindEntry(ZipArchive archive, string path)

@@ -18101,6 +18101,7 @@ export interface IPcnUpdateListenerSettingsDto {
 }
 
 export class PluginMenuItemDto implements IPluginMenuItemDto {
+  type?: PluginType;
   id?: string;
   route?: string;
   name?: string;
@@ -18108,6 +18109,8 @@ export class PluginMenuItemDto implements IPluginMenuItemDto {
   description?: string;
   shortLabel?: string;
   requiredRole?: string;
+  organizationIds?: number[];
+  roles?: string[];
   requiresWritableRepo?: boolean;
   sortOrder?: number;
   version?: string;
@@ -18125,6 +18128,7 @@ export class PluginMenuItemDto implements IPluginMenuItemDto {
 
   init(_data?: any) {
     if (_data) {
+      this.type = _data['type'];
       this.id = _data['id'];
       this.route = _data['route'];
       this.name = _data['name'];
@@ -18132,6 +18136,14 @@ export class PluginMenuItemDto implements IPluginMenuItemDto {
       this.description = _data['description'];
       this.shortLabel = _data['shortLabel'];
       this.requiredRole = _data['requiredRole'];
+      if (Array.isArray(_data['organizationIds'])) {
+        this.organizationIds = [] as any;
+        for (let item of _data['organizationIds']) this.organizationIds!.push(item);
+      }
+      if (Array.isArray(_data['roles'])) {
+        this.roles = [] as any;
+        for (let item of _data['roles']) this.roles!.push(item);
+      }
       this.requiresWritableRepo = _data['requiresWritableRepo'];
       this.sortOrder = _data['sortOrder'];
       this.version = _data['version'];
@@ -18150,6 +18162,7 @@ export class PluginMenuItemDto implements IPluginMenuItemDto {
 
   toJSON(data?: any) {
     data = typeof data === 'object' ? data : {};
+    data['type'] = this.type;
     data['id'] = this.id;
     data['route'] = this.route;
     data['name'] = this.name;
@@ -18157,6 +18170,14 @@ export class PluginMenuItemDto implements IPluginMenuItemDto {
     data['description'] = this.description;
     data['shortLabel'] = this.shortLabel;
     data['requiredRole'] = this.requiredRole;
+    if (Array.isArray(this.organizationIds)) {
+      data['organizationIds'] = [];
+      for (let item of this.organizationIds) data['organizationIds'].push(item);
+    }
+    if (Array.isArray(this.roles)) {
+      data['roles'] = [];
+      for (let item of this.roles) data['roles'].push(item);
+    }
     data['requiresWritableRepo'] = this.requiresWritableRepo;
     data['sortOrder'] = this.sortOrder;
     data['version'] = this.version;
@@ -18168,6 +18189,7 @@ export class PluginMenuItemDto implements IPluginMenuItemDto {
 }
 
 export interface IPluginMenuItemDto {
+  type?: PluginType;
   id?: string;
   route?: string;
   name?: string;
@@ -18175,12 +18197,20 @@ export interface IPluginMenuItemDto {
   description?: string;
   shortLabel?: string;
   requiredRole?: string;
+  organizationIds?: number[];
+  roles?: string[];
   requiresWritableRepo?: boolean;
   sortOrder?: number;
   version?: string;
   author?: string;
   assetPath?: string;
   entryPointPath?: string;
+}
+
+export enum PluginType {
+  GuiApp = 'GuiApp',
+  SubmodelViewer = 'SubmodelViewer',
+  SaveInterceptor = 'SaveInterceptor',
 }
 
 export class SystemConfigurationDto implements ISystemConfigurationDto {

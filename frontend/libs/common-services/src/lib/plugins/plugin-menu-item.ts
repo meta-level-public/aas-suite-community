@@ -1,4 +1,7 @@
+export type PluginType = 'GuiApp' | 'SubmodelViewer' | 'SaveInterceptor';
+
 export interface PluginMenuItem {
+  type: PluginType;
   id: string;
   route: string;
   name: string;
@@ -16,6 +19,7 @@ export interface PluginMenuItem {
 }
 
 export interface PluginMenuItemDto {
+  type: PluginType;
   id: string;
   route: string;
   name: string;

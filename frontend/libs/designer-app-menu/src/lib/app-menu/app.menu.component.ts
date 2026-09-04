@@ -3,7 +3,7 @@ import { AppConfigService, AppRouteUrls, PluginRegistryService } from '@aas/comm
 
 import { ADDITIONAL_MENU_ITEMS, AuthRoles } from '@aas-designer-model';
 import { AccessService, PortalService } from '@aas/common-services';
-import { Component, inject, OnInit, output, signal } from '@angular/core';
+import { Component, effect, inject, OnInit, output, signal } from '@angular/core';
 import { NavigationEnd, Router, RouterModule } from '@angular/router';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { ButtonModule } from 'primeng/button';
@@ -33,6 +33,13 @@ export class AppMenuComponent implements OnInit {
     private appConfigService: AppConfigService,
   ) {
     this.translate.onLangChange.subscribe(() => this.createMenu());
+
+    effect(() => {
+      this.pluginRegistry.plugins();
+      if (this.portalService.loggedIn) {
+        this.createMenu();
+      }
+    });
 
     // Create menu immediately when login state changes
     this.portalService.loginStateChanged.subscribe(() => {

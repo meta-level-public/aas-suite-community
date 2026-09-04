@@ -8415,6 +8415,9 @@
         "type": "object",
         "additionalProperties": false,
         "properties": {
+          "type": {
+            "$ref": "#/components/schemas/PluginType"
+          },
           "id": {
             "type": "string"
           },
@@ -8436,6 +8439,19 @@
           "requiredRole": {
             "type": "string"
           },
+          "organizationIds": {
+            "type": "array",
+            "items": {
+              "type": "integer",
+              "format": "int64"
+            }
+          },
+          "roles": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
           "requiresWritableRepo": {
             "type": "boolean"
           },
@@ -8456,6 +8472,20 @@
             "type": "string"
           }
         }
+      },
+      "PluginType": {
+        "type": "string",
+        "description": "",
+        "x-enumNames": [
+          "GuiApp",
+          "SubmodelViewer",
+          "SaveInterceptor"
+        ],
+        "enum": [
+          "GuiApp",
+          "SubmodelViewer",
+          "SaveInterceptor"
+        ]
       },
       "SystemConfigurationDto": {
         "type": "object",
