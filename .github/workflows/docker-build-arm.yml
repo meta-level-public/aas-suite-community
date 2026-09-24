@@ -177,9 +177,10 @@ jobs:
         with:
           images: ${{ env.REGISTRY }}/${{ env.IMAGE_PREFIX }}/aas-designer-frontend-community
           flavor: |
+            latest=false
             suffix=-arm64,onlatest=true
           tags: |
-            type=raw,value=latest,enable=${{ github.ref == 'refs/heads/release' }}
+            type=raw,value=latest,enable=${{ github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v') && !contains(github.ref_name, '-') }}
             type=ref,event=branch,enable=${{ github.event_name == 'push' && github.ref_type == 'branch' }}
             type=ref,event=pr,enable=${{ github.event_name == 'pull_request' }}
             type=semver,pattern={{version}},enable=${{ github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v') }}
@@ -248,9 +249,10 @@ jobs:
         with:
           images: ${{ env.REGISTRY }}/${{ env.IMAGE_PREFIX }}/aas-designer-backend-community
           flavor: |
+            latest=false
             suffix=-arm64,onlatest=true
           tags: |
-            type=raw,value=latest,enable=${{ github.ref == 'refs/heads/release' }}
+            type=raw,value=latest,enable=${{ github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v') && !contains(github.ref_name, '-') }}
             type=ref,event=branch,enable=${{ github.event_name == 'push' && github.ref_type == 'branch' }}
             type=ref,event=pr,enable=${{ github.event_name == 'pull_request' }}
             type=semver,pattern={{version}},enable=${{ github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v') }}
@@ -303,9 +305,10 @@ jobs:
         with:
           images: ${{ env.REGISTRY }}/${{ env.IMAGE_PREFIX }}/aas-designer-gateway
           flavor: |
+            latest=false
             suffix=-arm64,onlatest=true
           tags: |
-            type=raw,value=latest,enable=${{ github.ref == 'refs/heads/release' }}
+            type=raw,value=latest,enable=${{ github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v') && !contains(github.ref_name, '-') }}
             type=ref,event=branch,enable=${{ github.event_name == 'push' && github.ref_type == 'branch' }}
             type=ref,event=pr,enable=${{ github.event_name == 'pull_request' }}
             type=semver,pattern={{version}},enable=${{ github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v') }}
@@ -358,9 +361,10 @@ jobs:
         with:
           images: ${{ env.REGISTRY }}/${{ env.IMAGE_PREFIX }}/aas-dpp-gateway
           flavor: |
+            latest=false
             suffix=-arm64,onlatest=true
           tags: |
-            type=raw,value=latest,enable=${{ github.ref == 'refs/heads/release' }}
+            type=raw,value=latest,enable=${{ github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v') && !contains(github.ref_name, '-') }}
             type=ref,event=branch,enable=${{ github.event_name == 'push' && github.ref_type == 'branch' }}
             type=ref,event=pr,enable=${{ github.event_name == 'pull_request' }}
             type=semver,pattern={{version}},enable=${{ github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v') }}
