@@ -23,11 +23,15 @@ export class PluginRegistryService {
     }
 
     try {
+      console.log('Loading plugin menu items from:', `${systemManagementApiPath}/Plugins/menu-items`);
       const dtos = await lastValueFrom(
         this.http.get<PluginMenuItemDto[]>(`${systemManagementApiPath}/Plugins/menu-items`),
       );
+      console.log('Plugin menu items received:', dtos.length, dtos);
       this.pluginItems.set(dtos.map((dto) => this.toPluginMenuItem(dto, systemManagementApiPath)));
+      console.log('Plugin registry after mapping:', this.pluginItems().length, this.pluginItems());
     } catch {
+      console.error('Loading plugin menu items failed');
       this.pluginItems.set([]);
     }
   }

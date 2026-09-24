@@ -1,0 +1,244 @@
+@let pass = view();
+<article class="pass">
+  <header class="pass-hero">
+    <div class="hero-media">
+      @if (pass.imageUrl) {
+        <img [src]="pass.imageUrl" [alt]="'Produktbild ' + pass.title" />
+      } @else if (pass.logoUrl) {
+        <img class="hero-logo" [src]="pass.logoUrl" [alt]="pass.subtitle + ' Firmenlogo'" />
+      } @else {
+        <app-icon [name]="pass.kind === 'battery' ? 'battery' : 'package'" />
+      }
+    </div>
+    <div class="hero-main">
+      <p class="kicker"><app-icon name="passport" />{{ pass.kicker }}<span class="format-tag">AAS</span></p>
+      <h2>{{ pass.title }}</h2>
+      @if (pass.subtitle) { <p class="hero-subtitle">{{ pass.subtitle }}</p> }
+      <div class="chips">
+        @if (pass.status; as status) {
+          <span class="status-chip" [class]="'status-' + status.tone"><span class="status-dot"></span>{{ status.label }}</span>
+        }
+        @for (chip of pass.chips; track chip.key) {
+          <span class="chip">@if (chip.icon) {<app-icon [name]="chip.icon" />}<small>{{ chip.label }}</small>{{ chip.value }}</span>
+        }
+      </div>
+    </div>
+    @if (pass.gauges.length) {
+      <div class="hero-gauges" aria-label="Batteriezustand">
+        @for (gauge of pass.gauges; track gauge.key) {
+          <div class="gauge" [title]="gauge.hint ? 'Stand ' + gauge.hint : gauge.label">
+            <div class="gauge-ring" [style.--value]="gauge.percent" role="img"
+              [attr.aria-label]="gauge.label + ': ' + gauge.value + ' ' + gauge.unit">
+              <span>{{ gauge.value }}<small>{{ gauge.unit }}</small></span>
+            </div>
+            <p>{{ gauge.label }}</p>
+          </div>
+        }
+      </div>
+    } @else if (pass.logoUrl && pass.imageUrl) {
+      <img class="hero-side-logo" [src]="pass.logoUrl" alt="Firmenlogo" />
+    }
+  </header>
+
+  @if (pass.metrics.length) {
+    <dl class="metrics">
+      @for (metric of pass.metrics; track metric.key) {
+        <div class="metric">
+          <span class="metric-icon"><app-icon [name]="metric.icon" /></span>
+          <dt>{{ metric.label }}</dt>
+          <dd>{{ metric.value }}@if (metric.unit) {<small>{{ metric.unit }}</small>}</dd>
+          @if (metric.hint) { <p class="metric-hint" [title]="metric.hint">{{ metric.hint }}</p> }
+        </div>
+      }
+    </dl>
+  }
+
+  <div class="pass-layout">
+    <nav class="pass-nav" aria-label="Passinhalt">
+      <p class="nav-title">Inhalt</p>
+      <button type="button" (click)="scrollTo('pass-identity')"><app-icon name="passport" />Passdaten</button>
+      @if (pass.nameplate) {
+        <button type="button" (click)="scrollTo('pass-nameplate')"><app-icon name="tag" />Typenschild</button>
+      }
+      @for (section of pass.sections; track section.id) {
+        <button type="button" (click)="scrollTo(section.id)"><app-icon [name]="section.icon" />{{ section.title }}</button>
+      }
+    </nav>
+
+    <div class="pass-content">
+      <section class="card" id="pass-identity">
+        <header class="card-head">
+          <span class="card-icon"><app-icon name="passport" /></span>
+          <div><h3>Passdaten</h3><p>Kennung, Status und Verantwortliche des Passes</p></div>
+        </header>
+        <ng-container *ngTemplateOutlet="fieldList; context: { $implicit: pass.identity, columns: true }" />
+      </section>
+
+      @if (pass.nameplate; as plate) {
+        <section class="card" id="pass-nameplate">
+          <header class="card-head">
+            <span class="card-icon"><app-icon name="tag" /></span>
+            <div><h3>Typenschild</h3><p>Digitales Typenschild des Herstellers</p></div>
+          </header>
+          @if (plate.logoUrl || plate.designation || plate.manufacturer) {
+            <div class="brand">
+              @if (plate.logoUrl) { <img [src]="plate.logoUrl" [alt]="plate.manufacturer + ' Firmenlogo'" /> }
+              <div>
+                <p class="eyebrow">Produkt</p>
+                <h4>{{ plate.designation || pass.title }}</h4>
+                @if (plate.manufacturer) { <p>{{ plate.manufacturer }}</p> }
+              </div>
+            </div>
+          }
+          <div class="group-grid">
+            @if (plate.identification.length) {
+              <div class="group"><h4><app-icon name="package" />Produktidentifikation</h4>
+                <ng-container *ngTemplateOutlet="fieldList; context: { $implicit: plate.identification }" />
+              </div>
+            }
+            @if (plate.manufacturing.length) {
+              <div class="group"><h4><app-icon name="factory" />Herstellung und Versionen</h4>
+                <ng-container *ngTemplateOutlet="fieldList; context: { $implicit: plate.manufacturing }" />
+              </div>
+            }
+            @if (plate.contact.length) {
+              <div class="group"><h4><app-icon name="building" />Hersteller und Kontakt</h4>
+                <ng-container *ngTemplateOutlet="fieldList; context: { $implicit: plate.contact }" />
+              </div>
+            }
+          </div>
+          @if (plate.compliance.length) {
+            <div class="compliance">
+              <h4><app-icon name="shield" />Kennzeichnungen und Konformität</h4>
+              <div class="compliance-links">
+                @for (link of plate.compliance; track link.url) {
+                  <a [href]="link.url" target="_blank" rel="noopener noreferrer">
+                    @if (link.imageUrl) { <img [src]="link.imageUrl" alt="" /> } @else { <app-icon [name]="link.icon" /> }
+                    {{ link.label }}<app-icon name="external" />
+                  </a>
+                }
+              </div>
+            </div>
+          }
+        </section>
+      }
+
+      @for (section of pass.sections; track section.id) {
+        <section class="card" [id]="section.id">
+          <header class="card-head">
+            <span class="card-icon"><app-icon [name]="section.icon" /></span>
+            <div><h3>{{ section.title }}</h3><p class="semantic-id" [title]="section.semanticId">{{ section.semanticId }}</p></div>
+          </header>
+          @if (section.documents.length) {
+            <ul class="documents">
+              @for (doc of section.documents; track doc.url) {
+                <li><a [href]="doc.url" target="_blank" rel="noopener noreferrer">
+                  <app-icon name="file" /><span><strong>{{ doc.title }}</strong>@if (doc.meta) {<small>{{ doc.meta }}</small>}</span>
+                  <app-icon name="external" />
+                </a></li>
+              }
+            </ul>
+          }
+          @if (section.content.fields.length) {
+            @if (section.layout === 'tiles') {
+              <div class="tiles">
+                @for (item of section.content.fields; track item.key) {
+                  <div class="tile">
+                    <p class="tile-label">@if (item.icon) {<app-icon [name]="item.icon" />}{{ item.label }}</p>
+                    <p class="tile-value">{{ item.value }}@if (item.unit) {<small>{{ item.unit }}</small>}</p>
+                    @if (item.percent !== undefined) {
+                      <div class="bar"><span [style.width.%]="item.percent"></span></div>
+                    }
+                    @if (item.asOf) { <p class="tile-meta"><app-icon name="clock" />Stand {{ item.asOf }}</p> }
+                  </div>
+                }
+              </div>
+            } @else {
+              <ng-container *ngTemplateOutlet="fieldList; context: { $implicit: section.content.fields, columns: true }" />
+            }
+          }
+          @for (table of section.content.tables; track table.key) {
+            <ng-container *ngTemplateOutlet="tableView; context: { $implicit: table }" />
+          }
+          @if (section.content.groups.length) {
+            <div class="group-grid">
+              @for (group of section.content.groups; track $index) {
+                <ng-container *ngTemplateOutlet="groupView; context: { $implicit: group }" />
+              }
+            </div>
+          }
+        </section>
+      }
+
+      @if (pass.emptySections.length) {
+        <p class="empty-note"><app-icon name="info" />Ohne Angaben im Pass: {{ pass.emptySections.join(', ') }}</p>
+      }
+    </div>
+  </div>
+</article>
+
+<ng-template #groupView let-group>
+  <div class="group">
+    <h4><app-icon [name]="group.icon" />{{ group.title }}</h4>
+    <ng-container *ngTemplateOutlet="groupBody; context: { $implicit: group }" />
+  </div>
+</ng-template>
+
+<ng-template #groupBody let-group>
+  <ng-container *ngTemplateOutlet="fieldList; context: { $implicit: group.fields }" />
+  @for (table of group.tables; track table.key) {
+    <ng-container *ngTemplateOutlet="tableView; context: { $implicit: table, nested: true }" />
+  }
+  @for (child of group.groups; track $index) {
+    <div class="subgroup">
+      <h5>{{ child.title }}</h5>
+      <ng-container *ngTemplateOutlet="groupBody; context: { $implicit: child }" />
+    </div>
+  }
+</ng-template>
+
+<ng-template #tableView let-table let-nested="nested">
+  <div class="table-block" [class.nested]="nested">
+    @if (!nested) { <h4><app-icon [name]="table.icon" />{{ table.title }} <span class="count">{{ table.rows.length }}</span></h4> }
+    @else { <h5>{{ table.title }}</h5> }
+    <div class="table-wrap">
+      <table>
+        <thead><tr>@for (column of table.columns; track $index) { <th scope="col">{{ column }}</th> }</tr></thead>
+        <tbody>
+          @for (row of table.rows; track $index) {
+            <tr>@for (cell of row; track $index) {
+              <td><ng-container *ngTemplateOutlet="value; context: { $implicit: cell }" /></td>
+            }</tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  </div>
+</ng-template>
+
+<ng-template #fieldList let-fields let-columns="columns">
+  @if (fields.length) {
+    <dl class="fields" [class.fields-columns]="columns">
+      @for (item of fields; track $index) {
+        <div class="field">
+          <dt>@if (item.icon) {<app-icon [name]="item.icon" />}{{ item.label }}</dt>
+          <dd><ng-container *ngTemplateOutlet="value; context: { $implicit: item }" /></dd>
+        </div>
+      }
+    </dl>
+  }
+</ng-template>
+
+<ng-template #value let-item>
+  @if (!item.value) {
+    <span class="muted">–</span>
+  } @else if (item.flag) {
+    <span class="flag" [class.flag-yes]="item.flag === 'yes'">{{ item.value }}</span>
+  } @else if (item.href) {
+    <a class="value-link" [href]="item.href" target="_blank" rel="noopener noreferrer">{{ item.value }}<app-icon name="external" /></a>
+    @if (item.unit) { <small class="unit">{{ item.unit }}</small> }
+  } @else {
+    <span [class.mono]="item.mono">{{ item.value }}</span>@if (item.unit) {<small class="unit">{{ item.unit }}</small>}
+    @if (item.asOf) { <small class="as-of">Stand {{ item.asOf }}</small> }
+  }
+</ng-template>

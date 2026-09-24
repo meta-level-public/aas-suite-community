@@ -10,6 +10,7 @@ import {
   OnInit,
   Optional,
   signal,
+  untracked,
 } from '@angular/core';
 import { DomSanitizer } from '@angular/platform-browser';
 
@@ -29,7 +30,7 @@ import { Card } from 'primeng/card';
 import { DialogService, DynamicDialogConfig, DynamicDialogRef } from 'primeng/dynamicdialog';
 import { ScrollTop } from 'primeng/scrolltop';
 import { SelectButton } from 'primeng/selectbutton';
-import { Skeleton } from 'primeng/skeleton';
+import { ProgressBar } from 'primeng/progressbar';
 import { Tag } from 'primeng/tag';
 import { Tooltip } from 'primeng/tooltip';
 import { lastValueFrom } from 'rxjs';
@@ -48,7 +49,7 @@ import { ViewerStoreService } from '../viewer-store.service';
     SelectButton,
     FormsModule,
     Card,
-    Skeleton,
+    ProgressBar,
     Tag,
     AasModelViewerComponent,
     AasMetadataViewerComponent,
@@ -248,22 +249,31 @@ export class AasViewerStandaloneComponent implements OnChanges, OnInit {
     });
   }
 
+  // Submodels arrive one after another. Until the user picks one, the Nameplate is preferred as
+  // soon as it is loaded, otherwise the first loaded submodel is shown.
+  private userSelectedSubmodel = false;
+
   smLoadedEffect = effect(() => {
     const sms = this.viewerStore.submodels();
-
-    // Ensure at least one item is selected (preferably Nameplate, otherwise first submodel)
-    const currentId = this.viewerStore.currentSubmodelId();
-    const hasCurrentSubmodel = sms.find((sm) => sm.id === currentId);
+    const currentId = untracked(() => this.viewerStore.currentSubmodelId());
+    const hasCurrentSubmodel = sms.some((sm) => sm.id === currentId);
+    const np = sms.find((sm) => sm.idShort?.includes('Nameplate'));
 
     if (!hasCurrentSubmodel) {
-      const np = sms.find((sm) => sm.idShort.includes('Nameplate'));
-      if (np != null) {
-        this.selectSubmodel(np.id);
-      } else if (sms.length > 0) {
-        this.selectSubmodel(sms[0].id);
+      this.userSelectedSubmodel = false;
+      const first = np ?? sms[0];
+      if (first != null) {
+        untracked(() => this.selectSubmodel(first.id));
       }
+    } else if (!this.userSelectedSubmodel && np != null && np.id !== currentId) {
+      untracked(() => this.viewerStore.currentSubmodelId.set(np.id));
     }
   });
+
+  onSubmodelClick(submodelId: string) {
+    this.userSelectedSubmodel = true;
+    this.selectSubmodel(submodelId);
+  }
 
   setSelectedViewMode(event: { label: string; value: string }[]) {
     setTimeout(() => (this.viewModeOptions = event));

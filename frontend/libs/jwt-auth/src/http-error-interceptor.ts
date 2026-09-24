@@ -47,11 +47,17 @@ export class HttpErrorInterceptor implements HttpInterceptor {
             }
           }
           case 400: {
+            if (request.url === '/aas-proxy/dpp/metadata') {
+              return throwError(() => error);
+            }
             const ex = new ApiException(error.error?.Message ?? error.message, error.error?.ExceptionType);
             ex.stacktrace = error.error?.Stacktrace ?? error.error;
             return throwError(() => ex);
           }
           case 404: {
+            if (request.url.startsWith('/aas-proxy/dpp/v1/dpps') || request.url === '/aas-proxy/dpp/metadata') {
+              return throwError(() => error);
+            }
             const ex = new ApiException('SERVER_REQUEST_NOT_FOUND_MESSAGE', 'SERVER_REQUEST_NOT_FOUND');
             ex.stacktrace = error.error?.stacktrace;
             ex.displayError = false;
@@ -154,8 +160,14 @@ export class HttpErrorInterceptor implements HttpInterceptor {
       const resolvedUrl = urlOrPath.startsWith('/')
         ? new URL(urlOrPath, window.location.origin)
         : new URL(urlOrPath, window.location.origin);
+      if (resolvedUrl.pathname.startsWith('/aas-proxy/dpp/')) {
+        return false;
+      }
       return resolvedUrl.pathname.startsWith('/aas-proxy/') || resolvedUrl.pathname.startsWith('/aas-viewer-proxy/');
     } catch {
+      if (urlOrPath.startsWith('/aas-proxy/dpp/')) {
+        return false;
+      }
       return urlOrPath.startsWith('/aas-proxy/') || urlOrPath.startsWith('/aas-viewer-proxy/');
     }
   }

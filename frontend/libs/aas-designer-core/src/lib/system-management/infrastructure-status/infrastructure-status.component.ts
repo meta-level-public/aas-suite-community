@@ -130,6 +130,22 @@ export class InfrastructureStatusComponent {
     }
   }
 
+  async ensureDppApi(entry: InfrastructureStatus) {
+    if (await this.confirmationService.confirm({ message: this.translate.instant('DPP_API_ENSURE_Q') })) {
+      await lastValueFrom(this.infraClient.aasInfrastructure_EnsureDppApi(entry.infrastructureId));
+      this.notificationService.showMessageAlways('DPP_API_PROVISION_REQUESTED', 'SUCCESS', 'success', false);
+      this.reload();
+    }
+  }
+
+  async ensureDppApiForAll() {
+    if (await this.confirmationService.confirm({ message: this.translate.instant('DPP_API_ENSURE_ALL_Q') })) {
+      await lastValueFrom(this.infraClient.aasInfrastructure_EnsureDppApiForAll());
+      this.notificationService.showMessageAlways('DPP_API_PROVISION_REQUESTED', 'SUCCESS', 'success', false);
+      this.reload();
+    }
+  }
+
   async recreateAll() {
     if (
       await this.confirmationService.confirm({

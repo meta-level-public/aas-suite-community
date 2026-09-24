@@ -23,4 +23,11 @@
     <PackageReference Include="MQTTnet.Extensions.TopicTemplate" />
     <PackageReference Include="Docker.DotNet" />
   </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource
+      Include="Resources/DppMetadata/1.0/template.json"
+      LogicalName="DppMetadataTemplates.1.0.json"
+    />
+  </ItemGroup>
 </Project>

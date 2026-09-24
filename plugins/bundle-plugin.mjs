@@ -24,6 +24,7 @@ try {
     name: 'Hello World Demo',
     icon: 'pi pi-question-circle',
     entryPoint: 'index.html',
+    type: 'GuiApp',
     description: 'A minimal Angular plugin running inside the AAS Suite plugin host.',
     shortLabel: 'HELLO',
     requiredRole: '',
@@ -31,6 +32,8 @@ try {
     sortOrder: '100',
     version: '1.0.0',
     author: 'Meta Level Software AG',
+    organizationIds: '',
+    roles: '',
   };
 
   console.log('AAS Suite Plugin Bundler');
@@ -94,6 +97,7 @@ try {
     name: await askRequired(`Menu name ${requiredText}`, pluginDefaults.name),
     icon: await askRequired(`PrimeIcon class ${requiredText}`, pluginDefaults.icon),
     entryPoint: await askRequired(`Entry point ${requiredText}`, pluginDefaults.entryPoint),
+    type: await askRequired(`Plugin type ${requiredText}`, pluginDefaults.type),
   };
 
   const optionalValues = {
@@ -104,6 +108,8 @@ try {
     sortOrder: await ask('Sort order', String(pluginDefaults.sortOrder ?? '100')),
     version: await ask('Version', String(pluginDefaults.version ?? '')),
     author: await ask('Author', String(pluginDefaults.author ?? '')),
+    organizationIds: await ask('Organization IDs (comma-separated)', String(pluginDefaults.organizationIds ?? '')),
+    roles: await ask('Roles (comma-separated)', String(pluginDefaults.roles ?? '')),
   };
 
   const fullManifest = addOptionalManifestFields(manifest, optionalValues);
@@ -236,6 +242,21 @@ function addOptionalManifestFields(manifest, optionalValues) {
       result[key] = value.toLowerCase() === 'true';
     } else if (key === 'sortOrder') {
       result[key] = Number.parseInt(value, 10);
+    } else if (key === 'organizationIds') {
+      const organizationIds = value
+        .split(',')
+        .map((organizationId) => organizationId.trim())
+        .filter((organizationId) => organizationId !== '')
+        .map((organizationId) => Number.parseInt(organizationId, 10));
+      if (organizationIds.some((organizationId) => !Number.isSafeInteger(organizationId))) {
+        throw new Error('Organization IDs must be comma-separated integers.');
+      }
+      result[key] = organizationIds;
+    } else if (key === 'roles') {
+      result[key] = value
+        .split(',')
+        .map((role) => role.trim())
+        .filter((role) => role !== '');
     } else {
       result[key] = value;
     }
@@ -259,6 +280,9 @@ function validateManifest(manifest) {
   }
   if (Number.isNaN(manifest.sortOrder)) {
     throw new Error('Sort order must be a number.');
+  }
+  if (!['GuiApp', 'SubmodelViewer', 'SaveInterceptor'].includes(manifest.type)) {
+    throw new Error('Plugin type must be GuiApp, SubmodelViewer, or SaveInterceptor.');
   }
 }
 

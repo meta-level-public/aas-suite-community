@@ -98,7 +98,12 @@ public class UpdateInfrastructureDataHandler
             infrastructure.ConceptDescriptionRepositoryHcEnabled = request
                 .AasInfrastructureSettings
                 .ConceptDescriptionRepositoryHcEnabled;
+            infrastructure.DppApiUrl = request.AasInfrastructureSettings.DppApiUrl;
+            infrastructure.DppApiHcUrl = request.AasInfrastructureSettings.DppApiHcUrl;
+            infrastructure.DppApiHcEnabled = request.AasInfrastructureSettings.DppApiHcEnabled;
         }
+
+        infrastructure.DppApiVersion = request.AasInfrastructureSettings.DppApiVersion;
 
         infrastructure.HeaderParameters = request.AasInfrastructureSettings.HeaderParameters;
         infrastructure.SendCurrentJwt = request.AasInfrastructureSettings.SendCurrentJwt;

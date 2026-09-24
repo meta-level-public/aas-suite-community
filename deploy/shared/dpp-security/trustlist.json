@@ -1,0 +1,7 @@
+[
+  {
+    "issuer": "http://keycloak:8080/realms/aas-local",
+    "audience": "dpp-api",
+    "scopes": []
+  }
+]

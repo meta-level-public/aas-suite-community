@@ -44,6 +44,27 @@ public class SaveShellInInfrastructure
         ExcludeSubmodelsFromEnvironment(environment, excludedSubmodelIds);
 
         using var client = HttpClientCreator.CreateHttpClient(appUser);
+        var infrastructure = appUser.CurrentInfrastructureSettings;
+        var aasRepositoryUrl = ResolveRequestBaseUrl(
+            infrastructure.GetResolvedServiceUrl("aas-repo"),
+            baseUrl,
+            "aas-repo"
+        );
+        var submodelRepositoryUrl = ResolveRequestBaseUrl(
+            infrastructure.GetResolvedServiceUrl("sm-repo"),
+            baseUrl,
+            "sm-repo"
+        );
+        var discoveryUrl = ResolveRequestBaseUrl(
+            infrastructure.GetResolvedServiceUrl("aas-discovery"),
+            baseUrl,
+            "aas-discovery"
+        );
+        var conceptDescriptionRepositoryUrl = ResolveRequestBaseUrl(
+            infrastructure.GetResolvedServiceUrl("cd-repo"),
+            baseUrl,
+            "cd-repo"
+        );
 
         var aasId = string.Empty;
 
@@ -82,7 +103,7 @@ public class SaveShellInInfrastructure
                 AasDescriptorEntry = new EditorDescriptorEntry()
                 {
                     Endpoint = DescriptorEndpointResolver.ResolveAasDescriptorEndpoint(
-                        appUser.CurrentInfrastructureSettings,
+                        infrastructure,
                         baseUrl,
                         aas.Id
                     ),
@@ -91,8 +112,7 @@ public class SaveShellInInfrastructure
                     IdShort = aas.IdShort ?? "",
                 },
             };
-            var url =
-                appUser.CurrentInfrastructureSettings.AasRepositoryUrl.AppendSlash() + "shells";
+            var url = aasRepositoryUrl.AppendSlash() + "shells";
 
             var aasJsonString = BasyxSerializer.Serialize(aas);
             var response = await SendShellWithRoleFallbackAsync(
@@ -118,7 +138,7 @@ public class SaveShellInInfrastructure
                         continue;
 
                     var smUrl =
-                        appUser.CurrentInfrastructureSettings.SubmodelRepositoryUrl.AppendSlash()
+                        submodelRepositoryUrl.AppendSlash()
                         + "submodels/"
                         + id.ToBase64UrlEncoded(Encoding.UTF8);
                     var smJsonString = BasyxSerializer.Serialize(sm);
@@ -126,7 +146,7 @@ public class SaveShellInInfrastructure
                     {
                         await SaveSubmodelAsync(
                             client,
-                            appUser.CurrentInfrastructureSettings.SubmodelRepositoryUrl,
+                            submodelRepositoryUrl,
                             aas.Id,
                             id,
                             sm.IdShort ?? string.Empty,
@@ -136,7 +156,7 @@ public class SaveShellInInfrastructure
                         var smDescriptorEntry = new EditorDescriptorEntry()
                         {
                             Endpoint = DescriptorEndpointResolver.ResolveSubmodelDescriptorEndpoint(
-                                appUser.CurrentInfrastructureSettings,
+                                infrastructure,
                                 baseUrl,
                                 sm.Id
                             ),
@@ -158,13 +178,13 @@ public class SaveShellInInfrastructure
                 }
 
                 await DiscoveryUpdater.UpdateDiscoveryAsync(
-                    appUser.CurrentInfrastructureSettings.AasDiscoveryUrl,
+                    discoveryUrl,
                     (AssetAdministrationShell)aas,
                     cancellationToken,
                     client
                 );
                 await RegistryUpdater.UpdateRegistryAsync(
-                    appUser.CurrentInfrastructureSettings,
+                    infrastructure,
                     environment,
                     cancellationToken,
                     client,
@@ -193,8 +213,8 @@ public class SaveShellInInfrastructure
 
         var aasFiles = FilesFromAasResolver.GetAllAasFiles(
             environment,
-            appUser.CurrentInfrastructureSettings.SubmodelRepositoryUrl.AppendSlash(),
-            appUser.CurrentInfrastructureSettings.AasRepositoryUrl.AppendSlash()
+            submodelRepositoryUrl.AppendSlash(),
+            aasRepositoryUrl.AppendSlash()
         );
 
         if (providedFileStreams != null)
@@ -222,7 +242,7 @@ public class SaveShellInInfrastructure
                     if (aasFile.IsThumbnail)
                     {
                         var thumbUrl =
-                            appUser.CurrentInfrastructureSettings.AasRepositoryUrl.AppendSlash()
+                            aasRepositoryUrl.AppendSlash()
                             + "shells/"
                             + environment
                                 .AssetAdministrationShells[0]
@@ -301,7 +321,7 @@ public class SaveShellInInfrastructure
         foreach (var cd in environment.ConceptDescriptions ?? [])
         {
             var cdUrl =
-                appUser.CurrentInfrastructureSettings.ConceptDescriptionRepositoryUrl.AppendSlash()
+                conceptDescriptionRepositoryUrl.AppendSlash()
                 + "concept-descriptions".AppendSlash()
                 + cd.Id.ToBase64UrlEncoded(Encoding.UTF8);
             var cdJsonString = BasyxSerializer.Serialize(cd);
@@ -313,9 +333,7 @@ public class SaveShellInInfrastructure
             if (cdResponse.StatusCode == HttpStatusCode.NotFound)
             {
                 // POST dann ohne ID ...
-                cdUrl =
-                    appUser.CurrentInfrastructureSettings.ConceptDescriptionRepositoryUrl.AppendSlash()
-                    + "concept-descriptions";
+                cdUrl = conceptDescriptionRepositoryUrl.AppendSlash() + "concept-descriptions";
                 cdResponse = await client.PostAsync(
                     cdUrl,
                     new StringContent(cdJsonString, Encoding.UTF8, "application/json"),
@@ -794,6 +812,34 @@ public class SaveShellInInfrastructure
             Content = new StringContent(payload, Encoding.UTF8, "application/json"),
         };
         return await client.SendAsync(request, cancellationToken);
+    }
+
+    private static string ResolveRequestBaseUrl(
+        string configuredUrl,
+        string applicationBaseUrl,
+        string serviceName
+    )
+    {
+        if (Uri.TryCreate(configuredUrl, UriKind.Absolute, out _))
+        {
+            return configuredUrl;
+        }
+
+        if (
+            string.IsNullOrWhiteSpace(configuredUrl)
+            || !Uri.TryCreate(applicationBaseUrl, UriKind.Absolute, out var baseUri)
+        )
+        {
+            throw new InvalidOperationException(
+                $"The resolved URL for infrastructure service '{serviceName}' is not absolute. "
+                    + $"Configured URL: '{configuredUrl}', application base URL: '{applicationBaseUrl}'."
+            );
+        }
+
+        return new Uri(
+            new Uri(baseUri.AbsoluteUri.TrimEnd('/') + "/"),
+            configuredUrl.TrimStart('/')
+        ).ToString();
     }
 
     private static string ReplaceRoleAssetKindWithNotApplicable(string payload)

@@ -1,17 +1,277 @@
 <main class="shell">
   <header class="topbar">
-    <div><span class="eyebrow">TWINENGINE / CONTROL PLANE</span><h1>Configuration studio</h1><p>Compose-Konfiguration vorbereiten, prüfen und exportieren.</p></div>
+    <div>
+      <span class="eyebrow">TWINENGINE / CONTROL PLANE</span>
+      <h1>TwinEngine Configuration studio</h1>
+      <p>Compose-Konfiguration vorbereiten, prüfen und exportieren.</p>
+    </div>
     <div class="status"><span class="status-dot"></span>{{ status() }}</div>
   </header>
   @if (config(); as data) {
-    <section class="toolbar"><button class="secondary" (click)="load()" [disabled]="busy()">Neu laden</button><button class="secondary" (click)="validate()" [disabled]="busy()">Prüfen</button><button class="primary" (click)="save()" [disabled]="busy()">Entwurf speichern</button><button class="export" (click)="export()" [disabled]="busy()">Export erzeugen <span>↗</span></button></section>
-    @if (errors().length) { <div class="errors"><strong>Bitte korrigieren</strong>@for (error of errors(); track error) { <div>{{ error }}</div> }</div> }
-    <div class="grid">
-      <section class="panel wide"><div class="panel-heading"><div><span class="section-number">01</span><h2>DataEngine</h2></div><span class="tag">GENERAL</span></div><div class="fields two"><label>Repository Base URL<input [(ngModel)]="data.general.dataEngineRepositoryBaseUrl"></label><label>Customer Domain URL<input [(ngModel)]="data.general.customerDomainUrl"></label><label>Default language<input [(ngModel)]="data.general.defaultLanguages[0]"></label><label>Second language<input [(ngModel)]="data.general.defaultLanguages[1]"></label></div></section>
-      <section class="panel"><div class="panel-heading"><div><span class="section-number">02</span><h2>Plugin</h2></div><span class="tag">INSTANCE 0</span></div><div class="fields"><label>Base URL<input [(ngModel)]="data.plugin.baseUrl"></label><label>Health endpoint<input [(ngModel)]="data.plugin.healthEndpoint"></label><label>Authorization target<input [(ngModel)]="data.plugin.authorizationHeader"></label><label>Organization target<input [(ngModel)]="data.plugin.organizationHeader"></label></div></section>
-      <section class="panel wide"><div class="panel-heading"><div><span class="section-number">03</span><h2>Template mappings</h2></div><button class="icon-button" (click)="addMapping()" title="Mapping hinzufügen">+</button></div>@for (mapping of data.templateMappings; track $index) {<div class="repeat-row"><input placeholder="Template ID" [(ngModel)]="mapping.templateId"><input placeholder="Pattern" [(ngModel)]="mapping.pattern"><button class="remove" (click)="removeMapping($index)" title="Mapping entfernen">×</button></div>}</section>
-      <section class="panel"><div class="panel-heading"><div><span class="section-number">04</span><h2>ID rules</h2></div><span class="tag">SPLIT</span></div><div class="rule-card"><strong>AAS ID extraction</strong><div class="fields three"><label>Strategy<input [(ngModel)]="data.idRules.aas.strategy"></label><label>Pattern<input [(ngModel)]="data.idRules.aas.pattern"></label><label>Index<input type="number" [(ngModel)]="data.idRules.aas.index"></label></div></div><div class="rule-card"><strong>Product ID extraction</strong><div class="fields three"><label>Strategy<input [(ngModel)]="data.dppPlugin.productIdRule.strategy"></label><label>Pattern<input [(ngModel)]="data.dppPlugin.productIdRule.pattern"></label><label>Index<input type="number" [(ngModel)]="data.dppPlugin.productIdRule.index"></label></div></div></section>
-      <section class="panel wide"><div class="panel-heading"><div><span class="section-number">05</span><h2>DPP plugin rules</h2></div><button class="icon-button" (click)="addRule()" title="Regel hinzufügen">+</button></div><div class="fields"><label>Index context prefix<input [(ngModel)]="data.dppPlugin.indexContextPrefix"></label></div><div class="checks"><label><input type="checkbox" [(ngModel)]="data.dppPlugin.hasShellDescriptor"> Shell descriptor</label><label><input type="checkbox" [(ngModel)]="data.dppPlugin.hasAssetInformation"> Asset information</label><label><input type="checkbox" [(ngModel)]="data.dppPlugin.hasAssetIdSearch"> Asset ID search</label></div>@for (rule of data.dppPlugin.submodelNameRules; track $index) {<div class="repeat-row"><input placeholder="Submodel name" [(ngModel)]="rule.submodelName"><input placeholder="Patterns, comma separated" [ngModel]="rule.patterns.join(', ')" (ngModelChange)="updatePatterns(rule, $event)"><button class="remove" (click)="removeRule($index)" title="Regel entfernen">×</button></div>}</section>
-    </div>
+    <section class="toolbar">
+      <div class="toolbar-primary">
+        <button class="secondary" (click)="validate()" [disabled]="busy()">Prüfen</button
+        ><button class="primary" (click)="save()" [disabled]="busy()">Entwurf speichern</button>
+      </div>
+      <details class="toolbar-more">
+        <summary>Weitere Aktionen</summary>
+        <div class="toolbar-more-actions">
+          <button class="secondary" (click)="load()" [disabled]="busy()">Neu laden</button>
+          <button class="export" (click)="export()" [disabled]="busy()">
+            Export erzeugen <span>↗</span>
+          </button>
+          <button class="export" (click)="recreateDataEngine()" [disabled]="busy()">
+            DataEngine neu erstellen <span>⟳</span>
+          </button>
+          <label class="history-picker"
+            >Verlauf<select
+              [disabled]="busy() || historyEntries().length === 0"
+              (change)="loadHistoryVersion(+$any($event.target).value)"
+            >
+              <option value="">Version wählen ...</option>
+              @for (entry of historyEntries(); track entry.version) {
+                <option [value]="entry.version">Version {{ entry.version }}</option>
+              }
+            </select></label
+          >
+          <button class="danger" (click)="restoreDefaults()" [disabled]="busy()">
+            Standard wiederherstellen
+          </button>
+        </div>
+      </details>
+    </section>
+    @if (errors().length) {
+      <div class="errors">
+        <strong>Bitte korrigieren</strong>
+        @for (error of errors(); track error) {
+          <div>{{ error }}</div>
+        }
+      </div>
+    }
+    @if (templateRepositoryWarning(); as warning) {
+      <div class="warnings" role="status">{{ warning }}</div>
+    }
+    <nav class="tabs" aria-label="Konfigurationsbereiche">
+      <button
+        class="tab"
+        [class.active]="activeTab() === 'dataEngine'"
+        (click)="activeTab.set('dataEngine')"
+        [attr.aria-selected]="activeTab() === 'dataEngine'"
+        role="tab"
+      >
+        Data Engine
+      </button>
+      <button
+        class="tab"
+        [class.active]="activeTab() === 'dppPlugin'"
+        (click)="activeTab.set('dppPlugin')"
+        [attr.aria-selected]="activeTab() === 'dppPlugin'"
+        role="tab"
+      >
+        DPP Plugin
+      </button>
+    </nav>
+    @if (activeTab() === 'dataEngine') {
+      <section class="panel wide data-engine-panel">
+        <div class="panel-heading">
+          <div>
+            <span class="section-number">01</span>
+            <h2>Default languages</h2>
+          </div>
+          <button class="add-button" (click)="addLanguage()" aria-label="Sprache hinzufügen">
+            Sprache hinzufügen
+          </button>
+        </div>
+        @for (language of data.dataEngine.defaultLanguages; track $index) {
+          <div class="language-row">
+            <label
+              >Language {{ $index + 1
+              }}<input [(ngModel)]="data.dataEngine.defaultLanguages[$index]"
+            /></label>
+            <button
+              class="remove"
+              (click)="removeLanguage($index)"
+              [disabled]="data.dataEngine.defaultLanguages.length === 1"
+              [attr.aria-label]="'Sprache ' + ($index + 1) + ' löschen'"
+              title="Sprache löschen"
+            >
+              ×
+            </button>
+          </div>
+        }
+      </section>
+      <section class="panel wide data-engine-panel">
+        <div class="panel-heading">
+          <div>
+            <span class="section-number">02</span>
+            <h2>Template mappings</h2>
+          </div>
+          <button
+            class="add-button"
+            (click)="addMapping()"
+            aria-label="Template-Mapping hinzufügen"
+          >
+            Mapping hinzufügen
+          </button>
+        </div>
+        @for (mapping of data.dataEngine.templateMappings; track $index) {
+          <div class="mapping-entry">
+            <div class="repeat-row mapping-row">
+              <input
+                aria-label="Template ID"
+                placeholder="Template ID"
+                [(ngModel)]="mapping.templateId"
+                (ngModelChange)="clearMappingValidation($index)"
+              /><input
+                aria-label="Template pattern"
+                placeholder="Pattern"
+                [(ngModel)]="mapping.pattern"
+                (ngModelChange)="clearMappingValidation($index)"
+              />
+              <button
+                class="remove"
+                (click)="removeMapping($index)"
+                [attr.aria-label]="'Template-Mapping ' + ($index + 1) + ' löschen'"
+                title="Mapping löschen"
+              >
+                ×
+              </button>
+            </div>
+            @for (warning of mappingWarnings()[$index] ?? []; track warning) {
+              <div class="mapping-warning" role="status">{{ warning }}</div>
+            }
+            @if (mappingSuccesses()[$index]; as success) {
+              <div class="mapping-success" role="status">{{ success }}</div>
+            }
+          </div>
+        }
+      </section>
+      <section class="panel product-id-panel">
+        <div class="panel-heading">
+          <div>
+            <span class="section-number">03</span>
+            <h2>Shell template mapping</h2>
+          </div>
+        </div>
+        <div class="fields product-id-fields">
+          <label
+            >Template ID<input
+              [(ngModel)]="data.dataEngine.shellTemplateMapping.templateId"
+              (ngModelChange)="clearShellTemplateValidation()"
+          /></label>
+          <label
+            >Pattern<input
+              [(ngModel)]="data.dataEngine.shellTemplateMapping.pattern"
+              (ngModelChange)="clearShellTemplateValidation()"
+          /></label>
+        </div>
+        @if (shellTemplateWarning(); as warning) {
+          <div class="mapping-warning" role="status">{{ warning }}</div>
+        }
+        @if (shellTemplateSuccess(); as success) {
+          <div class="mapping-success" role="status">{{ success }}</div>
+        }
+      </section>
+      <section class="panel product-id-panel">
+        <div class="panel-heading">
+          <div>
+            <span class="section-number">04</span>
+            <h2>AAS ID extraction rule</h2>
+          </div>
+        </div>
+        <div class="fields product-id-fields">
+          <label
+            >Strategy<input [(ngModel)]="data.dataEngine.aasIdExtractionRule.strategy"
+          /></label>
+          <label>Pattern<input [(ngModel)]="data.dataEngine.aasIdExtractionRule.pattern" /></label>
+          <label
+            >Index<input
+              type="number"
+              min="0"
+              [(ngModel)]="data.dataEngine.aasIdExtractionRule.index"
+          /></label>
+        </div>
+      </section>
+    } @else {
+      <section class="panel wide">
+        <div class="panel-heading">
+          <div>
+            <span class="section-number">01</span>
+            <h2>Submodel name extraction rules</h2>
+          </div>
+          <button class="add-button" (click)="addRule()" aria-label="Extraktionsregel hinzufügen">
+            Regel hinzufügen
+          </button>
+        </div>
+        @for (rule of data.dppPlugin.submodelNameRules; track $index; let ruleIndex = $index) {
+          <div class="rule-card">
+            <div class="rule-heading">
+              <strong>Regel {{ ruleIndex + 1 }}</strong>
+              <button
+                class="remove"
+                (click)="removeRule(ruleIndex)"
+                [attr.aria-label]="'Extraktionsregel ' + (ruleIndex + 1) + ' löschen'"
+                title="Regel löschen"
+              >
+                ×
+              </button>
+            </div>
+            <div class="fields">
+              <label>Submodel name<input [(ngModel)]="rule.submodelName" /></label>
+              @for (pattern of rule.patterns; track $index; let patternIndex = $index) {
+                <div class="pattern-row">
+                  <label
+                    >Pattern {{ patternIndex + 1 }}<input [(ngModel)]="rule.patterns[patternIndex]"
+                  /></label>
+                  <button
+                    class="remove"
+                    (click)="removePattern(ruleIndex, patternIndex)"
+                    [disabled]="rule.patterns.length === 1"
+                    [attr.aria-label]="
+                      'Pattern ' + (patternIndex + 1) + ' aus Regel ' + (ruleIndex + 1) + ' löschen'
+                    "
+                    title="Pattern löschen"
+                  >
+                    ×
+                  </button>
+                </div>
+              }
+            </div>
+            <button
+              class="add-pattern"
+              (click)="addPattern(ruleIndex)"
+              [attr.aria-label]="'Pattern zu Regel ' + (ruleIndex + 1) + ' hinzufügen'"
+            >
+              Pattern hinzufügen
+            </button>
+          </div>
+        }
+      </section>
+      <section class="panel product-id-panel" role="tabpanel">
+        <div class="panel-heading">
+          <div>
+            <span class="section-number">02</span>
+            <h2>Product ID extraction rule</h2>
+          </div>
+        </div>
+        <div class="fields product-id-fields">
+          <label
+            >Pattern<input [(ngModel)]="data.dppPlugin.productIdExtractionRule.pattern"
+          /></label>
+          <label
+            >Index<input
+              type="number"
+              min="0"
+              [(ngModel)]="data.dppPlugin.productIdExtractionRule.index"
+          /></label>
+          <label
+            >Strategy<input [(ngModel)]="data.dppPlugin.productIdExtractionRule.strategy"
+          /></label>
+          <label
+            >Description<input [(ngModel)]="data.dppPlugin.productIdExtractionRule.description"
+          /></label>
+        </div>
+      </section>
+    }
   }
 </main>

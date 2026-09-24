@@ -81,11 +81,23 @@ export function initializeAppTranslate(translate: TranslateService) {
 async function initializeAppConfiguration(appRoutes: Routes) {
   const appConfigService = inject(AppConfigService);
   const pluginRegistry = inject(PluginRegistryService);
+  const portalService = inject(PortalService);
   const router = inject(Router);
 
   await appConfigService.loadConfig();
+  await portalService.restoreServerSession();
   await pluginRegistry.load();
   registerPluginRoutes(router, appRoutes, pluginRegistry.plugins());
+
+  portalService.loginStateChanged.subscribe((loggedIn) => {
+    if (!loggedIn) {
+      return;
+    }
+
+    void pluginRegistry.load().then(() => {
+      registerPluginRoutes(router, appRoutes, pluginRegistry.plugins());
+    });
+  });
 }
 
 function registerPluginRoutes(router: Router, routes: Routes, plugins: PluginMenuItem[]) {
@@ -128,7 +140,6 @@ export function getAppConfig(): ApplicationConfig {
         return initializerFn();
       }),
       provideAppInitializer(() => lastValueFrom(inject(HttpClient).get('/bff/csrf', { responseType: 'text' }))),
-      provideAppInitializer(() => inject(PortalService).restoreServerSession()),
       MessageService,
       ConfirmationService,
       DialogService,

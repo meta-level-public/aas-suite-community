@@ -8,6 +8,7 @@ using AasDesignerAasApi.Infrastructure.Commands.DeleteContainerOnlyOrphan;
 using AasDesignerAasApi.Infrastructure.Commands.DeleteInfrastructure;
 using AasDesignerAasApi.Infrastructure.Commands.DeleteOrphanedInfrastructure;
 using AasDesignerAasApi.Infrastructure.Commands.EnableInfrastructure;
+using AasDesignerAasApi.Infrastructure.Commands.EnsureDppApi;
 using AasDesignerAasApi.Infrastructure.Commands.RemoveStack;
 using AasDesignerAasApi.Infrastructure.Commands.StartContainer;
 using AasDesignerAasApi.Infrastructure.Commands.StopContainer;
@@ -225,12 +226,64 @@ public class AasInfrastructureController : InternalApiBaseController
     }
 
     [HttpGet]
-    [AasDesignerAuthorize(RequiredRoles = [AuthRoles.SYSTEM_ADMIN])]
+    [AasDesignerAuthorize(RequiredRoles = [AuthRoles.ORGA_ADMIN, AuthRoles.SYSTEM_ADMIN])]
     public async Task<List<InfrastructureStatus>> GetStatusList()
     {
         var mediator = new Mediator(_serviceProvider);
 
         return await mediator.Send(new GetInfrastructureStatusListQuery());
+    }
+
+    [HttpPost]
+    [AasDesignerAuthorize(RequiredRoles = [AuthRoles.SYSTEM_ADMIN])]
+    public async Task<EnsureDppApiResult> EnsureDppApi(long infrastructureId)
+    {
+        var mediator = new Mediator(_serviceProvider);
+        return await mediator.Send(new EnsureDppApiCommand { InfrastructureId = infrastructureId });
+    }
+
+    [HttpPost]
+    [AasDesignerAuthorize(RequiredRoles = [AuthRoles.SYSTEM_ADMIN])]
+    public async Task<EnsureDppApiResult> EnsureDppApiForAll()
+    {
+        var mediator = new Mediator(_serviceProvider);
+        return await mediator.Send(new EnsureDppApiCommand());
+    }
+
+    [HttpGet]
+    [AasDesignerAuthorize(RequiredRoles = [AuthRoles.ORGA_ADMIN, AuthRoles.SYSTEM_ADMIN])]
+    public Task<DppAccessPolicyDto> GetDppAccessPolicy(
+        long infrastructureId,
+        [FromServices] DppAccessPolicyStore store,
+        CancellationToken cancellationToken
+    )
+    {
+        if (HttpContext.Items[AasDesignerConstants.APP_USER] is not AppUser user)
+            throw new UserNotFoundException();
+        return store.GetAsync(
+            infrastructureId,
+            user.OrganisationId,
+            user.BenutzerRollen.Contains(AuthRoles.SYSTEM_ADMIN),
+            cancellationToken
+        );
+    }
+
+    [HttpPut]
+    [AasDesignerAuthorize(RequiredRoles = [AuthRoles.ORGA_ADMIN, AuthRoles.SYSTEM_ADMIN])]
+    public Task<DppAccessPolicyDto> UpdateDppAccessPolicy(
+        [FromBody] DppAccessPolicyDto policy,
+        [FromServices] DppAccessPolicyStore store,
+        CancellationToken cancellationToken
+    )
+    {
+        if (HttpContext.Items[AasDesignerConstants.APP_USER] is not AppUser user)
+            throw new UserNotFoundException();
+        return store.UpdateAsync(
+            policy,
+            user.OrganisationId,
+            user.BenutzerRollen.Contains(AuthRoles.SYSTEM_ADMIN),
+            cancellationToken
+        );
     }
 
     [HttpPost]

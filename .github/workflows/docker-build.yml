@@ -73,12 +73,8 @@ jobs:
 
           CS_PROJS=(
             "services/gateway/gateway.csproj"
-            "services/feed-mapping/feed-mapping.csproj"
-            "services/health-dashboard/health-dashboard.csproj"
+            "services/dpp-gateway/dpp-gateway.csproj"
             "services/aas-designer/AasDesignerApi.Community/AasDesignerApi.Community.csproj"
-            "services/aas-designer/AasDesignerApi.Enterprise/AasDesignerApi.Enterprise.csproj"
-            "services/aas-designer/AasDesignerEnterpriseLicensing/AasDesignerEnterpriseLicensing.csproj"
-            "services/aas-designer/AasDesignerEnterpriseSystemManagementApi/AasDesignerEnterpriseSystemManagementApi.csproj"
           )
 
           for proj in "${CS_PROJS[@]}"; do
@@ -181,7 +177,20 @@ jobs:
             type=ref,event=pr,enable=${{ github.event_name == 'pull_request' }}
             type=semver,pattern={{version}},enable=${{ github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v') }}
             type=semver,pattern={{major}}.{{minor}},enable=${{ github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v') }}
+            type=semver,pattern={{major}},enable=${{ github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v') }}
             type=sha,prefix=sha-
+
+      - name: Compute build metadata
+        id: build-meta
+        shell: bash
+        run: |
+          if [[ "${GITHUB_REF_TYPE}" == 'tag' ]]; then
+            echo "version=${GITHUB_REF_NAME#v}" >> "$GITHUB_OUTPUT"
+          else
+            echo "version=${GITHUB_RUN_NUMBER}" >> "$GITHUB_OUTPUT"
+          fi
+          echo "build_date=$(date -u +'%Y-%m-%d %H:%M')" >> "$GITHUB_OUTPUT"
+          echo "branch=${GITHUB_REF_NAME}" >> "$GITHUB_OUTPUT"
 
       - name: Build and push Frontend
         uses: docker/build-push-action@v7
@@ -192,6 +201,10 @@ jobs:
           push: ${{ github.event_name != 'pull_request' }}
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
+          build-args: |
+            VERSION=${{ steps.build-meta.outputs.version }}
+            BUILD_DATE=${{ steps.build-meta.outputs.build_date }}
+            BRANCH=${{ steps.build-meta.outputs.branch }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
@@ -228,6 +241,7 @@ jobs:
             type=ref,event=pr,enable=${{ github.event_name == 'pull_request' }}
             type=semver,pattern={{version}},enable=${{ github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v') }}
             type=semver,pattern={{major}}.{{minor}},enable=${{ github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v') }}
+            type=semver,pattern={{major}},enable=${{ github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v') }}
             type=sha,prefix=sha-
 
       - name: Build and push Community Backend
@@ -275,6 +289,7 @@ jobs:
             type=ref,event=pr,enable=${{ github.event_name == 'pull_request' }}
             type=semver,pattern={{version}},enable=${{ github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v') }}
             type=semver,pattern={{major}}.{{minor}},enable=${{ github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v') }}
+            type=semver,pattern={{major}},enable=${{ github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v') }}
             type=sha,prefix=sha-
 
       - name: Build and push Gateway
@@ -289,11 +304,60 @@ jobs:
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
+  build-dpp-gateway:
+    needs: check-services-format
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v6
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v4
+
+      - name: Log in to GitHub Container Registry
+        if: github.event_name != 'pull_request'
+        uses: docker/login-action@v4
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Extract metadata
+        id: meta
+        uses: docker/metadata-action@v6
+        with:
+          images: ${{ env.REGISTRY }}/${{ env.IMAGE_PREFIX }}/aas-dpp-gateway
+          tags: |
+            type=raw,value=latest,enable=${{ github.ref == 'refs/heads/release' }}
+            type=ref,event=branch,enable=${{ github.event_name == 'push' && github.ref_type == 'branch' }}
+            type=ref,event=pr,enable=${{ github.event_name == 'pull_request' }}
+            type=semver,pattern={{version}},enable=${{ github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v') }}
+            type=semver,pattern={{major}}.{{minor}},enable=${{ github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v') }}
+            type=semver,pattern={{major}},enable=${{ github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v') }}
+            type=sha,prefix=sha-
+
+      - name: Build and push DPP Gateway
+        uses: docker/build-push-action@v7
+        with:
+          context: .
+          file: ./services/dpp-gateway/Dockerfile
+          platforms: linux/amd64
+          push: ${{ github.event_name != 'pull_request' }}
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
   container-security:
     needs:
       - build-frontend
       - build-designer-backend
       - build-gateway
+      - build-dpp-gateway
     runs-on: ubuntu-latest
     permissions:
       actions: read
@@ -309,6 +373,8 @@ jobs:
             dockerfile: ./services/aas-designer/Dockerfile.community
           - name: aas-designer-gateway
             dockerfile: ./services/gateway/Dockerfile
+          - name: aas-dpp-gateway
+            dockerfile: ./services/dpp-gateway/Dockerfile
 
     steps:
       - name: Checkout code

@@ -98,7 +98,7 @@ public sealed class BackendPluginLoader
                 return;
 
             var manifest = ReadManifest(manifestEntry);
-            if (manifest?.Backend == null)
+            if (manifest?.Type != PluginType.GuiApp || manifest.Backend == null)
                 return;
 
             var pluginId = manifest.Id.Trim();

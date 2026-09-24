@@ -62,6 +62,7 @@ public class GetInfrastructureStatusListQueryHandler
                 OrgaId = orga.Id,
                 InfrastructureId = infrastructure.Id,
                 InfrastructureName = infrastructure.Name,
+                InfrastructureGuid = infrastructure.ContainerGuid,
 
                 AasEnvPort = infrastructure.HostPortAasEnv,
                 AasEnvStatus = ContainerStatus.Unknown,
@@ -115,6 +116,12 @@ public class GetInfrastructureStatusListQueryHandler
                 MongoMaxMemSetting = infrastructure.MongoMemory,
                 MongoMemSwap = 0,
                 MongoMemSwapSetting = infrastructure.MongoMemSwap,
+
+                DppApiStatus = ContainerStatus.Unknown,
+                DppApiContainerName = infrastructure.IsGoInfrastructure
+                    ? $"aas-suite-go-dpp-api-{infrastructure.ContainerGuid}"
+                    : string.Empty,
+                DppApiConfigured = !string.IsNullOrWhiteSpace(infrastructure.DppApiUrl),
 
                 IsActive = infrastructure.IsActive,
                 IsGoInfrastructure = infrastructure.IsGoInfrastructure,
@@ -230,6 +237,16 @@ public class GetInfrastructureStatusListQueryHandler
                     );
                     status.MongoMem = stats?.MemoryStats?.Usage ?? 0;
                     status.MongoMaxMem = stats?.MemoryStats?.Limit ?? 0;
+                }
+                if (!string.IsNullOrEmpty(status.DppApiContainerName))
+                {
+                    var res = await GetContainerStatus(
+                        dockerClient,
+                        status.DppApiContainerName,
+                        cancellationToken
+                    );
+                    status.DppApiStatus =
+                        res != null ? GetContainerStatusEnum(res) : ContainerStatus.Unknown;
                 }
             }
 

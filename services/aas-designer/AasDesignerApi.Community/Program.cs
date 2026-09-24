@@ -1,4 +1,5 @@
 using System.Reflection;
+using AasDesignerAasApi.Infrastructure;
 using AasDesignerAasApi.ServerSentEvent;
 using AasDesignerAasApi.Shells.Queries.GetShellList;
 using AasDesignerApi;
@@ -275,9 +276,12 @@ builder.Services.AddScoped<IUserService>(provider => provider.GetRequiredService
 builder.Services.AddScoped<JwtUtils>();
 builder.Services.AddScoped<IJwtUtils>(provider => provider.GetRequiredService<JwtUtils>());
 builder.Services.AddScoped<KeycloakAdminService>();
+builder.Services.AddScoped<IDppPublisherTokenProvider, KeycloakDppPublisherTokenProvider>();
+builder.Services.AddScoped<IDppApiTokenProvider, KeycloakDppApiTokenProvider>();
 builder.Services.AddScoped<EclassCertificateService>();
 builder.Services.AddScoped<EclassImportService>();
 builder.Services.AddScoped<SnippetService>();
+builder.Services.AddScoped<AasDesignerAasApi.Infrastructure.DppAccessPolicyStore>();
 builder.Services.AddScoped<DashboardService>();
 builder.Services.AddScoped<StatisticsLogger>();
 builder.Services.AddScoped<NewsService>();
@@ -395,6 +399,28 @@ static class WebApplicationExtensions
         }
 
         await dbContext.Database.MigrateAsync();
+
+        if (
+            keycloakAdminService != null
+            && (
+                keycloakAdminService.IsDppGatewayClientProvisioningEnabled
+                || keycloakAdminService.IsDppPolicyAdminClientProvisioningEnabled
+            )
+        )
+        {
+            if (!await keycloakAdminService.WaitUntilReadyAsync())
+            {
+                throw new InvalidOperationException(
+                    "Keycloak was not ready for DPP gateway client provisioning."
+                );
+            }
+
+            if (keycloakAdminService.IsDppGatewayClientProvisioningEnabled)
+                await keycloakAdminService.EnsureDppGatewayClientAsync();
+            if (keycloakAdminService.IsDppPolicyAdminClientProvisioningEnabled)
+                await keycloakAdminService.EnsureDppPolicyAdminClientAsync();
+            logger.LogInformation("DPP service clients are configured in Keycloak");
+        }
 
         if (!await dbContext.Benutzers.AnyAsync())
         {

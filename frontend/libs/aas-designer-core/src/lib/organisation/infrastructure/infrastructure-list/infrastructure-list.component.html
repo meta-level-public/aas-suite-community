@@ -71,6 +71,40 @@
 </div>
 
 <div class="grid grid-cols-3 gap-4 mt-4">
+  @if (settings().dppApiUrl) {
+    <div class="infra-card">
+      <div class="infra-card__icon-wrap">
+        <div class="infra-card__icon"><i class="pi pi-id-card text-2xl"></i></div>
+      </div>
+      <h3 class="infra-card__title">{{ 'DPP_API' | translate }}</h3>
+      <div class="infra-card__body">
+        <div class="rounded-xl border border-emerald-200 bg-emerald-50/70 p-3">
+          <div class="mb-1 flex items-center gap-2 text-xs font-semibold uppercase tracking-wide text-emerald-700">
+            <i class="pi pi-globe"></i><span>{{ 'DIRECT' | translate }}</span>
+          </div>
+          <div class="break-all font-mono text-sm text-slate-700">{{ settings().dppApiUrl }}</div>
+        </div>
+        @if (settings().dppApiVersion) {
+          <div>{{ 'VERSION' | translate }} <p-tag [value]="settings().dppApiVersion" severity="info" /></div>
+        }
+        <div class="flex items-center gap-2">
+          {{ 'STATUS' | translate }}
+          <p-tag
+            [value]="(settings().dppApiHcEnabled ? 'CONFIGURED' : 'NOT_CONFIGURED') | translate"
+            [severity]="settings().dppApiHcEnabled ? 'success' : 'secondary'"
+          />
+        </div>
+        @if (canConfigureDppApi()) {
+          <p-button
+            icon="pi pi-shield"
+            [label]="'CONFIGURE' | translate"
+            [fluid]="true"
+            (onClick)="configureDppApi.emit()"
+          />
+        }
+      </div>
+    </div>
+  }
   @if (getDirectUrl('discovery')) {
     <div class="infra-card">
       <div class="infra-card__icon-wrap">

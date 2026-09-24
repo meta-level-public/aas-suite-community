@@ -202,6 +202,10 @@ export class V3EditorComponent implements OnInit, OnChanges, OnDestroy {
     this.infoActionRequested.emit();
   }
 
+  hasDppApiConfiguration(): boolean {
+    return !!this.currentInfrastructure()?.dppApiUrl?.trim();
+  }
+
   ngOnInit(): void {
     this.validationService.shellResult = this.shellResult;
     this.validationService.validationScope = this.validationScope;

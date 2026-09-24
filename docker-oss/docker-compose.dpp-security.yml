@@ -1,0 +1,40 @@
+services:
+  aas-designer-community:
+    environment:
+      AppSettings__DppGatewayOAuthClientId: dpp-gateway
+      AppSettings__DppGatewayOAuthClientSecret: ${DPP_GATEWAY_CLIENT_SECRET:?DPP_GATEWAY_CLIENT_SECRET must be set}
+      AppSettings__DppGatewayOAuthAudience: dpp-api
+      AppSettings__DppGatewayManagementUrl: http://dpp-gateway:8080
+      AppSettings__DppGatewayPublisherAudience: dpp-gateway-management
+      AppSettings__DppSecurityBaseDirectory: /app/dpp-security
+      AppSettings__DppPolicyAdminOAuthClientId: dpp-policy-admin
+      AppSettings__DppPolicyAdminOAuthClientSecret: ${DPP_POLICY_ADMIN_CLIENT_SECRET:?DPP_POLICY_ADMIN_CLIENT_SECRET must be set}
+      AppSettings__DppPolicyAdminOAuthAudience: dpp-api
+      AppSettings__DppPolicyManagementApiEnabled: "true"
+      AppSettings__InitialDppApiUrl: http://dppapi-go:8080
+      AppSettings__InitialDppApiVersion: v1
+      AppSettings__InitialDppApiHcUrl: http://dppapi-go:8080/health
+    volumes:
+      - ../deploy/shared/dpp-security:/app/dpp-security
+
+  dppapi-go:
+    environment:
+      ABAC_ENABLED: "true"
+      ABAC_MODELPATH: /security_env/access-rules.json
+      OIDC_TRUSTLISTPATH: /security_env/trustlist.json
+      ABAC_POLICY_FILE_IMPORT: always
+    volumes:
+      - ../deploy/shared/dpp-security:/security_env:ro
+
+  dpp-gateway:
+    environment:
+      DppGateway__SingleTenantOAuth__Enabled: "true"
+      DppGateway__SingleTenantOAuth__TokenEndpoint: http://keycloak:8080/realms/aas-local/protocol/openid-connect/token
+      DppGateway__SingleTenantOAuth__ClientId: dpp-gateway
+      DppGateway__SingleTenantOAuth__ClientSecret: ${DPP_GATEWAY_CLIENT_SECRET:?DPP_GATEWAY_CLIENT_SECRET must be set}
+      DppGateway__SingleTenantOAuth__Scope: openid
+      DppGateway__SingleTenantOAuth__TokenExchangeEnabled: "true"
+      DppGateway__AccessTokenAudience: aas-designer-local
+      DppGateway__PublisherAuthority: http://keycloak:8080/realms/aas-local
+      DppGateway__PublisherAudience: dpp-gateway-management
+      DppGateway__SingleTenantInfrastructureId: single-tenant

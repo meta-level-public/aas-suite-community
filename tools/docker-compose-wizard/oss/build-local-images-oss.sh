@@ -31,11 +31,13 @@ build_image() {
 header "Lokale Docker Images bauen (OSS/Community)"
 build_image "${IMAGE_NAMESPACE}/aas-designer-backend-community:${IMAGE_TAG}" "services/aas-designer/Dockerfile.community"
 build_image "${IMAGE_NAMESPACE}/aas-designer-gateway:${IMAGE_TAG}" "services/gateway/Dockerfile"
+build_image "${IMAGE_NAMESPACE}/aas-dpp-gateway:${IMAGE_TAG}" "services/dpp-gateway/Dockerfile"
 build_image "${IMAGE_NAMESPACE}/aas-designer-frontend-community:${IMAGE_TAG}" "docker-oss/frontend.Dockerfile"
 
 success "Lokale Images erfolgreich gebaut:"
 printf '  - %s\n' "${IMAGE_NAMESPACE}/aas-designer-backend-community:${IMAGE_TAG}"
 printf '  - %s\n' "${IMAGE_NAMESPACE}/aas-designer-gateway:${IMAGE_TAG}"
+printf '  - %s\n' "${IMAGE_NAMESPACE}/aas-dpp-gateway:${IMAGE_TAG}"
 printf '  - %s\n' "${IMAGE_NAMESPACE}/aas-designer-frontend-community:${IMAGE_TAG}"
 printf '\n'
 info "Für den Compose Wizard 'Image-Quelle=local' verwenden."

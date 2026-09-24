@@ -1,0 +1,154 @@
+{
+  "AllAccessPermissionRules": {
+    "DEFATTRIBUTES": [
+      {
+        "name": "anonymous",
+        "attributes": [
+          {
+            "GLOBAL": "ANONYMOUS"
+          }
+        ]
+      },
+      {
+        "name": "dpp_role",
+        "attributes": [
+          {
+            "CLAIM": "role"
+          }
+        ]
+      }
+    ],
+    "DEFOBJECTS": [
+      {
+        "name": "routes_0",
+        "objects": [
+          {
+            "ROUTE": "/v1/dpps/*"
+          },
+          {
+            "ROUTE": "/v1/dppsByProductId/*"
+          },
+          {
+            "ROUTE": "/v1/dppsByIdAndDate/*"
+          },
+          {
+            "ROUTE": "/v1/dppsByProductIds"
+          }
+        ]
+      },
+      {
+        "name": "routes_1",
+        "objects": [
+          {
+            "ROUTE": "/v1/dpps/*"
+          },
+          {
+            "ROUTE": "/v1/dppsByProductId/*"
+          },
+          {
+            "ROUTE": "/v1/dppsByIdAndDate/*"
+          },
+          {
+            "ROUTE": "/v1/dppsByProductIds"
+          }
+        ]
+      },
+      {
+        "name": "policy_management_routes",
+        "objects": [
+          {
+            "ROUTE": "/security/abac"
+          },
+          {
+            "ROUTE": "/security/abac/*"
+          }
+        ]
+      }
+    ],
+    "DEFACLS": [
+      {
+        "name": "policy_admin",
+        "acl": {
+          "USEATTRIBUTES": "dpp_role",
+          "RIGHTS": [
+            "ALL"
+          ],
+          "ACCESS": "ALLOW"
+        }
+      }
+    ],
+    "DEFFORMULAS": [
+      {
+        "name": "is_policy_admin",
+        "formula": {
+          "$eq": [
+            {
+              "$attribute": {
+                "CLAIM": "role"
+              }
+            },
+            {
+              "$strVal": "policy-admin"
+            }
+          ]
+        }
+      }
+    ],
+    "rules": [
+      {
+        "USEOBJECTS": [
+          "routes_0"
+        ],
+        "ACL": {
+          "ATTRIBUTES": [
+            {
+              "GLOBAL": "ANONYMOUS"
+            }
+          ],
+          "RIGHTS": [
+            "READ"
+          ],
+          "ACCESS": "ALLOW"
+        },
+        "FORMULA": {
+          "$boolean": true
+        }
+      },
+      {
+        "USEOBJECTS": [
+          "routes_1"
+        ],
+        "ACL": {
+          "ATTRIBUTES": [
+            {
+              "CLAIM": "role"
+            }
+          ],
+          "RIGHTS": [
+            "READ"
+          ],
+          "ACCESS": "ALLOW"
+        },
+        "FORMULA": {
+          "$eq": [
+            {
+              "$attribute": {
+                "CLAIM": "role"
+              }
+            },
+            {
+              "$strVal": "partner"
+            }
+          ]
+        }
+      },
+      {
+        "USEACL": "policy_admin",
+        "USEOBJECTS": [
+          "policy_management_routes"
+        ],
+        "USEFORMULA": "is_policy_admin"
+      }
+    ]
+  }
+}

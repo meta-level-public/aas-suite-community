@@ -5,6 +5,7 @@ import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { computed, effect, inject, Injectable, signal } from '@angular/core';
 import { lastValueFrom } from 'rxjs';
 import type { SearchHit } from './search/search.types';
+import { LoadedSubmodel, SubmodelLoadState, submodelLabelFromUrl } from './submodel-load-state';
 
 @Injectable({
   providedIn: 'root',
@@ -15,7 +16,6 @@ export class ViewerStoreService {
   apiKey = signal<string | null>('');
 
   viewerDescriptor = signal<ViewerDescriptor | null>(null);
-  isLoadingSubmodels = signal(false);
   isLoadingAas = signal(false);
   reloadTrigger = signal(0);
   highlightedIdShortPath = signal<string>('');
@@ -28,13 +28,14 @@ export class ViewerStoreService {
 
   currentlyloadedFiles = signal<{ submodelId: string; path: string; idShortPath: string; blob: Blob }[]>([]);
   private aasState = signal<aas.types.AssetAdministrationShell | null>(null);
-  private submodelsState = signal<{ idShort: string; id: string; url: string; sm: aas.types.Submodel }[]>([]);
+  private submodelLoadStatesState = signal<SubmodelLoadState[]>([]);
+  private submodelLoadGeneration = 0;
 
   newDescriptorEffect = effect(() => {
     this.viewerDescriptor();
     this.currentlyloadedFiles.set([]);
     this.aasState.set(null);
-    this.submodelsState.set([]);
+    // The submodel load states are reset by submodelsLoaderEffect.
   });
 
   aasUrl = computed(() => {
@@ -86,41 +87,50 @@ export class ViewerStoreService {
   submodelsLoaderEffect = effect(() => {
     const urls = this.viewerDescriptor()?.submodelEndpoints ?? [];
     const headers = this.headers();
+    const generation = ++this.submodelLoadGeneration;
 
-    if (urls.length === 0) {
-      this.submodelsState.set([]);
-      return;
-    }
+    this.submodelLoadStatesState.set(
+      urls.map((url) => ({ url, label: submodelLabelFromUrl(url), status: 'loading' as const })),
+    );
 
-    queueMicrotask(() => this.isLoadingSubmodels.set(true));
-    void Promise.all(
-      urls.map(async (smUrl) => {
-        try {
-          const res = await lastValueFrom(this.http.get<any>(smUrl, { headers }));
-          const sm = jsonization.submodelFromJsonable(res);
-          if (sm.value && sm.value.semanticId?.keys[0].value !== 'AasDesignerChangelog') {
-            return { idShort: res.idShort, id: res.id, url: smUrl, sm: sm.value };
-          }
-        } catch {
-          return null;
-        }
-        return null;
-      }),
-    )
-      .then((submodels) => {
-        this.submodelsState.set(
-          submodels.filter(
-            (submodel): submodel is { idShort: string; id: string; url: string; sm: aas.types.Submodel } =>
-              submodel != null,
-          ),
-        );
-      })
-      .finally(() => {
-        queueMicrotask(() => this.isLoadingSubmodels.set(false));
-      });
+    // Every submodel is shown as soon as its own request finished, so a slow submodel does not
+    // block the ones that are already available.
+    urls.forEach(async (smUrl, index) => {
+      let update: Partial<SubmodelLoadState>;
+      try {
+        const res = await lastValueFrom(this.http.get<any>(smUrl, { headers }));
+        const sm = jsonization.submodelFromJsonable(res);
+        update =
+          sm.value && sm.value.semanticId?.keys[0].value !== 'AasDesignerChangelog'
+            ? { status: 'loaded', submodel: { idShort: res.idShort, id: res.id, url: smUrl, sm: sm.value } }
+            : { status: 'skipped' };
+      } catch {
+        update = { status: 'failed' };
+      }
+
+      if (generation !== this.submodelLoadGeneration) {
+        return;
+      }
+      this.submodelLoadStatesState.update((states) =>
+        states.map((state, stateIndex) => (stateIndex === index ? { ...state, ...update } : state)),
+      );
+    });
   });
 
-  submodels = computed(() => this.submodelsState());
+  submodelLoadStates = computed(() => this.submodelLoadStatesState().filter((state) => state.status !== 'skipped'));
+
+  isLoadingSubmodels = computed(() => this.submodelLoadStatesState().some((state) => state.status === 'loading'));
+
+  submodelLoadProgress = computed(() => {
+    const states = this.submodelLoadStates();
+    return { done: states.filter((state) => state.status !== 'loading').length, total: states.length };
+  });
+
+  submodels = computed(() =>
+    this.submodelLoadStatesState()
+      .map((state) => state.submodel)
+      .filter((submodel): submodel is LoadedSubmodel => submodel != null),
+  );
 
   cdUrl = computed(() => {
     return this.viewerDescriptor()?.cdEndpoint ?? '';
@@ -128,11 +138,11 @@ export class ViewerStoreService {
 
   currentSubmodelId = signal<string>('');
 
-  currentSmUrl = computed(() => this.submodelsState().find((sm) => sm.id === this.currentSubmodelId())?.url ?? '');
+  currentSmUrl = computed(() => this.submodels().find((sm) => sm.id === this.currentSubmodelId())?.url ?? '');
 
   currentSubmodel = computed(() => {
     this.reloadTrigger();
-    return this.submodelsState().find((submodel) => submodel.id === this.currentSubmodelId())?.sm ?? undefined;
+    return this.submodels().find((submodel) => submodel.id === this.currentSubmodelId())?.sm ?? undefined;
   });
 
   async reloadSubmodel() {
@@ -144,10 +154,13 @@ export class ViewerStoreService {
     const res = await lastValueFrom(this.http.get<any>(smUrl, { headers: this.headers() }));
     const loadedSubmodel = jsonization.submodelFromJsonable(res);
 
-    const sm = this.submodelsState().find((s) => s.id === id);
-    if (sm != null && loadedSubmodel.value != null) {
-      sm.sm = loadedSubmodel.value;
-      this.submodelsState.set([...this.submodelsState()]);
+    const reloaded = loadedSubmodel.value;
+    if (reloaded != null && this.submodels().some((s) => s.id === id)) {
+      this.submodelLoadStatesState.update((states) =>
+        states.map((state) =>
+          state.submodel?.id === id ? { ...state, submodel: { ...state.submodel, sm: reloaded } } : state,
+        ),
+      );
       this.reloadTrigger.set(this.reloadTrigger() + 1);
     }
   }

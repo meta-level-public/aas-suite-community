@@ -1924,6 +1924,21 @@ namespace AasDesignerApi.Migrations
                     b.Property<long>("DiscoveryMemory")
                         .HasColumnType("bigint");
 
+                    b.Property<bool>("DppApiHcEnabled")
+                        .HasColumnType("boolean");
+
+                    b.Property<string>("DppApiHcUrl")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("DppApiUrl")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("DppApiVersion")
+                        .IsRequired()
+                        .HasColumnType("text");
+
                     b.Property<bool>("Geloescht")
                         .HasColumnType("boolean");
 

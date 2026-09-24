@@ -340,6 +340,120 @@
         }
       }
     },
+    "/aas-api/AasInfrastructure/EnsureDppApi": {
+      "post": {
+        "tags": [
+          "AasInfrastructure"
+        ],
+        "operationId": "AasInfrastructure_EnsureDppApi",
+        "parameters": [
+          {
+            "name": "infrastructureId",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            },
+            "x-position": 1
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EnsureDppApiResult"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/aas-api/AasInfrastructure/EnsureDppApiForAll": {
+      "post": {
+        "tags": [
+          "AasInfrastructure"
+        ],
+        "operationId": "AasInfrastructure_EnsureDppApiForAll",
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EnsureDppApiResult"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/aas-api/AasInfrastructure/GetDppAccessPolicy": {
+      "get": {
+        "tags": [
+          "AasInfrastructure"
+        ],
+        "operationId": "AasInfrastructure_GetDppAccessPolicy",
+        "parameters": [
+          {
+            "name": "infrastructureId",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            },
+            "x-position": 1
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DppAccessPolicyDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/aas-api/AasInfrastructure/UpdateDppAccessPolicy": {
+      "put": {
+        "tags": [
+          "AasInfrastructure"
+        ],
+        "operationId": "AasInfrastructure_UpdateDppAccessPolicy",
+        "requestBody": {
+          "x-name": "policy",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/DppAccessPolicyDto"
+              }
+            }
+          },
+          "required": true,
+          "x-position": 1
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DppAccessPolicyDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/aas-api/AasInfrastructure/ConfigureAndRecreateContainer": {
       "post": {
         "tags": [
@@ -4934,6 +5048,9 @@
           },
           "cdRepositoryUrl": {
             "type": "string"
+          },
+          "dppApiUrl": {
+            "type": "string"
           }
         }
       },
@@ -5043,6 +5160,18 @@
             "type": "string"
           },
           "conceptDescriptionRepositoryHcEnabled": {
+            "type": "boolean"
+          },
+          "dppApiUrl": {
+            "type": "string"
+          },
+          "dppApiVersion": {
+            "type": "string"
+          },
+          "dppApiHcUrl": {
+            "type": "string"
+          },
+          "dppApiHcEnabled": {
             "type": "boolean"
           },
           "headerParameters": {
@@ -5309,6 +5438,9 @@
           "infrastructureName": {
             "type": "string"
           },
+          "infrastructureGuid": {
+            "type": "string"
+          },
           "aasEnvPort": {
             "type": "integer",
             "format": "int32"
@@ -5343,6 +5475,9 @@
           "mqttStatus": {
             "$ref": "#/components/schemas/ContainerStatus"
           },
+          "dppApiStatus": {
+            "$ref": "#/components/schemas/ContainerStatus"
+          },
           "mqttPort": {
             "type": "integer",
             "format": "int32"
@@ -5367,6 +5502,12 @@
           },
           "aasRegistryContainerName": {
             "type": "string"
+          },
+          "dppApiContainerName": {
+            "type": "string"
+          },
+          "dppApiConfigured": {
+            "type": "boolean"
           },
           "orgaName": {
             "type": "string"
@@ -5520,6 +5661,109 @@
           3,
           4
         ]
+      },
+      "EnsureDppApiResult": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "queued": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "skipped": {
+            "type": "integer",
+            "format": "int32"
+          }
+        }
+      },
+      "DppAccessPolicyDto": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "infrastructureId": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "profile": {
+            "type": "string"
+          },
+          "rawPolicyJson": {
+            "type": "string",
+            "nullable": true
+          },
+          "rules": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/DppAccessRuleDto"
+            }
+          }
+        }
+      },
+      "DppAccessRuleDto": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "role": {
+            "type": "string"
+          },
+          "enabled": {
+            "type": "boolean"
+          },
+          "dppScope": {
+            "type": "string"
+          },
+          "dppIds": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "conditionCombination": {
+            "type": "string"
+          },
+          "dppConditions": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/DppFieldConditionDto"
+            }
+          },
+          "visibleSemanticIds": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "getById": {
+            "type": "boolean"
+          },
+          "getByProductId": {
+            "type": "boolean"
+          },
+          "getByIdAndDate": {
+            "type": "boolean"
+          },
+          "getByProductIds": {
+            "type": "boolean"
+          }
+        }
+      },
+      "DppFieldConditionDto": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "field": {
+            "type": "string"
+          },
+          "operator": {
+            "type": "string"
+          },
+          "value": {
+            "type": "string"
+          }
+        }
       },
       "RecreateContainerData": {
         "type": "object",
@@ -7219,6 +7463,18 @@
           "conceptDescriptionRepositoryHcEnabled": {
             "type": "boolean"
           },
+          "dppApiUrl": {
+            "type": "string"
+          },
+          "dppApiVersion": {
+            "type": "string"
+          },
+          "dppApiHcUrl": {
+            "type": "string"
+          },
+          "dppApiHcEnabled": {
+            "type": "boolean"
+          },
           "headerParameters": {
             "type": "array",
             "items": {
@@ -8415,6 +8671,9 @@
         "type": "object",
         "additionalProperties": false,
         "properties": {
+          "type": {
+            "$ref": "#/components/schemas/PluginType"
+          },
           "id": {
             "type": "string"
           },
@@ -8436,6 +8695,19 @@
           "requiredRole": {
             "type": "string"
           },
+          "organizationIds": {
+            "type": "array",
+            "items": {
+              "type": "integer",
+              "format": "int64"
+            }
+          },
+          "roles": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
           "requiresWritableRepo": {
             "type": "boolean"
           },
@@ -8456,6 +8728,20 @@
             "type": "string"
           }
         }
+      },
+      "PluginType": {
+        "type": "string",
+        "description": "",
+        "x-enumNames": [
+          "GuiApp",
+          "SubmodelViewer",
+          "SaveInterceptor"
+        ],
+        "enum": [
+          "GuiApp",
+          "SubmodelViewer",
+          "SaveInterceptor"
+        ]
       },
       "SystemConfigurationDto": {
         "type": "object",

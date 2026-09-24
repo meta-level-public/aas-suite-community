@@ -96,6 +96,38 @@
   font-size: 1rem;
 }
 
+.submodels-progress {
+  display: flex;
+  flex-direction: column;
+  gap: 0.375rem;
+  margin: 0 0.5rem 0.75rem 1.5rem;
+  font-size: var(--aas-text-sm);
+  color: var(--p-text-muted-color);
+}
+
+.submodels-progress .p-progressbar {
+  height: 0.25rem;
+}
+
+.submodel-item-pending,
+.submodel-item-failed {
+  cursor: default;
+  color: var(--p-text-muted-color);
+}
+
+.submodel-item-pending:hover,
+.submodel-item-failed:hover {
+  background: transparent;
+}
+
+.submodel-item-pending .navigation-icon {
+  color: var(--p-text-muted-color);
+}
+
+.submodel-item-failed .navigation-icon {
+  color: var(--p-orange-500);
+}
+
 /* Dark Mode Overrides */
 html.my-app-dark {
   .navigation-item:hover {

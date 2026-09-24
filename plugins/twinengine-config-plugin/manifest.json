@@ -5,6 +5,7 @@
   "name": "TwinEngine Configuration",
   "icon": "pi pi-sliders-h",
   "entryPoint": "index.html",
+  "type": "GuiApp",
   "description": "Configure and export the TwinEngine DataEngine settings.",
   "shortLabel": "TWIN",
   "sortOrder": 40,

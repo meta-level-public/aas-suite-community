@@ -132,4 +132,30 @@ describe('generator-export.builder', () => {
     expect(state.shell.assetInformation.globalAssetId).toBe('urn:test:existing-asset');
     expect(state.formData.get('aasxFilename')).toBe('existingShell.aasx');
   });
+
+  it('rebuilds submodels and references instead of carrying state copies into the export', () => {
+    const shell = new aas.types.AssetAdministrationShell(
+      'urn:test:aas',
+      new aas.types.AssetInformation(aas.types.AssetKind.Instance),
+    );
+    shell.idShort = 'exampleAas';
+    shell.submodels = [
+      new aas.types.Reference(aas.types.ReferenceTypes.ModelReference, [
+        new aas.types.Key(aas.types.KeyTypes.Submodel, 'urn:test:submodel'),
+      ]),
+    ];
+    const environment = new aas.types.Environment([shell], [new aas.types.Submodel('urn:test:submodel')], []);
+
+    const state = createGeneratorExportState({
+      baseEnvironment: environment,
+      baseShell: shell,
+      mode: 'battery-passport',
+      iriPrefix: 'https://example.com/',
+      standardGeneratorTemplateRoles: [],
+      additionalSubmodels: [],
+    });
+
+    expect(state.env.submodels).toEqual([]);
+    expect(state.shell.submodels).toEqual([]);
+  });
 });

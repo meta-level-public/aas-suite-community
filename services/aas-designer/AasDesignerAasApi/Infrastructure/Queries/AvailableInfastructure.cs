@@ -17,6 +17,7 @@ public class AvailableInfastructure
     public string AasRegistryUrl { get; set; } = string.Empty;
     public string SmRegistryUrl { get; set; } = string.Empty;
     public string CdRepositoryUrl { get; set; } = string.Empty;
+    public string DppApiUrl { get; set; } = string.Empty;
 
     public class MappingProfile : Profile
     {

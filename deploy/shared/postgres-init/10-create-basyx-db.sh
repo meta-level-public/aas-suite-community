@@ -17,3 +17,6 @@ create_db_if_missing "${BASYX_POSTGRES_DB:-}"
 if [ "${KEYCLOAK_POSTGRES_DB:-}" != "${BASYX_POSTGRES_DB:-}" ]; then
   create_db_if_missing "${KEYCLOAK_POSTGRES_DB:-}"
 fi
+if [ "${DPP_GATEWAY_POSTGRES_DB:-}" != "${BASYX_POSTGRES_DB:-}" ] && [ "${DPP_GATEWAY_POSTGRES_DB:-}" != "${KEYCLOAK_POSTGRES_DB:-}" ]; then
+  create_db_if_missing "${DPP_GATEWAY_POSTGRES_DB:-}"
+fi

@@ -3,7 +3,7 @@ import { VerificationError } from '@aas-core-works/aas-core3.1-typescript/verifi
 import { HelpLabelComponent } from '@aas/common-components';
 import { ShellResult } from '@aas/model';
 import { NgClass } from '@angular/common';
-import { Component, input, Input } from '@angular/core';
+import { Component, input, Input, output } from '@angular/core';
 import { Fieldset } from 'primeng/fieldset';
 import { Info } from '../../../general/model/info-item';
 import { V3TreeItem } from '../../model/v3-tree-item';
@@ -17,6 +17,8 @@ import { V3IdShortComponent } from '../v3-id-short/v3-id-short.component';
 import { V3IdComponent } from '../v3-id/v3-id.component';
 import { V3LangStringListComponent } from '../v3-lang-string-list/v3-lang-string-list.component';
 import { V3ReferenceComponent } from '../v3-reference/v3-reference.component';
+import { DppMetadataComponent } from '../dpp-metadata/dpp-metadata.component';
+import { DppSubmodelOption } from '../dpp-metadata/dpp-metadata.component';
 
 @Component({
   selector: 'aas-v3-shell',
@@ -34,15 +36,27 @@ import { V3ReferenceComponent } from '../v3-reference/v3-reference.component';
     V3ReferenceComponent,
     V3AssetComponent,
     EndpointUrlComponent,
+    DppMetadataComponent,
   ],
 })
 export class V3ShellComponent extends V3ComponentBase {
   shell = input<V3TreeItem<aas.types.AssetAdministrationShell> | undefined>();
+  showDppMetadata = input(false);
+  dppEditable = input(false);
+  dppCreated = output<void>();
 
   @Input() shellResult: ShellResult | undefined;
 
   info = Info;
   shellType = aas.types.KeyTypes.AssetAdministrationShell;
+
+  dppSubmodels(): DppSubmodelOption[] {
+    return (this.shellResult?.v3Shell?.submodels ?? []).map((submodel) => ({
+      id: submodel.id,
+      name: submodel.idShort ?? submodel.id,
+      semanticId: submodel.semanticId?.keys?.at(-1)?.value ?? null,
+    }));
+  }
 
   constructor() {
     super();

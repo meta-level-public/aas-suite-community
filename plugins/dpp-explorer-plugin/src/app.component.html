@@ -1,0 +1,271 @@
+<main class="shell">
+  <header class="explorer-header">
+    <div class="explorer-title">
+      <span class="explorer-logo"><app-icon name="passport" /></span>
+      <div><h1>DPP Explorer</h1><p>Digitale Produktpässe lesen</p></div>
+    </div>
+    <form (ngSubmit)="open()" class="lookup">
+      <label class="visually-hidden" for="pass-url">Pass-Daten-URL</label>
+      <div class="lookup-field">
+        <app-icon name="link" />
+        <input id="pass-url" name="pass-url" type="url" [(ngModel)]="url"
+          list="dpp-examples" placeholder="DPP-URL eingeben" autocomplete="url" required />
+      </div>
+      <datalist id="dpp-examples">
+        @for (source of sources(); track source.host) {
+          <option [value]="source.exampleUrl">{{ source.name }}</option>
+        }
+      </datalist>
+      <button type="submit" [disabled]="loading() || !url.trim()">{{ loading() ? 'Lädt…' : 'Öffnen' }}</button>
+    </form>
+    @if (canManage()) {
+      <button class="secondary host-settings-button" type="button" (click)="editing() ? editing.set(false) : editSources()">
+        {{ editing() ? 'Schließen' : 'Hosts' }}
+      </button>
+    }
+  </header>
+
+  @if (canManage() && editing()) {
+    <section class="settings">
+      <div class="settings-head">
+        <h2>Zusätzliche freigegebene Hosts</h2>
+      </div>
+      <form (ngSubmit)="saveSources()">
+        @for (source of draft; track $index; let index = $index) {
+          <div class="source-edit">
+            <label>Name <input name="name-{{index}}" [(ngModel)]="source.name" required /></label>
+            <label>Host <input name="host-{{index}}" [(ngModel)]="source.host" placeholder="example.org" required /></label>
+            <label>Beispiel-URL <input name="example-{{index}}" [(ngModel)]="source.exampleUrl" type="url" required /></label>
+            <button class="remove-button" type="button" (click)="removeSource(index)" [attr.aria-label]="'Host ' + source.name + ' entfernen'" title="Host entfernen">×</button>
+          </div>
+        }
+        <div class="actions">
+          <button class="secondary" type="button" (click)="addSource()">Host hinzufügen</button>
+          <button class="secondary" type="button" (click)="editing.set(false)">Abbrechen</button>
+          <button type="submit" [disabled]="saving()">{{ saving() ? 'Speichert…' : 'Speichern' }}</button>
+        </div>
+      </form>
+    </section>
+  }
+  @if (saveMessage()) { <p class="hint save-message" role="status">{{ saveMessage() }}</p> }
+
+  @if (error()) { <p class="error" role="alert"><app-icon name="alert" />{{ error() }}</p> }
+
+  @if (result(); as pass) {
+    <section class="result" aria-label="Passdaten">
+      <div class="source-meta">
+        <span><app-icon name="clock" />Geladen am {{ pass.fetchedAtUtc | date:'dd.MM.yyyy, HH:mm' }}</span>
+        <a [href]="pass.sourceUrl" target="_blank" rel="noopener noreferrer">Originalquelle<app-icon name="external" /></a>
+      </div>
+
+      @if (basyx(); as view) {
+        <app-basyx-view [view]="view" />
+      } @else if (formatted(); as view) {
+        <article class="pass">
+          <header class="pass-hero">
+            <div class="hero-media"><app-icon name="battery" /></div>
+            <div class="hero-main">
+              <p class="kicker"><app-icon name="passport" />Digitaler Batteriepass<span class="format-tag">{{ openDpp() ? 'OpenDPP' : 'UNTP' }}</span></p>
+              <h2>{{ view.title }}</h2>
+              @if (view.description) { <p class="hero-subtitle">{{ view.description }}</p> }
+              <div class="chips">
+                @for (group of view.groups; track group.title) {
+                  @if (group.title === 'Pass') {
+                    @for (field of group.fields.slice(0, 3); track field.label) {
+                      <span class="chip"><app-icon [name]="iconFor(field.label)" /><small>{{ field.label }}</small>{{ display(field.value) }}</span>
+                    }
+                  }
+                }
+              </div>
+            </div>
+          </header>
+
+          @if (formattedMetrics().length) {
+            <dl class="metrics">
+              @for (metric of formattedMetrics(); track metric.label) {
+                <div class="metric">
+                  <span class="metric-icon"><app-icon [name]="iconFor(metric.label)" /></span>
+                  <dt>{{ metric.label }}</dt>
+                  <dd>{{ display(metric.value) }}</dd>
+                </div>
+              }
+            </dl>
+          }
+
+          <div class="pass-layout">
+            <nav class="pass-nav" aria-label="Passinhalt">
+              <p class="nav-title">Inhalt</p>
+              @for (group of view.groups; track group.title; let index = $index) {
+                <button type="button" (click)="scrollToSection('pass-group-' + index)"><app-icon [name]="iconFor(group.title)" />{{ group.title }}</button>
+              }
+              @if (view.documents.length) {
+                <button type="button" (click)="scrollToSection('pass-documents')"><app-icon name="file" />Dokumente</button>
+              }
+              @if (view.claims.length) {
+                <button type="button" (click)="scrollToSection('pass-claims')"><app-icon name="award" />{{ openDpp() ? 'Zertifikate' : 'Nachweise' }}</button>
+              }
+              @if (view.materials.length) {
+                <button type="button" (click)="scrollToSection('pass-materials')"><app-icon name="layers" />Materialien</button>
+              }
+            </nav>
+
+            <div class="pass-content">
+              <div class="card-grid">
+                @for (group of view.groups; track group.title; let index = $index) {
+                  <section class="card" [id]="'pass-group-' + index">
+                    <header class="card-head">
+                      <span class="card-icon"><app-icon [name]="iconFor(group.title)" /></span>
+                      <div><h3>{{ group.title }}</h3></div>
+                    </header>
+                    <ng-container *ngTemplateOutlet="fieldList; context: { $implicit: group.fields }" />
+                  </section>
+                }
+              </div>
+
+              @if (view.documents.length) {
+                <section class="card" id="pass-documents">
+                  <header class="card-head">
+                    <span class="card-icon"><app-icon name="file" /></span>
+                    <div><h3>Dokumente</h3></div>
+                  </header>
+                  <ul class="documents">
+                    @for (doc of view.documents; track doc.url) {
+                      <li><a [href]="doc.url" target="_blank" rel="noopener noreferrer">
+                        <app-icon name="file" /><span><strong>{{ doc.label }}</strong></span><app-icon name="external" />
+                      </a></li>
+                    }
+                  </ul>
+                </section>
+              }
+
+              @if (view.claims.length) {
+                <section class="card" id="pass-claims">
+                  <header class="card-head">
+                    <span class="card-icon"><app-icon name="award" /></span>
+                    <div><h3>{{ openDpp() ? 'Zertifikate' : 'Nachweise und Aussagen' }}</h3></div>
+                  </header>
+                  <div class="group-grid">
+                    @for (claim of view.claims; track claim.title) {
+                      <div class="group"><h4><app-icon name="award" />{{ claim.title }}</h4>
+                        <ng-container *ngTemplateOutlet="fieldList; context: { $implicit: claim.fields }" />
+                      </div>
+                    }
+                  </div>
+                </section>
+              }
+
+              @if (view.materials.length) {
+                <section class="card" id="pass-materials">
+                  <header class="card-head">
+                    <span class="card-icon"><app-icon name="layers" /></span>
+                    <div><h3>{{ openDpp() ? 'Materialzusammensetzung' : 'Materialherkunft' }}</h3></div>
+                  </header>
+                  @if (view.materialChart; as chart) {
+                    <div class="material-layout">
+                      <div class="material-list">
+                        @if (openDpp()) {
+                          @for (material of view.materials; track $index) {
+                            <div class="material-row">
+                              @if (chart.background) {
+                                <span class="material-swatch" [style.background-color]="chart.slices[$index].color" aria-hidden="true"></span>
+                              }
+                              <span class="material-name">{{ material.title }}</span>
+                              <strong>{{ material.fields[0].value }}</strong>
+                            </div>
+                          }
+                        } @else {
+                          @for (material of view.materials; track $index) {
+                            <div class="group">
+                              <h4 class="material-heading">
+                                @if (chart.background) {
+                                  <span class="material-swatch" [style.background-color]="chart.slices[$index].color" aria-hidden="true"></span>
+                                }
+                                {{ material.title }}
+                              </h4>
+                              <ng-container *ngTemplateOutlet="fieldList; context: { $implicit: material.fields }" />
+                            </div>
+                          }
+                        }
+                      </div>
+                      <div class="material-graphic">
+                        @if (chart.background) {
+                          <div class="material-pie" [style.background]="chart.background" role="img"
+                            [attr.aria-label]="'Materialzusammensetzung: ' + chart.slices.length + ' Materialien, zusammen ' + chart.total + ' Prozent'"></div>
+                          <p class="material-total">Summe: {{ chart.total | number:'1.0-2' }} %</p>
+                          @if (chart.total < 99.95) { <p class="hint">Rest nicht ausgewiesen</p> }
+                        } @else {
+                          <p class="hint">Kein Diagramm: Die Materialanteile sind ungültig oder ergeben mehr als 100 %.</p>
+                        }
+                      </div>
+                    </div>
+                  } @else {
+                    <div class="group-grid">
+                      @for (material of view.materials; track material.title) {
+                        <div class="group"><h4><app-icon name="layers" />{{ material.title }}</h4>
+                          <ng-container *ngTemplateOutlet="fieldList; context: { $implicit: material.fields }" />
+                        </div>
+                      }
+                    </div>
+                  }
+                </section>
+              }
+            </div>
+          </div>
+        </article>
+      } @else if (generic(); as view) {
+        <article class="pass">
+          <header class="pass-hero">
+            <div class="hero-media"><app-icon name="package" /></div>
+            <div class="hero-main">
+              <p class="kicker"><app-icon name="passport" />Digital Product Passport<span class="format-tag">JSON</span></p>
+              <h2>{{ view.title }}</h2>
+              @if (view.description) { <p class="hero-subtitle">{{ view.description }}</p> }
+            </div>
+          </header>
+          <section class="card">
+            <header class="card-head">
+              <span class="card-icon"><app-icon name="layers" /></span>
+              <div><h3>Produktdaten</h3><p>Das Format wurde nicht erkannt. Die Daten werden strukturiert angezeigt.</p></div>
+            </header>
+            @for (item of view.nodes; track $index) {
+              <ng-container *ngTemplateOutlet="renderNode; context: { $implicit: item, depth: 0 }" />
+            }
+          </section>
+        </article>
+      }
+    </section>
+  }
+
+  <ng-template #fieldList let-fields>
+    <dl class="fields">
+      @for (field of fields; track field.label) {
+        <div class="field">
+          <dt><app-icon [name]="iconFor(field.label)" />{{ field.label }}</dt>
+          <dd>{{ display(field.value) }}</dd>
+        </div>
+      }
+    </dl>
+  </ng-template>
+
+  <ng-template #renderNode let-item let-depth="depth">
+    @if (item.children; as children) {
+      <details class="tree-group" [open]="depth === 0">
+        <summary>{{ item.label }}</summary>
+        <div class="tree-children">
+          @for (child of children; track $index) {
+            <ng-container *ngTemplateOutlet="renderNode; context: { $implicit: child, depth: depth + 1 }" />
+          }
+        </div>
+      </details>
+    } @else {
+      <div class="tree-field">
+        <span class="tree-key">{{ item.label }}</span>
+        @if (item.href) {
+          <a [href]="item.href" target="_blank" rel="noopener noreferrer">{{ item.value }}</a>
+        } @else {
+          <span class="tree-value">{{ item.value }}</span>
+        }
+      </div>
+    }
+  </ng-template>
+</main>

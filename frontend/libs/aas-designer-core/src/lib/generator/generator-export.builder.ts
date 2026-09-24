@@ -37,6 +37,7 @@ export interface CreateGeneratorExportStateOptions {
 
 export interface GeneratorExportBuilderHooks extends GeneratorVariantExportBuilderHooks {
   applyDppFileReferences: () => void;
+  appendDppMetadata: (state: GeneratorExportState) => Promise<void>;
   appendGeneratorFilesToExport: (state: GeneratorExportState) => void;
   loadExportConceptDescriptions: (state: GeneratorExportState) => Promise<void>;
 }
@@ -54,7 +55,8 @@ export function createGeneratorExportState(options: CreateGeneratorExportStateOp
     buildAssetShellIdentifier(options.iriPrefix, shellIdShort) ||
     IdGenerationUtil.generateIri('aas', options.iriPrefix);
   shell.description = shell.description ?? [];
-  shell.submodels ??= [];
+  env.submodels = [];
+  shell.submodels = [];
   shell.administration ??= new aas.types.AdministrativeInformation(
     null,
     '1',
@@ -166,6 +168,7 @@ export async function buildGeneratorExportPayload(state: GeneratorExportState, h
   hooks.applyDppFileReferences();
 
   appendGeneratorVariantSubmodels(state, hooks);
+  await hooks.appendDppMetadata(state);
 
   hooks.appendGeneratorFilesToExport(state);
   await hooks.loadExportConceptDescriptions(state);

@@ -84,6 +84,12 @@ describe('generator-documentation.builder', () => {
     expect((fileList?.value?.[0] as aas.types.File | undefined)?.value).toBe('operation_manual.pdf');
   });
 
+  it('creates a document that can be consumed by AAS Core verification', () => {
+    const document = createDocumentationDocument(0, [], createDocumentItem(), 'en');
+
+    expect(() => Array.from(aas.verification.verify(document))).not.toThrow();
+  });
+
   it('creates the v2 language list with a string valueTypeListElement', () => {
     const document = createDocumentationDocument(0, [], createDocumentItem(), 'en', HandoverSemantics.DOCUMENT_V2);
     const versionsList = document.value?.find(

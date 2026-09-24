@@ -172,7 +172,11 @@ export class V3MarkingsEditorComponent implements OnChanges {
     // Bei einer SML darf die idShort nicht gesetzt werden.
     // Bei einer SMC muss die idShort gesetzt werden.
     const markingsSmc = this.markingsSmc();
-    if (this.selectedMarkingToAdd != null && this.selectedMarkingToAdd.filename !== '' && markingsSmc?.value != null) {
+    if (markingsSmc != null && markingsSmc.value == null) {
+      markingsSmc.value = [];
+    }
+
+    if (this.selectedMarkingToAdd != null && this.selectedMarkingToAdd.filename !== '' && markingsSmc != null) {
       const newMarking = new aas.types.SubmodelElementCollection();
       newMarking.idShort = `Marking${(markingsSmc?.value?.length ?? 0).toString().padStart(2, '0')}`;
       newMarking.semanticId = new aas.types.Reference(aas.types.ReferenceTypes.ExternalReference, [
@@ -188,7 +192,7 @@ export class V3MarkingsEditorComponent implements OnChanges {
 
       this.markingsSmc()?.value?.push(newMarking);
       this.treeService.refreshMarkingNodes();
-    } else if (this.selectedMarkingToAdd?.irdi === this.translate.instant('CUSTOM')) {
+    } else if (this.selectedMarkingToAdd?.irdi === this.translate.instant('CUSTOM') && markingsSmc != null) {
       const newMarking = new aas.types.SubmodelElementCollection();
       newMarking.idShort = `Marking${(this.markingsSmc()?.value?.length ?? 0).toString().padStart(2, '0')}`;
       newMarking.semanticId = new aas.types.Reference(aas.types.ReferenceTypes.ExternalReference, [

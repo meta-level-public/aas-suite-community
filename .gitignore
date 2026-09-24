@@ -90,3 +90,7 @@ tools/docker-compose-wizard/**/docker-compose.generated.yml
 
 # Private key files
 **/*private*.pem
+
+ionos/
+docker-enterprise/.env
+docker-oss/.env

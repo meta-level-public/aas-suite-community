@@ -1,7 +1,8 @@
 import * as aas from '@aas-core-works/aas-core3.1-typescript';
 import { AppConfigService, NotificationService, PortalService } from '@aas/common-services';
 import { IdGenerationUtil } from '@aas/helpers';
-import { Component, OnDestroy, OnInit, signal } from '@angular/core';
+import { Component, isDevMode, OnDestroy, OnInit, signal } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
 import { FormsModule } from '@angular/forms';
 import { DomSanitizer } from '@angular/platform-browser';
 import { Router } from '@angular/router';
@@ -15,13 +16,21 @@ import { buildAssetIdentifier, buildAssetShellIdentifier, normalizeAssetShellIdS
 import { GeneratorFilePreviewState } from '../generator-file-preview.utils';
 import { GeneratorNameplateSource } from '../generator-nameplate.builder';
 import { GeneratorPageShellComponent } from '../generator-page-shell/generator-page-shell.component';
-import { GeneratorService } from '../generator.service';
+import { GeneratorDppMetadataInput, GeneratorService } from '../generator.service';
 
 import { Button } from 'primeng/button';
 import { Dialog } from 'primeng/dialog';
 import { Image } from 'primeng/image';
 import { Tag } from 'primeng/tag';
+import { firstValueFrom } from 'rxjs';
 type VerificationError = aas.verification.VerificationError;
+
+interface GeneratorDppSubmodelOption {
+  id: string;
+  name: string;
+  semanticId: string;
+  selected: boolean;
+}
 
 @Component({
   selector: 'aas-save-and-confirm',
@@ -44,12 +53,15 @@ type VerificationError = aas.verification.VerificationError;
   ],
 })
 export class SaveAndConfirmComponent implements OnInit, OnDestroy {
+  readonly showDeveloperTools = isDevMode();
   data: TreeNode[] = [];
   loading: boolean = false;
   validationErrors = signal<AasDesignerVerificationError[]>([]);
   validationErrorCount: number = 0;
   displayValidationResult: boolean = false;
   advanced: boolean = false;
+  dppMetadata: GeneratorDppMetadataInput | null = null;
+  dppSubmodels: GeneratorDppSubmodelOption[] = [];
   private readonly previewState = new GeneratorFilePreviewState();
 
   constructor(
@@ -61,6 +73,7 @@ export class SaveAndConfirmComponent implements OnInit, OnDestroy {
     private notificationService: NotificationService,
     private appConfigService: AppConfigService,
     private portalService: PortalService,
+    private http: HttpClient,
   ) {}
 
   async ngOnInit(): Promise<void> {
@@ -149,6 +162,53 @@ export class SaveAndConfirmComponent implements OnInit, OnDestroy {
       });
 
     this.data = data;
+    await this.loadDppMetadata();
+  }
+
+  private async loadDppMetadata(): Promise<void> {
+    if (this.generatorService.vwsTyp !== 'battery-passport' && this.generatorService.vwsTyp !== 'dpp-core') {
+      this.dppMetadata = null;
+      this.dppSubmodels = [];
+      return;
+    }
+
+    const shell = this.generatorService.getCurrentGeneratorRootShell();
+    if (shell == null) return;
+    const previousMetadata = this.dppMetadata?.aasId === shell.id ? this.dppMetadata : null;
+    const previousSelection = new Map(this.dppSubmodels.map((submodel) => [submodel.semanticId, submodel.selected]));
+    const semanticIdOf = (submodel: aas.types.Submodel) => submodel.semanticId?.keys?.at(-1)?.value?.trim() ?? '';
+    this.dppSubmodels = this.generatorService.additionalV3Submodels
+      .filter(
+        (submodel) =>
+          submodel.idShort !== 'DppMeta' &&
+          submodel.idShort !== 'DppMetadata' &&
+          submodel.idShort?.toLowerCase() !== 'aasdesignerchangelog',
+      )
+      .map((submodel) => ({
+        id: submodel.id,
+        name: submodel.idShort ?? submodel.id,
+        semanticId: semanticIdOf(submodel),
+        selected: semanticIdOf(submodel) !== '' && (previousSelection.get(semanticIdOf(submodel)) ?? true),
+      }));
+    this.dppMetadata = previousMetadata ?? {
+      aasId: shell.id,
+      uniqueProductIdentifier: shell.assetInformation.globalAssetId ?? '',
+      granularity: shell.assetInformation.assetKind === aas.types.AssetKind.Instance ? 'Item' : 'Model',
+      dppSchemaVersion: 'EN 18223:2026',
+      dppStatus: 'Draft',
+      economicOperatorId: '',
+      facilityId: null,
+      contentSpecificationIds: [],
+    };
+  }
+
+  get dppMetadataComplete(): boolean {
+    return (
+      this.dppMetadata == null ||
+      (this.dppMetadata.uniqueProductIdentifier.trim() !== '' &&
+        this.dppMetadata.dppSchemaVersion.trim() !== '' &&
+        this.dppMetadata.economicOperatorId.trim() !== '')
+    );
   }
 
   getTreeNode(submodel: any) {
@@ -478,7 +538,13 @@ export class SaveAndConfirmComponent implements OnInit, OnDestroy {
   async saveAndContinueV3() {
     try {
       this.loading = true;
-      const res = await this.generatorService.saveShell();
+      if (!this.dppMetadataComplete) return;
+      const metadata = this.buildDppMetadataInput();
+      const res = await this.generatorService.saveShell(metadata);
+      if (metadata != null) {
+        await firstValueFrom(this.http.get('/bff/csrf', { responseType: 'text', withCredentials: true }));
+        await firstValueFrom(this.http.put('/aas-proxy/dpp/metadata', metadata, { withCredentials: true }));
+      }
 
       this.notificationService.showMessageAlways('VWS_SAVED', 'SUCCESS', 'success', false);
       this.router.navigate(PortalService.buildRepoEditRoute(res.aasId ?? ''));
@@ -497,18 +563,12 @@ export class SaveAndConfirmComponent implements OnInit, OnDestroy {
   async debugValidateGeneratedAas() {
     try {
       this.loading = true;
-      const shellErrors = await this.generatorService.getShellValidationErrors();
-      const submodelErrors = await this.generatorService.getSubmodelValidationErrors();
-      const validationErrors = this.mapValidationErrors([...shellErrors, ...submodelErrors]);
+      if (!this.dppMetadataComplete) return;
+      const environment = await this.generatorService.getVerifiableEnvironmentV3(this.buildDppMetadataInput());
+      const validationErrors = this.mapValidationErrors(aas.verification.verify(environment));
 
       this.validationErrors.set(validationErrors);
       this.validationErrorCount = validationErrors.length;
-
-      if (this.validationErrorCount === 0) {
-        this.notificationService.showMessageAlways('NO_ERRORS_FOUND', 'SUCCESS', 'success', false);
-        return;
-      }
-
       this.showValidationResult();
     } catch (error) {
       this.notificationService.showMessageAlways(
@@ -520,6 +580,22 @@ export class SaveAndConfirmComponent implements OnInit, OnDestroy {
     } finally {
       this.loading = false;
     }
+  }
+
+  private buildDppMetadataInput(): GeneratorDppMetadataInput | undefined {
+    if (this.dppMetadata == null) return undefined;
+
+    return {
+      ...this.dppMetadata,
+      facilityId: this.dppMetadata.facilityId?.trim() || null,
+      contentSpecificationIds: [
+        ...new Set(
+          this.dppSubmodels
+            .filter((submodel) => submodel.selected && submodel.semanticId)
+            .map((submodel) => submodel.semanticId),
+        ),
+      ],
+    };
   }
 
   async applyCurrentExportFixes() {

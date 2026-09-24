@@ -1,0 +1,18 @@
+{
+  "manifestVersion": 1,
+  "id": "dpp-explorer-plugin",
+  "route": "/dpp-explorer",
+  "name": "DPP Explorer",
+  "icon": "pi pi-search",
+  "entryPoint": "index.html",
+  "type": "GuiApp",
+  "description": "Explore structured Digital Product Passport data.",
+  "shortLabel": "DPP",
+  "sortOrder": 45,
+  "version": "0.1.0",
+  "author": "AAS Suite",
+  "backend": {
+    "assembly": "backend/DppExplorerBackendPlugin.dll",
+    "type": "DppExplorerBackendPlugin.DppExplorerBackendPlugin"
+  }
+}

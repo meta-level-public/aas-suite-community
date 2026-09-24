@@ -110,7 +110,6 @@ services:
       - ASPNETCORE_ENVIRONMENT=Production
       - ASPNETCORE_URLS=http://+:8080
       - ConnectionStrings__DefaultConnection=Host=postgres;Database=aas_designer;Username=aas_user;Password=${POSTGRES_PASSWORD:-changeme}
-      - AppSettings__JwtSecret=${JWT_SECRET:-your-secret-key-min-32-chars-long-please-change}
       - AppSettings__FileStoragePath=/app/storage
       - AppSettings__PluginsEnabled=true
       - AppSettings__PluginDirectory=/app/plugins

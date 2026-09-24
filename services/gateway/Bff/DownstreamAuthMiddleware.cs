@@ -25,6 +25,11 @@ public sealed class DownstreamAuthMiddleware
 
     public async Task Invoke(HttpContext context, GatewayBffSessionService sessionService)
     {
+        var isPluginMenuRequest = context.Request.Path.Equals(
+            "/designer-api/system-management-api/Plugins/menu-items",
+            StringComparison.OrdinalIgnoreCase
+        );
+
         if (IsAasProxyWriteRequest(context.Request))
         {
             _logger.LogInformation(
@@ -44,6 +49,17 @@ public sealed class DownstreamAuthMiddleware
                 forceRefresh: false,
                 context.RequestAborted
             );
+
+            if (!context.Request.Headers.ContainsKey("X-Organisation-ID"))
+            {
+                var organisationId =
+                    sessionState?.AuthResponse.PreferredOrgaId
+                    ?? sessionState?.AuthResponse.OrgaSettings.FirstOrDefault()?.OrgaId;
+                if (organisationId.HasValue)
+                {
+                    context.Request.Headers["X-Organisation-ID"] = organisationId.Value.ToString();
+                }
+            }
 
             if (!string.IsNullOrWhiteSpace(sessionState?.AuthResponse.JwtToken))
             {

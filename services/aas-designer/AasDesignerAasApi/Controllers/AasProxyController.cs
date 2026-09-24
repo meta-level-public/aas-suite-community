@@ -1,12 +1,15 @@
 using System.Linq;
 using System.Net.Http;
+using System.Net.Http.Headers;
 using System.Text.Json;
 using System.Web;
+using AasDesignerAasApi.Infrastructure;
 using AasDesignerApi.Model;
 using AasDesignerAuthorization;
 using AasDesignerCommon.Utils;
 using AasDesignerModel;
 using AasDesignerModel.Model;
+using AasShared.Configuration;
 using AasShared.Controllers;
 using AasShared.Exceptions;
 using AspNetCore.Proxy;
@@ -24,18 +27,24 @@ public class AasProxyController : InternalApiBaseController
     private readonly IApplicationDbContext _context;
     private readonly ApiKeyUserResolver _apiKeyUserResolver;
     private readonly HttpClient _httpClient;
+    private readonly IDppApiTokenProvider _dppApiTokenProvider;
+    private readonly AppSettings _appSettings;
     private readonly ILogger<AasProxyController> _logger;
 
     public AasProxyController(
         IApplicationDbContext context,
         ApiKeyUserResolver apiKeyUserResolver,
         HttpClient httpClient,
+        IDppApiTokenProvider dppApiTokenProvider,
+        AppSettings appSettings,
         ILogger<AasProxyController> logger
     )
     {
         _context = context;
         _apiKeyUserResolver = apiKeyUserResolver;
         _httpClient = httpClient;
+        _dppApiTokenProvider = dppApiTokenProvider;
+        _appSettings = appSettings;
         _logger = logger;
     }
 
@@ -391,6 +400,150 @@ public class AasProxyController : InternalApiBaseController
 
     #endregion Swagger Proxies
 
+    [HttpGet("dpp/v1/dpps/{**dppId}")]
+    [AasDesignerAuthorize(
+        RequiredScopes = [ApiScopes.AASX_READ_API],
+        RequiredRoles = [
+            AuthRoles.VIEWER_NUTZER,
+            AuthRoles.BENUTZER,
+            AuthRoles.SHELLS_READER,
+            AuthRoles.SHELLS_EDITOR,
+            AuthRoles.ORGA_ADMIN,
+            AuthRoles.SYSTEM_ADMIN,
+        ]
+    )]
+    public Task<IActionResult> GetDppById(
+        string dppId,
+        [FromQuery] string access,
+        CancellationToken cancellationToken
+    ) =>
+        access is "public" or "authenticated"
+            ? ProxyDppGatewayReadAsync(
+                Uri.UnescapeDataString(dppId),
+                access == "authenticated",
+                cancellationToken
+            )
+            : ProxyDppReadAsync("dpps", Uri.UnescapeDataString(dppId), cancellationToken);
+
+    [HttpGet("dpp/v1/dppsByProductId/{**productId}")]
+    [AasDesignerAuthorize(
+        RequiredScopes = [ApiScopes.AASX_READ_API],
+        RequiredRoles = [
+            AuthRoles.VIEWER_NUTZER,
+            AuthRoles.BENUTZER,
+            AuthRoles.SHELLS_READER,
+            AuthRoles.SHELLS_EDITOR,
+            AuthRoles.ORGA_ADMIN,
+            AuthRoles.SYSTEM_ADMIN,
+        ]
+    )]
+    public Task<IActionResult> GetDppByProductId(
+        string productId,
+        CancellationToken cancellationToken
+    ) => ProxyDppReadAsync("dppsByProductId", Uri.UnescapeDataString(productId), cancellationToken);
+
+    private async Task<IActionResult> ProxyDppGatewayReadAsync(
+        string dppId,
+        bool authenticated,
+        CancellationToken cancellationToken
+    )
+    {
+        if (HttpContext.Items[AasDesignerConstants.APP_USER] is not AppUser appUser)
+            return Unauthorized();
+        if (!Uri.TryCreate(_appSettings.DppGatewayManagementUrl, UriKind.Absolute, out var gateway))
+            return StatusCode(StatusCodes.Status503ServiceUnavailable);
+
+        var target = $"{gateway.ToString().TrimEnd('/')}/dpp/v1/dpps/{Uri.EscapeDataString(dppId)}";
+        using var request = new HttpRequestMessage(HttpMethod.Get, target);
+        if (authenticated)
+        {
+            if (string.IsNullOrWhiteSpace(appUser.JwtToken))
+                return Unauthorized();
+            request.Headers.Authorization = new AuthenticationHeaderValue(
+                "Bearer",
+                appUser.JwtToken
+            );
+        }
+
+        try
+        {
+            using var response = await _httpClient.SendAsync(request, cancellationToken);
+            return new ContentResult
+            {
+                Content = await response.Content.ReadAsStringAsync(cancellationToken),
+                ContentType =
+                    response.Content.Headers.ContentType?.ToString() ?? "application/json",
+                StatusCode = (int)response.StatusCode,
+            };
+        }
+        catch (HttpRequestException exception)
+        {
+            _logger.LogWarning(exception, "DPP gateway read failed");
+            return StatusCode(StatusCodes.Status502BadGateway);
+        }
+    }
+
+    private async Task<IActionResult> ProxyDppReadAsync(
+        string resource,
+        string id,
+        CancellationToken cancellationToken
+    )
+    {
+        var appUser = HttpContext.Items[AasDesignerConstants.APP_USER] as AppUser;
+        if (appUser == null && HttpContext.Items[AasDesignerConstants.API_KEY] is Apikey apiKey)
+        {
+            if (apiKey.AasInfrastructureSettingsId is not long infrastructureId)
+            {
+                return BadRequest("An API key must be bound to an infrastructure for DPP access.");
+            }
+            appUser =
+                apiKey.BenutzerId == null
+                    ? _apiKeyUserResolver.GetAppUserByApikey(apiKey, infrastructureId)
+                    : _apiKeyUserResolver.GetSystemAppUserByApikey(apiKey);
+            if (appUser.CurrentInfrastructureSettings.Id != infrastructureId)
+            {
+                return Forbid();
+            }
+        }
+        if (appUser == null)
+        {
+            return Unauthorized();
+        }
+
+        var configuredUrl = appUser.CurrentInfrastructureSettings.GetResolvedServiceUrl("dpp-api");
+        if (
+            !Uri.TryCreate(configuredUrl, UriKind.Absolute, out var baseUri)
+            || baseUri.Scheme is not ("http" or "https")
+            || !string.IsNullOrEmpty(baseUri.UserInfo)
+            || !string.IsNullOrEmpty(baseUri.Query)
+            || !string.IsNullOrEmpty(baseUri.Fragment)
+        )
+        {
+            return StatusCode(StatusCodes.Status503ServiceUnavailable);
+        }
+
+        var target =
+            $"{baseUri.ToString().TrimEnd('/')}/v1/{resource}/{Uri.EscapeDataString(id)}{Request.QueryString}";
+        try
+        {
+            var token = await _dppApiTokenProvider.GetAccessTokenAsync(cancellationToken);
+            using var request = new HttpRequestMessage(HttpMethod.Get, target);
+            request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token);
+            using var response = await _httpClient.SendAsync(request, cancellationToken);
+            return new ContentResult
+            {
+                Content = await response.Content.ReadAsStringAsync(cancellationToken),
+                ContentType =
+                    response.Content.Headers.ContentType?.ToString() ?? "application/json",
+                StatusCode = (int)response.StatusCode,
+            };
+        }
+        catch (HttpRequestException exception)
+        {
+            _logger.LogWarning(exception, "DPP API read failed for {Resource}", resource);
+            return StatusCode(StatusCodes.Status502BadGateway);
+        }
+    }
 
     [HttpGet]
     [Route("aas-repo/{**rest}")]
