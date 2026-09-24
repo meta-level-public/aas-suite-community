@@ -161,11 +161,11 @@ main() {
   local arch_suffix
   arch_suffix="$(detect_arch_suffix)"
   local designer_backend_repo_default="ghcr.io/meta-level-public/aas-suite-community/aas-designer-backend-community"
-  local designer_backend_tag_default="latest${arch_suffix}"
+  local designer_backend_tag_default="${SUITE_IMAGE_VERSION}${arch_suffix}"
   local gateway_repo_default="ghcr.io/meta-level-public/aas-suite-community/aas-designer-gateway"
-  local gateway_tag_default="latest${arch_suffix}"
+  local gateway_tag_default="${SUITE_IMAGE_VERSION}${arch_suffix}"
   local frontend_repo_default="ghcr.io/meta-level-public/aas-suite-community/aas-designer-frontend-community"
-  local frontend_tag_default="latest${arch_suffix}"
+  local frontend_tag_default="${SUITE_IMAGE_VERSION}${arch_suffix}"
   local dpp_gateway_repo_default="ghcr.io/meta-level-public/aas-suite-community/aas-dpp-gateway"
   if [ "$IMAGE_SOURCE" = "local" ]; then
     designer_backend_repo_default="aas-suite/aas-designer-backend-community"
@@ -194,7 +194,7 @@ main() {
   set_default_if_empty FRONTEND_CONTAINER_PORT "80"
   set_default_if_empty FRONTEND_THEME ""
   set_default_if_empty DPP_GATEWAY_IMAGE_REPO "$dpp_gateway_repo_default"
-  local dpp_gateway_tag_default="latest${arch_suffix}"
+  local dpp_gateway_tag_default="${SUITE_IMAGE_VERSION}${arch_suffix}"
   if [ "$IMAGE_SOURCE" = "local" ]; then dpp_gateway_tag_default="local"; fi
   set_default_if_empty DPP_GATEWAY_IMAGE_TAG "$dpp_gateway_tag_default"
   set_default_if_empty DPP_GATEWAY_HOST_PORT "5090"

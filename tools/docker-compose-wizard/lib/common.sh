@@ -5,6 +5,9 @@ set -euo pipefail
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 WIZARD_SECTION_INDEX=0
 STACK_ASSETS_DIR_NAME="stack-assets"
+# Standard-Image-Version der AAS-Suite-Images, die die Wizards vorschlagen.
+# Muss bei jedem Release auf die neue Version gesetzt werden; die CI prüft das beim Tag-Build.
+SUITE_IMAGE_VERSION="1.0.0"
 if [ -n "${NO_COLOR-}" ]; then
   RED=''
   GREEN=''
