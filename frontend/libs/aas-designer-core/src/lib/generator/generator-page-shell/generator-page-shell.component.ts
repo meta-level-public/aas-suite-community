@@ -93,7 +93,11 @@ export class GeneratorPageShellComponent {
       const updateSidebarMaxHeight = () => {
         const hostElement = this.elementRef.nativeElement as HTMLElement;
         const sidebarElement = hostElement.querySelector('.battery-editor-sidebar') as HTMLElement | null;
-        const referenceRect = sidebarElement?.getBoundingClientRect() ?? hostElement.getBoundingClientRect();
+        const contentElement = hostElement.querySelector('.battery-editor-content') as HTMLElement | null;
+        const referenceRect =
+          sidebarElement?.getBoundingClientRect() ??
+          contentElement?.getBoundingClientRect() ??
+          hostElement.getBoundingClientRect();
         const viewportHeight = window.innerHeight;
         const viewportPadding = 24;
         const availableHeight = Math.max(

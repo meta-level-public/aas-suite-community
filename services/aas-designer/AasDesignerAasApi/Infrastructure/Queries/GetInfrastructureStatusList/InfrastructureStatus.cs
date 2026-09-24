@@ -4,6 +4,7 @@ namespace AasDesignerAasApi.Infrastructure.Queries.GetInfrastructureStatusList
     {
         public long InfrastructureId { get; set; }
         public string InfrastructureName { get; set; } = string.Empty;
+        public string InfrastructureGuid { get; set; } = string.Empty;
         public int AasEnvPort { get; set; }
         public ContainerStatus AasEnvStatus { get; set; }
         public int AasRegistryPort { get; set; }
@@ -14,6 +15,7 @@ namespace AasDesignerAasApi.Infrastructure.Queries.GetInfrastructureStatusList
         public ContainerStatus DiscoveryStatus { get; set; }
         public ContainerStatus MongoStatus { get; set; }
         public ContainerStatus MqttStatus { get; set; }
+        public ContainerStatus DppApiStatus { get; set; }
         public int MqttPort { get; set; }
         public bool IsActive { get; set; }
         public string AasEnvContainerName { get; set; } = string.Empty;
@@ -22,6 +24,8 @@ namespace AasDesignerAasApi.Infrastructure.Queries.GetInfrastructureStatusList
         public string DiscoveryContainerName { get; set; } = string.Empty;
         public string SmRegistryContainerName { get; set; } = string.Empty;
         public string AasRegistryContainerName { get; set; } = string.Empty;
+        public string DppApiContainerName { get; set; } = string.Empty;
+        public bool DppApiConfigured { get; set; }
         public string OrgaName { get; set; } = string.Empty;
         public long OrgaId { get; set; }
         public ulong MongoMaxMem { get; set; }

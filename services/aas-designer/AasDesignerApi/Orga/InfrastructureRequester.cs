@@ -213,19 +213,23 @@ namespace AasDesignerApi.Orga
             var containerInfos = new ContainerInfos
             {
                 Guid = guid,
+                BasyxStackVersion = ContainerInfos.DefaultBasyxGoVersion,
                 HostPortAasEnv = maxPort + 1,
                 HostPortAasRegistry = maxPort + 2,
                 HostPortSmRegistry = maxPort + 3,
                 HostPortAasDiscovery = maxPort + 4,
                 HostPortMqtt = maxPort + 5,
-                VersionAasDiscovery = "SNAPSHOT",
-                VersionAasRegistry = "SNAPSHOT",
-                VersionAasEnv = "SNAPSHOT",
-                VersionSmRegistry = "SNAPSHOT",
+                HostPortDppApi = 0,
+                VersionAasDiscovery = ContainerInfos.DefaultBasyxGoVersion,
+                VersionAasRegistry = ContainerInfos.DefaultBasyxGoVersion,
+                VersionAasEnv = ContainerInfos.DefaultBasyxGoVersion,
+                VersionSmRegistry = ContainerInfos.DefaultBasyxGoVersion,
+                VersionDppApi = ContainerInfos.DefaultBasyxGoVersion,
                 AasEnvMemory = 256_000_000,
                 AasRegistryMemory = 128_000_000,
                 SmRegistryMemory = 128_000_000,
                 AasDiscoveryMemory = 128_000_000,
+                DppApiMemory = 256_000_000,
                 Action = "create",
                 ContainerStatus = status,
                 ExternalUrl = $"{_appsSettings.BaseUrl.AppendSlash()}aas-proxy/aas-repo/",
@@ -241,6 +245,7 @@ namespace AasDesignerApi.Orga
             var aasRegistryContainer = $"aas-suite-go-aas-registry-{guid}";
             var smRegistryContainer = $"aas-suite-go-sm-registry-{guid}";
             var aasDiscoveryContainer = $"aas-suite-go-aas-discovery-{guid}";
+            var dppApiContainer = $"aas-suite-go-dpp-api-{guid}";
 
             var aasEnvBaseUrl = _env.IsDevelopment()
                 ? $"{_appsSettings.ContainerHost}:{containerInfos.HostPortAasEnv}"
@@ -254,6 +259,7 @@ namespace AasDesignerApi.Orga
             var aasDiscoveryBaseUrl = _env.IsDevelopment()
                 ? $"{_appsSettings.ContainerHost}:{containerInfos.HostPortAasDiscovery}"
                 : $"http://{aasDiscoveryContainer}:8081";
+            var dppApiBaseUrl = $"http://{dppApiContainer}:8080";
 
             var infra = new AasInfrastructureSettings
             {
@@ -286,6 +292,11 @@ namespace AasDesignerApi.Orga
                 ConceptDescriptionRepositoryVersion = containerInfos.VersionAasEnv,
                 ConceptDescriptionRepositoryHcUrl = $"{aasEnvBaseUrl}/health",
                 ConceptDescriptionRepositoryHcEnabled = true,
+
+                DppApiUrl = dppApiBaseUrl,
+                DppApiVersion = containerInfos.VersionDppApi,
+                DppApiHcUrl = $"{dppApiBaseUrl}/health",
+                DppApiHcEnabled = true,
 
                 ContainerGuid = guid,
                 MqttContainer = $"aas-suite-go-mqtt-{guid}",

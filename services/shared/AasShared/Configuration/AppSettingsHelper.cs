@@ -1,4 +1,5 @@
 using System.IO;
+using System.Reflection;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Hosting;
 
@@ -45,6 +46,23 @@ public static class ConfigurationSetup
                     true,
                     true
                 );
+                var entryAssembly = Assembly.GetEntryAssembly();
+                var userSecretsId =
+                    entryAssembly
+                        ?.GetCustomAttributesData()
+                        .FirstOrDefault(attribute =>
+                            attribute.AttributeType.FullName
+                            == "Microsoft.Extensions.Configuration.UserSecrets.UserSecretsIdAttribute"
+                        )
+                        ?.ConstructorArguments.FirstOrDefault()
+                        .Value as string;
+                if (
+                    ctx.HostingEnvironment.IsDevelopment()
+                    && !string.IsNullOrWhiteSpace(userSecretsId)
+                )
+                {
+                    builder.AddUserSecrets(userSecretsId, reloadOnChange: false);
+                }
                 builder.AddEnvironmentVariables();
             }
         );

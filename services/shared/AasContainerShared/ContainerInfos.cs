@@ -8,7 +8,15 @@ namespace AasDesignerCommon.Model;
 /// </summary>
 public class ContainerInfos
 {
+    public const string DefaultBasyxGoVersion = "1.0.12";
+
     public string Guid { get; set; } = string.Empty;
+
+    /// <summary>
+    /// Immutable release shared by all BaSyx Go services of this infrastructure.
+    /// Individual version fields remain for legacy infrastructures only.
+    /// </summary>
+    public string BasyxStackVersion { get; set; } = DefaultBasyxGoVersion;
 
     public int HostPortAasEnv { get; set; }
     public string VersionAasEnv { get; set; } = string.Empty;
@@ -29,6 +37,11 @@ public class ContainerInfos
     public string VersionAasDiscovery { get; set; } = string.Empty;
     public long AasDiscoveryMemory { get; set; } = 512_000_000;
     public long AasDiscoveryMemorySwap { get; set; } = -1;
+
+    public int HostPortDppApi { get; set; }
+    public string VersionDppApi { get; set; } = string.Empty;
+    public long DppApiMemory { get; set; } = 256_000_000;
+    public long DppApiMemorySwap { get; set; } = -1;
 
     public string VersionCdRepository { get; set; } = string.Empty;
 

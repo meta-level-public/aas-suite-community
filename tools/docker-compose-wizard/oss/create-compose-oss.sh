@@ -57,7 +57,8 @@ main() {
       IMAGE_SOURCE \
       DESIGNER_BACKEND_IMAGE_REPO DESIGNER_BACKEND_IMAGE_TAG DESIGNER_BACKEND_CONTAINER_PORT \
       GATEWAY_IMAGE_REPO GATEWAY_IMAGE_TAG GATEWAY_HOST_PORT GATEWAY_CONTAINER_PORT \
-      FRONTEND_IMAGE_REPO FRONTEND_IMAGE_TAG FRONTEND_CONTAINER_PORT BASE_URL EXTERNAL_BASE_PATH \
+      FRONTEND_IMAGE_REPO FRONTEND_IMAGE_TAG FRONTEND_CONTAINER_PORT FRONTEND_THEME BASE_URL EXTERNAL_BASE_PATH \
+      APP_JWT_ISSUER APP_JWT_SALT APP_JWT_SECRET PLUGINS_ENABLED PLUGINS_DIRECTORY KEYCLOAK_SSO_SOURCE_NAME KEYCLOAK_EMAIL_CLAIM_NAME KEYCLOAK_FIRST_NAME_CLAIM_NAME KEYCLOAK_LAST_NAME_CLAIM_NAME BASYX_CONFIG_SERVICE_IMAGE_REPO \
       POSTGRES_IMAGE_REPO POSTGRES_IMAGE_TAG POSTGRES_CONTAINER_PORT \
       POSTGRES_DB POSTGRES_USER POSTGRES_PASSWORD POSTGRES_VOLUME BASYX_POSTGRES_DB KEYCLOAK_POSTGRES_DB \
       KEYCLOAK_MODE KEYCLOAK_CLUSTER_URL KEYCLOAK_ISSUER KEYCLOAK_WELLKNOWN_URL KEYCLOAK_PUBLIC_ISSUER KEYCLOAK_PUBLIC_WELLKNOWN_URL \
@@ -163,7 +164,8 @@ main() {
 
   local DESIGNER_BACKEND_IMAGE_REPO="${DESIGNER_BACKEND_IMAGE_REPO-}" DESIGNER_BACKEND_IMAGE_TAG="${DESIGNER_BACKEND_IMAGE_TAG-}" DESIGNER_BACKEND_CONTAINER_PORT="${DESIGNER_BACKEND_CONTAINER_PORT-}"
   local GATEWAY_IMAGE_REPO="${GATEWAY_IMAGE_REPO-}" GATEWAY_IMAGE_TAG="${GATEWAY_IMAGE_TAG-}" GATEWAY_HOST_PORT="${GATEWAY_HOST_PORT-}" GATEWAY_CONTAINER_PORT="${GATEWAY_CONTAINER_PORT-}"
-  local FRONTEND_IMAGE_REPO="${FRONTEND_IMAGE_REPO-}" FRONTEND_IMAGE_TAG="${FRONTEND_IMAGE_TAG-}" FRONTEND_CONTAINER_PORT="${FRONTEND_CONTAINER_PORT-}"
+  local FRONTEND_IMAGE_REPO="${FRONTEND_IMAGE_REPO-}" FRONTEND_IMAGE_TAG="${FRONTEND_IMAGE_TAG-}" FRONTEND_CONTAINER_PORT="${FRONTEND_CONTAINER_PORT-}" FRONTEND_THEME="${FRONTEND_THEME-}"
+  local DPP_GATEWAY_IMAGE_REPO="${DPP_GATEWAY_IMAGE_REPO-}" DPP_GATEWAY_IMAGE_TAG="${DPP_GATEWAY_IMAGE_TAG-}" DPP_GATEWAY_HOST_PORT="${DPP_GATEWAY_HOST_PORT-}"
   local FRONTEND_API_BASE_URL="${FRONTEND_API_BASE_URL-}" FRONTEND_FEEDMAPPING_BASE_URL="${FRONTEND_FEEDMAPPING_BASE_URL-}" BASE_URL="${BASE_URL-}" PUBLIC_GATEWAY_URL="${PUBLIC_GATEWAY_URL-}"
   local EXTERNAL_BASE_PATH="${EXTERNAL_BASE_PATH-}"
   local POSTGRES_IMAGE_REPO="${POSTGRES_IMAGE_REPO-}" POSTGRES_IMAGE_TAG="${POSTGRES_IMAGE_TAG-}" POSTGRES_CONTAINER_PORT="${POSTGRES_CONTAINER_PORT-}"
@@ -187,6 +189,8 @@ main() {
   local GATEWAY_IMAGE_TAG_DEFAULT="latest${ARCH_SUFFIX}"
   local FRONTEND_IMAGE_REPO_DEFAULT="ghcr.io/meta-level-public/aas-suite-community/aas-designer-frontend-community"
   local FRONTEND_IMAGE_TAG_DEFAULT="latest${ARCH_SUFFIX}"
+  local DPP_GATEWAY_IMAGE_REPO_DEFAULT="ghcr.io/meta-level-public/aas-suite-community/aas-dpp-gateway"
+  local DPP_GATEWAY_IMAGE_TAG_DEFAULT="latest${ARCH_SUFFIX}"
   if [ "$IMAGE_SOURCE" = "local" ]; then
     DESIGNER_BACKEND_IMAGE_REPO_DEFAULT="aas-suite/aas-designer-backend-community"
     DESIGNER_BACKEND_IMAGE_TAG_DEFAULT="local"
@@ -194,6 +198,8 @@ main() {
     GATEWAY_IMAGE_TAG_DEFAULT="local"
     FRONTEND_IMAGE_REPO_DEFAULT="aas-suite/aas-designer-frontend-community"
     FRONTEND_IMAGE_TAG_DEFAULT="local"
+    DPP_GATEWAY_IMAGE_REPO_DEFAULT="aas-suite/aas-dpp-gateway"
+    DPP_GATEWAY_IMAGE_TAG_DEFAULT="local"
     warn "Lokale Images werden erwartet. Stelle sicher, dass die Images zuvor mit"
     warn "  bash tools/docker-compose-wizard/oss/build-local-images-oss.sh"
     warn "gebaut wurden."
@@ -208,6 +214,9 @@ main() {
 
   ask_required_with_default FRONTEND_IMAGE_REPO "frontend Image Repository" "$(state_default FRONTEND_IMAGE_REPO "$FRONTEND_IMAGE_REPO_DEFAULT")"
   ask_required_with_default FRONTEND_IMAGE_TAG "frontend Image Tag" "$(state_default FRONTEND_IMAGE_TAG "$FRONTEND_IMAGE_TAG_DEFAULT")"
+  ask_required_with_default DPP_GATEWAY_IMAGE_REPO "DPP-Gateway Image Repository" "$(state_default DPP_GATEWAY_IMAGE_REPO "$DPP_GATEWAY_IMAGE_REPO_DEFAULT")"
+  ask_required_with_default DPP_GATEWAY_IMAGE_TAG "DPP-Gateway Image Tag" "$(state_default DPP_GATEWAY_IMAGE_TAG "$DPP_GATEWAY_IMAGE_TAG_DEFAULT")"
+  ask_port DPP_GATEWAY_HOST_PORT "Öffentlicher DPP-Gateway Host-Port" "$(state_default DPP_GATEWAY_HOST_PORT "5090")"
   ask_required_with_default BASE_URL "Gateway / Basis-URL (extern)" "$(state_default BASE_URL "http://localhost:${GATEWAY_HOST_PORT}")"
   migrate_legacy_frontend_base_urls
   ask_with_default EXTERNAL_BASE_PATH "Externer Pfad-Präfix bei Reverse-Proxy (z.B. /aas_testing, leer = keiner)" "$(state_default EXTERNAL_BASE_PATH "")"
@@ -216,16 +225,18 @@ main() {
   ask_required_with_default POSTGRES_IMAGE_REPO "postgres Image Repository" "$(state_default POSTGRES_IMAGE_REPO "postgres")"
   ask_required_with_default POSTGRES_IMAGE_TAG "postgres Image Tag" "$(state_default POSTGRES_IMAGE_TAG "16-alpine")"
 
-  local POSTGRES_DB="${POSTGRES_DB-}" POSTGRES_USER="${POSTGRES_USER-}" POSTGRES_PASSWORD="${POSTGRES_PASSWORD-}" POSTGRES_VOLUME="${POSTGRES_VOLUME-}" BASYX_POSTGRES_DB="${BASYX_POSTGRES_DB-}" KEYCLOAK_POSTGRES_DB="${KEYCLOAK_POSTGRES_DB-}"
+  local POSTGRES_DB="${POSTGRES_DB-}" POSTGRES_USER="${POSTGRES_USER-}" POSTGRES_PASSWORD="${POSTGRES_PASSWORD-}" POSTGRES_VOLUME="${POSTGRES_VOLUME-}" BASYX_POSTGRES_DB="${BASYX_POSTGRES_DB-}" KEYCLOAK_POSTGRES_DB="${KEYCLOAK_POSTGRES_DB-}" DPP_GATEWAY_POSTGRES_DB="${DPP_GATEWAY_POSTGRES_DB-}"
   ask_required_with_default POSTGRES_DB "Postgres Datenbankname" "$(state_default POSTGRES_DB "aas_designer")"
   ask_required_with_default POSTGRES_USER "Postgres Benutzer" "$(state_default POSTGRES_USER "aas_user")"
   ask_required_with_default POSTGRES_PASSWORD "Postgres Passwort" "$(state_default POSTGRES_PASSWORD "")"
   ask_required_with_default POSTGRES_VOLUME "Postgres Volume-Name" "$(state_default POSTGRES_VOLUME "postgres-data")"
   ask_required_with_default BASYX_POSTGRES_DB "BaSyx Datenbankname (separate DB)" "$(state_default BASYX_POSTGRES_DB "basyx_core")"
   ask_required_with_default KEYCLOAK_POSTGRES_DB "Keycloak Datenbankname (separate DB)" "$(state_default KEYCLOAK_POSTGRES_DB "keycloak")"
+  ask_required_with_default DPP_GATEWAY_POSTGRES_DB "DPP-Gateway Datenbankname" "$(state_default DPP_GATEWAY_POSTGRES_DB "dpp_gateway")"
   is_db_identifier "$POSTGRES_DB" || die "POSTGRES_DB darf nur Buchstaben, Zahlen und _ enthalten"
   is_db_identifier "$BASYX_POSTGRES_DB" || die "BASYX_POSTGRES_DB darf nur Buchstaben, Zahlen und _ enthalten"
   is_db_identifier "$KEYCLOAK_POSTGRES_DB" || die "KEYCLOAK_POSTGRES_DB darf nur Buchstaben, Zahlen und _ enthalten"
+  is_db_identifier "$DPP_GATEWAY_POSTGRES_DB" || die "DPP_GATEWAY_POSTGRES_DB darf nur Buchstaben, Zahlen und _ enthalten"
 
   local KEYCLOAK_MODE="${KEYCLOAK_MODE-}"
   component_header "Keycloak"
@@ -480,18 +491,18 @@ main() {
     local AAS_REGISTRY_IMAGE_TAG_DEFAULT
     local SUBMODEL_REGISTRY_IMAGE_TAG_DEFAULT
     local AAS_DISCOVERY_IMAGE_TAG_DEFAULT
-    SUBMODEL_REPOSITORY_IMAGE_TAG_DEFAULT="$(state_default SUBMODEL_REPOSITORY_IMAGE_TAG "SNAPSHOT")"
-    CONCEPT_DESCRIPTION_REPOSITORY_IMAGE_TAG_DEFAULT="$(state_default CONCEPT_DESCRIPTION_REPOSITORY_IMAGE_TAG "SNAPSHOT")"
-    AAS_REGISTRY_IMAGE_TAG_DEFAULT="$(state_default AAS_REGISTRY_IMAGE_TAG "SNAPSHOT")"
-    SUBMODEL_REGISTRY_IMAGE_TAG_DEFAULT="$(state_default SUBMODEL_REGISTRY_IMAGE_TAG "SNAPSHOT")"
-    AAS_DISCOVERY_IMAGE_TAG_DEFAULT="$(state_default AAS_DISCOVERY_IMAGE_TAG "SNAPSHOT")"
+SUBMODEL_REPOSITORY_IMAGE_TAG_DEFAULT="$(state_default SUBMODEL_REPOSITORY_IMAGE_TAG "1.0.12")"
+    CONCEPT_DESCRIPTION_REPOSITORY_IMAGE_TAG_DEFAULT="$(state_default CONCEPT_DESCRIPTION_REPOSITORY_IMAGE_TAG "1.0.12")"
+    AAS_REGISTRY_IMAGE_TAG_DEFAULT="$(state_default AAS_REGISTRY_IMAGE_TAG "1.0.12")"
+    SUBMODEL_REGISTRY_IMAGE_TAG_DEFAULT="$(state_default SUBMODEL_REGISTRY_IMAGE_TAG "1.0.12")"
+    AAS_DISCOVERY_IMAGE_TAG_DEFAULT="$(state_default AAS_DISCOVERY_IMAGE_TAG "1.0.12")"
     BASYX_CONFIG_SERVICE_IMAGE_REPO="$(state_default BASYX_CONFIG_SERVICE_IMAGE_REPO "eclipsebasyx/basyxconfigurationservice-go")"
 
     ask_choice BASYX_EXPOSE_PORTS "BaSyx Ports auf Host mappen" "yes,no" "$(state_default BASYX_EXPOSE_PORTS "no")"
 
     component_header "BaSyx: aasrepository-go"
     ask_required_with_default AAS_REPOSITORY_IMAGE_REPO "aasrepository-go Image Repository" "$(state_default AAS_REPOSITORY_IMAGE_REPO "eclipsebasyx/aasrepository-go")"
-    ask_required_with_default AAS_REPOSITORY_IMAGE_TAG "aasrepository-go Image Tag" "$(state_default AAS_REPOSITORY_IMAGE_TAG "SNAPSHOT")"
+    ask_required_with_default AAS_REPOSITORY_IMAGE_TAG "aasrepository-go Image Tag" "$(state_default AAS_REPOSITORY_IMAGE_TAG "1.0.12")"
     if [ "$BASYX_EXPOSE_PORTS" = "yes" ]; then
       ask_port AAS_REPOSITORY_HOST_PORT "aasrepository-go Host-Port" "$(state_default AAS_REPOSITORY_HOST_PORT "5081")"
     fi
@@ -683,14 +694,23 @@ main() {
   if [ "$BASYX_MODE" = "install" ] && [ "$BASYX_EXPOSE_PORTS" = "yes" ]; then
     ports+=("$AAS_REPOSITORY_HOST_PORT" "$SUBMODEL_REPOSITORY_HOST_PORT" "$CONCEPT_DESCRIPTION_REPOSITORY_HOST_PORT" "$AAS_REGISTRY_HOST_PORT" "$SUBMODEL_REGISTRY_HOST_PORT" "$AAS_DISCOVERY_HOST_PORT")
   fi
+  if [ "$BASYX_MODE" = "install" ] && [ "$KEYCLOAK_MODE" = "install" ]; then ports+=("$DPP_GATEWAY_HOST_PORT"); fi
   assert_unique_ports "${ports[@]}"
 
   init_output_files "$COMPOSE_FILE" "$ENV_FILE"
+  mkdir -p "$(dirname "$COMPOSE_FILE")/plugins"
+  local repository_root="$(cd "${CURRENT_DIR}/../../.." && pwd)"
+  if [ -f "${repository_root}/plugins/dpp-explorer-plugin.zip" ]; then
+    cp "${repository_root}/plugins/dpp-explorer-plugin.zip" "$(dirname "$COMPOSE_FILE")/plugins/"
+  elif [ -f "${SCRIPT_DIR}/../plugins/dpp-explorer-plugin.zip" ]; then
+    cp "${SCRIPT_DIR}/../plugins/dpp-explorer-plugin.zip" "$(dirname "$COMPOSE_FILE")/plugins/"
+  fi
   if [ "$KEYCLOAK_MODE" = "install" ]; then
     prepare_keycloak_assets "$COMPOSE_FILE" "$resolved_keycloak_realm_file" "$resolved_keycloak_themes_path" "$PUBLIC_GATEWAY_URL"
   fi
   if [ "$BASYX_MODE" = "install" ]; then
     prepare_security_env_assets "$COMPOSE_FILE"
+    if [ "$KEYCLOAK_MODE" = "install" ]; then prepare_dpp_assets "$COMPOSE_FILE"; fi
   fi
 
   write_env "$ENV_FILE" "PROJECT_NAME" "$PROJECT_NAME"
@@ -704,6 +724,17 @@ main() {
   write_env "$ENV_FILE" "EXTERNAL_BASE_PATH" "$EXTERNAL_BASE_PATH"
   write_env "$ENV_FILE" "FRONTEND_API_BASE_URL" "$FRONTEND_API_BASE_URL"
   write_env "$ENV_FILE" "FRONTEND_FEEDMAPPING_BASE_URL" "$FRONTEND_FEEDMAPPING_BASE_URL"
+  write_env "$ENV_FILE" "FRONTEND_THEME" "$(state_default FRONTEND_THEME "")"
+  write_env "$ENV_FILE" "APP_JWT_ISSUER" "$(state_default APP_JWT_ISSUER "vws-portal")"
+  write_env "$ENV_FILE" "APP_JWT_SALT" "$(state_default APP_JWT_SALT "ja1nnNyDKoiTYu3LaBQ/9A==")"
+  write_env "$ENV_FILE" "APP_JWT_SECRET" "$(state_default APP_JWT_SECRET "wik3RnSNPAPt85PFs9FZSQksdoughzfoafdt879uiaodfnbiezv79si90dpoawlcv")"
+  write_env "$ENV_FILE" "PLUGINS_ENABLED" "$(state_default PLUGINS_ENABLED "true")"
+  write_env "$ENV_FILE" "PLUGINS_DIRECTORY" "$(state_default PLUGINS_DIRECTORY "./plugins")"
+  write_env "$ENV_FILE" "KEYCLOAK_SSO_SOURCE_NAME" "$(state_default KEYCLOAK_SSO_SOURCE_NAME "keycloak")"
+  write_env "$ENV_FILE" "KEYCLOAK_EMAIL_CLAIM_NAME" "$(state_default KEYCLOAK_EMAIL_CLAIM_NAME "email")"
+  write_env "$ENV_FILE" "KEYCLOAK_FIRST_NAME_CLAIM_NAME" "$(state_default KEYCLOAK_FIRST_NAME_CLAIM_NAME "given_name")"
+  write_env "$ENV_FILE" "KEYCLOAK_LAST_NAME_CLAIM_NAME" "$(state_default KEYCLOAK_LAST_NAME_CLAIM_NAME "family_name")"
+  write_env "$ENV_FILE" "BASYX_CONFIG_SERVICE_IMAGE_REPO" "$(state_default BASYX_CONFIG_SERVICE_IMAGE_REPO "eclipsebasyx/aasregistry-go")"
   write_env "$ENV_FILE" "POSTGRES_IMAGE_REPO" "$POSTGRES_IMAGE_REPO"
   write_env "$ENV_FILE" "POSTGRES_IMAGE_TAG" "$POSTGRES_IMAGE_TAG"
   write_env "$ENV_FILE" "POSTGRES_DB" "$POSTGRES_DB"
@@ -711,6 +742,14 @@ main() {
   write_env "$ENV_FILE" "POSTGRES_PASSWORD" "$POSTGRES_PASSWORD"
   write_env "$ENV_FILE" "BASYX_POSTGRES_DB" "$BASYX_POSTGRES_DB"
   write_env "$ENV_FILE" "KEYCLOAK_POSTGRES_DB" "$KEYCLOAK_POSTGRES_DB"
+  write_env "$ENV_FILE" "DPP_GATEWAY_POSTGRES_DB" "$DPP_GATEWAY_POSTGRES_DB"
+  write_env "$ENV_FILE" "DPP_GATEWAY_IMAGE_REPO" "$DPP_GATEWAY_IMAGE_REPO"
+  write_env "$ENV_FILE" "DPP_GATEWAY_IMAGE_TAG" "$DPP_GATEWAY_IMAGE_TAG"
+  write_env "$ENV_FILE" "DPP_GATEWAY_HOST_PORT" "$DPP_GATEWAY_HOST_PORT"
+  write_env "$ENV_FILE" "DPP_API_IMAGE_REPO" "eclipsebasyx/dppapi-go"
+  write_env "$ENV_FILE" "DPP_API_IMAGE_TAG" "1.0.12"
+  write_env "$ENV_FILE" "DPP_GATEWAY_CLIENT_SECRET" "$(state_default DPP_GATEWAY_CLIENT_SECRET "$(openssl rand -hex 32)")"
+  write_env "$ENV_FILE" "DPP_POLICY_ADMIN_CLIENT_SECRET" "$(state_default DPP_POLICY_ADMIN_CLIENT_SECRET "$(openssl rand -hex 32)")"
   write_env "$ENV_FILE" "MARKT_POSTGRES_DB" ""
   write_env "$ENV_FILE" "KEYCLOAK_MODE" "$KEYCLOAK_MODE"
 
@@ -920,7 +959,9 @@ main() {
   append_gateway_service "$COMPOSE_FILE" "$NETWORK_NAME" "$GATEWAY_HOST_PORT" "$GATEWAY_CONTAINER_PORT" "$KEYCLOAK_CLUSTER_URL" "http://aas-designer-community:${DESIGNER_BACKEND_CONTAINER_PORT}" "http://frontend:${FRONTEND_CONTAINER_PORT}" "false" "false" "$KEYCLOAK_MODE" "aas-designer-community" "" "" "/login" "$EXTERNAL_BASE_PATH"
 
   append_service_separator "$COMPOSE_FILE"
-  append_designer_backend_service "$COMPOSE_FILE" "$NETWORK_NAME" "$DESIGNER_BACKEND_CONTAINER_PORT" "$GATEWAY_CONTAINER_PORT" "$KEYCLOAK_MODE" "aas-designer-community"
+  local include_dpp="false"
+  if [ "$BASYX_MODE" = "install" ] && [ "$KEYCLOAK_MODE" = "install" ]; then include_dpp="true"; fi
+  append_designer_backend_service "$COMPOSE_FILE" "$NETWORK_NAME" "$DESIGNER_BACKEND_CONTAINER_PORT" "$GATEWAY_CONTAINER_PORT" "$KEYCLOAK_MODE" "aas-designer-community" "false" "$include_dpp"
 
   append_service_separator "$COMPOSE_FILE"
   append_frontend_service "$COMPOSE_FILE" "$NETWORK_NAME" "$FRONTEND_CONTAINER_PORT" "aas-designer-community" "$EXTERNAL_BASE_PATH"
@@ -928,10 +969,14 @@ main() {
   if [ "$BASYX_MODE" = "install" ]; then
     append_service_separator "$COMPOSE_FILE"
     append_basyx_internal_services "$COMPOSE_FILE" "$NETWORK_NAME" "$BASYX_EXPOSE_PORTS"
+    if [ "$include_dpp" = "true" ]; then
+      append_service_separator "$COMPOSE_FILE"
+      append_dpp_services "$COMPOSE_FILE" "$NETWORK_NAME"
+    fi
   fi
 
   append_networks_block "$COMPOSE_FILE" "$NETWORK_NAME"
-  append_volumes_block "$COMPOSE_FILE" "$POSTGRES_VOLUME"
+  append_volumes_block "$COMPOSE_FILE" "$POSTGRES_VOLUME" "true"
 
   local RUN_CONFIG_CHECK RUN_STACK_START
   component_header "Startoptionen"

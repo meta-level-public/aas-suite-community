@@ -37,6 +37,11 @@ interface AvailableInfrastructure {
   smRepositoryUrl: string;
 }
 
+export interface ConfigHistoryEntry {
+  version: number;
+  savedAtUtc: string;
+}
+
 export interface TemplateMappingValidationResult {
   mappingWarnings: Record<number, string[]>;
   mappingSuccesses: Record<number, string>;
@@ -169,6 +174,26 @@ export class ConfigApiService {
       dataEnginePath: string;
       dppPluginPath: string;
     }>(`${this.baseUrl}/api/config/export`, {});
+  }
+  recreateDataEngine(): Observable<{
+    recreated: boolean;
+    containerId: string;
+    containerName: string;
+  }> {
+    return this.http.post<{
+      recreated: boolean;
+      containerId: string;
+      containerName: string;
+    }>(`${this.baseUrl}/api/config/recreate-dataengine`, {});
+  }
+  getConfigHistory(): Observable<ConfigHistoryEntry[]> {
+    return this.http.get<ConfigHistoryEntry[]>(`${this.baseUrl}/api/config/history`);
+  }
+  getConfigHistoryVersion(version: number): Observable<TwinEngineConfig> {
+    return this.http.get<TwinEngineConfig>(`${this.baseUrl}/api/config/history/${version}`);
+  }
+  getConfigDefaults(): Observable<TwinEngineConfig> {
+    return this.http.get<TwinEngineConfig>(`${this.baseUrl}/api/config/defaults`);
   }
 
   private base64UrlEncode(value: string): string {

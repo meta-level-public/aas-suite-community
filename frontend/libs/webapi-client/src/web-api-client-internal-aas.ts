@@ -28,6 +28,10 @@ export interface IAasInfrastructureClient {
   aasInfrastructure_UpdateInternalInfrastructure(settings: AasInfrastructureSettingsDto): Observable<boolean>;
   aasInfrastructure_GetAvailableBasyxVersions(): Observable<AvailableBasyxVersions>;
   aasInfrastructure_GetStatusList(): Observable<InfrastructureStatus[]>;
+  aasInfrastructure_EnsureDppApi(infrastructureId: number | undefined): Observable<EnsureDppApiResult>;
+  aasInfrastructure_EnsureDppApiForAll(): Observable<EnsureDppApiResult>;
+  aasInfrastructure_GetDppAccessPolicy(infrastructureId: number | undefined): Observable<DppAccessPolicyDto>;
+  aasInfrastructure_UpdateDppAccessPolicy(policy: DppAccessPolicyDto): Observable<DppAccessPolicyDto>;
   aasInfrastructure_ConfigureAndRecreateContainer(data: RecreateContainerData): Observable<boolean>;
   aasInfrastructure_ConfigureAndRecreateContainerBulk(data: RecreateContainerData[]): Observable<boolean>;
   aasInfrastructure_StartContainer(containerName: string | undefined): Observable<boolean>;
@@ -883,6 +887,280 @@ export class AasInfrastructureClient implements IAasInfrastructureClient {
           } else {
             result200 = <any>null;
           }
+          return _observableOf(result200);
+        }),
+      );
+    } else if (status !== 200 && status !== 204) {
+      return blobToText(responseBlob).pipe(
+        _observableMergeMap((_responseText: string) => {
+          return throwException('An unexpected server error occurred.', status, _responseText, _headers);
+        }),
+      );
+    }
+    return _observableOf(null as any);
+  }
+
+  aasInfrastructure_EnsureDppApi(infrastructureId: number | undefined): Observable<EnsureDppApiResult> {
+    let url_ = this.baseUrl + '/aas-api/AasInfrastructure/EnsureDppApi?';
+    if (infrastructureId === null) throw new Error("The parameter 'infrastructureId' cannot be null.");
+    else if (infrastructureId !== undefined)
+      url_ += 'infrastructureId=' + encodeURIComponent('' + infrastructureId) + '&';
+    url_ = url_.replace(/[?&]$/, '');
+
+    let options_: any = {
+      observe: 'response',
+      responseType: 'blob',
+      headers: new HttpHeaders({
+        Accept: 'application/json',
+      }),
+    };
+
+    return this.http
+      .request('post', url_, options_)
+      .pipe(
+        _observableMergeMap((response_: any) => {
+          return this.processAasInfrastructure_EnsureDppApi(response_);
+        }),
+      )
+      .pipe(
+        _observableCatch((response_: any) => {
+          if (response_ instanceof HttpResponseBase) {
+            try {
+              return this.processAasInfrastructure_EnsureDppApi(response_ as any);
+            } catch (e) {
+              return _observableThrow(e) as any as Observable<EnsureDppApiResult>;
+            }
+          } else return _observableThrow(response_) as any as Observable<EnsureDppApiResult>;
+        }),
+      );
+  }
+
+  protected processAasInfrastructure_EnsureDppApi(response: HttpResponseBase): Observable<EnsureDppApiResult> {
+    const status = response.status;
+    const responseBlob =
+      response instanceof HttpResponse
+        ? response.body
+        : (response as any).error instanceof Blob
+          ? (response as any).error
+          : undefined;
+
+    let _headers: any = {};
+    if (response.headers) {
+      for (let key of response.headers.keys()) {
+        _headers[key] = response.headers.get(key);
+      }
+    }
+    if (status === 200) {
+      return blobToText(responseBlob).pipe(
+        _observableMergeMap((_responseText: string) => {
+          let result200: any = null;
+          let resultData200 = _responseText === '' ? null : JSON.parse(_responseText, this.jsonParseReviver);
+          result200 = EnsureDppApiResult.fromJS(resultData200);
+          return _observableOf(result200);
+        }),
+      );
+    } else if (status !== 200 && status !== 204) {
+      return blobToText(responseBlob).pipe(
+        _observableMergeMap((_responseText: string) => {
+          return throwException('An unexpected server error occurred.', status, _responseText, _headers);
+        }),
+      );
+    }
+    return _observableOf(null as any);
+  }
+
+  aasInfrastructure_EnsureDppApiForAll(): Observable<EnsureDppApiResult> {
+    let url_ = this.baseUrl + '/aas-api/AasInfrastructure/EnsureDppApiForAll';
+    url_ = url_.replace(/[?&]$/, '');
+
+    let options_: any = {
+      observe: 'response',
+      responseType: 'blob',
+      headers: new HttpHeaders({
+        Accept: 'application/json',
+      }),
+    };
+
+    return this.http
+      .request('post', url_, options_)
+      .pipe(
+        _observableMergeMap((response_: any) => {
+          return this.processAasInfrastructure_EnsureDppApiForAll(response_);
+        }),
+      )
+      .pipe(
+        _observableCatch((response_: any) => {
+          if (response_ instanceof HttpResponseBase) {
+            try {
+              return this.processAasInfrastructure_EnsureDppApiForAll(response_ as any);
+            } catch (e) {
+              return _observableThrow(e) as any as Observable<EnsureDppApiResult>;
+            }
+          } else return _observableThrow(response_) as any as Observable<EnsureDppApiResult>;
+        }),
+      );
+  }
+
+  protected processAasInfrastructure_EnsureDppApiForAll(response: HttpResponseBase): Observable<EnsureDppApiResult> {
+    const status = response.status;
+    const responseBlob =
+      response instanceof HttpResponse
+        ? response.body
+        : (response as any).error instanceof Blob
+          ? (response as any).error
+          : undefined;
+
+    let _headers: any = {};
+    if (response.headers) {
+      for (let key of response.headers.keys()) {
+        _headers[key] = response.headers.get(key);
+      }
+    }
+    if (status === 200) {
+      return blobToText(responseBlob).pipe(
+        _observableMergeMap((_responseText: string) => {
+          let result200: any = null;
+          let resultData200 = _responseText === '' ? null : JSON.parse(_responseText, this.jsonParseReviver);
+          result200 = EnsureDppApiResult.fromJS(resultData200);
+          return _observableOf(result200);
+        }),
+      );
+    } else if (status !== 200 && status !== 204) {
+      return blobToText(responseBlob).pipe(
+        _observableMergeMap((_responseText: string) => {
+          return throwException('An unexpected server error occurred.', status, _responseText, _headers);
+        }),
+      );
+    }
+    return _observableOf(null as any);
+  }
+
+  aasInfrastructure_GetDppAccessPolicy(infrastructureId: number | undefined): Observable<DppAccessPolicyDto> {
+    let url_ = this.baseUrl + '/aas-api/AasInfrastructure/GetDppAccessPolicy?';
+    if (infrastructureId === null) throw new Error("The parameter 'infrastructureId' cannot be null.");
+    else if (infrastructureId !== undefined)
+      url_ += 'infrastructureId=' + encodeURIComponent('' + infrastructureId) + '&';
+    url_ = url_.replace(/[?&]$/, '');
+
+    let options_: any = {
+      observe: 'response',
+      responseType: 'blob',
+      headers: new HttpHeaders({
+        Accept: 'application/json',
+      }),
+    };
+
+    return this.http
+      .request('get', url_, options_)
+      .pipe(
+        _observableMergeMap((response_: any) => {
+          return this.processAasInfrastructure_GetDppAccessPolicy(response_);
+        }),
+      )
+      .pipe(
+        _observableCatch((response_: any) => {
+          if (response_ instanceof HttpResponseBase) {
+            try {
+              return this.processAasInfrastructure_GetDppAccessPolicy(response_ as any);
+            } catch (e) {
+              return _observableThrow(e) as any as Observable<DppAccessPolicyDto>;
+            }
+          } else return _observableThrow(response_) as any as Observable<DppAccessPolicyDto>;
+        }),
+      );
+  }
+
+  protected processAasInfrastructure_GetDppAccessPolicy(response: HttpResponseBase): Observable<DppAccessPolicyDto> {
+    const status = response.status;
+    const responseBlob =
+      response instanceof HttpResponse
+        ? response.body
+        : (response as any).error instanceof Blob
+          ? (response as any).error
+          : undefined;
+
+    let _headers: any = {};
+    if (response.headers) {
+      for (let key of response.headers.keys()) {
+        _headers[key] = response.headers.get(key);
+      }
+    }
+    if (status === 200) {
+      return blobToText(responseBlob).pipe(
+        _observableMergeMap((_responseText: string) => {
+          let result200: any = null;
+          let resultData200 = _responseText === '' ? null : JSON.parse(_responseText, this.jsonParseReviver);
+          result200 = DppAccessPolicyDto.fromJS(resultData200);
+          return _observableOf(result200);
+        }),
+      );
+    } else if (status !== 200 && status !== 204) {
+      return blobToText(responseBlob).pipe(
+        _observableMergeMap((_responseText: string) => {
+          return throwException('An unexpected server error occurred.', status, _responseText, _headers);
+        }),
+      );
+    }
+    return _observableOf(null as any);
+  }
+
+  aasInfrastructure_UpdateDppAccessPolicy(policy: DppAccessPolicyDto): Observable<DppAccessPolicyDto> {
+    let url_ = this.baseUrl + '/aas-api/AasInfrastructure/UpdateDppAccessPolicy';
+    url_ = url_.replace(/[?&]$/, '');
+
+    const content_ = JSON.stringify(policy);
+
+    let options_: any = {
+      body: content_,
+      observe: 'response',
+      responseType: 'blob',
+      headers: new HttpHeaders({
+        'Content-Type': 'application/json',
+        Accept: 'application/json',
+      }),
+    };
+
+    return this.http
+      .request('put', url_, options_)
+      .pipe(
+        _observableMergeMap((response_: any) => {
+          return this.processAasInfrastructure_UpdateDppAccessPolicy(response_);
+        }),
+      )
+      .pipe(
+        _observableCatch((response_: any) => {
+          if (response_ instanceof HttpResponseBase) {
+            try {
+              return this.processAasInfrastructure_UpdateDppAccessPolicy(response_ as any);
+            } catch (e) {
+              return _observableThrow(e) as any as Observable<DppAccessPolicyDto>;
+            }
+          } else return _observableThrow(response_) as any as Observable<DppAccessPolicyDto>;
+        }),
+      );
+  }
+
+  protected processAasInfrastructure_UpdateDppAccessPolicy(response: HttpResponseBase): Observable<DppAccessPolicyDto> {
+    const status = response.status;
+    const responseBlob =
+      response instanceof HttpResponse
+        ? response.body
+        : (response as any).error instanceof Blob
+          ? (response as any).error
+          : undefined;
+
+    let _headers: any = {};
+    if (response.headers) {
+      for (let key of response.headers.keys()) {
+        _headers[key] = response.headers.get(key);
+      }
+    }
+    if (status === 200) {
+      return blobToText(responseBlob).pipe(
+        _observableMergeMap((_responseText: string) => {
+          let result200: any = null;
+          let resultData200 = _responseText === '' ? null : JSON.parse(_responseText, this.jsonParseReviver);
+          result200 = DppAccessPolicyDto.fromJS(resultData200);
           return _observableOf(result200);
         }),
       );
@@ -11900,6 +12178,7 @@ export class AvailableInfastructure implements IAvailableInfastructure {
   aasRegistryUrl?: string;
   smRegistryUrl?: string;
   cdRepositoryUrl?: string;
+  dppApiUrl?: string;
 
   constructor(data?: IAvailableInfastructure) {
     if (data) {
@@ -11923,6 +12202,7 @@ export class AvailableInfastructure implements IAvailableInfastructure {
       this.aasRegistryUrl = _data['aasRegistryUrl'];
       this.smRegistryUrl = _data['smRegistryUrl'];
       this.cdRepositoryUrl = _data['cdRepositoryUrl'];
+      this.dppApiUrl = _data['dppApiUrl'];
     }
   }
 
@@ -11947,6 +12227,7 @@ export class AvailableInfastructure implements IAvailableInfastructure {
     data['aasRegistryUrl'] = this.aasRegistryUrl;
     data['smRegistryUrl'] = this.smRegistryUrl;
     data['cdRepositoryUrl'] = this.cdRepositoryUrl;
+    data['dppApiUrl'] = this.dppApiUrl;
     return data;
   }
 }
@@ -11964,6 +12245,7 @@ export interface IAvailableInfastructure {
   aasRegistryUrl?: string;
   smRegistryUrl?: string;
   cdRepositoryUrl?: string;
+  dppApiUrl?: string;
 }
 
 export class AasInfrastructureSettingsDto implements IAasInfrastructureSettingsDto {
@@ -12001,6 +12283,10 @@ export class AasInfrastructureSettingsDto implements IAasInfrastructureSettingsD
   conceptDescriptionRepositoryVersion?: string;
   conceptDescriptionRepositoryHcUrl?: string;
   conceptDescriptionRepositoryHcEnabled?: boolean;
+  dppApiUrl?: string;
+  dppApiVersion?: string;
+  dppApiHcUrl?: string;
+  dppApiHcEnabled?: boolean;
   headerParameters?: HeaderParameter[];
   certificate?: string | undefined;
   certificatePassword?: string;
@@ -12093,6 +12379,10 @@ export class AasInfrastructureSettingsDto implements IAasInfrastructureSettingsD
       this.conceptDescriptionRepositoryVersion = _data['conceptDescriptionRepositoryVersion'];
       this.conceptDescriptionRepositoryHcUrl = _data['conceptDescriptionRepositoryHcUrl'];
       this.conceptDescriptionRepositoryHcEnabled = _data['conceptDescriptionRepositoryHcEnabled'];
+      this.dppApiUrl = _data['dppApiUrl'];
+      this.dppApiVersion = _data['dppApiVersion'];
+      this.dppApiHcUrl = _data['dppApiHcUrl'];
+      this.dppApiHcEnabled = _data['dppApiHcEnabled'];
       if (Array.isArray(_data['headerParameters'])) {
         this.headerParameters = [] as any;
         for (let item of _data['headerParameters']) this.headerParameters!.push(HeaderParameter.fromJS(item));
@@ -12189,6 +12479,10 @@ export class AasInfrastructureSettingsDto implements IAasInfrastructureSettingsD
     data['conceptDescriptionRepositoryVersion'] = this.conceptDescriptionRepositoryVersion;
     data['conceptDescriptionRepositoryHcUrl'] = this.conceptDescriptionRepositoryHcUrl;
     data['conceptDescriptionRepositoryHcEnabled'] = this.conceptDescriptionRepositoryHcEnabled;
+    data['dppApiUrl'] = this.dppApiUrl;
+    data['dppApiVersion'] = this.dppApiVersion;
+    data['dppApiHcUrl'] = this.dppApiHcUrl;
+    data['dppApiHcEnabled'] = this.dppApiHcEnabled;
     if (Array.isArray(this.headerParameters)) {
       data['headerParameters'] = [];
       for (let item of this.headerParameters) data['headerParameters'].push(item.toJSON());
@@ -12278,6 +12572,10 @@ export interface IAasInfrastructureSettingsDto {
   conceptDescriptionRepositoryVersion?: string;
   conceptDescriptionRepositoryHcUrl?: string;
   conceptDescriptionRepositoryHcEnabled?: boolean;
+  dppApiUrl?: string;
+  dppApiVersion?: string;
+  dppApiHcUrl?: string;
+  dppApiHcEnabled?: boolean;
   headerParameters?: HeaderParameter[];
   certificate?: string | undefined;
   certificatePassword?: string;
@@ -12519,6 +12817,7 @@ export interface IVersionEntry {
 export class InfrastructureStatus implements IInfrastructureStatus {
   infrastructureId?: number;
   infrastructureName?: string;
+  infrastructureGuid?: string;
   aasEnvPort?: number;
   aasEnvStatus?: ContainerStatus;
   aasRegistryPort?: number;
@@ -12529,6 +12828,7 @@ export class InfrastructureStatus implements IInfrastructureStatus {
   discoveryStatus?: ContainerStatus;
   mongoStatus?: ContainerStatus;
   mqttStatus?: ContainerStatus;
+  dppApiStatus?: ContainerStatus;
   mqttPort?: number;
   isActive?: boolean;
   aasEnvContainerName?: string;
@@ -12537,6 +12837,8 @@ export class InfrastructureStatus implements IInfrastructureStatus {
   discoveryContainerName?: string;
   smRegistryContainerName?: string;
   aasRegistryContainerName?: string;
+  dppApiContainerName?: string;
+  dppApiConfigured?: boolean;
   orgaName?: string;
   orgaId?: number;
   mongoMaxMem?: number;
@@ -12584,6 +12886,7 @@ export class InfrastructureStatus implements IInfrastructureStatus {
     if (_data) {
       this.infrastructureId = _data['infrastructureId'];
       this.infrastructureName = _data['infrastructureName'];
+      this.infrastructureGuid = _data['infrastructureGuid'];
       this.aasEnvPort = _data['aasEnvPort'];
       this.aasEnvStatus = _data['aasEnvStatus'];
       this.aasRegistryPort = _data['aasRegistryPort'];
@@ -12594,6 +12897,7 @@ export class InfrastructureStatus implements IInfrastructureStatus {
       this.discoveryStatus = _data['discoveryStatus'];
       this.mongoStatus = _data['mongoStatus'];
       this.mqttStatus = _data['mqttStatus'];
+      this.dppApiStatus = _data['dppApiStatus'];
       this.mqttPort = _data['mqttPort'];
       this.isActive = _data['isActive'];
       this.aasEnvContainerName = _data['aasEnvContainerName'];
@@ -12602,6 +12906,8 @@ export class InfrastructureStatus implements IInfrastructureStatus {
       this.discoveryContainerName = _data['discoveryContainerName'];
       this.smRegistryContainerName = _data['smRegistryContainerName'];
       this.aasRegistryContainerName = _data['aasRegistryContainerName'];
+      this.dppApiContainerName = _data['dppApiContainerName'];
+      this.dppApiConfigured = _data['dppApiConfigured'];
       this.orgaName = _data['orgaName'];
       this.orgaId = _data['orgaId'];
       this.mongoMaxMem = _data['mongoMaxMem'];
@@ -12650,6 +12956,7 @@ export class InfrastructureStatus implements IInfrastructureStatus {
     data = typeof data === 'object' ? data : {};
     data['infrastructureId'] = this.infrastructureId;
     data['infrastructureName'] = this.infrastructureName;
+    data['infrastructureGuid'] = this.infrastructureGuid;
     data['aasEnvPort'] = this.aasEnvPort;
     data['aasEnvStatus'] = this.aasEnvStatus;
     data['aasRegistryPort'] = this.aasRegistryPort;
@@ -12660,6 +12967,7 @@ export class InfrastructureStatus implements IInfrastructureStatus {
     data['discoveryStatus'] = this.discoveryStatus;
     data['mongoStatus'] = this.mongoStatus;
     data['mqttStatus'] = this.mqttStatus;
+    data['dppApiStatus'] = this.dppApiStatus;
     data['mqttPort'] = this.mqttPort;
     data['isActive'] = this.isActive;
     data['aasEnvContainerName'] = this.aasEnvContainerName;
@@ -12668,6 +12976,8 @@ export class InfrastructureStatus implements IInfrastructureStatus {
     data['discoveryContainerName'] = this.discoveryContainerName;
     data['smRegistryContainerName'] = this.smRegistryContainerName;
     data['aasRegistryContainerName'] = this.aasRegistryContainerName;
+    data['dppApiContainerName'] = this.dppApiContainerName;
+    data['dppApiConfigured'] = this.dppApiConfigured;
     data['orgaName'] = this.orgaName;
     data['orgaId'] = this.orgaId;
     data['mongoMaxMem'] = this.mongoMaxMem;
@@ -12709,6 +13019,7 @@ export class InfrastructureStatus implements IInfrastructureStatus {
 export interface IInfrastructureStatus {
   infrastructureId?: number;
   infrastructureName?: string;
+  infrastructureGuid?: string;
   aasEnvPort?: number;
   aasEnvStatus?: ContainerStatus;
   aasRegistryPort?: number;
@@ -12719,6 +13030,7 @@ export interface IInfrastructureStatus {
   discoveryStatus?: ContainerStatus;
   mongoStatus?: ContainerStatus;
   mqttStatus?: ContainerStatus;
+  dppApiStatus?: ContainerStatus;
   mqttPort?: number;
   isActive?: boolean;
   aasEnvContainerName?: string;
@@ -12727,6 +13039,8 @@ export interface IInfrastructureStatus {
   discoveryContainerName?: string;
   smRegistryContainerName?: string;
   aasRegistryContainerName?: string;
+  dppApiContainerName?: string;
+  dppApiConfigured?: boolean;
   orgaName?: string;
   orgaId?: number;
   mongoMaxMem?: number;
@@ -12769,6 +13083,238 @@ export enum ContainerStatus {
   Unknown = 2,
   Running = 3,
   Exited = 4,
+}
+
+export class EnsureDppApiResult implements IEnsureDppApiResult {
+  queued?: number;
+  skipped?: number;
+
+  constructor(data?: IEnsureDppApiResult) {
+    if (data) {
+      for (var property in data) {
+        if (data.hasOwnProperty(property)) (<any>this)[property] = (<any>data)[property];
+      }
+    }
+  }
+
+  init(_data?: any) {
+    if (_data) {
+      this.queued = _data['queued'];
+      this.skipped = _data['skipped'];
+    }
+  }
+
+  static fromJS(data: any): EnsureDppApiResult {
+    data = typeof data === 'object' ? data : {};
+    let result = new EnsureDppApiResult();
+    result.init(data);
+    return result;
+  }
+
+  toJSON(data?: any) {
+    data = typeof data === 'object' ? data : {};
+    data['queued'] = this.queued;
+    data['skipped'] = this.skipped;
+    return data;
+  }
+}
+
+export interface IEnsureDppApiResult {
+  queued?: number;
+  skipped?: number;
+}
+
+export class DppAccessPolicyDto implements IDppAccessPolicyDto {
+  infrastructureId?: number;
+  profile?: string;
+  rawPolicyJson?: string | undefined;
+  rules?: DppAccessRuleDto[];
+
+  constructor(data?: IDppAccessPolicyDto) {
+    if (data) {
+      for (var property in data) {
+        if (data.hasOwnProperty(property)) (<any>this)[property] = (<any>data)[property];
+      }
+    }
+  }
+
+  init(_data?: any) {
+    if (_data) {
+      this.infrastructureId = _data['infrastructureId'];
+      this.profile = _data['profile'];
+      this.rawPolicyJson = _data['rawPolicyJson'];
+      if (Array.isArray(_data['rules'])) {
+        this.rules = [] as any;
+        for (let item of _data['rules']) this.rules!.push(DppAccessRuleDto.fromJS(item));
+      }
+    }
+  }
+
+  static fromJS(data: any): DppAccessPolicyDto {
+    data = typeof data === 'object' ? data : {};
+    let result = new DppAccessPolicyDto();
+    result.init(data);
+    return result;
+  }
+
+  toJSON(data?: any) {
+    data = typeof data === 'object' ? data : {};
+    data['infrastructureId'] = this.infrastructureId;
+    data['profile'] = this.profile;
+    data['rawPolicyJson'] = this.rawPolicyJson;
+    if (Array.isArray(this.rules)) {
+      data['rules'] = [];
+      for (let item of this.rules) data['rules'].push(item.toJSON());
+    }
+    return data;
+  }
+}
+
+export interface IDppAccessPolicyDto {
+  infrastructureId?: number;
+  profile?: string;
+  rawPolicyJson?: string | undefined;
+  rules?: DppAccessRuleDto[];
+}
+
+export class DppAccessRuleDto implements IDppAccessRuleDto {
+  name?: string;
+  role?: string;
+  enabled?: boolean;
+  dppScope?: string;
+  dppIds?: string[];
+  conditionCombination?: string;
+  dppConditions?: DppFieldConditionDto[];
+  visibleSemanticIds?: string[];
+  getById?: boolean;
+  getByProductId?: boolean;
+  getByIdAndDate?: boolean;
+  getByProductIds?: boolean;
+
+  constructor(data?: IDppAccessRuleDto) {
+    if (data) {
+      for (var property in data) {
+        if (data.hasOwnProperty(property)) (<any>this)[property] = (<any>data)[property];
+      }
+    }
+  }
+
+  init(_data?: any) {
+    if (_data) {
+      this.name = _data['name'];
+      this.role = _data['role'];
+      this.enabled = _data['enabled'];
+      this.dppScope = _data['dppScope'];
+      if (Array.isArray(_data['dppIds'])) {
+        this.dppIds = [] as any;
+        for (let item of _data['dppIds']) this.dppIds!.push(item);
+      }
+      this.conditionCombination = _data['conditionCombination'];
+      if (Array.isArray(_data['dppConditions'])) {
+        this.dppConditions = [] as any;
+        for (let item of _data['dppConditions']) this.dppConditions!.push(DppFieldConditionDto.fromJS(item));
+      }
+      if (Array.isArray(_data['visibleSemanticIds'])) {
+        this.visibleSemanticIds = [] as any;
+        for (let item of _data['visibleSemanticIds']) this.visibleSemanticIds!.push(item);
+      }
+      this.getById = _data['getById'];
+      this.getByProductId = _data['getByProductId'];
+      this.getByIdAndDate = _data['getByIdAndDate'];
+      this.getByProductIds = _data['getByProductIds'];
+    }
+  }
+
+  static fromJS(data: any): DppAccessRuleDto {
+    data = typeof data === 'object' ? data : {};
+    let result = new DppAccessRuleDto();
+    result.init(data);
+    return result;
+  }
+
+  toJSON(data?: any) {
+    data = typeof data === 'object' ? data : {};
+    data['name'] = this.name;
+    data['role'] = this.role;
+    data['enabled'] = this.enabled;
+    data['dppScope'] = this.dppScope;
+    if (Array.isArray(this.dppIds)) {
+      data['dppIds'] = [];
+      for (let item of this.dppIds) data['dppIds'].push(item);
+    }
+    data['conditionCombination'] = this.conditionCombination;
+    if (Array.isArray(this.dppConditions)) {
+      data['dppConditions'] = [];
+      for (let item of this.dppConditions) data['dppConditions'].push(item.toJSON());
+    }
+    if (Array.isArray(this.visibleSemanticIds)) {
+      data['visibleSemanticIds'] = [];
+      for (let item of this.visibleSemanticIds) data['visibleSemanticIds'].push(item);
+    }
+    data['getById'] = this.getById;
+    data['getByProductId'] = this.getByProductId;
+    data['getByIdAndDate'] = this.getByIdAndDate;
+    data['getByProductIds'] = this.getByProductIds;
+    return data;
+  }
+}
+
+export interface IDppAccessRuleDto {
+  name?: string;
+  role?: string;
+  enabled?: boolean;
+  dppScope?: string;
+  dppIds?: string[];
+  conditionCombination?: string;
+  dppConditions?: DppFieldConditionDto[];
+  visibleSemanticIds?: string[];
+  getById?: boolean;
+  getByProductId?: boolean;
+  getByIdAndDate?: boolean;
+  getByProductIds?: boolean;
+}
+
+export class DppFieldConditionDto implements IDppFieldConditionDto {
+  field?: string;
+  operator?: string;
+  value?: string;
+
+  constructor(data?: IDppFieldConditionDto) {
+    if (data) {
+      for (var property in data) {
+        if (data.hasOwnProperty(property)) (<any>this)[property] = (<any>data)[property];
+      }
+    }
+  }
+
+  init(_data?: any) {
+    if (_data) {
+      this.field = _data['field'];
+      this.operator = _data['operator'];
+      this.value = _data['value'];
+    }
+  }
+
+  static fromJS(data: any): DppFieldConditionDto {
+    data = typeof data === 'object' ? data : {};
+    let result = new DppFieldConditionDto();
+    result.init(data);
+    return result;
+  }
+
+  toJSON(data?: any) {
+    data = typeof data === 'object' ? data : {};
+    data['field'] = this.field;
+    data['operator'] = this.operator;
+    data['value'] = this.value;
+    return data;
+  }
+}
+
+export interface IDppFieldConditionDto {
+  field?: string;
+  operator?: string;
+  value?: string;
 }
 
 export class RecreateContainerData implements IRecreateContainerData {
@@ -16013,6 +16559,10 @@ export class AasInfrastructureSettings implements IAasInfrastructureSettings {
   conceptDescriptionRepositoryVersion?: string;
   conceptDescriptionRepositoryHcUrl?: string;
   conceptDescriptionRepositoryHcEnabled?: boolean;
+  dppApiUrl?: string;
+  dppApiVersion?: string;
+  dppApiHcUrl?: string;
+  dppApiHcEnabled?: boolean;
   headerParameters?: HeaderParameter[];
   certificate?: string | undefined;
   certificatePassword?: string;
@@ -16104,6 +16654,10 @@ export class AasInfrastructureSettings implements IAasInfrastructureSettings {
       this.conceptDescriptionRepositoryVersion = _data['conceptDescriptionRepositoryVersion'];
       this.conceptDescriptionRepositoryHcUrl = _data['conceptDescriptionRepositoryHcUrl'];
       this.conceptDescriptionRepositoryHcEnabled = _data['conceptDescriptionRepositoryHcEnabled'];
+      this.dppApiUrl = _data['dppApiUrl'];
+      this.dppApiVersion = _data['dppApiVersion'];
+      this.dppApiHcUrl = _data['dppApiHcUrl'];
+      this.dppApiHcEnabled = _data['dppApiHcEnabled'];
       if (Array.isArray(_data['headerParameters'])) {
         this.headerParameters = [] as any;
         for (let item of _data['headerParameters']) this.headerParameters!.push(HeaderParameter.fromJS(item));
@@ -16199,6 +16753,10 @@ export class AasInfrastructureSettings implements IAasInfrastructureSettings {
     data['conceptDescriptionRepositoryVersion'] = this.conceptDescriptionRepositoryVersion;
     data['conceptDescriptionRepositoryHcUrl'] = this.conceptDescriptionRepositoryHcUrl;
     data['conceptDescriptionRepositoryHcEnabled'] = this.conceptDescriptionRepositoryHcEnabled;
+    data['dppApiUrl'] = this.dppApiUrl;
+    data['dppApiVersion'] = this.dppApiVersion;
+    data['dppApiHcUrl'] = this.dppApiHcUrl;
+    data['dppApiHcEnabled'] = this.dppApiHcEnabled;
     if (Array.isArray(this.headerParameters)) {
       data['headerParameters'] = [];
       for (let item of this.headerParameters) data['headerParameters'].push(item.toJSON());
@@ -16284,6 +16842,10 @@ export interface IAasInfrastructureSettings {
   conceptDescriptionRepositoryVersion?: string;
   conceptDescriptionRepositoryHcUrl?: string;
   conceptDescriptionRepositoryHcEnabled?: boolean;
+  dppApiUrl?: string;
+  dppApiVersion?: string;
+  dppApiHcUrl?: string;
+  dppApiHcEnabled?: boolean;
   headerParameters?: HeaderParameter[];
   certificate?: string | undefined;
   certificatePassword?: string;

@@ -46,6 +46,10 @@ public class AasInfrastructureSettingsDto
     public string ConceptDescriptionRepositoryVersion { get; set; } = string.Empty;
     public string ConceptDescriptionRepositoryHcUrl { get; set; } = string.Empty;
     public bool ConceptDescriptionRepositoryHcEnabled { get; set; } = true;
+    public string DppApiUrl { get; set; } = string.Empty;
+    public string DppApiVersion { get; set; } = string.Empty;
+    public string DppApiHcUrl { get; set; } = string.Empty;
+    public bool DppApiHcEnabled { get; set; } = false;
     public List<HeaderParameter> HeaderParameters { get; set; } = [];
 
     public byte[]? Certificate { get; set; }

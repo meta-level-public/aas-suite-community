@@ -8,6 +8,7 @@ services:
       POSTGRES_DB: designer
       BASYX_POSTGRES_DB: basyx_core
       KEYCLOAK_POSTGRES_DB: keycloak
+      DPP_GATEWAY_POSTGRES_DB: dpp_gateway
     ports:
       - "5434:5432"
     volumes:
@@ -33,6 +34,7 @@ services:
       POSTGRES_DB: designer
       BASYX_POSTGRES_DB: basyx_core
       KEYCLOAK_POSTGRES_DB: keycloak
+      DPP_GATEWAY_POSTGRES_DB: dpp_gateway
     command: ["/bin/bash", "/scripts/10-create-basyx-db.sh"]
     volumes:
       - ../deploy/shared/postgres-init/10-create-basyx-db.sh:/scripts/10-create-basyx-db.sh:ro
@@ -69,6 +71,24 @@ services:
         condition: service_completed_successfully
     restart: unless-stopped
 
+  keycloak-dpp-bootstrap:
+    image: quay.io/keycloak/keycloak:26.0
+    container_name: aas-keycloak-dpp-bootstrap-oss-local
+    entrypoint: ["/bin/bash", "/bootstrap/bootstrap-dpp-clients.sh"]
+    environment:
+      KEYCLOAK_ADMIN_USERNAME: ${KEYCLOAK_ADMIN_USERNAME:-admin}
+      KEYCLOAK_ADMIN_PASSWORD: ${KEYCLOAK_ADMIN_PASSWORD:-admin}
+      DPP_GATEWAY_CLIENT_SECRET: ${DPP_GATEWAY_CLIENT_SECRET:?DPP_GATEWAY_CLIENT_SECRET must be set}
+      DPP_POLICY_ADMIN_CLIENT_SECRET: ${DPP_POLICY_ADMIN_CLIENT_SECRET:?DPP_POLICY_ADMIN_CLIENT_SECRET must be set}
+    volumes:
+      - ../deploy/shared/keycloak-bootstrap/bootstrap-dpp-clients.sh:/bootstrap/bootstrap-dpp-clients.sh:ro
+    networks:
+      - aas-oss-dev-network
+    depends_on:
+      keycloak:
+        condition: service_started
+    restart: "no"
+
   mailpit:
     image: axllent/mailpit:v1.26
     container_name: aas-mailpit-oss-dev
@@ -80,7 +100,7 @@ services:
     restart: unless-stopped
 
   basyx-config-init:
-    image: eclipsebasyx/basyxconfigurationservice-go:SNAPSHOT
+    image: eclipsebasyx/basyxconfigurationservice-go:1.0.12
     container_name: aas-basyx-config-init-oss-dev
     environment:
       POSTGRES_HOST: postgres
@@ -96,7 +116,7 @@ services:
     restart: "no"
 
   aasregistry-go:
-    image: eclipsebasyx/aasregistry-go:SNAPSHOT
+    image: eclipsebasyx/aasregistry-go:1.0.12
     container_name: aasregistry-go-oss-dev
     ports:
       - "5082:8082"
@@ -127,8 +147,74 @@ services:
       basyx-config-init:
         condition: service_completed_successfully
 
+  dppapi-go:
+    image: eclipsebasyx/dppapi-go:1.0.12
+    container_name: dppapi-go-oss-dev
+    ports:
+      - "127.0.0.1:5087:8080"
+    environment:
+      SERVER_PORT: 8080
+      POSTGRES_HOST: postgres
+      POSTGRES_PORT: 5432
+      POSTGRES_USER: localPostgres
+      POSTGRES_PASSWORD: P@SSworDT!
+      POSTGRES_DBNAME: basyx_core
+      BASYX_HISTORY_MODE: audit
+      ABAC_ENABLED: "true"
+      ABAC_MODELPATH: /security_env/access-rules.json
+      OIDC_TRUSTLISTPATH: /security_env/trustlist.json
+      ABAC_POLICY_FILE_IMPORT: always
+    volumes:
+      - ../deploy/shared/dpp-security:/security_env:ro
+    networks:
+      - aas-oss-dev-network
+    restart: unless-stopped
+    depends_on:
+      basyx-config-init:
+        condition: service_completed_successfully
+      keycloak-dpp-bootstrap:
+        condition: service_completed_successfully
+
+  dpp-gateway:
+    build:
+      context: ..
+      dockerfile: services/dpp-gateway/Dockerfile
+    container_name: dpp-gateway-oss-dev
+    ports:
+      - "${DPP_GATEWAY_PORT:-5090}:8080"
+    environment:
+      ASPNETCORE_URLS: http://+:8080
+      DppGateway__Mode: SingleTenant
+      DppGateway__SingleTenantUpstreamBaseUrl: http://dppapi-go:8080
+      DppGateway__SingleTenantAttachmentBaseUrl: http://aasrepository-go:8081
+      DppGateway__PublicationRegistryConnectionString: Host=postgres;Port=5432;Database=dpp_gateway;Username=localPostgres;Password=P@SSworDT!
+      DppGateway__PublisherAuthority: http://keycloak:8080/realms/aas-local
+      DppGateway__PublisherMetadataAddress: http://keycloak:8080/realms/aas-local/.well-known/openid-configuration
+      DppGateway__PublisherValidIssuer: http://localhost:8088/realms/aas-local
+      DppGateway__PublisherRequireHttpsMetadata: "false"
+      DppGateway__PublisherAudience: dpp-gateway-management
+      DppGateway__AccessTokenAudience: aas-designer-local
+      DppGateway__SingleTenantInfrastructureId: single-tenant
+      DppGateway__SingleTenantOAuth__Enabled: "true"
+      DppGateway__SingleTenantOAuth__TokenEndpoint: http://keycloak:8080/realms/aas-local/protocol/openid-connect/token
+      DppGateway__SingleTenantOAuth__ClientId: dpp-gateway
+      DppGateway__SingleTenantOAuth__ClientSecret: ${DPP_GATEWAY_CLIENT_SECRET:?DPP_GATEWAY_CLIENT_SECRET must be set}
+      DppGateway__SingleTenantOAuth__Scope: openid
+      DppGateway__SingleTenantOAuth__TokenExchangeEnabled: "true"
+      DppGateway__SingleTenantOAuth__Audience: dpp-api
+    networks:
+      - aas-oss-dev-network
+    restart: unless-stopped
+    depends_on:
+      postgres-init:
+        condition: service_completed_successfully
+      dppapi-go:
+        condition: service_started
+      keycloak-dpp-bootstrap:
+        condition: service_completed_successfully
+
   submodelregistry-go:
-    image: eclipsebasyx/submodelregistry-go:SNAPSHOT
+    image: eclipsebasyx/submodelregistry-go:1.0.12
     container_name: submodelregistry-go-oss-dev
     ports:
       - "5083:8083"
@@ -160,7 +246,7 @@ services:
         condition: service_completed_successfully
 
   aasdiscovery-go:
-    image: eclipsebasyx/aasdiscovery-go:SNAPSHOT
+    image: eclipsebasyx/aasdiscovery-go:1.0.12
     container_name: aasdiscovery-go-oss-dev
     ports:
       - "5084:8081"
@@ -192,7 +278,7 @@ services:
         condition: service_completed_successfully
 
   aasrepository-go:
-    image: eclipsebasyx/aasrepository-go:SNAPSHOT
+    image: eclipsebasyx/aasrepository-go:1.0.12
     container_name: aasrepository-go-oss-dev
     ports:
       - "5081:8081"
@@ -223,7 +309,7 @@ services:
         condition: service_completed_successfully
 
   submodelrepository-go:
-    image: eclipsebasyx/submodelrepository-go:SNAPSHOT
+    image: eclipsebasyx/submodelrepository-go:1.0.12
     container_name: submodelrepository-go-oss-dev
     ports:
       - "5085:8081"
@@ -255,7 +341,7 @@ services:
         condition: service_completed_successfully
 
   conceptdescriptionrepository-go:
-    image: eclipsebasyx/conceptdescriptionrepository-go:SNAPSHOT
+    image: eclipsebasyx/conceptdescriptionrepository-go:1.0.12
     container_name: conceptdescriptionrepository-go-oss-dev
     ports:
       - "5086:8081"

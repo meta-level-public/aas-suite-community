@@ -9,12 +9,36 @@
   </header>
   @if (config(); as data) {
     <section class="toolbar">
-      <button class="secondary" (click)="load()" [disabled]="busy()">Neu laden</button
-      ><button class="secondary" (click)="validate()" [disabled]="busy()">Prüfen</button
-      ><button class="primary" (click)="save()" [disabled]="busy()">Entwurf speichern</button
-      ><button class="export" (click)="export()" [disabled]="busy()">
-        Export erzeugen <span>↗</span>
-      </button>
+      <div class="toolbar-primary">
+        <button class="secondary" (click)="validate()" [disabled]="busy()">Prüfen</button
+        ><button class="primary" (click)="save()" [disabled]="busy()">Entwurf speichern</button>
+      </div>
+      <details class="toolbar-more">
+        <summary>Weitere Aktionen</summary>
+        <div class="toolbar-more-actions">
+          <button class="secondary" (click)="load()" [disabled]="busy()">Neu laden</button>
+          <button class="export" (click)="export()" [disabled]="busy()">
+            Export erzeugen <span>↗</span>
+          </button>
+          <button class="export" (click)="recreateDataEngine()" [disabled]="busy()">
+            DataEngine neu erstellen <span>⟳</span>
+          </button>
+          <label class="history-picker"
+            >Verlauf<select
+              [disabled]="busy() || historyEntries().length === 0"
+              (change)="loadHistoryVersion(+$any($event.target).value)"
+            >
+              <option value="">Version wählen ...</option>
+              @for (entry of historyEntries(); track entry.version) {
+                <option [value]="entry.version">Version {{ entry.version }}</option>
+              }
+            </select></label
+          >
+          <button class="danger" (click)="restoreDefaults()" [disabled]="busy()">
+            Standard wiederherstellen
+          </button>
+        </div>
+      </details>
     </section>
     @if (errors().length) {
       <div class="errors">

@@ -289,6 +289,19 @@
           [disabled]="editDisabled()"
         />
       </div>
+      <p-divider />
+      <div class="mb-4">
+        <label for="dppApiUrl">DPP-API-URL</label>
+        <input
+          pInputText
+          id="dppApiUrl"
+          name="dppApiUrl"
+          type="url"
+          class="w-full"
+          [(ngModel)]="settings().dppApiUrl"
+          [disabled]="editDisabled()"
+        />
+      </div>
     </section>
     @if (!editDisabled() && !settings().isInternal) {
       <section class="theme-form-section">

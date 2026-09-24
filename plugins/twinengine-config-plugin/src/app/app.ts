@@ -1,7 +1,8 @@
+import { HttpErrorResponse } from '@angular/common/http';
 import { Component, OnInit, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { map, switchMap } from 'rxjs';
-import { ConfigApiService, NameRule, TwinEngineConfig } from './config-api.service';
+import { finalize, map, switchMap } from 'rxjs';
+import { ConfigApiService, ConfigHistoryEntry, NameRule, TwinEngineConfig } from './config-api.service';
 
 @Component({
   selector: 'app-root',
@@ -21,34 +22,41 @@ export class App implements OnInit {
   protected shellTemplateSuccess = signal<string | null>(null);
   protected templateRepositoryWarning = signal<string | null>(null);
   protected activeTab = signal<'dataEngine' | 'dppPlugin'>('dataEngine');
+  protected historyEntries = signal<ConfigHistoryEntry[]>([]);
 
   ngOnInit(): void {
     this.load();
+    this.loadHistory();
   }
   load(): void {
     this.busy.set(true);
-    this.api.getConfig().subscribe({
-      next: (config) => {
-        this.config.set(config);
-        this.status.set(`Version ${config.version} geladen`);
-      },
-      error: () => this.status.set('API nicht erreichbar'),
-      complete: () => this.busy.set(false),
-    });
+    this.api
+      .getConfig()
+      .pipe(finalize(() => this.busy.set(false)))
+      .subscribe({
+        next: (config) => {
+          this.config.set(config);
+          this.status.set(`Version ${config.version} geladen`);
+        },
+        error: () => this.status.set('API nicht erreichbar'),
+      });
   }
   save(): void {
     const config = this.config();
     if (!config) return;
     this.busy.set(true);
-    this.api.saveConfig(config).subscribe({
-      next: (saved) => {
-        this.config.set(saved);
-        this.errors.set([]);
-        this.status.set(`Entwurf Version ${saved.version} gespeichert`);
-      },
-      error: (error) => this.showErrors(error),
-      complete: () => this.busy.set(false),
-    });
+    this.api
+      .saveConfig(config)
+      .pipe(finalize(() => this.busy.set(false)))
+      .subscribe({
+        next: (saved) => {
+          this.config.set(saved);
+          this.errors.set([]);
+          this.status.set(`Entwurf Version ${saved.version} gespeichert`);
+          this.loadHistory();
+        },
+        error: (error) => this.showErrors(error),
+      });
   }
   validate(): void {
     const config = this.config();
@@ -65,6 +73,7 @@ export class App implements OnInit {
             )
             .pipe(map((templateValidation) => ({ result, templateValidation }))),
         ),
+        finalize(() => this.busy.set(false)),
       )
       .subscribe({
         next: ({ result, templateValidation }) => {
@@ -79,16 +88,66 @@ export class App implements OnInit {
           );
         },
         error: (error) => this.showErrors(error),
-        complete: () => this.busy.set(false),
       });
   }
   export(): void {
     this.busy.set(true);
-    this.api.exportConfig().subscribe({
-      next: (result) => this.status.set(`Export Version ${result.version} erstellt`),
-      error: (error) => this.showErrors(error),
-      complete: () => this.busy.set(false),
+    this.api
+      .exportConfig()
+      .pipe(finalize(() => this.busy.set(false)))
+      .subscribe({
+        next: (result) => this.status.set(`Export Version ${result.version} erstellt`),
+        error: (error) => this.showErrors(error),
+      });
+  }
+  recreateDataEngine(): void {
+    this.busy.set(true);
+    this.api
+      .recreateDataEngine()
+      .pipe(finalize(() => this.busy.set(false)))
+      .subscribe({
+        next: (result) => this.status.set(`DataEngine-Container ${result.containerName} neu erstellt`),
+        error: (error) => this.showErrors(error),
+      });
+  }
+  loadHistory(): void {
+    this.api.getConfigHistory().subscribe({
+      next: (entries) => this.historyEntries.set(entries),
+      error: () => this.historyEntries.set([]),
     });
+  }
+  loadHistoryVersion(version: number): void {
+    if (!version) return;
+    this.busy.set(true);
+    this.api
+      .getConfigHistoryVersion(version)
+      .pipe(finalize(() => this.busy.set(false)))
+      .subscribe({
+        next: (config) => {
+          this.config.set(config);
+          this.status.set(`Version ${version} aus Verlauf geladen (noch nicht gespeichert)`);
+        },
+        error: (error) => this.showErrors(error),
+      });
+  }
+  restoreDefaults(): void {
+    if (!confirm('Aktuellen Entwurf durch die Standardwerte ersetzen? Ungespeicherte Änderungen gehen verloren.'))
+      return;
+    this.busy.set(true);
+    this.api
+      .getConfigDefaults()
+      .pipe(finalize(() => this.busy.set(false)))
+      .subscribe({
+        next: (config) => {
+          this.config.set(config);
+          this.errors.set([]);
+          this.clearMappingValidationResults();
+          this.clearShellTemplateValidation();
+          this.templateRepositoryWarning.set(null);
+          this.status.set('Standardwerte geladen (noch nicht gespeichert)');
+        },
+        error: (error) => this.showErrors(error),
+      });
   }
   addLanguage(): void {
     this.config.update((config) =>
@@ -214,9 +273,12 @@ export class App implements OnInit {
         : config,
     );
   }
-  protected showErrors(error: { error?: { errors?: string[] } }): void {
-    this.errors.set(error.error?.errors || ['Unbekannter API-Fehler']);
-    this.status.set('Aktion fehlgeschlagen');
+  protected showErrors(error: HttpErrorResponse): void {
+    const body = error.error as { errors?: string[]; detail?: string; title?: string } | null;
+    const messages =
+      body?.errors?.length ? body.errors : [body?.detail || body?.title || error.message || 'Unbekannter API-Fehler'];
+    this.errors.set(messages);
+    this.status.set(`Aktion fehlgeschlagen (HTTP ${error.status || '?'})`);
   }
   clearMappingValidation(index: number): void {
     this.mappingWarnings.update((warnings) => this.withoutIndex(warnings, index));

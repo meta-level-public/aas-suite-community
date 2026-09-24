@@ -1,5 +1,6 @@
 using System.Net;
 using System.Net.Http.Headers;
+using System.Security.Cryptography;
 using System.Text;
 using System.Text.Json;
 using System.Text.Json.Nodes;
@@ -55,6 +56,351 @@ public class KeycloakAdminService
         && !string.IsNullOrWhiteSpace(_appSettings.KeycloakAdminClientId)
         && !string.IsNullOrWhiteSpace(_appSettings.KeycloakAdminUsername)
         && !string.IsNullOrWhiteSpace(_appSettings.KeycloakAdminPassword);
+
+    public bool IsDppGatewayClientProvisioningEnabled =>
+        IsProvisioningEnabled
+        && !string.IsNullOrWhiteSpace(_appSettings.DppGatewayOAuthClientId)
+        && !string.IsNullOrWhiteSpace(_appSettings.DppGatewayOAuthClientSecret)
+        && !string.IsNullOrWhiteSpace(_appSettings.DppGatewayOAuthAudience);
+
+    public bool IsDppPolicyAdminClientProvisioningEnabled =>
+        IsProvisioningEnabled
+        && !string.IsNullOrWhiteSpace(_appSettings.DppPolicyAdminOAuthClientId)
+        && !string.IsNullOrWhiteSpace(_appSettings.DppPolicyAdminOAuthClientSecret)
+        && !string.IsNullOrWhiteSpace(_appSettings.DppPolicyAdminOAuthAudience);
+
+    public async Task<bool> EnsureDppGatewayClientAsync(
+        CancellationToken cancellationToken = default
+    )
+    {
+        if (!IsDppGatewayClientProvisioningEnabled)
+        {
+            return false;
+        }
+
+        var adminToken = await GetAdminTokenAsync(cancellationToken);
+        var clientId = _appSettings.DppGatewayOAuthClientId.Trim();
+        var clients =
+            await GetAsync<List<ClientRepresentation>>(
+                adminToken,
+                $"{GetAdminRealmBaseUrl()}/clients?clientId={Uri.EscapeDataString(clientId)}",
+                cancellationToken
+            ) ?? [];
+        var existingClient = clients.FirstOrDefault(client =>
+            string.Equals(client.ClientId, clientId, StringComparison.Ordinal)
+        );
+        var request = CreateDppGatewayClientRequest(clientId);
+
+        if (existingClient == null)
+        {
+            using var createResponse = await SendJsonAsync(
+                HttpMethod.Post,
+                $"{GetAdminRealmBaseUrl()}/clients",
+                adminToken,
+                request,
+                cancellationToken
+            );
+            if (createResponse.StatusCode != HttpStatusCode.Created)
+            {
+                var body = await createResponse.Content.ReadAsStringAsync(cancellationToken);
+                throw new InvalidOperationException(
+                    $"Failed to create Keycloak DPP gateway client ({(int)createResponse.StatusCode}): {body}"
+                );
+            }
+
+            return true;
+        }
+
+        using var updateResponse = await SendJsonAsync(
+            HttpMethod.Put,
+            $"{GetAdminRealmBaseUrl()}/clients/{existingClient.Id}",
+            adminToken,
+            request,
+            cancellationToken
+        );
+        if (updateResponse.StatusCode != HttpStatusCode.NoContent)
+        {
+            var body = await updateResponse.Content.ReadAsStringAsync(cancellationToken);
+            throw new InvalidOperationException(
+                $"Failed to update Keycloak DPP gateway client ({(int)updateResponse.StatusCode}): {body}"
+            );
+        }
+
+        return true;
+    }
+
+    public async Task<bool> EnsureDppPolicyAdminClientAsync(
+        CancellationToken cancellationToken = default
+    )
+    {
+        if (!IsDppPolicyAdminClientProvisioningEnabled)
+            return false;
+
+        var adminToken = await GetAdminTokenAsync(cancellationToken);
+        var clientId = _appSettings.DppPolicyAdminOAuthClientId.Trim();
+        var clients =
+            await GetAsync<List<ClientRepresentation>>(
+                adminToken,
+                $"{GetAdminRealmBaseUrl()}/clients?clientId={Uri.EscapeDataString(clientId)}",
+                cancellationToken
+            ) ?? [];
+        var existingClient = clients.FirstOrDefault(client => client.ClientId == clientId);
+        var request = CreateDppPolicyAdminClientRequest(clientId);
+        using var response = await SendJsonAsync(
+            existingClient is null ? HttpMethod.Post : HttpMethod.Put,
+            existingClient is null
+                ? $"{GetAdminRealmBaseUrl()}/clients"
+                : $"{GetAdminRealmBaseUrl()}/clients/{existingClient.Id}",
+            adminToken,
+            request,
+            cancellationToken
+        );
+        var expected = existingClient is null ? HttpStatusCode.Created : HttpStatusCode.NoContent;
+        if (response.StatusCode != expected)
+        {
+            var body = await response.Content.ReadAsStringAsync(cancellationToken);
+            throw new InvalidOperationException(
+                $"Failed to configure Keycloak DPP policy admin client ({(int)response.StatusCode}): {body}"
+            );
+        }
+        return true;
+    }
+
+    public async Task<string> GetDppPublisherAccessTokenAsync(
+        string infrastructureId,
+        CancellationToken cancellationToken = default
+    )
+    {
+        if (!IsProvisioningEnabled)
+            throw new InvalidOperationException("Keycloak provisioning is not configured.");
+        if (string.IsNullOrWhiteSpace(infrastructureId))
+            throw new ArgumentException(
+                "Infrastructure ID must not be empty.",
+                nameof(infrastructureId)
+            );
+
+        var adminToken = await GetAdminTokenAsync(cancellationToken);
+        var clientId = $"dpp-publisher-{infrastructureId.Trim()}";
+        var clients =
+            await GetAsync<List<ClientRepresentation>>(
+                adminToken,
+                $"{GetAdminRealmBaseUrl()}/clients?clientId={Uri.EscapeDataString(clientId)}",
+                cancellationToken
+            ) ?? [];
+        var client = clients.FirstOrDefault(item => item.ClientId == clientId);
+        string clientSecret;
+        if (client == null)
+        {
+            clientSecret = Convert.ToBase64String(RandomNumberGenerator.GetBytes(48));
+            using var createResponse = await SendJsonAsync(
+                HttpMethod.Post,
+                $"{GetAdminRealmBaseUrl()}/clients",
+                adminToken,
+                CreateDppPublisherClientRequest(clientId, clientSecret, infrastructureId.Trim()),
+                cancellationToken
+            );
+            if (createResponse.StatusCode != HttpStatusCode.Created)
+            {
+                var body = await createResponse.Content.ReadAsStringAsync(cancellationToken);
+                throw new InvalidOperationException(
+                    $"Failed to create Keycloak DPP publisher client ({(int)createResponse.StatusCode}): {body}"
+                );
+            }
+        }
+        else
+        {
+            var secret = await GetAsync<ClientSecretRepresentation>(
+                adminToken,
+                $"{GetAdminRealmBaseUrl()}/clients/{client.Id}/client-secret",
+                cancellationToken
+            );
+            clientSecret =
+                secret?.Value
+                ?? throw new InvalidOperationException(
+                    "Keycloak returned no publisher client secret."
+                );
+            using var updateResponse = await SendJsonAsync(
+                HttpMethod.Put,
+                $"{GetAdminRealmBaseUrl()}/clients/{client.Id}",
+                adminToken,
+                CreateDppPublisherClientRequest(clientId, clientSecret, infrastructureId.Trim()),
+                cancellationToken
+            );
+            if (updateResponse.StatusCode != HttpStatusCode.NoContent)
+                throw new InvalidOperationException("Could not update the DPP publisher client.");
+        }
+
+        using var tokenRequest = new HttpRequestMessage(
+            HttpMethod.Post,
+            $"{GetBaseUrl()}/realms/{GetApplicationRealm()}/protocol/openid-connect/token"
+        )
+        {
+            Content = new FormUrlEncodedContent(
+                new Dictionary<string, string>
+                {
+                    ["grant_type"] = "client_credentials",
+                    ["client_id"] = clientId,
+                    ["client_secret"] = clientSecret,
+                }
+            ),
+        };
+        using var httpClient = _httpClientFactory.CreateClient();
+        using var tokenResponse = await httpClient.SendAsync(tokenRequest, cancellationToken);
+        var tokenContent = await tokenResponse.Content.ReadAsStringAsync(cancellationToken);
+        if (!tokenResponse.IsSuccessStatusCode)
+            throw new InvalidOperationException(
+                $"Failed to get DPP publisher token ({(int)tokenResponse.StatusCode})."
+            );
+        return
+            JsonSerializer.Deserialize<TokenResponse>(tokenContent, JsonOptions)?.AccessToken
+                is { Length: > 0 } accessToken
+            ? accessToken
+            : throw new InvalidOperationException("Keycloak returned no DPP publisher token.");
+    }
+
+    public async Task<string> GetDppGatewayAccessTokenAsync(
+        CancellationToken cancellationToken = default
+    )
+    {
+        if (!IsDppGatewayClientProvisioningEnabled)
+            throw new InvalidOperationException("DPP gateway authentication is not configured.");
+
+        using var request = new HttpRequestMessage(
+            HttpMethod.Post,
+            $"{GetBaseUrl()}/realms/{GetApplicationRealm()}/protocol/openid-connect/token"
+        );
+        if (!string.IsNullOrWhiteSpace(_appSettings.DppGatewayOAuthTokenHostHeader))
+            request.Headers.Host = _appSettings.DppGatewayOAuthTokenHostHeader;
+        request.Content = new FormUrlEncodedContent(
+            new Dictionary<string, string>
+            {
+                ["grant_type"] = "client_credentials",
+                ["client_id"] = _appSettings.DppGatewayOAuthClientId,
+                ["client_secret"] = _appSettings.DppGatewayOAuthClientSecret,
+            }
+        );
+        using var httpClient = _httpClientFactory.CreateClient();
+        using var response = await httpClient.SendAsync(request, cancellationToken);
+        var content = await response.Content.ReadAsStringAsync(cancellationToken);
+        if (!response.IsSuccessStatusCode)
+            throw new InvalidOperationException(
+                $"Failed to get DPP API token ({(int)response.StatusCode})."
+            );
+        return
+            JsonSerializer.Deserialize<TokenResponse>(content, JsonOptions)?.AccessToken
+                is { Length: > 0 } accessToken
+            ? accessToken
+            : throw new InvalidOperationException("Keycloak returned no DPP API token.");
+    }
+
+    private DppGatewayClientRequest CreateDppPublisherClientRequest(
+        string clientId,
+        string clientSecret,
+        string infrastructureId
+    ) =>
+        new()
+        {
+            ClientId = clientId,
+            Secret = clientSecret,
+            ProtocolMappers =
+            [
+                HardcodedClaim("dpp-publisher", "dpp_publish", "true", "boolean"),
+                HardcodedClaim("dpp-tenant", "tenant_id", infrastructureId, "String"),
+                new ProtocolMapperRequest
+                {
+                    Name = "dpp-gateway-management-audience",
+                    ProtocolMapper = "oidc-audience-mapper",
+                    Config = new Dictionary<string, string>
+                    {
+                        ["included.custom.audience"] = _appSettings.DppGatewayPublisherAudience,
+                        ["access.token.claim"] = "true",
+                        ["id.token.claim"] = "false",
+                    },
+                },
+            ],
+        };
+
+    private static ProtocolMapperRequest HardcodedClaim(
+        string name,
+        string claimName,
+        string value,
+        string jsonType
+    ) =>
+        new()
+        {
+            Name = name,
+            ProtocolMapper = "oidc-hardcoded-claim-mapper",
+            Config = new Dictionary<string, string>
+            {
+                ["claim.name"] = claimName,
+                ["claim.value"] = value,
+                ["jsonType.label"] = jsonType,
+                ["access.token.claim"] = "true",
+                ["id.token.claim"] = "false",
+            },
+        };
+
+    private DppGatewayClientRequest CreateDppGatewayClientRequest(string clientId)
+    {
+        return new DppGatewayClientRequest
+        {
+            ClientId = clientId,
+            Secret = _appSettings.DppGatewayOAuthClientSecret,
+            Attributes = new Dictionary<string, string>
+            {
+                ["standard.token.exchange.enabled"] = "true",
+            },
+            ProtocolMappers =
+            [
+                new ProtocolMapperRequest
+                {
+                    Name = "dpp-viewer-role",
+                    ProtocolMapper = "oidc-hardcoded-claim-mapper",
+                    Config = new Dictionary<string, string>
+                    {
+                        ["claim.name"] = "role",
+                        ["claim.value"] = "viewer",
+                        ["jsonType.label"] = "String",
+                        ["access.token.claim"] = "true",
+                        ["id.token.claim"] = "false",
+                    },
+                },
+                new ProtocolMapperRequest
+                {
+                    Name = "dpp-api-audience",
+                    ProtocolMapper = "oidc-audience-mapper",
+                    Config = new Dictionary<string, string>
+                    {
+                        ["included.custom.audience"] = _appSettings.DppGatewayOAuthAudience,
+                        ["access.token.claim"] = "true",
+                        ["id.token.claim"] = "false",
+                    },
+                },
+            ],
+        };
+    }
+
+    private DppGatewayClientRequest CreateDppPolicyAdminClientRequest(string clientId) =>
+        new()
+        {
+            ClientId = clientId,
+            Secret = _appSettings.DppPolicyAdminOAuthClientSecret,
+            ProtocolMappers =
+            [
+                HardcodedClaim("dpp-policy-admin-role", "role", "policy-admin", "String"),
+                new ProtocolMapperRequest
+                {
+                    Name = "dpp-api-audience",
+                    ProtocolMapper = "oidc-audience-mapper",
+                    Config = new Dictionary<string, string>
+                    {
+                        ["included.custom.audience"] = _appSettings.DppPolicyAdminOAuthAudience,
+                        ["access.token.claim"] = "true",
+                        ["id.token.claim"] = "false",
+                    },
+                },
+            ],
+        };
 
     public async Task<KeycloakProvisionedUser?> EnsureUserWithOrganisationRolesAsync(
         string email,
@@ -931,6 +1277,72 @@ public class KeycloakAdminService
 
         [JsonPropertyName("name")]
         public string Name { get; set; } = string.Empty;
+    }
+
+    private sealed class ClientRepresentation
+    {
+        [JsonPropertyName("id")]
+        public string Id { get; set; } = string.Empty;
+
+        [JsonPropertyName("clientId")]
+        public string ClientId { get; set; } = string.Empty;
+    }
+
+    private sealed class ClientSecretRepresentation
+    {
+        [JsonPropertyName("value")]
+        public string Value { get; set; } = string.Empty;
+    }
+
+    private sealed class DppGatewayClientRequest
+    {
+        [JsonPropertyName("clientId")]
+        public string ClientId { get; set; } = string.Empty;
+
+        [JsonPropertyName("secret")]
+        public string Secret { get; set; } = string.Empty;
+
+        [JsonPropertyName("enabled")]
+        public bool Enabled { get; set; } = true;
+
+        [JsonPropertyName("protocol")]
+        public string Protocol { get; set; } = "openid-connect";
+
+        [JsonPropertyName("publicClient")]
+        public bool PublicClient { get; set; }
+
+        [JsonPropertyName("serviceAccountsEnabled")]
+        public bool ServiceAccountsEnabled { get; set; } = true;
+
+        [JsonPropertyName("standardFlowEnabled")]
+        public bool StandardFlowEnabled { get; set; }
+
+        [JsonPropertyName("implicitFlowEnabled")]
+        public bool ImplicitFlowEnabled { get; set; }
+
+        [JsonPropertyName("directAccessGrantsEnabled")]
+        public bool DirectAccessGrantsEnabled { get; set; }
+
+        [JsonPropertyName("protocolMappers")]
+        public List<ProtocolMapperRequest> ProtocolMappers { get; set; } = [];
+
+        [JsonPropertyName("attributes")]
+        public Dictionary<string, string> Attributes { get; set; } = [];
+    }
+
+    private sealed class ProtocolMapperRequest
+    {
+        [JsonPropertyName("name")]
+        public string Name { get; set; } = string.Empty;
+
+        [JsonPropertyName("protocol")]
+        public string Protocol { get; set; } = "openid-connect";
+
+        [JsonPropertyName("protocolMapper")]
+        public string ProtocolMapper { get; set; } = string.Empty;
+
+        [JsonPropertyName("config")]
+        public Dictionary<string, string> Config { get; set; } = [];
     }
 
     private sealed class GroupCreateRequest

@@ -14,6 +14,7 @@
       "cwd": "${workspaceFolder}/VwsGeneratorApi",
       "stopAtEntry": false,
       "env": {
+        "Logging__LogLevel__Microsoft.Hosting.Lifetime": "Warning",
         "ASPNETCORE_ENVIRONMENT": "Development",
         "ASPNETCORE_URLS": "http://+:5102;https://+:5103"
       },
@@ -31,6 +32,7 @@
       "cwd": "${workspaceFolder}/Playground",
       "stopAtEntry": false,
       "env": {
+        "Logging__LogLevel__Microsoft.Hosting.Lifetime": "Warning",
         "ASPNETCORE_ENVIRONMENT": "Development"
       },
       "sourceFileMap": {

@@ -469,6 +469,7 @@ append_postgres_service() {
       POSTGRES_PASSWORD: \${POSTGRES_PASSWORD}
       BASYX_POSTGRES_DB: \${BASYX_POSTGRES_DB}
       KEYCLOAK_POSTGRES_DB: \${KEYCLOAK_POSTGRES_DB}
+      DPP_GATEWAY_POSTGRES_DB: \${DPP_GATEWAY_POSTGRES_DB:-}
       MARKT_POSTGRES_DB: \${MARKT_POSTGRES_DB}
     volumes:
       - ${volume_name}:/var/lib/postgresql/data
@@ -501,6 +502,7 @@ append_postgres_init_service() {
       POSTGRES_DB: \${POSTGRES_DB}
       BASYX_POSTGRES_DB: \${BASYX_POSTGRES_DB}
       KEYCLOAK_POSTGRES_DB: \${KEYCLOAK_POSTGRES_DB}
+      DPP_GATEWAY_POSTGRES_DB: \${DPP_GATEWAY_POSTGRES_DB:-}
       MARKT_POSTGRES_DB: \${MARKT_POSTGRES_DB:-}
     command: ["/bin/bash", "/scripts/10-create-basyx-db.sh"]
     volumes:
@@ -545,8 +547,117 @@ fi
 if [ "${MARKT_POSTGRES_DB:-}" != "${BASYX_POSTGRES_DB:-}" ] && [ "${MARKT_POSTGRES_DB:-}" != "${KEYCLOAK_POSTGRES_DB:-}" ]; then
   create_db_if_missing "${MARKT_POSTGRES_DB:-}"
 fi
+if [ "${DPP_GATEWAY_POSTGRES_DB:-}" != "${BASYX_POSTGRES_DB:-}" ] && [ "${DPP_GATEWAY_POSTGRES_DB:-}" != "${KEYCLOAK_POSTGRES_DB:-}" ]; then
+  create_db_if_missing "${DPP_GATEWAY_POSTGRES_DB:-}"
+fi
 EOF_SCRIPT
   chmod +x "$init_script"
+}
+
+prepare_dpp_assets() {
+  local compose_file="$1"
+  local compose_dir
+  compose_dir="$(cd "$(dirname "$compose_file")" && pwd)"
+  local root_dir="${ROOT_DIR:-$(cd "${SCRIPT_DIR}/../../.." && pwd)}"
+  local dpp_source="${root_dir}/deploy/shared/dpp-security"
+  local bootstrap_source="${root_dir}/deploy/shared/keycloak-bootstrap"
+  if [ ! -d "$dpp_source" ]; then dpp_source="${SCRIPT_DIR}/../stack-assets/dpp-security"; fi
+  if [ ! -d "$bootstrap_source" ]; then bootstrap_source="${SCRIPT_DIR}/../stack-assets/keycloak-bootstrap"; fi
+  [ -f "${dpp_source}/access-rules.json" ] || die "DPP-Startregeln fehlen"
+  [ -f "${dpp_source}/trustlist.json" ] || die "DPP-Trustlist fehlt"
+  [ -f "${bootstrap_source}/bootstrap-dpp-clients.sh" ] || die "DPP-Keycloak-Bootstrap fehlt"
+  mkdir -p "${compose_dir}/dpp-security" "${compose_dir}/keycloak-bootstrap"
+  cp "${dpp_source}/access-rules.json" "${compose_dir}/dpp-security/access-rules.json"
+  cp "${dpp_source}/trustlist.json" "${compose_dir}/dpp-security/trustlist.json"
+  cp "${bootstrap_source}/bootstrap-dpp-clients.sh" "${compose_dir}/keycloak-bootstrap/bootstrap-dpp-clients.sh"
+  chmod +x "${compose_dir}/keycloak-bootstrap/bootstrap-dpp-clients.sh"
+}
+
+append_dpp_services() {
+  local compose_file="$1"
+  local network_name="$2"
+
+  cat >> "$compose_file" <<EOF_COMPOSE
+  keycloak-dpp-bootstrap:
+    image: \${KEYCLOAK_IMAGE_REPO}:\${KEYCLOAK_IMAGE_TAG}
+    container_name: \${PROJECT_NAME}-keycloak-dpp-bootstrap
+    entrypoint: ["/bin/bash", "/bootstrap/bootstrap-dpp-clients.sh"]
+    environment:
+      KEYCLOAK_ADMIN_USERNAME: \${KEYCLOAK_ADMIN_USERNAME}
+      KEYCLOAK_ADMIN_PASSWORD: \${KEYCLOAK_ADMIN_PASSWORD}
+      DPP_GATEWAY_CLIENT_SECRET: \${DPP_GATEWAY_CLIENT_SECRET}
+      DPP_POLICY_ADMIN_CLIENT_SECRET: \${DPP_POLICY_ADMIN_CLIENT_SECRET}
+    volumes:
+      - ./keycloak-bootstrap/bootstrap-dpp-clients.sh:/bootstrap/bootstrap-dpp-clients.sh:ro
+    networks:
+      - ${network_name}
+    depends_on:
+      keycloak:
+        condition: service_healthy
+    restart: "no"
+
+  dppapi-go:
+    image: \${DPP_API_IMAGE_REPO}:\${DPP_API_IMAGE_TAG}
+    container_name: \${PROJECT_NAME}-dppapi-go
+    environment:
+      SERVER_PORT: "8080"
+      POSTGRES_HOST: postgres
+      POSTGRES_PORT: "5432"
+      POSTGRES_USER: \${POSTGRES_USER}
+      POSTGRES_PASSWORD: \${POSTGRES_PASSWORD}
+      POSTGRES_DBNAME: \${BASYX_POSTGRES_DB}
+      BASYX_HISTORY_MODE: audit
+      ABAC_ENABLED: "true"
+      ABAC_MODELPATH: /security_env/access-rules.json
+      OIDC_TRUSTLISTPATH: /security_env/trustlist.json
+      ABAC_POLICY_FILE_IMPORT: always
+    volumes:
+      - ./dpp-security:/security_env:ro
+    networks:
+      - ${network_name}
+    depends_on:
+      postgres-init:
+        condition: service_completed_successfully
+      keycloak-dpp-bootstrap:
+        condition: service_completed_successfully
+    restart: unless-stopped
+
+  dpp-gateway:
+    image: \${DPP_GATEWAY_IMAGE_REPO}:\${DPP_GATEWAY_IMAGE_TAG}
+    container_name: \${PROJECT_NAME}-dpp-gateway
+    ports:
+      - "\${DPP_GATEWAY_HOST_PORT}:8080"
+    environment:
+      ASPNETCORE_URLS: http://+:8080
+      DppGateway__Mode: SingleTenant
+      DppGateway__SingleTenantUpstreamBaseUrl: http://dppapi-go:8080
+      DppGateway__SingleTenantAttachmentBaseUrl: http://aasrepository-go:8081
+      DppGateway__PublicationRegistryConnectionString: Host=postgres;Port=5432;Database=\${DPP_GATEWAY_POSTGRES_DB};Username=\${POSTGRES_USER};Password=\${POSTGRES_PASSWORD}
+      DppGateway__PublisherAuthority: \${KEYCLOAK_ISSUER}
+      DppGateway__PublisherMetadataAddress: \${KEYCLOAK_WELLKNOWN_URL}
+      DppGateway__PublisherValidIssuer: \${KEYCLOAK_PUBLIC_ISSUER}
+      DppGateway__PublisherRequireHttpsMetadata: "false"
+      DppGateway__PublisherAudience: dpp-gateway-management
+      DppGateway__AccessTokenAudience: \${KEYCLOAK_AUDIENCE}
+      DppGateway__SingleTenantInfrastructureId: single-tenant
+      DppGateway__SingleTenantOAuth__Enabled: "true"
+      DppGateway__SingleTenantOAuth__TokenEndpoint: \${KEYCLOAK_ISSUER}/protocol/openid-connect/token
+      DppGateway__SingleTenantOAuth__ClientId: dpp-gateway
+      DppGateway__SingleTenantOAuth__ClientSecret: \${DPP_GATEWAY_CLIENT_SECRET}
+      DppGateway__SingleTenantOAuth__Scope: openid
+      DppGateway__SingleTenantOAuth__TokenExchangeEnabled: "true"
+      DppGateway__SingleTenantOAuth__Audience: dpp-api
+    networks:
+      - ${network_name}
+    depends_on:
+      postgres-init:
+        condition: service_completed_successfully
+      dppapi-go:
+        condition: service_started
+      keycloak-dpp-bootstrap:
+        condition: service_completed_successfully
+    restart: unless-stopped
+EOF_COMPOSE
 }
 
 prepare_keycloak_assets() {
@@ -725,6 +836,11 @@ EOF_COMPOSE
   cat >> "$compose_file" <<EOF_COMPOSE
     ports:
       - "${host_port}:${container_port}"
+    volumes:
+      - gateway-data-protection:/var/lib/vws-gateway/keys
+EOF_COMPOSE
+
+  cat >> "$compose_file" <<EOF_COMPOSE
     networks:
       - ${network_name}
     depends_on:
@@ -798,6 +914,7 @@ append_frontend_service() {
       GATEWAY_URL: http://gateway:8080
       FRONTEND_API_BASE_URL: \${FRONTEND_API_BASE_URL}
       FRONTEND_FEEDMAPPING_BASE_URL: \${FRONTEND_FEEDMAPPING_BASE_URL}
+      FRONTEND_THEME: \${FRONTEND_THEME}
     command:
       - /bin/sh
       - -ec
@@ -902,9 +1019,6 @@ append_markt_service() {
       ASPNETCORE_ENVIRONMENT: Production
       ASPNETCORE_URLS: http://+:${container_port}
       ConnectionStrings__DefaultConnection: Host=postgres;Port=5432;Database=\${MARKT_POSTGRES_DB};Username=\${POSTGRES_USER};Password=\${POSTGRES_PASSWORD}
-      Authentication__ExternalJwt__Authority: \${KEYCLOAK_ISSUER}
-      Authentication__ExternalJwt__Audience: \${MARKT_EXTERNAL_AUDIENCE}
-      Authentication__ExternalJwt__RequireHttpsMetadata: "false"
     networks:
       - ${network_name}
     depends_on:
@@ -931,6 +1045,18 @@ append_markt_ui_service() {
     container_name: \${PROJECT_NAME}-markt-ui
     environment:
       MARKT_API_BASE_URL: \${MARKT_API_BASE_URL}
+      MARKT_DESIGNER_URL: \${MARKT_DESIGNER_URL}
+      MARKT_THEME: \${MARKT_THEME}
+      MARKT_LOGO: \${MARKT_LOGO}
+      MARKT_URL: \${MARKT_URL}
+      MARKT_DATENSCHUTZ_DE: \${MARKT_DATENSCHUTZ_DE}
+      MARKT_DATENSCHUTZ_EN: \${MARKT_DATENSCHUTZ_EN}
+      MARKT_AGB_DE: \${MARKT_AGB_DE}
+      MARKT_AGB_EN: \${MARKT_AGB_EN}
+      MARKT_AVV_DE: \${MARKT_AVV_DE}
+      MARKT_AVV_EN: \${MARKT_AVV_EN}
+      MARKT_IMPRINT: \${MARKT_IMPRINT}
+      MARKT_AAS_SYSTEM_MANAGEMENT_API_PATH: \${MARKT_AAS_SYSTEM_MANAGEMENT_API_PATH}
 EOF_COMPOSE
 
   if [ -n "$markt_base_href" ]; then
@@ -963,6 +1089,7 @@ append_designer_backend_service() {
   local keycloak_mode="${5:-existing}"
   local designer_service_name="${6:-designer-backend}"
   local include_enterprise_licensing="${7:-false}"
+  local include_dpp="${8:-false}"
 
   cat >> "$compose_file" <<EOF_COMPOSE
   ${designer_service_name}:
@@ -1040,11 +1167,42 @@ append_designer_backend_service() {
       EmailConfiguration__SubjectPrefix: \${SUBJECT_PREFIX}
 EOF_COMPOSE
 
+  if [ "$include_dpp" = "true" ]; then
+    cat >> "$compose_file" <<EOF_COMPOSE
+      AppSettings__DppGatewayOAuthClientId: dpp-gateway
+      AppSettings__DppGatewayOAuthClientSecret: \${DPP_GATEWAY_CLIENT_SECRET}
+      AppSettings__DppGatewayOAuthAudience: dpp-api
+      AppSettings__DppGatewayManagementUrl: http://dpp-gateway:8080
+      AppSettings__DppGatewayPublisherAudience: dpp-gateway-management
+      AppSettings__DppSecurityBaseDirectory: /app/dpp-security
+      AppSettings__DppPolicyAdminOAuthClientId: dpp-policy-admin
+      AppSettings__DppPolicyAdminOAuthClientSecret: \${DPP_POLICY_ADMIN_CLIENT_SECRET}
+      AppSettings__DppPolicyAdminOAuthAudience: dpp-api
+      AppSettings__DppPolicyManagementApiEnabled: "true"
+      AppSettings__InitialDppApiUrl: http://dppapi-go:8080
+      AppSettings__InitialDppApiVersion: v1
+      AppSettings__InitialDppApiHcUrl: http://dppapi-go:8080/health
+EOF_COMPOSE
+  fi
+
   if [ "$include_enterprise_licensing" = "true" ]; then
     cat >> "$compose_file" <<EOF_COMPOSE
       AppSettings__LicenseFilePath: /run/secrets/licensing/license.json
       AppSettings__LicenseName: \${LICENSE_NAME}
       AppSettings__LicensePublicKeyPath: /run/secrets/licensing/license-public.pem
+      AppSettings__PluginsEnabled: \${PLUGINS_ENABLED}
+      AppSettings__PluginDirectory: /app/plugins
+EOF_COMPOSE
+  else
+    cat >> "$compose_file" <<EOF_COMPOSE
+      ConnectionStrings__DefaultConnection: Host=postgres;Database=\${POSTGRES_DB};Username=\${POSTGRES_USER};Password=\${POSTGRES_PASSWORD}
+      AppSettings__FileStoragePath: /app/storage
+      AppSettings__PluginsEnabled: \${PLUGINS_ENABLED}
+      AppSettings__PluginDirectory: /app/plugins
+      Gateway__Url: http://gateway:8080
+      AppSettings__KeycloakEmailClaimName: \${KEYCLOAK_EMAIL_CLAIM_NAME}
+      AppSettings__KeycloakFirstNameClaimName: \${KEYCLOAK_FIRST_NAME_CLAIM_NAME}
+      AppSettings__KeycloakLastNameClaimName: \${KEYCLOAK_LAST_NAME_CLAIM_NAME}
 EOF_COMPOSE
   fi
 
@@ -1057,6 +1215,19 @@ EOF_COMPOSE
     cat >> "$compose_file" <<EOF_COMPOSE
     volumes:
       - \${LICENSE_DIR_PATH}:/run/secrets/licensing
+      - \${PLUGINS_DIRECTORY}:/app/plugins:ro
+EOF_COMPOSE
+  else
+    cat >> "$compose_file" <<EOF_COMPOSE
+    volumes:
+      - designer-storage:/app/storage
+      - \${PLUGINS_DIRECTORY}:/app/plugins:ro
+EOF_COMPOSE
+  fi
+
+  if [ "$include_dpp" = "true" ]; then
+    cat >> "$compose_file" <<EOF_COMPOSE
+      - ./dpp-security:/app/dpp-security
 EOF_COMPOSE
   fi
 
@@ -1097,6 +1268,7 @@ append_feedmapping_service() {
     environment:
       ASPNETCORE_ENVIRONMENT: Production
       ASPNETCORE_URLS: http://+:${container_port}
+      DatabaseProvider: PostgreSQL
       ConnectionStrings__DefaultConnection: Host=postgres;Port=5432;Database=\${POSTGRES_DB};Username=\${POSTGRES_USER};Password=\${POSTGRES_PASSWORD}
       AppSettings__Issuer: \${APP_JWT_ISSUER:-vws-portal}
       AppSettings__Salt: \${APP_JWT_SALT:-ja1nnNyDKoiTYu3LaBQ/9A==}
@@ -1106,6 +1278,7 @@ EOF_COMPOSE
   if [ "$include_enterprise_licensing" = "true" ]; then
     cat >> "$compose_file" <<EOF_COMPOSE
       AppSettings__LicenseFilePath: /run/secrets/licensing/license.json
+      AppSettings__LicenseName: \${LICENSE_NAME}
       AppSettings__LicensePublicKeyPath: /run/secrets/licensing/license-public.pem
 EOF_COMPOSE
   fi
@@ -1341,13 +1514,23 @@ EOF_COMPOSE
 append_volumes_block() {
   local compose_file="$1"
   local postgres_volume_name="$2"
+  local include_designer_storage="${3:-false}"
 
   cat >> "$compose_file" <<EOF_COMPOSE
 
 volumes:
   ${postgres_volume_name}:
     driver: local
+  gateway-data-protection:
+    driver: local
 EOF_COMPOSE
+
+  if [ "$include_designer_storage" = "true" ]; then
+    cat >> "$compose_file" <<EOF_COMPOSE
+  designer-storage:
+    driver: local
+EOF_COMPOSE
+  fi
 }
 
 append_networks_block() {

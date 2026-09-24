@@ -25,6 +25,10 @@ Die API ist danach über das Plugin verfügbar. Für die reine Aktivierung des P
 /designer-api/plugin-api/twinengine-config/api/config
 /designer-api/plugin-api/twinengine-config/api/config/validate
 /designer-api/plugin-api/twinengine-config/api/config/export
+/designer-api/plugin-api/twinengine-config/api/config/recreate-dataengine
+/designer-api/plugin-api/twinengine-config/api/config/history
+/designer-api/plugin-api/twinengine-config/api/config/history/{version}
+/designer-api/plugin-api/twinengine-config/api/config/defaults
 ```
 
 ## Erlaubte Konfiguration
@@ -93,6 +97,30 @@ Für Community muss entsprechend `aas-designer-community` verwendet werden. Beim
 Der Backend-Pfad und der Compose-`env_file`-Pfad sind absichtlich verschieden: `/app/generated-config/...` ist der Containerpfad, `./generated-config/...` der Hostpfad. Beide zeigen auf dieselben Dateien. Ohne die beiden Exportpfadvariablen verwendet das Plugin lokale Fallbacks relativ zum Backend-Prozess.
 
 Die Oberfläche speichert Entwürfe, validiert sie und erzeugt einen Export; der laufende DataEngine-Container wird dabei nicht automatisch neu gestartet.
+
+### Verlauf gespeicherter Versionen
+
+Bei jedem Speichern eines Entwurfs (`PUT /api/config`) legt das Backend zusätzlich eine Kopie unter `twinengine-config/history/config.v{N}.json` ab. Es werden nur die letzten 10 Versionen aufbewahrt, ältere werden automatisch gelöscht. Über `GET /api/config/history` lässt sich der Verlauf (Version + Zeitstempel) abrufen, über `GET /api/config/history/{version}` eine konkrete Version laden. Das Laden einer alten Version überschreibt die aktuell gespeicherte Konfiguration nicht sofort – sie wird nur als Entwurf in die Oberfläche geladen und muss über „Entwurf speichern“ erneut bestätigt werden (dabei erhält sie automatisch die nächsthöhere Versionsnummer).
+
+### Standardwerte wiederherstellen
+
+Über „Standard wiederherstellen“ (unter „Weitere Aktionen“) ruft die Oberfläche `GET /api/config/defaults` auf und lädt die eingebauten Standardwerte als Entwurf – nach Bestätigung eines Sicherheitshinweises. Auch hier wird nichts sofort gespeichert; erst „Entwurf speichern“ persistiert die Standardwerte als neue Version. Das hilft, wenn eine gespeicherte Version beschädigt ist oder keine Werte mehr anzeigt.
+
+### DataEngine-Container neu erstellen
+
+Der Button „DataEngine neu erstellen“ ruft `POST /api/config/recreate-dataengine` auf. Da Docker Umgebungsvariablen aus `env_file` nur bei der Container-Erstellung liest, reicht ein einfacher Neustart nicht aus, um neu exportierte Werte zu übernehmen. Das Backend spricht dazu direkt die Docker Engine API an, findet den laufenden `twinengine-dataengine`-Container (per Compose-Label `com.docker.compose.service=twinengine-dataengine` oder per `TWINENGINE_DATAENGINE_CONTAINER_NAME`), entfernt ihn und erstellt ihn mit identischer Konfiguration neu, wobei die zuvor exportierten Umgebungsvariablen aktualisiert werden.
+
+Voraussetzungen:
+
+- Der Backend-Container benötigt Zugriff auf den Docker-Socket, z. B.:
+  ```yaml
+  volumes:
+    - /var/run/docker.sock:/var/run/docker.sock
+  environment:
+    - TWINENGINE_DOCKER_HOST=unix:///var/run/docker.sock
+  ```
+- Alternativ kann `TWINENGINE_DOCKER_HOST` auf eine TCP-Docker-API zeigen (z. B. `tcp://172.17.0.1:2375`), falls kein Socket gemountet werden soll.
+- `TWINENGINE_DATAENGINE_CONTAINER_NAME` kann optional gesetzt werden, um den Container über seinen Namen statt über das Compose-Label zu finden.
 
 This project was generated using [Angular CLI](https://github.com/angular/angular-cli) version 20.3.34.
 

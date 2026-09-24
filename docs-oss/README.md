@@ -27,3 +27,15 @@ Das Repository enthaelt ein separates VS Code-Workspace-Profil unter `.vscode-os
    - die Designer-API (Community)
    - den Angular Dev-Server der Community-Frontend-App
 3. Sobald alle drei Prozesse laufen, kann das Frontend-Debugging ueber das Launch-Target **"Debug AAS Designer Community (Chrome)"** gestartet werden – dieses oeffnet Chrome mit aktiviertem Source-Map-Debugging gegen `http://localhost:5196`.
+
+## Container-Images und Versionen
+
+Die Community-Images werden unter `ghcr.io/meta-level-public/aas-suite-community/<image>` veröffentlicht. Verfügbare Tags:
+
+- `1.4.2` – exakte Version eines Releases (Git-Tag `v1.4.2` im Community-Repository)
+- `1.4` bzw. `1` – zeigt immer auf das neueste stabile Release dieser Minor- bzw. Major-Version; Vorabversionen wie `2.0.0-rc.1` verschieben diese Tags nicht
+- `latest` – aktueller Stand des Branches `release`
+- `main`, `sha-<commit>` – Entwicklungsstände
+- ARM64-Images tragen jeweils das Suffix `-arm64`, z. B. `1.4.2-arm64`
+
+Für produktive Installationen empfiehlt sich eine feste Version, z. B. `IMAGE_TAG=1.4.2` in der `.env` des Docker-Compose-Stacks. Die Version wird im Frontend über `version.json` angezeigt.

@@ -108,27 +108,53 @@
         </div>
 
         @if (viewerStore.isLoadingSubmodels()) {
-          <p-skeleton shape="square" height="100px" width="100%"></p-skeleton>
-        } @else {
-          @for (submodel of viewerStore.submodels(); track submodel.id) {
-            <div
-              class="navigation-item submodel-item"
-              [class.active]="viewSubmodels() && viewerStore.currentSubmodelId() === submodel.id"
-              (click)="selectSubmodel(submodel.id)"
-            >
-              <i class="fa-solid fa-cube navigation-icon"></i>
-              <span class="navigation-label">{{ submodel?.idShort ?? submodel?.id }}</span>
-              @if (viewSubmodels() && viewerStore.currentSubmodelId() === submodel.id) {
-                <i class="fa-solid fa-chevron-right ml-auto"></i>
-              }
-            </div>
+          @let progress = viewerStore.submodelLoadProgress();
+          <div class="submodels-progress" role="status" aria-live="polite">
+            <span>{{ 'SUBMODELS_LOADING_PROGRESS' | translate: progress }}</span>
+            <p-progressbar [value]="(progress.done / progress.total) * 100" [showValue]="false"></p-progressbar>
+          </div>
+        }
+        @for (entry of viewerStore.submodelLoadStates(); track entry.url) {
+          @switch (entry.status) {
+            @case ('loaded') {
+              @let submodel = entry.submodel!;
+              <div
+                class="navigation-item submodel-item"
+                [class.active]="viewSubmodels() && viewerStore.currentSubmodelId() === submodel.id"
+                (click)="onSubmodelClick(submodel.id)"
+              >
+                <i class="fa-solid fa-cube navigation-icon"></i>
+                <span class="navigation-label">{{ submodel.idShort || submodel.id }}</span>
+                @if (viewSubmodels() && viewerStore.currentSubmodelId() === submodel.id) {
+                  <i class="fa-solid fa-chevron-right ml-auto"></i>
+                }
+              </div>
+            }
+            @case ('loading') {
+              <div
+                class="navigation-item submodel-item submodel-item-pending"
+                [pTooltip]="'SUBMODEL_LOADING' | translate"
+              >
+                <i class="pi pi-spin pi-spinner navigation-icon"></i>
+                <span class="navigation-label">{{ entry.label }}</span>
+              </div>
+            }
+            @case ('failed') {
+              <div
+                class="navigation-item submodel-item submodel-item-failed"
+                [pTooltip]="'SUBMODEL_LOAD_FAILED' | translate"
+              >
+                <i class="pi pi-exclamation-triangle navigation-icon"></i>
+                <span class="navigation-label">{{ entry.label }}</span>
+              </div>
+            }
           }
         }
       </div>
     </p-card>
   </div>
   @let currentSm = viewerStore.currentSubmodel();
-  @if (viewerStore.isLoadingAas() || viewerStore.isLoadingSubmodels()) {
+  @if (viewerStore.isLoadingAas() || (viewerStore.isLoadingSubmodels() && !currentSm)) {
     <div class="col-span-12 xl:col-span-9 w-full mt-4 flex justify-center items-center" style="min-height: 280px">
       <div class="aas-loading-spinner"></div>
     </div>

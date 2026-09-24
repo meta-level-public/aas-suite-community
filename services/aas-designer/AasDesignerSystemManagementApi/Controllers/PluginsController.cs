@@ -32,6 +32,8 @@ public class PluginsController : InternalApiBaseController
     [HttpGet("{pluginId}/assets/{**assetPath}")]
     public IActionResult GetAsset(string pluginId, string? assetPath)
     {
+        Response.Headers["X-Frame-Options"] = "SAMEORIGIN";
+
         if (HttpContext.Items[AasDesignerConstants.APP_USER] is not AppUser appUser)
             return NotFound();
 
@@ -39,7 +41,6 @@ public class PluginsController : InternalApiBaseController
         if (asset == null)
             return NotFound();
 
-        Response.Headers["X-Frame-Options"] = "SAMEORIGIN";
         return File(asset.Stream, asset.ContentType, enableRangeProcessing: true);
     }
 }

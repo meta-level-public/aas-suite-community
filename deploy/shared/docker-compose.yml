@@ -97,32 +97,32 @@ services:
       - ConnectionStrings__PgDatabase=Host=postgres;Port=5432;Database=designer;Username=localPostgres;Password=P@SSworDT!
       - AppSettings__HandleInitialInfrastructureAsInternal=true
       - AppSettings__InitialAasDiscoveryUrl=http://aas-discovery-go:8081
-      - AppSettings__InitialAasDiscoveryVersion=SNAPSHOT
+      - AppSettings__InitialAasDiscoveryVersion=1.0.12
       - AppSettings__InitialAasDiscoveryContainer=aas-discovery-go
       - AppSettings__InitialAasDiscoveryContainerPort=8081
       - AppSettings__InitialAasDiscoveryHcUrl=http://aas-discovery-go:8081/health
       - AppSettings__InitialAasRegistryUrl=http://aasregistry-go:8082
-      - AppSettings__InitialAasRegistryVersion=SNAPSHOT
+      - AppSettings__InitialAasRegistryVersion=1.0.12
       - AppSettings__InitialAasRegistryContainer=aasregistry-go
       - AppSettings__InitialAasRegistryContainerPort=8082
       - AppSettings__InitialAasRegistryHcUrl=http://aasregistry-go:8082/health
       - AppSettings__InitialSubmodelRegistryUrl=http://submodelregistry-go:8083
-      - AppSettings__InitialSubmodelRegistryVersion=SNAPSHOT
+      - AppSettings__InitialSubmodelRegistryVersion=1.0.12
       - AppSettings__InitialSubmodelRegistryContainer=submodelregistry-go
       - AppSettings__InitialSubmodelRegistryContainerPort=8083
       - AppSettings__InitialSubmodelRegistryHcUrl=http://submodelregistry-go:8083/health
       - AppSettings__InitialAasRepositoryUrl=http://aasrepository-go:8081
-      - AppSettings__InitialAasRepositoryVersion=SNAPSHOT
+      - AppSettings__InitialAasRepositoryVersion=1.0.12
       - AppSettings__InitialAasRepositoryContainer=aasrepository-go
       - AppSettings__InitialAasRepositoryContainerPort=8081
       - AppSettings__InitialAasRepositoryHcUrl=http://aasrepository-go:8081/health
       - AppSettings__InitialSubmodelRepositoryUrl=http://submodelrepository-go:8081
-      - AppSettings__InitialSubmodelRepositoryVersion=SNAPSHOT
+      - AppSettings__InitialSubmodelRepositoryVersion=1.0.12
       - AppSettings__InitialSubmodelRepositoryContainer=submodelrepository-go
       - AppSettings__InitialSubmodelRepositoryContainerPort=8081
       - AppSettings__InitialSubmodelRepositoryHcUrl=http://submodelrepository-go:8081/health
       - AppSettings__InitialConceptDescriptionRepositoryUrl=http://conceptdescriptionrepository-go:8081
-      - AppSettings__InitialConceptDescriptionRepositoryVersion=SNAPSHOT
+      - AppSettings__InitialConceptDescriptionRepositoryVersion=1.0.12
       - AppSettings__InitialConceptDescriptionRepositoryContainer=conceptdescriptionrepository-go
       - AppSettings__InitialConceptDescriptionRepositoryContainerPort=8081
       - AppSettings__InitialConceptDescriptionRepositoryHcUrl=http://conceptdescriptionrepository-go:8081/health
@@ -151,7 +151,7 @@ services:
       retries: 3
 
   aasregistry-go:
-    image: eclipsebasyx/aasregistry-go:SNAPSHOT
+    image: eclipsebasyx/aasregistry-go:1.0.12
     container_name: aasregistry-go
     ports:
       - "5082:8082"
@@ -181,7 +181,7 @@ services:
         condition: service_healthy
 
   submodelregistry-go:
-    image: eclipsebasyx/submodelregistry-go:SNAPSHOT
+    image: eclipsebasyx/submodelregistry-go:1.0.12
     container_name: submodelregistry-go
     ports:
       - "5083:8083"
@@ -211,7 +211,7 @@ services:
         condition: service_healthy
 
   aasdiscovery-go:
-    image: eclipsebasyx/aasdiscovery-go:SNAPSHOT
+    image: eclipsebasyx/aasdiscovery-go:1.0.12
     container_name: aasdiscovery-go
     ports:
       - "5084:8081"
@@ -241,7 +241,7 @@ services:
         condition: service_healthy
 
   aasrepository-go:
-    image: eclipsebasyx/aasrepository-go:SNAPSHOT
+    image: eclipsebasyx/aasrepository-go:1.0.12
     container_name: aasrepository-go
     ports:
       - "5081:8081"
@@ -270,7 +270,7 @@ services:
         condition: service_healthy
 
   submodelrepository-go:
-    image: eclipsebasyx/submodelrepository-go:SNAPSHOT
+    image: eclipsebasyx/submodelrepository-go:1.0.12
     container_name: submodelrepository-go
     ports:
       - "5085:8081"
@@ -300,7 +300,7 @@ services:
         condition: service_healthy
 
   conceptdescriptionrepository-go:
-    image: eclipsebasyx/conceptdescriptionrepository-go:SNAPSHOT
+    image: eclipsebasyx/conceptdescriptionrepository-go:1.0.12
     container_name: conceptdescriptionrepository-go
     ports:
       - "5086:8081"

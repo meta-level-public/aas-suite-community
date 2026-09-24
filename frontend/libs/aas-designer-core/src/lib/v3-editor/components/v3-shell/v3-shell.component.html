@@ -2,6 +2,15 @@
 
 @if (shell != null && shell.content != null) {
   <div class="flex flex-col gap-4 p-2">
+    @if (showDppMetadata()) {
+      <aas-dpp-metadata
+        [aasId]="shell.content.id"
+        [editable]="dppEditable()"
+        [productIdHint]="shell.content.assetInformation.globalAssetId ?? ''"
+        [submodels]="dppSubmodels()"
+        (created)="dppCreated.emit()"
+      />
+    }
     <p-fieldset
       [toggleable]="true"
       [ngClass]="{ 'border-error': hasDetailErrors() }"

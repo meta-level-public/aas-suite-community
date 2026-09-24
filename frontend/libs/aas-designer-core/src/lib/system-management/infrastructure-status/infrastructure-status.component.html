@@ -4,6 +4,12 @@
       <h1 class="hero-title">{{ 'STATE' | translate }}</h1>
       <div class="hero-actions">
         <p-button
+          label="{{ 'DPP_API_ENSURE_ALL' | translate }}"
+          icon="pi pi-server"
+          (onClick)="ensureDppApiForAll()"
+          severity="secondary"
+        ></p-button>
+        <p-button
           label="{{ 'RELOAD' | translate }}"
           icon="pi pi-refresh"
           (onClick)="reload()"
@@ -40,6 +46,9 @@
           <th></th>
           <th></th>
           <th></th>
+          <th></th>
+          <th></th>
+          <th></th>
           <th colspan="5">
             <div class="flex justify-center">{{ 'DISCOVERY' | translate }}</div>
           </th>
@@ -66,6 +75,15 @@
           </th>
           <th pSortableColumn="orgaName">{{ 'ORGA_NAME' | translate }} <p-sortIcon field="orgaName" /></th>
           <th pSortableColumn="isActive">{{ 'IS_ACTIVE_SHORT' | translate }} <p-sortIcon field="isActive" /></th>
+          <th pSortableColumn="isGoInfrastructure">
+            {{ 'GO_INFRASTRUCTURE' | translate }} <p-sortIcon field="isGoInfrastructure" />
+          </th>
+          <th pSortableColumn="dppApiConfigured">
+            {{ 'DPP_API_EXISTS' | translate }} <p-sortIcon field="dppApiConfigured" />
+          </th>
+          <th pSortableColumn="infrastructureGuid">
+            {{ 'INFRA_GUID' | translate }} <p-sortIcon field="infrastructureGuid" />
+          </th>
           <th pSortableColumn="discoveryContainerName">
             {{ 'NAME' | translate }} <p-sortIcon field="discoveryContainerName" />
           </th>
@@ -130,6 +148,54 @@
           <th pSortableColumn="mqttMaxMem">{{ 'MEMORY_SWAP_SHORT' | translate }} <p-sortIcon field="mqttMemSwap" /></th>
         </tr>
         <tr>
+          <th></th>
+          <th><p-columnFilter type="number" field="infrastructureId" [showMenu]="false"></p-columnFilter></th>
+          <th>
+            <p-columnFilter type="text" field="orgaName" matchMode="contains" [showMenu]="false"></p-columnFilter>
+          </th>
+          <th><p-columnFilter type="boolean" field="isActive"></p-columnFilter></th>
+          <th><p-columnFilter type="boolean" field="isGoInfrastructure"></p-columnFilter></th>
+          <th><p-columnFilter type="boolean" field="dppApiConfigured"></p-columnFilter></th>
+          <th>
+            <p-columnFilter
+              type="text"
+              field="infrastructureGuid"
+              matchMode="contains"
+              [showMenu]="false"
+            ></p-columnFilter>
+          </th>
+          <th></th>
+          <th></th>
+          <th></th>
+          <th></th>
+          <th></th>
+          <th></th>
+          <th></th>
+          <th></th>
+          <th></th>
+          <th></th>
+          <th></th>
+          <th></th>
+          <th></th>
+          <th></th>
+          <th></th>
+          <th></th>
+          <th></th>
+          <th></th>
+          <th></th>
+          <th></th>
+          <th></th>
+          <th></th>
+          <th></th>
+          <th></th>
+          <th></th>
+          <th></th>
+          <th></th>
+          <th></th>
+          <th></th>
+          <th></th>
+        </tr>
+        <tr>
           <th>
             <div class="flex flex-col gap-2 items-center">
               <p-tableHeaderCheckbox />
@@ -142,6 +208,9 @@
               ></p-button>
             </div>
           </th>
+          <th></th>
+          <th></th>
+          <th></th>
           <th></th>
           <th></th>
           <th></th>
@@ -505,15 +574,45 @@
           </td>
           <td>
             {{ entry.infrastructureId }}
-            @if (entry.isGoInfrastructure) {
-              <p-tag value="Go" severity="info" styleClass="ml-1"></p-tag>
-            }
           </td>
           <td>{{ entry.orgaName }}</td>
           <td>
             <div class="flex flex-col gap-2 items-center">
               <p-tag [value]="entry.isActive" [severity]="entry.isActive == true ? 'success' : 'danger'"></p-tag>
             </div>
+          </td>
+          <td>
+            @if (entry.isGoInfrastructure) {
+              <p-tag value="Go" severity="info"></p-tag>
+            } @else {
+              <span class="text-color-secondary">—</span>
+            }
+          </td>
+          <td>
+            @if (entry.isGoInfrastructure) {
+              <div class="flex flex-col gap-2 items-center">
+                <p-tag
+                  [value]="entry.dppApiConfigured"
+                  [severity]="entry.dppApiConfigured == true ? 'success' : 'danger'"
+                ></p-tag>
+                @if (entry.dppApiStatus) {
+                  <p-tag [value]="entry.dppApiStatus" [severity]="getTagSeverity(entry.dppApiStatus)"></p-tag>
+                }
+                <p-button
+                  (onClick)="ensureDppApi(entry)"
+                  icon="pi pi-server"
+                  size="small"
+                  severity="secondary"
+                  [attr.aria-label]="'DPP_API_ENSURE' | translate"
+                  [title]="'DPP_API_ENSURE' | translate"
+                ></p-button>
+              </div>
+            } @else {
+              <span class="text-color-secondary">—</span>
+            }
+          </td>
+          <td>
+            <div class="w-10rem">{{ entry.infrastructureGuid }}</div>
           </td>
           <!-- Discovery -->
           <td>

@@ -15,8 +15,8 @@ import { SaveShellResult } from '@aas/webapi-client';
 import { DppAssistantFieldValue, DppPcfEntryCollection } from 'battery-passport-assistant';
 import * as batteryPassportTemplateRegistry from './battery-passport-template-registry';
 import { prefillBatteryPassportTechnicalData } from './generator-battery-passport-prefill.builder';
+import { GeneratorDppMetadataExportService, GeneratorDppMetadataInput } from './generator-dpp-metadata-export.service';
 import { buildDocumentationExportSubmodel, syncDocumentationDocuments } from './generator-documentation.builder';
-import { createDppMetaSubmodels } from './generator-dpp-meta.builder';
 import {
   buildDppPcfSubmodelElements,
   DPP_PCF_REQUIRED_SEMANTIC_IDS,
@@ -128,6 +128,8 @@ export interface GeneratorImportedStateSnapshot {
   packageThumbnailFilename: string;
 }
 
+export type { GeneratorDppMetadataInput } from './generator-dpp-metadata-export.service';
+
 @Injectable({
   providedIn: 'root',
 })
@@ -154,6 +156,7 @@ export class GeneratorService {
     private appConfigService: AppConfigService,
     private generatorStateStore: GeneratorStateStore = new GeneratorStateStore(),
     private generatorExportService: GeneratorExportService = new GeneratorExportService(http, appConfigService),
+    private dppMetadataExportService: GeneratorDppMetadataExportService = new GeneratorDppMetadataExportService(http),
   ) {}
 
   get additionalV3Submodels() {
@@ -797,7 +800,7 @@ export class GeneratorService {
     }
   }
 
-  private async populateExportStateV3(exportState: GeneratorExportState) {
+  private async populateExportStateV3(exportState: GeneratorExportState, dppMetadata?: GeneratorDppMetadataInput) {
     exportState.documentItems = this.getCurrentGeneratorDocumentItems(this.portalService.currentLanguage);
     exportState.nameplateSource = this.getCurrentGeneratorNameplateSource();
     exportState.assetKind =
@@ -813,6 +816,7 @@ export class GeneratorService {
       exportState,
       {
         applyDppFileReferences: () => this.applyDppFileReferences(),
+        appendDppMetadata: (state) => this.appendDppMetadataToExport(state, dppMetadata),
         appendTemplateBackedCoreExportSubmodels: (state) => this.appendTemplateBackedCoreExportSubmodels(state),
         appendStandardAssistantCoreExportSubmodels: (state) => this.appendStandardAssistantCoreExportSubmodels(state),
         appendBatteryPassportExportSubmodels: (state) => this.appendBatteryPassportExportSubmodels(state),
@@ -826,14 +830,14 @@ export class GeneratorService {
     );
   }
 
-  async getExportStateV3() {
+  async getExportStateV3(dppMetadata?: GeneratorDppMetadataInput) {
     const exportState = this.createExportStateV3();
 
-    return this.populateExportStateV3(exportState);
+    return this.populateExportStateV3(exportState, dppMetadata);
   }
 
-  async getVerifiableEnvironmentV3() {
-    const exportState = await this.getExportStateV3();
+  async getVerifiableEnvironmentV3(dppMetadata?: GeneratorDppMetadataInput) {
+    const exportState = await this.getExportStateV3(dppMetadata);
 
     return this.generatorExportService.getVerifiableEnvironment(exportState);
   }
@@ -856,21 +860,40 @@ export class GeneratorService {
     return exportState.env;
   }
 
-  async getFormDataV3() {
-    const exportState = await this.getExportStateV3();
+  async getFormDataV3(dppMetadata?: GeneratorDppMetadataInput) {
+    const exportState = await this.getExportStateV3(dppMetadata);
 
     return exportState.formData;
   }
 
-  async saveShell() {
-    const formData = await this.getFormDataV3();
+  async saveShell(dppMetadata?: GeneratorDppMetadataInput) {
+    const exportState = await this.getExportStateV3(dppMetadata);
+    const environment = this.generatorExportService.getVerifiableEnvironment(exportState);
+    const validationErrors = Array.from(aas.verification.verify(environment));
+    if (validationErrors.length > 0) {
+      throw new Error(`Die erzeugte AAS ist ungültig: ${validationErrors[0].message}`);
+    }
 
     return lastValueFrom(
       this.http.post<SaveShellResult>(
         `${this.appConfigService.config.aasApiPath}/Shells/CreateFromAssistant`,
-        formData,
+        exportState.formData,
       ),
     );
+  }
+
+  private async appendDppMetadataToExport(exportState: GeneratorExportState, dppMetadata?: GeneratorDppMetadataInput) {
+    if (dppMetadata == null) return;
+
+    const metadata = await this.dppMetadataExportService.instantiate(dppMetadata);
+
+    exportState.env.submodels = (exportState.env.submodels ?? []).filter(
+      (submodel) => submodel.idShort !== 'DppMeta' && submodel.idShort !== 'DppMetadata',
+    );
+    exportState.shell.submodels = (exportState.shell.submodels ?? []).filter(
+      (reference) => !reference.keys.some((key) => key.value.endsWith('/submodels/DppMetadata')),
+    );
+    appendExportSubmodel(exportState, metadata);
   }
 
   getSaveShellErrorMessage(error: unknown) {
@@ -1139,17 +1162,6 @@ export class GeneratorService {
     }
 
     this.applyDppValues(exportState.requiredSemanticIds);
-
-    createDppMetaSubmodels({
-      assetGlobalId: exportState.assetGlobalId,
-      dppId: exportState.dppId,
-      iriPrefix: this.portalService.iriPrefix,
-      assetKind: exportState.assetKind,
-      includeCarbonFootprintSpecification: this.hasDppPcfValues(),
-      requiredSemanticIds: exportState.requiredSemanticIds,
-    }).forEach((submodel) => {
-      appendExportSubmodel(exportState, submodel);
-    });
   }
 
   private shouldIncludeAdditionalGeneratorSubmodel(exportState: GeneratorExportState, submodel: aas.types.Submodel) {
@@ -1405,7 +1417,7 @@ export class GeneratorService {
     const shell = new aas.types.AssetAdministrationShell(shellId, assetInformation);
     shell.idShort = '';
     shell.description = [];
-    shell.submodels = [];
+    shell.submodels = null;
 
     return shell;
   }
@@ -1733,12 +1745,5 @@ export class GeneratorService {
     );
 
     return OrgaUserSeatStats.fromDto(dto);
-  }
-
-  getShellValidationErrors() {
-    return this.generatorStateStore.getShellVerificationErrors();
-  }
-  getSubmodelValidationErrors() {
-    return this.generatorStateStore.getSubmodelVerificationErrors();
   }
 }

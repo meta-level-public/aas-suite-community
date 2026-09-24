@@ -765,7 +765,7 @@ describe('GeneratorService', () => {
         (submodel: any) => submodel.administration?.templateId === 'https://admin-shell.io/idta-02004-2-0',
       ),
     ).toBe(true);
-    expect(env.submodels.some((submodel: any) => submodel.idShort === 'DppMeta')).toBe(true);
+    expect(env.submodels.some((submodel: any) => submodel.idShort === 'DppMeta')).toBe(false);
   });
 
   it('exports battery passport handover files via the shared document path', async () => {

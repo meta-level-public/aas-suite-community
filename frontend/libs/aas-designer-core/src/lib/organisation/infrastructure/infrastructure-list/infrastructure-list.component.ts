@@ -1,7 +1,7 @@
 import { HelpLabelComponent } from '@aas/common-components';
 import { AppConfigService } from '@aas/common-services';
 import { AasInfrastructureSettingsDto, SystemManagementClient, SystemType } from '@aas/webapi-client';
-import { Component, effect, inject, input, signal } from '@angular/core';
+import { Component, effect, inject, input, output, signal } from '@angular/core';
 import { TranslateModule } from '@ngx-translate/core';
 import { ButtonModule } from 'primeng/button';
 import { FieldsetModule } from 'primeng/fieldset';
@@ -47,6 +47,8 @@ export class InfrastructureListComponent extends HasChangesCheckable {
   ] as const;
 
   settings = input.required<AasInfrastructureSettingsDto>();
+  canConfigureDppApi = input(false);
+  configureDppApi = output<void>();
   systemManagementClient = inject(SystemManagementClient);
   appConfigService = inject(AppConfigService);
 

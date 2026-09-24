@@ -62,7 +62,7 @@ export class GeneratorStateStore {
     const normalizedSubmodels = this.normalizeSubmodels(submodels);
     const normalizedConceptDescriptions = this.normalizeConceptDescriptions(conceptDescriptions);
 
-    normalizedShell.submodels ??= [];
+    normalizedShell.submodels = this.createSubmodelReferences(normalizedSubmodels);
 
     this.shell.set(normalizedShell);
     this.environment.set(new aas.types.Environment([normalizedShell], [], []));
@@ -71,7 +71,9 @@ export class GeneratorStateStore {
   }
 
   setSubmodels(submodels: aas.types.Submodel[]) {
-    this.submodels.set(this.normalizeSubmodels(submodels));
+    const normalizedSubmodels = this.normalizeSubmodels(submodels);
+    this.submodels.set(normalizedSubmodels);
+    this.syncShellSubmodelReferences(normalizedSubmodels);
   }
 
   upsertSubmodel(submodel: aas.types.Submodel) {
@@ -90,6 +92,7 @@ export class GeneratorStateStore {
     }
 
     this.submodels.set(nextSubmodels);
+    this.syncShellSubmodelReferences(nextSubmodels);
   }
 
   setConceptDescriptions(conceptDescriptions: aas.types.ConceptDescription[]) {
@@ -98,6 +101,7 @@ export class GeneratorStateStore {
 
   private normalizeShell(shell: aas.types.AssetAdministrationShell | unknown) {
     if (shell instanceof aas.types.AssetAdministrationShell) {
+      this.normalizeNestedReferences(shell);
       return shell;
     }
 
@@ -115,6 +119,7 @@ export class GeneratorStateStore {
 
   private normalizeSubmodel(submodel: aas.types.Submodel | unknown) {
     if (submodel instanceof aas.types.Submodel) {
+      this.normalizeNestedReferences(submodel);
       return submodel;
     }
 
@@ -141,6 +146,42 @@ export class GeneratorStateStore {
     }
 
     return normalized.value;
+  }
+
+  private normalizeNestedReferences(value: unknown, visited = new WeakSet<object>()) {
+    if (value == null || typeof value !== 'object') {
+      return value;
+    }
+
+    if (visited.has(value)) {
+      return value;
+    }
+    visited.add(value);
+
+    if (Array.isArray(value)) {
+      value.forEach((item) => this.normalizeNestedReferences(item, visited));
+      return value;
+    }
+
+    const candidate = value as Record<string, unknown>;
+    if (Array.isArray(candidate['keys']) && typeof candidate['type'] === 'string') {
+      candidate['keys'] = candidate['keys'].map((key) => {
+        if (key instanceof aas.types.Key) {
+          return key;
+        }
+
+        const plainKey = key as Record<string, unknown>;
+        return new aas.types.Key(plainKey['type'] as aas.types.KeyTypes, `${plainKey['value'] ?? ''}`);
+      });
+    }
+
+    Object.entries(candidate).forEach(([key, child]) => {
+      if (key !== 'keys') {
+        this.normalizeNestedReferences(child, visited);
+      }
+    });
+
+    return value;
   }
 
   setFileAttachment(key: string, file: File | null) {
@@ -170,83 +211,6 @@ export class GeneratorStateStore {
     });
   }
 
-  getShellVerificationErrors() {
-    const shell = this.shell();
-    if (shell == null) {
-      throw new Error('Generator state store has no shell root for verification');
-    }
-
-    return this.verifyTargetsIndividually(shell, 'shell');
-  }
-
-  getSubmodelVerificationErrors() {
-    const submodels = this.submodels();
-    if (submodels.length === 0) {
-      throw new Error('Generator state store has no submodels for verification');
-    }
-
-    const errors: aas.verification.VerificationError[] = [];
-    submodels.forEach((submodel, index) => {
-      errors.push(...this.verifyTargetsIndividually(submodel, `submodel:${index}`));
-    });
-
-    return errors;
-  }
-
-  private verifyTargetsIndividually(root: aas.types.Class, scope: string) {
-    const targets = this.collectVerificationTargets(root, scope);
-    const errors: aas.verification.VerificationError[] = [];
-
-    targets.forEach((target) => {
-      try {
-        const targetErrors = Array.from(aas.verification.verify(target.element, false));
-
-        errors.push(...targetErrors);
-      } catch {
-        // Ignore individual verification crashes and continue with remaining targets.
-      }
-    });
-
-    return errors;
-  }
-
-  private collectVerificationTargets(root: aas.types.Class, _scope: string) {
-    const collected: Array<{ element: aas.types.Class; path: string }> = [];
-    const visited = new WeakSet<object>();
-
-    const visit = (value: unknown, path: string) => {
-      if (value == null || typeof value !== 'object') {
-        return;
-      }
-
-      if (Array.isArray(value)) {
-        value.forEach((item, index) => {
-          visit(item, `${path}[${index}]`);
-        });
-        return;
-      }
-
-      const objectValue = value as object;
-      if (visited.has(objectValue)) {
-        return;
-      }
-
-      visited.add(objectValue);
-
-      if (value instanceof aas.types.Class) {
-        collected.push({ element: value, path });
-      }
-
-      Object.entries(value as Record<string, unknown>).forEach(([key, child]) => {
-        visit(child, `${path}.${key}`);
-      });
-    };
-
-    visit(root, root.constructor.name);
-
-    return collected;
-  }
-
   updateAssetMetadata(input: GeneratorAssetMetadataInput | null | undefined, iriPrefix: string) {
     let shell = this.shell();
     if (shell == null) {
@@ -269,7 +233,7 @@ export class GeneratorStateStore {
       buildAssetShellIdentifier(iriPrefix, shellIdShort) ||
       IdGenerationUtil.generateIri('aas', iriPrefix);
     shell.description = this.toLangStrings(input?.assetShellDescription) ?? shell.description ?? [];
-    shell.submodels ??= [];
+    shell.submodels = this.createSubmodelReferences(this.submodels());
 
     shell.assetInformation.globalAssetId =
       input?.assetId?.trim() ||
@@ -320,9 +284,33 @@ export class GeneratorStateStore {
     );
     shell.idShort = 'aa';
     shell.description = [];
-    shell.submodels = [];
+    shell.submodels = null;
 
     return shell;
+  }
+
+  private syncShellSubmodelReferences(submodels: aas.types.Submodel[]) {
+    const shell = this.shell();
+    if (shell == null) return;
+
+    shell.submodels = this.createSubmodelReferences(submodels);
+    this.shell.set(shell);
+    const environment = this.environment();
+    if (environment != null) {
+      environment.assetAdministrationShells = [shell];
+      this.environment.set(environment);
+    }
+  }
+
+  private createSubmodelReferences(submodels: aas.types.Submodel[]) {
+    if (submodels.length === 0) return null;
+
+    return submodels.map(
+      (submodel) =>
+        new aas.types.Reference(aas.types.ReferenceTypes.ModelReference, [
+          new aas.types.Key(aas.types.KeyTypes.Submodel, submodel.id),
+        ]),
+    );
   }
 
   private toLangStrings(value: MultiLanguagePropertyValue[] | undefined) {

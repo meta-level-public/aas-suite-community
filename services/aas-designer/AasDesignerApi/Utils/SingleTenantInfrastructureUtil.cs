@@ -63,6 +63,10 @@ namespace AasDesignerApi.Utils
                     ConceptDescriptionRepositoryHcUrl =
                         appSettings.InitialConceptDescriptionRepositoryHcUrl,
                     ConceptDescriptionRepositoryHcEnabled = true,
+                    DppApiUrl = appSettings.InitialDppApiUrl,
+                    DppApiVersion = VersionOrDash(appSettings.InitialDppApiVersion),
+                    DppApiHcUrl = appSettings.InitialDppApiHcUrl,
+                    DppApiHcEnabled = !string.IsNullOrWhiteSpace(appSettings.InitialDppApiHcUrl),
 
                     AasEnvContainer = appSettings.InitialAasRepositoryContainer,
                     SmRegistryContainer = appSettings.InitialSubmodelRegistryContainer,
@@ -154,6 +158,10 @@ namespace AasDesignerApi.Utils
                 infra.ConceptDescriptionRepositoryVersion = conceptDescriptionVersion;
                 infra.ConceptDescriptionRepositoryHcUrl = conceptDescriptionHcUrl;
                 infra.ConceptDescriptionRepositoryHcEnabled = true;
+                infra.DppApiUrl = appSettings.InitialDppApiUrl;
+                infra.DppApiVersion = VersionOrDash(appSettings.InitialDppApiVersion);
+                infra.DppApiHcUrl = appSettings.InitialDppApiHcUrl;
+                infra.DppApiHcEnabled = !string.IsNullOrWhiteSpace(appSettings.InitialDppApiHcUrl);
             }
         }
     }

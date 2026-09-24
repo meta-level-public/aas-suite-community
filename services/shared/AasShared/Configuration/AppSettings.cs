@@ -50,6 +50,7 @@ public class AppSettings
     public bool AllowLicensePublicKeyOverride { get; set; } = false;
 
     public string ContainerManagerInboxDirectory { get; set; } = string.Empty;
+    public string DppSecurityBaseDirectory { get; set; } = string.Empty;
     public int StartContainerPort { get; set; } = 10000;
     public string ContainerHost { get; set; } = "http://localhost";
     public string DockerHostConnection { get; set; } = "tcp://172.17.0.1:2375";
@@ -72,6 +73,17 @@ public class AppSettings
     public string KeycloakAdminClientSecret { get; set; } = string.Empty;
     public string KeycloakAdminUsername { get; set; } = string.Empty;
     public string KeycloakAdminPassword { get; set; } = string.Empty;
+    public string DppGatewayOAuthClientId { get; set; } = "dpp-gateway";
+    public string DppGatewayOAuthClientSecret { get; set; } = string.Empty;
+    public string DppGatewayOAuthAudience { get; set; } = "dpp-api";
+    public string DppGatewayOAuthTokenHostHeader { get; set; } = string.Empty;
+    public string DppPolicyAdminOAuthClientId { get; set; } = "dpp-policy-admin";
+    public string DppPolicyAdminOAuthClientSecret { get; set; } = string.Empty;
+    public string DppPolicyAdminOAuthAudience { get; set; } = "dpp-api";
+    public string DppPolicyAdminOAuthTokenHostHeader { get; set; } = string.Empty;
+    public bool DppPolicyManagementApiEnabled { get; set; }
+    public string DppGatewayManagementUrl { get; set; } = string.Empty;
+    public string DppGatewayPublisherAudience { get; set; } = "dpp-gateway-management";
     public List<string> MigrationForceProvisionEmails { get; set; } = ["info@meta-level.de"];
 
     public string InitialAasDiscoveryUrl { get; set; } = string.Empty;
@@ -109,6 +121,9 @@ public class AppSettings
     public string InitialConceptDescriptionRepositoryContainer { get; set; } = string.Empty;
     public int InitialConceptDescriptionRepositoryContainerPort { get; set; }
     public string InitialConceptDescriptionRepositoryHcUrl { get; set; } = string.Empty;
+    public string InitialDppApiUrl { get; set; } = string.Empty;
+    public string InitialDppApiVersion { get; set; } = "-";
+    public string InitialDppApiHcUrl { get; set; } = string.Empty;
 
     public bool HandleInitialInfrastructureAsInternal { get; set; } = false;
 

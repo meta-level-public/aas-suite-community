@@ -296,7 +296,13 @@
                 <aas-v3-shells [shellParent]="selectedElement" [shellResult]="shellResult"></aas-v3-shells>
               }
               @case (EditorTypeOption.AssetAdministrationShell) {
-                <aas-v3-shell [shell]="selectedElement" [shellResult]="shellResult"></aas-v3-shell>
+                <aas-v3-shell
+                  [shell]="selectedElement"
+                  [shellResult]="shellResult"
+                  [showDppMetadata]="hasDppApiConfiguration()"
+                  [dppEditable]="showShellActions && !hasChanges() && !currentInfrastructure()?.isReadonly"
+                  (dppCreated)="actionRequested.emit('reset')"
+                ></aas-v3-shell>
               }
               @case (EditorTypeOption.Property) {
                 <aas-v3-property-editor

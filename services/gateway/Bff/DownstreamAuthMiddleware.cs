@@ -50,6 +50,17 @@ public sealed class DownstreamAuthMiddleware
                 context.RequestAborted
             );
 
+            if (!context.Request.Headers.ContainsKey("X-Organisation-ID"))
+            {
+                var organisationId =
+                    sessionState?.AuthResponse.PreferredOrgaId
+                    ?? sessionState?.AuthResponse.OrgaSettings.FirstOrDefault()?.OrgaId;
+                if (organisationId.HasValue)
+                {
+                    context.Request.Headers["X-Organisation-ID"] = organisationId.Value.ToString();
+                }
+            }
+
             if (!string.IsNullOrWhiteSpace(sessionState?.AuthResponse.JwtToken))
             {
                 context.Request.Headers.Authorization =

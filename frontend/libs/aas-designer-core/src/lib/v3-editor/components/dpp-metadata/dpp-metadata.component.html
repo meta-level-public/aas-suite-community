@@ -1,0 +1,178 @@
+<div class="flex flex-wrap items-center gap-2 px-4 py-2 border-b border-surface-200 bg-white text-sm">
+  <i class="pi pi-id-card text-primary" aria-hidden="true"></i>
+  <strong>DPP</strong>
+  @switch (status()) {
+    @case ('checking') {
+      <span>{{ 'DPP_METADATA_STATUS_CHECKING' | translate }}</span>
+    }
+    @case ('existing') {
+      <span>{{ 'DPP_METADATA_CONFIGURED' | translate }}</span>
+    }
+    @case ('missing') {
+      <span>{{ 'DPP_METADATA_NOT_CONFIGURED' | translate }}</span>
+    }
+    @case ('unavailable') {
+      <span>{{ 'DPP_METADATA_STATUS_UNAVAILABLE' | translate }}</span>
+    }
+  }
+  @if (status() === 'missing' && candidateCount()) {
+    <span class="text-muted-color">{{ 'DPP_METADATA_CANDIDATES_FOUND' | translate: { count: candidateCount() } }}</span>
+  }
+  @if (status() === 'existing') {
+    <p-button
+      class="ml-auto"
+      [label]="'DPP_READINESS_CHECK' | translate"
+      icon="pi pi-check-circle"
+      size="small"
+      [outlined]="true"
+      [loading]="readinessLoading"
+      (onClick)="checkReadiness()"
+    />
+  }
+  @if ((status() === 'missing' || status() === 'existing') && editable()) {
+    <p-button
+      [class.ml-auto]="status() === 'missing'"
+      [label]="(status() === 'existing' ? 'DPP_METADATA_EDIT' : 'DPP_METADATA_CREATE') | translate"
+      [icon]="status() === 'existing' ? 'pi pi-pencil' : 'pi pi-plus'"
+      size="small"
+      [outlined]="true"
+      (onClick)="openDialog()"
+    />
+  }
+</div>
+
+<p-dialog
+  [header]="(status() === 'existing' ? 'DPP_METADATA_EDIT' : 'DPP_METADATA_CREATE') | translate"
+  [(visible)]="dialogVisible"
+  [modal]="true"
+  [style]="{ width: 'min(56rem, 94vw)' }"
+>
+  <form class="flex flex-col gap-3" (ngSubmit)="save()">
+    @if (status() === 'missing') {
+      <p class="text-sm m-0">
+        {{ 'DPP_METADATA_CREATE_HINT' | translate }}
+      </p>
+    }
+    @if (!candidateCount()) {
+      <p class="text-sm m-0">
+        {{ 'DPP_METADATA_NO_SUBMODEL_HINT' | translate }}
+      </p>
+    }
+    <label class="flex flex-col gap-1"
+      >{{ 'DPP_ID' | translate }}<input class="w-full p-inputtext p-component" [value]="aasId()" disabled
+    /></label>
+    <label class="flex flex-col gap-1"
+      >{{ 'UNIQUE_PRODUCT_IDENTIFIER' | translate }}<input
+        class="w-full p-inputtext p-component"
+        name="productId"
+        [(ngModel)]="productId"
+        required
+    /></label>
+    <label class="flex flex-col gap-1"
+      >{{ 'GRANULARITY' | translate }}
+      <select class="w-full p-inputtext p-component" name="granularity" [(ngModel)]="granularity">
+        <option value="Item">{{ 'DPP_GRANULARITY_ITEM' | translate }}</option>
+        <option value="Model">{{ 'DPP_GRANULARITY_MODEL' | translate }}</option>
+        <option value="Batch">{{ 'DPP_GRANULARITY_BATCH' | translate }}</option>
+      </select>
+    </label>
+    <label class="flex flex-col gap-1"
+      >{{ 'DPP_SCHEMA_VERSION' | translate }}<input
+        class="w-full p-inputtext p-component"
+        name="schemaVersion"
+        [(ngModel)]="schemaVersion"
+        required
+    /></label>
+    <label class="flex flex-col gap-1"
+      >{{ 'DPP_STATUS' | translate }}
+      <select class="w-full p-inputtext p-component" name="dppStatus" [(ngModel)]="dppStatus" required>
+        <option value="Draft">{{ 'DPP_STATUS_DRAFT' | translate }}</option>
+        <option value="Active">{{ 'DPP_STATUS_ACTIVE' | translate }}</option>
+        <option value="Suspended">{{ 'DPP_STATUS_SUSPENDED' | translate }}</option>
+        <option value="Withdrawn">{{ 'DPP_STATUS_WITHDRAWN' | translate }}</option>
+      </select>
+    </label>
+    <label class="flex flex-col gap-1"
+      >{{ 'ECONOMIC_OPERATOR_ID' | translate }}<input
+        class="w-full p-inputtext p-component"
+        name="economicOperatorId"
+        [(ngModel)]="economicOperatorId"
+        required
+    /></label>
+    <label class="flex flex-col gap-1"
+      >{{ 'FACILITY_ID' | translate }}<input class="w-full p-inputtext p-component" name="facilityId" [(ngModel)]="facilityId"
+    /></label>
+    <fieldset class="border border-surface-200 rounded p-3 max-h-56 overflow-auto">
+      <legend class="font-semibold px-1">{{ 'DPP_SUBMODELS' | translate }}</legend>
+      @for (submodel of selectableSubmodels(); track submodel.id) {
+        <label class="flex items-start gap-2 py-1">
+          <input
+            type="checkbox"
+            class="mt-1"
+            [checked]="selectedSubmodelIds.has(submodel.id)"
+            [disabled]="!submodel.semanticId"
+            (change)="setSubmodelSelected(submodel.id, $any($event.target).checked)"
+          />
+          <span class="min-w-0">
+            <span class="block">{{ submodel.name }}</span>
+            <small class="block text-muted-color break-all">{{
+              submodel.semanticId || ('NO_SEMANTIC_ID' | translate)
+            }}</small>
+          </span>
+        </label>
+      } @empty {
+        <p class="text-sm m-0">{{ 'DPP_METADATA_NO_SUBMODELS' | translate }}</p>
+      }
+    </fieldset>
+    @if (error) {
+      <p class="text-red-600 text-sm m-0" role="alert">{{ error }}</p>
+    }
+    <div class="flex justify-end gap-2 mt-2">
+      <p-button [label]="'CANCEL' | translate" severity="secondary" [text]="true" (onClick)="dialogVisible = false" />
+      <p-button
+        [label]="(status() === 'existing' ? 'SAVE_CHANGES' : 'DPP_METADATA_CREATE_ACTION') | translate"
+        icon="pi pi-check"
+        type="submit"
+        [loading]="saving"
+        [disabled]="!productId.trim() || !schemaVersion.trim() || !economicOperatorId.trim()"
+      />
+    </div>
+  </form>
+</p-dialog>
+
+<p-dialog
+  [header]="'DPP_READINESS' | translate"
+  [(visible)]="readinessVisible"
+  [modal]="true"
+  [style]="{ width: 'min(42rem, 94vw)' }"
+>
+  @if (readinessLoading) {
+    <p class="m-0">{{ 'DPP_READINESS_RUNNING' | translate }}</p>
+  } @else if (readinessError) {
+    <p class="text-red-600 m-0" role="alert">{{ readinessError }}</p>
+  } @else if (readinessResult; as result) {
+    <p class="font-semibold mt-0" [class.text-green-700]="result.ready" [class.text-red-700]="!result.ready">
+      {{ (result.ready ? 'DPP_READINESS_AVAILABLE' : 'DPP_READINESS_UNAVAILABLE') | translate }}
+    </p>
+    <ul class="list-none p-0 m-0 max-h-96 overflow-auto">
+      @for (issue of result.issues; track $index) {
+        <li class="py-2 border-b border-surface-200 flex items-start gap-2">
+          <i
+            [class]="
+              issue.severity === 'error'
+                ? 'pi pi-times-circle text-red-600'
+                : 'pi pi-exclamation-triangle text-amber-600'
+            "
+            aria-hidden="true"
+          ></i>
+          <span class="break-all">{{ issue.message }}</span>
+        </li>
+      } @empty {
+        <li>{{ 'DPP_READINESS_NO_ISSUES' | translate }}</li>
+      }
+    </ul>
+    <p class="text-sm text-muted-color mb-0">
+      {{ 'DPP_READINESS_DISCLAIMER' | translate }}
+    </p>
+  }
+</p-dialog>
