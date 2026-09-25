@@ -54,14 +54,24 @@ namespace AasDesignerCommon.Shells
         )
         {
             var url = editorDescriptor.AasDescriptorEntry.Endpoint;
-            var response = await client.DeleteAsync(url, cancellationToken);
-            if (!response.IsSuccessStatusCode)
+            HttpResponseMessage response;
+            if (!string.IsNullOrWhiteSpace(url))
             {
-                LogDeleteFailure("AAS", response.StatusCode);
+                response = await client.DeleteAsync(url, cancellationToken);
+                if (!response.IsSuccessStatusCode)
+                {
+                    LogDeleteFailure("AAS", response.StatusCode);
+                }
             }
 
             foreach (var submodelDescriptorEntry in editorDescriptor.SubmodelDescriptorEntries)
             {
+                // submodels that could not be loaded (missing in the repository) have no endpoint
+                if (string.IsNullOrWhiteSpace(submodelDescriptorEntry.Endpoint))
+                {
+                    continue;
+                }
+
                 try
                 {
                     url = submodelDescriptorEntry.Endpoint;

@@ -127,6 +127,9 @@ public class AppSettings
 
     public bool HandleInitialInfrastructureAsInternal { get; set; } = false;
 
+    // The shipped stacks (compose wizard, deploy) install BaSyx Go for the initial infrastructure.
+    public bool InitialInfrastructureIsGo { get; set; } = true;
+
     public string ViewerAppUrl { get; set; } = "https://viewer.aas-suite.de";
 
     public bool PluginsEnabled { get; set; } = true;

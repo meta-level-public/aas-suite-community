@@ -150,31 +150,7 @@ namespace AasDesignerApi.Orga
             _context.SaveChanges();
 
             // Create permissions for all active users of the organisation
-            var activeUserIds = _context
-                .BenutzerOrganisations.Include(bo => bo.Benutzer)
-                .Where(bo =>
-                    bo.OrganisationId == organisation.Id
-                    && !bo.Geloescht
-                    && !bo.Benutzer.IsSystemUser
-                )
-                .Select(bo => bo.BenutzerId)
-                .ToList();
-
-            foreach (var userId in activeUserIds)
-            {
-                _context.BenutzerInfrastrukturRechte.Add(
-                    new BenutzerInfrastrukturRecht
-                    {
-                        BenutzerId = userId,
-                        OrganisationId = organisation.Id,
-                        InfrastrukturId = infra.Id,
-                        DarfLesen = true,
-                        DarfSchreiben = true,
-                        DarfMarktPublizieren = true,
-                        AnlageBenutzer = "system",
-                    }
-                );
-            }
+            InfrastrukturRechteUtil.GrantAllOrganisationUsers(_context, organisation.Id, infra.Id);
             _context.SaveChanges();
 
             // URLs in DB must remain the real target endpoints.
@@ -337,31 +313,7 @@ namespace AasDesignerApi.Orga
             _context.SaveChanges();
 
             // Create permissions for all active users of the organisation
-            var activeGoUserIds = _context
-                .BenutzerOrganisations.Include(bo => bo.Benutzer)
-                .Where(bo =>
-                    bo.OrganisationId == organisation.Id
-                    && !bo.Geloescht
-                    && !bo.Benutzer.IsSystemUser
-                )
-                .Select(bo => bo.BenutzerId)
-                .ToList();
-
-            foreach (var userId in activeGoUserIds)
-            {
-                _context.BenutzerInfrastrukturRechte.Add(
-                    new BenutzerInfrastrukturRecht
-                    {
-                        BenutzerId = userId,
-                        OrganisationId = organisation.Id,
-                        InfrastrukturId = infra.Id,
-                        DarfLesen = true,
-                        DarfSchreiben = true,
-                        DarfMarktPublizieren = true,
-                        AnlageBenutzer = "system",
-                    }
-                );
-            }
+            InfrastrukturRechteUtil.GrantAllOrganisationUsers(_context, organisation.Id, infra.Id);
             _context.SaveChanges();
 
             var infoString = System.Text.Json.JsonSerializer.Serialize(containerInfos);

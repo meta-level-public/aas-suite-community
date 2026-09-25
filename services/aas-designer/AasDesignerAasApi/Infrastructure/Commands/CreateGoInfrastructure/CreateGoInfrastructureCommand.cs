@@ -186,6 +186,9 @@ public class CreateGoInfrastructureHandler : IRequestHandler<CreateGoInfrastruct
         _context.AasInfrastructureSettings.Add(infra);
         _context.SaveChanges();
 
+        InfrastrukturRechteUtil.GrantAllOrganisationUsers(_context, orga.Id, infra.Id);
+        _context.SaveChanges();
+
         var infoString = System.Text.Json.JsonSerializer.Serialize(containerInfos);
         var inboxDirectory = _appSettings.ContainerManagerInboxDirectory;
         if (!string.IsNullOrWhiteSpace(inboxDirectory))

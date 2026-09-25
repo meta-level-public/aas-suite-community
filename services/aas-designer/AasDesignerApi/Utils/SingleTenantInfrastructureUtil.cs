@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using AasDesignerCommon.Model;
+using AasDesignerCommon.Utils;
 using AasDesignerModel;
 using AasDesignerModel.Model;
 
@@ -23,75 +24,76 @@ namespace AasDesignerApi.Utils
         {
             // Create single tenant infrastructure
 
-            orga.AasInfrastructureSettings.Add(
-                new AasInfrastructureSettings
-                {
-                    AasDiscoveryUrl = appSettings.InitialAasDiscoveryUrl,
-                    AasDiscoveryVersion = VersionOrDash(appSettings.InitialAasDiscoveryVersion),
-                    AasDiscoveryHcUrl = appSettings.InitialAasDiscoveryHcUrl,
-                    AasDiscoveryHcEnabled = true,
+            var infra = new AasInfrastructureSettings
+            {
+                AasDiscoveryUrl = appSettings.InitialAasDiscoveryUrl,
+                AasDiscoveryVersion = VersionOrDash(appSettings.InitialAasDiscoveryVersion),
+                AasDiscoveryHcUrl = appSettings.InitialAasDiscoveryHcUrl,
+                AasDiscoveryHcEnabled = true,
 
-                    AasRegistryUrl = appSettings.InitialAasRegistryUrl,
-                    AasRegistryVersion = VersionOrDash(appSettings.InitialAasRegistryVersion),
-                    AasRegistryHcUrl = appSettings.InitialAasRegistryHcUrl,
-                    AasRegistryHcEnabled = true,
+                AasRegistryUrl = appSettings.InitialAasRegistryUrl,
+                AasRegistryVersion = VersionOrDash(appSettings.InitialAasRegistryVersion),
+                AasRegistryHcUrl = appSettings.InitialAasRegistryHcUrl,
+                AasRegistryHcEnabled = true,
 
-                    AasRepositoryUrl = appSettings.InitialAasRepositoryUrl,
-                    AasRepositoryVersion = VersionOrDash(appSettings.InitialAasRepositoryVersion),
-                    AasRepositoryHcUrl = appSettings.InitialAasRepositoryHcUrl,
-                    AasRepositoryHcEnabled = true,
+                AasRepositoryUrl = appSettings.InitialAasRepositoryUrl,
+                AasRepositoryVersion = VersionOrDash(appSettings.InitialAasRepositoryVersion),
+                AasRepositoryHcUrl = appSettings.InitialAasRepositoryHcUrl,
+                AasRepositoryHcEnabled = true,
 
-                    SubmodelRegistryUrl = appSettings.InitialSubmodelRegistryUrl,
-                    SubmodelRegistryVersion = VersionOrDash(
-                        appSettings.InitialSubmodelRegistryVersion
-                    ),
-                    SubmodelRegistryHcUrl = appSettings.InitialSubmodelRegistryHcUrl,
-                    SubmodelRegistryHcEnabled = true,
+                SubmodelRegistryUrl = appSettings.InitialSubmodelRegistryUrl,
+                SubmodelRegistryVersion = VersionOrDash(appSettings.InitialSubmodelRegistryVersion),
+                SubmodelRegistryHcUrl = appSettings.InitialSubmodelRegistryHcUrl,
+                SubmodelRegistryHcEnabled = true,
 
-                    SubmodelRepositoryUrl = appSettings.InitialSubmodelRepositoryUrl,
-                    SubmodelRepositoryVersion = VersionOrDash(
-                        appSettings.InitialSubmodelRepositoryVersion
-                    ),
-                    SubmodelRepositoryHcUrl = appSettings.InitialSubmodelRepositoryHcUrl,
-                    SubmodelRepositoryHcEnabled = true,
+                SubmodelRepositoryUrl = appSettings.InitialSubmodelRepositoryUrl,
+                SubmodelRepositoryVersion = VersionOrDash(
+                    appSettings.InitialSubmodelRepositoryVersion
+                ),
+                SubmodelRepositoryHcUrl = appSettings.InitialSubmodelRepositoryHcUrl,
+                SubmodelRepositoryHcEnabled = true,
 
-                    ConceptDescriptionRepositoryUrl =
-                        appSettings.InitialConceptDescriptionRepositoryUrl,
-                    ConceptDescriptionRepositoryVersion = VersionOrDash(
-                        appSettings.InitialConceptDescriptionRepositoryVersion
-                    ),
-                    ConceptDescriptionRepositoryHcUrl =
-                        appSettings.InitialConceptDescriptionRepositoryHcUrl,
-                    ConceptDescriptionRepositoryHcEnabled = true,
-                    DppApiUrl = appSettings.InitialDppApiUrl,
-                    DppApiVersion = VersionOrDash(appSettings.InitialDppApiVersion),
-                    DppApiHcUrl = appSettings.InitialDppApiHcUrl,
-                    DppApiHcEnabled = !string.IsNullOrWhiteSpace(appSettings.InitialDppApiHcUrl),
+                ConceptDescriptionRepositoryUrl =
+                    appSettings.InitialConceptDescriptionRepositoryUrl,
+                ConceptDescriptionRepositoryVersion = VersionOrDash(
+                    appSettings.InitialConceptDescriptionRepositoryVersion
+                ),
+                ConceptDescriptionRepositoryHcUrl =
+                    appSettings.InitialConceptDescriptionRepositoryHcUrl,
+                ConceptDescriptionRepositoryHcEnabled = true,
+                DppApiUrl = appSettings.InitialDppApiUrl,
+                DppApiVersion = VersionOrDash(appSettings.InitialDppApiVersion),
+                DppApiHcUrl = appSettings.InitialDppApiHcUrl,
+                DppApiHcEnabled = !string.IsNullOrWhiteSpace(appSettings.InitialDppApiHcUrl),
 
-                    AasEnvContainer = appSettings.InitialAasRepositoryContainer,
-                    SmRegistryContainer = appSettings.InitialSubmodelRegistryContainer,
-                    AasRegistryContainer = appSettings.InitialAasRegistryContainer,
-                    AasDiscoveryContainer = appSettings.InitialAasDiscoveryContainer,
+                AasEnvContainer = appSettings.InitialAasRepositoryContainer,
+                SmRegistryContainer = appSettings.InitialSubmodelRegistryContainer,
+                AasRegistryContainer = appSettings.InitialAasRegistryContainer,
+                AasDiscoveryContainer = appSettings.InitialAasDiscoveryContainer,
 
-                    // BasyxVersion = "1.0.0",
-                    HostPortAasEnv = appSettings.InitialAasRepositoryContainerPort,
-                    HostPortAasRegistry = appSettings.InitialAasRegistryContainerPort,
-                    HostPortAasDiscovery = appSettings.InitialAasDiscoveryContainerPort,
-                    HostPortSmRegistry = appSettings.InitialSubmodelRegistryContainerPort,
-                    HostPortMqtt = 0,
-                    IsInternal = appSettings.HandleInitialInfrastructureAsInternal,
-                    HandleAsInternal = false,
-                    InternalPortAasEnv = appSettings.InitialAasRepositoryContainerPort,
-                    InternalPortAasRegistry = appSettings.InitialAasRegistryContainerPort,
-                    InternalPortAasDiscovery = appSettings.InitialAasDiscoveryContainerPort,
-                    InternalPortSmRegistry = appSettings.InitialSubmodelRegistryContainerPort,
-                    IsActive = true,
-                    IsReadonly = false,
-                    Name = "Internal Infrastructure",
-                    Description = "Internal Infrastructure",
-                }
-            );
+                // BasyxVersion = "1.0.0",
+                HostPortAasEnv = appSettings.InitialAasRepositoryContainerPort,
+                HostPortAasRegistry = appSettings.InitialAasRegistryContainerPort,
+                HostPortAasDiscovery = appSettings.InitialAasDiscoveryContainerPort,
+                HostPortSmRegistry = appSettings.InitialSubmodelRegistryContainerPort,
+                HostPortMqtt = 0,
+                IsInternal = appSettings.HandleInitialInfrastructureAsInternal,
+                HandleAsInternal = false,
+                InternalPortAasEnv = appSettings.InitialAasRepositoryContainerPort,
+                InternalPortAasRegistry = appSettings.InitialAasRegistryContainerPort,
+                InternalPortAasDiscovery = appSettings.InitialAasDiscoveryContainerPort,
+                InternalPortSmRegistry = appSettings.InitialSubmodelRegistryContainerPort,
+                IsActive = true,
+                IsReadonly = false,
+                IsGoInfrastructure = appSettings.InitialInfrastructureIsGo,
+                Name = "Internal Infrastructure",
+                Description = "Internal Infrastructure",
+            };
+            orga.AasInfrastructureSettings.Add(infra);
 
+            context.SaveChanges();
+
+            InfrastrukturRechteUtil.GrantAllOrganisationUsers(context, orga.Id, infra.Id);
             context.SaveChanges();
         }
 
@@ -133,6 +135,7 @@ namespace AasDesignerApi.Utils
             {
                 infra.IsInternal = appSettings.HandleInitialInfrastructureAsInternal;
                 infra.HandleAsInternal = false;
+                infra.IsGoInfrastructure = appSettings.InitialInfrastructureIsGo;
                 infra.AasDiscoveryUrl = appSettings.InitialAasDiscoveryUrl;
                 infra.AasDiscoveryVersion = discoveryVersion;
                 infra.AasDiscoveryHcUrl = discoveryHcUrl;
