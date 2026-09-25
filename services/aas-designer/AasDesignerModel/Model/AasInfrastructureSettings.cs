@@ -212,14 +212,27 @@ namespace AasDesignerModel.Model
                     AasRegistryContainer,
                     InternalPortAasRegistry
                 ),
-                "sm-repo" => BuildInternalBaseUrl(AasEnvContainer, InternalPortAasEnv),
-                "sm-repository" => BuildInternalBaseUrl(AasEnvContainer, InternalPortAasEnv),
+                "sm-repo" => GetAasEnvServiceUrl(SubmodelRepositoryUrl),
+                "sm-repository" => GetAasEnvServiceUrl(SubmodelRepositoryUrl),
                 "sm-reg" => BuildInternalBaseUrl(SmRegistryContainer, InternalPortSmRegistry),
                 "sm-registry" => BuildInternalBaseUrl(SmRegistryContainer, InternalPortSmRegistry),
-                "cd-repo" => BuildInternalBaseUrl(AasEnvContainer, InternalPortAasEnv),
-                "cd-repository" => BuildInternalBaseUrl(AasEnvContainer, InternalPortAasEnv),
+                "cd-repo" => GetAasEnvServiceUrl(ConceptDescriptionRepositoryUrl),
+                "cd-repository" => GetAasEnvServiceUrl(ConceptDescriptionRepositoryUrl),
                 _ => string.Empty,
             };
+        }
+
+        // Submodel and concept description repositories share the aas-env container in hosted
+        // setups, but run as separate containers in the OSS stack (BaSyx Go). Prefer an explicitly
+        // configured absolute URL so separate containers are addressed correctly.
+        private string GetAasEnvServiceUrl(string configuredUrl)
+        {
+            if (Uri.TryCreate(configuredUrl, UriKind.Absolute, out _))
+            {
+                return configuredUrl;
+            }
+
+            return BuildInternalBaseUrl(AasEnvContainer, InternalPortAasEnv);
         }
 
         private static (string ServiceUrl, string HealthUrl) ApplyInternalServiceUrl(
