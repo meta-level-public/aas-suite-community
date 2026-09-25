@@ -7,7 +7,7 @@ WIZARD_SECTION_INDEX=0
 STACK_ASSETS_DIR_NAME="stack-assets"
 # Standard-Image-Version der AAS-Suite-Images, die die Wizards vorschlagen.
 # Muss bei jedem Release auf die neue Version gesetzt werden; die CI prüft das beim Tag-Build.
-SUITE_IMAGE_VERSION="1.0.1"
+SUITE_IMAGE_VERSION="1.1.0"
 if [ -n "${NO_COLOR-}" ]; then
   RED=''
   GREEN=''
@@ -576,6 +576,36 @@ prepare_dpp_assets() {
   chmod +x "${compose_dir}/keycloak-bootstrap/bootstrap-dpp-clients.sh"
 }
 
+# DPP-Werte, die im Wizard-State gespeichert werden (für save_state_file, unquotiert übergeben)
+DPP_STATE_KEYS="DPP_GATEWAY_IMAGE_REPO DPP_GATEWAY_IMAGE_TAG DPP_GATEWAY_HOST_PORT DPP_GATEWAY_POSTGRES_DB DPP_GATEWAY_CLIENT_SECRET DPP_POLICY_ADMIN_CLIENT_SECRET"
+
+# Kopiert das DPP-Explorer-Plugin aus dem Repository bzw. dem Wizard-Paket in den Plugin-Ordner des Stacks
+copy_dpp_explorer_plugin() {
+  local compose_file="$1"
+  local plugins_dir
+  plugins_dir="$(dirname "$compose_file")/plugins"
+  local root_dir="${ROOT_DIR:-$(cd "${SCRIPT_DIR}/../../.." && pwd)}"
+  mkdir -p "$plugins_dir"
+  if [ -f "${root_dir}/plugins/dpp-explorer-plugin.zip" ]; then
+    cp "${root_dir}/plugins/dpp-explorer-plugin.zip" "$plugins_dir/"
+  elif [ -f "${SCRIPT_DIR}/../plugins/dpp-explorer-plugin.zip" ]; then
+    cp "${SCRIPT_DIR}/../plugins/dpp-explorer-plugin.zip" "$plugins_dir/"
+  fi
+}
+
+# Schreibt die DPP-Werte in die .env; die DPP_*-Variablen setzt der aufrufende Wizard
+write_dpp_env() {
+  local env_file="$1"
+  write_env "$env_file" "DPP_GATEWAY_POSTGRES_DB" "$DPP_GATEWAY_POSTGRES_DB"
+  write_env "$env_file" "DPP_GATEWAY_IMAGE_REPO" "$DPP_GATEWAY_IMAGE_REPO"
+  write_env "$env_file" "DPP_GATEWAY_IMAGE_TAG" "$DPP_GATEWAY_IMAGE_TAG"
+  write_env "$env_file" "DPP_GATEWAY_HOST_PORT" "$DPP_GATEWAY_HOST_PORT"
+  write_env "$env_file" "DPP_API_IMAGE_REPO" "${DPP_API_IMAGE_REPO:-eclipsebasyx/dppapi-go}"
+  write_env "$env_file" "DPP_API_IMAGE_TAG" "${DPP_API_IMAGE_TAG:-1.0.12}"
+  write_env "$env_file" "DPP_GATEWAY_CLIENT_SECRET" "$DPP_GATEWAY_CLIENT_SECRET"
+  write_env "$env_file" "DPP_POLICY_ADMIN_CLIENT_SECRET" "$DPP_POLICY_ADMIN_CLIENT_SECRET"
+}
+
 append_dpp_services() {
   local compose_file="$1"
   local network_name="$2"
@@ -609,6 +639,7 @@ append_dpp_services() {
       POSTGRES_USER: \${POSTGRES_USER}
       POSTGRES_PASSWORD: \${POSTGRES_PASSWORD}
       POSTGRES_DBNAME: \${BASYX_POSTGRES_DB}
+      GENERAL_EXTERNALURL: \${BASE_URL}/aas-proxy/aas-repo/
       BASYX_HISTORY_MODE: audit
       ABAC_ENABLED: "true"
       ABAC_MODELPATH: /security_env/access-rules.json
@@ -1176,6 +1207,7 @@ EOF_COMPOSE
       AppSettings__DppGatewayOAuthClientSecret: \${DPP_GATEWAY_CLIENT_SECRET}
       AppSettings__DppGatewayOAuthAudience: dpp-api
       AppSettings__DppGatewayManagementUrl: http://dpp-gateway:8080
+      AppSettings__DppGatewayPublicUrl: \${DPP_GATEWAY_PUBLIC_URL:-}
       AppSettings__DppGatewayPublisherAudience: dpp-gateway-management
       AppSettings__DppSecurityBaseDirectory: /app/dpp-security
       AppSettings__DppPolicyAdminOAuthClientId: dpp-policy-admin

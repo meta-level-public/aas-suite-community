@@ -1,9 +1,17 @@
+import { NotificationService } from '@aas/common-services';
+import { Clipboard } from '@angular/cdk/clipboard';
 import { CommonModule } from '@angular/common';
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { Component, computed, effect, inject, input, output, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Button } from 'primeng/button';
+import { Checkbox } from 'primeng/checkbox';
 import { Dialog } from 'primeng/dialog';
+import { InputGroup } from 'primeng/inputgroup';
+import { InputGroupAddon } from 'primeng/inputgroupaddon';
+import { InputText } from 'primeng/inputtext';
+import { Select } from 'primeng/select';
+import { Tooltip } from 'primeng/tooltip';
 import { TranslateModule } from '@ngx-translate/core';
 import { firstValueFrom } from 'rxjs';
 
@@ -21,6 +29,7 @@ interface DppMetadataSettings {
   economicOperatorId: string | null;
   facilityId: string | null;
   contentSpecificationIds: string[];
+  publicUrl: string | null;
 }
 
 type DppStatus = 'Draft' | 'Active' | 'Suspended' | 'Withdrawn';
@@ -33,11 +42,25 @@ interface DppReadinessResult {
 
 @Component({
   selector: 'aas-dpp-metadata',
-  imports: [CommonModule, FormsModule, Button, Dialog, TranslateModule],
+  imports: [
+    CommonModule,
+    FormsModule,
+    Button,
+    Checkbox,
+    Dialog,
+    InputGroup,
+    InputGroupAddon,
+    InputText,
+    Select,
+    Tooltip,
+    TranslateModule,
+  ],
   templateUrl: './dpp-metadata.component.html',
 })
 export class DppMetadataComponent {
   private readonly http = inject(HttpClient);
+  private readonly clipboard = inject(Clipboard);
+  private readonly notificationService = inject(NotificationService);
 
   aasId = input.required<string>();
   editable = input(false);
@@ -60,6 +83,18 @@ export class DppMetadataComponent {
   readinessLoading = false;
   readinessError = '';
   readinessResult: DppReadinessResult | null = null;
+  publicUrl = signal<string | null>(null);
+  readonly granularityOptions = [
+    { value: 'Item', label: 'DPP_GRANULARITY_ITEM' },
+    { value: 'Model', label: 'DPP_GRANULARITY_MODEL' },
+    { value: 'Batch', label: 'DPP_GRANULARITY_BATCH' },
+  ];
+  readonly statusOptions: { value: DppStatus; label: string }[] = [
+    { value: 'Draft', label: 'DPP_STATUS_DRAFT' },
+    { value: 'Active', label: 'DPP_STATUS_ACTIVE' },
+    { value: 'Suspended', label: 'DPP_STATUS_SUSPENDED' },
+    { value: 'Withdrawn', label: 'DPP_STATUS_WITHDRAWN' },
+  ];
 
   candidateCount = computed(
     () =>
@@ -91,12 +126,14 @@ export class DppMetadataComponent {
       );
       if (this.aasId() === id) {
         this.currentMetadata = metadata;
+        this.publicUrl.set(metadata.publicUrl || null);
         this.status.set('existing');
       }
     } catch (error) {
       const response = error as HttpErrorResponse;
       if (this.aasId() === id) {
         this.currentMetadata = null;
+        this.publicUrl.set(null);
         this.status.set(response.status === 404 ? 'missing' : 'unavailable');
       }
     }
@@ -123,6 +160,13 @@ export class DppMetadataComponent {
         .map((submodel) => submodel.id),
     );
     this.dialogVisible = true;
+  }
+
+  copyPublicUrl(): void {
+    const url = this.publicUrl();
+    if (!url) return;
+    this.clipboard.copy(url);
+    this.notificationService.showMessageAlways('LINK_COPIED', 'SUCCESS', 'success', false);
   }
 
   setSubmodelSelected(id: string, selected: boolean): void {
