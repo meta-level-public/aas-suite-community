@@ -61,6 +61,7 @@ main() {
       APP_JWT_ISSUER APP_JWT_SALT APP_JWT_SECRET PLUGINS_ENABLED PLUGINS_DIRECTORY KEYCLOAK_SSO_SOURCE_NAME KEYCLOAK_EMAIL_CLAIM_NAME KEYCLOAK_FIRST_NAME_CLAIM_NAME KEYCLOAK_LAST_NAME_CLAIM_NAME BASYX_CONFIG_SERVICE_IMAGE_REPO \
       POSTGRES_IMAGE_REPO POSTGRES_IMAGE_TAG POSTGRES_CONTAINER_PORT \
       POSTGRES_DB POSTGRES_USER POSTGRES_PASSWORD POSTGRES_VOLUME BASYX_POSTGRES_DB KEYCLOAK_POSTGRES_DB \
+      $DPP_STATE_KEYS \
       KEYCLOAK_MODE KEYCLOAK_CLUSTER_URL KEYCLOAK_ISSUER KEYCLOAK_WELLKNOWN_URL KEYCLOAK_PUBLIC_ISSUER KEYCLOAK_PUBLIC_WELLKNOWN_URL \
       KEYCLOAK_CLIENT_ID KEYCLOAK_AUDIENCE KEYCLOAK_SCOPES KEYCLOAK_RESOURCE_ACCESS_NAME \
       KEYCLOAK_ADMIN_REALM KEYCLOAK_ADMIN_CLIENT_ID KEYCLOAK_ADMIN_CLIENT_SECRET KEYCLOAK_ADMIN_USERNAME KEYCLOAK_ADMIN_PASSWORD \
@@ -698,13 +699,7 @@ SUBMODEL_REPOSITORY_IMAGE_TAG_DEFAULT="$(state_default SUBMODEL_REPOSITORY_IMAGE
   assert_unique_ports "${ports[@]}"
 
   init_output_files "$COMPOSE_FILE" "$ENV_FILE"
-  mkdir -p "$(dirname "$COMPOSE_FILE")/plugins"
-  local repository_root="$(cd "${CURRENT_DIR}/../../.." && pwd)"
-  if [ -f "${repository_root}/plugins/dpp-explorer-plugin.zip" ]; then
-    cp "${repository_root}/plugins/dpp-explorer-plugin.zip" "$(dirname "$COMPOSE_FILE")/plugins/"
-  elif [ -f "${SCRIPT_DIR}/../plugins/dpp-explorer-plugin.zip" ]; then
-    cp "${SCRIPT_DIR}/../plugins/dpp-explorer-plugin.zip" "$(dirname "$COMPOSE_FILE")/plugins/"
-  fi
+  copy_dpp_explorer_plugin "$COMPOSE_FILE"
   if [ "$KEYCLOAK_MODE" = "install" ]; then
     prepare_keycloak_assets "$COMPOSE_FILE" "$resolved_keycloak_realm_file" "$resolved_keycloak_themes_path" "$PUBLIC_GATEWAY_URL"
   fi
@@ -742,14 +737,9 @@ SUBMODEL_REPOSITORY_IMAGE_TAG_DEFAULT="$(state_default SUBMODEL_REPOSITORY_IMAGE
   write_env "$ENV_FILE" "POSTGRES_PASSWORD" "$POSTGRES_PASSWORD"
   write_env "$ENV_FILE" "BASYX_POSTGRES_DB" "$BASYX_POSTGRES_DB"
   write_env "$ENV_FILE" "KEYCLOAK_POSTGRES_DB" "$KEYCLOAK_POSTGRES_DB"
-  write_env "$ENV_FILE" "DPP_GATEWAY_POSTGRES_DB" "$DPP_GATEWAY_POSTGRES_DB"
-  write_env "$ENV_FILE" "DPP_GATEWAY_IMAGE_REPO" "$DPP_GATEWAY_IMAGE_REPO"
-  write_env "$ENV_FILE" "DPP_GATEWAY_IMAGE_TAG" "$DPP_GATEWAY_IMAGE_TAG"
-  write_env "$ENV_FILE" "DPP_GATEWAY_HOST_PORT" "$DPP_GATEWAY_HOST_PORT"
-  write_env "$ENV_FILE" "DPP_API_IMAGE_REPO" "eclipsebasyx/dppapi-go"
-  write_env "$ENV_FILE" "DPP_API_IMAGE_TAG" "1.0.12"
-  write_env "$ENV_FILE" "DPP_GATEWAY_CLIENT_SECRET" "$(state_default DPP_GATEWAY_CLIENT_SECRET "$(openssl rand -hex 32)")"
-  write_env "$ENV_FILE" "DPP_POLICY_ADMIN_CLIENT_SECRET" "$(state_default DPP_POLICY_ADMIN_CLIENT_SECRET "$(openssl rand -hex 32)")"
+  DPP_GATEWAY_CLIENT_SECRET="$(state_default DPP_GATEWAY_CLIENT_SECRET "$(openssl rand -hex 32)")"
+  DPP_POLICY_ADMIN_CLIENT_SECRET="$(state_default DPP_POLICY_ADMIN_CLIENT_SECRET "$(openssl rand -hex 32)")"
+  write_dpp_env "$ENV_FILE"
   write_env "$ENV_FILE" "MARKT_POSTGRES_DB" ""
   write_env "$ENV_FILE" "KEYCLOAK_MODE" "$KEYCLOAK_MODE"
 

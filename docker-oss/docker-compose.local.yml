@@ -159,6 +159,7 @@ services:
       POSTGRES_USER: localPostgres
       POSTGRES_PASSWORD: P@SSworDT!
       POSTGRES_DBNAME: basyx_core
+      GENERAL_EXTERNALURL: http://aasrepository-go:8081
       BASYX_HISTORY_MODE: audit
       ABAC_ENABLED: "true"
       ABAC_MODELPATH: /security_env/access-rules.json

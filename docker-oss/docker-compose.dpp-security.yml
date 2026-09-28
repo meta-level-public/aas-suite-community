@@ -5,6 +5,7 @@ services:
       AppSettings__DppGatewayOAuthClientSecret: ${DPP_GATEWAY_CLIENT_SECRET:?DPP_GATEWAY_CLIENT_SECRET must be set}
       AppSettings__DppGatewayOAuthAudience: dpp-api
       AppSettings__DppGatewayManagementUrl: http://dpp-gateway:8080
+      AppSettings__DppGatewayPublicUrl: ${DPP_GATEWAY_PUBLIC_URL:-http://localhost:${DPP_GATEWAY_PORT:-5090}}
       AppSettings__DppGatewayPublisherAudience: dpp-gateway-management
       AppSettings__DppSecurityBaseDirectory: /app/dpp-security
       AppSettings__DppPolicyAdminOAuthClientId: dpp-policy-admin

@@ -83,6 +83,12 @@ public class AppSettings
     public string DppPolicyAdminOAuthTokenHostHeader { get; set; } = string.Empty;
     public bool DppPolicyManagementApiEnabled { get; set; }
     public string DppGatewayManagementUrl { get; set; } = string.Empty;
+
+    /// <summary>
+    /// Öffentlich erreichbare Basis-URL des DPP-Gateways, z. B. https://dpp.example.com.
+    /// Wird im Editor für die Anzeige der öffentlichen DPP-URL verwendet.
+    /// </summary>
+    public string DppGatewayPublicUrl { get; set; } = string.Empty;
     public string DppGatewayPublisherAudience { get; set; } = "dpp-gateway-management";
     public List<string> MigrationForceProvisionEmails { get; set; } = ["info@meta-level.de"];
 

@@ -154,8 +154,17 @@ public class DppMetadataController : InternalApiBaseController
                 economicOperatorId = Value("economicOperatorId"),
                 facilityId = Value("facilityId"),
                 contentSpecificationIds,
+                publicUrl = PublicDppUrl(aasId),
             }
         );
+    }
+
+    private string? PublicDppUrl(string aasId)
+    {
+        var gatewayUrl = ServiceUrl(_appSettings.DppGatewayPublicUrl);
+        return gatewayUrl == null
+            ? null
+            : $"{gatewayUrl}/dpp/v1/dpps/{Uri.EscapeDataString(aasId)}";
     }
 
     [HttpGet("readiness")]
