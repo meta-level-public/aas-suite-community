@@ -52,9 +52,15 @@ The repository includes a VS Code workspace profile under \`.vscode-oss/\` tailo
 
 If you do not want to set up a local development environment with a repository checkout, you can use the Docker Compose Wizard instead. This creates a portable runtime environment with the required Compose files and assets.
 
+Download the wizard package from the latest release and start it on the target server:
+
 ```bash
-bash tools/docker-compose-wizard/oss/create-compose-oss.sh
+curl -LO https://github.com/meta-level-public/aas-suite-community/releases/latest/download/docker-compose-wizard-oss.zip
+unzip docker-compose-wizard-oss.zip
+bash docker-compose-wizard-oss/oss/create-compose-oss.sh
 ```
+
+Inside a repository checkout, the wizard can also be started directly with `bash tools/docker-compose-wizard/oss/create-compose-oss.sh`. Copying only the `tools/docker-compose-wizard` folder is not sufficient, because the DPP assets are taken from `deploy/shared/`.
 
 The wizard creates a ready-to-start stack in a separate directory. More information can be found in [tools/docker-compose-wizard/oss/README.md](tools/docker-compose-wizard/oss/README.md).
 

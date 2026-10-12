@@ -436,7 +436,7 @@ export class BatteryHandoverComponent implements OnInit, OnDestroy {
 
       if (isMultiLanguageProperty) {
         if (element.value == null) {
-          element.value = [{ language: 'en', text: '' }];
+          element.value = [new aas.types.LangStringTextType('en', '')];
         }
 
         fields.push({

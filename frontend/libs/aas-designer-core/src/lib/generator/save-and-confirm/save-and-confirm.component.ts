@@ -1,8 +1,8 @@
 import * as aas from '@aas-core-works/aas-core3.1-typescript';
 import { AppConfigService, NotificationService, PortalService } from '@aas/common-services';
 import { IdGenerationUtil } from '@aas/helpers';
-import { Component, isDevMode, OnDestroy, OnInit, signal } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
+import { Component, isDevMode, OnDestroy, OnInit, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { DomSanitizer } from '@angular/platform-browser';
 import { Router } from '@angular/router';
@@ -141,7 +141,8 @@ export class SaveAndConfirmComponent implements OnInit, OnDestroy {
     if (
       this.generatorService.vwsTyp === 'dpp-core' ||
       (this.generatorService.vwsTyp === 'battery-passport' &&
-        this.generatorService.dppPcfEntries.productCarbonFootprints.length > 0)
+        (this.generatorService.dppPcfEntries.productCarbonFootprints.length > 0 ||
+          this.generatorService.dppPcfEntries.productOrSectorSpecificCarbonFootprints.length > 0))
     ) {
       data.push(this.createPcfNode());
     }
@@ -177,7 +178,8 @@ export class SaveAndConfirmComponent implements OnInit, OnDestroy {
     const previousMetadata = this.dppMetadata?.aasId === shell.id ? this.dppMetadata : null;
     const previousSelection = new Map(this.dppSubmodels.map((submodel) => [submodel.semanticId, submodel.selected]));
     const semanticIdOf = (submodel: aas.types.Submodel) => submodel.semanticId?.keys?.at(-1)?.value?.trim() ?? '';
-    this.dppSubmodels = this.generatorService.additionalV3Submodels
+    this.dppSubmodels = this.generatorService
+      .getAdditionalSubmodelsIncludedInExport()
       .filter(
         (submodel) =>
           submodel.idShort !== 'DppMeta' &&

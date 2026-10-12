@@ -276,14 +276,17 @@ export function present(key: string, raw: string): Omit<PassField, 'key' | 'labe
   return { value: raw, mono: identifierKey.test(key) || /^0173-1#/.test(raw) };
 }
 
-const words: Record<string, string> = {
+/** Common codes of other passport formats, keyed in lower case. */
+const words: Record<string, string> = Object.fromEntries(Object.entries({
   ...enums['BatteryCategory'], ...enums['dppStatus'], ...enums['granularity'],
-  item: 'Einzelprodukt', batch: 'Charge', model: 'Modell', manufacturer: 'Hersteller',
-};
+  manufacturer: 'Hersteller', importer: 'Importeur', distributor: 'Händler',
+  batteries: 'Batterien', textiles: 'Textilien', electronics: 'Elektronik', construction: 'Bauprodukte',
+  cosmetics: 'Kosmetik', toys: 'Spielzeug', chemicals: 'Chemikalien',
+}).map(([key, value]) => [key.toLowerCase(), value]));
 
 /** Display formatting for already formatted values of other passport formats (dates and common codes). */
 export function presentText(raw: string): string {
-  const word = words[raw] ?? words[raw.toLowerCase()];
+  const word = words[raw.toLowerCase()];
   if (word) return word;
   return /^\d{4}-\d{2}-\d{2}(T\d{2}:\d{2}.*)?$/.test(raw) ? formatDate(raw) : raw;
 }

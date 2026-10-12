@@ -1,0 +1,65 @@
+name: Compose Wizard Release
+
+# Hängt das portable Compose-Wizard-Paket an das GitHub-Release des Tags.
+# Download: https://github.com/<owner>/<repo>/releases/latest/download/docker-compose-wizard-oss.zip
+
+on:
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: Existing release tag (e.g. v1.1.2) to attach the wizard package to
+        required: true
+        type: string
+
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: "true"
+
+jobs:
+  release-compose-wizard:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - name: Resolve tag
+        id: tag
+        shell: bash
+        env:
+          INPUT_TAG: ${{ inputs.tag }}
+        run: |
+          set -euo pipefail
+          tag="${INPUT_TAG:-$GITHUB_REF_NAME}"
+          echo "tag=$tag" >> "$GITHUB_OUTPUT"
+
+      - name: Checkout code
+        uses: actions/checkout@v6
+        with:
+          ref: ${{ steps.tag.outputs.tag }}
+
+      - name: Build compose wizard ZIP
+        shell: bash
+        run: |
+          set -euo pipefail
+          tools/docker-compose-wizard/package-wizard.sh oss "$RUNNER_TEMP/compose-wizard"
+
+      - name: Attach ZIP to GitHub release
+        shell: bash
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          TAG: ${{ steps.tag.outputs.tag }}
+        run: |
+          set -euo pipefail
+          zip_path="$RUNNER_TEMP/compose-wizard/docker-compose-wizard-oss.zip"
+
+          if ! gh release view "$TAG" >/dev/null 2>&1; then
+            prerelease_flag=()
+            if [[ "$TAG" == *-* ]]; then
+              prerelease_flag=(--prerelease)
+            fi
+            gh release create "$TAG" --verify-tag --generate-notes --title "$TAG" "${prerelease_flag[@]}"
+          fi
+
+          gh release upload "$TAG" "$zip_path" --clobber

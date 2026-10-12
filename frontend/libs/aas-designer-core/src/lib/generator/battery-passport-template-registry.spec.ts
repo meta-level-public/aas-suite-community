@@ -83,6 +83,29 @@ describe('battery-passport-template-registry', () => {
     expect(getBatteryPassportTemplateKey(submodel)).toBe('product-carbon-footprint');
   });
 
+  it('classifies the canonical DBP carbon footprint template id stored as administration template id', () => {
+    const submodel = createSubmodel({
+      id: 'urn:test:carbon-footprint',
+      administration: {
+        templateId: 'https://admin-shell.io/idta/SubmodelTemplate/DigitalBatteryPassport/CarbonFootprint/1/0',
+      } as aas.types.Submodel['administration'],
+    });
+
+    expect(getBatteryPassportTemplateKey(submodel)).toBe('product-carbon-footprint');
+  });
+
+  it('classifies carbon footprint by its exact semantic id without an additional DBP marker', () => {
+    const submodel = createSubmodel({
+      id: 'urn:test:carbon-footprint',
+      idShort: 'CarbonFootprint',
+      semanticId: {
+        keys: [{ value: 'https://admin-shell.io/idta/CarbonFootprint/CarbonFootprint/1/0' }],
+      } as aas.types.Submodel['semanticId'],
+    });
+
+    expect(getBatteryPassportTemplateKey(submodel)).toBe('product-carbon-footprint');
+  });
+
   it('excludes handover from additional DBP submodels once the dedicated flow step is introduced', () => {
     const nameplate = createSubmodel({
       id: 'https://admin-shell.io/idta/SubmodelTemplate/DigitalBatteryPassport/DigitalNameplate/1/0',

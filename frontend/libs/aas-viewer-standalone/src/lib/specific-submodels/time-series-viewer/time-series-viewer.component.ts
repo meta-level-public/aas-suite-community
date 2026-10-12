@@ -5,7 +5,7 @@ import {
   SubmodelElementCollection,
 } from '@aas-core-works/aas-core3.1-typescript/types';
 import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
-import { Component, inject, Input, model, OnChanges, OnDestroy, OnInit, output, signal } from '@angular/core';
+import { Component, inject, input, Input, model, OnChanges, OnDestroy, OnInit, output, signal } from '@angular/core';
 import { lastValueFrom } from 'rxjs';
 
 import * as aas from '@aas-core-works/aas-core3.1-typescript';
@@ -72,6 +72,7 @@ type ViewerSelectionSnapshot = {
 })
 export class TimeSeriesViewerComponent implements OnInit, OnChanges, OnDestroy {
   @Input({ required: true }) timeSeries: Submodel | null | undefined;
+  submodelUrl = input('');
   segmentUrls: LinkedSegmentOption[] = [];
   selectedSegmentUrl: LinkedSegmentOption | undefined | null;
   token: string = '';
@@ -663,11 +664,20 @@ export class TimeSeriesViewerComponent implements OnInit, OnChanges, OnDestroy {
   }
 
   async loadChartData() {
-    const smUrl = await this.viewerStore.currentSmUrl();
-    const res = await lastValueFrom(this.http.get<any>(smUrl));
-    this.timeSeries = jsonization.submodelFromJsonable(res).value;
+    // Im Designer ist der ViewerStore nicht befüllt – dann die explizit übergebene URL verwenden.
+    // Ohne URL würde ein GET auf '' die index.html liefern und das JSON-Parsing scheitern.
+    const smUrl = this.submodelUrl() || this.viewerStore.currentSmUrl();
+    if (smUrl !== '') {
+      try {
+        const res = await lastValueFrom(this.http.get<any>(smUrl, { headers: this.viewerStore.headers() }));
+        this.timeSeries = jsonization.submodelFromJsonable(res).value;
+        this.rebuildViewerState();
+      } catch (e) {
+        // eslint-disable-next-line no-console
+        console.log(e);
+      }
+    }
 
-    this.rebuildViewerState();
     if (this.hasLinkedSegmentApi) {
       void this.loadLinkedDataAndDraw();
     }

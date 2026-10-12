@@ -1,15 +1,17 @@
 import {
+  AfterViewInit,
+  ChangeDetectorRef,
   Component,
   ComponentRef,
-  Input,
-  ViewChildren,
-  QueryList,
-  ChangeDetectorRef,
   inject,
-  AfterViewInit,
-  ViewContainerRef,
+  Input,
   OnDestroy,
+  QueryList,
+  Type,
+  ViewChildren,
+  ViewContainerRef,
 } from '@angular/core';
+import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'aas-submodel-elements-list',
@@ -28,12 +30,35 @@ export class SubmodelElementsListComponent implements AfterViewInit, OnDestroy {
 
   private cdr = inject(ChangeDetectorRef);
   private componentRefs: ComponentRef<any>[] = [];
+  private containersSub?: Subscription;
+  private genericViewerComponent?: Type<any>;
 
   async ngAfterViewInit() {
     // Dynamically load GenericViewerComponent to avoid circular dependency
     const { GenericViewerComponent } = await import('../generic-viewer/generic-viewer.component');
+    this.genericViewerComponent = GenericViewerComponent;
 
+    this.renderElements();
+    this.containersSub = this.containers.changes.subscribe(() => this.renderElements());
+  }
+
+  ngOnDestroy() {
+    this.containersSub?.unsubscribe();
+    this.destroyComponents();
+  }
+
+  private destroyComponents() {
+    this.componentRefs.forEach((ref) => ref.destroy());
+    this.componentRefs = [];
+  }
+
+  private renderElements() {
+    const GenericViewerComponent = this.genericViewerComponent;
+    if (!GenericViewerComponent) return;
+
+    this.destroyComponents();
     this.containers.forEach((container, index) => {
+      container.clear();
       const el = this.elements[index];
       const componentRef = container.createComponent(GenericViewerComponent);
       componentRef.setInput('rowData', el);
@@ -46,10 +71,6 @@ export class SubmodelElementsListComponent implements AfterViewInit, OnDestroy {
     });
 
     this.cdr.detectChanges();
-  }
-
-  ngOnDestroy() {
-    this.componentRefs.forEach((ref) => ref.destroy());
   }
 
   buildIdShortPath(el: any, index: number): string {

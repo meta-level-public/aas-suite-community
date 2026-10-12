@@ -28,45 +28,53 @@ public class DiscoveryUpdater
             Console.WriteLine("Error deleting discovery: " + e.Message);
         }
 
-        if (aas.AssetInformation.GlobalAssetId != null)
+        // The discovery API expects all asset links of a shell as one array;
+        // every POST replaces the previously stored links.
+        var assetLinks = BuildAssetLinks(aas.AssetInformation);
+        if (assetLinks.Count == 0)
         {
-            try
-            {
-                var globalElem = new DiscoveryElement
-                {
-                    name = "globalAssetId",
-                    value = aas.AssetInformation.GlobalAssetId,
-                };
-                var discoveryJsonString = JsonConvert.SerializeObject(globalElem);
-                var discoveryResponse = await client.PostAsync(
-                    discoveryUrl,
-                    new StringContent(discoveryJsonString, Encoding.UTF8, "application/json"),
-                    cancellationToken
-                );
-            }
-            catch (Exception e)
-            {
-                Console.WriteLine("Error saving discovery: " + e.Message);
-            }
+            return;
         }
 
-        foreach (var id in aas.AssetInformation.SpecificAssetIds ?? [])
+        try
         {
-            var globalElem = new DiscoveryElement { name = id.Name, value = id.Value };
-            var discoveryJsonString = JsonConvert.SerializeObject(globalElem);
-            try
+            var discoveryJsonString = JsonConvert.SerializeObject(assetLinks);
+            var discoveryResponse = await client.PostAsync(
+                discoveryUrl,
+                new StringContent(discoveryJsonString, Encoding.UTF8, "application/json"),
+                cancellationToken
+            );
+            if (!discoveryResponse.IsSuccessStatusCode)
             {
-                var discoveryResponse = await client.PostAsync(
-                    discoveryUrl,
-                    new StringContent(discoveryJsonString, Encoding.UTF8, "application/json"),
-                    cancellationToken
-                );
-            }
-            catch (Exception e)
-            {
-                Console.WriteLine("Error saving discovery: " + e.Message);
+                Console.WriteLine("Error saving discovery: " + discoveryResponse.StatusCode);
             }
         }
+        catch (Exception e)
+        {
+            Console.WriteLine("Error saving discovery: " + e.Message);
+        }
+    }
+
+    private static List<DiscoveryElement> BuildAssetLinks(IAssetInformation assetInformation)
+    {
+        var assetLinks = new List<DiscoveryElement>();
+        if (!string.IsNullOrWhiteSpace(assetInformation.GlobalAssetId))
+        {
+            assetLinks.Add(
+                new DiscoveryElement
+                {
+                    name = "globalAssetId",
+                    value = assetInformation.GlobalAssetId,
+                }
+            );
+        }
+
+        foreach (var id in assetInformation.SpecificAssetIds ?? [])
+        {
+            assetLinks.Add(new DiscoveryElement { name = id.Name, value = id.Value });
+        }
+
+        return assetLinks;
     }
 
     public static async Task RemoveFromDiscovery(

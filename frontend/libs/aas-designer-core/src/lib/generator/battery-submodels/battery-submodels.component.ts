@@ -415,7 +415,7 @@ export class BatterySubmodelsComponent implements OnInit, OnDestroy {
 
       if (this.isMultiLanguagePropertyElement(element, modelTypeLower)) {
         if (element.value == null) {
-          element.value = [{ language: 'en', text: '' }];
+          element.value = [new aas.types.LangStringTextType('en', '')];
         }
 
         return [

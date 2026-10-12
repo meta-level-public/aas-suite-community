@@ -9,45 +9,25 @@
       <div class="lookup-field">
         <app-icon name="link" />
         <input id="pass-url" name="pass-url" type="url" [(ngModel)]="url"
-          list="dpp-examples" placeholder="DPP-URL eingeben" autocomplete="url" required />
+          placeholder="DPP-URL eingeben" autocomplete="url" required />
       </div>
-      <datalist id="dpp-examples">
-        @for (source of sources(); track source.host) {
-          <option [value]="source.exampleUrl">{{ source.name }}</option>
-        }
-      </datalist>
       <button type="submit" [disabled]="loading() || !url.trim()">{{ loading() ? 'Lädt…' : 'Öffnen' }}</button>
     </form>
-    @if (canManage()) {
-      <button class="secondary host-settings-button" type="button" (click)="editing() ? editing.set(false) : editSources()">
-        {{ editing() ? 'Schließen' : 'Hosts' }}
-      </button>
+    @if (examples().length) {
+      <label class="visually-hidden" for="pass-example">Beispielpass</label>
+      <select id="pass-example" class="example-select" name="pass-example" [(ngModel)]="selectedExample"
+        (ngModelChange)="openExample($event)" [disabled]="loading()">
+        <option value="">Beispielpass wählen…</option>
+        @for (group of exampleGroups(); track group.format) {
+          <optgroup [label]="group.format">
+            @for (example of group.examples; track example.url) {
+              <option [value]="example.url">{{ example.name }}</option>
+            }
+          </optgroup>
+        }
+      </select>
     }
   </header>
-
-  @if (canManage() && editing()) {
-    <section class="settings">
-      <div class="settings-head">
-        <h2>Zusätzliche freigegebene Hosts</h2>
-      </div>
-      <form (ngSubmit)="saveSources()">
-        @for (source of draft; track $index; let index = $index) {
-          <div class="source-edit">
-            <label>Name <input name="name-{{index}}" [(ngModel)]="source.name" required /></label>
-            <label>Host <input name="host-{{index}}" [(ngModel)]="source.host" placeholder="example.org" required /></label>
-            <label>Beispiel-URL <input name="example-{{index}}" [(ngModel)]="source.exampleUrl" type="url" required /></label>
-            <button class="remove-button" type="button" (click)="removeSource(index)" [attr.aria-label]="'Host ' + source.name + ' entfernen'" title="Host entfernen">×</button>
-          </div>
-        }
-        <div class="actions">
-          <button class="secondary" type="button" (click)="addSource()">Host hinzufügen</button>
-          <button class="secondary" type="button" (click)="editing.set(false)">Abbrechen</button>
-          <button type="submit" [disabled]="saving()">{{ saving() ? 'Speichert…' : 'Speichern' }}</button>
-        </div>
-      </form>
-    </section>
-  }
-  @if (saveMessage()) { <p class="hint save-message" role="status">{{ saveMessage() }}</p> }
 
   @if (error()) { <p class="error" role="alert"><app-icon name="alert" />{{ error() }}</p> }
 
@@ -63,9 +43,9 @@
       } @else if (formatted(); as view) {
         <article class="pass">
           <header class="pass-hero">
-            <div class="hero-media"><app-icon name="battery" /></div>
+            <div class="hero-media"><app-icon [name]="formattedIsBattery() ? 'battery' : 'package'" /></div>
             <div class="hero-main">
-              <p class="kicker"><app-icon name="passport" />Digitaler Batteriepass<span class="format-tag">{{ openDpp() ? 'OpenDPP' : 'UNTP' }}</span></p>
+              <p class="kicker"><app-icon name="passport" />{{ formattedIsBattery() ? 'Digitaler Batteriepass' : 'Digitaler Produktpass' }}<span class="format-tag">{{ openDpp() ? 'OpenDPP' : 'UNTP' }}</span></p>
               <h2>{{ view.title }}</h2>
               @if (view.description) { <p class="hero-subtitle">{{ view.description }}</p> }
               <div class="chips">

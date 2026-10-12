@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
-import { formatBaSyxPassport, present } from './basyx-passport';
+import { formatBaSyxPassport, present, presentText } from './basyx-passport';
 
 const nameplate = 'https://admin-shell.io/idta/digitalbatterypassport/nameplate/1/0/Nameplate';
 const technical = 'https://admin-shell.io/idta/digitalbatterypassport/TechnicalData/1/0';
@@ -127,6 +127,14 @@ test('presents AAS values with German formatting', () => {
   assert.equal(present('WarrantyPeriod', 'P18M').value, '18 Monate');
   assert.equal(present('SerialNumber', '0012').value, '0012');
   assert.equal(present('URIOfTheProduct', 'https://example.com').href, 'https://example.com');
+});
+
+test('translates codes of other formats regardless of case', () => {
+  assert.equal(presentText('active'), 'Aktiv');
+  assert.equal(presentText('MANUFACTURER'), 'Hersteller');
+  assert.equal(presentText('textiles'), 'Textilien');
+  assert.equal(presentText('2025-03-01T00:00:00Z'), '01.03.2025');
+  assert.equal(presentText('LFP'), 'LFP');
 });
 
 test('does not claim arbitrary passports as BaSyX', () => {

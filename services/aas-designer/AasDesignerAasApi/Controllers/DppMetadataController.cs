@@ -797,7 +797,67 @@ public class DppMetadataController : InternalApiBaseController
             JsonContent(metadata),
             cancellationToken
         );
-        if (!createResponse.IsSuccessStatusCode)
+        if (createResponse.StatusCode == HttpStatusCode.Conflict)
+        {
+            var metadataUrl =
+                $"{submodelUrl}/submodels/{metadataId.ToBase64UrlEncoded(Encoding.UTF8)}";
+            using var storedResponse = await _httpClient.GetAsync(metadataUrl, cancellationToken);
+            if (!storedResponse.IsSuccessStatusCode)
+                return Conflict(
+                    "Das Metadaten-Submodell existiert bereits, konnte aber nicht geprüft werden."
+                );
+
+            var storedMetadata = JsonNode
+                .Parse(await storedResponse.Content.ReadAsStringAsync(cancellationToken))!
+                .AsObject();
+            var storedElements = storedMetadata["submodelElements"] as JsonArray;
+            var semanticId = (storedMetadata["semanticId"]?["keys"] as JsonArray)
+                ?.LastOrDefault()
+                ?["value"]?.GetValue<string>();
+            if (
+                storedMetadata["id"]?.GetValue<string>() != metadataId
+                || semanticId != MetadataSemanticId
+                || storedElements == null
+                || !storedElements.Any(element =>
+                    element?["idShort"]?.GetValue<string>() == "digitalProductPassportId"
+                    && element?["value"]?.GetValue<string>() == aasId
+                )
+            )
+                return Conflict(
+                    "Die Submodell-ID ist bereits belegt und gehört nicht zu den DPP-Metadaten dieser AAS."
+                );
+
+            foreach (var element in metadata["submodelElements"]!.AsArray())
+            {
+                var storedElement = storedElements.FirstOrDefault(candidate =>
+                    candidate?["idShort"]?.GetValue<string>()
+                    == element?["idShort"]?.GetValue<string>()
+                );
+                if (storedElement == null)
+                    storedElements.Add(element!.DeepClone());
+                else
+                    storedElements[storedElements.IndexOf(storedElement)] = element!.DeepClone();
+            }
+            if (string.IsNullOrWhiteSpace(request.FacilityId))
+                foreach (
+                    var element in storedElements
+                        .Where(element => element?["idShort"]?.GetValue<string>() == "facilityId")
+                        .ToArray()
+                )
+                    storedElements.Remove(element);
+
+            using var updateResponse = await _httpClient.PutAsync(
+                metadataUrl,
+                JsonContent(storedMetadata),
+                cancellationToken
+            );
+            if (!updateResponse.IsSuccessStatusCode)
+                return StatusCode(
+                    (int)updateResponse.StatusCode,
+                    "Das vorhandene DPP-Metadaten-Submodell konnte nicht aktualisiert werden."
+                );
+        }
+        else if (!createResponse.IsSuccessStatusCode)
             return StatusCode(
                 (int)createResponse.StatusCode,
                 "Das DPP-Metadaten-Submodell konnte nicht angelegt werden."
@@ -808,17 +868,28 @@ public class DppMetadataController : InternalApiBaseController
             type = "ModelReference",
             keys = new[] { new { type = "Submodel", value = metadataId } },
         };
-        using var linkResponse = await _httpClient.PostAsync(
-            $"{aasUrl}/shells/{encodedId}/submodel-refs",
-            JsonContent(reference),
-            cancellationToken
-        );
-        if (!linkResponse.IsSuccessStatusCode)
+        var alreadyLinked =
+            aas.RootElement.TryGetProperty("submodels", out var attachedReferences)
+            && attachedReferences
+                .EnumerateArray()
+                .Any(attachedReference =>
+                    attachedReference.TryGetProperty("keys", out var keys)
+                    && keys.GetArrayLength() > 0
+                    && keys[keys.GetArrayLength() - 1].GetProperty("value").GetString()
+                        == metadataId
+                );
+        if (!alreadyLinked)
         {
-            return StatusCode(
-                (int)linkResponse.StatusCode,
-                "Das Metadaten-Submodell wurde angelegt, konnte aber nicht mit der AAS verknüpft werden. Bitte nicht erneut anlegen, bevor die Referenz geprüft wurde."
+            using var linkResponse = await _httpClient.PostAsync(
+                $"{aasUrl}/shells/{encodedId}/submodel-refs",
+                JsonContent(reference),
+                cancellationToken
             );
+            if (!linkResponse.IsSuccessStatusCode)
+                return StatusCode(
+                    (int)linkResponse.StatusCode,
+                    "Das Metadaten-Submodell wurde angelegt, konnte aber nicht mit der AAS verknüpft werden. Bitte nicht erneut anlegen, bevor die Referenz geprüft wurde."
+                );
         }
 
         using var verifyResponse = await SendDppAsync(
@@ -1001,6 +1072,7 @@ public class DppMetadataController : InternalApiBaseController
                         .Select(id =>
                         {
                             var item = prototype.DeepClone().AsObject();
+                            item.Remove("idShort");
                             item["value"] = id;
                             return (JsonNode)item;
                         })

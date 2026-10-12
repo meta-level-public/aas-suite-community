@@ -768,6 +768,45 @@ describe('GeneratorService', () => {
     expect(env.submodels.some((submodel: any) => submodel.idShort === 'DppMeta')).toBe(false);
   });
 
+  it('preserves non-PCF fields from the official carbon footprint template when applying PCF entries', () => {
+    const pcfTemplate = createTemplateSubmodel({
+      id: 'https://admin-shell.io/idta/SubmodelTemplate/DigitalBatteryPassport/CarbonFootprint/1/0',
+      idShort: 'CarbonFootprint',
+      semanticId: 'https://admin-shell.io/idta/CarbonFootprint/CarbonFootprint/1/0',
+      templateId: 'https://admin-shell.io/idta-02023-1-0',
+    });
+    const performanceClass = new aas.types.Property(aas.types.DataTypeDefXsd.String, null, null, 'PerformanceClass');
+    const publicStudyLinks = new aas.types.SubmodelElementList(
+      aas.types.AasSubmodelElements.Property,
+      null,
+      null,
+      'WebLinkToPublicCarbonFootprintStudy',
+    );
+    const productFootprints = new aas.types.SubmodelElementList(
+      aas.types.AasSubmodelElements.SubmodelElementCollection,
+      null,
+      null,
+      'ProductCarbonFootprints',
+    );
+    pcfTemplate.submodelElements = [performanceClass, publicStudyLinks, productFootprints];
+    const service = createGeneratorService();
+    service.additionalV3Submodels = [pcfTemplate];
+    service.dppPcfEntries = {
+      productCarbonFootprints: [{ values: { 'pcf-co2eq': '123' } }] as never,
+      productOrSectorSpecificCarbonFootprints: [],
+    };
+
+    (service as any).applyDppValues([]);
+
+    expect(pcfTemplate.submodelElements?.map((element) => element.idShort)).toEqual([
+      'PerformanceClass',
+      'WebLinkToPublicCarbonFootprintStudy',
+      'ProductCarbonFootprints',
+    ]);
+    const updatedList = pcfTemplate.submodelElements?.[2] as aas.types.SubmodelElementList;
+    expect(updatedList.value).toHaveLength(1);
+  });
+
   it('exports battery passport handover files via the shared document path', async () => {
     const handoverTemplate = createTemplateSubmodel({
       id: 'https://admin-shell.io/idta/SubmodelTemplate/DigitalBatteryPassport/HandoverDocumentation/1/0',

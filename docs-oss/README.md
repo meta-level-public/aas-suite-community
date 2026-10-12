@@ -61,3 +61,7 @@ Ist für eine AAS ein DPP konfiguriert, zeigt der Editor die öffentliche DPP-UR
 | `AppSettings__DppGatewayPublicUrl` | leer | Öffentliche Basis-URL des DPP-Gateways, z. B. `https://dpp.example.com`. Die angezeigte URL lautet `<Basis-URL>/dpp/v1/dpps/<URL-kodierte AAS-ID>`. Ist der Wert leer, wird keine URL angezeigt. |
 
 In den lokalen Compose-Stacks (`docker-oss/`, `docker-enterprise/`) ist `http://localhost:${DPP_GATEWAY_PORT:-5090}` voreingestellt und kann über `DPP_GATEWAY_PUBLIC_URL` überschrieben werden. In Wizard-Stacks `DPP_GATEWAY_PUBLIC_URL` in der `.env` auf die öffentlich erreichbare Gateway-Adresse setzen. Die URL liefert nur Pässe mit Status `Active`, die im Gateway veröffentlicht sind.
+
+Beim Erzeugen der DPP-Metadaten in beiden Editionen werden die Einträge in `contentSpecificationIds` ohne `idShort` geschrieben, wie für eine AAS-`SubmodelElementList` vorgeschrieben. Ihre Werte und Semantic IDs bleiben erhalten; auch mehrere ausgewählte Content-Spezifikationen erzeugen damit keine doppelten `idShort`-Werte.
+
+Ein unterbrochener Anlegeversuch im Editor kann wiederholt werden: Existiert das Metadaten-Submodell bereits, während die DPP-API noch keinen Pass findet, aktualisiert der Editor nur eindeutig dieser AAS zugeordnete DPP-Metadaten und ergänzt eine fehlende AAS-Referenz. Zusätzliche Metadatenfelder bleiben erhalten; fremde Submodelle werden nicht überschrieben und vorhandene Referenzen nicht dupliziert.

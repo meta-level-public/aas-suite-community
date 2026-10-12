@@ -1,3 +1,4 @@
+import * as aas from '@aas-core-works/aas-core3.1-typescript';
 import { vi } from 'vitest';
 import { BatteryTechnicalDataComponent } from './battery-technical-data.component';
 
@@ -65,7 +66,7 @@ describe('BatteryTechnicalDataComponent', () => {
                 {
                   idShort: 'MarketingText',
                   modelType: 'MultiLanguageProperty',
-                  value: [{ language: 'en', text: 'Battery' }],
+                  value: null,
                 },
               ],
             },
@@ -85,6 +86,8 @@ describe('BatteryTechnicalDataComponent', () => {
     expect(component.activeGroup?.fields.map((field) => field.type)).toEqual(['Property', 'MultiLanguageProperty']);
 
     const propertyField = component.activeGroup?.fields.find((field) => field.type === 'Property');
+    const multilanguageField = component.activeGroup?.fields.find((field) => field.type === 'MultiLanguageProperty');
+    expect(multilanguageField?.element.value[0]).toBeInstanceOf(aas.types.LangStringTextType);
     propertyField!.element.value = 'NMC';
     component.onFieldChanged();
 

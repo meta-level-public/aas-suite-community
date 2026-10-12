@@ -11,24 +11,18 @@ AAS-Suite-Backend geladen. Das fertige Archiv liegt unter
 der Backend-Container neu gestartet werden. Die Oberflaeche erscheint unter
 `/dpp-explorer` im Plugins-Menue.
 
-Das Backend akzeptiert nur JSON-Endpunkte auf freigegebenen Hosts, ausserhalb
-von `localhost` ausschliesslich ueber HTTPS. Der
-AAS-Suite-DPP-Gateway `dpp.aas-suite.de` ist fuer Pfade unter
-`/dpp/v1/dpps/` fest freigegeben. Ebenso ist `localhost` immer erlaubt
-(HTTP oder HTTPS, beliebiger Port) und muss nicht eingetragen werden. Weitere Hosts werden im Plugin unter
-ueber die kompakte Aktion "Hosts" gespeichert. Diese Funktion steht nur
-Nutzern mit `SYSTEM_ADMIN` zur Verfuegung; die Liste gilt global fuer die
-Installation. Die angezeigten Beispielpaesse sind lediglich Kurzbefehle zum
-Einsetzen einer vollstaendigen URL. Als Startwert ist der oeffentliche
-UNTP-Batterie-Testpass hinterlegt. Aenderungen gelten sofort und brauchen
-keinen Neustart. Ein Backend-Neustart ist nur nach dem Austausch des
-Plugin-ZIPs erforderlich.
+Das Backend ruft jede http- oder https-URL ab, ohne Host-Freigaben oder
+Einschraenkungen bei Port und Adresse. Es gelten nur technische Grenzen: Die
+Antwort muss JSON sein, ist auf 2 MB begrenzt, und Weiterleitungen werden nicht
+verfolgt.
 
-Die Konfiguration wird standardmaessig unter
-`<Backend-Verzeichnis>/dpp-explorer/sources.json` gespeichert. Fuer Container
-mit nicht persistentem Anwendungsverzeichnis kann `DPP_EXPLORER_CONFIG_PATH`
-auf einen persistenten, beschreibbaren Pfad zeigen. Diese Variable ist nur fuer
-den Speicherort erforderlich, nicht fuer das Hinzufuegen eines Hosts.
+Ueber das Dropdown "Beispielpass waehlen" laesst sich ein Beispiel direkt
+oeffnen, gruppiert nach Format:
+
+- AAS: Demo-Tasse mit Digitalem Typenschild ueber den AAS-Suite-DPP-Gateway
+- UNTP: Batteriepack 75 kWh (UNTP-Beispiel v0.7.0)
+- OpenDPP: LFP-Batteriezelle, Textiljacke und Smart Eco Hub (Demo-Paesse von
+  `opendpp-node.eu`)
 
 In der Oberflaeche die direkte JSON-Daten-URL eingeben. Eine HTML-Seite oder
 eine QR-Kennung ohne direktes JSON-Ziel kann dieser erste Stand noch nicht
@@ -136,8 +130,7 @@ plugins/dpp-explorer-plugin/
 Aktueller interner API-Vertrag:
 
 ```text
-GET /api/config          -> Quellen und Bearbeitungsrecht
-PUT /api/config          -> Quellen speichern (nur SYSTEM_ADMIN)
+GET /api/examples        -> Beispielpaesse (Name, Format, URL)
 GET /api/pass?url=...    -> Quell-URL, Abrufzeit, JSON-Rohdaten
 ```
 
@@ -146,7 +139,7 @@ Resolver, Anbieteradapter und Normalisierung sind naechste Ausbaustufen.
 ## Schnittstellen und Zugriff
 
 - **Pass-URL:** Primaerer Einstieg fuer den ersten Stand. Eine URL muss direkt
-  JSON liefern und auf einem freigegebenen Host liegen.
+  JSON liefern.
 - **Passanbieter:** Mindestens ein konkret dokumentierter Datenendpunkt und
   dessen Antwortformat sind fuer eine echte Visualisierung erforderlich. Wenn
   nur eine HTML-Seite verfuegbar ist, zeigt das Plugin einen Link statt einen
@@ -156,9 +149,7 @@ Resolver, Anbieteradapter und Normalisierung sind naechste Ausbaustufen.
   Operationen, Suchkriterien und Rechte fuer dieses Plugin verfuegbar sind,
   wird anhand der aktuellen technischen Dokumentation und eines Testkontos
   verifiziert. Registry-Suche ist keine Voraussetzung fuer das MVP.
-Das Backend darf keine beliebigen vom Nutzer gelieferten URLs abrufen:
-erlaubte Hosts/Resolver konfigurieren, Redirects erneut pruefen, private
-Netzadressen ausschliessen und Timeouts sowie Antwortgroessen begrenzen.
+Timeouts und Antwortgroessen sind begrenzt, Redirects werden nicht verfolgt.
 Tokens werden nicht im Plugin-ZIP oder Browser gespeichert. Fremde HTML-Inhalte
 werden nicht als vertrauenswuerdiges Markup gerendert. Berechtigungen des
 Passanbieters bleiben massgeblich; ein 403 oder gesperrtes Feld wird angezeigt,

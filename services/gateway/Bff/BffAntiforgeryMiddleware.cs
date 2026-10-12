@@ -16,6 +16,9 @@ public sealed class BffAntiforgeryMiddleware(RequestDelegate next)
         "/designer-api/api/Auth/LoginPublicViewer",
     ];
 
+    // Header names are matched case-insensitively, so "Api-Key"/"api-key" and "Apikey"/"apikey" are covered.
+    private static readonly string[] ApiKeyHeaderNames = ["Api-Key", "Apikey"];
+
     public async Task InvokeAsync(HttpContext context, IAntiforgery antiforgery)
     {
         if (!RequiresValidation(context.Request))
@@ -36,7 +39,7 @@ public sealed class BffAntiforgeryMiddleware(RequestDelegate next)
         }
     }
 
-    private static bool RequiresValidation(HttpRequest request)
+    internal static bool RequiresValidation(HttpRequest request)
     {
         if (
             HttpMethods.IsGet(request.Method)
@@ -44,6 +47,13 @@ public sealed class BffAntiforgeryMiddleware(RequestDelegate next)
             || HttpMethods.IsOptions(request.Method)
             || HttpMethods.IsTrace(request.Method)
         )
+        {
+            return false;
+        }
+
+        // Pure API requests authenticate via API key header instead of the session cookie.
+        // Browsers cannot attach custom headers cross-site without a CORS preflight, so CSRF does not apply.
+        if (IsApiKeyRequest(request))
         {
             return false;
         }
@@ -60,6 +70,14 @@ public sealed class BffAntiforgeryMiddleware(RequestDelegate next)
 
         return ProtectedPathPrefixes.Any(prefix =>
             path.StartsWith(prefix, StringComparison.Ordinal)
+        );
+    }
+
+    internal static bool IsApiKeyRequest(HttpRequest request)
+    {
+        return ApiKeyHeaderNames.Any(headerName =>
+            request.Headers.TryGetValue(headerName, out var values)
+            && values.Any(value => !string.IsNullOrWhiteSpace(value))
         );
     }
 }

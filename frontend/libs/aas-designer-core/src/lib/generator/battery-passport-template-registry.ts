@@ -76,7 +76,10 @@ export const BATTERY_PASSPORT_TEMPLATE_REGISTRY: BatteryPassportTemplateDefiniti
     flowOrder: 30,
     required: false,
     editorKind: 'guided-carbon-footprint',
-    exactTemplateIds: ['https://admin-shell.io/idta-02023-1-0'],
+    exactTemplateIds: [
+      'https://admin-shell.io/idta-02023-1-0',
+      'https://admin-shell.io/idta/SubmodelTemplate/DigitalBatteryPassport/CarbonFootprint/1/0',
+    ],
     exactSubmodelIds: ['https://admin-shell.io/idta/SubmodelTemplate/DigitalBatteryPassport/CarbonFootprint/1/0'],
     exactSemanticIds: ['https://admin-shell.io/idta/CarbonFootprint/CarbonFootprint/1/0'],
     aliasSemanticIds: [
@@ -214,7 +217,9 @@ export function matchesBatteryPassportTemplateDefinition(
   const exactSemanticMatches = getMatchingValues(semanticValues, definition.exactSemanticIds);
   if (
     exactSemanticMatches.length > 0 &&
-    (batteryPassportContext || exactSemanticMatches.some(isBatteryPassportSignalValue))
+    (definition.key === 'product-carbon-footprint' ||
+      batteryPassportContext ||
+      exactSemanticMatches.some(isBatteryPassportSignalValue))
   ) {
     return true;
   }

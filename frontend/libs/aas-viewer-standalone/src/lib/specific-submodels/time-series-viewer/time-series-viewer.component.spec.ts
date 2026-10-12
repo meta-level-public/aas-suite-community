@@ -1,6 +1,7 @@
 import { NotificationService } from '@aas/common-services';
-import { provideHttpClient } from '@angular/common/http';
-import { TestBed } from '@angular/core/testing';
+import { HttpHeaders, provideHttpClient } from '@angular/common/http';
+import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
+import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { TranslateModule } from '@ngx-translate/core';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { ViewerStoreService } from '../../viewer-store.service';
@@ -83,12 +84,17 @@ function createTimeSeriesSubmodel() {
 
 describe('TimeSeriesViewerComponent', () => {
   let component: TimeSeriesViewerComponent;
+  let fixture: ComponentFixture<TimeSeriesViewerComponent>;
+  let httpTesting: HttpTestingController;
+  let currentSmUrl: ReturnType<typeof vi.fn>;
 
   beforeEach(async () => {
+    currentSmUrl = vi.fn(() => '');
     await TestBed.configureTestingModule({
       imports: [TranslateModule.forRoot(), TimeSeriesViewerComponent],
       providers: [
         provideHttpClient(),
+        provideHttpClientTesting(),
         {
           provide: NotificationService,
           useValue: {
@@ -99,13 +105,34 @@ describe('TimeSeriesViewerComponent', () => {
           provide: ViewerStoreService,
           useValue: {
             currentSubmodelId: vi.fn(),
-            currentSmUrl: vi.fn(),
+            currentSmUrl,
+            headers: vi.fn(() => new HttpHeaders()),
           },
         },
       ],
     }).compileComponents();
 
-    component = TestBed.createComponent(TimeSeriesViewerComponent).componentInstance;
+    fixture = TestBed.createComponent(TimeSeriesViewerComponent);
+    component = fixture.componentInstance;
+    httpTesting = TestBed.inject(HttpTestingController);
+  });
+
+  it('does not request the page root on auto refresh when no submodel url is known', async () => {
+    component.timeSeries = createTimeSeriesSubmodel();
+
+    await component.loadChartData();
+
+    httpTesting.expectNone((req) => !req.url.includes('GetHelpTexts'));
+  });
+
+  it('reloads the submodel from the passed submodel url on auto refresh', async () => {
+    fixture.componentRef.setInput('timeSeries', createTimeSeriesSubmodel());
+    fixture.componentRef.setInput('submodelUrl', '/proxy/call?target=sm');
+
+    const reload = component.loadChartData();
+    httpTesting.expectOne('/proxy/call?target=sm');
+    expect(currentSmUrl).not.toHaveBeenCalled();
+    void reload;
   });
 
   it('rebuilds viewer state without duplicating metadata and keeps all external segments', () => {

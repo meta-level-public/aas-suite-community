@@ -79,9 +79,47 @@ describe('generator-dpp-pcf.builder', () => {
     const productList = elements[0] as aas.types.SubmodelElementList;
     const productEntry = productList.value?.[0] as aas.types.SubmodelElementCollection;
     expect(productEntry.value).toHaveLength(9);
+    expect(productList.valueTypeListElement).toBeNull();
+    expect(productList.semanticIdListElement?.keys[0].value).toBe(
+      'https://admin-shell.io/idta/CarbonFootprint/ProductCarbonFootprint/1/0',
+    );
+    expect(productEntry.idShort).toBe('ProductCarbonFootprint');
+    expect(productEntry.semanticId?.keys[0].value).toBe(
+      'https://admin-shell.io/idta/CarbonFootprint/ProductCarbonFootprint/1/0',
+    );
+    expect(productEntry.value?.some((element) => element.idShort === 'PcfCO2eq')).toBe(true);
+    expect(productEntry.value?.some((element) => element.idShort === 'PcfCo2eq')).toBe(false);
 
     const sectorList = elements[1] as aas.types.SubmodelElementList;
     const sectorEntry = sectorList.value?.[0] as aas.types.SubmodelElementCollection;
     expect(sectorEntry.value).toHaveLength(4);
+  });
+
+  it('uses valid list element idShorts and nulls empty non-string values', () => {
+    const elements = buildDppPcfSubmodelElements({
+      productCarbonFootprints: [
+        {
+          values: {
+            'pcf-calculation-methods': ['ISO 14067'],
+            'pcf-life-cycle-phases': ['A1'],
+          },
+        },
+      ] as never,
+      productOrSectorSpecificCarbonFootprints: [],
+    });
+
+    const productList = elements[0] as aas.types.SubmodelElementList;
+    const productEntry = productList.value?.[0] as aas.types.SubmodelElementCollection;
+    const calculationMethods = productEntry.value?.[0] as aas.types.SubmodelElementList;
+    const calculationMethod = calculationMethods.value?.[0] as aas.types.Property;
+    const lifeCyclePhases = productEntry.value?.[4] as aas.types.SubmodelElementList;
+    const lifeCyclePhase = lifeCyclePhases.value?.[0] as aas.types.Property;
+
+    expect(calculationMethod.idShort).toBe('Element_0');
+    expect(lifeCyclePhase.idShort).toBe('Element_0');
+    expect((productEntry.value?.[1] as aas.types.Property).value).toBeNull();
+    expect((productEntry.value?.[3] as aas.types.Property).value).toBeNull();
+    expect((productEntry.value?.[7] as aas.types.Property).value).toBeNull();
+    expect((productEntry.value?.[8] as aas.types.Property).value).toBeNull();
   });
 });
