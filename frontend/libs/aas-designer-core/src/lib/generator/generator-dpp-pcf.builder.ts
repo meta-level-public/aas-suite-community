@@ -1,18 +1,18 @@
 import * as aas from '@aas-core-works/aas-core3.1-typescript';
-import { MultiLanguagePropertyValue } from '@aas/model';
 import { SemanticIdHelper } from '@aas/helpers';
+import { MultiLanguagePropertyValue } from '@aas/model';
 import { DppAssistantFieldValue, DppPcfEntryCollection } from 'battery-passport-assistant';
 
 export const DPP_PCF_REQUIRED_SEMANTIC_IDS = [
   'https://admin-shell.io/idta/CarbonFootprint/CarbonFootprint/1/0',
   'https://admin-shell.io/idta/CarbonFootprint/ProductCarbonFootprints/1/0',
-  'https://admin-shell.io/idta/CarbonFootprint/ProductCarbonFootprint/0/9',
+  'https://admin-shell.io/idta/CarbonFootprint/ProductCarbonFootprint/1/0',
   'https://admin-shell.io/idta/CarbonFootprint/ProductOrSectorSpecificCarbonFootprints/1/0',
   '0173-1#02-ABG855#003',
   '0173-1#02-ABG856#003',
-  '0173-1#02-ABG857#001',
-  '0173-1#02-ABG854#001',
-  '0173-1#02-ABG858#001',
+  '0173-1#02-ABG857#003',
+  '0173-1#02-ABG854#003',
+  '0173-1#02-ABG858#004',
   'https://admin-shell.io/idta/CarbonFootprint/ExplanatoryStatement/1/0',
   'https://admin-shell.io/idta/CarbonFootprint/PublicationDate/1/0',
 ];
@@ -66,25 +66,31 @@ function createProductCarbonFootprintsList(entries: DppPcfEntryCollection) {
       'https://admin-shell.io/idta/CarbonFootprint/ProductCarbonFootprints/1/0',
     ),
   ]);
-  list.value = entries.productCarbonFootprints.map((entry, index) =>
-    createProductCarbonFootprintEntry(entry.values, index),
+  list.semanticIdListElement = createSemanticId(
+    'https://admin-shell.io/idta/CarbonFootprint/ProductCarbonFootprint/1/0',
   );
+  list.value = entries.productCarbonFootprints.map((entry) => createProductCarbonFootprintEntry(entry.values));
 
   return list;
 }
 
-function createProductCarbonFootprintEntry(values: Record<string, DppAssistantFieldValue>, index: number) {
-  const collection = new aas.types.SubmodelElementCollection(null, null, `Element ${index}`);
+function createProductCarbonFootprintEntry(values: Record<string, DppAssistantFieldValue>) {
+  const collection = new aas.types.SubmodelElementCollection(null, null, 'ProductCarbonFootprint');
   collection.semanticId = new aas.types.Reference(aas.types.ReferenceTypes.ExternalReference, [
     new aas.types.Key(
       aas.types.KeyTypes.GlobalReference,
-      'https://admin-shell.io/idta/CarbonFootprint/ProductCarbonFootprint/0/9',
+      'https://admin-shell.io/idta/CarbonFootprint/ProductCarbonFootprint/1/0',
     ),
   ]);
   collection.value = [
-    createStringPropertyList('PcfCalculationMethods', toLineItems(values['pcf-calculation-methods'])),
+    createStringPropertyList(
+      'PcfCalculationMethods',
+      toLineItems(values['pcf-calculation-methods']),
+      'https://admin-shell.io/idta/CarbonFootprint/PcfCalculationMethods/1/0',
+      '0173-1#02-ABG854#003',
+    ),
     createProperty(
-      'PcfCo2eq',
+      'PcfCO2eq',
       aas.types.DataTypeDefXsd.Decimal,
       '0173-1#02-ABG855#003',
       toStringValue(values['pcf-co2eq']),
@@ -98,10 +104,15 @@ function createProductCarbonFootprintEntry(values: Record<string, DppAssistantFi
     createProperty(
       'QuantityOfMeasureForCalculation',
       aas.types.DataTypeDefXsd.Decimal,
-      '0173-1#02-ABG857#001',
+      '0173-1#02-ABG857#003',
       toStringValue(values['pcf-quantity-of-measure']),
     ),
-    createStringPropertyList('LifeCyclePhases', toLineItems(values['pcf-life-cycle-phases'])),
+    createStringPropertyList(
+      'LifeCyclePhases',
+      toLineItems(values['pcf-life-cycle-phases']),
+      'https://admin-shell.io/idta/CarbonFootprint/LifeCyclePhases/1/0',
+      '0173-1#02-ABG858#004',
+    ),
     createProperty(
       'ExplanatoryStatement',
       aas.types.DataTypeDefXsd.String,
@@ -184,11 +195,22 @@ function createProductOrSectorSpecificCarbonFootprintEntry(
   return collection;
 }
 
-function createStringPropertyList(idShort: string, values: string[]) {
+function createStringPropertyList(
+  idShort: string,
+  values: string[],
+  semanticId?: string,
+  semanticIdListElement?: string,
+) {
   const list = new aas.types.SubmodelElementList(aas.types.AasSubmodelElements.Property, null, null, idShort);
   list.valueTypeListElement = aas.types.DataTypeDefXsd.String;
+  if (semanticId != null) {
+    list.semanticId = createSemanticId(semanticId);
+  }
+  if (semanticIdListElement != null) {
+    list.semanticIdListElement = createSemanticId(semanticIdListElement);
+  }
   list.value = values.map((value, index) => {
-    const property = new aas.types.Property(aas.types.DataTypeDefXsd.String, null, null, `Element ${index}`);
+    const property = new aas.types.Property(aas.types.DataTypeDefXsd.String, null, null, `Element_${index}`);
     property.value = value;
     return property;
   });
@@ -216,14 +238,14 @@ function createProperty(idShort: string, datatype: aas.types.DataTypeDefXsd, sem
     null,
     semanticId !== '' ? createSemanticId(semanticId) : null,
   );
-  property.value = value;
+  property.value = datatype !== aas.types.DataTypeDefXsd.String && value.trim() === '' ? null : value;
 
   return property;
 }
 
 function createSemanticId(semanticId: string) {
-  return new aas.types.Reference(aas.types.ReferenceTypes.ModelReference, [
-    new aas.types.Key(aas.types.KeyTypes.ConceptDescription, semanticId),
+  return new aas.types.Reference(aas.types.ReferenceTypes.ExternalReference, [
+    new aas.types.Key(aas.types.KeyTypes.GlobalReference, semanticId),
   ]);
 }
 

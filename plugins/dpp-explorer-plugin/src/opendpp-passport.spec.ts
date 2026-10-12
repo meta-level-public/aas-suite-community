@@ -39,6 +39,19 @@ test('maps OpenDPP battery fields and optional lists', () => {
   assert.match(view?.materialChart?.background ?? '', /#dce5e8 24% 100%/);
 });
 
+test('keeps a general product category out of the battery data', () => {
+  const view = formatOpenDppPassport({
+    '@context': context, '@type': 'DigitalProductPassport',
+    productName: 'Utility Jacket', category: 'textiles', carbonFootprint: { co2eKg: 8.5, unit: 'kg CO2e' },
+  });
+
+  assert.equal(view?.groups.some((group) => group.title === 'Batteriedaten'), false);
+  assert.deepEqual(view?.groups.find((group) => group.title === 'Produktidentität')?.fields, [
+    { label: 'Produkt', value: 'Utility Jacket' },
+    { label: 'Produktkategorie', value: 'textiles' },
+  ]);
+});
+
 test('shows a complete circle only for a complete composition', () => {
   const base = { '@context': context, '@type': 'DigitalProductPassport' };
   const complete = formatOpenDppPassport({ ...base, materialComposition: [

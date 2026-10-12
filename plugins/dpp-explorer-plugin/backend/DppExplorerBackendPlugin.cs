@@ -1,4 +1,3 @@
-using System.Net;
 using System.Text.Json;
 using AasSuitePluginAbstractions;
 using Microsoft.AspNetCore.Builder;
@@ -10,12 +9,8 @@ namespace DppExplorerBackendPlugin;
 
 public sealed class DppExplorerBackendPlugin : IAasSuiteBackendPlugin
 {
-    private const string SuiteDppGatewayHost = "dpp.aas-suite.de";
-    private const string SuiteDppGatewayPathPrefix = "/dpp/v1/dpps/";
-
     public void ConfigureServices(IServiceCollection services)
     {
-        services.AddSingleton<DppSourceStore>();
         services
             .AddHttpClient("dpp-explorer", client => client.Timeout = TimeSpan.FromSeconds(15))
             .ConfigurePrimaryHttpMessageHandler(() =>
@@ -27,41 +22,11 @@ public sealed class DppExplorerBackendPlugin : IAasSuiteBackendPlugin
     {
         var group = endpoints.MapGroup("/plugin-api/dpp-explorer");
         group.MapGet(
-            "/api/config",
-            async (
-                HttpContext context,
-                DppSourceStore store,
-                CancellationToken cancellationToken
-            ) =>
+            "/api/examples",
+            (HttpContext context) =>
                 !context.Items.ContainsKey("AppUser")
                     ? Results.Unauthorized()
-                    : Results.Ok(
-                        new
-                        {
-                            sources = await store.ReadAsync(cancellationToken),
-                            canManage = CanManage(context),
-                        }
-                    )
-        );
-        group.MapPut(
-            "/api/config",
-            async (
-                HttpContext context,
-                DppSource[] sources,
-                DppSourceStore store,
-                CancellationToken cancellationToken
-            ) =>
-            {
-                if (!context.Items.ContainsKey("AppUser"))
-                    return Results.Unauthorized();
-                if (!CanManage(context))
-                    return Results.StatusCode(StatusCodes.Status403Forbidden);
-                var error = DppSourceStore.Validate(sources);
-                if (error != null)
-                    return Results.BadRequest(new { error });
-                await store.WriteAsync(sources, cancellationToken);
-                return Results.Ok(new { sources, canManage = true });
-            }
+                    : Results.Ok(new { examples = DppExamples.All })
         );
         group.MapGet("/api/pass", FetchPassAsync);
     }
@@ -69,7 +34,6 @@ public sealed class DppExplorerBackendPlugin : IAasSuiteBackendPlugin
     private static async Task<IResult> FetchPassAsync(
         string url,
         HttpContext context,
-        DppSourceStore store,
         IHttpClientFactory clients,
         CancellationToken cancellationToken
     )
@@ -79,21 +43,11 @@ public sealed class DppExplorerBackendPlugin : IAasSuiteBackendPlugin
 
         if (
             !Uri.TryCreate(url, UriKind.Absolute, out var uri)
-            || !string.IsNullOrEmpty(uri.UserInfo)
-            || !string.IsNullOrEmpty(uri.Fragment)
-            || (
-                !IsLocalhost(uri)
-                && (
-                    uri.Scheme != Uri.UriSchemeHttps
-                    || uri.Port != 443
-                    || IPAddress.TryParse(uri.Host, out _)
-                    || !IsAllowed(uri, await store.ReadAsync(cancellationToken))
-                )
-            )
+            || uri.Scheme is not ("http" or "https")
         )
         {
             return Results.BadRequest(
-                new { error = "Der Host der DPP-URL ist nicht freigegeben." }
+                new { error = "Bitte eine gültige http- oder https-URL angeben." }
             );
         }
 
@@ -159,27 +113,6 @@ public sealed class DppExplorerBackendPlugin : IAasSuiteBackendPlugin
             );
         }
     }
-
-    private static bool CanManage(HttpContext context) =>
-        context.Items.TryGetValue("CurrentOrganisationRoles", out var value)
-        && value is IEnumerable<string> roles
-        && roles.Contains("SYSTEM_ADMIN", StringComparer.OrdinalIgnoreCase);
-
-    private static bool IsLocalhost(Uri uri) =>
-        uri.Scheme is "http" or "https"
-        && string.Equals(uri.IdnHost, "localhost", StringComparison.OrdinalIgnoreCase);
-
-    private static bool IsAllowed(Uri uri,IEnumerable<DppSource> additionalSources) =>
-        (
-            string.Equals(uri.IdnHost, SuiteDppGatewayHost, StringComparison.OrdinalIgnoreCase)
-            && uri.AbsolutePath.StartsWith(
-                SuiteDppGatewayPathPrefix,
-                StringComparison.OrdinalIgnoreCase
-            )
-        )
-        || additionalSources.Any(source =>
-            string.Equals(source.Host, uri.IdnHost, StringComparison.OrdinalIgnoreCase)
-        );
 }
 
 internal sealed class LimitedReadStream(Stream inner, long limit) : Stream

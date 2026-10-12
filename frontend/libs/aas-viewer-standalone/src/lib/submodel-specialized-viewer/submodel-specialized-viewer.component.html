@@ -61,7 +61,11 @@
         ></aas-contact-information-viewer>
       }
       @case ('TimeSeries') {
-        <aas-time-series-viewer [timeSeries]="submodel" (reloadData)="onReloadData()"></aas-time-series-viewer>
+        <aas-time-series-viewer
+          [timeSeries]="submodel"
+          [submodelUrl]="submodelUrl"
+          (reloadData)="onReloadData()"
+        ></aas-time-series-viewer>
       }
       @case ('HandoverDocumentation') {
         <aas-handover-documentation-viewer

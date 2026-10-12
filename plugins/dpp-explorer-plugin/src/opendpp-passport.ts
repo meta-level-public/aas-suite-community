@@ -51,9 +51,10 @@ export function formatOpenDppPassport(input: unknown): FormattedPassport | null 
       field('Pass-ID', root['digitalProductPassportId'] ?? root['id']),
       field('Kennzeichnungssystem', root['productIdScheme']),
       field('Granularität', root['granularity']),
+      field('Produktkategorie', root['category']),
     ]),
     group('Batteriedaten', [
-      field('Kategorie', root['batteryCategory'] ?? root['category']),
+      field('Kategorie', root['batteryCategory']),
       field('Chemie', root['chemistry']),
       field('Kapazität', capacity['value'], text(capacity['unit'])),
       field('Ladezustand', root['stateOfCharge'], '%'),

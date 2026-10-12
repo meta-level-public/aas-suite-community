@@ -1,6 +1,16 @@
 # OSS / Community Docker Compose Wizard
 
-Start:
+Auf einem Server ohne Repository-Checkout das fertige Paket aus dem aktuellen Release verwenden:
+
+```bash
+curl -LO https://github.com/meta-level-public/aas-suite-community/releases/latest/download/docker-compose-wizard-oss.zip
+unzip docker-compose-wizard-oss.zip
+bash docker-compose-wizard-oss/oss/create-compose-oss.sh
+```
+
+Das Paket enthält alle benötigten Zusatzdateien (u. a. `stack-assets/dpp-security/`, `stack-assets/keycloak-bootstrap/`). Den Ordner `tools/docker-compose-wizard` allein zu kopieren reicht nicht, da die DPP-Dateien sonst aus `deploy/shared/` gelesen werden. Lokal lässt sich das Paket mit `tools/docker-compose-wizard/export-community-zip.sh` bauen.
+
+Start im Repository-Checkout:
 
 ```bash
 bash tools/docker-compose-wizard/oss/create-compose-oss.sh

@@ -15,8 +15,8 @@ import { SaveShellResult } from '@aas/webapi-client';
 import { DppAssistantFieldValue, DppPcfEntryCollection } from 'battery-passport-assistant';
 import * as batteryPassportTemplateRegistry from './battery-passport-template-registry';
 import { prefillBatteryPassportTechnicalData } from './generator-battery-passport-prefill.builder';
-import { GeneratorDppMetadataExportService, GeneratorDppMetadataInput } from './generator-dpp-metadata-export.service';
 import { buildDocumentationExportSubmodel, syncDocumentationDocuments } from './generator-documentation.builder';
+import { GeneratorDppMetadataExportService, GeneratorDppMetadataInput } from './generator-dpp-metadata-export.service';
 import {
   buildDppPcfSubmodelElements,
   DPP_PCF_REQUIRED_SEMANTIC_IDS,
@@ -944,6 +944,22 @@ export class GeneratorService {
     );
   }
 
+  getAdditionalSubmodelsIncludedInExport() {
+    const isBatteryPassport = this.vwsTyp === 'battery-passport';
+    const isDppCore = this.vwsTyp === 'dpp-core';
+
+    return this.additionalV3Submodels.filter((submodel) =>
+      this.shouldIncludeAdditionalGeneratorSubmodel(
+        {
+          isBatteryPassport,
+          isDppCore,
+          usesTemplateBackedCoreSubmodels: !isBatteryPassport && this.standardGeneratorTemplateRoles.length > 0,
+        },
+        submodel,
+      ),
+    );
+  }
+
   buildDppFileKey(submodel: aas.types.Submodel | null | undefined, path: string[] | string, index?: number) {
     const submodelKey = `${submodel?.id ?? submodel?.idShort ?? 'dbp-submodel'}`.trim() || 'dbp-submodel';
     const normalizedPath = (Array.isArray(path) ? path : [path]).filter((segment) => segment != null && segment !== '');
@@ -1164,7 +1180,10 @@ export class GeneratorService {
     this.applyDppValues(exportState.requiredSemanticIds);
   }
 
-  private shouldIncludeAdditionalGeneratorSubmodel(exportState: GeneratorExportState, submodel: aas.types.Submodel) {
+  private shouldIncludeAdditionalGeneratorSubmodel(
+    exportState: Pick<GeneratorExportState, 'isBatteryPassport' | 'isDppCore' | 'usesTemplateBackedCoreSubmodels'>,
+    submodel: aas.types.Submodel,
+  ) {
     return (
       !(exportState.usesTemplateBackedCoreSubmodels && this.isStandardGeneratorCoreSubmodel(submodel)) &&
       (!(exportState.isDppCore || exportState.isBatteryPassport) ||
@@ -1721,7 +1740,20 @@ export class GeneratorService {
     }
 
     requiredSemanticIds.push(...DPP_PCF_REQUIRED_SEMANTIC_IDS);
-    pcfSubmodel.submodelElements = buildDppPcfSubmodelElements(this.dppPcfEntries);
+    const generatedElements = buildDppPcfSubmodelElements(this.dppPcfEntries);
+    const templateElements = pcfSubmodel.submodelElements ?? [];
+    for (const generatedElement of generatedElements) {
+      const templateElement = templateElements.find((element) => element.idShort === generatedElement.idShort);
+      if (
+        templateElement instanceof aas.types.SubmodelElementList &&
+        generatedElement instanceof aas.types.SubmodelElementList
+      ) {
+        templateElement.value = generatedElement.value;
+      } else if (templateElement == null) {
+        templateElements.push(generatedElement);
+      }
+    }
+    pcfSubmodel.submodelElements = templateElements;
   }
 
   private hasDppPcfValues() {

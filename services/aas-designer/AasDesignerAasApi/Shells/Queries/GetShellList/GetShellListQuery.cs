@@ -66,7 +66,7 @@ public class GetShellListHandler : IRequestHandler<GetShellListQuery, ShellListV
         {
             var globalAssetId = AasCore
                 .Aas3_1.Jsonization.Serialize.ToJsonObject(
-                    new SpecificAssetId("GlobalAssetId", request.FilterAssetId)
+                    new SpecificAssetId("globalAssetId", request.FilterAssetId)
                 )
                 .ToString()
                 .ToBase64UrlEncoded(Encoding.UTF8);

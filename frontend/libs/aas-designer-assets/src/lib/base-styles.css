@@ -248,8 +248,9 @@ html.my-app-dark > body {
   border: 1px solid var(--aas-danger-border);
   background: linear-gradient(180deg, var(--aas-danger-surface) 0%, var(--aas-danger-surface-strong) 100%);
   box-shadow: var(--aas-shadow-md);
-  overflow: hidden;
-  max-height: 90vh;
+  /* visible, damit das über den oberen Rand ragende Icon nicht abgeschnitten wird; gescrollt wird im Body */
+  overflow: visible;
+  max-height: 90dvh;
   width: min(92vw, 44rem);
   min-width: min(92vw, 34rem);
 }

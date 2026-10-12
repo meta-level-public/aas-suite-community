@@ -1,5 +1,6 @@
 using System.Text;
 using AasCore.Aas3_1;
+using AasDesignerAasApi.Shells.Queries.GetShellList;
 using AasDesignerApi.Model;
 using AasDesignerCommon.Utils;
 using AasDesignerModel;
@@ -51,26 +52,56 @@ public class DiscoverShellsHandler : IRequestHandler<DiscoverShellsQuery, ShellL
             .ToBase64UrlEncoded(Encoding.UTF8);
         url += "?assetIds=" + jsonString;
         var response = await client.GetAsync(url, cancellationToken);
-        if (!response.IsSuccessStatusCode)
+        if (response.IsSuccessStatusCode)
+        {
+            var responseContent = await response.Content.ReadAsStringAsync(cancellationToken);
+            var discoveredAasIds = ParseDiscoveryResult(responseContent);
+            foreach (var aasId in discoveredAasIds)
+            {
+                var shell = new ShellListDto
+                {
+                    Id = aasId,
+                    IdShort = string.Empty,
+                    AssetKind = AssetKind.NotApplicable,
+                    GlobalAssetId = request.GlobalAssetId,
+                };
+                result.Shells.Add(shell);
+            }
+        }
+
+        if (result.Shells.Count > 0)
         {
             return result;
         }
 
-        var responseContent = await response.Content.ReadAsStringAsync();
-        var discoveredAasIds = ParseDiscoveryResult(responseContent);
-        foreach (var aasId in discoveredAasIds)
-        {
-            var shell = new ShellListDto
-            {
-                Id = aasId,
-                IdShort = string.Empty,
-                AssetKind = AssetKind.NotApplicable,
-                GlobalAssetId = request.GlobalAssetId,
-            };
-            result.Shells.Add(shell);
-        }
+        // Shells that were never registered in the discovery (e.g. imported directly into
+        // the repository) are still found via the registry/repository asset id filter.
+        return await LoadFromShellList(request, cancellationToken);
+    }
 
-        return result;
+    private async Task<ShellListVm> LoadFromShellList(
+        DiscoverShellsQuery request,
+        CancellationToken cancellationToken
+    )
+    {
+        try
+        {
+            // two entries are enough to distinguish "unique" from "multiple" matches
+            return await new GetShellListHandler(_context, _mapper).Handle(
+                new GetShellListQuery
+                {
+                    AppUser = request.AppUser,
+                    Count = 2,
+                    FilterAssetId = request.GlobalAssetId,
+                },
+                cancellationToken
+            );
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine("Error loading shells by asset id: " + e.Message);
+            return new ShellListVm { Shells = new List<ShellListDto>() };
+        }
     }
 
     private static IEnumerable<string> ParseDiscoveryResult(string responseContent)

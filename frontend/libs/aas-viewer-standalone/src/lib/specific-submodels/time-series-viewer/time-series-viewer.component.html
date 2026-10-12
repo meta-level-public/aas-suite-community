@@ -5,9 +5,13 @@
         <div class="flex flex-row gap-2 items-center">
           <lib-help-label tag="CHART_AUTO_REFRESH" class="w-16rem"></lib-help-label>
           <div class="flex flex-row gap-2 items-center">
-            <p-toggleswitch [(ngModel)]="autorefresh" (onChange)="updateAutorefresh()"></p-toggleswitch>
+            <p-toggleswitch
+              class="shrink-0"
+              [(ngModel)]="autorefresh"
+              (onChange)="updateAutorefresh()"
+            ></p-toggleswitch>
             @if (autorefresh() === true) {
-              <p-inputgroup class="w-6rem">
+              <p-inputgroup class="w-32">
                 <p-inputnumber
                   [(ngModel)]="refreshInterval"
                   [min]="1"

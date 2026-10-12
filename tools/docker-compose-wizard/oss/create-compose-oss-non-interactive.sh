@@ -107,7 +107,7 @@ main() {
     esac
     key="${item%%=*}"
     value="${item#*=}"
-    eval "$key=\"$value\""
+    assign_var "$key" "$value"
   done
 
   migrate_legacy_frontend_base_urls

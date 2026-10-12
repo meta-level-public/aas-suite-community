@@ -7,7 +7,7 @@ WIZARD_SECTION_INDEX=0
 STACK_ASSETS_DIR_NAME="stack-assets"
 # Standard-Image-Version der AAS-Suite-Images, die die Wizards vorschlagen.
 # Muss bei jedem Release auf die neue Version gesetzt werden; die CI prüft das beim Tag-Build.
-SUITE_IMAGE_VERSION="1.1.0"
+SUITE_IMAGE_VERSION="1.1.3"
 if [ -n "${NO_COLOR-}" ]; then
   RED=''
   GREEN=''
@@ -105,8 +105,18 @@ die() {
 trim() {
   local value="$1"
   # shellcheck disable=SC2001
-  value="$(echo "$value" | sed 's/^[[:space:]]*//;s/[[:space:]]*$//')"
+  value="$(printf '%s\n' "$value" | sed 's/^[[:space:]]*//;s/[[:space:]]*$//')"
   printf '%s' "$value"
+}
+
+# Weist einer Variable per Namen einen Wert zu, ohne den Wert als Shell-Code auszuwerten
+# (Sonderzeichen wie $, `, " oder \ in Passwörtern bleiben unverändert erhalten)
+assign_var() {
+  local __assign_name="$1"
+  case "$__assign_name" in
+    '' | [0-9]* | *[!A-Za-z0-9_]*) die "Ungültiger Variablenname: $__assign_name" ;;
+  esac
+  printf -v "$__assign_name" '%s' "$2"
 }
 
 normalize_url() {
@@ -237,7 +247,7 @@ set_default_if_empty() {
   local default_value="$2"
   local current="${!key-}"
   if [ -z "$current" ]; then
-    eval "$key=\"\$default_value\""
+    assign_var "$key" "$default_value"
   fi
 }
 
@@ -287,7 +297,7 @@ prompt_with_default() {
     user_input="$default_value"
   fi
 
-  eval "$__var_name=\"$user_input\""
+  assign_var "$__var_name" "$user_input"
 }
 
 prompt_required() {
@@ -301,7 +311,7 @@ prompt_required() {
     read -r -p "$prompt_text" user_input
     user_input="$(trim "$user_input")"
     if [ -n "$user_input" ]; then
-      eval "$__var_name=\"$user_input\""
+      assign_var "$__var_name" "$user_input"
       return
     fi
     warn "Eingabe ist erforderlich."
@@ -323,7 +333,7 @@ prompt_required_with_default() {
       user_input="$default_value"
     fi
     if [ -n "$user_input" ]; then
-      eval "$__var_name=\"$user_input\""
+      assign_var "$__var_name" "$user_input"
       return
     fi
     warn "Eingabe ist erforderlich."
@@ -346,7 +356,7 @@ prompt_required_with_default_suggestions() {
       user_input="$default_value"
     fi
     if [ -n "$user_input" ]; then
-      eval "$__var_name=\"$user_input\""
+      assign_var "$__var_name" "$user_input"
       return
     fi
     warn "Eingabe ist erforderlich."
@@ -387,7 +397,7 @@ prompt_port() {
       warn "Port muss zwischen 1 und 65535 liegen."
       continue
     fi
-    eval "$__var_name=\"$value\""
+    assign_var "$__var_name" "$value"
     return
   done
 }
@@ -403,7 +413,7 @@ prompt_choice() {
   while true; do
     prompt_with_default value "$label ($allowed_csv)" "$default_value"
     if [[ "$allowed" == *",$value,"* ]]; then
-      eval "$__var_name=\"$value\""
+      assign_var "$__var_name" "$value"
       return
     fi
     warn "Ungültige Auswahl: $value"
@@ -441,7 +451,12 @@ write_env() {
   local env_file="$1"
   local key="$2"
   local value="$3"
-  printf '%s=%s\n' "$key" "$value" >> "$env_file"
+  # In doppelten Anführungszeichen mit maskiertem \, " und $, damit Docker Compose
+  # Sonderzeichen (z. B. in Passwörtern) nicht interpoliert oder als Kommentar liest
+  value="${value//\\/\\\\}"
+  value="${value//\"/\\\"}"
+  value="${value//\$/\\\$}"
+  printf '%s="%s"\n' "$key" "$value" >> "$env_file"
 }
 
 compose_begin() {
@@ -566,9 +581,9 @@ prepare_dpp_assets() {
   local bootstrap_source="${root_dir}/deploy/shared/keycloak-bootstrap"
   if [ ! -d "$dpp_source" ]; then dpp_source="${SCRIPT_DIR}/../stack-assets/dpp-security"; fi
   if [ ! -d "$bootstrap_source" ]; then bootstrap_source="${SCRIPT_DIR}/../stack-assets/keycloak-bootstrap"; fi
-  [ -f "${dpp_source}/access-rules.json" ] || die "DPP-Startregeln fehlen"
-  [ -f "${dpp_source}/trustlist.json" ] || die "DPP-Trustlist fehlt"
-  [ -f "${bootstrap_source}/bootstrap-dpp-clients.sh" ] || die "DPP-Keycloak-Bootstrap fehlt"
+  [ -f "${dpp_source}/access-rules.json" ] || die "DPP-Startregeln fehlen: ${dpp_source}/access-rules.json"
+  [ -f "${dpp_source}/trustlist.json" ] || die "DPP-Trustlist fehlt: ${dpp_source}/trustlist.json"
+  [ -f "${bootstrap_source}/bootstrap-dpp-clients.sh" ] || die "DPP-Keycloak-Bootstrap fehlt: ${bootstrap_source}/bootstrap-dpp-clients.sh"
   mkdir -p "${compose_dir}/dpp-security" "${compose_dir}/keycloak-bootstrap"
   cp "${dpp_source}/access-rules.json" "${compose_dir}/dpp-security/access-rules.json"
   cp "${dpp_source}/trustlist.json" "${compose_dir}/dpp-security/trustlist.json"
