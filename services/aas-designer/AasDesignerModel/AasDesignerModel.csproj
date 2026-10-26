@@ -36,6 +36,8 @@
     <PackageReference Include="QRCoder" />
     <PackageReference Include="LiquidTechnologies.XmlObjects.Runtime" />
     <PackageReference Include="System.Security.Cryptography.Xml" />
+    <!-- pins the vulnerable transitive version from Microsoft.Data.SqlClient -->
+    <PackageReference Include="System.Security.Cryptography.Pkcs" />
   </ItemGroup>
 
   <ItemGroup>

@@ -39,14 +39,12 @@ public class DeleteShellsBulkHandler : IRequestHandler<DeleteShellsBulkCommand, 
         foreach (var aasIdentifier in request.AasIdentifiers)
         {
             // editorDescriptor besorgen
-            var editorDescriptor = (
-                await ShellLoader.LoadAsync(
-                    request.AppUser.CurrentInfrastructureSettings,
-                    aasIdentifier,
-                    cancellationToken,
-                    request.AppUser
-                )
-            ).EditorDescriptor;
+            var editorDescriptor = await ShellLoader.LoadEditorDescriptorForDeletionAsync(
+                request.AppUser.CurrentInfrastructureSettings,
+                aasIdentifier,
+                cancellationToken,
+                request.AppUser
+            );
 
             await ShellDeleter.DeleteShell(
                 editorDescriptor,
