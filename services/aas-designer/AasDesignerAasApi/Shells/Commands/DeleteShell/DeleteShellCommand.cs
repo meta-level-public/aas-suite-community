@@ -34,14 +34,12 @@ public class DeleteShellHandler : IRequestHandler<DeleteShellCommand, bool>
             throw new Exception("Organisation not found");
 
         // editorDescriptor besorgen
-        var editorDescriptor = (
-            await ShellLoader.LoadAsync(
-                request.AppUser.CurrentInfrastructureSettings,
-                request.AasIdentifier,
-                cancellationToken,
-                request.AppUser
-            )
-        ).EditorDescriptor;
+        var editorDescriptor = await ShellLoader.LoadEditorDescriptorForDeletionAsync(
+            request.AppUser.CurrentInfrastructureSettings,
+            request.AasIdentifier,
+            cancellationToken,
+            request.AppUser
+        );
 
         await ShellDeleter.DeleteShell(
             editorDescriptor,
