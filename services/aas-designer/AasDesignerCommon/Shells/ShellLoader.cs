@@ -6,6 +6,7 @@ using AasDesignerApi.Model;
 using AasDesignerCommon.Model;
 using AasDesignerCommon.Utils;
 using AasDesignerModel.Model;
+using AasShared.Exceptions;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
@@ -346,39 +347,21 @@ public static class ShellLoader
 
         try
         {
-            if (string.IsNullOrWhiteSpace(aasInfrastructureSettings.AasRegistryUrl))
+            var descriptor = await LoadAasDescriptorAsync(
+                aasInfrastructureSettings,
+                aasIdentifier,
+                cancellationToken,
+                client
+            );
+            if (descriptor == null)
             {
                 return [];
             }
 
-            var url =
-                aasInfrastructureSettings.AasRegistryUrl.AppendSlash()
-                + "shell-descriptors/"
-                + aasIdentifier.ToBase64UrlEncoded(Encoding.UTF8);
-
-            HttpResponseMessage response = await client.GetAsync(url, cancellationToken);
-
-            var responseBody = await response.Content.ReadAsStringAsync();
-            if (response.IsSuccessStatusCode && !responseBody.StartsWith("<"))
-            {
-                JObject? res = JsonConvert.DeserializeObject<JObject>(responseBody);
-                if (res == null)
-                {
-                    return [];
-                }
-
-                return ExtractEndpointUrls(
-                    res.Value<JArray>("endpoints") ?? [],
-                    aasInfrastructureSettings
-                );
-            }
-
-            if (response.StatusCode == HttpStatusCode.NotFound || responseBody.StartsWith("<"))
-            {
-                return [];
-            }
-
-            throw new Exception($"Request to {url} failed with status code {response.StatusCode}");
+            return ExtractEndpointUrls(
+                descriptor.Value<JArray>("endpoints") ?? [],
+                aasInfrastructureSettings
+            );
         }
         finally
         {
@@ -387,6 +370,114 @@ public static class ShellLoader
                 client.Dispose();
             }
         }
+    }
+
+    /// <summary>
+    /// Loads the editor descriptor needed to delete a shell. If the AAS no longer exists in any
+    /// repository (orphaned registry entry), a minimal descriptor without endpoints is built from
+    /// the registry, so that registry and discovery entries can still be cleaned up.
+    /// </summary>
+    public static async Task<EditorDescriptor> LoadEditorDescriptorForDeletionAsync(
+        AasInfrastructureSettings aasInfrastructureSettings,
+        string aasIdentifier,
+        CancellationToken cancellationToken,
+        AppUser appUser,
+        HttpClient? client = null
+    )
+    {
+        var disposeClient = client == null;
+        client ??= HttpClientCreator.CreateHttpClient(appUser);
+
+        try
+        {
+            try
+            {
+                return (
+                    await LoadAsync(
+                        aasInfrastructureSettings,
+                        aasIdentifier,
+                        cancellationToken,
+                        appUser,
+                        client
+                    )
+                ).EditorDescriptor;
+            }
+            catch (AasApi404Exception)
+            {
+                var descriptor = await LoadAasDescriptorAsync(
+                    aasInfrastructureSettings,
+                    aasIdentifier,
+                    cancellationToken,
+                    client
+                );
+
+                var editorDescriptor = new EditorDescriptor();
+                editorDescriptor.AasDescriptorEntry.OldId = aasIdentifier;
+                editorDescriptor.AasDescriptorEntry.NewId = aasIdentifier;
+                editorDescriptor.AasDescriptorEntry.IdShort =
+                    descriptor?.Value<string>("idShort") ?? string.Empty;
+
+                foreach (var smDescriptor in descriptor?.Value<JArray>("submodelDescriptors") ?? [])
+                {
+                    var smId = smDescriptor.Value<string>("id");
+                    if (string.IsNullOrWhiteSpace(smId))
+                    {
+                        continue;
+                    }
+
+                    editorDescriptor.SubmodelDescriptorEntries.Add(
+                        new EditorDescriptorEntry
+                        {
+                            OldId = smId,
+                            NewId = smId,
+                            IdShort = smDescriptor.Value<string>("idShort") ?? string.Empty,
+                        }
+                    );
+                }
+
+                return editorDescriptor;
+            }
+        }
+        finally
+        {
+            if (disposeClient)
+            {
+                client.Dispose();
+            }
+        }
+    }
+
+    private static async Task<JObject?> LoadAasDescriptorAsync(
+        AasInfrastructureSettings aasInfrastructureSettings,
+        string aasIdentifier,
+        CancellationToken cancellationToken,
+        HttpClient client
+    )
+    {
+        if (string.IsNullOrWhiteSpace(aasInfrastructureSettings.AasRegistryUrl))
+        {
+            return null;
+        }
+
+        var url =
+            aasInfrastructureSettings.AasRegistryUrl.AppendSlash()
+            + "shell-descriptors/"
+            + aasIdentifier.ToBase64UrlEncoded(Encoding.UTF8);
+
+        HttpResponseMessage response = await client.GetAsync(url, cancellationToken);
+
+        var responseBody = await response.Content.ReadAsStringAsync();
+        if (response.IsSuccessStatusCode && !responseBody.StartsWith("<"))
+        {
+            return JsonConvert.DeserializeObject<JObject>(responseBody);
+        }
+
+        if (response.StatusCode == HttpStatusCode.NotFound || responseBody.StartsWith("<"))
+        {
+            return null;
+        }
+
+        throw new Exception($"Request to {url} failed with status code {response.StatusCode}");
     }
 
     public static async Task<string> GetAasUrl(
@@ -606,6 +697,7 @@ public static class ShellLoader
         }
 
         var failures = new List<string>();
+        var allNotFound = true;
 
         foreach (var candidateUrl in candidateUrls)
         {
@@ -619,16 +711,41 @@ public static class ShellLoader
                 var message = $"Loading {subject} from {candidateUrl} timed out.";
                 failures.Add(message);
                 Console.WriteLine(message);
+                allNotFound = false;
             }
             catch (Exception e)
             {
+                allNotFound = allNotFound && e is AasApi404Exception;
                 var message = $"Loading {subject} from {candidateUrl} failed: {e.Message}";
                 failures.Add(message);
                 Console.WriteLine(message);
             }
         }
 
-        throw new Exception($"Failed to load {subject}. {string.Join(" | ", failures)}");
+        var failureMessage = $"Failed to load {subject}. {string.Join(" | ", failures)}";
+        if (allNotFound)
+        {
+            // every candidate answered 404 -> the resource does not exist (e.g. stale registry entry)
+            throw new AasApi404Exception(failureMessage);
+        }
+
+        throw new Exception(failureMessage);
+    }
+
+    private static void EnsureSuccessStatusCode(HttpResponseMessage response, string url)
+    {
+        if (response.IsSuccessStatusCode)
+        {
+            return;
+        }
+
+        var message = $"Request to {url} failed with status code {response.StatusCode}";
+        if (response.StatusCode == HttpStatusCode.NotFound)
+        {
+            throw new AasApi404Exception(message);
+        }
+
+        throw new Exception(message);
     }
 
     private static List<string> ExtractEndpointUrls(
@@ -665,11 +782,7 @@ public static class ShellLoader
     )
     {
         HttpResponseMessage response = await client.GetAsync(url, cancellationToken);
-
-        if (!response.IsSuccessStatusCode)
-        {
-            throw new Exception($"Request to {url} failed with status code {response.StatusCode}");
-        }
+        EnsureSuccessStatusCode(response, url);
 
         var responseBody = await response.Content.ReadAsStringAsync();
         var jsonNode = AasJsonNodeParser.Parse(responseBody);
@@ -683,11 +796,7 @@ public static class ShellLoader
     )
     {
         HttpResponseMessage response = await client.GetAsync(url, cancellationToken);
-
-        if (!response.IsSuccessStatusCode)
-        {
-            throw new Exception($"Request to {url} failed with status code {response.StatusCode}");
-        }
+        EnsureSuccessStatusCode(response, url);
 
         var responseBody = await response.Content.ReadAsStringAsync();
         var jsonNode = AasJsonNodeParser.Parse(responseBody);
@@ -701,11 +810,7 @@ public static class ShellLoader
     )
     {
         HttpResponseMessage response = await client.GetAsync(url, cancellationToken);
-
-        if (!response.IsSuccessStatusCode)
-        {
-            throw new Exception($"Request to {url} failed with status code {response.StatusCode}");
-        }
+        EnsureSuccessStatusCode(response, url);
 
         var responseBody = await response.Content.ReadAsStringAsync();
         responseBody = EmbeddedDataspecFixUtil.FixEmbeddedDataspec(responseBody);
