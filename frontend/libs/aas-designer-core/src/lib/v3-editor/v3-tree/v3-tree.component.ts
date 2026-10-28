@@ -1525,7 +1525,7 @@ export class V3TreeComponent implements OnChanges, OnInit {
 
     if (this.importType === 'submodel') {
       try {
-        const instanceOrErrorPlain = aas.jsonization.conceptDescriptionFromJsonable(JSON.parse(this.plainJson ?? ''));
+        const instanceOrErrorPlain = aas.jsonization.submodelFromJsonable(JSON.parse(this.plainJson ?? ''));
         if (instanceOrErrorPlain.error != null) {
           valid = false;
           const err = instanceOrErrorPlain.error;
