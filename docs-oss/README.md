@@ -2,6 +2,13 @@
 
 Diese Dokumentation beschreibt die OSS-Variante des Portals.
 
+## JSON-Import Von Teilmodellen
+
+Der JSON-Import im Teilmodell-Dialog des Editors akzeptiert ein einzelnes Objekt
+mit `modelType: Submodel`. Ein AAS-Environment-Wrapper oder ConceptDescriptions
+sind dafuer nicht erforderlich. Die Vorpruefung verwendet denselben Submodel-
+Parser wie der eigentliche Import; andere Modelltypen werden dort abgewiesen.
+
 ## Inhalt
 
 - Docker Compose Deployment: [docker-oss/DOCKER_README.md](/Users/christina/_DEV/ML/vws-portal/docker-oss/DOCKER_README.md)
