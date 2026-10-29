@@ -49,15 +49,13 @@ export class SmcViewerComponent implements OnDestroy, OnChanges {
 
   currentLang = 'de';
 
-  // expanded latch: once true due to a matching highlight path, stays open until user collapses manually
-  expanded = signal<boolean>(false);
-
-  toggleExpand() {
-    this.expanded.set(!this.expanded());
+  // The expanded state lives in the store so that it survives reloading the submodel
+  isExpanded() {
+    return this.viewerStore.isElementExpanded(this.submodelId, this.idShortPath);
   }
 
-  isExpanded() {
-    return this.expanded();
+  onExpandedChange(value: unknown) {
+    this.viewerStore.setElementExpanded(this.submodelId, this.idShortPath, value != null && value !== '');
   }
 
   constructor() {
@@ -75,7 +73,7 @@ export class SmcViewerComponent implements OnDestroy, OnChanges {
       if (!target) return;
       if (!myPath) return;
       if (target === myPath || target.startsWith(myPath + '.') || target.startsWith(myPath + '[')) {
-        this.expanded.set(true);
+        this.viewerStore.setElementExpanded(this.submodelId, myPath, true);
       }
     });
   }

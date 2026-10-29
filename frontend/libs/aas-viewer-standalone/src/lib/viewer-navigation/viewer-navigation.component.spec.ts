@@ -88,4 +88,31 @@ describe('ViewerNavigationComponent', () => {
     expect(texts('.submodel-item')).toEqual(['Nameplate', 'Spielplatz', 'Pending']);
     expect(fixture.nativeElement.querySelector('p-progressbar')).not.toBeNull();
   });
+
+  it('scrolls only the side navigation to show the active submodel', async () => {
+    // The side column card scrolls its body when the submodel list is longer than the visible area
+    const cardBody = document.createElement('div');
+    cardBody.className = 'p-card-body';
+    cardBody.appendChild(fixture.nativeElement);
+    document.body.appendChild(cardBody);
+    const rect = (top: number, bottom: number) => ({ top, bottom }) as DOMRect;
+    vi.spyOn(cardBody, 'getBoundingClientRect').mockReturnValue(rect(100, 300));
+    // jsdom has no scrollIntoView; it would also scroll the page around the navigation
+    const pageScroll = vi.fn();
+    Element.prototype.scrollIntoView = pageScroll;
+
+    fixture.detectChanges();
+    // Spielplatz lies 60px below the visible part of the navigation
+    const items = fixture.nativeElement.querySelectorAll('.submodel-item') as NodeListOf<HTMLElement>;
+    vi.spyOn(items[1], 'getBoundingClientRect').mockReturnValue(rect(320, 360));
+
+    fixture.componentRef.setInput('activeSubmodelId', 'urn:sm:playground');
+    fixture.detectChanges();
+    await fixture.whenStable();
+
+    expect(cardBody.scrollTop).toBe(60);
+    expect(pageScroll).not.toHaveBeenCalled();
+    cardBody.remove();
+    delete (Element.prototype as Partial<Element>).scrollIntoView;
+  });
 });

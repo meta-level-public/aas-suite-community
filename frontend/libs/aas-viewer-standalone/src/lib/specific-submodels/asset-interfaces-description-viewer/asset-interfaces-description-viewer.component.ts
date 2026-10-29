@@ -1,6 +1,7 @@
 import * as aas from '@aas-core-works/aas-core3.1-typescript';
 import { NotificationService } from '@aas/common-services';
 import { Clipboard } from '@angular/cdk/clipboard';
+import { NgTemplateOutlet } from '@angular/common';
 import { Component, computed, inject, input } from '@angular/core';
 import { TranslateModule } from '@ngx-translate/core';
 import { TreeNode } from 'primeng/api';
@@ -34,6 +35,7 @@ type InterfaceView = AidInterface & {
   templateUrl: './asset-interfaces-description-viewer.component.html',
   styleUrls: ['./asset-interfaces-description-viewer.component.css'],
   imports: [
+    NgTemplateOutlet,
     Button,
     IconField,
     InputGroup,

@@ -122,60 +122,51 @@
         <ng-template #header>
           <tr>
             <th scope="col">{{ 'AID_VIEWER_DATA_POINT' | translate }}</th>
-            <th scope="col">{{ 'AID_VIEWER_PROPERTY_DATA_TYPE' | translate }}</th>
-            <th scope="col">{{ 'AID_VIEWER_UNIT' | translate }}</th>
-            <th scope="col">{{ 'AID_VIEWER_ACCESS' | translate }}</th>
-            <th scope="col" class="text-center">{{ 'AID_VIEWER_LIVE' | translate }}</th>
+            <th scope="col" class="aid-detail-column">{{ 'AID_VIEWER_PROPERTY_DATA_TYPE' | translate }}</th>
+            <th scope="col" class="aid-detail-column">{{ 'AID_VIEWER_UNIT' | translate }}</th>
+            <th scope="col" class="aid-detail-column">{{ 'AID_VIEWER_ACCESS' | translate }}</th>
+            <th scope="col" class="aid-detail-column text-center">{{ 'AID_VIEWER_LIVE' | translate }}</th>
           </tr>
         </ng-template>
         <ng-template #body let-rowNode let-point="rowData">
           <tr [ttRow]="rowNode">
             <td>
-              <div class="flex items-center gap-2 min-w-0">
+              <div class="flex items-start gap-2 min-w-0">
                 <p-treeTableToggler [rowNode]="rowNode"></p-treeTableToggler>
-                <span class="font-semibold">{{ point.name }}</span>
-                @if (point.name !== point.idShort) {
-                  <span class="aid-muted">{{ point.idShort }}</span>
-                }
-                @if (point.kind !== 'property') {
-                  <p-tag
-                    [value]="(point.kind === 'action' ? 'AID_VIEWER_ACTION' : 'AID_VIEWER_EVENT') | translate"
-                    severity="contrast"
-                  ></p-tag>
-                }
+                <div class="flex flex-col gap-1 min-w-0">
+                  <div class="flex flex-wrap items-center gap-x-2 min-w-0">
+                    <span class="font-semibold aid-break">{{ point.name }}</span>
+                    @if (point.name !== point.idShort) {
+                      <span class="aid-muted aid-break">{{ point.idShort }}</span>
+                    }
+                    @if (point.kind !== 'property') {
+                      <p-tag
+                        [value]="(point.kind === 'action' ? 'AID_VIEWER_ACTION' : 'AID_VIEWER_EVENT') | translate"
+                        severity="contrast"
+                      ></p-tag>
+                    }
+                  </div>
+                  <!-- On narrow widths the detail columns are hidden and their values are shown here -->
+                  <div class="aid-point-meta">
+                    <ng-container *ngTemplateOutlet="dataTypeTemplate; context: { $implicit: point }"></ng-container>
+                    <ng-container *ngTemplateOutlet="unitTemplate; context: { $implicit: point }"></ng-container>
+                    <ng-container *ngTemplateOutlet="accessTemplate; context: { $implicit: point }"></ng-container>
+                    <ng-container *ngTemplateOutlet="liveTemplate; context: { $implicit: point }"></ng-container>
+                  </div>
+                </div>
               </div>
             </td>
-            <td>
-              @if (point.dataType) {
-                <code class="aid-code">{{ point.dataType }}</code>
-              }
+            <td class="aid-detail-column">
+              <ng-container *ngTemplateOutlet="dataTypeTemplate; context: { $implicit: point }"></ng-container>
             </td>
-            <td>
-              @if (point.unit) {
-                <span [pTooltip]="point.unit !== point.unitCode ? point.unitCode : ''">{{ point.unit }}</span>
-              }
-              @if (point.range) {
-                <span class="aid-muted">[{{ point.range }}]</span>
-              }
+            <td class="aid-detail-column">
+              <ng-container *ngTemplateOutlet="unitTemplate; context: { $implicit: point }"></ng-container>
             </td>
-            <td>
-              @if (point.form; as form) {
-                <span class="flex items-center gap-2 min-w-0" [pTooltip]="form.url">
-                  @if (form.method) {
-                    <p-tag [value]="form.method" severity="secondary"></p-tag>
-                  }
-                  <code class="aid-code truncate">{{ form.href || '/' }}</code>
-                </span>
-              }
+            <td class="aid-detail-column">
+              <ng-container *ngTemplateOutlet="accessTemplate; context: { $implicit: point }"></ng-container>
             </td>
-            <td class="text-center">
-              @if (point.observable) {
-                <i
-                  class="fa-solid fa-bolt aid-live"
-                  [pTooltip]="'AID_VIEWER_OBSERVABLE' | translate"
-                  [attr.aria-label]="'AID_VIEWER_OBSERVABLE' | translate"
-                ></i>
-              }
+            <td class="aid-detail-column text-center">
+              <ng-container *ngTemplateOutlet="liveTemplate; context: { $implicit: point }"></ng-container>
             </td>
           </tr>
         </ng-template>
@@ -263,3 +254,39 @@
     <div class="section-card aid-muted">{{ 'AID_VIEWER_EMPTY' | translate }}</div>
   }
 </div>
+
+<ng-template #dataTypeTemplate let-point>
+  @if (point.dataType) {
+    <code class="aid-code">{{ point.dataType }}</code>
+  }
+</ng-template>
+
+<ng-template #unitTemplate let-point>
+  @if (point.unit) {
+    <span [pTooltip]="point.unit !== point.unitCode ? point.unitCode : ''">{{ point.unit }}</span>
+  }
+  @if (point.range) {
+    <span class="aid-muted">[{{ point.range }}]</span>
+  }
+</ng-template>
+
+<ng-template #accessTemplate let-point>
+  @if (point.form; as form) {
+    <span class="inline-flex items-center gap-2 min-w-0 max-w-full" [pTooltip]="form.url">
+      @if (form.method) {
+        <p-tag [value]="form.method" severity="secondary"></p-tag>
+      }
+      <code class="aid-code truncate">{{ form.href || '/' }}</code>
+    </span>
+  }
+</ng-template>
+
+<ng-template #liveTemplate let-point>
+  @if (point.observable) {
+    <i
+      class="fa-solid fa-bolt aid-live"
+      [pTooltip]="'AID_VIEWER_OBSERVABLE' | translate"
+      [attr.aria-label]="'AID_VIEWER_OBSERVABLE' | translate"
+    ></i>
+  }
+</ng-template>

@@ -6,6 +6,8 @@
 }
 
 .section-card {
+  /* The data point table adapts to the width of the card, not of the window */
+  container-type: inline-size;
   padding: 1rem;
   border: 1px solid var(--p-content-border-color);
   background: var(--p-content-background);
@@ -103,5 +105,29 @@
 @media (max-width: 960px) {
   .aid-summary {
     grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+/* Values of the detail columns below the name, only used on narrow widths */
+.aid-point-meta {
+  display: none;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.25rem 0.5rem;
+  min-width: 0;
+}
+
+.aid-point-meta:empty {
+  display: none !important;
+}
+
+/* In px: the root font size differs between the apps */
+@container (max-width: 720px) {
+  .aid-detail-column {
+    display: none;
+  }
+
+  .aid-point-meta {
+    display: flex;
   }
 }

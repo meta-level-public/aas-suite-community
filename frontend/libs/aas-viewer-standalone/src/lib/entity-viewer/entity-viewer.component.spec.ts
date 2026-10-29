@@ -62,10 +62,14 @@ describe('EntityViewerComponent', () => {
     fixture.detectChanges();
 
     // statements are rendered by the lazily imported generic viewer
-    await vi.waitFor(() => {
-      fixture.detectChanges();
-      expect(fixture.nativeElement.querySelector('aas-reference-element-v3')).not.toBeNull();
-    });
+    await vi.waitFor(
+      () => {
+        fixture.detectChanges();
+        expect(fixture.nativeElement.querySelector('aas-reference-element-v3')).not.toBeNull();
+      },
+      // slow CI runners with coverage need more than the default second
+      { timeout: 4000 },
+    );
     expect(inputValues(fixture)).toContain('urn:test:aas:schaukel');
   });
 });

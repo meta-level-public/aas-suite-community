@@ -10,11 +10,13 @@ import { Subscription } from 'rxjs';
 import { ViewerStoreService } from '../../viewer-store.service';
 import { HandoverDocumentationDocumentComponent } from './handover-documentation-document/handover-documentation-document.component';
 import { SelectDocumentFile } from './select-document-file';
+import { ExpandedStateDirective } from '../../expanded-state/expanded-state.directive';
 
 @Component({
   selector: 'aas-handover-documentation-viewer',
   templateUrl: './handover-documentation-viewer.component.html',
   imports: [
+    ExpandedStateDirective,
     Card,
     Accordion,
     AccordionPanel,

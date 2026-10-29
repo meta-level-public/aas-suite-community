@@ -47,6 +47,19 @@ Teilmodelle "Asset Interfaces Description" (IDTA 02017) der Versionen 1.0 und
   `°C`), Abruf (z. B. `GET /api/status`) und Live-Kennzeichen (observable),
 - Forms und Security-Definitionen unter "Technische Details".
 
+Ist die Tabelle schmaler als 720 px (Smartphone, Viewer-Dialog), stehen
+Datentyp, Einheit, Abruf und Live-Kennzeichen in einer Zeile unter dem Namen
+des Datenpunkts statt in eigenen Spalten.
+
+## Aufgeklappte Elemente Im Viewer
+
+Der Viewer merkt sich, welche Collections, Listen und Dateien sowie welche
+Abschnitte spezieller Teilmodell-Ansichten (z. B. Dokumente der Handover
+Documentation, PCF, Kontakte, Capabilities) auf- oder zugeklappt sind, je AAS,
+Submodell und Pfad. Der Zustand bleibt beim Neuladen eines Submodells, beim
+Wechsel zwischen Submodellen und beim Neuladen der Seite erhalten. Er liegt im
+`sessionStorage` des Browsers und gilt damit nur fuer den aktuellen Tab.
+
 ## Darstellung Auf Mobilen Geraeten
 
 Unter 768 px Breite (Smartphones):
@@ -60,6 +73,13 @@ Unter 768 px Breite (Smartphones):
 Unter 1280 px Breite zeigt der Viewer statt der Seitenleiste einen kompakten
 Kopf (Vorschaubild, idShort, Typ, Globale Asset-ID) und eine fixierte,
 horizontal scrollbare Leiste zum Wechsel zwischen AAS-Details und Submodellen.
+
+Ab 1280 px steht derselbe kompakte Kopf ueber der Navigation in der
+Seitenleiste. Die Seitenleiste bleibt beim Scrollen unter der Toolbar stehen
+und ist hoechstens so hoch wie der sichtbare Bereich; eine lange
+Submodell-Liste scrollt darin separat. Der Inhalt bleibt so nach der Auswahl
+eines Submodells sichtbar. Ein Klick auf das Vorschaubild zeigt es gross an
+(auch unter 1280 px).
 
 ## Dokumente In Der Handover Documentation
 

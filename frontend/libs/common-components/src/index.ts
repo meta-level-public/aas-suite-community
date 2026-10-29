@@ -3,6 +3,7 @@ export * from './lib/country-code/country.service';
 export * from './lib/dialog-footer/dialog-footer.component';
 export * from './lib/help-label/help-label.component';
 export * from './lib/help-service/help.service';
+export * from './lib/primeng-fixes/menu-reopen-fix';
 export * from './lib/qr-code-export/qr-code-export.component';
 export * from './lib/selection-card/selection-card.component';
 export * from './lib/shell-select/shell-select-dialog';

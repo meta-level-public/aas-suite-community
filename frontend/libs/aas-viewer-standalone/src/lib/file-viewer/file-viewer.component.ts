@@ -59,6 +59,19 @@ export class V3FileViewerComponent implements OnDestroy {
   xmlString: string | undefined;
   showPreview = false;
 
+  // Open by default; the state lives in the store so that it survives reloading the submodel
+  isExpanded() {
+    return this.viewerStore.isElementExpanded(this.submodelId ?? '', this.expandedStatePath(), true);
+  }
+
+  onExpandedChange(value: unknown) {
+    this.viewerStore.setElementExpanded(this.submodelId ?? '', this.expandedStatePath(), value != null && value !== '');
+  }
+
+  private expandedStatePath() {
+    return this.idShortPath || this.fileObj?.idShort || '';
+  }
+
   translate = inject(TranslateService);
   subscriptions: Subscription[] = [];
 

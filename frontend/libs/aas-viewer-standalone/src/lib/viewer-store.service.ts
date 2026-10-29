@@ -2,8 +2,15 @@ import * as aas from '@aas-core-works/aas-core3.1-typescript';
 import { jsonization } from '@aas-core-works/aas-core3.1-typescript';
 import { ViewerDescriptor } from '@aas/webapi-client';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
-import { computed, effect, inject, Injectable, signal } from '@angular/core';
+import { computed, effect, inject, Injectable, linkedSignal, signal } from '@angular/core';
 import { lastValueFrom } from 'rxjs';
+import {
+  ExpandedState,
+  ExpandedStateValue,
+  expandedStateKey,
+  loadExpandedState,
+  saveExpandedState,
+} from './expanded-state/expanded-state';
 import type { SearchHit } from './search/search.types';
 import { ShellNavigator } from './shell-navigation';
 import { LoadedSubmodel, SubmodelLoadState, submodelLabelFromUrl } from './submodel-load-state';
@@ -33,6 +40,10 @@ export class ViewerStoreService {
   private aasState = signal<aas.types.AssetAdministrationShell | null>(null);
   private submodelLoadStatesState = signal<SubmodelLoadState[]>([]);
   private submodelLoadGeneration = 0;
+  // Expanded state of collapsible elements per AAS, kept while submodels are reloaded or re-rendered
+  private expandedState = linkedSignal<ExpandedState>(() => loadExpandedState(this.expandedStateScope()));
+  // Not every viewer descriptor carries the AAS id, the AAS endpoint identifies the AAS as well
+  private expandedStateScope = computed(() => this.aasId() || this.aasUrl());
 
   newDescriptorEffect = effect(() => {
     this.viewerDescriptor();
@@ -166,6 +177,29 @@ export class ViewerStoreService {
       );
       this.reloadTrigger.set(this.reloadTrigger() + 1);
     }
+  }
+
+  isElementExpanded(submodelId: string, idShortPath: string, fallback = false) {
+    const value = this.expandedState().get(expandedStateKey(submodelId, idShortPath));
+    return typeof value === 'boolean' ? value : fallback;
+  }
+
+  setElementExpanded(submodelId: string, idShortPath: string, expanded: boolean) {
+    this.setExpandedState(submodelId, idShortPath, expanded);
+  }
+
+  /** Stored value of an accordion, undefined when the user has not toggled it yet */
+  expandedStateOf(submodelId: string, path: string) {
+    return this.expandedState().get(expandedStateKey(submodelId, path));
+  }
+
+  setExpandedState(submodelId: string, path: string, value: ExpandedStateValue) {
+    const key = expandedStateKey(submodelId, path);
+    const current = this.expandedState();
+    if (current.has(key) && JSON.stringify(current.get(key)) === JSON.stringify(value)) return;
+    const next = new Map(current).set(key, value);
+    this.expandedState.set(next);
+    saveExpandedState(this.expandedStateScope(), next);
   }
 
   addFileToCurrentlyLoadedFiles(file: { submodelId: string; idShortPath: string; path: string; blob: Blob }) {

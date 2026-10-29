@@ -23,6 +23,7 @@ import { Tag } from 'primeng/tag';
 import { GenericViewerComponent } from '../../generic-viewer/generic-viewer.component';
 import { SubmodelHeroHeaderComponent } from '../../shared/submodel-hero-header/submodel-hero-header.component';
 import { ViewerStoreService } from '../../viewer-store.service';
+import { ExpandedStateDirective } from '../../expanded-state/expanded-state.directive';
 
 type CapabilityPropertySummary = {
   id: string;
@@ -66,6 +67,7 @@ type CapabilitySetGroup = {
   styleUrls: ['./capability-description-viewer.component.css'],
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
+    ExpandedStateDirective,
     InputGroup,
     InputGroupAddon,
     InputText,

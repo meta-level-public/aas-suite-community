@@ -1,6 +1,11 @@
 <div class="contact-info-container">
   <div class="contact-info-card">
-    <p-accordion [multiple]="true" (valueChange)="accordionTabValueChange($event)" class="contact-accordion">
+    <p-accordion
+      [multiple]="true"
+      (valueChange)="accordionTabValueChange($event)"
+      class="contact-accordion"
+      aasExpandedState="contacts"
+    >
       @for (contact of contactInfos(); track $index) {
         <p-accordion-panel [value]="contact.id">
           <p-accordion-header>{{ contact.id }}</p-accordion-header>

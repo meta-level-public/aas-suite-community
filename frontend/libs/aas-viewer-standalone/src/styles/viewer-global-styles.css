@@ -160,6 +160,22 @@ html.my-app-dark {
   color: var(--p-text-muted-color);
 }
 
+/* The thumbnail opens a large preview on click */
+.viewer-compact-thumbnail-image,
+.viewer-compact-thumbnail-image .p-image {
+  display: block;
+  width: 100%;
+  height: 100%;
+  cursor: zoom-in;
+}
+
+/* The preview is appended to the body; keep large images within the window with some space around them */
+.p-image-mask .p-image-original {
+  max-width: 90vw;
+  max-height: 90vh;
+  object-fit: contain;
+}
+
 .viewer-compact-asset-id {
   font-size: var(--aas-text-xs);
   color: var(--p-text-muted-color);
@@ -196,6 +212,42 @@ aas-aas-viewer-standalone {
 
 .viewer-content-column {
   scroll-margin-top: calc(var(--viewer-toolbar-height) + 0.5rem);
+}
+
+/* Side column (from xl): sticks below the toolbar and is at most as high as the visible area,
+ * so the content stays in view when a submodel far down the list is selected */
+.viewer-side-column {
+  position: sticky;
+  /* Same position as before scrolling: toolbar margin (0.5rem) plus own margin (1rem) */
+  top: calc(var(--viewer-toolbar-height) + 1.5rem);
+  align-self: start;
+  flex-direction: column;
+  gap: 0.5rem;
+  max-height: calc(var(--viewer-scrollport-height, 100dvh) - var(--viewer-toolbar-height) - 2.5rem);
+  margin-top: 1rem;
+}
+
+.viewer-side-column .viewer-compact-header {
+  flex-shrink: 0;
+}
+
+.viewer-side-column .viewer-compact-thumbnail {
+  width: 4.5rem;
+  height: 4.5rem;
+}
+
+/* Higher specificity than the PrimeNG card, which is a block otherwise */
+.viewer-side-column .viewer-side-navigation.p-card {
+  display: flex;
+  flex: 0 1 auto;
+  flex-direction: column;
+  min-height: 0;
+}
+
+.viewer-side-navigation .p-card-body {
+  min-height: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
 }
 
 /* Accordion content is a grid; without min-width 0 deeply nested content widens the whole viewer */

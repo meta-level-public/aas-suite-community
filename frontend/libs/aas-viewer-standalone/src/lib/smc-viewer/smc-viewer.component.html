@@ -1,5 +1,8 @@
 @if (smc != null) {
-  <p-accordion [value]="isExpanded() ? 'smc_' + (smc.idShort || 'default') : ''">
+  <p-accordion
+    [value]="isExpanded() ? 'smc_' + (smc.idShort || 'default') : ''"
+    (valueChange)="onExpandedChange($event)"
+  >
     <p-accordion-panel [value]="'smc_' + (smc.idShort || 'default')">
       <p-accordion-header>
         <!-- Long names are truncated so that count, help and toggle stay visible -->

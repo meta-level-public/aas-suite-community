@@ -40,7 +40,7 @@
       <div class="section-card">
         <h3 class="section-title"><i class="fa-solid fa-list-check"></i> Capabilities</h3>
 
-        <p-accordion [multiple]="true">
+        <p-accordion [multiple]="true" aasExpandedState="capabilities">
           @for (capability of capabilities; track capability.id + '-' + i; let i = $index) {
             <p-accordion-panel [value]="i">
               <p-accordion-header>

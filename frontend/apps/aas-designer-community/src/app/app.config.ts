@@ -1,6 +1,6 @@
 import { AuthRoles } from '@aas-designer-model';
 import { canActivate, ErrorHandlerService } from '@aas/aas-designer-shared';
-import { AasSuitePreset } from '@aas/common-components';
+import { AasSuitePreset, provideMenuReopenFix } from '@aas/common-components';
 import {
   AppConfigService,
   NotificationService,
@@ -154,6 +154,7 @@ export function getAppConfig(): ApplicationConfig {
         useValue: getRuntimeVar('__AAS_FRONTEND_DESIGNER_BASE_URL', getDesignerBaseUrlFallback()),
       },
       provideHttpClient(withInterceptorsFromDi()),
+      provideMenuReopenFix(),
       providePrimeNG({
         theme: {
           preset: AasSuitePreset,

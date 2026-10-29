@@ -18,11 +18,13 @@ import { Ripple } from 'primeng/ripple';
 import { SelectButton } from 'primeng/selectbutton';
 import { TableModule } from 'primeng/table';
 import { OperationVariableComponent } from './operation-variable/operation-variable.component';
+import { ExpandedStateDirective } from '../expanded-state/expanded-state.directive';
 
 @Component({
   selector: 'aas-operation-viewer',
   templateUrl: './operation-viewer.component.html',
   imports: [
+    ExpandedStateDirective,
     TableModule,
     PrimeTemplate,
     OperationVariableComponent,

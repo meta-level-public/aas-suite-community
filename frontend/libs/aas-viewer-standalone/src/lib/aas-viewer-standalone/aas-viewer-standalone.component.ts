@@ -2,6 +2,7 @@ import {
   afterNextRender,
   Component,
   computed,
+  DestroyRef,
   effect,
   ElementRef,
   HostListener,
@@ -27,12 +28,13 @@ import { HttpClient } from '@angular/common/http';
 import * as aas from '@aas-core-works/aas-core3.1-typescript';
 
 import { ViewerDescriptor } from '@aas/webapi-client';
-import { AsyncPipe } from '@angular/common';
+import { AsyncPipe, NgTemplateOutlet } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { Button } from 'primeng/button';
 import { Card } from 'primeng/card';
 import { DialogService, DynamicDialogConfig, DynamicDialogRef } from 'primeng/dynamicdialog';
+import { Image } from 'primeng/image';
 import { ScrollTop } from 'primeng/scrolltop';
 import { SelectButton } from 'primeng/selectbutton';
 import { Tag } from 'primeng/tag';
@@ -59,7 +61,9 @@ import { ViewerStoreService } from '../viewer-store.service';
     AasModelViewerComponent,
     AasMetadataViewerComponent,
     ScrollTop,
+    Image,
     AsyncPipe,
+    NgTemplateOutlet,
     TranslateModule,
     Tooltip,
     ViewerNavigationComponent,
@@ -121,12 +125,27 @@ export class AasViewerStandaloneComponent implements OnChanges, OnInit, OnDestro
 
   viewerStore = inject(ViewerStoreService);
   private injector = inject(Injector);
+  private host = inject<ElementRef<HTMLElement>>(ElementRef);
+  private destroyRef = inject(DestroyRef);
   private toolbar = viewChild<ElementRef<HTMLElement>>('toolbar');
   private contentColumn = viewChild<ElementRef<HTMLElement>>('contentColumn');
   thumbnailLoadError = signal(false);
 
   ngOnInit(): void {
-    // no-op
+    afterNextRender(() => this.observeScrollportHeight(), { injector: this.injector });
+  }
+
+  // The sticky side column must not be taller than the visible part of the scrolling container (page area or dialog).
+  // Without a scrolling container the window scrolls and the CSS falls back to the viewport height.
+  private observeScrollportHeight() {
+    const host = this.host.nativeElement;
+    const scrollport = findScrollingAncestor(host);
+    if (scrollport == null || typeof ResizeObserver === 'undefined') return;
+    const observer = new ResizeObserver(() =>
+      host.style.setProperty('--viewer-scrollport-height', `${scrollport.clientHeight}px`),
+    );
+    observer.observe(scrollport);
+    this.destroyRef.onDestroy(() => observer.disconnect());
   }
 
   async ngOnChanges() {
@@ -142,10 +161,6 @@ export class AasViewerStandaloneComponent implements OnChanges, OnInit, OnDestro
 
   onOverviewThumbnailError() {
     this.thumbnailLoadError.set(true);
-  }
-
-  onOverviewThumbnailLoad() {
-    this.thumbnailLoadError.set(false);
   }
 
   async reloadSubmodel() {
@@ -169,7 +184,7 @@ export class AasViewerStandaloneComponent implements OnChanges, OnInit, OnDestro
       .currentlyloadedFiles()
       .find((f) => f.submodelId === 'thumbnail' && f.idShortPath === 'thumbnail');
     if (loadedThumb != null) {
-      return this.sanitizer.bypassSecurityTrustResourceUrl(URL.createObjectURL(loadedThumb.blob));
+      return this.sanitizer.bypassSecurityTrustUrl(URL.createObjectURL(loadedThumb.blob));
     }
 
     const shell = this.viewerStore.aas();
@@ -197,7 +212,7 @@ export class AasViewerStandaloneComponent implements OnChanges, OnInit, OnDestro
             blob: thumb,
           });
 
-          return this.sanitizer.bypassSecurityTrustResourceUrl(URL.createObjectURL(thumb));
+          return this.sanitizer.bypassSecurityTrustUrl(URL.createObjectURL(thumb));
         } catch {
           return null;
         }
@@ -387,4 +402,13 @@ export class AasViewerStandaloneComponent implements OnChanges, OnInit, OnDestro
     this.viewerStore.highlightedIdShortPath.set('');
     this.viewerStore.highlightedTextQuery.set('');
   }
+}
+
+function findScrollingAncestor(element: HTMLElement): HTMLElement | null {
+  for (let parent = element.parentElement; parent != null; parent = parent.parentElement) {
+    if (parent === document.body || parent === document.documentElement) return null;
+    const overflowY = getComputedStyle(parent).overflowY;
+    if (overflowY === 'auto' || overflowY === 'scroll') return parent;
+  }
+  return null;
 }

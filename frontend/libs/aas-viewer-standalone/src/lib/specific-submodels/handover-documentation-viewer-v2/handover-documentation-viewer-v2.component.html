@@ -120,7 +120,7 @@
           <i class="pi pi-file"></i>
           {{ 'DOCUMENTS' | translate }}
         </h2>
-        <p-accordion [multiple]="true" class="modern-accordion" [value]="expandedPanels()">
+        <p-accordion [multiple]="true" class="modern-accordion" [value]="expandedPanels()" aasExpandedState="documents">
           @for (doc of documents; track $index) {
             <p-accordion-panel [value]="$index" [attr.id]="'doc-panel-' + $index">
               <p-accordion-header>
@@ -130,7 +130,12 @@
                 </div>
               </p-accordion-header>
               <p-accordion-content>
-                <p-accordion [multiple]="true" class="nested-accordion" [value]="nestedExpandedPanels()[$index]">
+                <p-accordion
+                  [multiple]="true"
+                  class="nested-accordion"
+                  [value]="nestedExpandedPanels()[$index]"
+                  [aasExpandedState]="'documents/' + $index"
+                >
                   <p-accordion-panel value="ident">
                     <p-accordion-header>
                       <div class="accordion-header-content">
