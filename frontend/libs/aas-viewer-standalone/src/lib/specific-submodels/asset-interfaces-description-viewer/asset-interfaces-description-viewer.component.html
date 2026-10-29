@@ -1,369 +1,265 @@
-@if (loading) {
-  <div class="aid-container">
-    <div class="section-card">
-      <h3 class="section-title"><i class="fa-solid fa-hourglass-half"></i> {{ 'LOADING' | translate }}...</h3>
+@let summary = this.summary();
+<div class="aid-container">
+  <div class="aid-summary">
+    <div class="aid-stat">
+      <i class="fa-solid fa-plug"></i>
+      <span class="aid-stat-value">{{ summary.interfaces }}</span>
+      <span class="aid-stat-label">{{ 'AID_VIEWER_INTERFACES' | translate }}</span>
+    </div>
+    <div class="aid-stat">
+      <i class="fa-solid fa-list-ul"></i>
+      <span class="aid-stat-value">{{ summary.dataPoints }}</span>
+      <span class="aid-stat-label">{{ 'AID_VIEWER_DATA_POINTS' | translate }}</span>
+    </div>
+    <div class="aid-stat">
+      <i class="fa-solid fa-link"></i>
+      <span class="aid-stat-value">{{ summary.endpoints }}</span>
+      <span class="aid-stat-label">{{ 'AID_VIEWER_ENDPOINTS' | translate }}</span>
+    </div>
+    <div class="aid-stat">
+      <i class="fa-solid fa-shield-halved"></i>
+      <span class="aid-stat-value">{{ summary.securitySchemes }}</span>
+      <span class="aid-stat-label">{{ 'AID_VIEWER_SECURITY_DEFINITIONS' | translate }}</span>
     </div>
   </div>
-} @else {
-  <div class="aid-container">
-    <div class="section-card">
-      <h3 class="section-title"><i class="fa-solid fa-plug-circle-bolt"></i> Asset Interfaces Overview</h3>
-      <div class="summary-grid">
-        <p-inputgroup>
-          <p-inputgroup-addon class="font-bold min-w-40">Interfaces</p-inputgroup-addon>
-          <input pInputText type="text" [value]="interfaces.length" readonly />
-        </p-inputgroup>
-        <p-inputgroup>
-          <p-inputgroup-addon class="font-bold min-w-40">Forms</p-inputgroup-addon>
-          <input pInputText type="text" [value]="totalForms" readonly />
-        </p-inputgroup>
-        <p-inputgroup>
-          <p-inputgroup-addon class="font-bold min-w-40">Properties</p-inputgroup-addon>
-          <input pInputText type="text" [value]="totalProperties" readonly />
-        </p-inputgroup>
-        <p-inputgroup>
-          <p-inputgroup-addon class="font-bold min-w-40">Security Schemes</p-inputgroup-addon>
-          <input pInputText type="text" [value]="totalSecuritySchemes" readonly />
-        </p-inputgroup>
-      </div>
-    </div>
 
-    @if (interfaces.length > 0) {
-      <div class="section-card">
-        <h3 class="section-title"><i class="fa-solid fa-list-check"></i> Interfaces</h3>
-
-        <p-accordion [multiple]="true">
-          @for (item of interfaces; track item.idShort; let i = $index) {
-            <p-accordion-panel [value]="i">
-              <p-accordion-header>
-                <div class="flex items-center w-full gap-2">
-                  <div class="font-bold">{{ item.idShort }}</div>
-                  <span class="flex-1"></span>
-                  <p-tag [value]="item.interactionType" severity="secondary"></p-tag>
-                  <p-tag [value]="item.forms[0]?.protocol || '-'" severity="info"></p-tag>
-                </div>
-              </p-accordion-header>
-              <p-accordion-content>
-                <div class="detail-grid">
-                  <div class="mini-card">
-                    <h4 class="mini-title">Core</h4>
-                    <p-inputgroup>
-                      <p-inputgroup-addon class="min-w-48 font-bold">
-                        <lib-help-label tag="AID_VIEWER_TITLE" [showLabel]="false"></lib-help-label>
-                        {{ 'AID_VIEWER_TITLE' | translate }}
-                      </p-inputgroup-addon>
-                      <input pInputText type="text" [value]="item.title" readonly />
-                    </p-inputgroup>
-                    <p-inputgroup>
-                      <p-inputgroup-addon class="min-w-48 font-bold">
-                        <lib-help-label tag="AID_VIEWER_ENDPOINT" [showLabel]="false"></lib-help-label>
-                        {{ 'AID_VIEWER_ENDPOINT' | translate }}
-                      </p-inputgroup-addon>
-                      <input pInputText type="text" [value]="item.endpoint" readonly />
-                    </p-inputgroup>
-                    <p-inputgroup>
-                      <p-inputgroup-addon class="min-w-48 font-bold">
-                        <lib-help-label tag="AID_VIEWER_INTERACTION_TYPE" [showLabel]="false"></lib-help-label>
-                        {{ 'AID_VIEWER_INTERACTION_TYPE' | translate }}
-                      </p-inputgroup-addon>
-                      <input pInputText type="text" [value]="item.interactionType" readonly />
-                    </p-inputgroup>
-                  </div>
-
-                  <div class="mini-card">
-                    <h4 class="mini-title">{{ 'AID_VIEWER_SECURITY_DEFINITIONS' | translate }}</h4>
-                    @if (item.securitySchemes.length === 0) {
-                      <span class="text-color-secondary">-</span>
-                    } @else {
-                      <p-accordion [multiple]="true">
-                        @for (scheme of item.securitySchemes; track scheme.idShort; let schemeIdx = $index) {
-                          <p-accordion-panel [value]="1000 + schemeIdx">
-                            <p-accordion-header>
-                              <div class="flex items-center w-full">
-                                <strong>{{ scheme.idShort }}</strong>
-                              </div>
-                            </p-accordion-header>
-                            <p-accordion-content>
-                              <div class="entity-card entity-card-flat mb-0">
-                                <p-inputgroup>
-                                  <p-inputgroup-addon class="min-w-48 font-bold">
-                                    <lib-help-label
-                                      tag="AID_VIEWER_SECURITY_SCHEME"
-                                      [showLabel]="false"
-                                    ></lib-help-label>
-                                    {{ 'AID_VIEWER_SECURITY_SCHEME' | translate }}
-                                  </p-inputgroup-addon>
-                                  <input pInputText type="text" [value]="scheme.scheme" readonly />
-                                </p-inputgroup>
-                                <p-inputgroup>
-                                  <p-inputgroup-addon class="min-w-48 font-bold">
-                                    <lib-help-label tag="AID_VIEWER_SECURITY_IN" [showLabel]="false"></lib-help-label>
-                                    {{ 'AID_VIEWER_SECURITY_IN' | translate }}
-                                  </p-inputgroup-addon>
-                                  <input pInputText type="text" [value]="scheme.in" readonly />
-                                </p-inputgroup>
-                                <p-inputgroup>
-                                  <p-inputgroup-addon class="min-w-48 font-bold">
-                                    <lib-help-label tag="AID_VIEWER_SECURITY_NAME" [showLabel]="false"></lib-help-label>
-                                    {{ 'AID_VIEWER_SECURITY_NAME' | translate }}
-                                  </p-inputgroup-addon>
-                                  <input pInputText type="text" [value]="scheme.name" readonly />
-                                </p-inputgroup>
-                                <p-inputgroup>
-                                  <p-inputgroup-addon class="min-w-48 font-bold">
-                                    <lib-help-label
-                                      tag="AID_VIEWER_SECURITY_DESCRIPTION"
-                                      [showLabel]="false"
-                                    ></lib-help-label>
-                                    {{ 'AID_VIEWER_SECURITY_DESCRIPTION' | translate }}
-                                  </p-inputgroup-addon>
-                                  <input pInputText type="text" [value]="scheme.description" readonly />
-                                </p-inputgroup>
-                              </div>
-                            </p-accordion-content>
-                          </p-accordion-panel>
-                        }
-                      </p-accordion>
-                    }
-                  </div>
-                </div>
-
-                <div class="detail-grid mt-2">
-                  <div class="mini-card">
-                    <h4 class="mini-title">{{ 'AID_VIEWER_PROPERTIES' | translate }}</h4>
-                    @if (item.propertyDefinitions.length === 0) {
-                      <span class="text-color-secondary">-</span>
-                    } @else {
-                      <ng-template #propertyNode let-node>
-                        <div class="entity-card">
-                          <div class="entity-title">{{ node.idShort }}</div>
-                          <p-inputgroup>
-                            <p-inputgroup-addon class="min-w-48 font-bold">
-                              <lib-help-label tag="AID_VIEWER_PROPERTY_KEY" [showLabel]="false"></lib-help-label>
-                              {{ 'AID_VIEWER_PROPERTY_KEY' | translate }}
-                            </p-inputgroup-addon>
-                            <input pInputText type="text" [value]="node.key || '-'" readonly />
-                          </p-inputgroup>
-                          <p-inputgroup>
-                            <p-inputgroup-addon class="min-w-48 font-bold">
-                              <lib-help-label tag="AID_VIEWER_PROPERTY_TITLE" [showLabel]="false"></lib-help-label>
-                              {{ 'AID_VIEWER_PROPERTY_TITLE' | translate }}
-                            </p-inputgroup-addon>
-                            <input pInputText type="text" [value]="node.title || '-'" readonly />
-                          </p-inputgroup>
-                          <p-inputgroup>
-                            <p-inputgroup-addon class="min-w-48 font-bold">
-                              <lib-help-label tag="AID_VIEWER_PROPERTY_DATA_TYPE" [showLabel]="false"></lib-help-label>
-                              {{ 'AID_VIEWER_PROPERTY_DATA_TYPE' | translate }}
-                            </p-inputgroup-addon>
-                            <input pInputText type="text" [value]="node.dataType || '-'" readonly />
-                          </p-inputgroup>
-                          <p-inputgroup>
-                            <p-inputgroup-addon class="min-w-48 font-bold">
-                              <lib-help-label tag="AID_VIEWER_PROPERTY_UNIT_CODE" [showLabel]="false"></lib-help-label>
-                              {{ 'AID_VIEWER_PROPERTY_UNIT_CODE' | translate }}
-                            </p-inputgroup-addon>
-                            <input pInputText type="text" [value]="node.unitCode || '-'" readonly />
-                          </p-inputgroup>
-                          <p-inputgroup>
-                            <p-inputgroup-addon class="min-w-48 font-bold">
-                              <lib-help-label
-                                tag="AID_VIEWER_PROPERTY_IS_OBSERVABLE"
-                                [showLabel]="false"
-                              ></lib-help-label>
-                              {{ 'AID_VIEWER_PROPERTY_IS_OBSERVABLE' | translate }}
-                            </p-inputgroup-addon>
-                            <input pInputText type="text" [value]="node.isObservable" readonly />
-                          </p-inputgroup>
-                          <p-inputgroup>
-                            <p-inputgroup-addon class="min-w-48 font-bold">
-                              <lib-help-label
-                                tag="AID_VIEWER_PROPERTY_VALUE_SEMANTICS"
-                                [showLabel]="false"
-                              ></lib-help-label>
-                              {{ 'AID_VIEWER_PROPERTY_VALUE_SEMANTICS' | translate }}
-                            </p-inputgroup-addon>
-                            <input pInputText type="text" [value]="node.valueSemantics || '-'" readonly />
-                          </p-inputgroup>
-
-                          @if (node.children.length > 0) {
-                            <div class="line-entry mt-1 font-semibold">
-                              {{ 'AID_VIEWER_NESTED_PROPERTIES' | translate }}
-                            </div>
-                            <p-accordion [multiple]="true">
-                              @for (child of node.children; track child.idShort; let childIdx = $index) {
-                                <p-accordion-panel [value]="2000 + childIdx">
-                                  <p-accordion-header>
-                                    <strong>{{ child.idShort }}</strong>
-                                  </p-accordion-header>
-                                  <p-accordion-content>
-                                    <ng-container
-                                      *ngTemplateOutlet="propertyNode; context: { $implicit: child }"
-                                    ></ng-container>
-                                  </p-accordion-content>
-                                </p-accordion-panel>
-                              }
-                            </p-accordion>
-                          }
-                        </div>
-                      </ng-template>
-
-                      @for (prop of item.propertyDefinitions; track prop.idShort) {
-                        <ng-container *ngTemplateOutlet="propertyNode; context: { $implicit: prop }"></ng-container>
-                      }
-                    }
-                  </div>
-
-                  <div class="mini-card">
-                    <h4 class="mini-title">{{ 'AID_VIEWER_FORMS' | translate }}</h4>
-                    @if (item.forms.length === 0) {
-                      <span class="text-color-secondary">-</span>
-                    } @else {
-                      <p-accordion [multiple]="true">
-                        @for (form of item.forms; track form.idShort; let formIdx = $index) {
-                          <p-accordion-panel [value]="3000 + formIdx">
-                            <p-accordion-header>
-                              <div class="flex items-center w-full gap-2">
-                                <strong>{{ form.idShort }}</strong>
-                                <span class="flex-1"></span>
-                                <p-tag [value]="form.protocol" severity="info"></p-tag>
-                              </div>
-                            </p-accordion-header>
-                            <p-accordion-content>
-                              <div class="entity-card entity-card-flat mb-0">
-                                <p-inputgroup>
-                                  <p-inputgroup-addon class="min-w-48 font-bold">
-                                    <lib-help-label tag="AID_VIEWER_TARGET" [showLabel]="false"></lib-help-label>
-                                    {{ 'AID_VIEWER_TARGET' | translate }}
-                                  </p-inputgroup-addon>
-                                  <input pInputText type="text" [value]="form.target" readonly />
-                                </p-inputgroup>
-                                <p-inputgroup>
-                                  <p-inputgroup-addon class="min-w-48 font-bold">
-                                    <lib-help-label tag="AID_VIEWER_CONTENT_TYPE" [showLabel]="false"></lib-help-label>
-                                    {{ 'AID_VIEWER_CONTENT_TYPE' | translate }}
-                                  </p-inputgroup-addon>
-                                  <input pInputText type="text" [value]="form.contentType" readonly />
-                                </p-inputgroup>
-                                <p-inputgroup>
-                                  <p-inputgroup-addon class="min-w-48 font-bold">
-                                    <lib-help-label
-                                      tag="AID_VIEWER_SECURITY_CONFIGURATION"
-                                      [showLabel]="false"
-                                    ></lib-help-label>
-                                    {{ 'AID_VIEWER_SECURITY_CONFIGURATION' | translate }}
-                                  </p-inputgroup-addon>
-                                  <input pInputText type="text" [value]="form.securityConfiguration" readonly />
-                                </p-inputgroup>
-
-                                @if (form.protocol === 'HTTP') {
-                                  <p-inputgroup>
-                                    <p-inputgroup-addon class="min-w-48 font-bold">
-                                      <lib-help-label tag="AID_VIEWER_HTTP_METHOD" [showLabel]="false"></lib-help-label>
-                                      {{ 'AID_VIEWER_HTTP_METHOD' | translate }}
-                                    </p-inputgroup-addon>
-                                    <input pInputText type="text" [value]="form.httpMethod" readonly />
-                                  </p-inputgroup>
-                                  @if (form.httpHeaders.length > 0) {
-                                    <div class="line-entry mt-1 font-semibold">
-                                      {{ 'AID_VIEWER_HTTP_HEADERS' | translate }}
-                                    </div>
-                                    <p-accordion [multiple]="true">
-                                      @for (header of form.httpHeaders; track $index; let headerIdx = $index) {
-                                        <p-accordion-panel [value]="4000 + headerIdx">
-                                          <p-accordion-header>
-                                            <strong>{{ header.name || '-' }}</strong>
-                                          </p-accordion-header>
-                                          <p-accordion-content>
-                                            <div class="entity-card entity-card-flat mb-0">
-                                              <p-inputgroup>
-                                                <p-inputgroup-addon class="min-w-48 font-bold">
-                                                  <lib-help-label
-                                                    tag="AID_VIEWER_HTTP_HEADER_NAME"
-                                                    [showLabel]="false"
-                                                  ></lib-help-label>
-                                                  {{ 'AID_VIEWER_HTTP_HEADER_NAME' | translate }}
-                                                </p-inputgroup-addon>
-                                                <input pInputText type="text" [value]="header.name || '-'" readonly />
-                                              </p-inputgroup>
-                                              <p-inputgroup>
-                                                <p-inputgroup-addon class="min-w-48 font-bold">
-                                                  <lib-help-label
-                                                    tag="AID_VIEWER_HTTP_HEADER_VALUE"
-                                                    [showLabel]="false"
-                                                  ></lib-help-label>
-                                                  {{ 'AID_VIEWER_HTTP_HEADER_VALUE' | translate }}
-                                                </p-inputgroup-addon>
-                                                <input pInputText type="text" [value]="header.value || '-'" readonly />
-                                              </p-inputgroup>
-                                            </div>
-                                          </p-accordion-content>
-                                        </p-accordion-panel>
-                                      }
-                                    </p-accordion>
-                                  }
-                                }
-
-                                @if (form.protocol === 'MQTT') {
-                                  <p-inputgroup>
-                                    <p-inputgroup-addon class="min-w-48 font-bold">
-                                      <lib-help-label tag="AID_INTERFACE_MQTT_QOS" [showLabel]="false"></lib-help-label>
-                                      {{ 'AID_INTERFACE_MQTT_QOS' | translate }}
-                                    </p-inputgroup-addon>
-                                    <input pInputText type="text" [value]="form.mqttQos" readonly />
-                                  </p-inputgroup>
-                                  <p-inputgroup>
-                                    <p-inputgroup-addon class="min-w-48 font-bold">
-                                      <lib-help-label
-                                        tag="AID_INTERFACE_MQTT_RETAIN"
-                                        [showLabel]="false"
-                                      ></lib-help-label>
-                                      {{ 'AID_INTERFACE_MQTT_RETAIN' | translate }}
-                                    </p-inputgroup-addon>
-                                    <input pInputText type="text" [value]="form.mqttRetain" readonly />
-                                  </p-inputgroup>
-                                }
-
-                                @if (form.protocol === 'Modbus') {
-                                  <p-inputgroup>
-                                    <p-inputgroup-addon class="min-w-48 font-bold">
-                                      <lib-help-label
-                                        tag="AID_INTERFACE_MODBUS_FUNCTION"
-                                        [showLabel]="false"
-                                      ></lib-help-label>
-                                      {{ 'AID_INTERFACE_MODBUS_FUNCTION' | translate }}
-                                    </p-inputgroup-addon>
-                                    <input pInputText type="text" [value]="form.modbusFunction" readonly />
-                                  </p-inputgroup>
-                                  <p-inputgroup>
-                                    <p-inputgroup-addon class="min-w-48 font-bold">
-                                      <lib-help-label
-                                        tag="AID_INTERFACE_MODBUS_ENTITY"
-                                        [showLabel]="false"
-                                      ></lib-help-label>
-                                      {{ 'AID_INTERFACE_MODBUS_ENTITY' | translate }}
-                                    </p-inputgroup-addon>
-                                    <input pInputText type="text" [value]="form.modbusEntity" readonly />
-                                  </p-inputgroup>
-                                }
-                              </div>
-                            </p-accordion-content>
-                          </p-accordion-panel>
-                        }
-                      </p-accordion>
-                    }
-                  </div>
-                </div>
-              </p-accordion-content>
-            </p-accordion-panel>
+  @for (item of interfaces(); track item.idShort) {
+    <section class="section-card">
+      <div class="aid-interface-header">
+        <div class="flex flex-col min-w-0">
+          <h3 class="section-title">
+            <i class="fa-solid fa-plug-circle-bolt"></i>
+            {{ item.title || item.idShort }}
+          </h3>
+          @if (item.title && item.title !== item.idShort) {
+            <span class="aid-muted">{{ item.idShort }}</span>
           }
-        </p-accordion>
+        </div>
+        <div class="flex flex-wrap gap-2 items-center">
+          @if (item.protocol) {
+            <p-tag [value]="item.protocol" severity="info"></p-tag>
+          }
+          @for (scheme of item.securitySchemes; track scheme.idShort) {
+            @if (isNoSecurity(scheme)) {
+              <p-tag
+                icon="pi pi-lock-open"
+                [value]="'AID_VIEWER_NO_SECURITY' | translate"
+                severity="warn"
+                [pTooltip]="scheme.idShort"
+              ></p-tag>
+            } @else {
+              <p-tag icon="pi pi-lock" [value]="scheme.scheme || scheme.idShort" severity="success"></p-tag>
+            }
+          }
+        </div>
       </div>
-    } @else {
-      <div class="section-card">
-        <h3 class="section-title"><i class="fa-solid fa-circle-info"></i> Hinweis</h3>
-        <div>{{ 'AID_VIEWER_EMPTY' | translate }}</div>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-2 mb-4">
+        <p-inputgroup>
+          <p-inputgroup-addon class="font-bold w-48">
+            <i class="fa-solid fa-globe mr-2"></i>{{ 'AID_VIEWER_BASE_URL' | translate }}
+          </p-inputgroup-addon>
+          <input pInputText type="text" [value]="item.baseUrl || '-'" readonly />
+          @if (item.baseUrl) {
+            <p-inputgroup-addon class="w-auto">
+              <p-button
+                icon="pi pi-copy"
+                [text]="true"
+                [rounded]="true"
+                (onClick)="copy(item.baseUrl)"
+                [pTooltip]="'COPY' | translate"
+                [ariaLabel]="'COPY' | translate"
+              ></p-button>
+              @if (isWebUrl(item.baseUrl)) {
+                <a
+                  class="aid-icon-link"
+                  [href]="item.baseUrl"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  [pTooltip]="'OPEN' | translate"
+                  [attr.aria-label]="'OPEN' | translate"
+                >
+                  <i class="pi pi-external-link"></i>
+                </a>
+              }
+            </p-inputgroup-addon>
+          }
+        </p-inputgroup>
+        <p-inputgroup>
+          <p-inputgroup-addon class="font-bold w-48">
+            <i class="fa-solid fa-file-code mr-2"></i>{{ 'AID_VIEWER_CONTENT_TYPE' | translate }}
+          </p-inputgroup-addon>
+          <input pInputText type="text" [value]="item.contentType || '-'" readonly />
+        </p-inputgroup>
       </div>
-    }
-  </div>
-}
+
+      <p-treeTable
+        #tt
+        [value]="item.nodes"
+        [globalFilterFields]="['name', 'idShort', 'dataType', 'unit']"
+        filterMode="lenient"
+        size="small"
+        [scrollable]="true"
+        styleClass="aid-data-points"
+      >
+        <ng-template #caption>
+          <div class="flex flex-wrap items-center justify-between gap-2">
+            <span class="font-semibold">
+              <i class="fa-solid fa-list-ul mr-2"></i>{{ 'AID_VIEWER_DATA_POINTS' | translate }}
+            </span>
+            <p-iconfield>
+              <p-inputicon styleClass="pi pi-search"></p-inputicon>
+              <input
+                pInputText
+                type="text"
+                [placeholder]="'AID_VIEWER_SEARCH' | translate"
+                [attr.aria-label]="'AID_VIEWER_SEARCH' | translate"
+                (input)="search(tt, item.nodes, $any($event.target).value)"
+              />
+            </p-iconfield>
+          </div>
+        </ng-template>
+        <ng-template #header>
+          <tr>
+            <th scope="col">{{ 'AID_VIEWER_DATA_POINT' | translate }}</th>
+            <th scope="col">{{ 'AID_VIEWER_PROPERTY_DATA_TYPE' | translate }}</th>
+            <th scope="col">{{ 'AID_VIEWER_UNIT' | translate }}</th>
+            <th scope="col">{{ 'AID_VIEWER_ACCESS' | translate }}</th>
+            <th scope="col" class="text-center">{{ 'AID_VIEWER_LIVE' | translate }}</th>
+          </tr>
+        </ng-template>
+        <ng-template #body let-rowNode let-point="rowData">
+          <tr [ttRow]="rowNode">
+            <td>
+              <div class="flex items-center gap-2 min-w-0">
+                <p-treeTableToggler [rowNode]="rowNode"></p-treeTableToggler>
+                <span class="font-semibold">{{ point.name }}</span>
+                @if (point.name !== point.idShort) {
+                  <span class="aid-muted">{{ point.idShort }}</span>
+                }
+                @if (point.kind !== 'property') {
+                  <p-tag
+                    [value]="(point.kind === 'action' ? 'AID_VIEWER_ACTION' : 'AID_VIEWER_EVENT') | translate"
+                    severity="contrast"
+                  ></p-tag>
+                }
+              </div>
+            </td>
+            <td>
+              @if (point.dataType) {
+                <code class="aid-code">{{ point.dataType }}</code>
+              }
+            </td>
+            <td>
+              @if (point.unit) {
+                <span [pTooltip]="point.unit !== point.unitCode ? point.unitCode : ''">{{ point.unit }}</span>
+              }
+              @if (point.range) {
+                <span class="aid-muted">[{{ point.range }}]</span>
+              }
+            </td>
+            <td>
+              @if (point.form; as form) {
+                <span class="flex items-center gap-2 min-w-0" [pTooltip]="form.url">
+                  @if (form.method) {
+                    <p-tag [value]="form.method" severity="secondary"></p-tag>
+                  }
+                  <code class="aid-code truncate">{{ form.href || '/' }}</code>
+                </span>
+              }
+            </td>
+            <td class="text-center">
+              @if (point.observable) {
+                <i
+                  class="fa-solid fa-bolt aid-live"
+                  [pTooltip]="'AID_VIEWER_OBSERVABLE' | translate"
+                  [attr.aria-label]="'AID_VIEWER_OBSERVABLE' | translate"
+                ></i>
+              }
+            </td>
+          </tr>
+        </ng-template>
+        <ng-template #emptymessage>
+          <tr>
+            <td colspan="5" class="aid-muted">{{ 'AID_VIEWER_NO_DATA_POINTS' | translate }}</td>
+          </tr>
+        </ng-template>
+      </p-treeTable>
+
+      <p-panel
+        [header]="'AID_VIEWER_TECHNICAL_DETAILS' | translate"
+        [toggleable]="true"
+        [collapsed]="true"
+        styleClass="mt-4"
+      >
+        <div class="flex flex-col gap-4">
+          <p-table [value]="item.formDataPoints" size="small" [scrollable]="true">
+            <ng-template #caption>{{ 'AID_VIEWER_FORMS' | translate }}</ng-template>
+            <ng-template #header>
+              <tr>
+                <th scope="col">{{ 'AID_VIEWER_DATA_POINT' | translate }}</th>
+                <th scope="col">{{ 'AID_VIEWER_HTTP_METHOD' | translate }}</th>
+                <th scope="col">{{ 'AID_VIEWER_TARGET' | translate }}</th>
+                <th scope="col">{{ 'AID_VIEWER_CONTENT_TYPE' | translate }}</th>
+                <th scope="col">{{ 'AID_VIEWER_DETAILS' | translate }}</th>
+              </tr>
+            </ng-template>
+            <ng-template #body let-point>
+              <tr>
+                <td>{{ point.name }}</td>
+                <td>{{ point.form.method || '-' }}</td>
+                <td>
+                  <code class="aid-code aid-break">{{ point.form.url || '-' }}</code>
+                </td>
+                <td>{{ point.form.contentType || '-' }}</td>
+                <td>
+                  @for (detail of point.form.details; track $index) {
+                    <div>
+                      <span class="aid-muted">{{ detail.label }}:</span> {{ detail.value }}
+                    </div>
+                  } @empty {
+                    -
+                  }
+                </td>
+              </tr>
+            </ng-template>
+            <ng-template #emptymessage>
+              <tr>
+                <td colspan="5" class="aid-muted">-</td>
+              </tr>
+            </ng-template>
+          </p-table>
+
+          <p-table [value]="item.securitySchemes" size="small" [scrollable]="true">
+            <ng-template #caption>{{ 'AID_VIEWER_SECURITY_DEFINITIONS' | translate }}</ng-template>
+            <ng-template #header>
+              <tr>
+                <th scope="col">{{ 'ID_SHORT' | translate }}</th>
+                <th scope="col">{{ 'AID_VIEWER_SECURITY_SCHEME' | translate }}</th>
+                <th scope="col">{{ 'AID_VIEWER_SECURITY_IN' | translate }}</th>
+                <th scope="col">{{ 'AID_VIEWER_SECURITY_NAME' | translate }}</th>
+                <th scope="col">{{ 'AID_VIEWER_SECURITY_DESCRIPTION' | translate }}</th>
+              </tr>
+            </ng-template>
+            <ng-template #body let-scheme>
+              <tr>
+                <td>{{ scheme.idShort }}</td>
+                <td>{{ scheme.scheme || '-' }}</td>
+                <td>{{ scheme.in || '-' }}</td>
+                <td>{{ scheme.name || '-' }}</td>
+                <td>{{ scheme.description || '-' }}</td>
+              </tr>
+            </ng-template>
+            <ng-template #emptymessage>
+              <tr>
+                <td colspan="5" class="aid-muted">-</td>
+              </tr>
+            </ng-template>
+          </p-table>
+        </div>
+      </p-panel>
+    </section>
+  } @empty {
+    <div class="section-card aid-muted">{{ 'AID_VIEWER_EMPTY' | translate }}</div>
+  }
+</div>

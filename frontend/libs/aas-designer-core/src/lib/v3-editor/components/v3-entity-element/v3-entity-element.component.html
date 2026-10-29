@@ -66,11 +66,16 @@
         <div class="flex flex-row w-full gap-2">
           <lib-help-label class="w-14rem mt-2" tag="GLOBAL_ASSET_ID"></lib-help-label>
           @if (!isBomNode) {
-            <aas-v3-global-asset-id [content]="entity.content" class="w-full"></aas-v3-global-asset-id>
+            <aas-v3-global-asset-id
+              [content]="entity.content"
+              [shellSelectable]="true"
+              class="w-full"
+            ></aas-v3-global-asset-id>
+          } @else {
+            <div class="flex flex-row gap-2 w-full">
+              <input pInputText [(ngModel)]="entity.content.globalAssetId" class="w-full" class="w-full" nullIfEmpty />
+            </div>
           }
-          <div class="flex flex-row gap-2 w-full">
-            <input pInputText [(ngModel)]="entity.content.globalAssetId" class="w-full" class="w-full" nullIfEmpty />
-          </div>
         </div>
         <div class="flex flex-row gap-2 items-center">
           <lib-help-label class="w-14rem mt-2" tag="SPECIFIC_ASSET_IDS"></lib-help-label>

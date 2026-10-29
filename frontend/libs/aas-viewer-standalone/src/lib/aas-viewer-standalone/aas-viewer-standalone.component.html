@@ -1,47 +1,86 @@
+<!-- The toolbar is outside the grid so that it can stick to the top while scrolling -->
+<div class="viewer-toolbar" #toolbar>
+  <div class="flex flex-row flex-wrap gap-2 md:gap-4 justify-between items-center w-full px-0 md:px-4">
+    <div class="flex flex-wrap gap-2">
+      <p-button
+        icon="pi pi-search"
+        (onClick)="openSearch()"
+        pTooltip="{{ 'SEARCH' | translate }}"
+        styleClass="p-button-sm"
+      ></p-button>
+      <p-button
+        icon="pi pi-refresh"
+        (onClick)="reloadSubmodel()"
+        pTooltip="{{ 'RELOAD' | translate }}"
+        size="small"
+      ></p-button>
+      @if (viewerStore.highlightedIdShortPath() !== '') {
+        <p-button
+          icon="pi pi-eraser"
+          styleClass="p-button-outlined p-button-sm"
+          (onClick)="clearHighlight()"
+          pTooltip="{{ 'CLEAR_HIGHLIGHT' | translate }}"
+        ></p-button>
+      }
+    </div>
+    <div class="flex items-center gap-2">
+      <span class="text-sm font-semibold hidden md:inline">{{ 'VIEW_MODE' | translate }}:</span>
+      <p-selectButton
+        [options]="viewModeOptions"
+        optionLabel="label"
+        optionValue="value"
+        [(ngModel)]="selectedViewMode"
+        [unselectable]="true"
+        dataKey="value"
+        size="small"
+      >
+        <ng-template #item let-item>
+          <!-- On phones only the icon is shown to keep the toolbar in one row -->
+          <i class="{{ viewModeIcon(item.value) }} md:hidden" [pTooltip]="item.label | translate"></i>
+          <span class="text-sm hidden md:inline">{{ item.label | translate }}</span>
+        </ng-template>
+      </p-selectButton>
+    </div>
+  </div>
+</div>
 <div class="grid grid-cols-12 gap-4 w-full">
-  <div class="col-span-12">
-    <div class="flex flex-col md:flex-row gap-4 justify-between items-start md:items-center p-4">
-      <div class="flex flex-wrap gap-2">
-        <p-button
-          icon="pi pi-search"
-          (onClick)="openSearch()"
-          pTooltip="{{ 'SEARCH' | translate }}"
-          styleClass="p-button-sm"
-        ></p-button>
-        <p-button
-          icon="pi pi-refresh"
-          (onClick)="reloadSubmodel()"
-          pTooltip="{{ 'RELOAD' | translate }}"
-          size="small"
-        ></p-button>
-        @if (viewerStore.highlightedIdShortPath() !== '') {
-          <p-button
-            icon="pi pi-eraser"
-            styleClass="p-button-outlined p-button-sm"
-            (onClick)="clearHighlight()"
-            pTooltip="{{ 'CLEAR_HIGHLIGHT' | translate }}"
-          ></p-button>
+  <!-- Compact header and navigation for small screens, the side column is shown from xl -->
+  <div class="col-span-12 xl:hidden min-w-0">
+    <div class="viewer-compact-header">
+      @let compactThumbnail = this.thumbnail() | async;
+      <div class="viewer-compact-thumbnail">
+        @if (compactThumbnail && !thumbnailLoadError()) {
+          <img [src]="compactThumbnail" class="scaleImage w-full h-full" alt="thumbnail" />
+        } @else {
+          <i class="pi pi-image"></i>
         }
       </div>
-      <div class="flex items-center gap-2">
-        <span class="text-sm font-semibold hidden md:inline">{{ 'VIEW_MODE' | translate }}:</span>
-        <p-selectButton
-          [options]="viewModeOptions"
-          optionLabel="label"
-          optionValue="value"
-          [(ngModel)]="selectedViewMode"
-          [unselectable]="true"
-          dataKey="value"
-          size="small"
-        >
-          <ng-template #item let-item>
-            <span class="text-sm">{{ item.label | translate }}</span>
-          </ng-template>
-        </p-selectButton>
+      <div class="flex flex-col min-w-0 flex-1">
+        <div class="flex items-center gap-2 min-w-0">
+          <span class="font-bold truncate">{{ viewerStore.aas()?.idShort }}</span>
+          @let compactType = typeTag();
+          @let compactSeverity = typeTagSeverity();
+          @if (compactType && compactSeverity) {
+            <p-tag [value]="compactType" [severity]="compactSeverity"></p-tag>
+          }
+        </div>
+        @if (globalAssetId()) {
+          <div class="flex items-center gap-1 min-w-0">
+            <span class="viewer-compact-asset-id truncate" [title]="globalAssetId()">{{ globalAssetId() }}</span>
+            <p-button
+              icon="pi pi-copy"
+              [text]="true"
+              [rounded]="true"
+              size="small"
+              (onClick)="copyGlobalAssetId()"
+              [ariaLabel]="'COPY' | translate"
+            ></p-button>
+          </div>
+        }
       </div>
     </div>
   </div>
-  <div class="col-span-12 xl:col-span-3">
+  <div class="hidden xl:block xl:col-span-3">
     <p-card class="mt-4 overview-card">
       <ng-template #header>
         <div class="flex flex-row justify-between p-6 ml-2 mr-2">
@@ -50,7 +89,9 @@
       </ng-template>
       <div class="flex flex-col items-center mb-2">
         @let thumbnail = this.thumbnail() | async;
-        <div class="w-[300px] h-[200px] border rounded bg-white flex items-center justify-center overflow-hidden">
+        <div
+          class="w-full max-w-[300px] h-[200px] border rounded bg-white flex items-center justify-center overflow-hidden"
+        >
           @if (thumbnail && !thumbnailLoadError()) {
             <img
               [src]="thumbnail"
@@ -90,76 +131,31 @@
           <div class="p-card-title">{{ 'NAVIGATION' | translate }}</div>
         </div>
       </ng-template>
-
-      <!-- Metadata Button -->
-      <div class="navigation-item" [class.active]="viewMetadata()" (click)="selectMetadata()">
-        <i class="fa-solid fa-database navigation-icon"></i>
-        <span class="navigation-label">{{ 'AAS_METADATA' | translate }}</span>
-        @if (viewMetadata()) {
-          <i class="fa-solid fa-chevron-right ml-auto"></i>
-        }
-      </div>
-
-      <!-- Submodels Section -->
-      <div class="submodels-section">
-        <div class="submodels-header">
-          <i class="fa-solid fa-cubes"></i>
-          <span class="font-semibold">{{ 'SUBMODELS' | translate }}</span>
-        </div>
-
-        @if (viewerStore.isLoadingSubmodels()) {
-          @let progress = viewerStore.submodelLoadProgress();
-          <div class="submodels-progress" role="status" aria-live="polite">
-            <span>{{ 'SUBMODELS_LOADING_PROGRESS' | translate: progress }}</span>
-            <p-progressbar [value]="(progress.done / progress.total) * 100" [showValue]="false"></p-progressbar>
-          </div>
-        }
-        @for (entry of viewerStore.submodelLoadStates(); track entry.url) {
-          @switch (entry.status) {
-            @case ('loaded') {
-              @let submodel = entry.submodel!;
-              <div
-                class="navigation-item submodel-item"
-                [class.active]="viewSubmodels() && viewerStore.currentSubmodelId() === submodel.id"
-                (click)="onSubmodelClick(submodel.id)"
-              >
-                <i class="fa-solid fa-cube navigation-icon"></i>
-                <span class="navigation-label">{{ submodel.idShort || submodel.id }}</span>
-                @if (viewSubmodels() && viewerStore.currentSubmodelId() === submodel.id) {
-                  <i class="fa-solid fa-chevron-right ml-auto"></i>
-                }
-              </div>
-            }
-            @case ('loading') {
-              <div
-                class="navigation-item submodel-item submodel-item-pending"
-                [pTooltip]="'SUBMODEL_LOADING' | translate"
-              >
-                <i class="pi pi-spin pi-spinner navigation-icon"></i>
-                <span class="navigation-label">{{ entry.label }}</span>
-              </div>
-            }
-            @case ('failed') {
-              <div
-                class="navigation-item submodel-item submodel-item-failed"
-                [pTooltip]="'SUBMODEL_LOAD_FAILED' | translate"
-              >
-                <i class="pi pi-exclamation-triangle navigation-icon"></i>
-                <span class="navigation-label">{{ entry.label }}</span>
-              </div>
-            }
-          }
-        }
-      </div>
+      <aas-viewer-navigation
+        [metadataActive]="viewMetadata()"
+        [activeSubmodelId]="viewSubmodels() ? viewerStore.currentSubmodelId() : null"
+        (metadataSelected)="onMetadataClick()"
+        (submodelSelected)="onSubmodelClick($event)"
+      ></aas-viewer-navigation>
     </p-card>
   </div>
-  @let currentSm = viewerStore.currentSubmodel();
-  @if (viewerStore.isLoadingAas() || (viewerStore.isLoadingSubmodels() && !currentSm)) {
-    <div class="col-span-12 xl:col-span-9 w-full mt-4 flex justify-center items-center" style="min-height: 280px">
-      <div class="aas-loading-spinner"></div>
+  <!-- Content column; on small screens it also holds the chip navigation, so that it can stick while scrolling -->
+  <div class="col-span-12 xl:col-span-9 min-w-0 flex flex-col gap-4 xl:mt-4 viewer-content-column" #contentColumn>
+    <div class="xl:hidden viewer-sticky-navigation">
+      <aas-viewer-navigation
+        layout="chips"
+        [metadataActive]="viewMetadata()"
+        [activeSubmodelId]="viewSubmodels() ? viewerStore.currentSubmodelId() : null"
+        (metadataSelected)="onMetadataClick()"
+        (submodelSelected)="onSubmodelClick($event)"
+      ></aas-viewer-navigation>
     </div>
-  } @else if (viewSubmodels() && currentSm) {
-    <div class="col-span-12 xl:col-span-9 w-full mt-4">
+    @let currentSm = viewerStore.currentSubmodel();
+    @if (viewerStore.isLoadingAas() || (viewerStore.isLoadingSubmodels() && !currentSm)) {
+      <div class="w-full flex justify-center items-center viewer-loading">
+        <div class="aas-loading-spinner"></div>
+      </div>
+    } @else if (viewSubmodels() && currentSm) {
       <aas-aas-model-viewer
         class="w-full"
         [currentLanguage]="currentLanguage"
@@ -167,16 +163,14 @@
         (viewerOptions)="setSelectedViewMode($event)"
         [selectedViewMode]="selectedViewMode"
       ></aas-aas-model-viewer>
-    </div>
-  }
-  @if (viewMetadata()) {
-    <div class="col-span-12 xl:col-span-9 w-full mt-4">
+    }
+    @if (viewMetadata()) {
       <aas-aas-metadata-viewer
         class="w-full"
         [selectedViewMode]="selectedViewMode"
         (viewerOptions)="setSelectedViewMode($event)"
       ></aas-aas-metadata-viewer>
-    </div>
-  }
+    }
+  </div>
 </div>
 <p-scrollTop [threshold]="200" icon="pi pi-arrow-up"></p-scrollTop>

@@ -2,7 +2,7 @@ import { DataSpecificationIec61360 } from '@aas-core-works/aas-core3.1-typescrip
 import { HelpLabelComponent, UiLabelResolver } from '@aas/common-components';
 import { CURRENT_LANGUAGE_KEY, DEFAULT_LANGUAGE } from '@aas/common-services';
 import { CommonModule } from '@angular/common';
-import { Component, computed, inject, input, signal } from '@angular/core';
+import { Component, computed, DestroyRef, inject, input, signal, viewChild } from '@angular/core';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { ButtonModule } from 'primeng/button';
 import { MessageModule } from 'primeng/message';
@@ -11,6 +11,9 @@ import { TableModule } from 'primeng/table';
 import { ConceptDescriptionService } from '../concept-description.service';
 import { ViewerStoreService } from '../viewer-store.service';
 import { LocalizedTextComponent } from './localized-text.component';
+
+// Only one semantic description is shown at a time
+let openPopover: Popover | null = null;
 
 @Component({
   selector: 'aas-semantic-description-popup',
@@ -34,10 +37,33 @@ export class SemanticDescriptionPopupComponent {
 
   toLoad = signal(false);
   viewerStore = inject(ViewerStoreService);
+  popover = viewChild<Popover>('op');
 
-  toggleOverlay(op: Popover, event: any) {
+  constructor() {
+    // The popover is appended to the body. If this component is destroyed while it is open
+    // (e.g. when switching the submodel), PrimeNG leaves the container behind, so remove it here.
+    inject(DestroyRef).onDestroy(() => {
+      if (openPopover === this.popover()) openPopover = null;
+      this.popover()?.container?.remove();
+    });
+  }
+
+  async toggleOverlay(op: Popover, event: MouseEvent) {
+    // Keep the click from reaching surrounding elements, e.g. an accordion header that would toggle.
+    // As the popover's outside click detection is skipped by this, close another open description here.
+    event.stopPropagation();
+    if (openPopover != null && openPopover !== op && openPopover.overlayVisible) openPopover.hide();
+    openPopover = op;
+
     this.toLoad.set(true);
     op.toggle(event);
+
+    // The position is calculated on opening, before the concept description is loaded.
+    // Realign once the content has been rendered so the popover stays inside the viewport.
+    await this.conceptDescription();
+    setTimeout(() => {
+      if (op.overlayVisible) op.align();
+    });
   }
 
   currentLanguage = computed(() => {

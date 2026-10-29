@@ -9,6 +9,69 @@ mit `modelType: Submodel`. Ein AAS-Environment-Wrapper oder ConceptDescriptions
 sind dafuer nicht erforderlich. Die Vorpruefung verwendet denselben Submodel-
 Parser wie der eigentliche Import; andere Modelltypen werden dort abgewiesen.
 
+## Verweise Auf Andere AAS Im System
+
+Im Editor kann eine AAS aus der aktuellen AAS-Infrastruktur ueber den Dialog
+"AAS auswaehlen" uebernommen werden:
+
+- Entity, Feld Globale Asset-ID: uebernimmt `assetInformation.globalAssetId`
+  der gewaehlten AAS. Das ist der spezifikationskonforme Weg, um eine
+  `SelfManagedEntity` mit der AAS ihres Assets zu verknuepfen.
+- Referenz vom Typ `ModelReference`: setzt genau einen Key
+  `AssetAdministrationShell` mit der ID der gewaehlten AAS.
+- Referenz vom Typ `ExternalReference`: bei Keys vom Typ `GlobalReference`
+  wird die ID der gewaehlten AAS als Wert eingetragen.
+
+Der Viewer zeigt bei Entities den Entity-Typ, die Globale Asset-ID bzw. die
+spezifischen Asset-IDs sowie alle Statements an, auch ReferenceElements.
+
+Im Designer-Viewer fuehrt ein Pfeil-Button direkt zur verknuepften AAS:
+
+- bei einer `SelfManagedEntity` neben der Globalen Asset-ID; die AAS wird ueber
+  ihre `assetInformation.globalAssetId` in der aktuellen Infrastruktur gesucht,
+- bei einem ReferenceElement mit `ModelReference`, dessen erster Key vom Typ
+  `AssetAdministrationShell` ist.
+
+Wird keine passende AAS gefunden, erscheint ein Hinweis. In eingebetteten
+Viewern ohne Navigationsmoeglichkeit wird der Button nicht angezeigt.
+
+## Asset Interfaces Description Im Viewer
+
+Teilmodelle "Asset Interfaces Description" (IDTA 02017) der Versionen 1.0 und
+1.2 werden im Viewer fachlich dargestellt statt als Elementbaum:
+
+- je Schnittstelle Titel, Protokoll, Authentifizierung und Basis-URL (kopierbar,
+  bei HTTP direkt oeffenbar),
+- alle Datenpunkte (Properties, Actions, Events) als durchsuchbare Baumtabelle
+  mit Datentyp, Einheit (gaengige UN/ECE-Codes als Symbol, z. B. `Cel` als
+  `°C`), Abruf (z. B. `GET /api/status`) und Live-Kennzeichen (observable),
+- Forms und Security-Definitionen unter "Technische Details".
+
+## Darstellung Auf Mobilen Geraeten
+
+Unter 768 px Breite (Smartphones):
+
+- Das Hauptmenue ist ausgeblendet und wird ueber den Menue-Button in der
+  Topbar als Overlay geoeffnet; nach der Navigation schliesst es sich wieder.
+- Sprache und Organisation sind im Benutzermenue (Avatar) erreichbar.
+- Im Viewer zeigen "Zurueck", "Download" und "Editor" nur Icons, und Labels
+  von Detailfeldern stehen ueber ihren Werten.
+
+Unter 1280 px Breite zeigt der Viewer statt der Seitenleiste einen kompakten
+Kopf (Vorschaubild, idShort, Typ, Globale Asset-ID) und eine fixierte,
+horizontal scrollbare Leiste zum Wechsel zwischen AAS-Details und Submodellen.
+
+## QR-Codes Fuer Geteilte Links
+
+Unter "Mein Bereich" > "Geteilte Links" bietet das Aktionsmenue eines Links
+den Eintrag "QR-Code". Der Dialog zeigt den Link als QR-Code (schwarz auf
+weiss, auch im dunklen Design) und bietet:
+
+- "SVG herunterladen": verlustfrei skalierbare Vektorgrafik, Dateiname
+  `shared-link_<AAS-ID>.svg`,
+- "Drucken": druckt nur den QR-Code (8 x 8 cm) mit AAS-ID als Ueberschrift
+  und dem Link im Klartext darunter.
+
 ## Inhalt
 
 - Docker Compose Deployment: [docker-oss/DOCKER_README.md](/Users/christina/_DEV/ML/vws-portal/docker-oss/DOCKER_README.md)

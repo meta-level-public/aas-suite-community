@@ -31,6 +31,13 @@ describe('submodelLabelFromUrl', () => {
     expect(submodelLabelFromUrl(`${submodelUrl('urn:example:submodel:Nameplate')}/`)).toBe('Nameplate');
   });
 
+  it('uses the target of proxy URLs', () => {
+    const target = submodelUrl('urn:htw-hackathon:submodel:rastplatz:01:spielplatz');
+    const proxyUrl = `https://suite.example.com/designer-api/aas-viewer-proxy/call?target=${encodeURIComponent(target)}`;
+
+    expect(submodelLabelFromUrl(proxyUrl)).toBe('spielplatz');
+  });
+
   it('falls back to the raw path segment when it is not base64url encoded', () => {
     expect(submodelLabelFromUrl('https://repo.example.com/submodels/not~encoded')).toBe('not~encoded');
   });

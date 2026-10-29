@@ -1,5 +1,8 @@
 @if (portalService.loggedIn) {
-  <aside class="app-sidebar" [class.expanded]="sidebarExpanded()">
+  @if (viewport.isMobile() && sidebarExpanded()) {
+    <div class="sidebar-backdrop" (click)="toggleSidebar()" aria-hidden="true"></div>
+  }
+  <aside class="app-sidebar" [class.expanded]="sidebarExpanded()" [class.mobile]="viewport.isMobile()">
     <div class="sidebar-header">
       <button
         pButton

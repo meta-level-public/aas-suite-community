@@ -1,20 +1,38 @@
+import * as aas from '@aas-core-works/aas-core3.1-typescript';
 import { Component, Input } from '@angular/core';
 import { HelpLabelComponent } from '@aas/common-components';
 import { TranslateModule } from '@ngx-translate/core';
 import { InputGroup } from 'primeng/inputgroup';
 import { InputGroupAddon } from 'primeng/inputgroupaddon';
 import { InputText } from 'primeng/inputtext';
+import { OpenShellButtonComponent } from '../open-shell-button/open-shell-button.component';
 
 @Component({
   selector: 'aas-reference-element-v3',
   templateUrl: './reference-element.component.html',
   styleUrls: ['./reference-element.component.css'],
-  imports: [InputGroup, InputGroupAddon, InputText, TranslateModule, HelpLabelComponent],
+  imports: [InputGroup, InputGroupAddon, InputText, TranslateModule, HelpLabelComponent, OpenShellButtonComponent],
 })
 export class ReferenceElementComponent {
   @Input() element: any;
 
-  getReadableType(type: string): string {
+  // Key types are enum values in aas-core objects and strings in plain JSON
+  private toTypeName(type: aas.types.KeyTypes | string): string {
+    return typeof type === 'number' ? (aas.stringification.keyTypesToString(type) ?? String(type)) : type;
+  }
+
+  // A ModelReference whose first key is an AAS points to another AAS that can be opened
+  getShellAasId(index: number): string | null {
+    const reference = this.element?.value;
+    const key = reference?.keys?.[index];
+    const isModelReference =
+      reference?.type === aas.types.ReferenceTypes.ModelReference || reference?.type === 'ModelReference';
+    if (index !== 0 || !isModelReference || key == null) return null;
+    return this.toTypeName(key.type) === 'AssetAdministrationShell' ? key.value : null;
+  }
+
+  getReadableType(type: aas.types.KeyTypes | string): string {
+    type = this.toTypeName(type);
     const typeMap: Record<string, string> = {
       GlobalReference: 'Global Reference',
       ModelReference: 'Model Reference',
@@ -26,7 +44,8 @@ export class ReferenceElementComponent {
     return typeMap[type] || type;
   }
 
-  getIconForType(type: string): string {
+  getIconForType(type: aas.types.KeyTypes | string): string {
+    type = this.toTypeName(type);
     const iconMap: Record<string, string> = {
       GlobalReference: 'fa-solid fa-globe reference-type-icon',
       ModelReference: 'fa-solid fa-cube reference-type-icon',

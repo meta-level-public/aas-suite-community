@@ -1,0 +1,16 @@
+/* QR codes stay black on white in both themes, otherwise scanners fail */
+.qr-code-image {
+  display: flex;
+  padding: 0.5rem;
+  border: 1px solid var(--p-content-border-color);
+  border-radius: var(--p-border-radius);
+  background: var(--p-surface-0);
+}
+
+.qr-code-value {
+  max-width: 20rem;
+  font-size: var(--aas-text-xs);
+  color: var(--p-text-muted-color);
+  text-align: center;
+  overflow-wrap: anywhere;
+}

@@ -37,6 +37,8 @@ export class SubmodelViewerResolver {
         return 'MaterialComposition';
       case 'https://admin-shell.io/idta/assetinterfacesdescription/1/0/submodel':
       case 'https://admin-shell.io/idta/assetinterfacesdescription/1/0':
+      case 'https://admin-shell.io/idta/assetinterfacesdescription/1/2/submodel':
+      case 'https://admin-shell.io/idta/assetinterfacesdescription/1/2':
         return 'AssetInterfacesDescription';
       case 'https://admin-shell.io/zvei/nameplate/2/0/nameplate':
       case 'https://admin-shell.io/idta/nameplate/3/0/nameplate':

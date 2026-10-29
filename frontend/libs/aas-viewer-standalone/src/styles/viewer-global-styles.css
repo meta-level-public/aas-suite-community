@@ -134,3 +134,111 @@ html.my-app-dark {
     background: rgba(255, 255, 255, 0.05);
   }
 }
+
+/* Compact header and sticky navigation, used below the xl breakpoint instead of the side column */
+.viewer-compact-header {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.5rem 0.75rem;
+  border: 1px solid var(--p-content-border-color);
+  border-radius: var(--p-border-radius);
+  background: var(--p-content-background);
+}
+
+.viewer-compact-thumbnail {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: 3.5rem;
+  height: 3.5rem;
+  overflow: hidden;
+  border: 1px solid var(--p-content-border-color);
+  border-radius: var(--p-border-radius);
+  background: var(--p-surface-0);
+  color: var(--p-text-muted-color);
+}
+
+.viewer-compact-asset-id {
+  font-size: var(--aas-text-xs);
+  color: var(--p-text-muted-color);
+}
+
+/* Toolbar (search, reload, view mode) stays at the top while scrolling; elements below stick underneath it */
+aas-aas-viewer-standalone {
+  --viewer-toolbar-height: 3rem;
+}
+
+@media (min-width: 768px) {
+  aas-aas-viewer-standalone {
+    --viewer-toolbar-height: 3.5rem;
+  }
+}
+
+.viewer-toolbar {
+  position: sticky;
+  top: 0;
+  z-index: 6;
+  display: flex;
+  align-items: center;
+  min-height: var(--viewer-toolbar-height);
+  margin-bottom: 0.5rem;
+  background: var(--p-content-background);
+}
+
+.viewer-sticky-navigation {
+  position: sticky;
+  top: var(--viewer-toolbar-height);
+  z-index: 5;
+  background: var(--p-content-background);
+}
+
+.viewer-content-column {
+  scroll-margin-top: calc(var(--viewer-toolbar-height) + 0.5rem);
+}
+
+/* Accordion content is a grid; without min-width 0 deeply nested content widens the whole viewer */
+aas-aas-viewer-standalone .p-accordioncontent > *,
+aas-aas-viewer-standalone .p-accordioncontent-wrapper {
+  min-width: 0;
+}
+
+/* Collapsed panels animate their height to 0; without clipping their hidden content still extends the scroll height */
+aas-aas-viewer-standalone .p-accordioncontent-wrapper {
+  overflow: hidden;
+}
+
+/* On phones labels of the viewer's input groups are placed above their values */
+@media (max-width: 575.98px) {
+  aas-aas-viewer-standalone .p-inputgroup {
+    flex-wrap: wrap;
+  }
+
+  aas-aas-viewer-standalone .p-inputgroup > .p-inputgroupaddon:first-child {
+    flex: 1 0 100%;
+    width: 100% !important;
+    min-width: 0 !important;
+    justify-content: flex-start;
+    border-start-end-radius: var(--p-inputgroup-addon-border-radius, var(--p-border-radius));
+    border-end-start-radius: 0;
+    border-inline-end-width: 1px;
+    border-block-end-width: 0;
+  }
+
+  aas-aas-viewer-standalone .p-inputgroup > .p-inputgroupaddon:first-child + * {
+    flex: 1 1 0;
+    min-width: 0;
+    border-start-start-radius: 0;
+    border-end-start-radius: var(--p-inputgroup-addon-border-radius, var(--p-border-radius));
+  }
+}
+
+.viewer-loading {
+  min-height: 280px;
+}
+
+/* Accordion headers of the viewer may shrink, so that long names are truncated instead of overflowing */
+aas-aas-viewer-standalone .p-accordionheader {
+  min-width: 0;
+}

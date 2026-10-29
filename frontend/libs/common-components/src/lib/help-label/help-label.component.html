@@ -30,24 +30,27 @@
       {{ tag() | translate }}
     </div>
   </ng-template>
-  @if (currentGloabalText() != null && currentGloabalText() !== '') {
-    <p-editor [ngModel]="currentGloabalText() ?? ''" [readonly]="true" [style]="{ height: '150px' }">
-      <ng-template #header>
-        <div class="font-medium text-900">
-          {{ 'GLOBAL_HELP' | translate }}
-        </div>
-      </ng-template>
-    </p-editor>
-  }
-  @if (currentOrgaText() != null && currentOrgaText() !== '') {
-    <p-editor [ngModel]="currentOrgaText() ?? ''" [readonly]="true" [style]="{ height: '150px' }">
-      <ng-template #header>
-        <div class="font-medium text-900 mb-3">
-          {{ 'ORGA_HELP' | translate }}
-        </div>
-      </ng-template>
-    </p-editor>
-  }
+  <!-- Content as template so the editors are only created while the dialog is open -->
+  <ng-template #content>
+    @if (currentGloabalText() != null && currentGloabalText() !== '') {
+      <p-editor [ngModel]="currentGloabalText() ?? ''" [readonly]="true" [style]="{ height: '150px' }">
+        <ng-template #header>
+          <div class="font-medium text-900">
+            {{ 'GLOBAL_HELP' | translate }}
+          </div>
+        </ng-template>
+      </p-editor>
+    }
+    @if (currentOrgaText() != null && currentOrgaText() !== '') {
+      <p-editor [ngModel]="currentOrgaText() ?? ''" [readonly]="true" [style]="{ height: '150px' }">
+        <ng-template #header>
+          <div class="font-medium text-900 mb-3">
+            {{ 'ORGA_HELP' | translate }}
+          </div>
+        </ng-template>
+      </p-editor>
+    }
+  </ng-template>
 </p-dialog>
 
 <p-dialog [(visible)]="editDialogVisible" appendTo="body" class="w-5">
@@ -58,44 +61,46 @@
     </div>
   </ng-template>
 
-  <div class="flex flex-col gap-2">
-    <p-select [(ngModel)]="langugage" [options]="languages()" optionLabel="label" optionValue="code"></p-select>
-    @if (isSystemEditable()) {
-      <div class="mb-4">
-        <label for="currentGlobalEditField">{{ 'GLOBAL_TEXT' | translate }}</label>
-        <p-editor
-          [(ngModel)]="$any(currentHelpEditItem())[currentGlobalEditField()]"
-          [style]="{ height: '200px' }"
-          id="currentGlobalEditField"
-          name="currentGlobalEditField"
-        />
+  <ng-template #content>
+    <div class="flex flex-col gap-2">
+      <p-select [(ngModel)]="langugage" [options]="languages()" optionLabel="label" optionValue="code"></p-select>
+      @if (isSystemEditable()) {
+        <div class="mb-4">
+          <label for="currentGlobalEditField">{{ 'GLOBAL_TEXT' | translate }}</label>
+          <p-editor
+            [(ngModel)]="$any(currentHelpEditItem())[currentGlobalEditField()]"
+            [style]="{ height: '200px' }"
+            id="currentGlobalEditField"
+            name="currentGlobalEditField"
+          />
+        </div>
+      }
+      @if (isOrgaEditable()) {
+        <div class="mb-4">
+          <label for="currentOrgaEditField">{{ 'ORGA_SPECIFIC_TEXT' | translate }}</label>
+          <p-editor
+            [(ngModel)]="$any(currentHelpEditItem())[currentOrgaEditField()]"
+            [style]="{ height: '200px' }"
+            id="currentOrgaEditField"
+            name="currentOrgaEditField"
+          />
+        </div>
+      }
+      <div class="flex flex-row gap-2 w-full justify-end">
+        <p-button
+          label="{{ 'CANCEL' | translate }}"
+          icon="pi pi-times"
+          (onClick)="cancelEditHelp()"
+          outlined="true"
+          [loading]="loading()"
+        ></p-button>
+        <p-button
+          label="{{ 'SAVE' | translate }}"
+          icon="pi pi-save"
+          (onClick)="saveHelpText()"
+          [loading]="loading()"
+        ></p-button>
       </div>
-    }
-    @if (isOrgaEditable()) {
-      <div class="mb-4">
-        <label for="currentOrgaEditField">{{ 'ORGA_SPECIFIC_TEXT' | translate }}</label>
-        <p-editor
-          [(ngModel)]="$any(currentHelpEditItem())[currentOrgaEditField()]"
-          [style]="{ height: '200px' }"
-          id="currentOrgaEditField"
-          name="currentOrgaEditField"
-        />
-      </div>
-    }
-    <div class="flex flex-row gap-2 w-full justify-end">
-      <p-button
-        label="{{ 'CANCEL' | translate }}"
-        icon="pi pi-times"
-        (onClick)="cancelEditHelp()"
-        outlined="true"
-        [loading]="loading()"
-      ></p-button>
-      <p-button
-        label="{{ 'SAVE' | translate }}"
-        icon="pi pi-save"
-        (onClick)="saveHelpText()"
-        [loading]="loading()"
-      ></p-button>
     </div>
-  </div>
+  </ng-template>
 </p-dialog>

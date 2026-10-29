@@ -73,6 +73,16 @@
               <div class="col-span-12 md:col-span-6 flex flex-row gap-2 items-center">
                 <lib-help-label class="w-32 mt-2" tag="VALUE"></lib-help-label>
                 <input pInputText [(ngModel)]="key.value" class="flex-1" nullIfEmpty />
+                @if (key.type === keyTypeEnum.GlobalReference) {
+                  <p-button
+                    icon="pi pi-search"
+                    size="small"
+                    text="true"
+                    (onClick)="selectShellForKey(key)"
+                    pTooltip="{{ 'SELECT_SHELL' | translate }}"
+                    tooltipPosition="left"
+                  ></p-button>
+                }
                 <p-button
                   icon="pi pi-trash"
                   size="small"
@@ -104,6 +114,13 @@
             label="{{ 'SELECT_FROM_SAME_AAS' | translate }}"
             (onClick)="showSelectionDialog()"
             icon="pi pi-search"
+            size="small"
+            [outlined]="true"
+          ></p-button>
+          <p-button
+            label="{{ 'SELECT_SHELL' | translate }}"
+            (onClick)="selectShellForModelReference()"
+            icon="pi pi-box"
             size="small"
             [outlined]="true"
           ></p-button>

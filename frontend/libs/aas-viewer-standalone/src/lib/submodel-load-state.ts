@@ -20,12 +20,26 @@ export interface SubmodelLoadState {
  * Derives a readable name for a submodel that is not loaded yet. Submodel endpoints end with the
  * base64url encoded submodel identifier, whose last path segment is usually the submodel name
  * (e.g. https://example.com/submodel/000-001/Nameplate -> Nameplate).
+ * Proxy URLs pass the actual endpoint as "target" parameter, then the label is taken from it.
  */
 export function submodelLabelFromUrl(url: string): string {
+  const target = proxyTarget(url);
+  if (target != null) {
+    return submodelLabelFromUrl(target);
+  }
+
   const encodedId = decodeURIComponent(url.split('?')[0].replace(/\/+$/, '').split('/').pop() ?? '');
   const id = decodeBase64Url(encodedId) ?? encodedId;
   const segments = id.split(/[/#:]/).filter((segment) => segment !== '');
   return segments.pop() ?? id;
+}
+
+function proxyTarget(url: string): string | null {
+  try {
+    return new URL(url, 'http://localhost').searchParams.get('target');
+  } catch {
+    return null;
+  }
 }
 
 function decodeBase64Url(value: string): string | null {

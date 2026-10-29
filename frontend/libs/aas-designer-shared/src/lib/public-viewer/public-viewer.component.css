@@ -1,7 +1,30 @@
+/* The host is a full height flex column (host.scss); the page fills it at least and grows with the viewer */
+.public-viewer-page {
+  display: flex;
+  flex: 1 0 auto;
+  flex-direction: column;
+  gap: 0.5rem;
+  padding: 0.5rem;
+}
+
 .viewer-frame {
+  min-width: 0;
   border: 1px solid var(--p-content-border-color);
   border-radius: var(--p-content-border-radius);
-  overflow: hidden;
-  background: var(--p-surface-50, #fafafa);
+  background: var(--p-content-background);
   padding: 0.5rem;
+}
+
+.public-viewer-footer {
+  margin-top: auto;
+  padding: 0.25rem 0.5rem;
+  border: 1px solid var(--p-content-border-color);
+  border-radius: var(--p-content-border-radius);
+  background: var(--p-content-background);
+}
+
+@media (min-width: 768px) {
+  .public-viewer-page {
+    padding: 1rem;
+  }
 }

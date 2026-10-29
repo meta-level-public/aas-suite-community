@@ -132,3 +132,21 @@
     </div>
   </div>
 </div>
+
+<p-dialog
+  [visible]="qrCodeLink() != null"
+  (visibleChange)="$event ? null : qrCodeLink.set(null)"
+  [header]="'QR_CODE' | translate"
+  [modal]="true"
+  [dismissableMask]="true"
+  appendTo="body"
+  [breakpoints]="{ '575px': '95vw' }"
+>
+  @if (qrCodeLink(); as link) {
+    <lib-qr-code-export
+      [value]="link.generatedLink ?? ''"
+      [fileName]="qrCodeFileName(link)"
+      [caption]="link.aasIdentifier ?? ''"
+    ></lib-qr-code-export>
+  }
+</p-dialog>

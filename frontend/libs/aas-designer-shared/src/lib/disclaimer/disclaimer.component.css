@@ -1,0 +1,31 @@
+.disclaimer {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 0 0.5rem;
+  width: 100%;
+}
+
+.disclaimer-vertical {
+  flex-direction: column;
+}
+
+.disclaimer-link,
+.disclaimer-separator {
+  margin-block: 0.5rem;
+}
+
+.disclaimer-separator {
+  font-size: 0.5rem;
+}
+
+/* Compact: no separators that could dangle at a line end when wrapping, little spacing */
+.disclaimer-compact {
+  gap: 0 0.25rem;
+}
+
+.disclaimer-compact .disclaimer-link {
+  margin-block: 0;
+  font-size: var(--aas-text-xs);
+}

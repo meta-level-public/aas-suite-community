@@ -61,6 +61,15 @@ describe('SubmodelViewerResolver', () => {
     expect(SubmodelViewerResolver.hasSpecializedViewer(submodel)).toBe(true);
   });
 
+  it('resolves asset interfaces descriptions of version 1.0 and 1.2 to the dedicated viewer', () => {
+    for (const semanticId of [
+      'https://admin-shell.io/idta/AssetInterfacesDescription/1/0/Submodel',
+      'https://admin-shell.io/idta/AssetInterfacesDescription/1/2/Submodel',
+    ]) {
+      expect(SubmodelViewerResolver.resolve(submodelWithSemanticId(semanticId))).toBe('AssetInterfacesDescription');
+    }
+  });
+
   it('keeps the standard nameplate on the existing nameplate viewer', () => {
     const submodel = submodelWithSemanticId('https://admin-shell.io/idta/nameplate/3/0/Nameplate');
 
