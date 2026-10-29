@@ -10,6 +10,7 @@ import { Card } from 'primeng/card';
 import { Password } from 'primeng/password';
 import { Skeleton } from 'primeng/skeleton';
 import { lastValueFrom } from 'rxjs';
+import { AuthenticateResponse } from '@aas-designer-model';
 import { DisclaimerComponent } from '../disclaimer/disclaimer.component';
 import { PublicViewerService } from './public-viewer.service';
 
@@ -83,17 +84,7 @@ export class PublicViewerComponent implements OnInit, OnDestroy {
           this.aasRegistryUrl = result.aasRegistryUrl;
           this.passwordRequired = result.loginRequired ?? false;
           if (!result.loginRequired) {
-            const loginResult = await this.publicViewerService.login(this.accesscode, '');
-
-            this.portalService.loginStateChanged.subscribe(async () => {
-              this.isLoaded = true;
-              this.loadViewerDescriptor();
-            });
-            if (loginResult.orgaSettings.length > 1) {
-              alert('OrgaSettings: ' + JSON.stringify(loginResult.orgaSettings));
-            } else {
-              this.portalService.logIn(loginResult, loginResult.orgaSettings[0], false);
-            }
+            this.showViewer(await this.publicViewerService.login(this.accesscode, ''));
           }
           break;
         case ViewerResultCode.NOTFOUND:
@@ -113,6 +104,13 @@ export class PublicViewerComponent implements OnInit, OnDestroy {
     this.renderer.setStyle(document.body, 'overflow', 'hidden');
   }
 
+  // The anonymous user of a shared link always belongs to the organisation that owns the link
+  private showViewer(loginResult: AuthenticateResponse) {
+    this.portalService.logIn(loginResult, loginResult.orgaSettings[0], false);
+    this.isLoaded = true;
+    void this.loadViewerDescriptor();
+  }
+
   async loadViewerDescriptor() {
     const descriptor = await lastValueFrom(this.viewerClient.aasViewer_GetViewerDescriptor(this.aasIdentifier));
     this.descriptor.set(descriptor);
@@ -120,14 +118,7 @@ export class PublicViewerComponent implements OnInit, OnDestroy {
 
   async login() {
     try {
-      const loginResult = await this.publicViewerService.login(this.accesscode, this.password);
-      if (loginResult.orgaSettings.length > 1) {
-        alert('OrgaSettings: ' + JSON.stringify(loginResult.orgaSettings));
-      } else {
-        this.portalService.logIn(loginResult, loginResult.orgaSettings[0], false);
-        this.loadViewerDescriptor();
-      }
-      this.isLoaded = true;
+      this.showViewer(await this.publicViewerService.login(this.accesscode, this.password));
       this.resultCode = 'OK';
     } catch {
       this.resultCode = 'WRONG_PASSWORD';

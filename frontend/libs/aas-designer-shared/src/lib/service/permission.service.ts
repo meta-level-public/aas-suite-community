@@ -20,13 +20,9 @@ export class PermissionService {
   ) {}
 
   isAllowed(requiredAccessRights: AuthRoles[]) {
-    if (!this.portalService.loggedIn) {
-      this.portalService.logout();
-      const requestedUrl =
-        this.router.getCurrentNavigation()?.finalUrl?.toString() ??
-        this.router.getCurrentNavigation()?.extractedUrl?.toString() ??
-        null;
-      this.portalService.savePostLoginRedirectUrl(requestedUrl);
+    // A public viewer session (shared link) is no designer login: sign in again
+    if (!this.portalService.loggedIn || this.portalService.isPublicViewerSession) {
+      this.portalService.prepareLogin(this.requestedUrl());
       this.router.navigate(buildAbsoluteRoute(AppRouteSegments.login), { skipLocationChange: true });
       return false;
     }
@@ -53,15 +49,16 @@ export class PermissionService {
       allowed = true;
     }
 
-    if (!allowed && this.portalService.user != null && this.portalService.user.id < 0) {
-      this.portalService.logout(true);
-      return false;
-    }
     if (!allowed) {
       this.router.navigate(buildForbiddenRoute());
       return false;
     }
 
     return true;
+  }
+
+  private requestedUrl() {
+    const navigation = this.router.getCurrentNavigation();
+    return navigation?.finalUrl?.toString() ?? navigation?.extractedUrl?.toString() ?? null;
   }
 }

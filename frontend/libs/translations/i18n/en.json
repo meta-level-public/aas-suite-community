@@ -1863,6 +1863,7 @@
   "IS_PRIMARY_ID": "Primary ID",
   "IS_PUBLIC": "Public",
   "IS_THUMBNAIL": "Is thumbnail",
+  "ITEM": "item",
   "ITEMS": "items",
   "JSON_COPIED": "JSON copied to clipboard",
   "JSON_IS_NOT_A_VALID_ELEMENT": "The specified JSON is not a valid element.",

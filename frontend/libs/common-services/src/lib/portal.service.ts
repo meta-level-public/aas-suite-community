@@ -17,6 +17,8 @@ const USER_KEY = 'auth-user';
 const IRI_PREFIX_KEY = 'organisation-iri-prefix';
 const POST_LOGIN_REDIRECT_URL_KEY = 'post-login-redirect-url';
 const SKIP_DEACTIVATE_PROMPT_KEY = 'skip-deactivate-prompt-once';
+/** Role of the anonymous user that the public viewer signs in with a shared link */
+const PUBLIC_VIEWER_ROLE = 'VIEWER_NUTZER';
 export const CURRENT_LANGUAGE_KEY = 'aasportal_currentLanguage';
 export const DEFAULT_LANGUAGE = 'en';
 
@@ -132,6 +134,25 @@ export class PortalService {
 
   get loggedIn() {
     return this.user != null;
+  }
+
+  /**
+   * The session belongs to the anonymous user of the public viewer (shared link), not to a designer user.
+   * Such users get negative ids and only the viewer role.
+   */
+  get isPublicViewerSession(): boolean {
+    const user = this.user;
+    if (user == null) return false;
+    return user.id < 0 || (user.rollen.length > 0 && user.rollen.every((role) => role === PUBLIC_VIEWER_ROLE));
+  }
+
+  /**
+   * Clears the current session, e.g. a missing one or one of the public viewer, so that a designer user can
+   * sign in. The requested page is opened after the login.
+   */
+  prepareLogin(requestedUrl?: string | null): void {
+    this.logout();
+    this.savePostLoginRedirectUrl(requestedUrl);
   }
 
   async fetchServerSession(): Promise<AuthenticateResponse | null> {

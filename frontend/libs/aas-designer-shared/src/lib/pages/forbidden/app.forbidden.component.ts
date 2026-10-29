@@ -1,3 +1,4 @@
+import { PortalService } from '@aas/common-services';
 import { Component, inject } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
@@ -14,6 +15,7 @@ export class AppForbiddenComponent {
 
   private readonly translate = inject(TranslateService);
   private readonly router = inject(Router);
+  private readonly portalService = inject(PortalService);
 
   readonly reason =
     sessionStorage.getItem(AppForbiddenComponent.forbiddenReasonKey) ??
@@ -22,6 +24,10 @@ export class AppForbiddenComponent {
 
   constructor() {
     sessionStorage.removeItem(AppForbiddenComponent.forbiddenReasonKey);
+  }
+
+  logout(): void {
+    this.portalService.logout(true);
   }
 
   goBack(): void {

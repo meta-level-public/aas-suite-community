@@ -5,7 +5,9 @@ import { TestBed } from '@angular/core/testing';
 import { DomSanitizer } from '@angular/platform-browser';
 import { TranslateService } from '@ngx-translate/core';
 import { ViewerStoreService } from '../../viewer-store.service';
-import { HandoverDocumentationService } from './handover-documentation.service';
+import { of } from 'rxjs';
+import { vi } from 'vitest';
+import { HandoverDocumentationService, HandoverFileGroup, isHtmlFile } from './handover-documentation.service';
 import { HandoverStructureMode } from './structure-mode';
 
 // Minimal stubs for semantic id helper expectations
@@ -93,7 +95,13 @@ describe('HandoverDocumentationService', () => {
         HandoverDocumentationService,
         { provide: HttpClient, useValue: {} },
         { provide: TranslateService, useValue: {} },
-        { provide: DomSanitizer, useValue: { bypassSecurityTrustResourceUrl: (value: string) => value } },
+        {
+          provide: DomSanitizer,
+          useValue: {
+            bypassSecurityTrustResourceUrl: (value: string) => value,
+            bypassSecurityTrustHtml: (value: string) => value,
+          },
+        },
         { provide: ViewerStoreService, useValue: {} },
       ],
     });
@@ -232,6 +240,80 @@ describe('HandoverDocumentationService', () => {
     expect(groups[0].previewType).toBe('image');
     expect(groups[0].previewOriginalValue).toBe('internal/path/doc-preview.png');
     expect(groups[0].previewIdPath).toContain('File_List_V2[1]');
+  });
+
+  it('recognizes HTML documents by content type or extension', () => {
+    expect(isHtmlFile('docs/maintenance.html')).toBe(true);
+    expect(isHtmlFile('docs/maintenance.HTM')).toBe(true);
+    expect(isHtmlFile('docs/maintenance', 'text/html; charset=utf-8')).toBe(true);
+    expect(isHtmlFile('docs/maintenance.pdf', 'application/pdf')).toBe(false);
+  });
+
+  it('uses an HTML document as group preview when no preview file is set', async () => {
+    const documentHtml = file('DigitalFile', 'internal/path/sandkasten-wartung.html');
+    documentHtml.contentType = 'text/html';
+    const fileList = new aas.types.SubmodelElementList(
+      aas.types.AasSubmodelElements.File,
+      null,
+      null,
+      'File_List_V2',
+      null,
+      null,
+      semanticRef(HandoverSemantics.FILE_LIST_V2),
+      null,
+      null,
+      null,
+      true,
+      null,
+      null,
+      [documentHtml] as any,
+    );
+    const versionList = new aas.types.SubmodelElementList(
+      aas.types.AasSubmodelElements.SubmodelElementCollection,
+      null,
+      null,
+      'Versions',
+      null,
+      null,
+      semanticRef(HandoverSemantics.VERSION_LIST_V2),
+      null,
+      null,
+      null,
+      true,
+      null,
+      null,
+      [smc('VersionA', [fileList])] as any,
+    );
+    const doc = smc('Doc_V2_main', [versionList], HandoverSemantics.DOCUMENT_V2);
+    const container = smc('Container_V2', [doc], HandoverSemantics.CONTAINER_V2);
+    const sm = mkSubmodel({ administration: { version: '2', revision: '0' }, elements: [container] });
+
+    const { mode, documents } = service.analyze(sm);
+    const groups = await service.buildFileGroups(sm, documents, mode, 'en');
+
+    expect(groups[0].previewType).toBe('html');
+    expect(groups[0].previewOriginalValue).toBe('internal/path/sandkasten-wartung.html');
+  });
+
+  it('loads the content of HTML previews as text for the sandboxed frame', async () => {
+    const http = TestBed.inject(HttpClient) as unknown as { get: ReturnType<typeof vi.fn> };
+    http.get = vi.fn(() => of('<h1>Wartungshandbuch</h1>'));
+    vi.spyOn(service, 'buildAttachmentUrl').mockResolvedValue('https://repo/attachment');
+    const group = {
+      groupId: 'g',
+      title: 'Wartungshandbuch',
+      docIndex: 0,
+      files: [],
+      previewType: 'html',
+      previewIdPath: 'Doc.File',
+      previewOriginalValue: 'internal/path/sandkasten-wartung.html',
+    } as HandoverFileGroup;
+
+    await service.loadPreviewBlobs([group]);
+
+    expect(http.get).toHaveBeenCalledWith('https://repo/attachment', expect.objectContaining({ responseType: 'text' }));
+    expect(group.previewHtml).toBe('<h1>Wartungshandbuch</h1>');
+    expect(group.previewLoading).toBe(false);
   });
 
   it('detects preview files by content type when the file value has no extension', async () => {

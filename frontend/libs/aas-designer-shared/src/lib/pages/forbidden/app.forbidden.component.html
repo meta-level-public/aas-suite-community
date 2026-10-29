@@ -65,6 +65,14 @@
         <div class="flex flex-wrap gap-3">
           <p-button [label]="'FORBIDDEN_BACK_TO_DASHBOARD' | translate" [routerLink]="['/']"></p-button>
           <p-button [label]="'BACK' | translate" severity="secondary" [outlined]="true" (onClick)="goBack()"></p-button>
+          <!-- Way out of a session that lacks the rights, e.g. of another account -->
+          <p-button
+            [label]="'LOGOUT' | translate"
+            icon="pi pi-sign-out"
+            severity="secondary"
+            [text]="true"
+            (onClick)="logout()"
+          ></p-button>
         </div>
       </div>
     </div>

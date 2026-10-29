@@ -3,17 +3,27 @@ import { EncodingService } from '@aas/common-services';
 import { FilenameHelper, HandoverSemanticGroups, HandoverSemantics, SemanticIdHelper } from '@aas/helpers';
 import { HttpClient } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
-import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
+import { DomSanitizer, SafeHtml, SafeResourceUrl } from '@angular/platform-browser';
 import { TranslateService } from '@ngx-translate/core';
 import { lastValueFrom } from 'rxjs';
 import { ViewerStoreService } from '../../viewer-store.service';
 import { HandoverStructureMode } from './structure-mode';
 
+/** File types that can be shown as preview; HTML is rendered in a sandboxed frame without scripts */
+export type HandoverPreviewType = 'image' | 'pdf' | 'html';
+
+/** Detects HTML documents by content type or file extension */
+export function isHtmlFile(path: string, contentType?: string): boolean {
+  return `${contentType ?? ''}`.toLowerCase().includes('text/html') || /\.html?$/i.test(path.trim());
+}
+
 export interface HandoverFileGroup {
   groupId: string;
   title: string;
   previewUrl?: string;
-  previewType?: 'image' | 'pdf';
+  previewType?: HandoverPreviewType;
+  /** Content of an HTML preview, only shown in a sandboxed frame */
+  previewHtml?: SafeHtml;
   previewContentType?: string;
   previewSafeUrl?: SafeResourceUrl;
   previewIdPath?: string;
@@ -274,6 +284,8 @@ export class HandoverDocumentationService {
       }
     }
 
+    this.useDocumentFileAsFallbackPreview(groups);
+
     // Previews (Bilder) laden (intern) -> asynchron
     await this.loadPreviewBlobs(groups, smUrlOverride);
 
@@ -284,6 +296,24 @@ export class HandoverDocumentationService {
       }
     }
     return groups;
+  }
+
+  // Without an explicit preview file the first document file that can be shown serves as preview
+  private useDocumentFileAsFallbackPreview(groups: HandoverFileGroup[]) {
+    for (const group of groups) {
+      if (group.previewUrl) continue;
+      for (const file of group.files) {
+        const type = file.isExternal ? undefined : this.getPreviewType(file.value, file.contentType);
+        if (type == null) continue;
+        group.previewUrl = this.resolveFileUrl(file.value);
+        group.previewType = type;
+        group.previewContentType = file.contentType;
+        group.previewSafeUrl = this.buildSafePreviewUrl(file.value, type);
+        group.previewOriginalValue = file.value;
+        group.previewIdPath = file.idPath;
+        break;
+      }
+    }
   }
 
   async loadPreviewBlobs(groups: HandoverFileGroup[], smUrlOverride?: string): Promise<void> {
@@ -304,13 +334,24 @@ export class HandoverDocumentationService {
               group.previewOriginalValue,
               smUrlOverride,
             );
+            if (group.previewType === 'html') {
+              const html = await lastValueFrom(this.http.get(attachmentUrl, { responseType: 'text', headers }));
+              if (groups !== currentRef) return;
+              // Rendered only in a frame with sandbox="" (no scripts, no access to the application)
+              group.previewHtml = this.sanitizer.bypassSecurityTrustHtml(html);
+              group.previewLoading = false;
+              return;
+            }
             const resp: any = await lastValueFrom(
               this.http.get(attachmentUrl, { responseType: 'blob' as 'json', observe: 'response', headers }),
             );
             let blob = resp.body as unknown as Blob;
             const desiredType =
               group.previewContentType ||
-              this.deriveMimeFromName((group.previewOriginalValue || '').toLowerCase(), group.previewType || 'image');
+              this.deriveMimeFromName(
+                (group.previewOriginalValue || '').toLowerCase(),
+                group.previewType === 'pdf' ? 'pdf' : 'image',
+              );
             if (desiredType && blob && (!blob.type || blob.type !== desiredType)) {
               const head = await blob
                 .slice(0, 8)
@@ -528,7 +569,7 @@ export class HandoverDocumentationService {
     versionPath: string | undefined,
     currentLang: string,
   ):
-    | { url: string; type: 'image' | 'pdf'; contentType?: string; idPath?: string; safeUrl?: SafeResourceUrl }
+    | { url: string; type: HandoverPreviewType; contentType?: string; idPath?: string; safeUrl?: SafeResourceUrl }
     | undefined {
     const fileListPreview = this.resolvePreviewFromFileList(versionSmc, versionPath);
     if (fileListPreview) {
@@ -577,7 +618,7 @@ export class HandoverDocumentationService {
     versionSmc: aas.types.SubmodelElementCollection,
     versionPath: string | undefined,
   ):
-    | { url: string; type: 'image' | 'pdf'; contentType?: string; idPath?: string; safeUrl?: SafeResourceUrl }
+    | { url: string; type: HandoverPreviewType; contentType?: string; idPath?: string; safeUrl?: SafeResourceUrl }
     | undefined {
     const fileList = versionSmc.value?.find(
       (value): value is aas.types.SubmodelElementList =>
@@ -625,7 +666,7 @@ export class HandoverDocumentationService {
     };
   }
 
-  private getPreviewType(path: string, contentType?: string): 'image' | 'pdf' | undefined {
+  private getPreviewType(path: string, contentType?: string): HandoverPreviewType | undefined {
     const normalizedContentType = `${contentType ?? ''}`.trim().toLowerCase();
 
     if (FilenameHelper.isImageContentType(normalizedContentType)) {
@@ -644,10 +685,14 @@ export class HandoverDocumentationService {
       return 'pdf';
     }
 
+    if (isHtmlFile(path, normalizedContentType)) {
+      return 'html';
+    }
+
     return undefined;
   }
 
-  private buildSafePreviewUrl(path: string, type: 'image' | 'pdf') {
+  private buildSafePreviewUrl(path: string, type: HandoverPreviewType) {
     if (type !== 'pdf') {
       return undefined;
     }

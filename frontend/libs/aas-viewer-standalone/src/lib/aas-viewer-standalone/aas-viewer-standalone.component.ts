@@ -10,6 +10,7 @@ import {
   input,
   Input,
   OnChanges,
+  OnDestroy,
   OnInit,
   Optional,
   signal,
@@ -64,7 +65,7 @@ import { ViewerStoreService } from '../viewer-store.service';
     ViewerNavigationComponent,
   ],
 })
-export class AasViewerStandaloneComponent implements OnChanges, OnInit {
+export class AasViewerStandaloneComponent implements OnChanges, OnInit, OnDestroy {
   @Input() currentLanguage = 'de';
 
   @Input({ required: true }) viewerDescriptor: ViewerDescriptor | null = null;
@@ -90,7 +91,31 @@ export class AasViewerStandaloneComponent implements OnChanges, OnInit {
   ) {
     if (this.config?.data != null) {
       this.viewerDescriptor = this.config.data.viewerDescriptor;
+      this.useNavigatorOfHostPage();
       this.init();
+    }
+  }
+
+  // Opened as dialog (openViewer event) the viewer has no navigator input. It uses the one of the page behind,
+  // closes itself before navigating and gives the navigator back when it is closed.
+  private dialogNavigator: ShellNavigator | null = null;
+  private hostNavigator: ShellNavigator | null = null;
+
+  private useNavigatorOfHostPage() {
+    const hostNavigator = this.viewerStore.shellNavigator();
+    const dialogRef = inject(DynamicDialogRef, { optional: true });
+    this.hostNavigator = hostNavigator;
+    if (hostNavigator != null) {
+      this.dialogNavigator = (target) => {
+        dialogRef?.close();
+        return hostNavigator(target);
+      };
+    }
+  }
+
+  ngOnDestroy(): void {
+    if (this.config?.data != null) {
+      this.viewerStore.shellNavigator.set(this.hostNavigator);
     }
   }
 
@@ -111,7 +136,7 @@ export class AasViewerStandaloneComponent implements OnChanges, OnInit {
   async init() {
     this.viewerStore.apiKey.set(this.apiKey());
     this.viewerStore.viewerDescriptor.set(this.viewerDescriptor);
-    this.viewerStore.shellNavigator.set(this.shellNavigator());
+    this.viewerStore.shellNavigator.set(this.dialogNavigator ?? this.shellNavigator());
     this.thumbnailLoadError.set(false);
   }
 
