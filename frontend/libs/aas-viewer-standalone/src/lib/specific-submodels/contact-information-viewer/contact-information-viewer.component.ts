@@ -13,12 +13,14 @@ import { ViewerStoreService } from '../../viewer-store.service';
 import { ContactInformation } from './contact-information';
 
 import { ContactInformationMap } from './contact-information-map.component';
+import { ExpandedStateDirective } from '../../expanded-state/expanded-state.directive';
 
 @Component({
   selector: 'aas-contact-information-viewer',
   templateUrl: './contact-information-viewer.component.html',
   styleUrls: ['./contact-information-viewer.component.css'],
   imports: [
+    ExpandedStateDirective,
     Accordion,
     AccordionPanel,
     Ripple,

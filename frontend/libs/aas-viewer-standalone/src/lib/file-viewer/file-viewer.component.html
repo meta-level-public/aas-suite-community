@@ -1,5 +1,5 @@
 @if (fileObj != null) {
-  <p-accordion [value]="'file_' + fileObj.idShort">
+  <p-accordion [value]="isExpanded() ? 'file_' + fileObj.idShort : ''" (valueChange)="onExpandedChange($event)">
     <p-accordion-panel [value]="'file_' + fileObj.idShort">
       <p-accordion-header>
         {{ fileObj != null ? getLabel(fileObj) : '' }}

@@ -47,9 +47,9 @@
   @if (operation) {
     <p-fieldset legend="{{ 'EXECUTION' | translate }}" [toggleable]="true" class="mt-2" [collapsed]="true">
       <div class="mb-4 mt-2 ml-1 mr-1">
-        <p-accordion [multiple]="true">
+        <p-accordion [multiple]="true" [aasExpandedState]="idShortPath" [aasExpandedStateSubmodelId]="submodelId">
           @if (operation.inputVariables && operation.inputVariables.length > 0) {
-            <p-accordion-panel>
+            <p-accordion-panel value="in">
               <p-accordion-header>
                 {{ 'INPUT_VARIABLES' | translate }} ({{ operation.inputVariables.length }})">
               </p-accordion-header>
@@ -69,7 +69,7 @@
             </p-accordion-panel>
           }
           @if (operation.outputVariables && operation.outputVariables.length > 0) {
-            <p-accordion-panel>
+            <p-accordion-panel value="out">
               <p-accordion-header>
                 {{ 'OUTPUT_VARIABLES' | translate }} ({{ operation.outputVariables.length }})">
               </p-accordion-header>
@@ -89,7 +89,7 @@
             </p-accordion-panel>
           }
           @if (operation.inoutputVariables && operation.inoutputVariables.length > 0) {
-            <p-accordion-panel>
+            <p-accordion-panel value="inout">
               <p-accordion-header>
                 {{ 'INOUT_VARIABLES' | translate }} ({{ operation.inoutputVariables.length }})">
               </p-accordion-header>

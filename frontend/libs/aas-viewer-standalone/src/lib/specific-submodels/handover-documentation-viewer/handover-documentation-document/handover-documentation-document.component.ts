@@ -19,11 +19,13 @@ import { lastValueFrom } from 'rxjs';
 import { ViewerStoreService } from '../../../viewer-store.service';
 import { HandoverDocumentationFileComponent } from '../handover-documentation-file/handover-documentation-file.component';
 import { SelectDocumentFile } from '../select-document-file';
+import { ExpandedStateDirective } from '../../../expanded-state/expanded-state.directive';
 
 @Component({
   selector: 'aas-handover-documentation-document',
   templateUrl: './handover-documentation-document.component.html',
   imports: [
+    ExpandedStateDirective,
     InputGroup,
     InputGroupAddon,
     InputText,
@@ -55,6 +57,10 @@ export class HandoverDocumentationDocumentComponent implements OnChanges {
   // Expanded panels control
   expandedClassificationPanels = signal<number[]>([0]);
   expandedDocumentIdPanels = signal<number[]>([0]);
+
+  expandedStatePath(accordion: string) {
+    return `${this.document()?.idShort ?? ''}/${accordion}`;
+  }
 
   constructor(
     private aasxViewerService: AasViewerService,

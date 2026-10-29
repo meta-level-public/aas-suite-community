@@ -2,7 +2,7 @@ Hallo
 
 <div class="flex flex-col gap-2">
   <p-card header="Product Carbon Footprint" class="mt-2">
-    <p-accordion [multiple]="true" class="w-full" [value]="expandedPcfPanels()">
+    <p-accordion [multiple]="true" class="w-full" [value]="expandedPcfPanels()" aasExpandedState="pcf">
       @for (pcf of pcfList; track pcf) {
         <p-accordion-panel [value]="pcf.idShort ?? 0">
           <p-accordion-header>
@@ -27,7 +27,12 @@ Hallo
 
           <p-accordion-content>
             @for (pcf of pcfGroup.pcfs; track $index) {
-              <p-accordion [multiple]="true" class="w-full" [value]="expandedPcfGroupPanels()[pcfGroup.name] || []">
+              <p-accordion
+                [multiple]="true"
+                class="w-full"
+                [value]="expandedPcfGroupPanels()[pcfGroup.name] || []"
+                [aasExpandedState]="'pcf/' + pcfGroup.name + '/' + $index"
+              >
                 <p-accordion-panel [value]="pcf.idShort ?? 0">
                   <p-accordion-header>
                     <div class="flex items-center">
@@ -53,7 +58,7 @@ Hallo
   </p-card>
 
   <p-card header="Transport Carbon Footprint">
-    <p-accordion [multiple]="true" class="w-full" [value]="expandedTcfPanels()">
+    <p-accordion [multiple]="true" class="w-full" [value]="expandedTcfPanels()" aasExpandedState="tcf">
       @for (tcf of tcfList; track $index) {
         <p-accordion-panel [value]="tcf.idShort ?? 0">
           <p-accordion-header>

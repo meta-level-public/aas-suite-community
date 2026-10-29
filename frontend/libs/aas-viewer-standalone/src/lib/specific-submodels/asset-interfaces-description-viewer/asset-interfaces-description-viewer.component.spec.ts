@@ -94,15 +94,28 @@ describe('AssetInterfacesDescriptionViewerComponent', () => {
     expect(rows.some((row) => row?.includes('temperature_c'))).toBe(false);
   });
 
+  it('repeats data type and access below the name for narrow widths', () => {
+    // CSS shows this line instead of the detail columns when the card is narrow
+    const meta = fixture.nativeElement.querySelector('p-treetable tbody tr .aid-point-meta') as HTMLElement;
+
+    expect(meta.querySelector('code')?.textContent).toBe('object');
+    expect(meta.textContent).toContain('GET');
+    expect(meta.textContent).toContain('/api/status');
+  });
+
   it('expands nested data points that match the search', async () => {
     const search = fixture.nativeElement.querySelector('p-iconfield input') as HTMLInputElement;
     search.value = 'temp';
     search.dispatchEvent(new Event('input'));
 
     // the tree table applies the filter with a short delay
-    await vi.waitFor(() => {
-      fixture.detectChanges();
-      expect(rowTexts().some((row) => row?.includes('temperature_c'))).toBe(true);
-    });
+    await vi.waitFor(
+      () => {
+        fixture.detectChanges();
+        expect(rowTexts().some((row) => row?.includes('temperature_c'))).toBe(true);
+      },
+      // slow CI runners with coverage need more than the default second
+      { timeout: 4000 },
+    );
   });
 });

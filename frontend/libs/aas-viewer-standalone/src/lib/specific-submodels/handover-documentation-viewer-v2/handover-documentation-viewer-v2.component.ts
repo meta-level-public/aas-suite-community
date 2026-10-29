@@ -20,12 +20,14 @@ import { DocumentIdentificationComponent } from './document-identification/docum
 import { DocumentVersionsComponent } from './document-versions/document-versions.component';
 import { HandoverDocumentationService, HandoverFileGroup, isHtmlFile } from './handover-documentation.service';
 import { HandoverStructureMode } from './structure-mode';
+import { ExpandedStateDirective } from '../../expanded-state/expanded-state.directive';
 
 @Component({
   selector: 'aas-handover-documentation-viewer-v2',
   templateUrl: './handover-documentation-viewer-v2.component.html',
   styleUrls: ['./handover-documentation-viewer-v2.component.css'],
   imports: [
+    ExpandedStateDirective,
     Skeleton,
     ButtonModule,
     Accordion,

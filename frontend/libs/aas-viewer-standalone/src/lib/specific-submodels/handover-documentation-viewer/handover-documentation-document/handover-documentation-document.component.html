@@ -35,7 +35,12 @@
           <input pInputText type="text" [value]="version()" readonly />
         </p-inputgroup>
       }
-      <p-accordion multiple="true" [value]="expandedClassificationPanels()">
+      <p-accordion
+        multiple="true"
+        [value]="expandedClassificationPanels()"
+        [aasExpandedState]="expandedStatePath('classifications')"
+        [aasExpandedStateSubmodelId]="submodelIdentifier"
+      >
         @for (classification of classifications; track $index) {
           <p-accordion-panel [value]="$index">
             <p-accordion-header>{{ 'CLASSIFICATION' | translate }} {{ $index }}</p-accordion-header>
@@ -64,7 +69,12 @@
           </p-accordion-panel>
         }
       </p-accordion>
-      <p-accordion multiple="true" [value]="expandedDocumentIdPanels()">
+      <p-accordion
+        multiple="true"
+        [value]="expandedDocumentIdPanels()"
+        [aasExpandedState]="expandedStatePath('document-ids')"
+        [aasExpandedStateSubmodelId]="submodelIdentifier"
+      >
         @for (classification of classifications; track $index) {
           <p-accordion-panel [value]="$index">
             <p-accordion-header>{{ 'DOCUMENT_ID' | translate }} {{ $index }}</p-accordion-header>

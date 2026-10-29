@@ -10,11 +10,13 @@ import { PcfElementComponent } from './pcf-element/pcf-element.component';
 import { TranslateModule } from '@ngx-translate/core';
 import { PcfMapOverviewComponent } from './pcf-map-overview/pcf-map-overview.component';
 import { TcfElementComponent } from './tcf-element/tcf-element.component';
+import { ExpandedStateDirective } from '../../expanded-state/expanded-state.directive';
 
 @Component({
   selector: 'aas-pcf-viewer',
   templateUrl: './pcf-viewer.component.html',
   imports: [
+    ExpandedStateDirective,
     Card,
     Accordion,
     AccordionPanel,

@@ -1,5 +1,5 @@
 <p-card>
-  <p-accordion [multiple]="true" class="w-full" [value]="expandedDocPanels()">
+  <p-accordion [multiple]="true" class="w-full" [value]="expandedDocPanels()" aasExpandedState="documents">
     @for (document of documents; track $index) {
       <p-accordion-panel [value]="$index">
         <p-accordion-header>

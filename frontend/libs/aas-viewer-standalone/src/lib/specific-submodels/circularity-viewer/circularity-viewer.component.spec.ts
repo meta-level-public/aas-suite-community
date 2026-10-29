@@ -28,6 +28,8 @@ describe('CircularityViewerComponent', () => {
             apiKey: () => '',
             headers: () => ({}),
             addFileToCurrentlyLoadedFiles: () => undefined,
+            isElementExpanded: (_submodelId: string, _idShortPath: string, fallback = false) => fallback,
+            setElementExpanded: () => undefined,
           },
         },
       ],

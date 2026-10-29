@@ -26,14 +26,28 @@ export class ViewerNavigationComponent {
   viewerStore = inject(ViewerStoreService);
   private elementRef = inject<ElementRef<HTMLElement>>(ElementRef);
 
-  // Keeps the active chip visible when the selection changes, e.g. on the initial selection
-  private scrollActiveChipIntoView = afterRenderEffect(() => {
+  // Keeps the active entry visible when the selection changes, e.g. on the initial selection
+  private scrollActiveEntryIntoView = afterRenderEffect(() => {
     this.metadataActive();
     this.activeSubmodelId();
     this.viewerStore.submodelLoadStates();
-    if (this.layout() !== 'chips') return;
 
-    const active = this.elementRef.nativeElement.querySelector<HTMLElement>('.viewer-chip.active');
-    active?.scrollIntoView?.({ block: 'nearest', inline: 'center' });
+    const host = this.elementRef.nativeElement;
+    if (this.layout() === 'chips') {
+      const active = host.querySelector<HTMLElement>('.viewer-chip.active');
+      active?.scrollIntoView?.({ block: 'nearest', inline: 'center' });
+      return;
+    }
+    // In the side column only the navigation scrolls, never the page around it
+    const active = host.querySelector<HTMLElement>('.navigation-item.active');
+    const scroller = active?.closest<HTMLElement>('.p-card-body');
+    if (active == null || scroller == null) return;
+    const activeRect = active.getBoundingClientRect();
+    const scrollerRect = scroller.getBoundingClientRect();
+    if (activeRect.top < scrollerRect.top) {
+      scroller.scrollTop -= scrollerRect.top - activeRect.top;
+    } else if (activeRect.bottom > scrollerRect.bottom) {
+      scroller.scrollTop += activeRect.bottom - scrollerRect.bottom;
+    }
   });
 }

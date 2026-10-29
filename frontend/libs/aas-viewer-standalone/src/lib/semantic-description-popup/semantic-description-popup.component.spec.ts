@@ -39,11 +39,15 @@ describe('SemanticDescriptionPopupComponent', () => {
   async function openPopover(popup = fixture) {
     const button = popup.nativeElement.querySelector('button') as HTMLButtonElement;
     button.click();
-    await vi.waitFor(() => {
-      popup.detectChanges();
-      expect(popup.componentInstance.popover()?.overlayVisible).toBe(true);
-      expect(popoversInBody()).toBeGreaterThan(0);
-    });
+    await vi.waitFor(
+      () => {
+        popup.detectChanges();
+        expect(popup.componentInstance.popover()?.overlayVisible).toBe(true);
+        expect(popoversInBody()).toBeGreaterThan(0);
+      },
+      // slow CI runners with coverage need more than the default second
+      { timeout: 4000 },
+    );
   }
 
   it('does not pass the click on the info icon to surrounding elements like an accordion header', async () => {

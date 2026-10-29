@@ -43,91 +43,64 @@
     </div>
   </div>
 </div>
+<!-- Image, idShort, type and global asset ID; shown above the content on small screens and in the side column from xl -->
+<ng-template #compactHeader>
+  <div class="viewer-compact-header">
+    @let compactThumbnail = this.thumbnail() | async;
+    <div class="viewer-compact-thumbnail">
+      @if (compactThumbnail && !thumbnailLoadError()) {
+        <!-- A click shows the image large -->
+        <p-image
+          [src]="compactThumbnail"
+          [preview]="true"
+          appendTo="body"
+          class="viewer-compact-thumbnail-image"
+          imageClass="scaleImage w-full h-full"
+          [alt]="viewerStore.aas()?.idShort ?? 'thumbnail'"
+          (onImageError)="onOverviewThumbnailError()"
+        ></p-image>
+      } @else {
+        <i class="pi pi-image"></i>
+      }
+    </div>
+    <div class="flex flex-col min-w-0 flex-1">
+      <div class="flex items-center gap-2 min-w-0">
+        <span class="font-bold truncate" [title]="viewerStore.aas()?.idShort ?? ''">{{
+          viewerStore.aas()?.idShort
+        }}</span>
+        @let compactType = typeTag();
+        @let compactSeverity = typeTagSeverity();
+        @if (compactType && compactSeverity) {
+          <p-tag class="ml-auto shrink-0" [value]="compactType" [severity]="compactSeverity"></p-tag>
+        }
+      </div>
+      @if (globalAssetId()) {
+        <div class="flex items-center gap-1 min-w-0">
+          <span class="viewer-compact-asset-id truncate" [title]="globalAssetId()">{{ globalAssetId() }}</span>
+          <p-button
+            icon="pi pi-copy"
+            [text]="true"
+            [rounded]="true"
+            size="small"
+            (onClick)="copyGlobalAssetId()"
+            [ariaLabel]="'COPY' | translate"
+          ></p-button>
+        </div>
+      }
+    </div>
+  </div>
+</ng-template>
 <div class="grid grid-cols-12 gap-4 w-full">
   <!-- Compact header and navigation for small screens, the side column is shown from xl -->
   <div class="col-span-12 xl:hidden min-w-0">
-    <div class="viewer-compact-header">
-      @let compactThumbnail = this.thumbnail() | async;
-      <div class="viewer-compact-thumbnail">
-        @if (compactThumbnail && !thumbnailLoadError()) {
-          <img [src]="compactThumbnail" class="scaleImage w-full h-full" alt="thumbnail" />
-        } @else {
-          <i class="pi pi-image"></i>
-        }
-      </div>
-      <div class="flex flex-col min-w-0 flex-1">
-        <div class="flex items-center gap-2 min-w-0">
-          <span class="font-bold truncate">{{ viewerStore.aas()?.idShort }}</span>
-          @let compactType = typeTag();
-          @let compactSeverity = typeTagSeverity();
-          @if (compactType && compactSeverity) {
-            <p-tag [value]="compactType" [severity]="compactSeverity"></p-tag>
-          }
-        </div>
-        @if (globalAssetId()) {
-          <div class="flex items-center gap-1 min-w-0">
-            <span class="viewer-compact-asset-id truncate" [title]="globalAssetId()">{{ globalAssetId() }}</span>
-            <p-button
-              icon="pi pi-copy"
-              [text]="true"
-              [rounded]="true"
-              size="small"
-              (onClick)="copyGlobalAssetId()"
-              [ariaLabel]="'COPY' | translate"
-            ></p-button>
-          </div>
-        }
-      </div>
-    </div>
+    <ng-container [ngTemplateOutlet]="compactHeader"></ng-container>
   </div>
-  <div class="hidden xl:block xl:col-span-3">
-    <p-card class="mt-4 overview-card">
+  <!-- Side column stays below the toolbar while the content scrolls; a long submodel list scrolls on its own -->
+  <div class="hidden xl:flex xl:col-span-3 min-w-0 viewer-side-column">
+    <ng-container [ngTemplateOutlet]="compactHeader"></ng-container>
+    <p-card class="navigation-card viewer-side-navigation">
       <ng-template #header>
-        <div class="flex flex-row justify-between p-6 ml-2 mr-2">
-          <div class="p-card-title">{{ 'OVERVIEW' | translate }}</div>
-        </div>
-      </ng-template>
-      <div class="flex flex-col items-center mb-2">
-        @let thumbnail = this.thumbnail() | async;
-        <div
-          class="w-full max-w-[300px] h-[200px] border rounded bg-white flex items-center justify-center overflow-hidden"
-        >
-          @if (thumbnail && !thumbnailLoadError()) {
-            <img
-              [src]="thumbnail"
-              class="scaleImage w-full h-full"
-              alt="thumbnail"
-              (error)="onOverviewThumbnailError()"
-              (load)="onOverviewThumbnailLoad()"
-            />
-          } @else {
-            <div class="flex flex-col items-center gap-2 text-gray-500">
-              <i class="pi pi-image text-3xl"></i>
-              <span class="text-sm">{{ 'NO_IMAGE_FOUND' | translate }}</span>
-            </div>
-          }
-        </div>
-      </div>
-      <div class="flex flex-row gap-2">
-        <label class="font-bold">{{ 'AAS_TYPE' | translate }}</label>
-        @let type = typeTag();
-        @let severity = typeTagSeverity();
-        @if (type && severity) {
-          <p-tag [value]="type" [severity]="severity"></p-tag>
-        }
-      </div>
-      <div class="flex flex-col mt-2">
-        <div class="flex flex-row justify-between gap-2">
-          <label class="font-bold">{{ 'GLOBAL_ASSET_ID' | translate }}</label>
-          <p-button icon="pi pi-copy" (onClick)="copyGlobalAssetId()" styleClass="p-button-text"></p-button>
-        </div>
-        <label style="word-wrap: break-word">{{ globalAssetId() }}</label>
-      </div>
-    </p-card>
-
-    <p-card class="mt-2 navigation-card">
-      <ng-template #header>
-        <div class="p-6 ml-2 mr-2">
+        <div class="px-6 pt-4">
           <div class="p-card-title">{{ 'NAVIGATION' | translate }}</div>
         </div>
       </ng-template>
