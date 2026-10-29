@@ -1,10 +1,16 @@
 import { OrgaSettings } from '@aas-designer-model';
 import { DateProxyPipe } from '@aas/common-pipes';
-import { AccessService, AppConfigService, buildMySpaceRoute, PortalService } from '@aas/common-services';
+import {
+  AccessService,
+  AppConfigService,
+  buildMySpaceRoute,
+  PortalService,
+  ViewportService,
+} from '@aas/common-services';
 import { NewsService, ShowNewsComponent } from '@aas/news';
 import { NgComponentOutlet } from '@angular/common';
 import { HttpClient, HttpParams } from '@angular/common/http';
-import { ChangeDetectorRef, Component, inject, OnDestroy, OnInit, signal } from '@angular/core';
+import { ChangeDetectorRef, Component, inject, OnDestroy, OnInit, output, signal } from '@angular/core';
 import { Router } from '@angular/router';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { MenuItem } from 'primeng/api';
@@ -35,6 +41,9 @@ export class AppTopBarComponent implements OnInit, OnDestroy {
   orgaSettings: OrgaSettings[] = [];
 
   userMenuItems = signal<MenuItem[]>([]);
+  /** Requests to open or close the main menu, used on phones where the menu is hidden */
+  menuToggle = output<void>();
+  viewport = inject(ViewportService);
   router = inject(Router);
   datePipe = inject(DateProxyPipe);
   private readonly cdr = inject(ChangeDetectorRef);
@@ -149,7 +158,7 @@ export class AppTopBarComponent implements OnInit, OnDestroy {
   }
 
   onShowUserActions() {
-    const menuItems: MenuItem[] = [];
+    const menuItems: MenuItem[] = [...this.mobileMenuItems()];
     if (this.portalService.loggedIn) {
       menuItems.push({
         label: this.translate.instant('LOGOUT'),
@@ -250,6 +259,36 @@ export class AppTopBarComponent implements OnInit, OnDestroy {
     });
 
     this.userMenuItems.set(menuItems);
+  }
+
+  // On phones the language and organisation buttons of the topbar are part of the user menu
+  private mobileMenuItems(): MenuItem[] {
+    if (!this.viewport.isMobile()) return [];
+
+    const items: MenuItem[] = [
+      {
+        label: this.translate.instant('LANGUAGE'),
+        icon: 'pi pi-fw pi-globe',
+        items: ['de', 'en'].map((lang) => ({
+          label: lang.toUpperCase(),
+          icon: this.portalService.currentLanguage === lang ? 'pi pi-fw pi-check' : undefined,
+          command: () => this.setLang(lang),
+        })),
+      },
+    ];
+    if (this.portalService.loggedIn && this.orgaSettings.length > 1) {
+      items.push({
+        label: this.translate.instant('CHOOSE_ORGA'),
+        icon: 'pi pi-fw pi-building',
+        items: this.orgaSettings.map((orga) => ({
+          label: orga.orgaName,
+          icon: orga.orgaId === this.currentOrgaId ? 'pi pi-fw pi-check' : undefined,
+          command: () => this.selectOrga(orga),
+        })),
+      });
+    }
+    items.push({ separator: true });
+    return items;
   }
 
   applyFontSize() {

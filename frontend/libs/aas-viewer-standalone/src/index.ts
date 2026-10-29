@@ -5,6 +5,7 @@ export * from './lib/aas-viewer-standalone/aas-viewer-standalone.component';
 export * from './lib/file-viewer/file-viewer.component';
 export * from './lib/property-viewer/property-viewer.component';
 export * from './lib/search/search-in-aas-dialog.component';
+export * from './lib/shell-navigation';
 export * from './lib/smc-viewer/smc-viewer.component';
 export * from './lib/specific-submodels/bom-viewer/bom-viewer.component';
 export * from './lib/specific-submodels/aas-designer-changelog-viewer/aas-designer-changelog-viewer.component';

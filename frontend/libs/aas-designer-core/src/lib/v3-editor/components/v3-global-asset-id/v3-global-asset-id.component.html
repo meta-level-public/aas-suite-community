@@ -1,5 +1,15 @@
 <div class="flex flex-row gap-2 w-full items-center">
   <input pInputText [(ngModel)]="content.globalAssetId" class="w-full" vwsV3Undo nullIfEmpty />
+  @if (shellSelectable) {
+    <p-button
+      label="{{ 'SELECT_SHELL' | translate }}"
+      class="aas-add-button w-12rem"
+      size="small"
+      (onClick)="selectShell()"
+      icon="pi pi-search"
+      [outlined]="true"
+    ></p-button>
+  }
   <p-button
     label="{{ 'GENERATE_IRI' | translate }}"
     class="aas-add-button w-12rem"

@@ -1,5 +1,5 @@
 import { HelpService } from '@aas/common-components';
-import { AppConfigService, AppRouteUrls, PluginRegistryService } from '@aas/common-services';
+import { AppConfigService, AppRouteUrls, PluginRegistryService, ViewportService } from '@aas/common-services';
 
 import { ADDITIONAL_MENU_ITEMS, AuthRoles } from '@aas-designer-model';
 import { AccessService, PortalService } from '@aas/common-services';
@@ -25,6 +25,7 @@ export class AppMenuComponent implements OnInit {
   helpService = inject(HelpService);
   additionalMenuItems = inject(ADDITIONAL_MENU_ITEMS);
   pluginRegistry = inject(PluginRegistryService);
+  viewport = inject(ViewportService);
   private router = inject(Router);
 
   constructor(
@@ -57,6 +58,10 @@ export class AppMenuComponent implements OnInit {
 
     this.router.events.pipe(filter((event) => event instanceof NavigationEnd)).subscribe((event: NavigationEnd) => {
       this.updateActiveTab(event.urlAfterRedirects);
+      // On phones the menu overlays the page, so close it once a page was chosen
+      if (this.viewport.isMobile() && this.sidebarExpanded()) {
+        this.toggleSidebar();
+      }
     });
 
     this.portalService.loginStateChanged.subscribe(() => {

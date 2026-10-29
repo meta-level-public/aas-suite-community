@@ -1,0 +1,24 @@
+<div class="flex flex-col items-center gap-3">
+  <div class="qr-code-image">
+    <qrcode
+      [qrdata]="value()"
+      elementType="svg"
+      [width]="256"
+      [margin]="2"
+      errorCorrectionLevel="M"
+      colorDark="#000000"
+      colorLight="#ffffff"
+      [ariaLabel]="'QR_CODE' | translate"
+    ></qrcode>
+  </div>
+  <span class="qr-code-value">{{ value() }}</span>
+  <div class="flex flex-wrap justify-center gap-2">
+    <p-button
+      icon="pi pi-download"
+      [label]="'DOWNLOAD_SVG' | translate"
+      (onClick)="downloadSvg()"
+      [outlined]="true"
+    ></p-button>
+    <p-button icon="pi pi-print" [label]="'PRINT' | translate" (onClick)="print()"></p-button>
+  </div>
+</div>

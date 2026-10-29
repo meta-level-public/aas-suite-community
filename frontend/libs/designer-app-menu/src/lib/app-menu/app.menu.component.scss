@@ -20,6 +20,26 @@
   &.expanded {
     width: 250px;
   }
+
+  // On phones the menu is hidden and slides in above the page when opened via the topbar
+  &.mobile {
+    width: 250px;
+    padding-top: 0;
+    z-index: 1100;
+    transform: translateX(-100%);
+    transition: transform 0.3s ease;
+
+    &.expanded {
+      transform: none;
+    }
+  }
+}
+
+.sidebar-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 1099;
+  background: color-mix(in srgb, black 40%, transparent);
 }
 
 :host-context(html.my-app-dark) {

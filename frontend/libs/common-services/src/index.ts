@@ -10,3 +10,5 @@ export * from './lib/plugins/plugin-registry.service';
 export * from './lib/portal.service';
 export * from './lib/theme-definition';
 export * from './lib/theme-definition.service';
+
+export * from './lib/viewport.service';

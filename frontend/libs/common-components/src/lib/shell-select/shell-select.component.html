@@ -1,0 +1,101 @@
+<div class="card flex flex-col flex-auto">
+  <p-toolbar class="mb-2">
+    <div class="p-toolbar-group-start">
+      <div class="text-xl">{{ 'VERWALTUNGSSCHALEN' | translate }}</div>
+    </div>
+
+    <div class="p-toolbar-group-end gap-2">
+      <p-select
+        [options]="availableRepositories()"
+        [(ngModel)]="selectedRepository"
+        appendTo="body"
+        (ngModelChange)="setInfrastructure(); loadFirstPage()"
+        optionLabel="name"
+      >
+      </p-select>
+    </div>
+  </p-toolbar>
+
+  <p-table
+    #dt
+    [value]="shells()"
+    [tableStyle]="{ 'min-width': '50rem' }"
+    [loading]="loading()"
+    responsiveLayout="scroll"
+    [rows]="10"
+    [paginator]="false"
+    [rowsPerPageOptions]="[5, 10, 25, 50]"
+    [showCurrentPageReport]="false"
+    [rowHover]="true"
+    dataKey="id"
+    [scrollable]="true"
+    scrollHeight="flex"
+    sortField="aenderungsDatum"
+    [sortOrder]="-1"
+  >
+    <ng-template #header let-columns>
+      <tr>
+        <th scope="col"></th>
+        <th scope="col">{{ 'ID' | translate }}</th>
+        <th scope="col">{{ 'ID_SHORT' | translate }}</th>
+        <th scope="col">{{ 'GLOBAL_ASSET_ID' | translate }}</th>
+        <th scope="col">{{ 'ART' | translate }}</th>
+      </tr>
+    </ng-template>
+    <ng-template pTemplate="body" let-shell let-columns="columns">
+      <tr>
+        <td>
+          <div class="flex flex-row items-center">
+            <p-button (onClick)="selectShell(shell)" label="{{ 'SELECT' | translate }}" size="small"></p-button>
+          </div>
+        </td>
+        <td>
+          {{ shell.id }}
+        </td>
+        <td>
+          {{ shell.idShort }}
+        </td>
+        <td>
+          {{ shell.globalAssetId }}
+        </td>
+        <td>
+          <p-tag value="{{ shell.assetKind | translate }}" [severity]="getAasTagSeverity(shell.assetKind)"></p-tag>
+        </td>
+      </tr>
+    </ng-template>
+    <ng-template pTemplate="emptymessage" let-columns>
+      <tr>
+        <td [attr.colspan]="8">
+          <p>{{ 'NO_DATA_FOUND' | translate }}</p>
+        </td>
+      </tr>
+    </ng-template>
+    <ng-template pTemplate="footer" let-columns>
+      <tr>
+        <td [attr.colspan]="8">
+          <div class="flex flex-row gap-2 justify-center">
+            <p-button
+              label="{{ 'FIRST' | translate }}"
+              icon="pi pi-angle-left"
+              (onClick)="loadFirstPage()"
+              [disabled]="firstPage()"
+            ></p-button>
+            <p-select
+              [options]="pageOptions"
+              [(ngModel)]="pageSize"
+              appendTo="body"
+              (ngModelChange)="loadFirstPage()"
+            ></p-select>
+            <p-button
+              label="{{ 'NEXT' | translate }}"
+              icon="pi pi-angle-right"
+              iconPos="right"
+              (onClick)="loadNextPage()"
+              [disabled]="cursor == null"
+            ></p-button>
+          </div>
+        </td>
+      </tr>
+    </ng-template>
+  </p-table>
+</div>

@@ -1,44 +1,58 @@
 @if (entity != null) {
-  @if (entity) {
-    <div class="flex flex-col gap-2 mb-4">
+  <div class="flex flex-col gap-2 mb-4">
+    <p-inputgroup>
+      <p-inputgroup-addon class="font-bold w-48">
+        <i class="fa-solid fa-cube mr-2"></i>
+        <lib-help-label tag="ENTITY_TYPE" [showLabel]="false"></lib-help-label>
+        {{ 'ENTITY_TYPE' | translate }}
+      </p-inputgroup-addon>
+      <input pInputText type="text" [value]="entityTypeString" readonly />
+    </p-inputgroup>
+
+    @if (entity.idShort) {
       <p-inputgroup>
         <p-inputgroup-addon class="font-bold w-48">
-          <i class="fa-solid fa-cube mr-2"></i>
-          <lib-help-label tag="ENTITY_TYPE" [showLabel]="false"></lib-help-label>
-          {{ 'ENTITY_TYPE' | translate }}
+          <i class="fa-solid fa-tag mr-2"></i>
+          <lib-help-label tag="ID_SHORT" [showLabel]="false"></lib-help-label>
+          {{ 'ID_SHORT' | translate }}
         </p-inputgroup-addon>
-        <input pInputText type="text" [value]="entityTypeString" readonly />
+        <input pInputText type="text" [value]="entity.idShort" readonly />
       </p-inputgroup>
+    }
 
-      @if (entity.idShort) {
-        <p-inputgroup>
-          <p-inputgroup-addon class="font-bold w-48">
-            <i class="fa-solid fa-tag mr-2"></i>
-            <lib-help-label tag="ID_SHORT" [showLabel]="false"></lib-help-label>
-            {{ 'ID_SHORT' | translate }}
-          </p-inputgroup-addon>
-          <input pInputText type="text" [value]="entity.idShort" readonly />
-        </p-inputgroup>
-      }
-    </div>
-  }
+    @if (entity.globalAssetId) {
+      <p-inputgroup>
+        <p-inputgroup-addon class="font-bold w-48">
+          <i class="fa-solid fa-globe mr-2"></i>
+          <lib-help-label tag="GLOBAL_ASSET_ID" [showLabel]="false"></lib-help-label>
+          {{ 'GLOBAL_ASSET_ID' | translate }}
+        </p-inputgroup-addon>
+        <input pInputText type="text" [value]="entity.globalAssetId" readonly />
+        @if (isSelfManaged) {
+          <aas-open-shell-button [globalAssetId]="entity.globalAssetId"></aas-open-shell-button>
+        }
+      </p-inputgroup>
+    }
+
+    @for (assetId of entity.specificAssetIds ?? []; track assetId) {
+      <p-inputgroup>
+        <p-inputgroup-addon class="font-bold w-48">
+          <i class="fa-solid fa-key mr-2"></i>
+          <lib-help-label tag="SPECIFIC_ASSET_ID" [showLabel]="false"></lib-help-label>
+          {{ assetId.name }}
+        </p-inputgroup-addon>
+        <input pInputText type="text" [value]="assetId.value" readonly />
+      </p-inputgroup>
+    }
+  </div>
+
   @if (entity.statements != null && entity.statements.length > 0) {
     <p-panel header="{{ 'STATEMENTS' | translate }}">
-      @for (item of entity.statements; track item) {
-        <div class="mb-5">
-          @if (getModelType(item) === 'Entity') {
-            <aas-entity-viewer [entity]="getItemAsEntity(item)" [idShort]="item.idShort"></aas-entity-viewer>
-          }
-          <div class="mb-2"></div>
-          @if (getModelType(item) === 'RelationshipElement') {
-            <aas-relationship-viewer-v3
-              [entity]="item"
-              [idShort]="item.idShort"
-              [aasId]="aasId"
-            ></aas-relationship-viewer-v3>
-          }
-        </div>
-      }
+      <aas-submodel-elements-list
+        [elements]="entity.statements"
+        [idShortPath]="idShortPath"
+        [submodelId]="submodelId"
+      ></aas-submodel-elements-list>
     </p-panel>
   }
 }

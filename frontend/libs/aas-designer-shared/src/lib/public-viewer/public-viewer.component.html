@@ -1,12 +1,10 @@
-<!-- <div class="layout-wrapper flex flex-col aas-flex-auto-relative nopadding">
-<div class="layout-content-wrapper aas-flex-auto-relative">
-  <div class=" overflow-auto flex flex-col aas-flex-auto-relative"> -->
-<div class="flex flex-col h-full gap-2">
+<!-- The page grows with the viewer and scrolls as a whole, so nothing of the viewer is cut off -->
+<div class="public-viewer-page">
   <p-card class="w-full">
-    <div class="flex flex-row justify-between items-center">
-      <img class="logo ml-5" [src]="logoPath" alt="aas-logo" height="40" />
-      <div class="mr-5">
-        <div class="text-2xl">{{ 'PUBLIC_VIEWER_TITLE' | translate }}</div>
+    <div class="flex flex-row justify-between items-center gap-4">
+      <img class="logo" [src]="logoPath" alt="aas-logo" height="40" />
+      <div class="text-right min-w-0">
+        <div class="text-lg md:text-2xl">{{ 'PUBLIC_VIEWER_TITLE' | translate }}</div>
         <div class="text-sm">&copy; MetaLevel Software AG 2025</div>
       </div>
     </div>
@@ -14,52 +12,61 @@
 
   @if (passwordRequired && !isLoaded) {
     <p-card header="{{ 'PASSWORD_REQUIRED_VIEWER' | translate }}" class="w-full">
-      <div class="flex flex-col">
+      <div class="flex flex-col gap-4">
         <div>
           {{ 'PASSWORD_REQUIRED_VIEWER_EXPL' | translate }}
         </div>
-        <div class="flex flex-row mt-5 mb-5">
-          <div class="w-24rem flex flex-col gap-2">
-            <div class="flex w-full">
-              <p-password
-                [(ngModel)]="password"
-                name="password"
-                class="w-full"
-                class="w-full"
-                inputStyleClass="w-full"
-                [toggleMask]="true"
-                [feedback]="false"
-                (keydown.enter)="login()"
-              />
-            </div>
-            <p-button label="{{ 'SHOW' | translate }}" (onClick)="login()"></p-button>
-          </div>
-          <div class="w-3"></div>
+        <div class="flex flex-col gap-2 w-full max-w-96">
+          <p-password
+            [(ngModel)]="password"
+            name="password"
+            class="w-full"
+            inputStyleClass="w-full"
+            [toggleMask]="true"
+            [feedback]="false"
+            (keydown.enter)="login()"
+          />
+          <p-button label="{{ 'SHOW' | translate }}" (onClick)="login()"></p-button>
         </div>
       </div>
     </p-card>
   }
 
-  <div>
-    @switch (resultCode) {
-      @case ('NOTFOUND') {
-        {{ 'SHARED_LINK_NOTFOUND' | translate }}
-        <p-card header="{{ 'SHARED_LINK_NOTFOUND' | translate }}" class="w-full">
-          {{ 'SHARED_LINK_NOTFOUND_EXPL' | translate }}
-        </p-card>
-      }
-      @case ('EXPIRED') {
-        <p-card header="{{ 'SHARED_LINK_EXPIRED' | translate }}" class="w-full">
-          {{ 'SHARED_LINK_EXPIRED_EXPL' | translate }}
-        </p-card>
-      }
-      @case ('WRONG_PASSWORD') {
-        <p-card header="{{ 'WRONG_PASSWORD' | translate }}" class="w-full">
-          {{ 'WRONG_PASSWORD_EXPL' | translate }}
-        </p-card>
-      }
+  @switch (resultCode) {
+    @case ('NOTFOUND') {
+      <p-card header="{{ 'SHARED_LINK_NOTFOUND' | translate }}" class="w-full">
+        {{ 'SHARED_LINK_NOTFOUND_EXPL' | translate }}
+      </p-card>
     }
-  </div>
+    @case ('EXPIRED') {
+      <p-card header="{{ 'SHARED_LINK_EXPIRED' | translate }}" class="w-full">
+        {{ 'SHARED_LINK_EXPIRED_EXPL' | translate }}
+      </p-card>
+    }
+    @case ('WRONG_PASSWORD') {
+      <p-card header="{{ 'WRONG_PASSWORD' | translate }}" class="w-full">
+        {{ 'WRONG_PASSWORD_EXPL' | translate }}
+      </p-card>
+    }
+  }
+
+  @if (loading) {
+    <div class="grid grid-cols-1 xl:grid-cols-4 gap-2">
+      <div class="flex flex-col gap-2">
+        <p-card>
+          <p-skeleton width="100%" height="20rem"></p-skeleton>
+        </p-card>
+        <p-card>
+          <p-skeleton width="100%" height="5rem"></p-skeleton>
+        </p-card>
+      </div>
+      <div class="xl:col-span-3">
+        <p-card>
+          <p-skeleton width="100%" height="10rem"></p-skeleton>
+        </p-card>
+      </div>
+    </div>
+  }
 
   @if (isLoaded) {
     <div class="viewer-frame">
@@ -69,30 +76,8 @@
       ></aas-aas-viewer-standalone>
     </div>
   }
-</div>
 
-@if (loading) {
-  <div class="flex flex-col gap-2">
-    <div class="flex flex-row gap-2">
-      <div class="flex flex-col w-3">
-        <p-card>
-          <p-skeleton width="100%" height="20rem" class="ml-2"></p-skeleton>
-        </p-card>
-        <p-card>
-          <p-skeleton width="100%" height="5rem" class="ml-2"></p-skeleton>
-        </p-card>
-      </div>
-      <div class="w-9">
-        <p-card>
-          <p-skeleton width="100%" height="10rem" class="ml-2"></p-skeleton>
-        </p-card>
-      </div>
-    </div>
-  </div>
-}
-<!-- </div> -->
-<p-card class="w-full flex flex-col m-0 p-0 h-5rem footer-nopadding">
-  <aas-disclaimer [withAasSuite]="true"></aas-disclaimer>
-</p-card>
-<!-- </div>
-</div> -->
+  <footer class="public-viewer-footer">
+    <aas-disclaimer [withAasSuite]="true" [compact]="true"></aas-disclaimer>
+  </footer>
+</div>

@@ -1,0 +1,13 @@
+@if (canOpen()) {
+  <p-inputgroup-addon class="w-auto">
+    <p-button
+      icon="pi pi-arrow-right"
+      [text]="true"
+      [rounded]="true"
+      (onClick)="open()"
+      pTooltip="{{ 'OPEN_ASSOCIATED_AAS' | translate }}"
+      tooltipPosition="left"
+      [ariaLabel]="'OPEN_ASSOCIATED_AAS' | translate"
+    ></p-button>
+  </p-inputgroup-addon>
+}

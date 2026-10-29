@@ -144,6 +144,12 @@ html.my-app-dark > body {
   height: 55px !important;
 }
 
+@media (max-width: 767.98px) {
+  .logo {
+    height: 36px !important;
+  }
+}
+
 .topbar-logo-badge {
   display: inline-flex;
   align-items: center;
@@ -173,6 +179,12 @@ html.my-app-dark > body {
   -webkit-backdrop-filter: blur(14px);
   border-radius: var(--aas-radius-lg);
   padding: 0.5rem 1rem;
+}
+
+@media (max-width: 767.98px) {
+  .app-topbar-blur {
+    padding: 0.25rem 0.5rem;
+  }
 }
 
 .aas-flex-auto-relative {

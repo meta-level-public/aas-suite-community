@@ -38,6 +38,14 @@
     }
   }
 
+  // On phones the menu is an overlay, so topbar and content use the full width
+  @media (max-width: 767.98px) {
+    lib-app-topbar.logged-in,
+    .layout-content.logged-in {
+      margin-left: 0 !important;
+    }
+  }
+
   .layout-content-shell {
     display: flex;
     flex: 1 1 auto;

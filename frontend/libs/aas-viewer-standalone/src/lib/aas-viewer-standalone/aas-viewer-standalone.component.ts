@@ -1,9 +1,12 @@
 import {
+  afterNextRender,
   Component,
   computed,
   effect,
+  ElementRef,
   HostListener,
   inject,
+  Injector,
   input,
   Input,
   OnChanges,
@@ -11,6 +14,7 @@ import {
   Optional,
   signal,
   untracked,
+  viewChild,
 } from '@angular/core';
 import { DomSanitizer } from '@angular/platform-browser';
 
@@ -30,13 +34,14 @@ import { Card } from 'primeng/card';
 import { DialogService, DynamicDialogConfig, DynamicDialogRef } from 'primeng/dynamicdialog';
 import { ScrollTop } from 'primeng/scrolltop';
 import { SelectButton } from 'primeng/selectbutton';
-import { ProgressBar } from 'primeng/progressbar';
 import { Tag } from 'primeng/tag';
 import { Tooltip } from 'primeng/tooltip';
 import { lastValueFrom } from 'rxjs';
 import { AasMetadataViewerComponent } from '../aas-metadata-viewer/aas-metadata-viewer.component';
 import { AasModelViewerComponent } from '../aas-model-viewer/aas-model-viewer.component';
 import { SearchInAasDialogComponent } from '../search/search-in-aas-dialog.component';
+import { ShellNavigator } from '../shell-navigation';
+import { ViewerNavigationComponent } from '../viewer-navigation/viewer-navigation.component';
 import { ViewerStoreService } from '../viewer-store.service';
 
 @Component({
@@ -49,7 +54,6 @@ import { ViewerStoreService } from '../viewer-store.service';
     SelectButton,
     FormsModule,
     Card,
-    ProgressBar,
     Tag,
     AasModelViewerComponent,
     AasMetadataViewerComponent,
@@ -57,6 +61,7 @@ import { ViewerStoreService } from '../viewer-store.service';
     AsyncPipe,
     TranslateModule,
     Tooltip,
+    ViewerNavigationComponent,
   ],
 })
 export class AasViewerStandaloneComponent implements OnChanges, OnInit {
@@ -65,6 +70,7 @@ export class AasViewerStandaloneComponent implements OnChanges, OnInit {
   @Input({ required: true }) viewerDescriptor: ViewerDescriptor | null = null;
 
   apiKey = input('');
+  shellNavigator = input<ShellNavigator | null>(null);
 
   viewMetadata = signal(false);
   viewSubmodels = signal(true);
@@ -89,6 +95,9 @@ export class AasViewerStandaloneComponent implements OnChanges, OnInit {
   }
 
   viewerStore = inject(ViewerStoreService);
+  private injector = inject(Injector);
+  private toolbar = viewChild<ElementRef<HTMLElement>>('toolbar');
+  private contentColumn = viewChild<ElementRef<HTMLElement>>('contentColumn');
   thumbnailLoadError = signal(false);
 
   ngOnInit(): void {
@@ -102,6 +111,7 @@ export class AasViewerStandaloneComponent implements OnChanges, OnInit {
   async init() {
     this.viewerStore.apiKey.set(this.apiKey());
     this.viewerStore.viewerDescriptor.set(this.viewerDescriptor);
+    this.viewerStore.shellNavigator.set(this.shellNavigator());
     this.thumbnailLoadError.set(false);
   }
 
@@ -273,6 +283,39 @@ export class AasViewerStandaloneComponent implements OnChanges, OnInit {
   onSubmodelClick(submodelId: string) {
     this.userSelectedSubmodel = true;
     this.selectSubmodel(submodelId);
+    this.revealContent();
+  }
+
+  onMetadataClick() {
+    this.selectMetadata();
+    this.revealContent();
+  }
+
+  // When the selection is made further down the page, the content column may be scrolled out of view;
+  // bring its start back below the sticky toolbar.
+  private revealContent() {
+    afterNextRender(
+      () => {
+        const content = this.contentColumn()?.nativeElement;
+        if (content == null) return;
+        const toolbarBottom = this.toolbar()?.nativeElement.getBoundingClientRect().bottom ?? 0;
+        if (content.getBoundingClientRect().top < toolbarBottom) {
+          content.scrollIntoView?.({ block: 'start', behavior: 'smooth' });
+        }
+      },
+      { injector: this.injector },
+    );
+  }
+
+  viewModeIcon(value: string) {
+    switch (value) {
+      case 'plain':
+        return 'pi pi-list';
+      case 'json':
+        return 'pi pi-code';
+      default:
+        return 'pi pi-th-large';
+    }
   }
 
   setSelectedViewMode(event: { label: string; value: string }[]) {

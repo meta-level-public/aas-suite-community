@@ -1,5 +1,6 @@
 import { Clipboard } from '@angular/cdk/clipboard';
 
+import { QrCodeExportComponent } from '@aas/common-components';
 import { DateProxyPipe } from '@aas/common-pipes';
 import { AasConfirmationService, NotificationService } from '@aas/common-services';
 import { MySharedLink, SharedLinksClient } from '@aas/webapi-client';
@@ -7,24 +8,36 @@ import { Component, inject, OnInit, signal } from '@angular/core';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { MenuItem } from 'primeng/api';
 import { ButtonModule } from 'primeng/button';
+import { DialogModule } from 'primeng/dialog';
 import { MenuModule } from 'primeng/menu';
 import { TableModule } from 'primeng/table';
 import { TagModule } from 'primeng/tag';
 import { ToolbarModule } from 'primeng/toolbar';
 import { lastValueFrom } from 'rxjs';
-import { SharedLink } from '@aas-designer-model';
 import { MySharedLinkService } from './my-shared-link.service';
 
 @Component({
   selector: 'aas-my-shared-links',
   templateUrl: './my-shared-links.component.html',
   styleUrls: ['../../../host.scss'],
-  imports: [TranslateModule, ToolbarModule, TableModule, ButtonModule, MenuModule, TagModule, DateProxyPipe],
+  imports: [
+    TranslateModule,
+    ToolbarModule,
+    TableModule,
+    ButtonModule,
+    MenuModule,
+    TagModule,
+    DateProxyPipe,
+    DialogModule,
+    QrCodeExportComponent,
+  ],
 })
 export class MySharedLinksComponent implements OnInit {
   mySharedLinks = signal<MySharedLink[]>([]);
   loading = signal(false);
   menuItems: MenuItem[] = [];
+  /** Link whose QR code is shown, null while the QR code dialog is closed */
+  qrCodeLink = signal<MySharedLink | null>(null);
 
   sharedLinksClient = inject(SharedLinksClient);
 
@@ -49,7 +62,7 @@ export class MySharedLinksComponent implements OnInit {
     }
   }
 
-  onShowActions(linkItem: SharedLink) {
+  onShowActions(linkItem: MySharedLink) {
     this.menuItems = [
       {
         label: this.translate.instant('COPY'),
@@ -59,6 +72,11 @@ export class MySharedLinksComponent implements OnInit {
             this.copyLinkToClipboard(linkItem);
           }
         },
+      },
+      {
+        label: this.translate.instant('QR_CODE'),
+        icon: 'pi pi-qrcode',
+        command: () => this.qrCodeLink.set(linkItem),
       },
       {
         label: this.translate.instant('DELETE'),
@@ -87,8 +105,12 @@ export class MySharedLinksComponent implements OnInit {
     }
   }
 
-  copyLinkToClipboard(item: SharedLink) {
-    this.clipboard.copy(item.generatedLink);
+  qrCodeFileName(link: MySharedLink) {
+    return `shared-link_${link.aasIdentifier ?? link.id}`;
+  }
+
+  copyLinkToClipboard(item: MySharedLink) {
+    this.clipboard.copy(item.generatedLink ?? '');
     this.notificationService.showMessageAlways('LINK_COPIED', 'SUCCESS', 'success', false);
   }
 }

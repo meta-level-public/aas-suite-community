@@ -26,6 +26,10 @@
             </p-inputgroup-addon>
           } @else {
             <input pInputText type="text" [value]="ref.value" [title]="ref.value" readonly />
+            @let shellAasId = getShellAasId($index);
+            @if (shellAasId) {
+              <aas-open-shell-button [aasId]="shellAasId"></aas-open-shell-button>
+            }
           }
         </p-inputgroup>
       }

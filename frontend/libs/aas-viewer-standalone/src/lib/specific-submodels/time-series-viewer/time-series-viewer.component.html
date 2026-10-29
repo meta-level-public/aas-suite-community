@@ -31,23 +31,23 @@
               [options]="segmentUrls"
               [(ngModel)]="selectedSegmentUrl"
               placeholder="{{ 'SELECT_SEGMENT' | translate }}"
-              class="w-full"
+              class="w-full min-w-0"
               optionLabel="label"
             ></p-select>
           </div>
-          <div class="flex flex-row w-full gap-2 items-center">
-            <div class="flex flex-row w-1/2 gap-2 items-center">
+          <div class="flex flex-col sm:flex-row w-full gap-2 items-center">
+            <div class="flex flex-row w-full sm:w-1/2 min-w-0 gap-2 items-center">
               <lib-help-label tag="TIME_POINT" class="w-16rem"></lib-help-label>
               <p-select
                 [options]="dataPoints"
                 [(ngModel)]="selectedTimePoint"
                 placeholder="{{ 'SELECT_TIME_POINT' | translate }}"
-                class="w-full"
+                class="w-full min-w-0"
                 (onChange)="filterDataPoints()"
                 optionLabel="idShort"
               ></p-select>
             </div>
-            <div class="flex flex-row w-1/2 gap-2 items-center">
+            <div class="flex flex-row w-full sm:w-1/2 min-w-0 gap-2 items-center">
               <lib-help-label tag="DATA_POINT" class="w-16rem"></lib-help-label>
               <p-multiSelect
                 [options]="filteredDataPoints"
@@ -58,14 +58,14 @@
               ></p-multiSelect>
             </div>
           </div>
-          <div class="flex flex-row w-full gap-2">
-            <div class="flex flex-row w-1/2 gap-2 items-center">
+          <div class="flex flex-col sm:flex-row w-full gap-2">
+            <div class="flex flex-row w-full sm:w-1/2 min-w-0 gap-2 items-center">
               <lib-help-label tag="API_TOKEN" class="w-16rem"></lib-help-label>
-              <input pInputText [(ngModel)]="token" class="w-full" />
+              <input pInputText [(ngModel)]="token" class="w-full min-w-0" />
             </div>
-            <div class="flex flex-row w-1/2 gap-2 items-center">
+            <div class="flex flex-row w-full sm:w-1/2 min-w-0 gap-2 items-center">
               <lib-help-label tag="HTTP_METHOD" class="w-16rem"></lib-help-label>
-              <p-select [options]="['HTTP-GET', 'HTTP-POST']" [(ngModel)]="method" class="w-full"></p-select>
+              <p-select [options]="['HTTP-GET', 'HTTP-POST']" [(ngModel)]="method" class="w-full min-w-0"></p-select>
             </div>
           </div>
         }
@@ -76,7 +76,7 @@
               [options]="internalSegments"
               [(ngModel)]="selectedInternalSegment"
               placeholder="{{ 'SELECT_SEGMENT' | translate }}"
-              class="w-full"
+              class="w-full min-w-0"
               optionLabel="label"
             ></p-select>
           </div>
@@ -109,7 +109,7 @@
               [options]="externalSegments"
               [(ngModel)]="selectedExternalSegment"
               placeholder="{{ 'SELECT_SEGMENT' | translate }}"
-              class="w-full"
+              class="w-full min-w-0"
               optionLabel="label"
             ></p-select>
           </div>
@@ -120,7 +120,7 @@
                 [options]="dataPoints"
                 [(ngModel)]="selectedTimePoint"
                 placeholder="{{ 'SELECT_TIME_POINT' | translate }}"
-                class="w-full"
+                class="w-full min-w-0"
                 (onChange)="filterDataPoints()"
                 optionLabel="idShort"
               ></p-select>
@@ -171,7 +171,7 @@
             [options]="['line', 'doughnut', 'pie', 'polarArea', 'radar', 'bar', 'scatter', 'bubble']"
             [(ngModel)]="chartType"
             (onChange)="drawChart()"
-            class="w-full"
+            class="w-full min-w-0"
           ></p-select>
         </div>
         <div class="flex flex-row gap-2 items-center">

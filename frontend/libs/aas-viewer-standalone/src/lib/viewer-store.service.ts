@@ -5,6 +5,7 @@ import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { computed, effect, inject, Injectable, signal } from '@angular/core';
 import { lastValueFrom } from 'rxjs';
 import type { SearchHit } from './search/search.types';
+import { ShellNavigator } from './shell-navigation';
 import { LoadedSubmodel, SubmodelLoadState, submodelLabelFromUrl } from './submodel-load-state';
 
 @Injectable({
@@ -16,6 +17,8 @@ export class ViewerStoreService {
   apiKey = signal<string | null>('');
 
   viewerDescriptor = signal<ViewerDescriptor | null>(null);
+  // Set by the host to allow opening referenced AAS (e.g. from entities or ReferenceElements)
+  shellNavigator = signal<ShellNavigator | null>(null);
   isLoadingAas = signal(false);
   reloadTrigger = signal(0);
   highlightedIdShortPath = signal<string>('');

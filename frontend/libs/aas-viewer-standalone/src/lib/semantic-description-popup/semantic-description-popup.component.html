@@ -2,14 +2,14 @@
   <p-button icon="pi pi-question-circle" text="true" (onClick)="toggleOverlay(op, $event)"></p-button>
 }
 
-<p-popover #op class="w-64rem">
+<p-popover #op styleClass="w-[48rem] max-w-[calc(100dvw-2rem)]">
   @let conceptDescription = this.conceptDescription() | async;
   @if (conceptDescription) {
-    <p-table [value]="[' ']" stripedRows size="small" class="w-1/2">
+    <p-table [value]="[' ']" stripedRows size="small" class="w-full">
       <ng-template pTemplate="body">
         <tr>
           <td><lib-help-label class="w-14rem" tag="ID"></lib-help-label></td>
-          <td class="font-bold">
+          <td class="font-bold break-all">
             {{ semanticId() }}
           </td>
         </tr>

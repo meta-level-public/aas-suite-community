@@ -1,0 +1,53 @@
+.viewer-chips {
+  display: flex;
+  gap: 0.5rem;
+  overflow-x: auto;
+  padding: 0.25rem 0 0.5rem;
+  scrollbar-width: thin;
+}
+
+.viewer-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  flex-shrink: 0;
+  padding: 0.45rem 0.85rem;
+  border: 1px solid var(--p-content-border-color);
+  border-radius: var(--aas-radius-pill);
+  background: var(--p-content-background);
+  color: var(--p-text-color);
+  font: inherit;
+  font-size: var(--aas-text-sm);
+  white-space: nowrap;
+  cursor: pointer;
+}
+
+.viewer-chip i {
+  color: var(--p-primary-color);
+}
+
+.viewer-chip:hover {
+  border-color: var(--p-primary-color);
+}
+
+.viewer-chip:focus-visible {
+  outline: 2px solid var(--p-primary-color);
+  outline-offset: 2px;
+}
+
+.viewer-chip.active {
+  background: var(--p-primary-color);
+  border-color: var(--p-primary-color);
+  color: var(--p-primary-contrast-color);
+  font-weight: 600;
+}
+
+.viewer-chip.active i {
+  color: var(--p-primary-contrast-color);
+}
+
+.viewer-chip-disabled,
+.viewer-chip-failed {
+  cursor: default;
+  color: var(--p-text-muted-color);
+}

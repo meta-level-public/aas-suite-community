@@ -53,7 +53,7 @@
       ></aas-v3-file-viewer>
     }
     @case ('Entity') {
-      <aas-entity-viewer [entity]="rowData"></aas-entity-viewer>
+      <aas-entity-viewer [entity]="rowData" [idShortPath]="idShortPath" [submodelId]="submodelId"></aas-entity-viewer>
     }
     @case ('Operation') {
       <aas-operation-viewer

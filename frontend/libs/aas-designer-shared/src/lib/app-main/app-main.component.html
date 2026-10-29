@@ -18,8 +18,9 @@
       [class.logged-out]="!portalService.loggedIn"
       [class.sidebar-expanded]="portalService.loggedIn && sidebarExpanded()"
       [class.sidebar-collapsed]="portalService.loggedIn && !sidebarExpanded()"
+      (menuToggle)="appMenu.toggleSidebar()"
     ></lib-app-topbar>
-    <app-menu (sidebarExpandedChange)="onSidebarExpandedChange($event)"></app-menu>
+    <app-menu #appMenu (sidebarExpandedChange)="onSidebarExpandedChange($event)"></app-menu>
 
     <div
       class="layout-content flex flex-col aas-flex-auto-relative min-h-0"

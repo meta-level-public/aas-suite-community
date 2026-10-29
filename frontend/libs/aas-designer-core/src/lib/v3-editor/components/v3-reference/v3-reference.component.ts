@@ -1,17 +1,18 @@
 import * as aas from '@aas-core-works/aas-core3.1-typescript';
 import { VerificationError } from '@aas-core-works/aas-core3.1-typescript/verification';
-import { HelpLabelComponent } from '@aas/common-components';
+import { HelpLabelComponent, openShellSelectDialog } from '@aas/common-components';
 import { NotificationService } from '@aas/common-services';
 import { InstanceHelper } from '@aas/helpers';
 import { ShellResult } from '@aas/model';
 import { NgClass } from '@angular/common';
-import { Component, Input, OnChanges, SimpleChanges } from '@angular/core';
+import { Component, inject, Input, OnChanges, SimpleChanges } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { cloneDeep } from 'lodash-es';
 import { PrimeTemplate, TreeNode } from 'primeng/api';
 import { Button } from 'primeng/button';
 import { Dialog } from 'primeng/dialog';
+import { DialogService } from 'primeng/dynamicdialog';
 import { InputText } from 'primeng/inputtext';
 import { Select } from 'primeng/select';
 import { TableModule } from 'primeng/table';
@@ -144,6 +145,7 @@ export class V3ReferenceComponent extends V3ComponentBase implements OnChanges {
   @Input() typeEditable: boolean = true;
   info = Info;
   refType = aas.types.ReferenceTypes;
+  keyTypeEnum = aas.types.KeyTypes;
 
   @Input() keyTypeOptions: { label: string; value: number }[] = this.keyTypes;
   @Input({ required: true }) shellResult: ShellResult | undefined | null;
@@ -185,6 +187,8 @@ export class V3ReferenceComponent extends V3ComponentBase implements OnChanges {
   showSelection: boolean = false;
   showUrlDialog: boolean = false;
   externalUrlInput: string = '';
+
+  private dialogService = inject(DialogService);
 
   constructor(
     private treeService: V3TreeService,
@@ -443,6 +447,28 @@ export class V3ReferenceComponent extends V3ComponentBase implements OnChanges {
 
     this.selectedCandidate = null;
     this.showSelection = false;
+  }
+
+  // Sets the reference to a ModelReference pointing to an AAS selected from the system
+  async selectShellForModelReference() {
+    const shell = await this.selectShellFromSystem();
+    if (shell?.aasIdentifier == null || this.reference == null) return;
+
+    this.reference.keys = [new aas.types.Key(aas.types.KeyTypes.AssetAdministrationShell, shell.aasIdentifier)];
+    this.treeService.registerFieldUndoStep();
+  }
+
+  // Uses the id of an AAS selected from the system as value of a GlobalReference key
+  async selectShellForKey(key: aas.types.Key) {
+    const shell = await this.selectShellFromSystem();
+    if (shell?.aasIdentifier == null) return;
+
+    key.value = shell.aasIdentifier;
+    this.treeService.registerFieldUndoStep();
+  }
+
+  private selectShellFromSystem() {
+    return openShellSelectDialog(this.dialogService, this.translateService.instant('SELECT_SHELL'));
   }
 
   removeKey(index: number) {
