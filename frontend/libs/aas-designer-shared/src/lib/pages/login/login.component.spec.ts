@@ -12,9 +12,13 @@ describe('SharedLoginPageComponent', () => {
   let fixture: ComponentFixture<SharedLoginPageComponent>;
   let component: SharedLoginPageComponent;
   const getNews = vi.fn();
+  const portalService = { user: null as unknown, isPublicViewerSession: false, prepareLogin: vi.fn() };
+  const navigateAuthenticated = vi.fn().mockResolvedValue(undefined);
 
   beforeEach(async () => {
     getNews.mockResolvedValue([]);
+    portalService.user = null;
+    portalService.isPublicViewerSession = false;
 
     await TestBed.configureTestingModule({
       imports: [SharedLoginPageComponent],
@@ -39,12 +43,7 @@ describe('SharedLoginPageComponent', () => {
             },
           },
         },
-        {
-          provide: PortalService,
-          useValue: {
-            user: null,
-          },
-        },
+        { provide: PortalService, useValue: portalService },
         {
           provide: AppConfigService,
           useValue: {
@@ -69,12 +68,31 @@ describe('SharedLoginPageComponent', () => {
       .compileComponents();
 
     fixture = TestBed.createComponent(SharedLoginPageComponent);
-    fixture.componentRef.setInput('navigateAuthenticated', vi.fn().mockResolvedValue(undefined));
+    fixture.componentRef.setInput('navigateAuthenticated', () => navigateAuthenticated());
     component = fixture.componentInstance;
   });
 
   afterEach(() => {
     vi.clearAllMocks();
+  });
+
+  it('forwards signed in designer users', async () => {
+    portalService.user = { id: 3 };
+
+    await component.ngOnInit();
+
+    expect(navigateAuthenticated).toHaveBeenCalledTimes(1);
+    expect(portalService.prepareLogin).not.toHaveBeenCalled();
+  });
+
+  it('ends a public viewer session and shows the login instead of forwarding', async () => {
+    portalService.user = { id: -1 };
+    portalService.isPublicViewerSession = true;
+
+    await component.ngOnInit();
+
+    expect(portalService.prepareLogin).toHaveBeenCalledTimes(1);
+    expect(navigateAuthenticated).not.toHaveBeenCalled();
   });
 
   it('shows the newest public news first after loading', async () => {

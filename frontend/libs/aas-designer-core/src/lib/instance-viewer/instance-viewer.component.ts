@@ -12,6 +12,7 @@ import { InputGroupAddonModule } from 'primeng/inputgroupaddon';
 import { InputTextModule } from 'primeng/inputtext';
 import { ToolbarModule } from 'primeng/toolbar';
 import { lastValueFrom } from 'rxjs';
+import { DesignerShellNavigationService } from '../aasx-view/designer-shell-navigation.service';
 
 @Component({
   selector: 'aas-instance-viewer',
@@ -36,6 +37,8 @@ export class InstanceViewerComponent {
   http = inject(HttpClient);
   translate = inject(TranslateService);
   viewerClient = inject(AasViewerClient);
+  // Opens AAS referenced in the viewed AAS in the designer viewer
+  shellNavigator = inject(DesignerShellNavigationService).navigator;
 
   async loadData() {
     let inputUrl = this.inputUrl();

@@ -61,6 +61,14 @@ Unter 1280 px Breite zeigt der Viewer statt der Seitenleiste einen kompakten
 Kopf (Vorschaubild, idShort, Typ, Globale Asset-ID) und eine fixierte,
 horizontal scrollbare Leiste zum Wechsel zwischen AAS-Details und Submodellen.
 
+## Dokumente In Der Handover Documentation
+
+Der Viewer zeigt neben Bildern, PDF, XML, JSON und CSV auch HTML-Dokumente
+an. HTML wird nur in einem abgeschotteten Frame (`sandbox`) ohne Skripte,
+Formulare und Navigation dargestellt; "In neuem Tab oeffnen" wird fuer HTML
+deshalb nicht angeboten. Ist kein Vorschaubild hinterlegt, nutzt die
+Dokumentkarte die erste darstellbare Datei des Dokuments als Vorschau.
+
 ## QR-Codes Fuer Geteilte Links
 
 Unter "Mein Bereich" > "Geteilte Links" bietet das Aktionsmenue eines Links

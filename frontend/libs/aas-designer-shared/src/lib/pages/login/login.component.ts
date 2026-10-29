@@ -67,7 +67,10 @@ export class SharedLoginPageComponent implements OnInit {
   canNavigateForward = computed(() => this.currentNewsIndex() < this.newsItems().length - 1);
 
   async ngOnInit() {
-    if (this.portalService.user != null) {
+    // After the public viewer the browser still holds its anonymous session; it must not hide the login
+    if (this.portalService.isPublicViewerSession) {
+      this.portalService.prepareLogin();
+    } else if (this.portalService.user != null) {
       await this.navigateAuthenticated()();
       return;
     }

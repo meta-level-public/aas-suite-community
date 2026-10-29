@@ -4,7 +4,9 @@ import { provideHttpClientTesting } from '@angular/common/http/testing';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideNoopAnimations } from '@angular/platform-browser/animations';
 import { TranslateModule } from '@ngx-translate/core';
+import { DynamicDialogConfig, DynamicDialogRef } from 'primeng/dynamicdialog';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import { ViewerStoreService } from '../viewer-store.service';
 import { AasViewerStandaloneComponent } from './aas-viewer-standalone.component';
 
 function rect(top: number, bottom: number) {
@@ -66,5 +68,47 @@ describe('AasViewerStandaloneComponent content reveal', () => {
     fixture.detectChanges();
 
     expect(scrollIntoView).not.toHaveBeenCalled();
+  });
+});
+
+describe('AasViewerStandaloneComponent as dialog', () => {
+  const hostNavigator = vi.fn();
+  const dialogRef = { close: vi.fn() };
+  let viewerStore: ViewerStoreService;
+
+  beforeEach(() => {
+    hostNavigator.mockClear();
+    dialogRef.close.mockClear();
+    TestBed.configureTestingModule({
+      imports: [AasViewerStandaloneComponent, TranslateModule.forRoot()],
+      providers: [
+        provideHttpClient(),
+        provideHttpClientTesting(),
+        provideNoopAnimations(),
+        { provide: NotificationService, useValue: { showMessageAlways: vi.fn() } },
+        { provide: DynamicDialogConfig, useValue: { data: { viewerDescriptor: null } } },
+        { provide: DynamicDialogRef, useValue: dialogRef },
+      ],
+    });
+    // the page behind the dialog offers navigation
+    viewerStore = TestBed.inject(ViewerStoreService);
+    viewerStore.shellNavigator.set(hostNavigator);
+  });
+
+  it('closes the dialog and navigates with the navigator of the page behind', async () => {
+    TestBed.createComponent(AasViewerStandaloneComponent);
+
+    await viewerStore.shellNavigator()?.({ aasId: 'urn:test:aas:schaukel' });
+
+    expect(dialogRef.close).toHaveBeenCalledTimes(1);
+    expect(hostNavigator).toHaveBeenCalledWith({ aasId: 'urn:test:aas:schaukel' });
+  });
+
+  it('gives the navigator back to the page when the dialog is closed', () => {
+    const fixture = TestBed.createComponent(AasViewerStandaloneComponent);
+
+    fixture.destroy();
+
+    expect(viewerStore.shellNavigator()).toBe(hostNavigator);
   });
 });

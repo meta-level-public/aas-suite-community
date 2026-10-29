@@ -34,7 +34,8 @@
 </div>
 <div class="flex flex-col flex-auto w-full min-h-0">
   <div class="flex-auto min-h-0 relative">
-    <div class="absolute inset-0 overflow-auto viewer-content-area rounded-lg p-2 md:p-4">
+    <!-- No top padding: the sticky viewer toolbar would otherwise stop below it and content would show above it -->
+    <div class="absolute inset-0 overflow-auto viewer-content-area rounded-lg p-2 md:p-4 pt-0 md:pt-0">
       <aas-aas-viewer-standalone
         [currentLanguage]="languageService.userLanguage"
         [viewerDescriptor]="descriptor()"

@@ -3,7 +3,7 @@ import { FilenameHelper } from '@aas/helpers';
 import { NgClass } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
 import { Component, inject, Input, OnChanges, OnDestroy, signal } from '@angular/core';
-import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
+import { DomSanitizer, SafeHtml, SafeResourceUrl } from '@angular/platform-browser';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { MarkdownComponent } from 'ngx-markdown';
 import { Accordion, AccordionContent, AccordionHeader, AccordionPanel } from 'primeng/accordion';
@@ -18,7 +18,7 @@ import { ViewerStoreService } from '../../viewer-store.service';
 import { DocumentClassificationsComponent } from './document-classifications/document-classifications.component';
 import { DocumentIdentificationComponent } from './document-identification/document-identification.component';
 import { DocumentVersionsComponent } from './document-versions/document-versions.component';
-import { HandoverDocumentationService, HandoverFileGroup } from './handover-documentation.service';
+import { HandoverDocumentationService, HandoverFileGroup, isHtmlFile } from './handover-documentation.service';
 import { HandoverStructureMode } from './structure-mode';
 
 @Component({
@@ -69,8 +69,10 @@ export class HandoverDocumentationViewerV2Component implements OnChanges, OnDest
     | {
         name: string;
         url: string;
-        type: 'image' | 'pdf' | 'xml' | 'json' | 'csv';
+        type: 'image' | 'pdf' | 'xml' | 'json' | 'csv' | 'html';
         safeUrl?: SafeResourceUrl;
+        /** HTML documents are only shown in a frame with sandbox="" (no scripts, no access to the application) */
+        htmlContent?: SafeHtml;
         idPath?: string;
         isExternal?: boolean;
         originalValue?: string;
@@ -191,7 +193,7 @@ export class HandoverDocumentationViewerV2Component implements OnChanges, OnDest
     const contentType = `${file.contentType ?? ''}`.trim().toLowerCase();
     if (FilenameHelper.isImageContentType(contentType) || contentType.includes('pdf')) return true;
     const val = file.value.toLowerCase();
-    return FilenameHelper.isImage(val) || /(\.pdf|\.xml|\.vec|\.json|\.csv)$/.test(val);
+    return FilenameHelper.isImage(val) || /(\.pdf|\.xml|\.vec|\.json|\.csv)$/.test(val) || isHtmlFile(val, contentType);
   }
 
   async openPreview(
@@ -203,9 +205,10 @@ export class HandoverDocumentationViewerV2Component implements OnChanges, OnDest
     // Dateityp bestimmen
     const lower = file.value.toLowerCase();
     const contentType = `${file.contentType ?? ''}`.trim().toLowerCase();
-    let type: 'image' | 'pdf' | 'xml' | 'json' | 'csv' | undefined;
+    let type: 'image' | 'pdf' | 'xml' | 'json' | 'csv' | 'html' | undefined;
     if (FilenameHelper.isImageContentType(contentType) || FilenameHelper.isImage(lower)) type = 'image';
     else if (contentType.includes('pdf') || /\.pdf$/.test(lower)) type = 'pdf';
+    else if (isHtmlFile(lower, contentType)) type = 'html';
     else if (/\.(xml|vec)$/.test(lower)) type = 'xml';
     else if (/\.json$/.test(lower)) type = 'json';
     else if (/\.csv$/.test(lower)) type = 'csv';
@@ -292,6 +295,21 @@ export class HandoverDocumentationViewerV2Component implements OnChanges, OnDest
     try {
       const attachmentUrl = await this.buildAttachmentUrl(file.idPath, file.value);
       const headers = (this.viewerStore as any).headers();
+
+      if (type === 'html') {
+        const html = await lastValueFrom(this.http.get(attachmentUrl, { responseType: 'text', headers }));
+        this.previewData.set({
+          name: file.name,
+          url: attachmentUrl,
+          type,
+          idPath: file.idPath,
+          isExternal: false,
+          originalValue: file.value,
+          htmlContent: this.sanitizer.bypassSecurityTrustHtml(html),
+        });
+        this.previewVisible.set(true);
+        return;
+      }
 
       if (type === 'xml' || type === 'json' || type === 'csv') {
         // Text abrufen

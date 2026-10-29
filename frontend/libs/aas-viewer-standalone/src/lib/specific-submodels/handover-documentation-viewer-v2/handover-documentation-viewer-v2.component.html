@@ -15,7 +15,17 @@
               @if (group.previewLoading) {
                 <p-skeleton width="100%" height="100%"></p-skeleton>
               } @else if (group.previewUrl && !group.previewError) {
-                @if (group.previewType === 'pdf') {
+                @if (group.previewType === 'html') {
+                  <!-- sandbox="" keeps scripts and links of the document away from the application -->
+                  <iframe
+                    class="preview-html"
+                    sandbox=""
+                    [srcdoc]="group.previewHtml"
+                    [title]="group.title"
+                    tabindex="-1"
+                    aria-hidden="true"
+                  ></iframe>
+                } @else if (group.previewType === 'pdf') {
                   <object
                     [data]="group.previewSafeUrl || group.previewUrl"
                     type="application/pdf"
@@ -49,7 +59,9 @@
                 <h3>{{ group.title }}</h3>
               </div>
               <div class="group-meta">
-                <span class="file-count">{{ group.files.length }} {{ 'ITEMS' | translate }}</span>
+                <span class="file-count"
+                  >{{ group.files.length }} {{ (group.files.length === 1 ? 'ITEM' : 'ITEMS') | translate }}</span
+                >
                 <p-button
                   type="button"
                   styleClass="p-button-text p-button-sm context-btn"
@@ -200,9 +212,11 @@
               ? 'pi-file-pdf text-danger'
               : pd.type === 'image'
                 ? 'pi-image text-primary'
-                : pd.type === 'json'
-                  ? 'pi-code text-primary'
-                  : 'pi-code text-primary'
+                : pd.type === 'html'
+                  ? 'pi-globe text-primary'
+                  : pd.type === 'json'
+                    ? 'pi-code text-primary'
+                    : 'pi-code text-primary'
           "
         ></i>
         <span class="font-medium text-sm">{{ pd.name }}</span>
@@ -213,6 +227,9 @@
         <img [src]="pd.url" [alt]="pd.name" class="w-full h-full" style="object-fit: contain; max-height: 70vh" />
       } @else if (pd.type === 'pdf') {
         <iframe [src]="pd.safeUrl || pd.url" title="pdf" style="border: 0; width: 100%; height: 70vh"></iframe>
+      } @else if (pd.type === 'html') {
+        <!-- sandbox="" keeps scripts, forms and links of the document away from the application -->
+        <iframe class="preview-html-dialog" sandbox="" [srcdoc]="pd.htmlContent" [title]="pd.name"></iframe>
       } @else if (pd.type === 'xml') {
         <div class="w-full" style="max-height: 70vh; overflow: auto">
           <markdown class="w-full h-full flex flex-col overflow-scroll" style="min-height: 100%">
@@ -244,13 +261,16 @@
           (onClick)="closePreview()"
           [label]="'CLOSE' | translate"
         ></p-button>
-        <p-button
-          type="button"
-          styleClass="p-button-text"
-          (onClick)="openExternal({ value: pd.url }, $event)"
-          [label]="'OPEN_NEW_TAB' | translate"
-          icon="pi pi-external-link"
-        ></p-button>
+        <!-- HTML is not opened in a tab: there it would run with the rights of the application -->
+        @if (pd.type !== 'html') {
+          <p-button
+            type="button"
+            styleClass="p-button-text"
+            (onClick)="openExternal({ value: pd.url }, $event)"
+            [label]="'OPEN_NEW_TAB' | translate"
+            icon="pi pi-external-link"
+          ></p-button>
+        }
         <p-button
           type="button"
           styleClass="p-button-text"

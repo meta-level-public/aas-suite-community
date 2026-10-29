@@ -1,13 +1,7 @@
 import { LanguageService, SseNotificationService } from '@aas/aas-designer-shared';
-import { AasViewerStandaloneComponent, ShellNavigationTarget, ShellNavigator } from '@aas/aas-viewer-standalone';
+import { AasViewerStandaloneComponent, ShellNavigator } from '@aas/aas-viewer-standalone';
 import { buildShellsListRoute, NotificationService, PortalService, ViewportService } from '@aas/common-services';
-import {
-  AasInfrastructureClient,
-  AasViewerClient,
-  AvailableInfastructure,
-  ShellsClient,
-  ViewerDescriptor,
-} from '@aas/webapi-client';
+import { AasInfrastructureClient, AasViewerClient, AvailableInfastructure, ViewerDescriptor } from '@aas/webapi-client';
 import { Component, inject, OnDestroy, OnInit, signal, ViewChild } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
@@ -21,6 +15,7 @@ import { ShellResult } from '../../generator/model/shell-result';
 import { PcnChangeInfo } from '../../pcn/pcn-changes/pcn-change-info';
 import { PcnChangesComponent } from '../../pcn/pcn-changes/pcn-changes.component';
 import { V3EditorService } from '../../v3-editor/v3-editor.service';
+import { DesignerShellNavigationService } from '../designer-shell-navigation.service';
 
 @Component({
   selector: 'aas-v3-viewer',
@@ -41,7 +36,8 @@ export class V3ViewerComponent implements OnInit, OnDestroy {
   @ViewChild('exportComponent') exportComponent: AasxExportComponent | undefined;
 
   viewerClient = inject(AasViewerClient);
-  shellsClient = inject(ShellsClient);
+  // Opens AAS referenced in the viewed AAS within the current infrastructure
+  shellNavigator: ShellNavigator = inject(DesignerShellNavigationService).navigator;
   viewport = inject(ViewportService);
   infrastructureClient = inject(AasInfrastructureClient);
   descriptor = signal<ViewerDescriptor | null>(null);
@@ -117,24 +113,6 @@ export class V3ViewerComponent implements OnInit, OnDestroy {
     } finally {
       this.loading = false;
     }
-  }
-
-  // Opens an AAS referenced in the viewed AAS within the current infrastructure
-  shellNavigator: ShellNavigator = async (target: ShellNavigationTarget) => {
-    const aasId = target.aasId?.trim() || (await this.findAasIdByGlobalAssetId(target.globalAssetId));
-    if (!aasId) {
-      this.notificationService.showMessage('REFERENCED_AAS_NOT_FOUND', 'OPEN_ASSOCIATED_AAS', 'warn', false, 5000);
-      return;
-    }
-    this.router.navigate(PortalService.buildViewerRoute(aasId));
-  };
-
-  private async findAasIdByGlobalAssetId(globalAssetId: string | null | undefined) {
-    if (!globalAssetId?.trim()) return null;
-    const result = await lastValueFrom(
-      this.shellsClient.shells_GetAllShells(10, undefined, undefined, globalAssetId, undefined),
-    );
-    return result.shells?.find((shell) => shell.globalAssetId === globalAssetId)?.id ?? null;
   }
 
   get aasId() {

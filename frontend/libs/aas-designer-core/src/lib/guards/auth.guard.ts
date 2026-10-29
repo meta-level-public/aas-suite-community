@@ -27,9 +27,9 @@ export class AuthGuard {
       // nutzer besorgen
     }
 
-    if (!this.portalService.loggedIn) {
-      this.portalService.logout();
-      this.portalService.savePostLoginRedirectUrl(state.url);
+    // A public viewer session (shared link) is no designer login: sign in again
+    if (!this.portalService.loggedIn || this.portalService.isPublicViewerSession) {
+      this.portalService.prepareLogin(state.url);
       this.router.navigate(buildAbsoluteRoute(AppRouteSegments.login));
       return false;
     }
