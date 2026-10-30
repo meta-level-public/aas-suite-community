@@ -11,6 +11,7 @@ namespace AasDesignerAasApi.Controllers
     [ApiExplorerSettings(GroupName = "internal-aas")]
     public class ServerSentEventsController : ControllerBase
     {
+        private static readonly TimeSpan HeartbeatInterval = TimeSpan.FromSeconds(15);
         private readonly SubmodelUpdateMessageStore _submodelUpdateMessageStore;
         private readonly ShellUpdateMessageStore _shellUpdateMessageStore;
         private readonly SseClientStore _sseClientStore;
@@ -38,9 +39,30 @@ namespace AasDesignerAasApi.Controllers
         public async Task WaitForUpdates(CancellationToken ct, string guid)
         {
             HttpContext.Response.Headers.ContentType = "text/event-stream";
+            HttpContext.Response.Headers.CacheControl = "no-cache";
+            // Send headers immediately so proxies and the browser see an open stream.
+            await HttpContext.Response.StartAsync(ct);
 
+            var lastHeartbeat = DateTimeOffset.UtcNow;
             while (!ct.IsCancellationRequested)
             {
+                // Without regular traffic, reverse proxies close the idle stream after their
+                // read timeout (504). A comment line keeps it open and is ignored by EventSource.
+                if (DateTimeOffset.UtcNow - lastHeartbeat >= HeartbeatInterval)
+                {
+                    try
+                    {
+                        await HttpContext.Response.WriteAsync(": keepalive\n\n", ct);
+                        await HttpContext.Response.Body.FlushAsync(ct);
+                    }
+                    catch (OperationCanceledException) when (ct.IsCancellationRequested)
+                    {
+                        // Client disconnected.
+                        return;
+                    }
+                    lastHeartbeat = DateTimeOffset.UtcNow;
+                }
+
                 await GetUpdateItemAndNotify(
                     HttpContext,
                     _shellUpdateMessageStore,
@@ -111,7 +133,7 @@ namespace AasDesignerAasApi.Controllers
 
         private async Task Notify(HttpContext ctx, string eventName, object data)
         {
-            await ctx.Response.WriteAsync($"rety: 1000\n");
+            await ctx.Response.WriteAsync($"retry: 1000\n");
             await ctx.Response.WriteAsync($"event: {eventName}\n");
             await ctx.Response.WriteAsync($"data: ");
             await JsonSerializer.SerializeAsync(ctx.Response.Body, data);

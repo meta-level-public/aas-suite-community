@@ -10,13 +10,14 @@ import {
 import { Injectable } from '@angular/core';
 import { Router } from '@angular/router';
 import { Observable, throwError } from 'rxjs';
-import { catchError, retry, switchMap, tap } from 'rxjs/operators';
+import { catchError, finalize, retry, shareReplay, switchMap, tap } from 'rxjs/operators';
 import { ApiException } from './api-exception';
 
 @Injectable()
 export class HttpErrorInterceptor implements HttpInterceptor {
   private static readonly csrfRequestCookieName = 'vws-csrf-request';
   private static readonly csrfHeaderName = 'X-CSRF-TOKEN';
+  private static refreshInFlight$: Observable<unknown> | null = null;
   private readonly bffHttpClient: HttpClient;
 
   constructor(
@@ -85,26 +86,25 @@ export class HttpErrorInterceptor implements HttpInterceptor {
               return throwError(() => new ApiException('SESSION_TIMEOUT_DETAIL', 'SESSION_TIMEOUT'));
             }
 
-            const csrfToken = this.readCookie(HttpErrorInterceptor.csrfRequestCookieName);
-            const refreshOptions = csrfToken
-              ? {
-                  withCredentials: true,
-                  headers: { [HttpErrorInterceptor.csrfHeaderName]: csrfToken },
-                }
-              : { withCredentials: true };
-
-            return this.bffHttpClient.post('/bff/session/refresh', {}, refreshOptions).pipe(
+            return this.refreshSessionOnce().pipe(
               switchMap(() =>
-                next.handle(
-                  request.clone({
-                    setHeaders: { 'x-bff-refresh-attempted': '1' },
-                  }),
-                ),
+                next
+                  .handle(
+                    request.clone({
+                      setHeaders: { 'x-bff-refresh-attempted': '1' },
+                    }),
+                  )
+                  .pipe(
+                    catchError((retryError: HttpErrorResponse) => {
+                      // Only a repeated 401 means the session is gone; other errors are regular request errors.
+                      if (retryError?.status === 401) {
+                        this.dispatchLogout();
+                        return throwError(() => new ApiException('SESSION_TIMEOUT_DETAIL', 'SESSION_TIMEOUT'));
+                      }
+                      return throwError(() => retryError);
+                    }),
+                  ),
               ),
-              catchError(() => {
-                this.dispatchLogout();
-                return throwError(() => new ApiException('SESSION_TIMEOUT_DETAIL', 'SESSION_TIMEOUT'));
-              }),
             );
           }
           case 410: {
@@ -115,6 +115,35 @@ export class HttpErrorInterceptor implements HttpInterceptor {
         return throwError(() => error);
       }),
     );
+  }
+
+  /**
+   * Concurrent 401 responses share a single refresh call. Without this, every failing request
+   * started its own refresh and, if the session was gone, its own logout.
+   */
+  private refreshSessionOnce(): Observable<unknown> {
+    if (HttpErrorInterceptor.refreshInFlight$ == null) {
+      const csrfToken = this.readCookie(HttpErrorInterceptor.csrfRequestCookieName);
+      const refreshOptions = csrfToken
+        ? {
+            withCredentials: true,
+            headers: { [HttpErrorInterceptor.csrfHeaderName]: csrfToken },
+          }
+        : { withCredentials: true };
+
+      HttpErrorInterceptor.refreshInFlight$ = this.bffHttpClient.post('/bff/session/refresh', {}, refreshOptions).pipe(
+        catchError(() => {
+          this.dispatchLogout();
+          return throwError(() => new ApiException('SESSION_TIMEOUT_DETAIL', 'SESSION_TIMEOUT'));
+        }),
+        finalize(() => {
+          HttpErrorInterceptor.refreshInFlight$ = null;
+        }),
+        shareReplay({ bufferSize: 1, refCount: false }),
+      );
+    }
+
+    return HttpErrorInterceptor.refreshInFlight$;
   }
 
   private canAttemptBffRefresh(request: HttpRequest<any>): boolean {

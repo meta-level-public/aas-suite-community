@@ -785,6 +785,31 @@ export class V3TreeContextMenuComponent {
     return candidate;
   }
 
+  /**
+   * idShort for a pasted copy. Elements without idShort (e.g. children of a SubmodelElementList)
+   * must not become "copy_of_null": inside a list they stay without idShort, elsewhere they get a
+   * generated, unique idShort because the target container requires one.
+   */
+  private buildPastedIdShort(copy: { idShort?: string | null }): string | null {
+    const idShort = copy.idShort?.trim();
+    if (idShort) {
+      return 'copy_of_' + idShort;
+    }
+
+    const target = this.node?.data?.content;
+    if (target instanceof aas.types.SubmodelElementList || copy instanceof aas.types.Submodel) {
+      return null;
+    }
+
+    const siblings: ISubmodelElement[] =
+      target instanceof aas.types.Submodel
+        ? (target.submodelElements ?? [])
+        : target instanceof aas.types.SubmodelElementCollection
+          ? (target.value ?? [])
+          : [];
+    return this.buildCopiedSmlChildIdShort(copy as ISubmodelElement, siblings);
+  }
+
   private clearSubmodelElementValuesRecursive(element: ISubmodelElement): void {
     if (element instanceof aas.types.Property) {
       element.value = null;
@@ -2156,7 +2181,7 @@ export class V3TreeContextMenuComponent {
         this.pasteAsReferenceQuestionDialogVisible = true;
       } else {
         const copy = cloneDeep(this.copiedElement.content);
-        copy.idShort = 'copy_of_' + copy.idShort;
+        copy.idShort = this.buildPastedIdShort(copy);
 
         this.insertElement(copy, this.copiedElement.editorType, mode ?? 'copy');
         this.treeService.registerFieldUndoStep();

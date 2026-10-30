@@ -199,6 +199,42 @@ describe('V3TreeContextMenuComponent', () => {
     expect(treeService.registerFieldUndoStep).toHaveBeenCalledTimes(1);
   });
 
+  describe('pasteElement idShort', () => {
+    function pasteInto(target: TreeNode<V3TreeItem<any>>, element: aas.types.ISubmodelElement) {
+      const { component } = createComponent(true);
+      component.node = target;
+      const copied = new V3TreeItem<any>();
+      copied.content = element;
+      copied.editorType = EditorTypeOption.SubmodelElementCollection;
+      component.copiedElement = copied;
+      const insertElement = vi.spyOn(component, 'insertElement').mockImplementation(() => undefined as any);
+
+      component.pasteElement('copy');
+
+      expect(insertElement).toHaveBeenCalledTimes(1);
+      return insertElement.mock.calls[0][0] as aas.types.ISubmodelElement;
+    }
+
+    it('prefixes an existing idShort', () => {
+      const row = new aas.types.SubmodelElementCollection();
+      row.idShort = 'Row';
+
+      expect(pasteInto(createSubmodelNode(), row).idShort).toBe('copy_of_Row');
+    });
+
+    it('keeps list children without idShort instead of creating "copy_of_null"', () => {
+      const listChild = new aas.types.SubmodelElementCollection();
+
+      expect(pasteInto(createListNode(listChild), listChild).idShort).toBeNull();
+    });
+
+    it('generates an idShort when an element without idShort is pasted into a submodel', () => {
+      const listChild = new aas.types.SubmodelElementCollection();
+
+      expect(pasteInto(createSubmodelNode(), listChild).idShort).toBe('copy_of_newSubmodelElementCollection');
+    });
+  });
+
   it('shows template qualifier removal only for non-template submodels', async () => {
     const stopPropagation = vi.fn();
     const preventDefault = vi.fn();

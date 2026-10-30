@@ -1,5 +1,6 @@
 import { signal } from '@angular/core';
 import { V3TreeComponent } from './v3-tree.component';
+import { V3TreeItem } from '../model/v3-tree-item';
 
 function validate(json: string, importType: 'submodel' | 'element' = 'submodel') {
   const state = {
@@ -67,5 +68,39 @@ describe('V3TreeComponent JSON import validation', () => {
 
     expect(validate(property, 'element').jsonValid()).toBe(true);
     expect(validate(property, 'submodel').jsonValid()).toBe(false);
+  });
+});
+
+describe('V3TreeComponent labels of SubmodelElementList children', () => {
+  function labelFor(content: object, smlIndex = 2, currentLang = 'de') {
+    const component = Object.assign(Object.create(V3TreeComponent.prototype), {
+      translate: { currentLang },
+    }) as V3TreeComponent;
+    const data = Object.assign(new V3TreeItem<any>(), { content, isParentSml: true, smlIndex });
+    return component.getNodeLabel({ label: 'Element ' + smlIndex, data });
+  }
+
+  it('shows the idShort when the list element has one (allowed since AAS 3.1)', () => {
+    expect(labelFor({ idShort: 'FolienKickoff' })).toBe('FolienKickoff');
+  });
+
+  it('falls back to the displayName in the current language', () => {
+    const content = {
+      displayName: [
+        { language: 'en', text: 'Slides' },
+        { language: 'de', text: 'Folien' },
+      ],
+    };
+
+    expect(labelFor(content, 0, 'de')).toBe('Folien');
+    expect(labelFor(content, 0, 'en')).toBe('Slides');
+  });
+
+  it('uses the first displayName when none matches the current language', () => {
+    expect(labelFor({ displayName: [{ language: 'fr', text: 'Diapositives' }] }, 0, 'de')).toBe('Diapositives');
+  });
+
+  it('keeps the position label when neither idShort nor displayName is set', () => {
+    expect(labelFor({}, 3)).toBe('Element 3');
   });
 });
