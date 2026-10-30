@@ -326,8 +326,9 @@ export class V3TreeComponent implements OnChanges, OnInit {
       nodeData.parent = parentNode.data;
       let elementLabel = element?.idShort ?? element?.id;
       if (parentNode.data?.content instanceof aas.types.SubmodelElementList) {
-        elementLabel = 'Element ' + cnt++;
         nodeData.isParentSml = true;
+        nodeData.smlIndex = cnt++;
+        elementLabel = 'Element ' + nodeData.smlIndex;
       }
       const el: TreeNode<V3TreeItem<any>> = {
         label: elementLabel,
@@ -742,7 +743,7 @@ export class V3TreeComponent implements OnChanges, OnInit {
 
   getNodeLabel(treeNode: TreeNode<V3TreeItem<any>>): string {
     if (treeNode.data?.isParentSml) {
-      return treeNode.label ?? '<not set>';
+      return this.getSmlElementLabel(treeNode);
     }
     let label = treeNode.data?.treeLabel ?? treeNode.label ?? '';
     if (treeNode.data?.content?.kind === aas.types.ModellingKind.Template) {
@@ -752,6 +753,34 @@ export class V3TreeComponent implements OnChanges, OnInit {
       label = 'MISSING_SUBMODEL';
     }
     return label.length > 0 ? label : 'undefined';
+  }
+
+  /**
+   * Since AAS metamodel 3.1 (AASd-120 removed), elements of a SubmodelElementList may carry an idShort.
+   * Show it if present, otherwise the displayName in the current language, otherwise the list position.
+   */
+  private getSmlElementLabel(treeNode: TreeNode<V3TreeItem<any>>): string {
+    const content = treeNode.data?.content;
+    const idShort: string | undefined = content?.idShort?.trim();
+    if (idShort) {
+      return idShort;
+    }
+
+    const displayNames: aas.types.LangStringNameType[] | null | undefined = content?.displayName;
+    if (displayNames != null && displayNames.length > 0) {
+      const currentLang = this.translate.currentLang?.toLowerCase().split('-')[0];
+      const preferred =
+        displayNames.find((entry) => entry.language?.toLowerCase().split('-')[0] === currentLang) ?? displayNames[0];
+      const displayName = preferred.text?.trim();
+      if (displayName) {
+        return displayName;
+      }
+    }
+
+    if (treeNode.data?.smlIndex != null) {
+      return 'Element ' + treeNode.data.smlIndex;
+    }
+    return treeNode.label ?? '<not set>';
   }
 
   expandAll() {

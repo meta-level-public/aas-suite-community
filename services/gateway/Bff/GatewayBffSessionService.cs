@@ -122,7 +122,7 @@ public sealed class GatewayBffSessionService
                     traceIdentifier,
                     requestPath
                 );
-                Save(session, SessionStateKey, reusedState);
+                await SaveAndCommitAsync(session, SessionStateKey, reusedState);
                 return reusedState;
             }
 
@@ -173,7 +173,7 @@ public sealed class GatewayBffSessionService
                 AuthResponse = refreshed,
                 OidcSession = state.OidcSession?.Clone(),
             };
-            Save(session, SessionStateKey, refreshedState);
+            await SaveAndCommitAsync(session, SessionStateKey, refreshedState);
             refreshContext.SetLastSuccessfulState(refreshedState);
             return refreshedState.Clone();
         }
@@ -972,6 +972,17 @@ public sealed class GatewayBffSessionService
     private static void Save<T>(ISession session, string key, T value)
     {
         session.Set(key, JsonSerializer.SerializeToUtf8Bytes(value, JsonOptions));
+    }
+
+    // A refresh rotates the refresh token in the backend. The rotated token must reach the
+    // session store immediately: ASP.NET Core otherwise commits the session only when the
+    // request ends, which for long-running requests (SSE, large uploads) can be minutes later
+    // or never if the connection is aborted. Concurrent requests would then load the old,
+    // already revoked refresh token, trigger reuse detection and lose the whole session.
+    private static async Task SaveAndCommitAsync<T>(ISession session, string key, T value)
+    {
+        Save(session, key, value);
+        await session.CommitAsync(CancellationToken.None);
     }
 
     private sealed class SessionRefreshContext

@@ -9,6 +9,8 @@ export class V3TreeItem<T> {
   parent: V3TreeItem<any> | null | undefined;
 
   isParentSml: boolean = false;
+  /** Position within the parent SubmodelElementList (only set when isParentSml is true). */
+  smlIndex: number | null = null;
 
   get treeLabel(): string {
     if (this.content instanceof PackageMetadata || this.editorType === EditorTypeOption.AssetAdministrationShells) {
