@@ -87,4 +87,17 @@ describe('SemanticDescriptionPopupComponent', () => {
 
     expect(popoversInBody()).toBe(0);
   });
+
+  it('removes a closed popover from the document when the component is destroyed before it was re-rendered', async () => {
+    await openPopover();
+
+    // In the browser the hide animation ends outside of change detection, so the hidden popover
+    // is still in the body when the submodel is switched right after closing it.
+    const popover = fixture.componentInstance.popover()!;
+    popover.hide();
+    popover.onAnimationEnd();
+    fixture.destroy();
+
+    expect(popoversInBody()).toBe(0);
+  });
 });

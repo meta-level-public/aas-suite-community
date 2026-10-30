@@ -2,7 +2,7 @@
   <p-button icon="pi pi-question-circle" text="true" (onClick)="toggleOverlay(op, $event)"></p-button>
 }
 
-<p-popover #op styleClass="w-[48rem] max-w-[calc(100dvw-2rem)]">
+<p-popover #op (onShow)="rememberOverlayElement(op)" styleClass="w-[48rem] max-w-[calc(100dvw-2rem)]">
   @let conceptDescription = this.conceptDescription() | async;
   @if (conceptDescription) {
     <p-table [value]="[' ']" stripedRows size="small" class="w-full">
