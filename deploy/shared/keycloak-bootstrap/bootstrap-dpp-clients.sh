@@ -15,6 +15,13 @@ until "$KCADM" config credentials \
   sleep 2
 done
 
+# Der Admin-Login klappt, bevor der Realm-Import fertig ist; ohne dieses Warten
+# liefert die Client-Abfrage nichts und das Anlegen scheitert an "already exists".
+until "$KCADM" get "realms/$REALM" --fields realm >/dev/null 2>&1; do
+  echo "Waiting for realm $REALM..."
+  sleep 2
+done
+
 ensure_client() {
   local client_id=$1
   local secret=$2
@@ -68,7 +75,14 @@ EOF
 
   if [[ -z "$client_uuid" ]]; then
     echo "Creating Keycloak client: $client_id"
-    "$KCADM" create clients -r "$REALM" -f "/tmp/$client_id.json" >/dev/null
+    if ! "$KCADM" create clients -r "$REALM" -f "/tmp/$client_id.json" >/dev/null; then
+      client_uuid=$("$KCADM" get clients -r "$REALM" -q "clientId=$client_id" \
+        --fields id --format csv --noquotes | head -n 1)
+      [[ -n "$client_uuid" ]] || exit 1
+      echo "Updating Keycloak client: $client_id"
+      "$KCADM" update "clients/$client_uuid" -r "$REALM" \
+        -f "/tmp/$client_id.json" >/dev/null
+    fi
   else
     echo "Updating Keycloak client: $client_id"
     "$KCADM" update "clients/$client_uuid" -r "$REALM" \

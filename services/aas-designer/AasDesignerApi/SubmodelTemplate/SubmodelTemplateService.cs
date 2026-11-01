@@ -308,6 +308,7 @@ namespace AasDesignerApi.SubmodelTemplate
                             $"{firstSubmodel?.Administration?.Version ?? string.Empty}.{firstSubmodel?.Administration?.Revision ?? string.Empty}".Trim(
                                 '.'
                             ),
+                        Group = group,
                     };
                     if (aasxPackage.Environment != null)
                     {

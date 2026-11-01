@@ -357,6 +357,77 @@ public class RegistryUpdater
         }
     }
 
+    /// <summary>
+    /// Zieht den AAS-Deskriptor nach einer ID-Änderung auf die neue ID um. Submodel-Deskriptoren
+    /// und Endpunkte bleiben erhalten; Endpunkt-URLs mit der alten ID zeigen danach auf die neue.
+    /// </summary>
+    public static async Task MoveAasDescriptorAsync(
+        string registryUrl,
+        string oldAasId,
+        string newAasId,
+        CancellationToken cancellationToken,
+        HttpClient client
+    )
+    {
+        if (string.IsNullOrWhiteSpace(registryUrl))
+            return;
+
+        var descriptorsUrl = registryUrl.AppendSlash() + "shell-descriptors";
+        var oldEncodedId = oldAasId.ToBase64UrlEncoded(Encoding.UTF8);
+        try
+        {
+            var registryResponse = await client.GetAsync(
+                descriptorsUrl.AppendSlash() + oldEncodedId,
+                cancellationToken
+            );
+            if (registryResponse.StatusCode == HttpStatusCode.NotFound)
+            {
+                _logger?.LogDebug("No AAS registry entry to move for {AasId}", oldAasId);
+                return;
+            }
+            registryResponse.EnsureSuccessStatusCode();
+
+            var descriptorJson = await registryResponse.Content.ReadAsStringAsync(
+                cancellationToken
+            );
+            var descriptor = Newtonsoft.Json.Linq.JObject.Parse(descriptorJson);
+            descriptor["id"] = newAasId;
+            var hrefs = descriptor.SelectTokens("endpoints[*].protocolInformation.href").ToList();
+            foreach (var href in hrefs)
+            {
+                href.Replace(
+                    href.ToString()
+                        .Replace(oldEncodedId, newAasId.ToBase64UrlEncoded(Encoding.UTF8))
+                );
+            }
+
+            var createResponse = await client.PostAsync(
+                descriptorsUrl,
+                new StringContent(
+                    descriptor.ToString(Formatting.None),
+                    Encoding.UTF8,
+                    "application/json"
+                ),
+                cancellationToken
+            );
+            if (!createResponse.IsSuccessStatusCode)
+            {
+                // Alten Eintrag behalten, damit die AAS wenigstens unter der alten ID auffindbar bleibt
+                _logger?.LogError(
+                    "Error during move aas descriptor: {StatusCode} {Content}",
+                    createResponse.StatusCode,
+                    await createResponse.Content.ReadAsStringAsync(cancellationToken)
+                );
+                return;
+            }
+            await RemoveFromAasRegistryAsync(registryUrl, oldAasId, cancellationToken, client);
+        }
+        catch (Exception e)
+        {
+            _logger?.LogError(e, "Error moving AAS registry entry: {Message}", e.Message);
+        }
+    }
+
     public static async Task RemoveFromSmRegistryAsync(
         string registryUrl,
         string smId,

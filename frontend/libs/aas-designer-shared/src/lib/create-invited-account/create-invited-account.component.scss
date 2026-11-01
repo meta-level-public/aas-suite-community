@@ -1,5 +1,10 @@
+// .layout-content-shell schneidet ab (overflow: hidden); die Seite muss selbst scrollen,
+// sonst ist der Button auf dem Handy nicht erreichbar.
 :host {
   display: block;
+  width: 100%;
+  height: 100%;
+  overflow-y: auto;
 }
 
 .create-invited-page {

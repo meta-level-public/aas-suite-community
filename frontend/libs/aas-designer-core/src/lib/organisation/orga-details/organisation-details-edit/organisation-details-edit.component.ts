@@ -73,6 +73,9 @@ export class OrganisationDetailsEditComponent extends DirtyCheckable implements 
         this.notificationService.showMessageAlways('SUCCESS_EDIT_ORGANIZATION', 'SUCCESS', 'success', false);
         this.updatePrefixIri(this.organisation.iriPrefix ?? '');
         this.portalService.saveOrganisationLogo(this.organisation.logoBase64 ?? '');
+        // Die Gateway-Session hält die Organisationsdaten vom Login; ohne Refresh
+        // stellt der nächste Seitenaufruf den alten IRI-Präfix wieder her.
+        await this.portalService.refreshServerSession();
       } else {
         this.notificationService.showMessageAlways('COMMON_ERROR', 'ERROR', 'error', false);
       }

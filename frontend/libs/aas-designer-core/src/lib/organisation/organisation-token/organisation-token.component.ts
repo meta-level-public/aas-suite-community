@@ -16,7 +16,6 @@ import { Select } from 'primeng/select';
 import { TableModule } from 'primeng/table';
 import { Textarea } from 'primeng/textarea';
 import { lastValueFrom } from 'rxjs';
-import { v4 as uuid } from 'uuid';
 import { Organisation } from '@aas-designer-model';
 import { OrganisationService } from '../organisation.service';
 
@@ -76,8 +75,8 @@ export class OrganisationTokenComponent implements OnInit {
 
   showAddTokenDialog() {
     this.addTokenDialogVisible = true;
+    // Den Schlüssel erzeugt der Server beim Speichern; erst danach wird er angezeigt
     this.newOrgaToken = new OrgaTokenDto();
-    this.newOrgaToken.key = uuid();
   }
 
   copyTokenToClipboard() {
@@ -93,7 +92,8 @@ export class OrganisationTokenComponent implements OnInit {
         this.loading = true;
         const newOrgaToken = await this.orgaService.addOrgaToken(this.newOrgaToken);
         this.orgaTokens.push(newOrgaToken);
-        this.addTokenDialogVisible = false;
+        // Dialog bleibt offen, damit der gespeicherte Schlüssel kopiert werden kann
+        this.newOrgaToken = newOrgaToken;
       } finally {
         this.loading = false;
       }

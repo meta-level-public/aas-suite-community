@@ -589,6 +589,7 @@ public class OrganisationService
 
         orgaToken.Id = apikey.Id;
         orgaToken.Key = apikey.Key;
+        orgaToken.Active = apikey.Active;
 
         var aasinfra = _context.AasInfrastructureSettings.First(a =>
             a.Id == orgaToken.AasInfrastructureId

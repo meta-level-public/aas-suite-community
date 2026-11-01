@@ -1478,6 +1478,21 @@ export class V3TreeContextMenuComponent {
   initTemplates() {
     this.availableSubmodels = [];
 
+    const toAvailableSubmodel = (tpl: SubmodelTemplate): AvailableSubmodel => ({
+      label: tpl.label,
+      submodelVersion: tpl.submodelVersion,
+      translatedLabel: this.translate.instant(tpl.label),
+      description: tpl.label + '_DESC',
+      createElement: CMTypeOption.SubmodelTemplate,
+      group: tpl.group,
+      id: tpl.id ?? 0,
+    });
+    const templatesOfGroups = (...groups: string[]) =>
+      this.availableSubmodelTemplates
+        .filter((t) => groups.includes(t.group))
+        .map(toAvailableSubmodel)
+        .sort((a, b) => a.label.localeCompare(b.label));
+
     this.availableSubmodels.push({
       label: this.translate.instant('OTHER'),
       submodels: [
@@ -1490,27 +1505,22 @@ export class V3TreeContextMenuComponent {
           group: 'OTHER',
           id: 0,
         },
+        ...templatesOfGroups('OTHER'),
       ],
     });
 
-    const submodelsIdta: AvailableSubmodel[] = [];
     this.availableSubmodels.push({
       label: 'integrierte Vorlagen',
-      submodels: submodelsIdta,
+      submodels: templatesOfGroups('IDTA', ''),
     });
 
-    for (const tpl of this.availableSubmodelTemplates.filter((t) => t.group === 'IDTA' || t.group === '')) {
-      submodelsIdta.push({
-        label: tpl.label,
-        submodelVersion: tpl.submodelVersion,
-        translatedLabel: this.translate.instant(tpl.label),
-        description: tpl.label + '_DESC',
-        createElement: CMTypeOption.SubmodelTemplate,
-        group: tpl.group,
-        id: tpl.id ?? 0,
+    const submodelsVdma = templatesOfGroups('VDMA');
+    if (submodelsVdma.length > 0) {
+      this.availableSubmodels.push({
+        label: 'VDMA',
+        submodels: submodelsVdma,
       });
     }
-    submodelsIdta.sort((a, b) => a.label.localeCompare(b.label));
 
     this.availableSubmodels.push({
       label: 'IDTA (live from Repo)',

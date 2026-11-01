@@ -241,6 +241,7 @@
   "ANZAHL_PAKETE": "Number of packages",
   "ANZAHL_UNLIMITED_INFO": "enter -1 for unlimited",
   "API_KEY": "API Key",
+  "API_KEY_CREATED_ON_SAVE": "The key is generated when you save and is shown here afterwards.",
   "API_SCOPE": "API scope",
   "API_TOKEN": "API Token",
   "APPEXCEPTION": "Application exception",
