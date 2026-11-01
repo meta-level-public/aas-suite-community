@@ -117,17 +117,21 @@
   @if (newOrgaToken) {
     <div class="mb-4">
       <label class="flex items-center mt-2 mb-2" for="token">{{ 'API_KEY' | translate }}</label>
-      <div class="flex flex-row w-full gap-2">
-        <input pInputText [(ngModel)]="newOrgaToken.key" class="w-full" readonly />
-        <p-button
-          label="{{ 'COPY_TO_CLIPBOARD' | translate }}"
-          icon="pi pi-copy"
-          (onClick)="copyTokenToClipboard()"
-          type="button"
-          [loading]="loading"
-          styleClass="w-10rem p-button-secondary p-button-outlined p-button-sm"
-        ></p-button>
-      </div>
+      @if (newOrgaToken.id != null) {
+        <div class="flex flex-row w-full gap-2">
+          <input pInputText [(ngModel)]="newOrgaToken.key" class="w-full" readonly />
+          <p-button
+            label="{{ 'COPY_TO_CLIPBOARD' | translate }}"
+            icon="pi pi-copy"
+            (onClick)="copyTokenToClipboard()"
+            type="button"
+            [loading]="loading"
+            styleClass="w-10rem p-button-secondary p-button-outlined p-button-sm"
+          ></p-button>
+        </div>
+      } @else {
+        <div class="text-muted-color">{{ 'API_KEY_CREATED_ON_SAVE' | translate }}</div>
+      }
     </div>
   }
   @if (newOrgaToken) {
@@ -144,25 +148,34 @@
     </div>
   }
   <ng-template pTemplate="footer">
-    <p-button
-      label="{{ 'CANCEL' | translate }}"
-      (onClick)="addTokenDialogVisible = false"
-      icon="pi pi-times"
-      iconPos="right"
-      [loading]="loading"
-      styleClass="p-button-secondary mr-2"
-    ></p-button>
-    <p-button
-      label="{{ 'SAVE' | translate }}"
-      (onClick)="saveToken()"
-      icon="pi pi-save"
-      iconPos="right"
-      [loading]="loading"
-      [disabled]="
-        newOrgaToken?.scopes?.length == 0 ||
-        newOrgaToken?.notice?.length == 0 ||
-        newOrgaToken?.aasInfrastructureId == null
-      "
-    ></p-button>
+    @if (newOrgaToken?.id != null) {
+      <p-button
+        label="{{ 'CLOSE' | translate }}"
+        (onClick)="addTokenDialogVisible = false"
+        icon="pi pi-check"
+        iconPos="right"
+      ></p-button>
+    } @else {
+      <p-button
+        label="{{ 'CANCEL' | translate }}"
+        (onClick)="addTokenDialogVisible = false"
+        icon="pi pi-times"
+        iconPos="right"
+        [loading]="loading"
+        styleClass="p-button-secondary mr-2"
+      ></p-button>
+      <p-button
+        label="{{ 'SAVE' | translate }}"
+        (onClick)="saveToken()"
+        icon="pi pi-save"
+        iconPos="right"
+        [loading]="loading"
+        [disabled]="
+          newOrgaToken?.scopes?.length == 0 ||
+          newOrgaToken?.notice?.length == 0 ||
+          newOrgaToken?.aasInfrastructureId == null
+        "
+      ></p-button>
+    }
   </ng-template>
 </p-dialog>

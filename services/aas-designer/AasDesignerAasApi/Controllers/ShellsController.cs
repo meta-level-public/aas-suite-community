@@ -558,9 +558,9 @@ public class ShellsController : InternalApiBaseController
 
         var query = new GetThumbnailQuery { AppUser = benutzer, AasIdentifier = shellId };
 
-        var stream = await mediator.Send(query);
+        var thumbnail = await mediator.Send(query);
 
-        if (stream == null || stream.Length == 0)
+        if (thumbnail == null || thumbnail.Stream.Length == 0)
         {
             var notFoundStream = GetThumbnailQuery.GetNoThumbSvgStream();
             return await Task.FromResult(
@@ -569,16 +569,9 @@ public class ShellsController : InternalApiBaseController
             // throw new ResourceNotFoundException("Thumbnail not found");
         }
 
-        var filename = "thumbnail";
-        var provider = new FileExtensionContentTypeProvider();
-        if (!provider.TryGetContentType(filename, out var contentType))
-        {
-            contentType = "application/octet-stream";
-        }
+        thumbnail.Stream.Seek(0, SeekOrigin.Begin);
 
-        stream.Seek(0, SeekOrigin.Begin);
-
-        return await Task.FromResult(File(stream, contentType, filename));
+        return await Task.FromResult(File(thumbnail.Stream, thumbnail.ContentType, "thumbnail"));
     }
 
     [HttpGet]

@@ -9,7 +9,10 @@ using MediatR;
 
 namespace AasDesignerAasApi.Shells.Queries.GetThumbnail;
 
-public class GetThumbnailQuery : IRequest<Stream?>
+/// <summary>Thumbnail mit dem Content-Type, den das Repository dazu liefert.</summary>
+public record ThumbnailFile(Stream Stream, string ContentType);
+
+public class GetThumbnailQuery : IRequest<ThumbnailFile?>
 {
     public AppUser AppUser { get; set; } = null!;
     public string AasIdentifier { get; set; } = string.Empty;
@@ -24,7 +27,7 @@ public class GetThumbnailQuery : IRequest<Stream?>
     }
 }
 
-public class GetThumbnailQueryHandler : IRequestHandler<GetThumbnailQuery, Stream?>
+public class GetThumbnailQueryHandler : IRequestHandler<GetThumbnailQuery, ThumbnailFile?>
 {
     private readonly IApplicationDbContext _context;
     private readonly IMapper _mapper;
@@ -41,7 +44,7 @@ public class GetThumbnailQueryHandler : IRequestHandler<GetThumbnailQuery, Strea
         _appSettings = appSettings;
     }
 
-    public async Task<Stream?> Handle(
+    public async Task<ThumbnailFile?> Handle(
         GetThumbnailQuery request,
         CancellationToken cancellationToken
     )
@@ -100,10 +103,10 @@ public class GetThumbnailQueryHandler : IRequestHandler<GetThumbnailQuery, Strea
 
         foreach (var endpoint in thumbEndpoints.Distinct())
         {
-            var stream = await TryLoadThumbnail(endpoint, request.AppUser, cancellationToken);
-            if (stream != null)
+            var thumbnail = await TryLoadThumbnail(endpoint, request.AppUser, cancellationToken);
+            if (thumbnail != null)
             {
-                return stream;
+                return thumbnail;
             }
         }
 
@@ -121,7 +124,7 @@ public class GetThumbnailQueryHandler : IRequestHandler<GetThumbnailQuery, Strea
         }
     }
 
-    private static async Task<Stream?> TryLoadThumbnail(
+    private static async Task<ThumbnailFile?> TryLoadThumbnail(
         string endpoint,
         AppUser appUser,
         CancellationToken cancellationToken
@@ -156,6 +159,8 @@ public class GetThumbnailQueryHandler : IRequestHandler<GetThumbnailQuery, Strea
             return null;
         }
 
-        return new MemoryStream(bytes);
+        // Browser erkennen PNG/JPEG auch ohne Typ, SVG in <img> aber nur mit image/svg+xml
+        var contentType = string.IsNullOrEmpty(mediaType) ? "application/octet-stream" : mediaType;
+        return new ThumbnailFile(new MemoryStream(bytes), contentType);
     }
 }

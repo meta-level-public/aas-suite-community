@@ -244,6 +244,7 @@
   "ANZAHL_PAKETE": "Anzahl Pakete",
   "ANZAHL_UNLIMITED_INFO": "-1 für unbegrenzt eintragen",
   "API_KEY": "API Key",
+  "API_KEY_CREATED_ON_SAVE": "Der Schlüssel wird beim Speichern erzeugt und danach hier angezeigt.",
   "API_SCOPE": "API Scope",
   "API_TOKEN": "API Token",
   "APPEXCEPTION": "Anwendungsfehler",

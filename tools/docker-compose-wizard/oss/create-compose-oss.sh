@@ -729,7 +729,7 @@ SUBMODEL_REPOSITORY_IMAGE_TAG_DEFAULT="$(state_default SUBMODEL_REPOSITORY_IMAGE
   write_env "$ENV_FILE" "KEYCLOAK_EMAIL_CLAIM_NAME" "$(state_default KEYCLOAK_EMAIL_CLAIM_NAME "email")"
   write_env "$ENV_FILE" "KEYCLOAK_FIRST_NAME_CLAIM_NAME" "$(state_default KEYCLOAK_FIRST_NAME_CLAIM_NAME "given_name")"
   write_env "$ENV_FILE" "KEYCLOAK_LAST_NAME_CLAIM_NAME" "$(state_default KEYCLOAK_LAST_NAME_CLAIM_NAME "family_name")"
-  write_env "$ENV_FILE" "BASYX_CONFIG_SERVICE_IMAGE_REPO" "$(state_default BASYX_CONFIG_SERVICE_IMAGE_REPO "eclipsebasyx/aasregistry-go")"
+  write_env "$ENV_FILE" "BASYX_CONFIG_SERVICE_IMAGE_REPO" "$(state_default BASYX_CONFIG_SERVICE_IMAGE_REPO "eclipsebasyx/basyxconfigurationservice-go")"
   write_env "$ENV_FILE" "POSTGRES_IMAGE_REPO" "$POSTGRES_IMAGE_REPO"
   write_env "$ENV_FILE" "POSTGRES_IMAGE_TAG" "$POSTGRES_IMAGE_TAG"
   write_env "$ENV_FILE" "POSTGRES_DB" "$POSTGRES_DB"

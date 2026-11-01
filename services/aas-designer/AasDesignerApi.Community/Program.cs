@@ -325,6 +325,11 @@ builder.Services.AddProxies();
 
 var app = builder.Build();
 
+app.MapHealthChecks(
+    "/api/hc",
+    new HealthCheckOptions { ResponseWriter = UIResponseWriter.WriteHealthCheckUIResponse }
+);
+
 app.UseOpenApi(settings => settings.Path = "/openapi/{documentName}.json");
 app.UseSwaggerUi(settings =>
 {

@@ -215,7 +215,7 @@ set_default_if_empty DPP_API_IMAGE_TAG "1.0.12"
   set_default_if_empty KEYCLOAK_EMAIL_CLAIM_NAME "email"
   set_default_if_empty KEYCLOAK_FIRST_NAME_CLAIM_NAME "given_name"
   set_default_if_empty KEYCLOAK_LAST_NAME_CLAIM_NAME "family_name"
-  set_default_if_empty BASYX_CONFIG_SERVICE_IMAGE_REPO "eclipsebasyx/aasregistry-go"
+  set_default_if_empty BASYX_CONFIG_SERVICE_IMAGE_REPO "eclipsebasyx/basyxconfigurationservice-go"
 
   set_default_if_empty POSTGRES_IMAGE_REPO "postgres"
   set_default_if_empty POSTGRES_IMAGE_TAG "16-alpine"

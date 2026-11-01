@@ -87,7 +87,13 @@ public class ChangeAasIdentifierHandler : IRequestHandler<ChangeAasIdentifierCom
 
         if (loadedThumb != null && loadedThumb.Length > 0)
         {
-            using var httpRequest = new HttpRequestMessage(HttpMethod.Put, thumbUrl);
+            // Das Vorschaubild gehört an die AAS unter der neuen ID; die alte ist gelöscht
+            var newThumbUrl =
+                infrastructure.AasRepositoryUrl.AppendSlash()
+                + "shells".AppendSlash()
+                + request.NewAasIdentifier.ToBase64UrlEncoded(Encoding.UTF8)
+                + "/asset-information/thumbnail?fileName=thumbnail";
+            using var httpRequest = new HttpRequestMessage(HttpMethod.Put, newThumbUrl);
             var streamContent = new StreamContent(loadedThumb);
             streamContent.Headers.ContentType = new MediaTypeHeaderValue("image/png");
             using var thumbContent = new MultipartFormDataContent
@@ -107,8 +113,13 @@ public class ChangeAasIdentifierHandler : IRequestHandler<ChangeAasIdentifierCom
             cancellationToken,
             client
         );
-        // TODO: Registry updaten!
-        // await RegistryUpdater.UpdateRegistryAsync(infrastructure, environment, cancellationToken, client);
+        await RegistryUpdater.MoveAasDescriptorAsync(
+            infrastructure.AasRegistryUrl,
+            request.AasIdentifier,
+            request.NewAasIdentifier,
+            cancellationToken,
+            client
+        );
 
         return request.NewAasIdentifier;
     }
