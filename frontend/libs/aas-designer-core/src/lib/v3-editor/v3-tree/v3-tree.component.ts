@@ -3,17 +3,17 @@ import { SubmodelTemplate } from '@aas-designer-model';
 import { IdGenerationUtil, InstanceHelper, TagHelper } from '@aas/helpers';
 import { AasMetamodelVersion, PackageMetadata, ShellResult, SupplementalFile } from '@aas/model';
 import {
-  Component,
-  EventEmitter,
-  HostListener,
-  inject,
-  Input,
-  OnChanges,
-  OnInit,
-  Output,
-  signal,
-  SimpleChanges,
-  ViewChild,
+    Component,
+    EventEmitter,
+    HostListener,
+    inject,
+    Input,
+    OnChanges,
+    OnInit,
+    Output,
+    signal,
+    SimpleChanges,
+    ViewChild,
 } from '@angular/core';
 import { TreeNode } from 'primeng/api';
 import { v4 as uuid } from 'uuid';

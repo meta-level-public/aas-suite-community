@@ -37,9 +37,7 @@ describe('PluginRegistryService', () => {
     await loadPromise;
 
     expect(service.plugins()).toHaveLength(1);
-    expect(service.plugins()[0].entryPointUrl).toBe(
-      '/designer-api/system-management-api/Plugins/my-plugin/assets/index.html',
-    );
+    expect(service.plugins()[0].entryPointUrl).toBe('/designer-api/system-management-api/Plugins/my-plugin/assets/index.html');
     expect(service.findByRoute('my-plugin')?.id).toBe('my-plugin');
   });
 

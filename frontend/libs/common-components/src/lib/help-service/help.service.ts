@@ -11,7 +11,13 @@ export class HelpService {
 
   async initHelp() {
     // Initialize help
-    this.helpTexts.set(await lastValueFrom(this.helpClient.helpInternal_GetHelpTexts()));
+    try {
+      this.helpTexts.set(await lastValueFrom(this.helpClient.helpInternal_GetHelpTexts()));
+    } catch {
+      // Without help texts the labels are shown without a help popover
+      console.error('Loading help texts failed');
+      this.helpTexts.set([]);
+    }
   }
 
   constructor() {

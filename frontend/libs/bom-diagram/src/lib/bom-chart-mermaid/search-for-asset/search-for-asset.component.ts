@@ -1,7 +1,7 @@
 import {
-  AssetAdministrationShell,
-  AssetInformation,
-  SpecificAssetId,
+    AssetAdministrationShell,
+    AssetInformation,
+    SpecificAssetId,
 } from '@aas-core-works/aas-core3.1-typescript/types';
 
 import { AppConfigService, NotificationService, PortalService } from '@aas/common-services';

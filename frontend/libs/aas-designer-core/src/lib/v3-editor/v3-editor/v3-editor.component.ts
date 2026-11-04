@@ -2,19 +2,19 @@ import * as aas from '@aas-core-works/aas-core3.1-typescript';
 import { AasConfirmationService, buildShellsListRoute, NotificationService } from '@aas/common-services';
 import { ShellResult } from '@aas/model';
 import {
-  Component,
-  EventEmitter,
-  inject,
-  Input,
-  model,
-  OnChanges,
-  OnDestroy,
-  OnInit,
-  Output,
-  signal,
-  SimpleChanges,
-  viewChild,
-  ViewChild,
+    Component,
+    EventEmitter,
+    inject,
+    Input,
+    model,
+    OnChanges,
+    OnDestroy,
+    OnInit,
+    Output,
+    signal,
+    SimpleChanges,
+    viewChild,
+    ViewChild,
 } from '@angular/core';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { cloneDeep } from 'lodash-es';
@@ -28,13 +28,13 @@ import { V3TreeService } from '../v3-tree/v3-tree.service';
 
 import { SseNotificationService } from '@aas/aas-designer-shared';
 import {
-  AasViewerMainComponent,
-  CapabilityDescriptionViewerComponent,
-  PcfStepViewerComponent,
-  PcfViewerV1Component,
-  ProductOrSectorSpecificPcfStepViewerComponent,
-  ProductOrSectorSpecificPcfViewerComponent,
-  SubmodelSpecializedViewerComponent,
+    AasViewerMainComponent,
+    CapabilityDescriptionViewerComponent,
+    PcfStepViewerComponent,
+    PcfViewerV1Component,
+    ProductOrSectorSpecificPcfStepViewerComponent,
+    ProductOrSectorSpecificPcfViewerComponent,
+    SubmodelSpecializedViewerComponent,
 } from '@aas/aas-viewer-standalone';
 import { PortalService } from '@aas/common-services';
 import { AvailableInfastructure, ShellsClient } from '@aas/webapi-client';

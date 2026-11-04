@@ -8,9 +8,9 @@ import { get } from 'lodash-es';
 import { lastValueFrom } from 'rxjs';
 
 import {
-  buildGeneratorExportPayload,
-  GeneratorExportBuilderHooks,
-  GeneratorExportState,
+    buildGeneratorExportPayload,
+    GeneratorExportBuilderHooks,
+    GeneratorExportState,
 } from './generator-export.builder';
 
 export type GeneratorExportServiceHooks = Omit<GeneratorExportBuilderHooks, 'loadExportConceptDescriptions'>;

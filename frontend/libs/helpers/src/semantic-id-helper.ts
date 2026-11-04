@@ -1,8 +1,8 @@
 import {
-  ConceptDescription,
-  DataSpecificationIec61360,
-  IHasSemantics,
-  ISubmodelElement,
+    ConceptDescription,
+    DataSpecificationIec61360,
+    IHasSemantics,
+    ISubmodelElement,
 } from '@aas-core-works/aas-core3.1-typescript/types';
 
 export class SemanticIdHelper {

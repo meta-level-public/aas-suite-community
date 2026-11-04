@@ -1,5 +1,6 @@
 # Stage 1: Build the Angular application
-FROM node:22-alpine AS builder
+# Runs natively on the build host (no QEMU); the static output is architecture-independent
+FROM --platform=$BUILDPLATFORM node:22-alpine AS builder
 
 RUN apk upgrade --no-cache
 

@@ -66,9 +66,7 @@ function createProductCarbonFootprintsList(entries: DppPcfEntryCollection) {
       'https://admin-shell.io/idta/CarbonFootprint/ProductCarbonFootprints/1/0',
     ),
   ]);
-  list.semanticIdListElement = createSemanticId(
-    'https://admin-shell.io/idta/CarbonFootprint/ProductCarbonFootprint/1/0',
-  );
+  list.semanticIdListElement = createSemanticId('https://admin-shell.io/idta/CarbonFootprint/ProductCarbonFootprint/1/0');
   list.value = entries.productCarbonFootprints.map((entry) => createProductCarbonFootprintEntry(entry.values));
 
   return list;

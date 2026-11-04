@@ -13,14 +13,7 @@ import { InfrastructureAddComponent } from '../infrastructure-add/infrastructure
 
 @Component({
   selector: 'aas-infrastructure-parent',
-  imports: [
-    ToolbarModule,
-    TranslateModule,
-    ButtonModule,
-    DialogModule,
-    InfrastructureAddComponent,
-    InfrastrukturRechteComponent,
-  ],
+  imports: [ToolbarModule, TranslateModule, ButtonModule, DialogModule, InfrastructureAddComponent, InfrastrukturRechteComponent],
   templateUrl: './infrastructure-parent.component.html',
   providers: [{ provide: HasChangesCheckable, useExisting: InfrastructureParentComponent }],
 })

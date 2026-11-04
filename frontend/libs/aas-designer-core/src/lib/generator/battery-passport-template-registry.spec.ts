@@ -1,10 +1,10 @@
 import * as aas from '@aas-core-works/aas-core3.1-typescript';
 import {
-  classifyBatteryPassportSubmodel,
-  getBatteryPassportAdditionalSubmodels,
-  getBatteryPassportTemplateDefinition,
-  getBatteryPassportTemplateKey,
-  matchesBatteryPassportTemplateDefinition,
+    classifyBatteryPassportSubmodel,
+    getBatteryPassportAdditionalSubmodels,
+    getBatteryPassportTemplateDefinition,
+    getBatteryPassportTemplateKey,
+    matchesBatteryPassportTemplateDefinition,
 } from './battery-passport-template-registry';
 
 function createSubmodel(overrides: Partial<aas.types.Submodel> = {}) {

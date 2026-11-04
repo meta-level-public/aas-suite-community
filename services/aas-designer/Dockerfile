@@ -1,5 +1,7 @@
 # Build stage
-FROM mcr.microsoft.com/dotnet/sdk:10.0 AS build
+# Runs natively on the build host and cross-compiles for the target architecture (no QEMU)
+FROM --platform=$BUILDPLATFORM mcr.microsoft.com/dotnet/sdk:10.0 AS build
+ARG TARGETARCH
 
 WORKDIR /src
 
@@ -29,7 +31,7 @@ COPY services/aas-designer/AasDesignerSystemManagementApi/AasDesignerSystemManag
 
 # Restore dependencies.
 WORKDIR /src/services/aas-designer/AasDesignerApi.Enterprise
-RUN dotnet restore
+RUN dotnet restore -a $TARGETARCH
 
 # Copy remaining source files.
 WORKDIR /src
@@ -43,8 +45,9 @@ RUN echo '{"sdk":{"version":"10.0.100","rollForward":"latestPreview","allowPrere
 
 # Publish directly to avoid NSwag-related Docker build failures.
 FROM build AS publish
+ARG TARGETARCH
 WORKDIR /src/services/aas-designer/AasDesignerApi.Enterprise
-RUN dotnet publish -c Release -o /app/publish /p:RunNSwag=false /p:GenerateDocumentationFile=false
+RUN dotnet publish -c Release -o /app/publish /p:RunNSwag=false /p:GenerateDocumentationFile=false -a $TARGETARCH
 
 # Runtime stage
 FROM mcr.microsoft.com/dotnet/aspnet:10.0 AS final

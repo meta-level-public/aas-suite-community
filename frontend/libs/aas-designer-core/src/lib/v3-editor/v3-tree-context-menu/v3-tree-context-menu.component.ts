@@ -29,9 +29,9 @@ import { ButtonModule } from 'primeng/button';
 import { DialogService, DynamicDialogRef } from 'primeng/dynamicdialog';
 import { TieredMenu } from 'primeng/tieredmenu';
 import {
-  createDocumentationDocument,
-  getDocumentationDocumentSemanticIdForHost,
-  isDocumentationDocumentCollection,
+    createDocumentationDocument,
+    getDocumentationDocumentSemanticIdForHost,
+    isDocumentationDocumentCollection,
 } from '../../generator/generator-documentation.builder';
 import { GeneratorService } from '../../generator/generator.service';
 import { DocumentItem } from '../../generator/model/document-item';
@@ -93,10 +93,7 @@ export class V3TreeContextMenuComponent {
     parentElement: TreeNode<V3TreeItem<any>> | undefined;
   }>();
 
-  @Output() showInsertJsonDialog = new EventEmitter<{
-    type: 'submodel' | 'element' | 'cd';
-    node: TreeNode<V3TreeItem<any>>;
-  }>();
+  @Output() showInsertJsonDialog = new EventEmitter<{ type: 'submodel' | 'element' | 'cd'; node: TreeNode<V3TreeItem<any>> }>();
   @Output() showInsertFromEclassDialog = new EventEmitter<{ parentElement: TreeNode<V3TreeItem<any>> }>();
 
   saveSnippetDialogVisible: boolean = false;

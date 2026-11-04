@@ -229,9 +229,7 @@ public class SaveShellInInfrastructure
 
                 // do something with the file
                 // find file in the aasFiles list and send it to the endpoint
-                var aasFilesMatched = aasFiles
-                    .Where(f => f.Filename.EndsWith(providedFile.Filename))
-                    .ToList();
+                var aasFilesMatched = MatchAasFiles(aasFiles, providedFile);
 
                 foreach (var aasFile in aasFilesMatched)
                 {
@@ -637,9 +635,7 @@ public class SaveShellInInfrastructure
                 {
                     // do something with the file
                     // find file in the aasFiles list and send it to the endpoint
-                    var aasFilesMatched = aasFiles
-                        .Where(f => f.Filename.EndsWith(providedFile.Filename))
-                        .ToList();
+                    var aasFilesMatched = MatchAasFiles(aasFiles, providedFile);
 
                     foreach (var aasFile in aasFilesMatched)
                     {
@@ -1085,6 +1081,50 @@ public class SaveShellInInfrastructure
         }
 
         return thumbUrl;
+    }
+
+    /// <summary>
+    /// File-Elemente, in die eine übergebene Datei geschrieben wird. Mit bekanntem Paketpfad nur
+    /// die Elemente mit genau diesem Pfad, sonst alle mit passendem Dateinamen. Sonst landen
+    /// gleichnamige Dateien verschiedener Elemente (z. B. je Release eine sbom.json) alle in
+    /// jedem dieser Elemente, und die zuletzt verarbeitete gewinnt.
+    /// </summary>
+    public static List<AasFileContent> MatchAasFiles(
+        List<AasFileContent> aasFiles,
+        ProvidedFile providedFile
+    )
+    {
+        if (!string.IsNullOrWhiteSpace(providedFile.PackagePath))
+        {
+            var packagePath = NormalizeFilePath(providedFile.PackagePath);
+            var byPath = aasFiles
+                .Where(f =>
+                    string.Equals(
+                        NormalizeFilePath(f.Path),
+                        packagePath,
+                        StringComparison.OrdinalIgnoreCase
+                    )
+                )
+                .ToList();
+            if (byPath.Count > 0)
+            {
+                return byPath;
+            }
+        }
+
+        return aasFiles.Where(f => f.Filename.EndsWith(providedFile.Filename)).ToList();
+    }
+
+    // Wie beim Packen (AasxPackager): ohne file:-Präfix, Query und Fragment, unescaped, mit führendem /
+    private static string NormalizeFilePath(string? path)
+    {
+        var normalized = Uri.UnescapeDataString((path ?? string.Empty).Trim())
+            .Replace('\\', '/')
+            .Replace("file:///aasx", "/aasx", StringComparison.OrdinalIgnoreCase)
+            .Replace("file:/aasx", "/aasx", StringComparison.OrdinalIgnoreCase)
+            .Split('#')[0]
+            .Split('?')[0];
+        return "/" + normalized.TrimStart('/');
     }
 
     private static async Task<byte[]?> ReadProvidedFileBytesAsync(

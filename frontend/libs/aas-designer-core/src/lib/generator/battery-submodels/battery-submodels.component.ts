@@ -7,45 +7,45 @@ import { Button } from 'primeng/button';
 import { FileSelectEvent } from 'primeng/fileupload';
 import { SidebarTreeNavComponent } from '../../general/sidebar-tree-nav/sidebar-tree-nav.component';
 import {
-  BatteryEditorTreeItem,
-  createBatteryEditorEnumOptions,
-  createBatteryEditorTreeKey,
-  findBatteryEditorTreeItemByKey,
-  flattenBatteryEditorTreeItems,
-  getBatteryEditorChildElements,
-  getBatteryEditorElementDisplayName,
-  getBatteryEditorModelTypeName,
-  getBatteryEditorTreeItemIndexLabel,
-  getFirstBatteryEditorTreeItem,
-  isBatteryEditorBlobElement,
-  isBatteryEditorContainerElement,
-  isBatteryEditorFileElement,
-  isBatteryEditorMultiLanguagePropertyElement,
-  isBatteryEditorPropertyElement,
-  isBatteryEditorRangeElement,
-  isBatteryEditorReferenceElement,
-  mapBatteryEditorTreeItemsToNodes,
-  resolveBatteryEditorDescriptionFromConceptDescriptions,
-  shouldRenderBatteryEditorUnsupported,
-  stringifyBatteryEditorDebugValue,
+    BatteryEditorTreeItem,
+    createBatteryEditorEnumOptions,
+    createBatteryEditorTreeKey,
+    findBatteryEditorTreeItemByKey,
+    flattenBatteryEditorTreeItems,
+    getBatteryEditorChildElements,
+    getBatteryEditorElementDisplayName,
+    getBatteryEditorModelTypeName,
+    getBatteryEditorTreeItemIndexLabel,
+    getFirstBatteryEditorTreeItem,
+    isBatteryEditorBlobElement,
+    isBatteryEditorContainerElement,
+    isBatteryEditorFileElement,
+    isBatteryEditorMultiLanguagePropertyElement,
+    isBatteryEditorPropertyElement,
+    isBatteryEditorRangeElement,
+    isBatteryEditorReferenceElement,
+    mapBatteryEditorTreeItemsToNodes,
+    resolveBatteryEditorDescriptionFromConceptDescriptions,
+    shouldRenderBatteryEditorUnsupported,
+    stringifyBatteryEditorDebugValue,
 } from '../battery-editor-field-utils';
 import { BatteryEditorSharedFieldComponent } from '../battery-editor-shared-field/battery-editor-shared-field.component';
 import {
-  classifyBatteryPassportSubmodel,
-  getBatteryPassportAdditionalSubmodels,
-  hasBatteryPassportSubmodel,
+    classifyBatteryPassportSubmodel,
+    getBatteryPassportAdditionalSubmodels,
+    hasBatteryPassportSubmodel,
 } from '../battery-passport-template-registry';
 import { GeneratorFilePreviewState } from '../generator-file-preview.utils';
 import {
-  buildGeneratorFileUploadCardState,
-  getGeneratorDisplayedContentType,
-  getGeneratorDisplayedFileName,
-  getGeneratorStoredFileReference,
-  hasGeneratorFileSelection,
+    buildGeneratorFileUploadCardState,
+    getGeneratorDisplayedContentType,
+    getGeneratorDisplayedFileName,
+    getGeneratorStoredFileReference,
+    hasGeneratorFileSelection,
 } from '../generator-file-upload-card-state.utils';
 import {
-  GeneratorFileUploadCardComponent,
-  type GeneratorFileUploadCardState,
+    GeneratorFileUploadCardComponent,
+    type GeneratorFileUploadCardState,
 } from '../generator-file-upload-card/generator-file-upload-card.component';
 import { GeneratorPageShellComponent } from '../generator-page-shell/generator-page-shell.component';
 import { GeneratorService } from '../generator.service';
