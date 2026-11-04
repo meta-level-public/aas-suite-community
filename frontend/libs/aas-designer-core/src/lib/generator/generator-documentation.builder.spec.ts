@@ -4,14 +4,14 @@ import { HandoverSemantics } from '@aas/helpers';
 import { describe, expect, it } from 'vitest';
 
 import {
-  buildDocumentationExportSubmodel,
-  createDocumentationDocument,
-  createDocumentationSubmodel,
-  getDocumentFilename,
-  getDocumentationDocumentHost,
-  isDocumentationDocumentCollection,
-  populateDocumentationSubmodel,
-  syncDocumentationDocuments,
+    buildDocumentationExportSubmodel,
+    createDocumentationDocument,
+    createDocumentationSubmodel,
+    getDocumentFilename,
+    getDocumentationDocumentHost,
+    isDocumentationDocumentCollection,
+    populateDocumentationSubmodel,
+    syncDocumentationDocuments,
 } from './generator-documentation.builder';
 import { DocumentItem } from './model/document-item';
 

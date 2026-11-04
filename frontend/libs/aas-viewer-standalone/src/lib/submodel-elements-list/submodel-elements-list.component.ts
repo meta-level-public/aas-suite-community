@@ -1,15 +1,15 @@
 import {
-  AfterViewInit,
-  ChangeDetectorRef,
-  Component,
-  ComponentRef,
-  inject,
-  Input,
-  OnDestroy,
-  QueryList,
-  Type,
-  ViewChildren,
-  ViewContainerRef,
+    AfterViewInit,
+    ChangeDetectorRef,
+    Component,
+    ComponentRef,
+    inject,
+    Input,
+    OnDestroy,
+    QueryList,
+    Type,
+    ViewChildren,
+    ViewContainerRef,
 } from '@angular/core';
 import { Subscription } from 'rxjs';
 

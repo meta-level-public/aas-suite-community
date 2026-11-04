@@ -100,4 +100,14 @@ describe('SemanticDescriptionPopupComponent', () => {
 
     expect(popoversInBody()).toBe(0);
   });
+
+  it('removes an open popover from the document when opening was interrupted before onShow', async () => {
+    // e.g. PrimeNG's align() throws while positioning, so onShow is never emitted
+    vi.spyOn(fixture.componentInstance, 'rememberOverlayElement').mockImplementation(() => undefined);
+    await openPopover();
+
+    fixture.destroy();
+
+    expect(popoversInBody()).toBe(0);
+  });
 });

@@ -1,5 +1,7 @@
 # Build stage
-FROM mcr.microsoft.com/dotnet/sdk:10.0 AS build
+# Runs natively on the build host and cross-compiles for the target architecture (no QEMU)
+FROM --platform=$BUILDPLATFORM mcr.microsoft.com/dotnet/sdk:10.0 AS build
+ARG TARGETARCH
 
 WORKDIR /src
 
@@ -22,7 +24,7 @@ COPY services/aas-designer/AasDesignerSharedLinksApi/AasDesignerSharedLinksApi.c
 COPY services/aas-designer/AasDesignerSystemManagementApi/AasDesignerSystemManagementApi.csproj ./services/aas-designer/AasDesignerSystemManagementApi/
 
 WORKDIR /src/services/aas-designer/AasDesignerApi.Community
-RUN dotnet restore
+RUN dotnet restore -a $TARGETARCH
 
 WORKDIR /src
 COPY services/shared/ ./services/shared/
@@ -32,8 +34,9 @@ COPY services/aas-designer/ ./services/aas-designer/
 RUN echo '{"sdk":{"version":"10.0.100","rollForward":"latestPreview","allowPrerelease":true}}' > /src/services/aas-designer/global.json
 
 FROM build AS publish
+ARG TARGETARCH
 WORKDIR /src/services/aas-designer/AasDesignerApi.Community
-RUN dotnet publish -c Release -o /app/publish /p:GenerateDocumentationFile=false
+RUN dotnet publish -c Release -o /app/publish /p:GenerateDocumentationFile=false -a $TARGETARCH
 
 FROM mcr.microsoft.com/dotnet/aspnet:10.0 AS final
 WORKDIR /app

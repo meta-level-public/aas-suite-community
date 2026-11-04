@@ -3,10 +3,10 @@ import * as aas from '@aas-core-works/aas-core3.1-typescript';
 import { describe, expect, it } from 'vitest';
 
 import {
-  buildDppPcfSubmodelElements,
-  DPP_PCF_REQUIRED_SEMANTIC_IDS,
-  hasDppPcfValues,
-  isDppPcfTemplateSubmodel,
+    buildDppPcfSubmodelElements,
+    DPP_PCF_REQUIRED_SEMANTIC_IDS,
+    hasDppPcfValues,
+    isDppPcfTemplateSubmodel,
 } from './generator-dpp-pcf.builder';
 
 describe('generator-dpp-pcf.builder', () => {

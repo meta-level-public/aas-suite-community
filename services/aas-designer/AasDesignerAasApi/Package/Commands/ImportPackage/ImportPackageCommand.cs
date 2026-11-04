@@ -171,6 +171,7 @@ public class ImportPackageCommandHandler
                         new ProvidedFile
                         {
                             Filename = file.Filename,
+                            PackagePath = file.AasxPath,
                             Stream = new MemoryStream(file.Content ?? []),
                         }
                     );

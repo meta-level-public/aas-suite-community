@@ -1744,10 +1744,7 @@ export class GeneratorService {
     const templateElements = pcfSubmodel.submodelElements ?? [];
     for (const generatedElement of generatedElements) {
       const templateElement = templateElements.find((element) => element.idShort === generatedElement.idShort);
-      if (
-        templateElement instanceof aas.types.SubmodelElementList &&
-        generatedElement instanceof aas.types.SubmodelElementList
-      ) {
+      if (templateElement instanceof aas.types.SubmodelElementList && generatedElement instanceof aas.types.SubmodelElementList) {
         templateElement.value = generatedElement.value;
       } else if (templateElement == null) {
         templateElements.push(generatedElement);

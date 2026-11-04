@@ -21,9 +21,9 @@ import { AasSharedDataService } from '../../../asset-administration-shell-tree/s
 import { V3UndoDirective } from '../../../general/directives/v3-undo.directive';
 import { Info } from '../../../general/model/info-item';
 import {
-  createDocumentationDocument,
-  getDocumentationDocumentSemanticIdForHost,
-  isDocumentationDocumentCollection,
+    createDocumentationDocument,
+    getDocumentationDocumentSemanticIdForHost,
+    isDocumentationDocumentCollection,
 } from '../../../generator/generator-documentation.builder';
 import { DocumentItem } from '../../../generator/model/document-item';
 import { HandoverdocumentationDocumentAddonComponent } from '../../addons/handoverdocumentation-document-addon/handoverdocumentation-document-addon.component';

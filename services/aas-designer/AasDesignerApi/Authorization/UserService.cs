@@ -625,6 +625,13 @@ public class UserService : IUserService
                         benutzer.BenutzerOrganisationen.Add(benutzerOrga);
                         _context.Benutzers.Add(benutzer);
                         _context.SaveChanges();
+                        InfrastrukturRechteUtil.GrantMissingInternalInfrastructureRights(
+                            _context,
+                            benutzer.Id,
+                            defaultOrga.Id,
+                            foundRoles
+                        );
+                        _context.SaveChanges();
                         var singleTenantOrgas = GetValidOrgas(benutzer);
                         var internalJwtToken = _jwtUtils.GenerateJwtToken(benutzer);
                         var internalRefreshToken = _jwtUtils.GenerateRefreshToken(ipAddress);
@@ -698,6 +705,24 @@ public class UserService : IUserService
                     AdditionalMessage = "NO_ACTIVE_ORGANISATION",
                 };
             }
+
+            // Mitglieder, die nach dem Anlegen der internen Infrastruktur dazukamen, haben dort
+            // sonst keine Rechte und sehen sie nicht. Maßgeblich sind die Rollen aus dem Token,
+            // die weiter unten auch in die Mitgliedschaft übernommen werden.
+            var loginRoles =
+                result.Roles.Count > 0 && HasValidAasSuiteRoles(result.Roles)
+                    ? GetValidAasSuiteRoles(result.Roles)
+                    : null;
+            foreach (var benutzerOrga in benutzer.BenutzerOrganisationen)
+            {
+                InfrastrukturRechteUtil.GrantMissingInternalInfrastructureRights(
+                    _context,
+                    benutzer.Id,
+                    benutzerOrga.OrganisationId,
+                    loginRoles ?? benutzerOrga.BenutzerRollen
+                );
+            }
+            _context.SaveChanges();
 
             if (!benutzer.DatenschutzAccepted)
             {

@@ -1,16 +1,16 @@
 import {
-  DataTypeDefXsd,
-  Entity,
-  EntityType,
-  ISubmodelElement,
-  Key,
-  KeyTypes,
-  Property,
-  Reference,
-  ReferenceTypes,
-  RelationshipElement,
-  SpecificAssetId,
-  Submodel,
+    DataTypeDefXsd,
+    Entity,
+    EntityType,
+    ISubmodelElement,
+    Key,
+    KeyTypes,
+    Property,
+    Reference,
+    ReferenceTypes,
+    RelationshipElement,
+    SpecificAssetId,
+    Submodel,
 } from '@aas-core-works/aas-core3.1-typescript/types';
 
 import { NotificationService } from '@aas/common-services';
@@ -29,12 +29,12 @@ import { SelectModule } from 'primeng/select';
 import { TableModule } from 'primeng/table';
 import { SearchForAssetComponent } from '../search-for-asset/search-for-asset.component';
 import {
-  cloneKeys,
-  cloneSpecificAssetIds,
-  createUniqueSiblingIdShort,
-  entityHasExclusiveAssetReference,
-  entityHasRequiredAssetReference,
-  specificAssetIdsAreComplete,
+    cloneKeys,
+    cloneSpecificAssetIds,
+    createUniqueSiblingIdShort,
+    entityHasExclusiveAssetReference,
+    entityHasRequiredAssetReference,
+    specificAssetIdsAreComplete,
 } from '../utils/entity-asset-reference.util';
 
 @Component({

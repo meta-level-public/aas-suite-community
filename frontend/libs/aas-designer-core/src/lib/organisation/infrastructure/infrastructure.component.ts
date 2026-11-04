@@ -467,7 +467,10 @@ export class InfrastructureComponent extends HasChangesCheckable implements OnIn
       idShort?: unknown;
       semanticId?: { keys?: { value?: unknown }[] };
     };
-    if (typeof submodel.idShort === 'string' && submodel.idShort.trim().toLowerCase() === 'aasdesignerchangelog') {
+    if (
+      typeof submodel.idShort === 'string' &&
+      submodel.idShort.trim().toLowerCase() === 'aasdesignerchangelog'
+    ) {
       return null;
     }
     const keys = submodel.semanticId?.keys ?? [];

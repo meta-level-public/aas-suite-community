@@ -1,5 +1,6 @@
 import * as aas from '@aas-core-works/aas-core3.1-typescript';
 import { provideHttpClient } from '@angular/common/http';
+import { provideHttpClientTesting } from '@angular/common/http/testing';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { TranslateModule } from '@ngx-translate/core';
 import { ViewerStoreService } from '../../viewer-store.service';
@@ -20,6 +21,7 @@ describe('BatteryNameplateViewerComponent', () => {
       imports: [TranslateModule.forRoot(), BatteryNameplateViewerComponent],
       providers: [
         provideHttpClient(),
+        provideHttpClientTesting(),
         {
           provide: ViewerStoreService,
           useValue: {

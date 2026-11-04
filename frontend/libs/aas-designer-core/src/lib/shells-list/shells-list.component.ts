@@ -27,15 +27,15 @@ import { ADDITIONAL_SHELL_MENU_ITEMS } from '@aas-designer-model';
 import { HelpLabelComponent, WaitDialogComponent } from '@aas/common-components';
 import { AccessService, PortalService } from '@aas/common-services';
 import {
-  AasInfrastructureClient,
-  AssetKind,
-  AvailableInfastructure,
-  CreateInstanceRequest,
-  CreateSharedLink,
-  ShellListDto,
-  ShellListVm,
-  ShellsClient,
-  TransferShellResponse,
+    AasInfrastructureClient,
+    AssetKind,
+    AvailableInfastructure,
+    CreateInstanceRequest,
+    CreateSharedLink,
+    ShellListDto,
+    ShellListVm,
+    ShellsClient,
+    TransferShellResponse,
 } from '@aas/webapi-client';
 import { MessageModule } from 'primeng/message';
 import { SelectModule } from 'primeng/select';
@@ -48,12 +48,12 @@ import { ObserveVisibilityDirective } from './observe-visibility.directive';
 import { ShellThumbnailCellComponent } from './shell-thumbnail-cell.component';
 import { ShellsListActions } from './shells-list.actions';
 import {
-  Column,
-  readShellsListPageSize,
-  SHELLS_LIST_COLUMNS,
-  SHELLS_LIST_DEFAULT_COLUMNS,
-  SHELLS_LIST_PAGE_OPTIONS,
-  writeShellsListPageSize,
+    Column,
+    readShellsListPageSize,
+    SHELLS_LIST_COLUMNS,
+    SHELLS_LIST_DEFAULT_COLUMNS,
+    SHELLS_LIST_PAGE_OPTIONS,
+    writeShellsListPageSize,
 } from './shells-list.config';
 import { ShellsListStore } from './shells-list.store';
 import { ShellSearchOpenResult, ShellsSearchComponent } from './shells-search/shells-search.component';

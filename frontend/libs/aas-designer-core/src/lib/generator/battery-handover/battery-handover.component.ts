@@ -8,33 +8,33 @@ import { DialogService, DynamicDialogRef } from 'primeng/dynamicdialog';
 import { FileSelectEvent } from 'primeng/fileupload';
 import { HandoverdocumentationDocumentAddonComponent } from '../../v3-editor/addons/handoverdocumentation-document-addon/handoverdocumentation-document-addon.component';
 import {
-  BatteryEditorTreeItem,
-  createBatteryEditorEnumOptions,
-  createBatteryEditorTreeKey,
-  findBatteryEditorTreeItemByKey,
-  flattenBatteryEditorTreeItems,
-  formatBatteryEditorLabel,
-  getBatteryEditorElementDisplayName,
-  getBatteryEditorTreeItemIndexLabel,
-  getFirstBatteryEditorTreeItem,
-  isBatteryEditorContainerElement,
-  mapBatteryEditorTreeItemsToNodes,
-  resolveBatteryEditorDescriptionFromConceptDescriptions,
-  stringifyBatteryEditorDebugValue,
+    BatteryEditorTreeItem,
+    createBatteryEditorEnumOptions,
+    createBatteryEditorTreeKey,
+    findBatteryEditorTreeItemByKey,
+    flattenBatteryEditorTreeItems,
+    formatBatteryEditorLabel,
+    getBatteryEditorElementDisplayName,
+    getBatteryEditorTreeItemIndexLabel,
+    getFirstBatteryEditorTreeItem,
+    isBatteryEditorContainerElement,
+    mapBatteryEditorTreeItemsToNodes,
+    resolveBatteryEditorDescriptionFromConceptDescriptions,
+    stringifyBatteryEditorDebugValue,
 } from '../battery-editor-field-utils';
 import {
-  getBatteryPassportAdditionalSubmodels,
-  getBatteryPassportTemplateKey,
-  hasBatteryPassportSubmodel,
+    getBatteryPassportAdditionalSubmodels,
+    getBatteryPassportTemplateKey,
+    hasBatteryPassportSubmodel,
 } from '../battery-passport-template-registry';
 import { getDocumentationDocumentHost, isDocumentationDocumentCollection } from '../generator-documentation.builder';
 import { GeneratorFilePreviewState } from '../generator-file-preview.utils';
 import {
-  buildGeneratorFileUploadCardState,
-  getGeneratorDisplayedContentType,
-  getGeneratorDisplayedFileName,
-  getGeneratorStoredFileReference,
-  hasGeneratorFileSelection,
+    buildGeneratorFileUploadCardState,
+    getGeneratorDisplayedContentType,
+    getGeneratorDisplayedFileName,
+    getGeneratorStoredFileReference,
+    hasGeneratorFileSelection,
 } from '../generator-file-upload-card-state.utils';
 import { type GeneratorFileUploadCardState } from '../generator-file-upload-card/generator-file-upload-card.component';
 import { GeneratorService } from '../generator.service';

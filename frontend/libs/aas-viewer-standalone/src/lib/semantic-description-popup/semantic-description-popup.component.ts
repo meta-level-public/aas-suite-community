@@ -42,12 +42,14 @@ export class SemanticDescriptionPopupComponent {
   // The popover is appended to the body. If this component is destroyed before change detection
   // has removed it there (e.g. when switching the submodel while it is open, or right after it has
   // been closed), PrimeNG leaves the element behind and makes it visible again. Remember it to remove it.
+  // onShow is emitted last when opening, so fall back to the current container if opening was interrupted.
   private overlayElement: HTMLElement | null = null;
 
   constructor() {
     inject(DestroyRef).onDestroy(() => {
-      if (openPopover === this.popover()) openPopover = null;
-      this.overlayElement?.remove();
+      const popover = this.popover();
+      if (openPopover === popover) openPopover = null;
+      (this.overlayElement ?? popover?.container)?.remove();
     });
   }
 
