@@ -238,59 +238,45 @@ export class AppMenuComponent implements OnInit {
   }
 
   isActive(tab: any): boolean {
-    const currentUrl = this.currentUrl();
-    const routerLink = Array.isArray(tab.routerLink) ? tab.routerLink[0] : tab.routerLink;
+    return this.matchesTab(tab, this.currentUrl());
+  }
 
-    // Check main routerLink - exact match or starts with
-    if (currentUrl === routerLink || currentUrl.startsWith(routerLink + '/')) {
+  /** Path of a router link, e.g. ['/', 'dashboard'] or ['/dashboard'] -> '/dashboard'. */
+  private toPath(link: unknown): string {
+    const segments = (Array.isArray(link) ? link : [link])
+      .map((segment) => String(segment ?? ''))
+      .flatMap((segment) => segment.split('/'))
+      .filter((segment) => segment !== '');
+    return '/' + segments.join('/');
+  }
+
+  private matchesPath(url: string, path: string): boolean {
+    return path !== '/' && (url === path || url.startsWith(path + '/'));
+  }
+
+  private matchesTab(tab: any, currentUrl: string): boolean {
+    // Query parameters and fragments do not decide which menu entry is active
+    const url = currentUrl.split(/[?#]/)[0];
+    const path = this.toPath(tab.routerLink);
+
+    if (this.matchesPath(url, path)) {
       return true;
     }
 
     // Check altLink (e.g., /viewer for generator tab)
-    if (tab.altLink) {
-      const altLink = Array.isArray(tab.altLink) ? tab.altLink[0] : tab.altLink;
-      if (currentUrl === altLink || currentUrl.startsWith(altLink + '/')) {
-        return true;
-      }
-    }
-
-    // Check for /generator routes which should match /aas tab
-    if (routerLink === '/aas' && currentUrl.startsWith('/generator')) {
+    if (tab.altLink && this.matchesPath(url, this.toPath(tab.altLink))) {
       return true;
     }
 
-    return false;
+    // Check for /generator routes which should match /aas tab
+    return path === '/aas' && this.matchesPath(url, '/generator');
   }
 
   private updateActiveTab(url: string) {
     this.currentUrl.set(url);
-    const matchingTab = this.tabs.find((tab) => {
-      const routerLink = Array.isArray(tab.routerLink) ? tab.routerLink[0] : tab.routerLink;
-
-      // Check main routerLink
-      if (url.startsWith(routerLink)) {
-        return true;
-      }
-
-      // Check altLink (e.g., /viewer for generator tab)
-      if (tab.altLink) {
-        const altLink = Array.isArray(tab.altLink) ? tab.altLink[0] : tab.altLink;
-        if (url.startsWith(altLink)) {
-          return true;
-        }
-      }
-
-      // Check for /generator routes which should match /aas tab
-      if (routerLink === '/aas' && url.startsWith('/generator')) {
-        return true;
-      }
-
-      return false;
-    });
-
+    const matchingTab = this.tabs.find((tab) => this.matchesTab(tab, url));
     if (matchingTab) {
-      const value = Array.isArray(matchingTab.routerLink) ? matchingTab.routerLink[0] : matchingTab.routerLink;
-      this.activeTabValue.set(value);
+      this.activeTabValue.set(this.toPath(matchingTab.routerLink));
     }
   }
 }

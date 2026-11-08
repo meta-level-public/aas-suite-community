@@ -1,4 +1,5 @@
 export * from './aas-extract-helper';
+export * from './aas-model-type';
 export * from './autocomplete-off.directive';
 export * from './concept-description-helper';
 export * from './convert';

@@ -1,5 +1,6 @@
 import * as aas from '@aas-core-works/aas-core3.1-typescript';
 import { HelpLabelComponent } from '@aas/common-components';
+import { InstanceHelper } from '@aas/helpers';
 import { CommonModule } from '@angular/common';
 import { Component, inject, ChangeDetectionStrategy } from '@angular/core';
 import { FormsModule } from '@angular/forms';
@@ -61,9 +62,19 @@ type CapabilityAddonDialogData = {
   count?: number;
   currentLanguage?: string;
   currentSubmodelId?: string;
+  /** Key chain of the CapabilitySet (Submodel key first), default: `[Submodel, CapabilitySet]`. */
+  capabilitySetKeys?: aas.types.Key[];
+  /** CapabilitySet with the other capability containers (to reference their capabilities). */
+  capabilitySet?: aas.types.SubmodelElementCollection;
   availableCapabilityRefs?: string[];
   existingCapabilityContainer?: aas.types.SubmodelElementCollection;
 };
+
+type InternalReferenceKind = 'Property' | 'Constraint' | 'Capability';
+
+/** Prefix of the external fallback references used when no submodel id is known (may be repeated in old data). */
+const INTERNAL_REFERENCE_PREFIX = /^(?:internal:(?:Property|Constraint|Capability):)+/;
+const CAPABILITY_CONTAINER_SEMANTIC_ID = 'https://admin-shell.io/idta/CapabilityDescription/CapabilityContainer/1/0';
 
 @Component({
   selector: 'vws-capability-addon',
@@ -82,34 +93,7 @@ type CapabilityAddonDialogData = {
   ],
   templateUrl: './capability-addon.component.html',
   changeDetection: ChangeDetectionStrategy.Eager,
-  styles: [
-    `
-      :host ::ng-deep .capability-fieldset .p-fieldset-legend {
-        display: flex;
-        align-items: center;
-        width: 100%;
-        padding: 0rem !important;
-      }
-
-      :host ::ng-deep .capability-fieldset.p-fieldset-toggleable .p-fieldset-legend a {
-        padding: 0rem !important;
-      }
-
-      :host ::ng-deep .capability-fieldset.p-fieldset-toggleable .p-fieldset-toggle-button {
-        display: flex;
-        align-items: center;
-        width: 100%;
-      }
-
-      :host ::ng-deep .capability-fieldset .p-fieldset-legend-label,
-      :host ::ng-deep .capability-fieldset .p-fieldset-legend-text {
-        display: flex;
-        align-items: center;
-        flex: 1;
-        width: 100%;
-      }
-    `,
-  ],
+  styleUrl: './capability-addon.component.scss',
 })
 export class CapabilityAddonComponent {
   ref: DynamicDialogRef = inject(DynamicDialogRef);
@@ -161,6 +145,8 @@ export class CapabilityAddonComponent {
   role: CapabilityRole = 'NotAssigned';
   currentLanguage = 'de';
   currentSubmodelId = '';
+  capabilitySetKeys: aas.types.Key[] = [];
+  capabilitySet: aas.types.SubmodelElementCollection | null = null;
 
   propertyContainers: PropertyContainerDraft[] = [];
   propertyConstraints: PropertyConstraintDraft[] = [];
@@ -186,6 +172,8 @@ export class CapabilityAddonComponent {
     this.capabilityIdShort = `Capability${count.toString().padStart(2, '0')}`;
     this.currentLanguage = data.currentLanguage ?? 'de';
     this.currentSubmodelId = data.currentSubmodelId ?? '';
+    this.capabilitySetKeys = data.capabilitySetKeys ?? [];
+    this.capabilitySet = data.capabilitySet ?? null;
     this.availableCapabilityRefs = data.availableCapabilityRefs ?? [];
     this.existingCapabilityContainer = data.existingCapabilityContainer ?? null;
     if (this.existingCapabilityContainer != null) {
@@ -410,7 +398,7 @@ export class CapabilityAddonComponent {
       capabilityContainer.value.push(propertySet);
     }
 
-    const capabilityRelations = this.createCapabilityRelations(capability.idShort ?? idShort);
+    const capabilityRelations = this.createCapabilityRelations(capabilityContainer, idShort);
     if (capabilityRelations != null) {
       capabilityContainer.value.push(capabilityRelations);
     }
@@ -422,7 +410,10 @@ export class CapabilityAddonComponent {
     this.ref.close(null);
   }
 
-  private createCapabilityRelations(capabilityIdShort: string): aas.types.SubmodelElementCollection | null {
+  private createCapabilityRelations(
+    capabilityContainer: aas.types.SubmodelElementCollection,
+    capabilityIdShort: string,
+  ): aas.types.SubmodelElementCollection | null {
     const hasRelations =
       this.realizedByRefs.length > 0 ||
       this.generalizedByRefs.length > 0 ||
@@ -448,8 +439,8 @@ export class CapabilityAddonComponent {
         rel.semanticId = this.createExternalRef(
           'https://adminshell.io/idta/CapabilityDescription/CapabilityRealizedBy/1/0',
         );
-        rel.first = this.createCapabilityReference(capabilityIdShort);
-        rel.second = this.createRelationTargetReference(target);
+        rel.first = this.createCapabilityReference(capabilityContainer, capabilityIdShort);
+        rel.second = this.createRelationTargetReference(capabilityContainer, target);
         relations.value?.push(rel);
       });
 
@@ -468,14 +459,14 @@ export class CapabilityAddonComponent {
           rel.semanticId = this.createExternalRef(
             'https://adminshell.io/idta/CapabilityDescription/CapabilityGeneralizedBy/1/0',
           );
-          rel.first = this.createCapabilityReference(capabilityIdShort);
-          rel.second = this.createRelationTargetReference(target);
+          rel.first = this.createCapabilityReference(capabilityContainer, capabilityIdShort);
+          rel.second = this.createRelationTargetReference(capabilityContainer, target);
           generalizedBySet.value?.push(rel);
         });
       relations.value.push(generalizedBySet);
     }
 
-    const constraintSet = this.createConstraintSet(capabilityIdShort);
+    const constraintSet = this.createConstraintSet(capabilityContainer, capabilityIdShort);
     if (constraintSet != null) {
       relations.value.push(constraintSet);
     }
@@ -483,7 +474,10 @@ export class CapabilityAddonComponent {
     return relations;
   }
 
-  private createConstraintSet(capabilityIdShort: string): aas.types.SubmodelElementCollection | null {
+  private createConstraintSet(
+    capabilityContainer: aas.types.SubmodelElementCollection,
+    capabilityIdShort: string,
+  ): aas.types.SubmodelElementCollection | null {
     if (this.propertyConstraints.length === 0 && this.transitionConstraints.length === 0) {
       return null;
     }
@@ -527,8 +521,8 @@ export class CapabilityAddonComponent {
         rel.semanticId = this.createExternalRef(
           'https://adminshell.io/idta/CapabilityDescription/ConstraintHasProperty/1/0',
         );
-        rel.first = this.createConstraintReference(container.idShort ?? draft.idShort);
-        rel.second = this.createPropertyReference(target);
+        rel.first = this.createConstraintReference(capabilityContainer, container.idShort ?? draft.idShort);
+        rel.second = this.createPropertyReference(capabilityContainer, target);
         relCollection.value?.push(rel);
       });
 
@@ -552,7 +546,7 @@ export class CapabilityAddonComponent {
       constrainedBy.semanticId = this.createExternalRef(
         'https://adminshell.io/idta/CapabilityDescription/TransitionConstrainedBy/1/0',
       );
-      constrainedBy.first = this.createCapabilityReference(capabilityIdShort);
+      constrainedBy.first = this.createCapabilityReference(capabilityContainer, capabilityIdShort);
       constrainedBy.second = this.createExternalRef(draft.targetCapability.trim());
       container.value.push(constrainedBy);
 
@@ -712,44 +706,139 @@ export class CapabilityAddonComponent {
     }
   }
 
-  private createPropertyReference(propertyIdShort: string): aas.types.Reference {
-    if (this.currentSubmodelId.trim() === '') {
-      return this.createExternalRef(`internal:Property:${propertyIdShort}`);
+  /** Key chain of the CapabilitySet, or null without a known submodel (then `internal:` references are used). */
+  private getCapabilitySetKeys(): aas.types.Key[] | null {
+    if (this.capabilitySetKeys.length > 0) {
+      return this.capabilitySetKeys.map((key) => new aas.types.Key(key.type, key.value));
     }
-
-    return new aas.types.Reference(aas.types.ReferenceTypes.ModelReference, [
+    if (this.currentSubmodelId.trim() === '') {
+      return null;
+    }
+    return [
       new aas.types.Key(aas.types.KeyTypes.Submodel, this.currentSubmodelId),
-      new aas.types.Key(aas.types.KeyTypes.SubmodelElement, propertyIdShort),
+      new aas.types.Key(aas.types.KeyTypes.SubmodelElementCollection, 'CapabilitySet'),
+    ];
+  }
+
+  /**
+   * ModelReference with the full key chain (Submodel, CapabilitySet, ..., element) or, without a submodel,
+   * the external `internal:<Kind>:<idShort>` fallback (an existing prefix is not added twice).
+   */
+  private createInternalReference(
+    kind: InternalReferenceKind,
+    idShort: string,
+    pathKeys: () => aas.types.Key[],
+  ): aas.types.Reference {
+    const setKeys = this.getCapabilitySetKeys();
+    if (setKeys == null) {
+      return this.createExternalRef(`internal:${kind}:${this.stripInternalPrefix(idShort)}`);
+    }
+    return new aas.types.Reference(aas.types.ReferenceTypes.ModelReference, [...setKeys, ...pathKeys()]);
+  }
+
+  private createPropertyReference(
+    capabilityContainer: aas.types.SubmodelElementCollection,
+    propertyIdShort: string,
+  ): aas.types.Reference {
+    const idShort = this.stripInternalPrefix(propertyIdShort);
+    return this.createInternalReference('Property', idShort, () => {
+      const containerKey = this.createElementKey(capabilityContainer, capabilityContainer.idShort ?? '');
+      const propertySet = capabilityContainer.value?.find((el) => el.idShort === 'PropertySet');
+      const pathInPropertySet = propertySet != null ? this.findElementKeys(propertySet, idShort) : null;
+      if (propertySet == null || pathInPropertySet == null) {
+        return [containerKey, new aas.types.Key(aas.types.KeyTypes.SubmodelElement, idShort)];
+      }
+      return [containerKey, this.createElementKey(propertySet, 'PropertySet'), ...pathInPropertySet];
+    });
+  }
+
+  private createConstraintReference(
+    capabilityContainer: aas.types.SubmodelElementCollection,
+    constraintIdShort: string,
+  ): aas.types.Reference {
+    const idShort = this.stripInternalPrefix(constraintIdShort);
+    return this.createInternalReference('Constraint', idShort, () =>
+      [capabilityContainer.idShort ?? '', 'CapabilityRelations', 'ConstraintSet', idShort].map(
+        (value) => new aas.types.Key(aas.types.KeyTypes.SubmodelElementCollection, value),
+      ),
+    );
+  }
+
+  private createCapabilityReference(
+    capabilityContainer: aas.types.SubmodelElementCollection,
+    capabilityIdShort: string,
+  ): aas.types.Reference {
+    const idShort = this.stripInternalPrefix(capabilityIdShort);
+    return this.createInternalReference('Capability', idShort, () => [
+      new aas.types.Key(
+        aas.types.KeyTypes.SubmodelElementCollection,
+        this.findCapabilityContainerIdShort(capabilityContainer, idShort),
+      ),
+      new aas.types.Key(aas.types.KeyTypes.Capability, idShort),
     ]);
   }
 
-  private createConstraintReference(constraintIdShort: string): aas.types.Reference {
-    if (this.currentSubmodelId.trim() === '') {
-      return this.createExternalRef(`internal:Constraint:${constraintIdShort}`);
-    }
+  /** idShort of the container that holds the capability (own container, a container of the set or the default name). */
+  private findCapabilityContainerIdShort(
+    ownContainer: aas.types.SubmodelElementCollection,
+    capabilityIdShort: string,
+  ): string {
+    const containsCapability = (el: aas.types.ISubmodelElement) =>
+      el instanceof aas.types.SubmodelElementCollection &&
+      (el.value ?? []).some((child) => child instanceof aas.types.Capability && child.idShort === capabilityIdShort);
 
-    return new aas.types.Reference(aas.types.ReferenceTypes.ModelReference, [
-      new aas.types.Key(aas.types.KeyTypes.Submodel, this.currentSubmodelId),
-      new aas.types.Key(aas.types.KeyTypes.SubmodelElement, constraintIdShort),
-    ]);
+    if (containsCapability(ownContainer)) {
+      return ownContainer.idShort ?? '';
+    }
+    const otherContainer = (this.capabilitySet?.value ?? []).find(
+      (el) => this.hasSemanticId(el, CAPABILITY_CONTAINER_SEMANTIC_ID) && containsCapability(el),
+    );
+    return otherContainer?.idShort ?? `CapabilityContainer${capabilityIdShort}`;
   }
 
-  private createCapabilityReference(capabilityIdShort: string): aas.types.Reference {
-    if (this.currentSubmodelId.trim() === '') {
-      return this.createExternalRef(`internal:Capability:${capabilityIdShort}`);
-    }
-
-    return new aas.types.Reference(aas.types.ReferenceTypes.ModelReference, [
-      new aas.types.Key(aas.types.KeyTypes.Submodel, this.currentSubmodelId),
-      new aas.types.Key(aas.types.KeyTypes.SubmodelElement, capabilityIdShort),
-    ]);
-  }
-
-  private createRelationTargetReference(target: CapabilityRelationTargetDraft): aas.types.Reference {
+  private createRelationTargetReference(
+    capabilityContainer: aas.types.SubmodelElementCollection,
+    target: CapabilityRelationTargetDraft,
+  ): aas.types.Reference {
     if (target.mode === 'internal') {
-      return this.createCapabilityReference(target.value.trim());
+      return this.createCapabilityReference(capabilityContainer, target.value.trim());
     }
     return this.createExternalRef(target.value.trim());
+  }
+
+  /** Key of an element; children of a SubmodelElementList are addressed by their index. */
+  private createElementKey(element: aas.types.ISubmodelElement, value: string): aas.types.Key {
+    return new aas.types.Key(InstanceHelper.getKeyType(element), value);
+  }
+
+  /** Keys from below `parent` down to the element with the idShort (depth-first through SMC/SML), or null. */
+  private findElementKeys(parent: aas.types.ISubmodelElement, idShort: string): aas.types.Key[] | null {
+    const children = this.getChildElements(parent);
+    for (const [index, element] of children.entries()) {
+      const key = this.createElementKey(
+        element,
+        parent instanceof aas.types.SubmodelElementList ? index.toString() : (element.idShort ?? ''),
+      );
+      if (element.idShort === idShort) {
+        return [key];
+      }
+      const nested = this.findElementKeys(element, idShort);
+      if (nested != null) {
+        return [key, ...nested];
+      }
+    }
+    return null;
+  }
+
+  private getChildElements(element: aas.types.ISubmodelElement): aas.types.ISubmodelElement[] {
+    if (element instanceof aas.types.SubmodelElementCollection || element instanceof aas.types.SubmodelElementList) {
+      return element.value ?? [];
+    }
+    return [];
+  }
+
+  private stripInternalPrefix(value: string): string {
+    return value.trim().replace(INTERNAL_REFERENCE_PREFIX, '');
   }
 
   private createExternalRef(value: string): aas.types.Reference {
@@ -791,7 +880,7 @@ export class CapabilityAddonComponent {
     ) as aas.types.SubmodelElementCollection | undefined;
     this.realizedByRefs = this.readRelationTargets(relations, 'realized');
     this.generalizedByRefs = this.readGeneralizedByTargets(relations);
-    this.propertyConstraints = this.readPropertyConstraints(relations);
+    this.propertyConstraints = this.readPropertyConstraints(container, relations);
     this.transitionConstraints = this.readTransitionConstraints(relations);
   }
 
@@ -907,13 +996,18 @@ export class CapabilityAddonComponent {
   }
 
   private readRelationTargetDraft(ref: aas.types.Reference | null | undefined): CapabilityRelationTargetDraft {
-    const mode: 'internal' | 'external' =
-      ref?.type === aas.types.ReferenceTypes.ModelReference ? 'internal' : 'external';
-    const value = this.readLastRefValue(ref).trim();
-    return { mode, value };
+    const isModelReference = ref?.type === aas.types.ReferenceTypes.ModelReference;
+    const lastValue = this.readLastRefValue(ref).trim();
+    // without a submodel, internal targets are stored as external `internal:Capability:<idShort>` references
+    const isInternalFallback = !isModelReference && INTERNAL_REFERENCE_PREFIX.test(lastValue);
+    return {
+      mode: isModelReference || isInternalFallback ? 'internal' : 'external',
+      value: isInternalFallback ? this.stripInternalPrefix(lastValue) : lastValue,
+    };
   }
 
   private readPropertyConstraints(
+    capabilityContainer: aas.types.SubmodelElementCollection,
     relations: aas.types.SubmodelElementCollection | undefined,
   ): PropertyConstraintDraft[] {
     const constraintSet = (relations?.value ?? []).find((el) =>
@@ -939,7 +1033,7 @@ export class CapabilityAddonComponent {
       ) as aas.types.SubmodelElementCollection | undefined;
       const targetProperties = (relationCollection?.value ?? [])
         .filter((el): el is aas.types.RelationshipElement => el instanceof aas.types.RelationshipElement)
-        .map((rel) => this.readLastRefValue(rel.second))
+        .map((rel) => this.readInternalReferenceTarget(capabilityContainer, rel.second))
         .filter((value) => value !== '');
 
       let type: PropertyConstraintType = 'BasicConstraint';
@@ -994,6 +1088,40 @@ export class CapabilityAddonComponent {
         targetCapability: this.readLastRefValue(rel?.second),
       };
     });
+  }
+
+  /**
+   * idShort of the element an internal reference points to: resolves the key chain inside the capability
+   * container (SubmodelElementList children by index), otherwise the last key (old `[Submodel, idShort]`
+   * references) without `internal:` prefixes.
+   */
+  private readInternalReferenceTarget(
+    capabilityContainer: aas.types.SubmodelElementCollection,
+    ref: aas.types.Reference | null | undefined,
+  ): string {
+    const keys = ref?.keys ?? [];
+    const fallback = this.stripInternalPrefix(this.readLastRefValue(ref));
+    if (ref?.type !== aas.types.ReferenceTypes.ModelReference) {
+      return fallback;
+    }
+
+    const containerKeyIndex = keys.findIndex((key) => key.value === capabilityContainer.idShort);
+    if (containerKeyIndex < 0 || containerKeyIndex === keys.length - 1) {
+      return fallback;
+    }
+
+    let current: aas.types.ISubmodelElement | undefined = capabilityContainer;
+    for (const key of keys.slice(containerKeyIndex + 1)) {
+      const children: aas.types.ISubmodelElement[] = current != null ? this.getChildElements(current) : [];
+      current =
+        current instanceof aas.types.SubmodelElementList
+          ? children[Number(key.value)]
+          : children.find((child) => child.idShort === key.value);
+      if (current == null) {
+        return fallback;
+      }
+    }
+    return current?.idShort?.trim() || fallback;
   }
 
   private toConditionalType(value: string | null | undefined): ConditionalType {

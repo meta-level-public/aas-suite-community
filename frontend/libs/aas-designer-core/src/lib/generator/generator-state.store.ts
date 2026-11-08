@@ -224,8 +224,12 @@ export class GeneratorStateStore {
       buildAssetShellIdShortSuggestion(input?.assetShellDescription, ['de', 'en']) ||
       'aa';
 
-    shell.assetInformation.assetKind =
-      input?.kind === 'Instance' ? aas.types.AssetKind.Instance : aas.types.AssetKind.Type;
+    // Only change the kind when it is given: the asset data step updates description and IDs without a kind and
+    // must not turn an instance shell back into a type shell.
+    if (input?.kind != null) {
+      shell.assetInformation.assetKind =
+        input.kind === 'Instance' ? aas.types.AssetKind.Instance : aas.types.AssetKind.Type;
+    }
     shell.idShort = shellIdShort;
     shell.id =
       input?.assetShellIdentifier?.trim() ||

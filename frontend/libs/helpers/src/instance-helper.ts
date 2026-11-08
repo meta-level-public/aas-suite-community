@@ -62,4 +62,10 @@ export class InstanceHelper {
     // console.log('Unknown instance type: ' + el);
     return el?.constructor?.name; // only works if not minified ....
   }
+
+  /** Key type of a referable for model references (falls back to SubmodelElement for unknown elements). */
+  static getKeyType(el: unknown): aas.types.KeyTypes {
+    const keyType = aas.types.KeyTypes[InstanceHelper.getInstanceName(el) as keyof typeof aas.types.KeyTypes];
+    return keyType ?? aas.types.KeyTypes.SubmodelElement;
+  }
 }

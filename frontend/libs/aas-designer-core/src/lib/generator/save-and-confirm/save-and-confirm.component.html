@@ -149,12 +149,12 @@
               @case ('GENERIC_SubmodelElementCollection') {}
               @case ('GENERIC_Submodel') {}
               @case ('GENERIC_Property') {
-                {{ rowData.value.value }}
+                {{ rowData.value }}
               }
               @case ('GENERIC_File') {
                 {{ rowData.value.value }} / {{ rowData.value.mimeType }}
               }
-              @case ('GENERIC_MultilanguageProperty') {
+              @case ('GENERIC_MultiLanguageProperty') {
                 @for (mlp of rowData.value; track mlp) {
                   <div>{{ mlp.language }}: {{ mlp.text }}</div>
                 }

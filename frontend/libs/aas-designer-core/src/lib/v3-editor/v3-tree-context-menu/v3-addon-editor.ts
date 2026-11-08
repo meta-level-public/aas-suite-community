@@ -23,7 +23,7 @@ import {
   isCapabilityDescriptionSubmodel,
   isCapabilitySet,
 } from './v3-capability-addon-helpers';
-import { getSubmodelIdOfItem } from './v3-template-path';
+import { getModelReferenceKeysOfItem, getSubmodelIdOfItem } from './v3-template-path';
 
 /** Dependencies of the addon editors, provided by the tree context menu. */
 export interface AddonEditorContext {
@@ -207,6 +207,8 @@ function openCapabilityEditor(ctx: AddonEditorContext) {
       count,
       currentLanguage: ctx.currentLanguage,
       currentSubmodelId: getSubmodelIdOfItem(ctx.getNode()?.data),
+      capabilitySetKeys: getModelReferenceKeysOfItem(targetNode.data),
+      capabilitySet: targetNode.data?.content,
       availableCapabilityRefs: collectAvailableCapabilityRefs(targetNode.data?.content),
     },
   });

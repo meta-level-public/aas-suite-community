@@ -484,8 +484,14 @@ export class RegistryCorrectionComponent implements OnInit {
       this.notificationService.showMessageAlways('REGISTRY_CORRECTION_SAVE_SUCCESS', 'SUCCESS', 'success', false);
       this.cancelEditSubmodel(submodelId);
       this.selectedNodeKey.set(this.buildSubmodelKey(nextId));
+      // Drop the cached descriptors so that loadAasDescriptor loads the selected submodel descriptor exactly once.
+      this.submodelDescriptors.update((map) => {
+        const next = { ...map };
+        delete next[submodelId];
+        delete next[nextId];
+        return next;
+      });
       await this.loadAasDescriptor(this.buildSubmodelKey(nextId));
-      await this.loadSubmodelDescriptor(nextId);
     } catch {
       this.notificationService.showMessageAlways('REGISTRY_CORRECTION_SAVE_FAILED', 'ERROR', 'error', false);
     } finally {

@@ -236,7 +236,12 @@
                 </tr>
               </ng-template>
               <ng-template #body let-shell let-columns="columns">
-                <tr (click)="onRowClick($event, shell)" class="cursor-pointer">
+                <tr
+                  (click)="onRowClick($event, shell)"
+                  (keydown.enter)="$event.target === $event.currentTarget && onRowClick($event, shell)"
+                  tabindex="0"
+                  class="cursor-pointer"
+                >
                   <td (click)="$event.stopPropagation()">
                     <div class="flex flex-row items-center">
                       <p-tableCheckbox [value]="shell"></p-tableCheckbox>

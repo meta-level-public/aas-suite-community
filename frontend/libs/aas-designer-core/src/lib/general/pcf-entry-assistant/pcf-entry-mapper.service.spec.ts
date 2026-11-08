@@ -90,7 +90,7 @@ describe('PcfEntryMapperService', () => {
     it('builds a product carbon footprint collection with semantic id, typed properties and list items', () => {
       const element = service.createEntryElement(productEntry, 2);
 
-      expect(element.idShort).toBe('Element 2');
+      expect(element.idShort).toBe('Element_2');
       expect(semanticIdOf(element)).toBe(PRODUCT_CARBON_FOOTPRINT_SEMANTIC_ID);
 
       const methods = child<aas.types.SubmodelElementList>(element, 'PcfCalculationMethods');
@@ -140,7 +140,7 @@ describe('PcfEntryMapperService', () => {
     it('builds a sector specific collection with nested rule, api and information groups', () => {
       const element = service.createEntryElement(sectorEntry, 1);
 
-      expect(element.idShort).toBe('Element 1');
+      expect(element.idShort).toBe('Element_1');
       expect(element.semanticId).toBeNull();
       expect((element.value ?? []).map((item) => item.idShort)).toEqual([
         'PcfCalculationMethods',
@@ -158,6 +158,24 @@ describe('PcfEntryMapperService', () => {
     });
   });
 
+  it('creates entries with idShorts that pass the AAS verification', () => {
+    const list = new aas.types.SubmodelElementList(
+      aas.types.AasSubmodelElements.SubmodelElementCollection,
+      null,
+      null,
+      'Entries',
+    );
+    list.value = [service.createEntryElement(productEntry, 0), service.createEntryElement(sectorEntry, 1)];
+    const submodel = new aas.types.Submodel('urn:example:sm:pcf');
+    submodel.submodelElements = [list];
+
+    const idShortErrors = [...aas.verification.verify(submodel)].filter((error) =>
+      error.path.toString().endsWith('.idShort'),
+    );
+
+    expect(idShortErrors).toEqual([]);
+  });
+
   describe('readEntry', () => {
     it('reads back all values of a created product carbon footprint entry', () => {
       const element = service.createEntryElement(productEntry, 0);
@@ -165,7 +183,7 @@ describe('PcfEntryMapperService', () => {
       const entry = service.readEntry('product-carbon-footprint', element, 0);
 
       expect(entry).toEqual({
-        id: 'Element 0',
+        id: 'Element_0',
         type: 'product-carbon-footprint',
         values: {
           'pcf-calculation-methods': ['ISO 14067', 'GHG Protocol'],

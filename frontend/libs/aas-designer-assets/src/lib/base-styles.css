@@ -144,6 +144,14 @@ html.my-app-dark > body {
   background-image: url('./assets/images/login-background-dark.webp');
 }
 
+/* Translucent surfaces follow the dark content background instead of white */
+html.my-app-dark {
+  --aas-surface-glass: color-mix(in srgb, var(--p-content-background) 24%, transparent);
+  --aas-surface-overlay: color-mix(in srgb, var(--p-content-background) 92%, transparent);
+  --aas-surface-overlay-strong: color-mix(in srgb, var(--p-content-background) 97%, transparent);
+  --aas-surface-subtle: var(--p-content-hover-background);
+}
+
 .layout-wrapper {
   --aas-layout-vertical-gap: 8px;
   --aas-layout-content-horizontal-gap: 0.5rem;

@@ -232,7 +232,7 @@ export class ShellsListComponent implements OnInit, OnDestroy {
     this.menuItems = this.buildShellMenu(shell, canEdit, transferTargets);
   }
 
-  onRowClick(_event: MouseEvent, shell: ShellListDto) {
+  onRowClick(_event: Event, shell: ShellListDto) {
     // Check if readonly infrastructure
     const canEdit = !this.selectedRepository()?.isReadonly;
 

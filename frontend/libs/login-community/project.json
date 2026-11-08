@@ -6,11 +6,12 @@
   "projectType": "library",
   "tags": ["scope:designer-community"],
   "targets": {
+    "typecheck": {},
     "test": {
       "executor": "@analogjs/vitest-angular:test",
       "outputs": ["{workspaceRoot}/coverage/{projectRoot}"],
       "options": {
-        "configFile": "vitest.config.ts",
+        "configFile": "vitest.config.mts",
         "coverage": false,
         "watch": false,
         "passWithNoTests": true

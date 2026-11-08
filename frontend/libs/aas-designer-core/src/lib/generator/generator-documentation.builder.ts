@@ -1,5 +1,11 @@
 import * as aas from '@aas-core-works/aas-core3.1-typescript';
-import { FilenameHelper, HandoverSemantics, IdGenerationUtil, SemanticIdHelper } from '@aas/helpers';
+import {
+  FilenameHelper,
+  HandoverSemantics,
+  IdGenerationUtil,
+  SemanticIdHelper,
+  getAasModelTypeName,
+} from '@aas/helpers';
 import { MultiLanguagePropertyValue } from '@aas/model';
 
 import { DocumentItem } from './model/document-item';
@@ -592,17 +598,7 @@ function isIterable(value: any): value is Iterable<any> {
 }
 
 function getModelTypeName(element: any): string {
-  const rawType = element?.modelType?.name ?? element?.modelType;
-  if (typeof rawType === 'string') {
-    return rawType;
-  }
-
-  const ctorName = rawType?.constructor?.name;
-  if (typeof ctorName === 'string' && ctorName.length > 0 && ctorName !== 'Object') {
-    return ctorName;
-  }
-
-  return rawType != null ? String(rawType) : '';
+  return getAasModelTypeName(element) ?? '';
 }
 
 function getDocumentationDocumentSemanticId(host: aas.types.ISubmodelElement | aas.types.Submodel) {

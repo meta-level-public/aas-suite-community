@@ -3,25 +3,25 @@
     <div
       class="grid w-full overflow-hidden rounded-3xl border border-surface bg-surface-0 shadow-2xl md:grid-cols-[22rem_minmax(0,1fr)]"
     >
-      <div class="flex flex-col justify-between bg-slate-900 px-8 py-10 text-white">
+      <div class="flex flex-col justify-between forbidden-aside px-8 py-10">
         <div>
           <img src="logos/logo_aas-designer.svg" alt="AAS Designer" class="mb-8 h-12 w-auto brightness-0 invert" />
           <div
-            class="mb-3 inline-flex items-center rounded-full border border-white/20 px-3 py-1 text-xs font-semibold uppercase tracking-[0.18em] text-slate-200"
+            class="mb-3 inline-flex items-center forbidden-aside-badge rounded-full px-3 py-1 text-xs font-semibold uppercase tracking-[0.18em]"
           >
             {{ 'FORBIDDEN_STATUS_CODE' | translate }}
           </div>
           <h1 class="mb-3 text-3xl font-semibold leading-tight">{{ 'FORBIDDEN_TITLE' | translate }}</h1>
-          <p class="max-w-xs text-sm leading-6 text-slate-300">
+          <p class="max-w-xs forbidden-aside-muted text-sm leading-6">
             {{ 'FORBIDDEN_DESCRIPTION' | translate }}
           </p>
         </div>
 
-        <div class="rounded-2xl border border-white/10 bg-white/5 p-4">
-          <div class="mb-2 text-xs font-semibold uppercase tracking-[0.18em] text-slate-300">
+        <div class="forbidden-aside-note rounded-2xl p-4">
+          <div class="mb-2 text-xs font-semibold uppercase tracking-[0.18em] forbidden-aside-muted">
             {{ 'FORBIDDEN_NOTE_LABEL' | translate }}
           </div>
-          <div class="text-sm leading-6 text-slate-100">
+          <div class="forbidden-aside-note-text text-sm leading-6">
             {{ 'FORBIDDEN_NOTE_TEXT' | translate }}
           </div>
         </div>

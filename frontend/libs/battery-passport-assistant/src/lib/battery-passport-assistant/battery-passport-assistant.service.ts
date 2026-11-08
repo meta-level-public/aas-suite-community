@@ -3,6 +3,7 @@ import { AppConfigService } from '@aas/common-services';
 import { HttpClient } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
 import { lastValueFrom } from 'rxjs';
+import { getAasModelTypeName } from '@aas/helpers';
 
 export interface BatteryPassportTemplateBundle {
   v3Submodels: aas.types.Submodel[];
@@ -294,7 +295,7 @@ export class BatteryPassportAssistantService {
     };
 
     const mapElement = (element: any): any => {
-      const modelType = element?.modelType?.name ?? element?.modelType;
+      const modelType = getAasModelTypeName(element);
       const mapped: any = {
         idShort: element?.idShort,
         modelType,

@@ -1,8 +1,9 @@
 import * as aas from '@aas-core-works/aas-core3.1-typescript';
 import { SubmodelTemplate } from '@aas-designer-model';
 import { IdGenerationUtil, InstanceHelper, TagHelper } from '@aas/helpers';
-import { AasMetamodelVersion, PackageMetadata, ShellResult, SupplementalFile } from '@aas/model';
+import { AasMetamodelVersion, ShellResult, SupplementalFile } from '@aas/model';
 import {
+  ChangeDetectionStrategy,
   Component,
   EventEmitter,
   HostListener,
@@ -14,28 +15,23 @@ import {
   signal,
   SimpleChanges,
   ViewChild,
-  ChangeDetectionStrategy,
 } from '@angular/core';
 import { TreeNode } from '@openng/optimus-ui/api';
 import { v4 as uuid } from 'uuid';
 import { SnippetsCatalogComponent } from '../../catalog/snippets-catalog/snippets-catalog.component';
-import { CMTypeOption } from '../model/cm-type-option';
 import { EditorTypeOption } from '../model/editor-type-option';
 import { V3TreeItem } from '../model/v3-tree-item';
 import { ElementInserter } from '../tools/element-inserter';
 import { V3EditorService } from '../v3-editor.service';
 import { V3TreeContextMenuComponent } from '../v3-tree-context-menu/v3-tree-context-menu.component';
 import { V3TreeService } from './v3-tree.service';
-type Path = aas.jsonization.Path;
 
-import { ConceptDescription } from '@aas-core-works/aas-core3.1-typescript/types';
 import { NotificationService, PortalService } from '@aas/common-services';
-import { CdkDragDrop, DragDropModule, moveItemInArray } from '@angular/cdk/drag-drop';
+import { CdkDragDrop, DragDropModule } from '@angular/cdk/drag-drop';
 import { CdkVirtualScrollViewport, ScrollingModule } from '@angular/cdk/scrolling';
 import { NgClass } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
-import { isArray } from 'lodash-es';
 import { Button } from '@openng/optimus-ui/button';
 import { Dialog } from '@openng/optimus-ui/dialog';
 import { FileUpload } from '@openng/optimus-ui/fileupload';
@@ -44,14 +40,39 @@ import { Message } from '@openng/optimus-ui/message';
 import { Tag } from '@openng/optimus-ui/tag';
 import { Textarea } from '@openng/optimus-ui/textarea';
 import { Tooltip } from '@openng/optimus-ui/tooltip';
+import { isArray } from 'lodash-es';
 import { ExtendedSearchComponent } from '../../general/extended-search/extended-search.component';
 import { EclassSinglePropertyGeneratorComponent } from '../components/eclass-property-generator/single/eclass-single-property-generator.component';
+import {
+  appendChildTreeNode,
+  FlatTreeNode,
+  MissingSubmodelPlaceholder,
+  V3TreeContent,
+  V3TreeNode,
+} from './v3-tree-node';
+import { canReorderInParent, isDropAllowed, moveAcrossParents, reorderWithinParent } from './v3-tree-drag-drop';
+import {
+  deserializeSnippet,
+  formatDeserializationError,
+  JsonImportType,
+  validateImportJson,
+} from './v3-tree-json-import';
+import { getNodeLabel, getTypeTag } from './v3-tree-labels';
+import {
+  buildVisibleFlatNodes,
+  collectFilteredNodeIds,
+  expandParents,
+  findNodeById,
+  findNodeByIdShortPath,
+  findNodeRecursive,
+  hasChildren,
+  isNodeVisible,
+  shouldRenderChildren,
+  withExpandedState,
+} from './v3-tree-navigation';
 
-type FlatTreeNode = {
-  node: TreeNode<V3TreeItem<any>>;
-  depth: number;
-  parent: TreeNode<V3TreeItem<any>> | null;
-};
+type Path = aas.verification.Path;
+type V3TreeSelection = V3TreeNode | V3TreeNode[] | undefined | null;
 
 @Component({
   selector: 'aas-v3-tree',
@@ -84,16 +105,16 @@ export class V3TreeComponent implements OnChanges, OnInit {
   @Input() shellResult: ShellResult | undefined;
   @Input() submodelRootMode: boolean = false;
 
-  @Output() selectedElementChanged: EventEmitter<V3TreeItem<any> | undefined> = new EventEmitter<
-    V3TreeItem<any> | undefined
+  @Output() selectedElementChanged: EventEmitter<V3TreeItem<V3TreeContent> | undefined> = new EventEmitter<
+    V3TreeItem<V3TreeContent> | undefined
   >();
 
-  allSubmodelsTreeNode: TreeNode<V3TreeItem<any>> | undefined;
-  allFilesTreeNode: TreeNode<V3TreeItem<any>> | undefined;
-  allConceptDescriptionsNode: TreeNode<V3TreeItem<any>> | undefined;
+  allSubmodelsTreeNode: TreeNode<V3TreeItem<aas.types.Submodel>> | undefined;
+  allFilesTreeNode: V3TreeNode | undefined;
+  allConceptDescriptionsNode: V3TreeNode | undefined;
 
-  selectedTreeNode: any;
-  copiedElement: V3TreeItem<any> | undefined;
+  selectedTreeNode: V3TreeSelection;
+  copiedElement: V3TreeItem<V3TreeContent> | undefined;
 
   EditorTypeOption = EditorTypeOption;
 
@@ -105,19 +126,21 @@ export class V3TreeComponent implements OnChanges, OnInit {
   @ViewChild('cm') cm: V3TreeContextMenuComponent | undefined;
   @ViewChild(CdkVirtualScrollViewport) viewport: CdkVirtualScrollViewport | undefined;
   @ViewChild('jsonFileUpload') jsonFileUpload: FileUpload | undefined;
-  // shellRootNode: TreeNode<V3TreeItem<PackageMetadata>> | undefined;
   shellNode: TreeNode<V3TreeItem<aas.types.AssetAdministrationShell>> | undefined;
 
   importJsonDialogVisible = false;
   plainJson: string = '';
-  importType: 'submodel' | 'element' | 'cd' = 'submodel';
+  importType: JsonImportType = 'submodel';
   importFromEclassDialogVisible: boolean = false;
   targetNodeId: string = '';
   filterValue = '';
   private filteredNodeIds: Set<string> | null = null;
-  draggedNode: TreeNode<V3TreeItem<any>> | null = null;
+  draggedNode: V3TreeNode | null = null;
 
   translate = inject(TranslateService);
+
+  jsonValid = signal(false);
+  jsonValidationError = signal<string | null>(null);
 
   constructor(
     public treeService: V3TreeService,
@@ -136,204 +159,185 @@ export class V3TreeComponent implements OnChanges, OnInit {
     this.availableSubmodelTemplates = await this.editorService.getAvailableSubmodelTemplates();
   }
 
+  private get treeData(): V3TreeNode[] {
+    return this.treeService.aasTreeData;
+  }
+
+  /** Currently selected node of the tree service (the service also allows a multi selection). */
+  private get serviceSelectedNode(): V3TreeNode {
+    return this.treeService.selectedTreeNode as V3TreeNode;
+  }
+
   initTree(): void {
     if (this.shellResult?.v3Shell != null && this.shellResult.v3Shell.assetAdministrationShells != null) {
       this.treeService.resetVisited();
       this.treeService.resetUndo();
       this.mapAasToTreeNode();
-      this.treeService.selectedTreeNode = this.treeService.aasTreeData[0];
-      this.selectedTreeNode = this.treeService.selectedTreeNode;
-      this.selectedElementChanged.emit(this.treeService.selectedTreeNode.data);
+      const rootNode = this.treeData[0];
+      this.treeService.selectedTreeNode = rootNode;
+      this.selectedTreeNode = rootNode;
+      this.selectedElementChanged.emit(rootNode.data);
       this.treeService.treeComponent = this;
-      this.treeService.addVisitedNode(this.treeService.selectedTreeNode.data?.id ?? '');
+      this.treeService.addVisitedNode(rootNode.data?.id ?? '');
       if (this.shellResult != null) {
-        this.treeService.registerUndoStep(
-          this.treeService.aasTreeData,
-          this.treeService.selectedTreeNode.data?.id ?? '',
-        );
+        this.treeService.registerUndoStep(this.treeData, rootNode.data?.id ?? '');
       }
     }
   }
 
   mapAasToTreeNode() {
-    if (this.shellResult != null) {
-      this.loading = true;
-      this.treeService.aasTreeData = [];
+    if (this.shellResult == null) return;
 
-      const hasSingleShell = (this.shellResult?.v3Shell?.assetAdministrationShells?.length ?? 0) === 1;
-      const hasSingleSubmodel = (this.shellResult?.v3Shell?.submodels?.length ?? 0) === 1;
-      const useSubmodelRootMode = this.submodelRootMode && hasSingleShell && hasSingleSubmodel;
+    this.loading = true;
+    this.treeService.aasTreeData = [];
+    const environment = this.shellResult.v3Shell;
 
-      if (this.shellResult?.v3Shell != null && this.shellResult.v3Shell.assetAdministrationShells != null) {
-        for (const shell of this.shellResult.v3Shell.assetAdministrationShells) {
-          // vorhandene Shells finden
-          const submodelList = [];
-          if (shell.submodels != null) {
-            for (const element of shell.submodels) {
-              const submodelElement = this.shellResult.v3Shell?.submodels?.find(
-                (s) => s.id === element.keys.find((k) => k.type === aas.types.KeyTypes.Submodel)?.value,
-              );
-              if (submodelElement != null) {
-                submodelList.push(submodelElement);
-              } else {
-                submodelList.push({
-                  managedType: 'MissingSubmodel',
-                  modelType: { name: 'MissingSubmodel' },
-                  managedItem: 'MissingSubmodel',
-                  data: element,
-                  editorType: EditorTypeOption.MissingSubmodel,
-                  label: this.translate.instant('MISSING_SUBMODEL'),
-                });
-              }
-            }
-          }
+    const hasSingleShell = (environment?.assetAdministrationShells?.length ?? 0) === 1;
+    const hasSingleSubmodel = (environment?.submodels?.length ?? 0) === 1;
+    const useSubmodelRootMode = this.submodelRootMode && hasSingleShell && hasSingleSubmodel;
 
-          const id = uuid();
-          const aasData = new V3TreeItem<aas.types.AssetAdministrationShell>();
-          aasData.content = shell;
-          aasData.id = id;
-          aasData.editorType = EditorTypeOption.AssetAdministrationShell;
-          // aasData.parent = this.shellRootNode.data; // gibt keine env mehr
-          const shellNode: TreeNode<V3TreeItem<aas.types.AssetAdministrationShell>> = {
-            label: 'tbd',
-            data: aasData,
-            children: [],
-            // parent: this.shellRootNode, // gibt keine env mehr
-            key: id,
-            expanded: true,
-            draggable: false,
-          };
-          shellNode.children = this.buildSubmodelChildren(submodelList, shellNode);
-          // shellNodes.push(shellNode);
-          let key = aasData.content.idShort;
-          if (key == null || key === '') {
-            key = aasData.content.id;
-          }
+    for (const shell of environment?.assetAdministrationShells ?? []) {
+      const shellNode = this.createShellNode(shell, environment!);
 
-          shellNode.label = this.translate.instant(key);
-
-          if (useSubmodelRootMode) {
-            const rootSubmodelNode = shellNode.children?.[0];
-            if (rootSubmodelNode != null) {
-              rootSubmodelNode.parent = undefined;
-              rootSubmodelNode.expanded = true;
-              this.treeService.aasTreeData.push(rootSubmodelNode);
-            }
-            this.shellNode = shellNode;
-          } else {
-            this.treeService.aasTreeData.push(shellNode);
-            this.shellNode = shellNode;
-          }
+      if (useSubmodelRootMode) {
+        const rootSubmodelNode = shellNode.children?.[0];
+        if (rootSubmodelNode != null) {
+          rootSubmodelNode.parent = undefined;
+          rootSubmodelNode.expanded = true;
+          this.treeData.push(rootSubmodelNode);
         }
+      } else {
+        this.treeData.push(shellNode as V3TreeNode);
       }
-
-      // insert conceptDescription level
-      const cdsData = new V3TreeItem<any>();
-      cdsData.content = this.shellResult.v3Shell;
-      cdsData.id = uuid();
-      cdsData.editorType = EditorTypeOption.ConceptDescriptions;
-      // cdsData.parent = this.shellRootNode.data;
-      const conceptDescriptionsRootNode: TreeNode<V3TreeItem<any>> = {
-        label: 'ConceptDescriptions',
-        data: cdsData,
-        children: [],
-        key: 'conceptDescriptions',
-        expanded: false,
-        draggable: false,
-      };
-
-      for (const cd of this.shellResult?.v3Shell?.conceptDescriptions ?? []) {
-        const id = uuid();
-        const cdData = new V3TreeItem<aas.types.ConceptDescription>();
-        cdData.content = cd;
-        cdData.id = id;
-        cdData.editorType = EditorTypeOption.ConceptDescription;
-        cdData.parent = null;
-        conceptDescriptionsRootNode.children?.push({
-          label: cd.idShort ?? cd.id,
-          data: cdData,
-          key: id,
-          expanded: false,
-          draggable: false,
-        });
-        conceptDescriptionsRootNode.label = this.translate.instant(
-          this.getNodeLabel(conceptDescriptionsRootNode) ?? '-',
-        );
-      }
-
-      this.treeService.aasTreeData.push(conceptDescriptionsRootNode);
-      this.allConceptDescriptionsNode = conceptDescriptionsRootNode;
-
-      // attach node for Files
-      // insert conceptDescription level
-      // todo: check if real types can be used here instead of any
-      const filesNodeData = new V3TreeItem<any>();
-      filesNodeData.content = this.shellResult.supplementalFiles;
-      filesNodeData.id = uuid();
-      filesNodeData.editorType = EditorTypeOption.SupplementalFiles;
-      filesNodeData.parent = null;
-      const filesRootNode: TreeNode<V3TreeItem<any>> = {
-        label: 'SupplementalFiles',
-        data: filesNodeData,
-        children: [],
-        key: 'supplementalFiles',
-        expanded: false,
-        draggable: false,
-      };
-      filesRootNode.label = this.translate.instant(this.getNodeLabel(filesRootNode) ?? '-');
-
-      this.allFilesTreeNode = filesRootNode;
-
-      this.shellResult.supplementalFiles?.forEach((file) => {
-        const id = uuid();
-        const nodeData = new V3TreeItem<SupplementalFile>();
-        nodeData.content = file;
-        nodeData.id = id;
-        nodeData.editorType = EditorTypeOption.SupplementalFile;
-        nodeData.parent = null;
-        const el: TreeNode<V3TreeItem<any>> = {
-          label: file.filename ?? 'File',
-          data: nodeData,
-          key: id,
-          expanded: false,
-          draggable: false,
-          children: [],
-        };
-        filesRootNode.children?.push(el);
-      });
-
-      // if (this.extendedMode)
-      this.treeService.aasTreeData.push(filesRootNode);
-
-      this.loading = false;
+      this.shellNode = shellNode;
     }
+
+    // concept description level
+    const conceptDescriptionsRootNode = this.createRootNode(
+      environment as aas.types.Environment,
+      EditorTypeOption.ConceptDescriptions,
+      'ConceptDescriptions',
+      'conceptDescriptions',
+    );
+    for (const cd of environment?.conceptDescriptions ?? []) {
+      conceptDescriptionsRootNode.children?.push(
+        this.createLeafNode(cd, EditorTypeOption.ConceptDescription, cd.idShort ?? cd.id),
+      );
+      conceptDescriptionsRootNode.label = this.translate.instant(this.getNodeLabel(conceptDescriptionsRootNode) ?? '-');
+    }
+    this.treeData.push(conceptDescriptionsRootNode);
+    this.allConceptDescriptionsNode = conceptDescriptionsRootNode;
+
+    // node for the supplemental files
+    const filesRootNode = this.createRootNode(
+      this.shellResult.supplementalFiles,
+      EditorTypeOption.SupplementalFiles,
+      'SupplementalFiles',
+      'supplementalFiles',
+    );
+    filesRootNode.data!.parent = null;
+    filesRootNode.label = this.translate.instant(this.getNodeLabel(filesRootNode) ?? '-');
+    this.allFilesTreeNode = filesRootNode;
+
+    this.shellResult.supplementalFiles?.forEach((file) => {
+      const fileNode = this.createLeafNode(file, EditorTypeOption.SupplementalFile, file.filename ?? 'File');
+      fileNode.children = [];
+      filesRootNode.children?.push(fileNode);
+    });
+
+    this.treeData.push(filesRootNode);
+
+    this.loading = false;
   }
-  buildSubmodelChildren(parentData: any, parentNode: TreeNode<V3TreeItem<any>>): any[] {
-    if (parentData == null) {
-      return parentData;
+
+  private createShellNode(shell: aas.types.AssetAdministrationShell, environment: aas.types.Environment) {
+    // find the referenced submodels, missing ones get a placeholder
+    const submodelList: (aas.types.Submodel | MissingSubmodelPlaceholder)[] = [];
+    for (const reference of shell.submodels ?? []) {
+      const submodel = environment.submodels?.find(
+        (s) => s.id === reference.keys.find((k) => k.type === aas.types.KeyTypes.Submodel)?.value,
+      );
+      submodelList.push(
+        submodel ?? {
+          managedType: 'MissingSubmodel',
+          modelType: { name: 'MissingSubmodel' },
+          managedItem: 'MissingSubmodel',
+          data: reference,
+          editorType: EditorTypeOption.MissingSubmodel,
+          label: this.translate.instant('MISSING_SUBMODEL'),
+        },
+      );
     }
 
-    // todo: check typing
-    const children: TreeNode<V3TreeItem<any>>[] = [];
+    const id = uuid();
+    const aasData = new V3TreeItem<aas.types.AssetAdministrationShell>();
+    aasData.content = shell;
+    aasData.id = id;
+    aasData.editorType = EditorTypeOption.AssetAdministrationShell;
+    const shellNode: TreeNode<V3TreeItem<aas.types.AssetAdministrationShell>> = {
+      label: 'tbd',
+      data: aasData,
+      children: [],
+      key: id,
+      expanded: true,
+      draggable: false,
+    };
+    shellNode.children = this.buildSubmodelChildren(submodelList, shellNode as V3TreeNode) as TreeNode<
+      V3TreeItem<aas.types.AssetAdministrationShell>
+    >[];
+    const key = shell.idShort == null || shell.idShort === '' ? shell.id : shell.idShort;
+    shellNode.label = this.translate.instant(key);
+    return shellNode;
+  }
 
+  /** Collapsed, not draggable root level node (concept descriptions, supplemental files). */
+  private createRootNode(content: V3TreeContent, editorType: EditorTypeOption, label: string, key: string) {
+    const data = new V3TreeItem<V3TreeContent>();
+    data.content = content;
+    data.id = uuid();
+    data.editorType = editorType;
+    const node: V3TreeNode = { label, data, children: [], key, expanded: false, draggable: false };
+    return node;
+  }
+
+  /** Not draggable node without parent (concept description, supplemental file). */
+  private createLeafNode(content: V3TreeContent, editorType: EditorTypeOption, label: string): V3TreeNode {
+    const id = uuid();
+    const data = new V3TreeItem<V3TreeContent>();
+    data.content = content;
+    data.id = id;
+    data.editorType = editorType;
+    data.parent = null;
+    return { label, data, key: id, expanded: false, draggable: false };
+  }
+
+  buildSubmodelChildren(
+    parentData: (aas.types.Class | MissingSubmodelPlaceholder)[] | null | undefined,
+    parentNode: V3TreeNode,
+  ): V3TreeNode[] {
+    if (parentData == null) {
+      return parentData as unknown as V3TreeNode[];
+    }
+
+    const children: V3TreeNode[] = [];
     let cnt = 0;
-    parentData.forEach((element: any) => {
-      let collectChildren: TreeNode<V3TreeItem<any>>[] = [];
-      //Aufbau der Grundstruktur
+    parentData.forEach((element) => {
+      let collectChildren: V3TreeNode[] = [];
       const id = uuid();
-      const nodeData = new V3TreeItem<any>();
+      const nodeData = new V3TreeItem<V3TreeContent>();
       nodeData.content = element;
       nodeData.id = id;
-      nodeData.editorType = InstanceHelper.getInstanceName(element);
+      nodeData.editorType = InstanceHelper.getInstanceName(element) as EditorTypeOption;
       nodeData.parent = parentNode.data;
-      let elementLabel = element?.idShort ?? element?.id;
+      const referable = element as aas.types.IReferable & { id?: string };
+      let elementLabel = referable?.idShort ?? referable?.id;
       if (parentNode.data?.content instanceof aas.types.SubmodelElementList) {
         nodeData.isParentSml = true;
         nodeData.smlIndex = cnt++;
         elementLabel = 'Element ' + nodeData.smlIndex;
       }
-      const el: TreeNode<V3TreeItem<any>> = {
-        label: elementLabel,
+      const el: V3TreeNode = {
+        label: elementLabel ?? undefined,
         data: nodeData,
         key: id,
         expanded: false,
@@ -342,36 +346,27 @@ export class V3TreeComponent implements OnChanges, OnInit {
       };
       el.label = this.translate.instant(this.getNodeLabel(el) ?? '-');
 
-      // Check individual types and collect child elements accordingly.
+      // collect the child elements depending on the type
       if (element instanceof aas.types.Submodel) {
         el.draggable = false;
         if (element?.semanticId?.keys[0].value === 'AasDesignerChangelog') {
           this.treeService.aasDesignerChangelogSmNodeId = id;
         }
-
         collectChildren = this.buildSubmodelChildren(element?.submodelElements, el);
       }
-
-      if (element instanceof aas.types.SubmodelElementCollection) {
-        if (element.value != null) collectChildren = this.buildSubmodelChildren(element.value, el);
+      if (
+        (element instanceof aas.types.SubmodelElementCollection || element instanceof aas.types.SubmodelElementList) &&
+        element.value != null
+      ) {
+        collectChildren = this.buildSubmodelChildren(element.value, el);
       }
-
-      if (element instanceof aas.types.SubmodelElementList) {
-        // we no longer display this! - actually we do, but a new label must be created and the flag must be set that no ID-Short is included ...
-        if (element.value != null) collectChildren = this.buildSubmodelChildren(element.value, el);
-      }
-
       if (element instanceof aas.types.Entity) {
         collectChildren = this.buildSubmodelChildren(element.statements, el);
       }
-
-      if (element.editorType === EditorTypeOption.MissingSubmodel) {
-        // irgendwie anzeigen, dass das Teilmodell fehlt
-        // node korrigieren
+      if ((element as MissingSubmodelPlaceholder).editorType === EditorTypeOption.MissingSubmodel) {
         nodeData.editorType = EditorTypeOption.MissingSubmodel;
       }
 
-      // Kind-Elemente zuweisen
       el.children = collectChildren;
       children.push(el);
     });
@@ -379,107 +374,65 @@ export class V3TreeComponent implements OnChanges, OnInit {
     return children;
   }
 
-  selectTreeNode(treeNode: any, saveVisit: boolean = true): void {
+  selectTreeNode(treeNode: V3TreeNode | null | undefined, saveVisit: boolean = true): void {
     if (treeNode != null) {
       this.selectedTreeNode = treeNode;
       this.selectedElementChanged.emit(treeNode.data);
       if (saveVisit === true) {
-        this.treeService.addVisitedNode(treeNode.data.id);
+        this.treeService.addVisitedNode(treeNode.data?.id as string);
       }
       this.scrollToSelectionPrimeNgDataTree(treeNode);
-    } else {
-      // this.selectedElementChanged.emit(undefined);
-      // this.selectedTreeNode = this.treeService.selectedTreeNode;
     }
   }
 
   get selectedNodeId() {
-    return ((this.treeService.selectedTreeNode as TreeNode<V3TreeItem<any>> | null)?.data?.id ?? '') as string;
+    return (this.treeService.selectedTreeNode as V3TreeNode | null)?.data?.id ?? '';
   }
 
-  onNodeClicked(node: TreeNode<V3TreeItem<any>>) {
+  onNodeClicked(node: V3TreeNode) {
     this.treeService.selectedTreeNode = node;
     this.selectTreeNode(node);
   }
 
-  toggleNode(node: TreeNode<V3TreeItem<any>>, event?: Event) {
+  toggleNode(node: V3TreeNode, event?: Event) {
     event?.stopPropagation();
     node.expanded = !node.expanded;
   }
 
-  hasChildren(node: TreeNode<V3TreeItem<any>>) {
-    return (node.children?.length ?? 0) > 0;
+  hasChildren(node: V3TreeNode) {
+    return hasChildren(node);
   }
 
-  trackByNodeId(_index: number, node: TreeNode<V3TreeItem<any>>) {
+  trackByNodeId(_index: number, node: V3TreeNode) {
     return node.data?.id ?? node.key ?? _index;
   }
 
   onFilterChanged() {
-    const query = this.filterValue.trim().toLowerCase();
-    if (query === '') {
-      this.filteredNodeIds = null;
-      return;
-    }
-
-    const ids = new Set<string>();
-    this.treeService.aasTreeData.forEach((root) => this.collectFilterMatches(root, query, ids));
-    this.filteredNodeIds = ids;
+    this.filteredNodeIds = collectFilteredNodeIds(this.treeData, this.filterValue, (node) => this.getNodeLabel(node));
   }
 
-  private collectFilterMatches(node: TreeNode<V3TreeItem<any>>, query: string, ids: Set<string>): boolean {
-    const ownLabel = (node.label ?? '').toString().toLowerCase();
-    const fallbackLabel = (this.getNodeLabel(node) ?? '').toString().toLowerCase();
-    const ownMatch = ownLabel.includes(query) || fallbackLabel.includes(query);
-    const childMatch = (node.children ?? []).some((child) => this.collectFilterMatches(child, query, ids));
-    const match = ownMatch || childMatch;
-    if (match && node.data?.id != null) {
-      ids.add(node.data.id);
-    }
-    return match;
+  isNodeVisible(node: V3TreeNode) {
+    return isNodeVisible(node, this.filteredNodeIds);
   }
 
-  isNodeVisible(node: TreeNode<V3TreeItem<any>>) {
-    if (this.filteredNodeIds == null) return true;
-    const id = node.data?.id;
-    return id != null && this.filteredNodeIds.has(id);
-  }
-
-  shouldRenderChildren(node: TreeNode<V3TreeItem<any>>) {
-    if (!this.hasChildren(node)) return false;
-    if (this.filteredNodeIds != null) return true;
-    return node.expanded === true;
-  }
-
-  private getVisibleNodes(): TreeNode<V3TreeItem<any>>[] {
-    return this.buildVisibleFlatNodes().map((x) => x.node);
+  shouldRenderChildren(node: V3TreeNode) {
+    return shouldRenderChildren(node, this.filteredNodeIds);
   }
 
   buildVisibleFlatNodes(): FlatTreeNode[] {
-    const visible: FlatTreeNode[] = [];
-    const walk = (nodes: TreeNode<V3TreeItem<any>>[], depth: number, parent: TreeNode<V3TreeItem<any>> | null) => {
-      for (const node of nodes) {
-        if (!this.isNodeVisible(node)) continue;
-        visible.push({ node, depth, parent });
-        if (this.shouldRenderChildren(node) && node.children != null) {
-          walk(node.children as TreeNode<V3TreeItem<any>>[], depth + 1, node);
-        }
-      }
-    };
-    walk(this.treeService.aasTreeData as TreeNode<V3TreeItem<any>>[], 0, null);
-    return visible;
+    return buildVisibleFlatNodes(this.treeData, this.filteredNodeIds);
   }
 
   trackByFlatNodeId(_index: number, item: FlatTreeNode) {
     return item.node.data?.id ?? item.node.key ?? _index;
   }
 
-  getNodeDomId(node: TreeNode<V3TreeItem<any>>) {
+  getNodeDomId(node: V3TreeNode) {
     return 'tree_' + (node.data?.id ?? node.key ?? 'unknown');
   }
 
   onTreeKeydown(event: KeyboardEvent) {
-    const visible = this.getVisibleNodes();
+    const visible = this.buildVisibleFlatNodes().map((x) => x.node);
     if (visible.length === 0) return;
 
     const currentId = this.selectedNodeId;
@@ -504,7 +457,7 @@ export class V3TreeComponent implements OnChanges, OnInit {
         if (this.hasChildren(current) && current.expanded !== true) {
           current.expanded = true;
         } else if (this.hasChildren(current) && current.children != null) {
-          const firstChild = (current.children as TreeNode<V3TreeItem<any>>[]).find((n) => this.isNodeVisible(n));
+          const firstChild = current.children.find((n) => this.isNodeVisible(n));
           if (firstChild != null) this.onNodeClicked(firstChild);
         }
         event.preventDefault();
@@ -514,7 +467,7 @@ export class V3TreeComponent implements OnChanges, OnInit {
         if (this.hasChildren(current) && current.expanded === true && this.filteredNodeIds == null) {
           current.expanded = false;
         } else if (current.parent != null) {
-          this.onNodeClicked(current.parent as TreeNode<V3TreeItem<any>>);
+          this.onNodeClicked(current.parent);
         }
         event.preventDefault();
         break;
@@ -529,20 +482,15 @@ export class V3TreeComponent implements OnChanges, OnInit {
     }
   }
 
-  canReorderInParent(parentNode: TreeNode<V3TreeItem<any>> | null | undefined) {
-    if (parentNode?.data == null) return false;
-    if (parentNode.data.content instanceof aas.types.Submodel) return true;
-    if (parentNode.data.content instanceof aas.types.SubmodelElementCollection) return true;
-    if (parentNode.data.content instanceof aas.types.SubmodelElementList) return true;
-    if (parentNode.data.editorType === EditorTypeOption.ConceptDescriptions) return true;
-    return false;
+  canReorderInParent(parentNode: V3TreeNode | null | undefined) {
+    return canReorderInParent(parentNode);
   }
 
-  isNodeDraggable(node: TreeNode<V3TreeItem<any>>) {
-    return this.canReorderInParent(node.parent);
+  isNodeDraggable(node: V3TreeNode) {
+    return canReorderInParent(node.parent);
   }
 
-  onDragStarted(node: TreeNode<V3TreeItem<any>>) {
+  onDragStarted(node: V3TreeNode) {
     this.draggedNode = node;
   }
 
@@ -550,18 +498,11 @@ export class V3TreeComponent implements OnChanges, OnInit {
     this.draggedNode = null;
   }
 
-  isDropAllowedForTarget(targetNode: TreeNode<V3TreeItem<any>>) {
-    if (this.draggedNode == null) return false;
-    if (this.draggedNode === targetNode) return false;
-
-    const draggedContent = this.draggedNode.data?.content;
-    if (draggedContent == null) return false;
-
-    if (this.draggedNode.parent === targetNode.parent) return true;
-    return this.resolveTargetParentForDrop(targetNode, draggedContent) != null;
+  isDropAllowedForTarget(targetNode: V3TreeNode) {
+    return isDropAllowed(this.draggedNode, targetNode);
   }
 
-  isDropForbiddenForTarget(targetNode: TreeNode<V3TreeItem<any>>) {
+  isDropForbiddenForTarget(targetNode: V3TreeNode) {
     if (this.draggedNode == null) return false;
     if (this.draggedNode === targetNode) return false;
     return !this.isDropAllowedForTarget(targetNode);
@@ -575,314 +516,78 @@ export class V3TreeComponent implements OnChanges, OnInit {
     if (dragged == null || target == null) return;
 
     if (dragged.parent === target.parent) {
-      this.reorderWithinParent(dragged.parent, event.previousIndex, event.currentIndex, dragged.node, target.node);
+      const result = reorderWithinParent(
+        dragged.parent,
+        event.previousIndex,
+        event.currentIndex,
+        dragged.node,
+        target.node,
+      );
+      if (result === 'moved') {
+        this.treeService.registerFieldUndoStep();
+        this.treeService.aasTreeData = [...this.treeData];
+      } else if (result === 'not-allowed') {
+        this.showMoveNotAllowed();
+      }
       return;
     }
 
-    if (this.moveAcrossParents(dragged.node, target.node) === false) {
-      this.notificationService.showMessageAlways('MOVE_NOT_ALLOWED', 'ERROR', 'error', false, 2000, null);
+    const movedContent = moveAcrossParents(dragged.node, target.node);
+    if (movedContent == null) {
+      this.showMoveNotAllowed();
+      return;
     }
-  }
-
-  private moveAcrossParents(draggedNode: TreeNode<V3TreeItem<any>>, targetNode: TreeNode<V3TreeItem<any>>) {
-    const draggedContent = draggedNode.data?.content;
-    const sourceParent = draggedNode.parent as TreeNode<V3TreeItem<any>> | null;
-    if (draggedContent == null || sourceParent?.data?.content == null) {
-      return false;
-    }
-
-    const sourceArray = this.getNodeContentArray(sourceParent);
-    if (sourceArray == null) {
-      return false;
-    }
-
-    const targetParent = this.resolveTargetParentForDrop(targetNode, draggedContent);
-    if (targetParent?.data?.content == null) {
-      return false;
-    }
-
-    const targetArray = this.getNodeContentArray(targetParent);
-    if (targetArray == null) {
-      return false;
-    }
-
-    const sourceIndex = sourceArray.indexOf(draggedContent);
-    if (sourceIndex < 0) {
-      return false;
-    }
-
-    sourceArray.splice(sourceIndex, 1);
-    targetArray.push(draggedContent);
-
     this.treeService.registerFieldUndoStep();
     this.refreshTree();
-    setTimeout(() => this.treeService.selectNodeByElement(draggedContent));
-    return true;
+    setTimeout(() => this.treeService.selectNodeByElement(movedContent));
   }
 
-  private resolveTargetParentForDrop(
-    targetNode: TreeNode<V3TreeItem<any>>,
-    draggedContent: any,
-  ): TreeNode<V3TreeItem<any>> | null {
-    if (this.canAcceptAsParent(targetNode, draggedContent)) {
-      return targetNode;
-    }
-
-    const parent = targetNode.parent as TreeNode<V3TreeItem<any>> | null;
-    if (parent != null && this.canAcceptAsParent(parent, draggedContent)) {
-      return parent;
-    }
-    return null;
+  private showMoveNotAllowed() {
+    this.notificationService.showMessageAlways('MOVE_NOT_ALLOWED', 'ERROR', 'error', false, 2000, null);
   }
 
-  private canAcceptAsParent(parentNode: TreeNode<V3TreeItem<any>>, draggedContent: any) {
-    if (parentNode?.data == null) return false;
-
-    if (
-      parentNode.data.content instanceof aas.types.Submodel ||
-      parentNode.data.content instanceof aas.types.SubmodelElementCollection ||
-      parentNode.data.content instanceof aas.types.SubmodelElementList
-    ) {
-      return this.isSubmodelElementValue(draggedContent);
-    }
-
-    if (parentNode.data.editorType === EditorTypeOption.ConceptDescriptions) {
-      return draggedContent instanceof aas.types.ConceptDescription;
-    }
-
-    return false;
-  }
-
-  private isSubmodelElementValue(value: any): value is aas.types.ISubmodelElement {
-    return value instanceof aas.types.Class && aas.types.asSubmodelElement(value) != null;
-  }
-
-  private getNodeContentArray(parentNode: TreeNode<V3TreeItem<any>>) {
-    const content = parentNode.data?.content;
-    if (content == null) return null;
-
-    if (content instanceof aas.types.Submodel) {
-      if (content.submodelElements == null) content.submodelElements = [];
-      return content.submodelElements;
-    }
-    if (content instanceof aas.types.SubmodelElementCollection) {
-      if (content.value == null) content.value = [];
-      return content.value;
-    }
-    if (content instanceof aas.types.SubmodelElementList) {
-      if (content.value == null) content.value = [];
-      return content.value;
-    }
-    if (parentNode.data?.editorType === EditorTypeOption.ConceptDescriptions) {
-      if (content.conceptDescriptions == null) content.conceptDescriptions = [];
-      return content.conceptDescriptions;
-    }
-
-    return null;
-  }
-
-  private reorderWithinParent(
-    parentNode: TreeNode<V3TreeItem<any>> | null | undefined,
-    previousIndex: number,
-    currentIndex: number,
-    draggedNode?: TreeNode<V3TreeItem<any>>,
-    targetNode?: TreeNode<V3TreeItem<any>>,
-  ) {
-    if (!this.canReorderInParent(parentNode)) {
-      this.notificationService.showMessageAlways('MOVE_NOT_ALLOWED', 'ERROR', 'error', false, 2000, null);
-      return;
-    }
-
-    if (previousIndex === currentIndex) {
-      return;
-    }
-
-    const parentContent = parentNode?.data?.content;
-    if (parentContent == null) {
-      this.notificationService.showMessageAlways('MOVE_NOT_ALLOWED', 'ERROR', 'error', false, 2000, null);
-      return;
-    }
-
-    let fromIndex = previousIndex;
-    let toIndex = currentIndex;
-
-    if (parentContent instanceof aas.types.Submodel) {
-      if (parentContent.submodelElements == null) parentContent.submodelElements = [];
-      if (draggedNode != null && targetNode != null) {
-        fromIndex = parentContent.submodelElements.indexOf(draggedNode.data?.content);
-        toIndex = parentContent.submodelElements.indexOf(targetNode.data?.content);
-      }
-      moveItemInArray(parentContent.submodelElements, fromIndex, toIndex);
-    } else if (parentContent instanceof aas.types.SubmodelElementCollection) {
-      if (parentContent.value == null) parentContent.value = [];
-      if (draggedNode != null && targetNode != null) {
-        fromIndex = parentContent.value.indexOf(draggedNode.data?.content);
-        toIndex = parentContent.value.indexOf(targetNode.data?.content);
-      }
-      moveItemInArray(parentContent.value, fromIndex, toIndex);
-    } else if (parentContent instanceof aas.types.SubmodelElementList) {
-      if (parentContent.value == null) parentContent.value = [];
-      if (draggedNode != null && targetNode != null) {
-        fromIndex = parentContent.value.indexOf(draggedNode.data?.content);
-        toIndex = parentContent.value.indexOf(targetNode.data?.content);
-      }
-      moveItemInArray(parentContent.value, fromIndex, toIndex);
-    } else if (parentNode?.data?.editorType === EditorTypeOption.ConceptDescriptions) {
-      if (parentContent.conceptDescriptions == null) parentContent.conceptDescriptions = [];
-      if (draggedNode != null && targetNode != null) {
-        fromIndex = parentContent.conceptDescriptions.indexOf(draggedNode.data?.content);
-        toIndex = parentContent.conceptDescriptions.indexOf(targetNode.data?.content);
-      }
-      moveItemInArray(parentContent.conceptDescriptions, fromIndex, toIndex);
-    } else {
-      this.notificationService.showMessageAlways('MOVE_NOT_ALLOWED', 'ERROR', 'error', false, 2000, null);
-      return;
-    }
-
-    this.treeService.registerFieldUndoStep();
-    this.treeService.aasTreeData = [...this.treeService.aasTreeData];
-  }
-
-  getNodeLabel(treeNode: TreeNode<V3TreeItem<any>>): string {
-    if (treeNode.data?.isParentSml) {
-      return this.getSmlElementLabel(treeNode);
-    }
-    let label = treeNode.data?.treeLabel ?? treeNode.label ?? '';
-    if (treeNode.data?.content?.kind === aas.types.ModellingKind.Template) {
-      label = '<T> ' + label;
-    }
-    if (treeNode.data?.content.managedType === 'MissingSubmodel') {
-      label = 'MISSING_SUBMODEL';
-    }
-    return label.length > 0 ? label : 'undefined';
-  }
-
-  /**
-   * Since AAS metamodel 3.1 (AASd-120 removed), elements of a SubmodelElementList may carry an idShort.
-   * Show it if present, otherwise the displayName in the current language, otherwise the list position.
-   */
-  private getSmlElementLabel(treeNode: TreeNode<V3TreeItem<any>>): string {
-    const content = treeNode.data?.content;
-    const idShort: string | undefined = content?.idShort?.trim();
-    if (idShort) {
-      return idShort;
-    }
-
-    const displayNames: aas.types.LangStringNameType[] | null | undefined = content?.displayName;
-    if (displayNames != null && displayNames.length > 0) {
-      const currentLang = this.translate.currentLang?.toLowerCase().split('-')[0];
-      const preferred =
-        displayNames.find((entry) => entry.language?.toLowerCase().split('-')[0] === currentLang) ?? displayNames[0];
-      const displayName = preferred.text?.trim();
-      if (displayName) {
-        return displayName;
-      }
-    }
-
-    if (treeNode.data?.smlIndex != null) {
-      return 'Element ' + treeNode.data.smlIndex;
-    }
-    return treeNode.label ?? '<not set>';
+  getNodeLabel(treeNode: V3TreeNode): string {
+    return getNodeLabel(treeNode, this.translate.currentLang);
   }
 
   expandAll() {
-    const updatedData = this.treeService.aasTreeData.map((node) => this.expandRecursive(node, true));
-    this.treeService.aasTreeData = updatedData;
+    this.treeService.aasTreeData = this.treeData.map((node) => withExpandedState(node, true));
   }
 
   collapseAll() {
-    const updatedData = this.treeService.aasTreeData.map((node) => this.expandRecursive(node, false));
-    this.treeService.aasTreeData = updatedData;
+    this.treeService.aasTreeData = this.treeData.map((node) => withExpandedState(node, false));
   }
 
-  private expandRecursive(node: TreeNode, isExpand: boolean): TreeNode {
-    return {
-      ...node,
-      expanded: isExpand,
-      children: node.children ? node.children.map((child) => this.expandRecursive(child, isExpand)) : node.children,
-    };
+  getTypeTag(node: V3TreeNode) {
+    return getTypeTag(node);
   }
 
-  getTypeTag(node: TreeNode<V3TreeItem<any>>) {
-    let tagType = '?';
-
-    if (node.data?.content instanceof aas.types.MultiLanguageProperty) tagType = 'MLP';
-    else if (node.data?.content instanceof aas.types.Property) tagType = 'Prop';
-    else if (
-      node.data?.content instanceof aas.types.Submodel ||
-      node.data?.editorType === EditorTypeOption.MissingSubmodel
-    )
-      tagType = 'SM';
-    else if (node.data?.content instanceof aas.types.ReferenceElement) tagType = 'Ref';
-    else if (node.data?.content instanceof aas.types.File) tagType = 'File';
-    else if (node.data?.content instanceof aas.types.Blob) tagType = 'Blob';
-    else if (node.data?.content instanceof aas.types.SubmodelElementCollection) tagType = 'SMC';
-    else if (node.data?.content instanceof aas.types.SubmodelElementList) tagType = 'SML';
-    else if (node.data?.content instanceof aas.types.Operation) tagType = 'Opr';
-    else if (node.data?.content instanceof aas.types.Capability) tagType = 'Cap';
-    else if (node.data?.content instanceof aas.types.AssetAdministrationShell) tagType = 'AAS';
-    else if (node.data?.content instanceof aas.types.Entity) tagType = 'Ent';
-    else if (node.data?.content instanceof aas.types.BasicEventElement) tagType = 'Evt';
-    else if (node.data?.content instanceof aas.types.RelationshipElement) tagType = 'Rel';
-    else if (node.data?.content instanceof aas.types.Range) tagType = 'Range';
-    else if (node.data?.content instanceof aas.types.ConceptDescription) tagType = 'CD';
-    else if (node.data?.editorType === EditorTypeOption.SupplementalFile) tagType = 'F';
-    else if (
-      node.data?.editorType === EditorTypeOption.AssetAdministrationShells ||
-      node.data?.editorType === EditorTypeOption.Assets ||
-      node.data?.editorType === EditorTypeOption.AllSubmodels ||
-      node.data?.editorType === EditorTypeOption.ConceptDescriptions ||
-      node.data?.editorType === EditorTypeOption.SupplementalFiles
-    )
-      tagType = 'Env';
-
-    return tagType;
+  hasAasTypeTag(node: V3TreeNode) {
+    return node.data?.content instanceof aas.types.AssetAdministrationShell;
   }
 
-  hasAasTypeTag(node: TreeNode<V3TreeItem<any>>) {
-    return node.data?.content != null && node.data?.content instanceof aas.types.AssetAdministrationShell;
+  getAasTypeTag(node: V3TreeNode) {
+    const content = node.data?.content;
+    return content instanceof aas.types.AssetAdministrationShell ? TagHelper.getAasTypeTag(content) : '';
   }
 
-  getAasTypeTag(node: TreeNode<V3TreeItem<any>>) {
-    if (node.data?.content instanceof aas.types.AssetAdministrationShell) {
-      return TagHelper.getAasTypeTag(node.data?.content as aas.types.AssetAdministrationShell);
-    }
-    return '';
+  getAasTypeTagSeverity(node: V3TreeNode) {
+    const content = node.data?.content;
+    return content instanceof aas.types.AssetAdministrationShell ? TagHelper.getAasTypeTagSeverity(content) : undefined;
   }
 
-  getAasTypeTagSeverity(node: TreeNode<V3TreeItem<any>>) {
-    if (node.data?.content instanceof aas.types.AssetAdministrationShell) {
-      return TagHelper.getAasTypeTagSeverity(node.data?.content as aas.types.AssetAdministrationShell);
-    }
-    return undefined;
-  }
-
-  isUnreferenced(_node: TreeNode<V3TreeItem<any>>) {
-    // let found = false;
-    // if (node.data?.content instanceof aas.types.Submodel) {
-    //   if (this.shellResult != null) {
-    //     const submodelElement = this.shellResult.v3Shell?.submodels?.find((s) => s.id === node.data?.content?.id);
-    //     if (submodelElement != null) found = true;
-    //   }
-    // } else {
-    //   // nur bei Teilmodellen interessant
-    //   found = true;
-    // }
-    // return !found;
+  isUnreferenced(_node: V3TreeNode) {
     return false;
   }
 
   isLocal(node: TreeNode) {
-    const modelType = node?.data?.modelType?.name;
-
-    if (modelType === 'SupplementalFile') {
+    if (node?.data?.modelType?.name === 'SupplementalFile') {
       return node.data.isLocal;
     }
-
     return false;
   }
 
-  elementCopied(copiedElement: V3TreeItem<any>) {
+  elementCopied(copiedElement: V3TreeItem<V3TreeContent>) {
     this.copiedElement = copiedElement;
   }
 
@@ -893,7 +598,7 @@ export class V3TreeComponent implements OnChanges, OnInit {
     nodeData.id = id;
     nodeData.editorType = EditorTypeOption.SupplementalFile;
     nodeData.parent = null;
-    const el: TreeNode<V3TreeItem<any>> = {
+    const el: V3TreeNode = {
       label: this.translate.instant('NEW_FILE'),
       data: nodeData,
       key: id,
@@ -903,124 +608,80 @@ export class V3TreeComponent implements OnChanges, OnInit {
 
     if (this.allFilesTreeNode != null) {
       if (this.allFilesTreeNode.children == null) this.allFilesTreeNode.children = [];
-      this.allFilesTreeNode?.children.push(el);
+      this.allFilesTreeNode.children.push(el);
       this.allFilesTreeNode.expanded = true;
     }
   }
 
   deleteFileNode(file: SupplementalFile) {
-    if (this.allFilesTreeNode?.children != null) {
-      const node = this.allFilesTreeNode?.children?.find(
-        (f) => f.data?.content.path === file.path && f.data?.content.isThumbnail === file.isThumbnail,
-      );
+    const children = this.allFilesTreeNode?.children;
+    if (this.allFilesTreeNode != null && children != null) {
+      const node = children.find((f) => {
+        const content = f.data?.content as SupplementalFile | undefined;
+        return content?.path === file.path && content?.isThumbnail === file.isThumbnail;
+      });
       if (node != null) {
-        const indx = this.allFilesTreeNode.children.indexOf(node);
-        this.allFilesTreeNode.children.splice(indx, 1);
+        children.splice(children.indexOf(node), 1);
       }
     }
-    this.treeService.aasTreeData = [...this.treeService.aasTreeData];
+    this.treeService.aasTreeData = [...this.treeData];
+  }
+
+  private getConceptDescriptionNode(cid: string) {
+    return this.allConceptDescriptionsNode?.children?.find(
+      (n) => (n.data?.content as aas.types.ConceptDescription | undefined)?.id === cid,
+    );
   }
 
   selectConceptDescription(cid: string) {
-    if (this.allConceptDescriptionsNode?.children != null) {
-      const node = this.allConceptDescriptionsNode?.children?.find((n) => n.data?.content.id === cid);
-      if (node != null) {
-        this.treeService.selectedTreeNode = node;
-        this.allConceptDescriptionsNode.expanded = true;
-        this.selectTreeNode(node);
-      }
+    const node = this.getConceptDescriptionNode(cid);
+    if (node != null && this.allConceptDescriptionsNode != null) {
+      this.treeService.selectedTreeNode = node;
+      this.allConceptDescriptionsNode.expanded = true;
+      this.selectTreeNode(node);
     }
   }
 
   createAndSelectConceptDescription(cid: string) {
-    if (this.allConceptDescriptionsNode?.data?.content != null) {
-      if (this.allConceptDescriptionsNode.data.content.conceptDescriptions == null) {
-        this.allConceptDescriptionsNode.data.content.conceptDescriptions = [];
-      }
-      const cd = new aas.types.ConceptDescription(cid);
-      this.allConceptDescriptionsNode.data.content.conceptDescriptions.push(cd);
-      const id = uuid();
-      // treenode erzeugen
-      const cdData = new V3TreeItem<aas.types.ConceptDescription>();
-
-      cdData.content = cd;
-      cdData.id = id;
-      cdData.editorType = EditorTypeOption.ConceptDescription;
-      cdData.parent = this.allConceptDescriptionsNode.data;
-
-      const cdNode: TreeNode<V3TreeItem<aas.types.ConceptDescription> | V3TreeItem<PackageMetadata>> = {
-        label: cd?.idShort ?? cd.id,
-        data: cdData,
-        children: [],
-        parent: this.allConceptDescriptionsNode,
-        key: id,
-        expanded: false,
-      };
-      if (this.allConceptDescriptionsNode.children == null) {
-        this.allConceptDescriptionsNode.children = [];
-      }
-      this.allConceptDescriptionsNode.children.push(cdNode);
-    }
+    this.addConceptDescriptionNode(new aas.types.ConceptDescription(cid));
     this.selectConceptDescription(cid);
-    this.treeService.aasTreeData = [...this.treeService.aasTreeData];
+    this.treeService.aasTreeData = [...this.treeData];
   }
 
-  appendConceptDescription(cd: ConceptDescription) {
-    if (this.allConceptDescriptionsNode?.data?.content != null) {
-      if (this.allConceptDescriptionsNode.data.content.conceptDescriptions == null) {
-        this.allConceptDescriptionsNode.data.content.conceptDescriptions = [];
-      }
-      this.allConceptDescriptionsNode.data.content.conceptDescriptions.push(cd);
-      const id = uuid();
-      // treenode erzeugen
-      const cdData = new V3TreeItem<aas.types.ConceptDescription>();
+  appendConceptDescription(cd: aas.types.ConceptDescription) {
+    this.addConceptDescriptionNode(cd);
+    this.treeService.aasTreeData = [...this.treeData];
+  }
 
-      cdData.content = cd;
-      cdData.id = id;
-      cdData.editorType = EditorTypeOption.ConceptDescription;
-      cdData.parent = this.allConceptDescriptionsNode.data;
+  /** Adds the concept description to the environment and a node for it to the concept descriptions node. */
+  private addConceptDescriptionNode(cd: aas.types.ConceptDescription) {
+    const rootNode = this.allConceptDescriptionsNode;
+    const environment = rootNode?.data?.content as aas.types.Environment | undefined;
+    if (rootNode == null || environment == null) return;
 
-      const cdNode: TreeNode<V3TreeItem<aas.types.ConceptDescription> | V3TreeItem<PackageMetadata>> = {
-        label: cd?.idShort ?? cd.id,
-        data: cdData,
-        children: [],
-        parent: this.allConceptDescriptionsNode,
-        key: id,
-        expanded: false,
-      };
-      if (this.allConceptDescriptionsNode.children == null) {
-        this.allConceptDescriptionsNode.children = [];
-      }
-      this.allConceptDescriptionsNode.children.push(cdNode);
+    if (environment.conceptDescriptions == null) {
+      environment.conceptDescriptions = [];
     }
-    this.treeService.aasTreeData = [...this.treeService.aasTreeData];
+    environment.conceptDescriptions.push(cd);
+    appendChildTreeNode(rootNode, cd, EditorTypeOption.ConceptDescription, cd?.idShort ?? cd.id);
   }
 
   deleteConceptDescriptionNode(cid: string) {
-    if (this.allConceptDescriptionsNode?.children != null) {
-      const node = this.allConceptDescriptionsNode?.children?.find((n) => n.data?.content.id === cid);
-      if (node != null) {
-        this.allConceptDescriptionsNode.children = this.allConceptDescriptionsNode.children.filter(
-          (n) => n.data?.content.id !== cid,
-        );
-      }
+    if (this.allConceptDescriptionsNode?.children != null && this.getConceptDescriptionNode(cid) != null) {
+      this.allConceptDescriptionsNode.children = this.allConceptDescriptionsNode.children.filter(
+        (n) => (n.data?.content as aas.types.ConceptDescription | undefined)?.id !== cid,
+      );
     }
-    this.treeService.aasTreeData = [...this.treeService.aasTreeData];
+    this.treeService.aasTreeData = [...this.treeData];
   }
 
   deleteSmNode(nodeId: string) {
-    // if (this.shellRootNode?.children != null) {
-    // iterate over all shells and search for the id
     const deleteNode = this.findNodeById(nodeId);
-    // for (const shell of this.shellRootNode.children) {
     if (this.shellNode?.children != null) {
       this.shellNode.children = this.shellNode.children.filter((n) => n.data?.id !== nodeId);
     }
-    // }
     if (deleteNode?.parent?.data?.id != null) this.selectById(deleteNode.parent.data.id);
-    this.treeService.aasTreeData = [...this.treeService.aasTreeData];
-
-    // }
+    this.treeService.aasTreeData = [...this.treeData];
   }
 
   selectById(id: string, saveVisit: boolean = false) {
@@ -1032,15 +693,13 @@ export class V3TreeComponent implements OnChanges, OnInit {
     }
   }
 
-  private scrollToSelectionPrimeNgDataTree(selection: TreeNode<V3TreeItem<any>> | null) {
-    if (this.treeService.aasTreeData != null && selection != null) {
+  private scrollToSelectionPrimeNgDataTree(selection: V3TreeNode | null) {
+    if (this.treeData != null && selection != null) {
       const flat = this.buildVisibleFlatNodes();
       const index = flat.findIndex((x) => x.node.data?.id === selection.data?.id);
       if (index >= 0) {
         this.viewport?.scrollToIndex(index, 'smooth');
       }
-
-      // const index = tree?.value.indexOf(selection);
 
       setTimeout(() => {
         const elem = document.getElementById('tree_' + selection.data?.id);
@@ -1051,7 +710,7 @@ export class V3TreeComponent implements OnChanges, OnInit {
     }
   }
 
-  isInViewport(element: any) {
+  isInViewport(element: Element) {
     const rect = element.getBoundingClientRect();
     return (
       rect.top >= 0 &&
@@ -1061,133 +720,76 @@ export class V3TreeComponent implements OnChanges, OnInit {
     );
   }
 
+  /** Typed loosely on purpose: callers of V3TreeService.findById access the content without narrowing. */
   findNodeById(id: string): TreeNode<V3TreeItem<any>> | null {
-    let foundNode = null;
-    this.treeService.aasTreeData.forEach((treeNode) => {
-      const node = this.findNodeByIdRecursive(treeNode, id);
-      if (node != null) {
-        foundNode = node;
-      }
-    });
-    return foundNode;
+    return findNodeById(this.treeData, id);
   }
 
-  findNodeByIdRecursive(node: TreeNode<V3TreeItem<any>>, id: string): TreeNode<V3TreeItem<any>> | null {
-    if (node.data?.id === id) return node;
-    if (node.children != null) {
-      for (const child of node.children) {
-        const found = this.findNodeByIdRecursive(child, id);
-        if (found != null) return found;
-      }
-    }
-    return null;
+  findNodeByIdRecursive(node: V3TreeNode, id: string): V3TreeNode | null {
+    return findNodeRecursive(node, (n) => n.data?.id === id);
   }
 
   selectNodeByElementIdShortPath(path: string) {
-    let foundNode: TreeNode<V3TreeItem<any>> | null = null;
-
-    while (path != null && path !== '') {
-      const splittedPath = path.split('.');
-      const reversedSplittedPath = splittedPath.reverse();
-      const currentElementToFind = reversedSplittedPath.pop();
-
-      let node: TreeNode | undefined = undefined;
-      if (foundNode == null) {
-        node = this.treeService.aasTreeData[this.SHELL_ROOT_INDEX].children?.find(
-          (n) => n.data?.content?.idShort === currentElementToFind,
-        );
-      } else {
-        node = foundNode.children?.find((n) => n.data?.content?.idShort === currentElementToFind);
-      }
-      if (node != null) {
-        // search next level
-        foundNode = node;
-        path = reversedSplittedPath.reverse().join('.');
-      } else {
-        foundNode = null;
-        break;
-      }
-    }
+    const foundNode = findNodeByIdShortPath(this.treeData[this.SHELL_ROOT_INDEX], path);
     if (foundNode?.data?.id != null) {
       this.selectById(foundNode.data.id, true);
     }
   }
 
-  applyState(tree: any, _selectedId: string) {
+  applyState(tree: TreeNode[], _selectedId: string) {
     this.treeService.aasTreeData = tree;
-    // aktualisieren des Editors mit dem selektierten Element triggern
-    // this.selectById((this.treeService.selectedTreeNode as any).data.id);
+    // trigger an update of the editor with the selected element
     this.selectById(_selectedId);
-    // if (this.treeService.selectedTreeNode != null) {
-    //   this.selectedElementChanged.emit((this.treeService.selectedTreeNode as any).data);
-    // }
   }
 
   navigateToPath(path: Path) {
-    if (this.shellResult != null) {
-      let x: any = null;
-      let indx = path.segments.length - 1;
-      let element: any = null;
+    if (this.shellResult == null) return;
 
-      if (path.toString().startsWith('.submodels') || path.toString().startsWith('.assetAdministrationShells')) {
-        while (x == null && indx > 0) {
-          element = (path as any).segments[indx].instance;
-          if (
-            element == null &&
-            (path as any).segments[indx].index != null &&
-            (path as any).segments[indx].sequence != null
-          ) {
-            element = (path as any).segments[indx].sequence[(path as any).segments[indx].index];
-          }
-          x = this.findNodeByElementRecursive(this.treeService.aasTreeData[this.SHELL_ROOT_INDEX], element);
+    let x: V3TreeNode | null = null;
+    let indx = path.segments.length - 1;
 
-          indx--;
-        }
-      } else {
-        while (x == null && indx > 0) {
-          element = (path as any).segments[indx].instance;
-          x = this.findNodeByElementRecursive(this.treeService.aasTreeData[this.CONCEPT_DESCRIPTIONS_INDEX], element);
-
-          indx--;
-          this.treeService.aasTreeData[this.CONCEPT_DESCRIPTIONS_INDEX].expanded = true;
-        }
+    if (path.toString().startsWith('.submodels') || path.toString().startsWith('.assetAdministrationShells')) {
+      while (x == null && indx > 0) {
+        const segment = path.segments[indx];
+        const element = 'instance' in segment ? segment.instance : segment.sequence[segment.index];
+        x = this.findNodeByElementRecursive(this.treeData[this.SHELL_ROOT_INDEX], element);
+        indx--;
       }
-      if (x != null) {
-        this.treeService.selectedTreeNode = x;
-        this.selectTreeNode(x);
-        this.expandParents(x);
+    } else {
+      while (x == null && indx > 0) {
+        const segment = path.segments[indx];
+        const element = 'instance' in segment ? segment.instance : undefined;
+        x = this.findNodeByElementRecursive(this.treeData[this.CONCEPT_DESCRIPTIONS_INDEX], element);
+        indx--;
+        this.treeData[this.CONCEPT_DESCRIPTIONS_INDEX].expanded = true;
       }
+    }
+    if (x != null) {
+      this.treeService.selectedTreeNode = x;
+      this.selectTreeNode(x);
+      this.expandParents(x);
     }
   }
 
   selectRoot() {
-    this.treeService.selectedTreeNode = this.treeService.aasTreeData[0];
-    this.selectedElementChanged.emit(this.treeService.selectedTreeNode.data);
+    this.treeService.selectedTreeNode = this.treeData[0];
+    this.selectedElementChanged.emit(this.treeData[0].data);
   }
 
-  findNodeByElementRecursive(node: TreeNode<V3TreeItem<any>>, element: any): TreeNode<V3TreeItem<any>> | null {
-    if (node.data?.content === element) return node;
-    if (node.children != null) {
-      for (const child of node.children) {
-        const found = this.findNodeByElementRecursive(child, element);
-        if (found != null) return found;
-      }
-    }
-    return null;
+  findNodeByElementRecursive(node: V3TreeNode, element: unknown): V3TreeNode | null {
+    return findNodeRecursive(node, (n) => n.data?.content === element);
   }
 
-  expandParents(node: TreeNode<V3TreeItem<any>>) {
-    node.expanded = true;
-    if (node.parent != null) {
-      this.expandParents(node.parent);
-    }
+  expandParents(node: V3TreeNode) {
+    expandParents(node);
   }
+
   showInsertSnippetDialog(data: {
     visibility: boolean;
     allowedTypes: string[];
     uuid: string;
     elementType: string;
-    parentElement: any;
+    parentElement: V3TreeNode | undefined;
   }) {
     this.insertSnippetDialogVisible = data.visibility;
     if (data.visibility === true) {
@@ -1200,7 +802,7 @@ export class V3TreeComponent implements OnChanges, OnInit {
     }
   }
 
-  showInsertJsonDialog(event: { type: 'submodel' | 'element' | 'cd'; node: TreeNode<V3TreeItem<any>> }) {
+  showInsertJsonDialog(event: { type: JsonImportType; node: V3TreeNode }) {
     this.treeService.selectedTreeNode = event.node;
     this.selectedTreeNode = event.node;
     this.importJsonDialogVisible = true;
@@ -1208,7 +810,7 @@ export class V3TreeComponent implements OnChanges, OnInit {
     this.plainJson = '';
   }
 
-  showInsertFromEclassDialog(event: { parentElement: TreeNode<V3TreeItem<any>> }) {
+  showInsertFromEclassDialog(event: { parentElement: V3TreeNode }) {
     this.importFromEclassDialogVisible = true;
     this.targetNodeId = event.parentElement.data?.id ?? 'undefined';
   }
@@ -1217,202 +819,81 @@ export class V3TreeComponent implements OnChanges, OnInit {
     snippetId: number;
     uuid: string;
     elementType: string;
-    parentElement: any;
+    parentElement: V3TreeNode;
     data?: string;
   }) {
-    switch (event.elementType) {
-      case 'Submodel':
-        {
-          const instanceOrErrorPlain = aas.jsonization.submodelFromJsonable(JSON.parse(event.data ?? ''));
-          if (instanceOrErrorPlain.value != null) {
-            const sm = instanceOrErrorPlain.value;
-            sm.id = IdGenerationUtil.generateIri('submodel', this.portalService.iriPrefix);
-            ElementInserter.insertSubmodel(sm, this.treeService, this.shellResult);
-          }
-        }
-        break;
-      case 'Property':
-        {
-          const instanceOrErrorPlain = aas.jsonization.propertyFromJsonable(JSON.parse(event.data ?? ''));
-          if (instanceOrErrorPlain.value != null && this.treeService.selectedTreeNode) {
-            this.insertSme(instanceOrErrorPlain.value, event.parentElement.data.editorType);
-          }
-        }
-        break;
-      case 'Range':
-        {
-          const instanceOrErrorPlain = aas.jsonization.rangeFromJsonable(JSON.parse(event.data ?? ''));
-          if (instanceOrErrorPlain.value != null && this.treeService.selectedTreeNode) {
-            if (instanceOrErrorPlain.value != null && this.treeService.selectedTreeNode) {
-              this.insertSme(instanceOrErrorPlain.value, event.parentElement.data.editorType);
-            }
-          }
-        }
-        break;
-      case 'File':
-        {
-          const instanceOrErrorPlain = aas.jsonization.fileFromJsonable(JSON.parse(event.data ?? ''));
-          if (instanceOrErrorPlain.value != null && this.treeService.selectedTreeNode) {
-            if (instanceOrErrorPlain.value != null && this.treeService.selectedTreeNode) {
-              this.insertSme(instanceOrErrorPlain.value, event.parentElement.data.editorType);
-            }
-          }
-        }
-        break;
-      case 'MultiLanguageProperty':
-        {
-          const instanceOrErrorPlain = aas.jsonization.multiLanguagePropertyFromJsonable(JSON.parse(event.data ?? ''));
-          if (instanceOrErrorPlain.value != null && this.treeService.selectedTreeNode) {
-            if (instanceOrErrorPlain.value != null && this.treeService.selectedTreeNode) {
-              this.insertSme(instanceOrErrorPlain.value, event.parentElement.data.editorType);
-            }
-          }
-        }
-        break;
-      case 'Operation':
-        {
-          const instanceOrErrorPlain = aas.jsonization.operationFromJsonable(JSON.parse(event.data ?? ''));
-          if (instanceOrErrorPlain.value != null && this.treeService.selectedTreeNode) {
-            if (instanceOrErrorPlain.value != null && this.treeService.selectedTreeNode) {
-              this.insertSme(instanceOrErrorPlain.value, event.parentElement.data.editorType);
-            }
-          }
-        }
-        break;
-      case 'Reference':
-        {
-          const instanceOrErrorPlain = aas.jsonization.referenceElementFromJsonable(JSON.parse(event.data ?? ''));
-          if (instanceOrErrorPlain.value != null && this.treeService.selectedTreeNode) {
-            if (instanceOrErrorPlain.value != null && this.treeService.selectedTreeNode) {
-              this.insertSme(instanceOrErrorPlain.value, event.parentElement.data.editorType);
-            }
-          }
-        }
-        break;
-      case 'SubmodelElementCollection':
-        {
-          const instanceOrErrorPlain = aas.jsonization.submodelElementCollectionFromJsonable(
-            JSON.parse(event.data ?? ''),
-          );
-          if (instanceOrErrorPlain.value != null && this.treeService.selectedTreeNode) {
-            if (instanceOrErrorPlain.value != null && this.treeService.selectedTreeNode) {
-              this.insertSme(instanceOrErrorPlain.value, event.parentElement.data.editorType);
-            }
-          }
-        }
-        break;
-      case 'SubmodelElementList':
-        {
-          const instanceOrErrorPlain = aas.jsonization.submodelElementListFromJsonable(JSON.parse(event.data ?? ''));
-          if (instanceOrErrorPlain.value != null && this.treeService.selectedTreeNode) {
-            if (instanceOrErrorPlain.value != null && this.treeService.selectedTreeNode) {
-              this.insertSme(instanceOrErrorPlain.value, event.parentElement.data.editorType);
-            }
-          }
-        }
-        break;
-      case 'ConceptDescription':
-        {
-          const instanceOrErrorPlain = aas.jsonization.conceptDescriptionFromJsonable(JSON.parse(event.data ?? ''));
-          if (instanceOrErrorPlain.value != null && this.treeService.selectedTreeNode) {
-            if (instanceOrErrorPlain.value != null && this.treeService.selectedTreeNode) {
-              ElementInserter.insertConceptDescription(instanceOrErrorPlain.value, this.treeService);
-            }
-          }
-        }
-        break;
-      default:
-        throw new Error('Unknown element type' + event.elementType);
+    const element = deserializeSnippet(event.elementType, event.data);
+    if (element instanceof aas.types.Submodel) {
+      element.id = IdGenerationUtil.generateIri('submodel', this.portalService.iriPrefix);
+      ElementInserter.insertSubmodel(element, this.treeService, this.shellResult);
+    } else if (element != null && this.treeService.selectedTreeNode) {
+      if (element instanceof aas.types.ConceptDescription) {
+        ElementInserter.insertConceptDescription(element, this.treeService);
+      } else {
+        this.insertSme(element as aas.types.ISubmodelElement, event.parentElement.data!.editorType);
+      }
     }
     this.insertSnippetDialogVisible = false;
   }
 
-  insertSme(sme: any, parentType: CMTypeOption) {
+  insertSme(sme: aas.types.ISubmodelElement, parentType: EditorTypeOption) {
     switch (parentType) {
-      case CMTypeOption.SubmodelElementCollection:
+      case EditorTypeOption.SubmodelElementCollection:
+      case EditorTypeOption.SubmodelElementList:
         ElementInserter.insertSubmodelElementToCollection(sme, this.treeService);
         break;
-      case CMTypeOption.SubmodelElementList:
-        ElementInserter.insertSubmodelElementToCollection(sme, this.treeService);
-        break;
-      case CMTypeOption.Submodel:
+      case EditorTypeOption.Submodel:
         ElementInserter.insertSubmodelElementToSubmodel(sme, this.treeService);
         break;
     }
   }
 
-  refreshMarkingNodes() {
-    (this.treeService.selectedTreeNode as TreeNode<V3TreeItem<any>>).children = [];
-    if (
-      (this.treeService.selectedTreeNode as TreeNode<V3TreeItem<aas.types.SubmodelElementCollection>>)?.data?.content
-        ?.value != null
-    ) {
-      (this.treeService.selectedTreeNode as TreeNode<V3TreeItem<any>>).children = this.buildSubmodelChildren(
-        (this.treeService.selectedTreeNode as TreeNode<V3TreeItem<aas.types.SubmodelElementCollection>>).data?.content
-          ?.value,
-        this.treeService.selectedTreeNode as TreeNode<V3TreeItem<any>>,
-      );
-      (this.treeService.selectedTreeNode as TreeNode<V3TreeItem<any>>).expanded = true;
+  /** Rebuilds the children of the node from the given model elements (only if there are any) and expands it. */
+  private rebuildChildren(
+    node: V3TreeNode,
+    elements: aas.types.ISubmodelElement[] | null | undefined,
+    clearAlways: boolean = false,
+  ) {
+    if (clearAlways) node.children = [];
+    if (elements != null) {
+      node.children = this.buildSubmodelChildren(elements, node);
+      node.expanded = true;
     }
   }
+
+  refreshMarkingNodes() {
+    const node = this.serviceSelectedNode;
+    this.rebuildChildren(node, (node?.data?.content as aas.types.SubmodelElementCollection | undefined)?.value, true);
+  }
+
   refreshSubmodelNodes() {
-    if (
-      (this.treeService.selectedTreeNode as TreeNode<V3TreeItem<aas.types.Submodel>>)?.data?.content
-        ?.submodelElements != null
-    ) {
-      (this.treeService.selectedTreeNode as TreeNode<V3TreeItem<any>>).children = [];
-      (this.treeService.selectedTreeNode as TreeNode<V3TreeItem<any>>).children = this.buildSubmodelChildren(
-        (this.treeService.selectedTreeNode as TreeNode<V3TreeItem<aas.types.Submodel>>).data?.content?.submodelElements,
-        this.treeService.selectedTreeNode as TreeNode<V3TreeItem<any>>,
-      );
-      (this.treeService.selectedTreeNode as TreeNode<V3TreeItem<any>>).expanded = true;
-    }
+    const node = this.serviceSelectedNode;
+    this.rebuildChildren(node, (node?.data?.content as aas.types.Submodel | undefined)?.submodelElements);
   }
 
   refreshChangelogNodes() {
-    const node = this.treeService.findById(this.treeService.aasDesignerChangelogSmNodeId);
-
+    const node = this.treeService.findById(this.treeService.aasDesignerChangelogSmNodeId) as V3TreeNode | null;
     if (node != null) {
-      (node as TreeNode<V3TreeItem<any>>).children = [];
-      (node as TreeNode<V3TreeItem<any>>).children = this.buildSubmodelChildren(
-        (node as TreeNode<V3TreeItem<aas.types.Submodel>>).data?.content?.submodelElements,
-        node as TreeNode<V3TreeItem<any>>,
+      node.children = this.buildSubmodelChildren(
+        (node.data?.content as aas.types.Submodel | undefined)?.submodelElements,
+        node,
       );
-      (node as TreeNode<V3TreeItem<any>>).expanded = true;
+      node.expanded = true;
     }
   }
 
   selectParentNode() {
-    this.treeService.selectNodeByElement(
-      (this.treeService.selectedTreeNode as TreeNode<V3TreeItem<any>>).parent?.data?.content,
-    );
+    this.treeService.selectNodeByElement(this.serviceSelectedNode.parent?.data?.content);
   }
 
   refreshEntityNodes() {
-    if (
-      (this.treeService.selectedTreeNode as TreeNode<V3TreeItem<aas.types.Entity>>)?.data?.content?.statements != null
-    ) {
-      (this.treeService.selectedTreeNode as TreeNode<V3TreeItem<any>>).children = [];
-      (this.treeService.selectedTreeNode as TreeNode<V3TreeItem<any>>).children = this.buildSubmodelChildren(
-        (this.treeService.selectedTreeNode as TreeNode<V3TreeItem<aas.types.Entity>>).data?.content?.statements,
-        this.treeService.selectedTreeNode as TreeNode<V3TreeItem<any>>,
-      );
-      (this.treeService.selectedTreeNode as TreeNode<V3TreeItem<any>>).expanded = true;
-    }
+    const node = this.serviceSelectedNode;
+    this.rebuildChildren(node, (node?.data?.content as aas.types.Entity | undefined)?.statements);
   }
 
   refreshSml() {
-    (this.treeService.selectedTreeNode as TreeNode<V3TreeItem<any>>).children = [];
-    if (
-      (this.treeService.selectedTreeNode as TreeNode<V3TreeItem<aas.types.SubmodelElementList>>)?.data?.content
-        ?.value != null
-    ) {
-      (this.treeService.selectedTreeNode as TreeNode<V3TreeItem<any>>).children = this.buildSubmodelChildren(
-        (this.treeService.selectedTreeNode as TreeNode<V3TreeItem<aas.types.SubmodelElementList>>).data?.content?.value,
-        this.treeService.selectedTreeNode as TreeNode<V3TreeItem<any>>,
-      );
-      (this.treeService.selectedTreeNode as TreeNode<V3TreeItem<any>>).expanded = true;
-    }
+    const node = this.serviceSelectedNode;
+    this.rebuildChildren(node, (node?.data?.content as aas.types.SubmodelElementList | undefined)?.value, true);
   }
 
   refreshTree() {
@@ -1420,109 +901,66 @@ export class V3TreeComponent implements OnChanges, OnInit {
   }
 
   insertPlainJson() {
+    const jsonable = JSON.parse(this.plainJson ?? '');
     if (this.importType === 'submodel') {
-      const instanceOrErrorPlain = aas.jsonization.submodelFromJsonable(JSON.parse(this.plainJson ?? ''));
-      if (instanceOrErrorPlain.value != null) {
-        ElementInserter.insertSubmodel(instanceOrErrorPlain.value, this.treeService, this.shellResult);
-        this.importJsonDialogVisible = false;
-        this.selectedElementChanged.emit((this.treeService.selectedTreeNode as TreeNode<V3TreeItem<any>> | null)?.data);
-      } else if (instanceOrErrorPlain.value == null) {
-        if (instanceOrErrorPlain.error != null) {
-          console.warn(
-            'De-serialization failed: ' +
-              `${instanceOrErrorPlain.error.path}: ` +
-              `${instanceOrErrorPlain.error.message}`,
-          );
-        }
-        this.notificationService.showMessageAlways(
-          'ERROR_IMPORT_JSON',
-          'ERROR',
-          'error',
-          true,
-          10000,
-          'De-serialization failed: ' +
-            `${instanceOrErrorPlain.error?.path}: ` +
-            `${instanceOrErrorPlain.error?.message}`,
-        );
+      const instanceOrError = aas.jsonization.submodelFromJsonable(jsonable);
+      if (instanceOrError.value != null) {
+        ElementInserter.insertSubmodel(instanceOrError.value, this.treeService, this.shellResult);
+        this.closeImportDialogAndEmitSelection();
+      } else {
+        this.showImportError(instanceOrError.error);
       }
     }
     if (this.importType === 'element') {
-      const instanceOrErrorPlain = aas.jsonization.submodelElementFromJsonable(JSON.parse(this.plainJson ?? ''));
-      if (instanceOrErrorPlain.value != null && this.treeService.selectedTreeNode && !isArray(this.selectedTreeNode)) {
-        const node = this.selectedTreeNode as TreeNode<V3TreeItem<any>>;
-        switch (node.data?.editorType) {
-          case EditorTypeOption.SubmodelElementCollection:
-            ElementInserter.insertSubmodelElementToCollection(instanceOrErrorPlain.value, this.treeService);
-            break;
-          case EditorTypeOption.SubmodelElementList:
-            ElementInserter.insertSubmodelElementToCollection(instanceOrErrorPlain.value, this.treeService);
-            break;
-          case EditorTypeOption.Submodel:
-            ElementInserter.insertSubmodelElementToSubmodel(instanceOrErrorPlain.value, this.treeService);
-            break;
-        }
+      const instanceOrError = aas.jsonization.submodelElementFromJsonable(jsonable);
+      if (instanceOrError.value != null && this.treeService.selectedTreeNode && !isArray(this.selectedTreeNode)) {
+        const node = this.selectedTreeNode as V3TreeNode;
+        this.insertSme(instanceOrError.value, node.data?.editorType as EditorTypeOption);
         this.importJsonDialogVisible = false;
         const insertedNode = node.children?.[node.children.length - 1];
         if (insertedNode != null) {
           this.onNodeClicked(insertedNode);
         } else {
-          this.selectedElementChanged.emit(
-            (this.treeService.selectedTreeNode as TreeNode<V3TreeItem<any>> | null)?.data,
-          );
+          this.selectedElementChanged.emit((this.treeService.selectedTreeNode as V3TreeNode | null)?.data);
         }
-      } else if (instanceOrErrorPlain.value == null) {
-        if (instanceOrErrorPlain.error != null) {
-          console.warn(
-            'De-serialization failed: ' +
-              `${instanceOrErrorPlain.error.path}: ` +
-              `${instanceOrErrorPlain.error.message}`,
-          );
-        }
-        this.notificationService.showMessageAlways(
-          'ERROR_IMPORT_JSON',
-          'ERROR',
-          'error',
-          true,
-          10000,
-          'De-serialization failed: ' +
-            `${instanceOrErrorPlain.error?.path}: ` +
-            `${instanceOrErrorPlain.error?.message}`,
-        );
+      } else if (instanceOrError.value == null) {
+        this.showImportError(instanceOrError.error);
       }
     }
     if (this.importType === 'cd') {
-      const instanceOrErrorPlain = aas.jsonization.conceptDescriptionFromJsonable(JSON.parse(this.plainJson ?? ''));
-      if (instanceOrErrorPlain.value != null) {
-        ElementInserter.insertConceptDescription(instanceOrErrorPlain.value, this.treeService);
-        this.importJsonDialogVisible = false;
-        this.selectedElementChanged.emit((this.treeService.selectedTreeNode as TreeNode<V3TreeItem<any>> | null)?.data);
-      } else if (instanceOrErrorPlain.value == null) {
-        if (instanceOrErrorPlain.error != null) {
-          console.warn(
-            'De-serialization failed: ' +
-              `${instanceOrErrorPlain.error.path}: ` +
-              `${instanceOrErrorPlain.error.message}`,
-          );
-        }
-        this.notificationService.showMessageAlways(
-          'ERROR_IMPORT_JSON',
-          'ERROR',
-          'error',
-          true,
-          10000,
-          'De-serialization failed: ' +
-            `${instanceOrErrorPlain.error?.path}: ` +
-            `${instanceOrErrorPlain.error?.message}`,
-        );
+      const instanceOrError = aas.jsonization.conceptDescriptionFromJsonable(jsonable);
+      if (instanceOrError.value != null) {
+        ElementInserter.insertConceptDescription(instanceOrError.value, this.treeService);
+        this.closeImportDialogAndEmitSelection();
+      } else {
+        this.showImportError(instanceOrError.error);
       }
     }
+  }
+
+  private closeImportDialogAndEmitSelection() {
+    this.importJsonDialogVisible = false;
+    this.selectedElementChanged.emit((this.treeService.selectedTreeNode as V3TreeNode | null)?.data);
+  }
+
+  private showImportError(error: aas.jsonization.DeserializationError | null) {
+    if (error != null) {
+      console.warn(formatDeserializationError(error));
+    }
+    this.notificationService.showMessageAlways(
+      'ERROR_IMPORT_JSON',
+      'ERROR',
+      'error',
+      true,
+      10000,
+      formatDeserializationError(error),
+    );
   }
 
   setPlainJsonText(event: { files: File[] }) {
     const myReader: FileReader = new FileReader();
 
-    myReader.onloadend = (_e) => {
-      // you can perform an action with readed data here
+    myReader.onloadend = () => {
       this.plainJson = myReader.result as string;
       this.checkJsonValidity();
       this.jsonFileUpload?.clear();
@@ -1544,40 +982,9 @@ export class V3TreeComponent implements OnChanges, OnInit {
     this.refreshEntityNodes();
   }
 
-  jsonValid = signal(false);
-  jsonValidationError = signal<string | null>(null);
-
   checkJsonValidity() {
-    let valid = true;
-    let errorDetail: string | null = null;
-
-    if (this.importType === 'submodel') {
-      try {
-        const instanceOrErrorPlain = aas.jsonization.submodelFromJsonable(JSON.parse(this.plainJson ?? ''));
-        if (instanceOrErrorPlain.error != null) {
-          valid = false;
-          const err = instanceOrErrorPlain.error;
-          errorDetail = err.path ? `${err.path}: ${err.message}` : err.message;
-        }
-      } catch (e) {
-        valid = false;
-        errorDetail = e instanceof Error ? e.message : String(e);
-      }
-    } else if (this.importType === 'element') {
-      try {
-        const instanceOrErrorPlain = aas.jsonization.submodelElementFromJsonable(JSON.parse(this.plainJson ?? ''));
-        if (instanceOrErrorPlain.error != null) {
-          valid = false;
-          const err = instanceOrErrorPlain.error;
-          errorDetail = err.path ? `${err.path}: ${err.message}` : err.message;
-        }
-      } catch (e) {
-        valid = false;
-        errorDetail = e instanceof Error ? e.message : String(e);
-      }
-    }
-
-    this.jsonValid.set(valid);
-    this.jsonValidationError.set(valid ? null : errorDetail);
+    const result = validateImportJson(this.plainJson, this.importType);
+    this.jsonValid.set(result.valid);
+    this.jsonValidationError.set(result.valid ? null : result.error);
   }
 }

@@ -7,6 +7,7 @@ import { ButtonModule } from '@openng/optimus-ui/button';
 @Component({
   selector: 'app-forbidden',
   templateUrl: './app.forbidden.component.html',
+  styleUrl: './app.forbidden.component.scss',
   changeDetection: ChangeDetectionStrategy.Eager,
   imports: [ButtonModule, RouterLink, TranslateModule],
 })

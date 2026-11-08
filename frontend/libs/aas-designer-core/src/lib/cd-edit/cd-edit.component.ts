@@ -11,7 +11,7 @@ import { ButtonModule } from '@openng/optimus-ui/button';
 import { ToolbarModule } from '@openng/optimus-ui/toolbar';
 import { lastValueFrom } from 'rxjs';
 import { map } from 'rxjs/operators';
-import { V3ConceptDescriptionComponent } from '../v3-editor';
+import { V3ConceptDescriptionComponent } from '../v3-editor/components/v3-concept-description/v3-concept-description.component';
 import { V3TreeItem } from '../v3-editor/model/v3-tree-item';
 import { PortalService } from '@aas/common-services';
 
@@ -57,6 +57,10 @@ export class CdEditComponent implements OnInit {
     try {
       const cdRes = await lastValueFrom(this.cdClient.conceptDescription_GetCd(id));
       const cdObj = aas.jsonization.conceptDescriptionFromJsonable(JSON.parse(cdRes)).value;
+      if (cdObj == null) {
+        // The API answers an unknown ID with a list of error messages instead of a concept description.
+        throw new Error('Concept description not found or not parseable.');
+      }
       return cdObj;
     } catch {
       this.notificationService.showMessageAlways('CONCEPT_DESCRIPTION_NOT_LOADED', 'ERROR', 'error');

@@ -86,7 +86,7 @@ export class DocumentComponent implements OnInit {
   }
 
   get pageDescriptionKey() {
-    return 'BATTERY_PASSPORT_HANDOVER_EXPL';
+    return 'GENERATOR_HANDOVER_EXPL';
   }
 
   get nextLabel() {

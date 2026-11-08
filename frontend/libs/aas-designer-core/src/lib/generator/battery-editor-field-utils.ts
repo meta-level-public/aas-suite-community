@@ -1,5 +1,6 @@
 import * as aas from '@aas-core-works/aas-core3.1-typescript';
 import { TreeNode } from '@openng/optimus-ui/api';
+import { getAasModelTypeName } from '@aas/helpers';
 
 type EnumObject = Record<string, string | number>;
 
@@ -37,6 +38,17 @@ export function getBatteryEditorChildElements(element: any): any[] {
     return Array.from(submodelElements);
   }
 
+  // Only collections and lists have child elements in `value`. For a MultiLanguageProperty `value` holds the
+  // language strings, which must not show up as separate fields. Unknown types keep the old behaviour.
+  const modelTypeName = getBatteryEditorModelTypeName(element).toLowerCase();
+  if (
+    modelTypeName !== '' &&
+    modelTypeName !== 'submodelelementcollection' &&
+    modelTypeName !== 'submodelelementlist'
+  ) {
+    return [];
+  }
+
   const value = element?.value;
   if (Array.isArray(value)) {
     return value;
@@ -48,15 +60,7 @@ export function getBatteryEditorChildElements(element: any): any[] {
 }
 
 export function getBatteryEditorModelTypeName(element: any): string {
-  const rawType = element?.modelType?.name ?? element?.modelType;
-  if (typeof rawType === 'string') {
-    return rawType;
-  }
-  const ctorName = rawType?.constructor?.name;
-  if (typeof ctorName === 'string' && ctorName.length > 0 && ctorName !== 'Object') {
-    return ctorName;
-  }
-  return rawType != null ? String(rawType) : '';
+  return getAasModelTypeName(element) ?? '';
 }
 
 export function isBatteryEditorContainerElement(element: any, modelTypeLower?: string) {

@@ -37,7 +37,12 @@ describe('AppMenuComponent', () => {
           useValue: { loggedIn: true, loginStateChanged: new Subject(), currentInfrastructureChanged: new Subject() },
         },
         { provide: HelpService, useValue: { initHelp: vi.fn() } },
-        { provide: ADDITIONAL_MENU_ITEMS, useValue: [] },
+        {
+          provide: ADDITIONAL_MENU_ITEMS,
+          useValue: [
+            { label: 'DASHBOARD', icon: 'pi pi-chart-line', routerLink: ['/', 'dashboard'], insertAtStart: true },
+          ],
+        },
         { provide: PluginRegistryService, useValue: { plugins: signal([]) } },
         { provide: AccessService, useValue: { isAllowed: () => true } },
         { provide: AppConfigService, useValue: { config: {} } },
@@ -91,5 +96,36 @@ describe('AppMenuComponent', () => {
 
     expect(fixture.componentInstance.sidebarExpanded()).toBe(true);
     expect(sidebar().classList).not.toContain('mobile');
+  });
+
+  const activeLinks = () =>
+    [...fixture.nativeElement.querySelectorAll('.sidebar-item.active')].map((link: HTMLElement) =>
+      link.getAttribute('href'),
+    );
+
+  it('marks the dashboard entry with a multi-segment router link as active, also with query parameters', async () => {
+    await TestBed.inject(Router).navigateByUrl('/dashboard?page=2');
+    await createMenu(false);
+
+    expect(activeLinks()).toEqual(['/dashboard']);
+  });
+
+  it('marks exactly one entry for nested routes and none for unrelated ones', async () => {
+    await createMenu(false);
+
+    await TestBed.inject(Router).navigateByUrl('/system-management/job-settings/statistic-calculator');
+    await fixture.whenStable();
+    fixture.detectChanges();
+    expect(activeLinks()).toEqual(['/system-management']);
+
+    await TestBed.inject(Router).navigateByUrl('/generator/select-type');
+    await fixture.whenStable();
+    fixture.detectChanges();
+    expect(activeLinks()).toEqual(['/aas']);
+
+    await TestBed.inject(Router).navigateByUrl('/contact');
+    await fixture.whenStable();
+    fixture.detectChanges();
+    expect(activeLinks()).toEqual([]);
   });
 });

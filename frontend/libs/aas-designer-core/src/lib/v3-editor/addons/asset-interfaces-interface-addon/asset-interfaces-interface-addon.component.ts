@@ -37,6 +37,57 @@ type FormDraft = {
   securityConfiguration: string;
   httpHeaders: HttpHeaderDraft[];
 };
+type BindingDraftKey =
+  | 'httpMethod'
+  | 'mqttQos'
+  | 'mqttRetain'
+  | 'mqttControlPacket'
+  | 'modbusFunction'
+  | 'modbusEntity'
+  | 'modbusZeroBased'
+  | 'modbusPollingTime'
+  | 'modbusTimeout'
+  | 'modbusPayloadDataType';
+type BindingField = { draftKey: BindingDraftKey; idShort: string; semanticId: string };
+
+/** Protocol binding terms of a form (htv:, mqv:, modv:), only written for forms of the matching protocol. */
+const PROTOCOL_BINDING_FIELDS: Record<Exclude<ProtocolType, 'Other'>, BindingField[]> = {
+  HTTP: [{ draftKey: 'httpMethod', idShort: 'methodName', semanticId: 'https://www.w3.org/2011/http#methodName' }],
+  MQTT: [
+    { draftKey: 'mqttQos', idShort: 'qos', semanticId: 'https://www.w3.org/2019/wot/mqtt#hasQoSFlag' },
+    { draftKey: 'mqttRetain', idShort: 'retain', semanticId: 'https://www.w3.org/2019/wot/mqtt#hasRetainFlag' },
+    {
+      draftKey: 'mqttControlPacket',
+      idShort: 'ControlPacket',
+      semanticId: 'https://www.w3.org/2019/wot/mqtt#ControlPacket',
+    },
+  ],
+  Modbus: [
+    {
+      draftKey: 'modbusFunction',
+      idShort: 'modv_function',
+      semanticId: 'https://www.w3.org/2019/wot/modbus#hasFunction',
+    },
+    { draftKey: 'modbusEntity', idShort: 'modv_entity', semanticId: 'https://www.w3.org/2019/wot/modbus#hasEntity' },
+    {
+      draftKey: 'modbusZeroBased',
+      idShort: 'modv_zeroBased',
+      semanticId: 'https://www.w3.org/2019/wot/modbus#hasZeroBasedAddr',
+    },
+    {
+      draftKey: 'modbusPollingTime',
+      idShort: 'modv_pollingTime',
+      semanticId: 'https://www.w3.org/2019/wot/modbus#hasPollingTime',
+    },
+    { draftKey: 'modbusTimeout', idShort: 'modv_timeout', semanticId: 'https://www.w3.org/2019/wot/modbus#hasTimeout' },
+    {
+      draftKey: 'modbusPayloadDataType',
+      idShort: 'modv_payloadDataType',
+      semanticId: 'https://www.w3.org/2019/wot/modbus#hasPayloadDataType',
+    },
+  ],
+};
+
 type SecuritySchemeDraft = {
   idShort: string;
   scheme: string;
@@ -60,50 +111,7 @@ type AidPropertyDraft = {
   templateUrl: './asset-interfaces-interface-addon.component.html',
   imports: [CommonModule, FormsModule, TranslateModule, Button, InputText, Message, Select, Fieldset],
   changeDetection: ChangeDetectionStrategy.Eager,
-  styles: [
-    `
-      :host ::ng-deep .capability-fieldset .p-fieldset-legend {
-        display: flex;
-        align-items: center;
-        width: 100%;
-        padding: 0 !important;
-      }
-
-      :host ::ng-deep .capability-fieldset.p-fieldset-toggleable .p-fieldset-legend a {
-        padding: 0 !important;
-      }
-
-      :host ::ng-deep .capability-fieldset.p-fieldset-toggleable .p-fieldset-toggle-button {
-        display: flex;
-        align-items: center;
-        width: 100%;
-      }
-
-      :host ::ng-deep .capability-fieldset .p-fieldset-legend-label,
-      :host ::ng-deep .capability-fieldset .p-fieldset-legend-text {
-        display: flex;
-        align-items: center;
-        flex: 1;
-        width: 100%;
-      }
-
-      .aid-addon-container {
-        display: flex;
-        flex-direction: column;
-        gap: 1rem;
-      }
-
-      :host ::ng-deep .aid-fieldset {
-        border: 1px solid var(--p-content-border-color);
-        background: var(--p-content-background);
-        border-radius: var(--p-border-radius);
-      }
-
-      :host ::ng-deep .aid-fieldset .p-fieldset-content {
-        padding: 0.9rem;
-      }
-    `,
-  ],
+  styleUrl: './asset-interfaces-interface-addon.component.scss',
 })
 export class AssetInterfacesInterfaceAddonComponent {
   private readonly config = inject(DynamicDialogConfig);
@@ -298,58 +306,16 @@ export class AssetInterfacesInterfaceAddonComponent {
         'https://www.w3.org/2019/wot/hypermedia#forSubProtocol',
         draft.protocol === 'Other' ? draft.otherProtocol : draft.protocol,
       );
-      this.upsertProperty(form.value, 'methodName', 'https://www.w3.org/2011/http#methodName', draft.httpMethod);
-      this.upsertProperty(form.value, 'qos', 'https://www.w3.org/2019/wot/mqtt#hasQoSFlag', draft.mqttQos);
-      this.upsertProperty(form.value, 'retain', 'https://www.w3.org/2019/wot/mqtt#hasRetainFlag', draft.mqttRetain);
-      this.upsertProperty(
-        form.value,
-        'ControlPacket',
-        'https://www.w3.org/2019/wot/mqtt#ControlPacket',
-        draft.mqttControlPacket,
-      );
-      this.upsertProperty(
-        form.value,
-        'modv_function',
-        'https://www.w3.org/2019/wot/modbus#hasFunction',
-        draft.modbusFunction,
-      );
-      this.upsertProperty(
-        form.value,
-        'modv_entity',
-        'https://www.w3.org/2019/wot/modbus#hasEntity',
-        draft.modbusEntity,
-      );
-      this.upsertProperty(
-        form.value,
-        'modv_zeroBased',
-        'https://www.w3.org/2019/wot/modbus#hasZeroBasedAddr',
-        draft.modbusZeroBased,
-      );
-      this.upsertProperty(
-        form.value,
-        'modv_pollingTime',
-        'https://www.w3.org/2019/wot/modbus#hasPollingTime',
-        draft.modbusPollingTime,
-      );
-      this.upsertProperty(
-        form.value,
-        'modv_timeout',
-        'https://www.w3.org/2019/wot/modbus#hasTimeout',
-        draft.modbusTimeout,
-      );
-      this.upsertProperty(
-        form.value,
-        'modv_payloadDataType',
-        'https://www.w3.org/2019/wot/modbus#hasPayloadDataType',
-        draft.modbusPayloadDataType,
-      );
+      this.writeProtocolBindings(form.value, draft);
       this.upsertProperty(
         form.value,
         'security',
         'https://www.w3.org/2019/wot/td#hasSecurityConfiguration',
         draft.securityConfiguration,
       );
-      this.writeHttpHeaders(form, draft.httpHeaders);
+      if (draft.protocol === 'HTTP') {
+        this.writeHttpHeaders(form, draft.httpHeaders);
+      }
 
       formsCollection.value?.push(form);
     });
@@ -405,45 +371,7 @@ export class AssetInterfacesInterfaceAddonComponent {
         ),
         protocol: normalizedProtocol,
         otherProtocol: normalizedProtocol === 'Other' ? protocolValue : '',
-        httpMethod:
-          this.readProperty(form.value ?? [], 'https://www.w3.org/2011/http#methodName', 'methodName') || 'GET',
-        mqttQos: this.readProperty(form.value ?? [], 'https://www.w3.org/2019/wot/mqtt#hasQoSFlag', 'qos'),
-        mqttRetain: this.readProperty(form.value ?? [], 'https://www.w3.org/2019/wot/mqtt#hasRetainFlag', 'retain'),
-        mqttControlPacket: this.readProperty(
-          form.value ?? [],
-          'https://www.w3.org/2019/wot/mqtt#ControlPacket',
-          'ControlPacket',
-        ),
-        modbusFunction: this.readProperty(
-          form.value ?? [],
-          'https://www.w3.org/2019/wot/modbus#hasFunction',
-          'modv_function',
-        ),
-        modbusEntity: this.readProperty(
-          form.value ?? [],
-          'https://www.w3.org/2019/wot/modbus#hasEntity',
-          'modv_entity',
-        ),
-        modbusZeroBased: this.readProperty(
-          form.value ?? [],
-          'https://www.w3.org/2019/wot/modbus#hasZeroBasedAddr',
-          'modv_zeroBased',
-        ),
-        modbusPollingTime: this.readProperty(
-          form.value ?? [],
-          'https://www.w3.org/2019/wot/modbus#hasPollingTime',
-          'modv_pollingTime',
-        ),
-        modbusTimeout: this.readProperty(
-          form.value ?? [],
-          'https://www.w3.org/2019/wot/modbus#hasTimeout',
-          'modv_timeout',
-        ),
-        modbusPayloadDataType: this.readProperty(
-          form.value ?? [],
-          'https://www.w3.org/2019/wot/modbus#hasPayloadDataType',
-          'modv_payloadDataType',
-        ),
+        ...this.readProtocolBindings(form.value ?? []),
         securityConfiguration: this.readProperty(
           form.value ?? [],
           'https://www.w3.org/2019/wot/td#hasSecurityConfiguration',
@@ -524,13 +452,35 @@ export class AssetInterfacesInterfaceAddonComponent {
     );
   }
 
+  /** An explicitly given protocol wins; the URL scheme of the target is only used when none is given. */
   private normalizeProtocol(protocol: string, target: string): ProtocolType {
     const value = protocol.trim().toLowerCase();
+    if (value === 'http' || value === 'https') return 'HTTP';
+    if (value === 'mqtt' || value === 'mqtts') return 'MQTT';
+    if (value === 'modbus') return 'Modbus';
+    if (value !== '') return 'Other';
+
     const tgt = target.trim().toLowerCase();
-    if (value === 'http' || tgt.startsWith('http://') || tgt.startsWith('https://')) return 'HTTP';
-    if (value === 'mqtt' || tgt.startsWith('mqtt://')) return 'MQTT';
-    if (value === 'modbus' || tgt.startsWith('modbus://')) return 'Modbus';
-    return protocol.trim() === '' ? 'HTTP' : 'Other';
+    if (tgt.startsWith('mqtt://') || tgt.startsWith('mqtts://')) return 'MQTT';
+    if (tgt.startsWith('modbus://') || tgt.startsWith('modbus+tcp://')) return 'Modbus';
+    return 'HTTP';
+  }
+
+  /** Writes the binding terms of the form's protocol only (e.g. no htv:methodName for MQTT or Modbus forms). */
+  private writeProtocolBindings(parent: aas.types.ISubmodelElement[], draft: FormDraft): void {
+    if (draft.protocol === 'Other') return;
+    PROTOCOL_BINDING_FIELDS[draft.protocol].forEach((field) =>
+      this.upsertProperty(parent, field.idShort, field.semanticId, draft[field.draftKey]),
+    );
+  }
+
+  private readProtocolBindings(elements: aas.types.ISubmodelElement[]): Pick<FormDraft, BindingDraftKey> {
+    const values = Object.fromEntries(
+      Object.values(PROTOCOL_BINDING_FIELDS)
+        .flat()
+        .map((field) => [field.draftKey, this.readProperty(elements, field.semanticId, field.idShort)]),
+    ) as Pick<FormDraft, BindingDraftKey>;
+    return { ...values, httpMethod: values.httpMethod || 'GET' };
   }
 
   private writeHttpHeaders(form: aas.types.SubmodelElementCollection, headers: HttpHeaderDraft[]): void {

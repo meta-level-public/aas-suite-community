@@ -128,7 +128,7 @@ function registerPluginRoutes(router: Router, routes: Routes, plugins: PluginMen
 function createPluginRoutes(plugins: PluginMenuItem[]): Route[] {
   return plugins.map((plugin) => ({
     path: plugin.route.replace(/^\/+/, ''),
-    loadComponent: () => import('@aas/aas-designer-core').then((m) => m.PluginHostComponent),
+    loadComponent: () => import('@aas/aas-designer-core/plugin-host').then((m) => m.PluginHostComponent),
     canActivate: [() => canActivate([AuthRoles.BENUTZER, AuthRoles.ORGA_ADMIN, AuthRoles.SYSTEM_ADMIN])],
     data: { pluginId: plugin.id, pluginRoute: plugin.route },
   }));

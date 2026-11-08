@@ -68,7 +68,6 @@ export class V3ShellComponent extends V3ComponentBase {
     const assetInfo = this.shell()?.content?.assetInformation;
     if (assetInfo != null) {
       for (const error of aas.verification.verify(assetInfo)) {
-        if (error.message.includes('RFC 8089')) continue;
         errors.push({ error: error, action: this.getAction(error) });
       }
     }

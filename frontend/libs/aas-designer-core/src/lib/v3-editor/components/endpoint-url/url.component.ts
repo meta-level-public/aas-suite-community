@@ -4,9 +4,11 @@ import { Component, computed, inject, input, signal, ChangeDetectionStrategy } f
 import { TranslateModule } from '@ngx-translate/core';
 import { NotificationService } from '@aas/common-services';
 import { MarkdownModule, provideMarkdown } from 'ngx-markdown';
-import 'prismjs';
-import 'prismjs/components/prism-bash';
 import { ButtonModule } from '@openng/optimus-ui/button';
+import { loadPrismLanguages } from '../../../general/prism/prism-loader';
+
+// Load Prism (core + languages) for code highlighting in production builds
+void loadPrismLanguages('bash');
 
 @Component({
   selector: 'aas-url',

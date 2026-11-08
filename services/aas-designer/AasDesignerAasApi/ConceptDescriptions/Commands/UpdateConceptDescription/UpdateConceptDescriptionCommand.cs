@@ -36,42 +36,62 @@ public class UpdateConceptDescriptionHandler
         CancellationToken cancellationToken
     )
     {
-        using var client = HttpClientCreator.CreateHttpClient(request.AppUser);
-
         var jsonNode = JsonNode.Parse(request.ConceptDescriptionString);
         if (jsonNode == null)
             throw new Exception("Could not parse JSON");
 
         var cd = Jsonization.Deserialize.ConceptDescriptionFrom(jsonNode);
 
+        using var client = HttpClientCreator.CreateHttpClient(request.AppUser);
+        await SaveAsync(
+            client,
+            request.AppUser.CurrentInfrastructureSettings.ConceptDescriptionRepositoryUrl,
+            cd,
+            cancellationToken
+        );
+        return true;
+    }
+
+    /// <summary>
+    /// Saves the concept description via PUT, or via POST when the repository does not know it
+    /// yet. Throws when the repository rejects the request, so a failed save is never reported
+    /// as success.
+    /// </summary>
+    public static async Task SaveAsync(
+        HttpClient client,
+        string conceptDescriptionRepositoryUrl,
+        IConceptDescription cd,
+        CancellationToken cancellationToken
+    )
+    {
         var cdUrl =
-            request.AppUser.CurrentInfrastructureSettings.ConceptDescriptionRepositoryUrl.AppendSlash()
+            conceptDescriptionRepositoryUrl.AppendSlash()
             + "concept-descriptions".AppendSlash()
             + cd.Id.ToBase64UrlEncoded(Encoding.UTF8);
         var cdJsonString = BasyxSerializer.Serialize(cd);
-        var cdResponse = await client.PutAsync(
+        using var putResponse = await client.PutAsync(
             cdUrl,
             new StringContent(cdJsonString, Encoding.UTF8, "application/json"),
             cancellationToken
         );
-        if (cdResponse.StatusCode == HttpStatusCode.NotFound)
+        if (putResponse.StatusCode != HttpStatusCode.NotFound)
         {
-            // POST dann ohne ID ...
-            cdUrl =
-                request.AppUser.CurrentInfrastructureSettings.ConceptDescriptionRepositoryUrl.AppendSlash()
-                + "concept-descriptions";
-            cdResponse = await client.PostAsync(
-                cdUrl,
-                new StringContent(cdJsonString, Encoding.UTF8, "application/json"),
-                cancellationToken
+            UpstreamResponseGuard.EnsureSuccess(
+                putResponse,
+                $"Saving concept description '{cd.Id}'"
             );
-            if (!cdResponse.IsSuccessStatusCode)
-            {
-                // throw new Exception($"Request to {smUrl} failed with status code {smResponse.StatusCode}");
-                Console.WriteLine("Error saving ConceptDescription: " + cdResponse.StatusCode);
-                return false;
-            }
+            return;
         }
-        return true;
+
+        // unknown to the repository: create it
+        using var postResponse = await client.PostAsync(
+            conceptDescriptionRepositoryUrl.AppendSlash() + "concept-descriptions",
+            new StringContent(cdJsonString, Encoding.UTF8, "application/json"),
+            cancellationToken
+        );
+        UpstreamResponseGuard.EnsureSuccess(
+            postResponse,
+            $"Creating concept description '{cd.Id}'"
+        );
     }
 }

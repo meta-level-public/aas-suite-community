@@ -1,3 +1,4 @@
+import { HttpErrorResponse } from '@angular/common/http';
 import { NotificationService } from '@aas/common-services';
 import { ApiException } from '@aas/jwt-auth';
 import { NgZone } from '@angular/core';
@@ -122,6 +123,36 @@ describe('ErrorHandlerService', () => {
       service.handleError('Something went wrong');
 
       expect(showMessage.mock.calls[0][0]).toBe('Something went wrong');
+    });
+  });
+
+  describe('unhandled http errors', () => {
+    it('shows status and server message of a rejected http request', () => {
+      const response = new HttpErrorResponse({
+        status: 502,
+        statusText: 'Bad Gateway',
+        error: { message: 'Repository not reachable' },
+      });
+
+      service.handleError({ rejection: response, message: 'Uncaught (in promise): HttpErrorResponse' });
+
+      expect(showMessage).toHaveBeenCalledWith(
+        '502 Bad Gateway: Repository not reachable',
+        'translated:REQUEST_FAILED',
+        'error',
+        true,
+      );
+    });
+
+    it('shows the client-side message of a network error', () => {
+      const response = new HttpErrorResponse({
+        status: 0,
+        error: new ErrorEvent('error', { message: 'Network lost' }),
+      });
+
+      service.handleError({ rejection: response });
+
+      expect(showMessage).toHaveBeenCalledWith('Network lost', 'translated:REQUEST_FAILED', 'error', true);
     });
   });
 

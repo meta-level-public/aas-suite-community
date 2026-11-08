@@ -54,6 +54,14 @@
     "@nx/vitest:test": {
       "cache": true,
       "inputs": ["default", "^production"]
+    },
+    "typecheck": {
+      "executor": "nx:run-commands",
+      "cache": true,
+      "inputs": ["default", "^production", "{workspaceRoot}/tsconfig.base.json"],
+      "options": {
+        "command": "tsc -p {projectRoot}/tsconfig.spec.json --noEmit"
+      }
     }
   },
   "namedInputs": {

@@ -10,7 +10,7 @@ import {
 } from '@angular/core';
 import { SafeUrl } from '@angular/platform-browser';
 import { TranslateModule } from '@ngx-translate/core';
-import { QRCodeComponent, QRCodeErrorCorrectionLevel } from 'angularx-qrcode';
+import { QRCodeComponent, type QRCodeErrorCorrectionLevel } from 'angularx-qrcode';
 
 @Component({
   selector: 'aas-framed-qr-code',

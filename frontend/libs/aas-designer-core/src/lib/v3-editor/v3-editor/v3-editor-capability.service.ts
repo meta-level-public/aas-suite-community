@@ -10,6 +10,7 @@ import { AssetInterfacesInterfaceAddonComponent } from '../addons/asset-interfac
 import { CapabilityAddonComponent } from '../addons/capability-addon/capability-addon.component';
 import { V3TreeItem } from '../model/v3-tree-item';
 import { V3EditorDataStoreService } from '../v3-editor-data-store.service';
+import { getModelReferenceKeysOfItem } from '../v3-tree-context-menu/v3-template-path';
 import { V3TreeService } from '../v3-tree/v3-tree.service';
 import { V3EditorPcfService } from './v3-editor-pcf.service';
 
@@ -318,6 +319,8 @@ export class V3EditorCapabilityService {
         count,
         currentLanguage: this.portalService.currentLanguage,
         currentSubmodelId: this.capabilityViewerSubmodel?.id ?? '',
+        capabilitySetKeys: getModelReferenceKeysOfItem(this.selectedElement).slice(0, -1),
+        capabilitySet,
         availableCapabilityRefs,
         existingCapabilityContainer: cloneDeep(container),
       },
@@ -350,6 +353,8 @@ export class V3EditorCapabilityService {
         count,
         currentLanguage: this.portalService.currentLanguage,
         currentSubmodelId: this.capabilityViewerSubmodel?.id ?? '',
+        capabilitySetKeys: getModelReferenceKeysOfItem(this.selectedElement),
+        capabilitySet,
         availableCapabilityRefs,
       },
     });

@@ -19,7 +19,7 @@ import { TableModule } from '@openng/optimus-ui/table';
 import { TagModule } from '@openng/optimus-ui/tag';
 import { ToolbarModule } from '@openng/optimus-ui/toolbar';
 import { lastValueFrom } from 'rxjs';
-import { V3LangStringListComponent } from '../../v3-editor';
+import { V3LangStringListComponent } from '../../v3-editor/components/v3-lang-string-list/v3-lang-string-list.component';
 
 @Component({
   selector: 'aas-product-family-catalog',

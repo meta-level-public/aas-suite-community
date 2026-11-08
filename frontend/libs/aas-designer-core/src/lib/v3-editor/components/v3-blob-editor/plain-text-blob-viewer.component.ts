@@ -1,13 +1,10 @@
 import { Component, computed, input, ChangeDetectionStrategy } from '@angular/core';
 import { marked } from 'marked';
 import { MarkdownModule, provideMarkdown } from 'ngx-markdown';
-import 'prismjs';
-import 'prismjs/components/prism-json';
-import 'prismjs/components/prism-typescript';
-import 'prismjs/components/prism-yaml';
-import 'prismjs/components/prism-powershell';
-import 'prismjs/components/prism-ruby';
-import 'prismjs/components/prism-batch';
+import { loadPrismLanguages } from '../../../general/prism/prism-loader';
+
+// Load Prism (core + languages) for code highlighting in production builds
+void loadPrismLanguages('json', 'typescript', 'yaml', 'powershell', 'ruby', 'batch');
 
 @Component({
   selector: 'aas-plain-text-blob-viewer',

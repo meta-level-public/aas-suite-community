@@ -24,33 +24,33 @@ export class ErrorHandlerService implements ErrorHandler {
       if (this.ignoreError(error)) {
         return;
       }
-      if (error?.rejection instanceof ApiException) {
-        const ex = error.rejection as ApiException;
-        if (ex.displayError)
+      const apiException =
+        error instanceof ApiException ? error : error?.rejection instanceof ApiException ? error.rejection : null;
+
+      if (apiException != null) {
+        if (apiException.displayError) {
           this.notificationService.showMessage(
-            this.messageFormatter(ex.message !== '' && ex.message != null ? ex.message : 'UNKNOWN'),
-            this.translate.instant(ex.title !== '' && ex.title != null ? ex.title : 'UNKNOWN'),
+            this.messageFormatter(
+              apiException.message !== '' && apiException.message != null ? apiException.message : 'UNKNOWN',
+            ),
+            this.translate.instant(
+              apiException.title !== '' && apiException.title != null ? apiException.title : 'UNKNOWN',
+            ),
             'error',
             true,
             3000,
-            ex.additionalInfo,
+            apiException.additionalInfo,
           );
-
-        if (isDevMode()) console.error(error);
-      } else if (error instanceof ApiException) {
-        const ex = error as ApiException;
-        if (ex.displayError)
-          this.notificationService.showMessage(
-            this.messageFormatter(ex.message !== '' && ex.message != null ? ex.message : 'UNKNOWN'),
-            this.translate.instant(ex.title !== '' && ex.title != null ? ex.title : 'UNKNOWN'),
-            'error',
-            true,
-            3000,
-            ex.additionalInfo,
-          );
-
-        if (isDevMode()) console.error(error);
-      } else if (!(error?.rejection instanceof HttpErrorResponse)) {
+        }
+      } else if (error?.rejection instanceof HttpErrorResponse) {
+        // An HTTP error that the calling code did not handle (e.g. from an external repository).
+        this.notificationService.showMessage(
+          this.describeHttpError(error.rejection),
+          this.translate.instant('REQUEST_FAILED'),
+          'error',
+          true,
+        );
+      } else {
         // The stack trace is only useful for developers and must not be shown to users.
         const details = isDevMode() && error?.stack ? ` - ${error.stack}` : '';
         this.notificationService.showMessage(
@@ -59,27 +59,9 @@ export class ErrorHandlerService implements ErrorHandler {
           'error',
           true,
         );
-
-        if (isDevMode()) console.error(error);
-      } else if (error.error instanceof ErrorEvent) {
-        // client-side error
-        const errorMessage = `Error: ${error.error.message}`;
-        this.notificationService.showMessage(errorMessage, 'CLIENTSIDE_ERROR_HEADLINE', 'error', true);
-
-        if (isDevMode()) console.error(error);
-      } else if (error instanceof TypeError) {
-        // client-side error
-        const errorMessage = `Error: ${error.message}`;
-        this.notificationService.showMessage(errorMessage, 'CLIENTSIDE_ERROR_HEADLINE', 'error', true);
-
-        if (isDevMode()) console.error(error);
-      } else {
-        const errorMessage = `Error: ${error.message}`;
-        setTimeout(() =>
-          this.notificationService.showMessage(errorMessage, 'CLIENTSIDE_ERROR_HEADLINE', 'error', true),
-        );
-        if (isDevMode()) console.error(error);
       }
+
+      if (isDevMode()) console.error(error);
     });
   }
 
@@ -93,6 +75,17 @@ export class ErrorHandlerService implements ErrorHandler {
     });
 
     return ignore;
+  }
+
+  private describeHttpError(response: HttpErrorResponse): string {
+    if (response.error instanceof ErrorEvent) {
+      // Network or client-side problem, e.g. the connection was interrupted.
+      return response.error.message;
+    }
+    const serverMessage =
+      typeof response.error === 'string' ? response.error : (response.error?.message ?? response.error?.Message);
+    const status = `${response.status} ${response.statusText ?? ''}`.trim();
+    return serverMessage ? `${status}: ${this.messageFormatter(String(serverMessage))}` : status;
   }
 
   messageFormatter(message: string): string {

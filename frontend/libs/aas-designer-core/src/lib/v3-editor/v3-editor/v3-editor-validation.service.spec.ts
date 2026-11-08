@@ -8,7 +8,7 @@ import { DialogService } from '@openng/optimus-ui/dynamicdialog';
 import { Subject } from 'rxjs';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { V3TreeService } from '../v3-tree/v3-tree.service';
-import { V3EditorValidationService } from './v3-editor-validation.service';
+import { encodeFilePath, INVALID_PATH_MESSAGE, V3EditorValidationService } from './v3-editor-validation.service';
 
 const T = aas.types;
 
@@ -350,6 +350,90 @@ describe('V3EditorValidationService', () => {
       service.fixThis(categoryError!);
 
       expect(categorized.category).toBeNull();
+    });
+
+    it('removes the empty description of the affected element only', async () => {
+      const { environment, shell, nameplate } = createBrokenEnvironment();
+      service.shellResult = shellResultFor(environment);
+      await service.validate();
+      const nameplateError = errorsWithMessage(MSG_DESCRIPTION).find((error) =>
+        error.path.toString().startsWith('.submodels'),
+      );
+
+      service.fixThis(nameplateError!);
+
+      expect(nameplate.description).toBeNull();
+      expect(shell.description).toEqual([]);
+      expect(errorsWithMessage(MSG_DESCRIPTION)).toHaveLength(1);
+    });
+
+    it('shortens a too long short name', async () => {
+      const { environment, dataSpecification } = createBrokenEnvironment();
+      service.shellResult = shellResultFor(environment);
+      await service.validate();
+
+      service.fixThis(firstError(MSG_MAX_18));
+
+      expect(dataSpecification.shortName?.[0].text).toBe('MaxOperatingTemper');
+      expect(errorsWithMessage(MSG_MAX_18)).toHaveLength(0);
+    });
+  });
+
+  describe('invalid file paths', () => {
+    function environmentWithFiles(...values: string[]) {
+      const { environment, nameplate } = createValidEnvironment();
+      const files = values.map((value, index) => {
+        const file = new T.File();
+        file.idShort = `Document${index}`;
+        file.contentType = 'application/pdf';
+        file.value = value;
+        return file;
+      });
+      nameplate.submodelElements = [...(nameplate.submodelElements ?? []), ...files];
+      return { environment, files };
+    }
+
+    it('accepts URLs and relative paths and reports paths that are no valid URI', async () => {
+      const { environment } = environmentWithFiles(
+        'https://example.com/a.pdf',
+        '/aasx/files/doc.pdf',
+        'Datenblatt ä.pdf',
+      );
+      service.shellResult = shellResultFor(environment);
+      await service.validate();
+
+      expect(errorsWithMessage(INVALID_PATH_MESSAGE)).toHaveLength(1);
+      expect(service.isAutoFixable(firstError(INVALID_PATH_MESSAGE))).toBe(true);
+    });
+
+    it('encodes the affected path only', async () => {
+      const { environment, files } = environmentWithFiles('a b.pdf', 'c d.pdf');
+      service.shellResult = shellResultFor(environment);
+      await service.validate();
+
+      service.fixThis(firstError(INVALID_PATH_MESSAGE));
+
+      expect(files.map((file) => file.value)).toEqual(['a%20b.pdf', 'c d.pdf']);
+      expect(errorsWithMessage(INVALID_PATH_MESSAGE)).toHaveLength(1);
+    });
+
+    it('encodes all invalid paths', async () => {
+      const { environment, files } = environmentWithFiles('a b.pdf', 'C:\\docs\\Übersicht.pdf');
+      service.shellResult = shellResultFor(environment);
+      await service.validate();
+
+      service.fixAll(firstError(INVALID_PATH_MESSAGE));
+
+      expect(files.map((file) => file.value)).toEqual(['a%20b.pdf', 'C:/docs/%C3%9Cbersicht.pdf']);
+      expect(errorsWithMessage(INVALID_PATH_MESSAGE)).toHaveLength(0);
+    });
+  });
+
+  describe('encodeFilePath', () => {
+    it('encodes spaces and umlauts but keeps existing escapes and URL structure', () => {
+      expect(encodeFilePath(' Datenblatt ä.pdf ')).toBe('Datenblatt%20%C3%A4.pdf');
+      expect(encodeFilePath('https://example.com/a%20b c.pdf?x=1#p')).toBe('https://example.com/a%20b%20c.pdf?x=1#p');
+      expect(encodeFilePath('\\server\\share\\doc.pdf')).toBe('/server/share/doc.pdf');
     });
   });
 

@@ -8,5 +8,5 @@
     "types": []
   },
   "include": ["src/**/*.ts"],
-  "exclude": ["src/**/*.spec.ts", "src/**/*.test.ts", "vitest.config.ts", "src/test-setup.vitest.ts"]
+  "exclude": ["src/**/*.spec.ts", "src/**/*.test.ts", "vitest.config.mts", "src/test-setup.vitest.ts"]
 }

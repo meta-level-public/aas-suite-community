@@ -5,7 +5,6 @@ import { HttpClient } from '@angular/common/http';
 import { Component, inject, model, OnDestroy, signal, ChangeDetectionStrategy } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
-import mqtt from 'mqtt';
 import { ButtonModule } from '@openng/optimus-ui/button';
 import { DividerModule } from '@openng/optimus-ui/divider';
 import { InputTextModule } from '@openng/optimus-ui/inputtext';
@@ -127,6 +126,16 @@ export class PcnSendingComponent implements OnDestroy {
       });
     } catch {
       this.notificationService.showMessageAlways('ERROR_CREATING_CHANGE_RECORD', 'ERROR', 'error', true);
+      this.loading.set(false);
+      return;
+    }
+
+    // mqtt is loaded on demand so the editor chunk does not carry the MQTT client (~440 kB)
+    let mqtt: typeof import('mqtt').default;
+    try {
+      mqtt = (await import('mqtt')).default;
+    } catch {
+      this.notificationService.showMessageAlways('ERROR_SENDING_MESSAGE', 'ERROR', 'error', true);
       this.loading.set(false);
       return;
     }

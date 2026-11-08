@@ -1,3 +1,4 @@
+using System.Net;
 using AasDesignerApi.Model;
 using AasDesignerCommon.Utils;
 using AasDesignerModel;
@@ -33,18 +34,36 @@ public class DeleteConceptDescriptionHandler
     )
     {
         using var client = HttpClientCreator.CreateHttpClient(request.AppUser);
-
-        var cdUrl =
-            request.AppUser.CurrentInfrastructureSettings.ConceptDescriptionRepositoryUrl.AppendSlash()
-            + "concept-descriptions".AppendSlash()
-            + request.CdIdentifierBase64;
-        var cdResponse = await client.DeleteAsync(cdUrl, cancellationToken);
-        if (!cdResponse.IsSuccessStatusCode)
-        {
-            // throw new Exception($"Request to {smUrl} failed with status code {smResponse.StatusCode}");
-            _logger.LogError("Error saving ConceptDescription: " + cdResponse.StatusCode);
-            return false;
-        }
+        await DeleteAsync(
+            client,
+            request.AppUser.CurrentInfrastructureSettings.ConceptDescriptionRepositoryUrl,
+            request.CdIdentifierBase64,
+            cancellationToken
+        );
         return true;
+    }
+
+    /// <summary>
+    /// Deletes the concept description. A concept description the repository does not know is
+    /// already gone; any other error is thrown, so a failed delete is never reported as success.
+    /// </summary>
+    public static async Task DeleteAsync(
+        HttpClient client,
+        string conceptDescriptionRepositoryUrl,
+        string cdIdentifierBase64,
+        CancellationToken cancellationToken
+    )
+    {
+        var cdUrl =
+            conceptDescriptionRepositoryUrl.AppendSlash()
+            + "concept-descriptions".AppendSlash()
+            + cdIdentifierBase64;
+        using var cdResponse = await client.DeleteAsync(cdUrl, cancellationToken);
+        if (cdResponse.StatusCode == HttpStatusCode.NotFound)
+        {
+            return;
+        }
+
+        UpstreamResponseGuard.EnsureSuccess(cdResponse, "Deleting the concept description");
     }
 }

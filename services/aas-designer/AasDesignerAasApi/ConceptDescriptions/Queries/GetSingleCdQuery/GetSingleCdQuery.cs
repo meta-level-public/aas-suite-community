@@ -35,6 +35,7 @@ public class GetSingleCdHandler : IRequestHandler<GetSingleCdQuery, string>
             + request.Id.ToBase64UrlEncoded(Encoding.UTF8);
 
         var response = await client.GetAsync(url, cancellationToken);
+        UpstreamResponseGuard.ThrowIfNotFound(response, "Concept description");
         var responseContent = await response.Content.ReadAsStringAsync(cancellationToken);
 
         return responseContent ?? string.Empty;

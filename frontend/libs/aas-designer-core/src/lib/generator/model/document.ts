@@ -1,4 +1,4 @@
-import { HandoverSemantics, SemanticIdHelper } from '@aas/helpers';
+import { HandoverSemantics, SemanticIdHelper, getAasModelTypeName } from '@aas/helpers';
 import { DocumentItem } from './document-item';
 
 const STANDARD_HANDOVER_TEMPLATE_ID = 'https://admin-shell.io/idta-02004-2-0';
@@ -49,7 +49,7 @@ export class Document {
     const topLevelElements = this.getChildElements(dto);
     const documentListHost = topLevelElements.find(
       (element: any) =>
-        `${element?.modelType?.name ?? element?.modelType ?? ''}`.toLowerCase() === 'submodelelementlist' &&
+        `${getAasModelTypeName(element) ?? ''}`.toLowerCase() === 'submodelelementlist' &&
         SemanticIdHelper.hasSemanticId(element, HandoverSemantics.CONTAINER_V2),
     );
 
@@ -77,7 +77,7 @@ export class Document {
   }
 
   private static isDocumentCollection(element: any) {
-    const modelTypeName = `${element?.modelType?.name ?? element?.modelType ?? ''}`.toLowerCase();
+    const modelTypeName = `${getAasModelTypeName(element) ?? ''}`.toLowerCase();
     const hasChildren = this.getChildElements(element).length > 0;
 
     if (modelTypeName !== 'submodelelementcollection' && !hasChildren) {

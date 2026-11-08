@@ -1,7 +1,10 @@
 import * as aas from '@aas-core-works/aas-core3.1-typescript';
 import { describe, expect, it, vi } from 'vitest';
 import { GeneratorExportState } from './generator-export.builder';
-import { appendGeneratorVariantSubmodels } from './generator-variant-export.builder';
+import {
+  appendGeneratorVariantSubmodels,
+  GeneratorVariantExportBuilderHooks,
+} from './generator-variant-export.builder';
 
 function createState(overrides: Partial<GeneratorExportState> = {}): GeneratorExportState {
   return {
@@ -18,18 +21,27 @@ function createState(overrides: Partial<GeneratorExportState> = {}): GeneratorEx
     isDppCore: false,
     usesTemplateBackedCoreSubmodels: false,
     additionalSubmodels: [],
+    assetKind: 'Instance',
+    documentItems: [],
+    nameplateSource: null,
+    generatorFiles: null,
     ...overrides,
   };
 }
 
 function createHooks() {
   return {
-    appendTemplateBackedCoreExportSubmodels: vi.fn(),
-    appendStandardAssistantCoreExportSubmodels: vi.fn(),
-    appendBatteryPassportExportSubmodels: vi.fn(),
-    appendDppCoreExportSubmodels: vi.fn(),
-    shouldIncludeAdditionalSubmodel: vi.fn(() => true),
-    appendExportSubmodel: vi.fn(),
+    appendTemplateBackedCoreExportSubmodels:
+      vi.fn<GeneratorVariantExportBuilderHooks['appendTemplateBackedCoreExportSubmodels']>(),
+    appendStandardAssistantCoreExportSubmodels:
+      vi.fn<GeneratorVariantExportBuilderHooks['appendStandardAssistantCoreExportSubmodels']>(),
+    appendBatteryPassportExportSubmodels:
+      vi.fn<GeneratorVariantExportBuilderHooks['appendBatteryPassportExportSubmodels']>(),
+    appendDppCoreExportSubmodels: vi.fn<GeneratorVariantExportBuilderHooks['appendDppCoreExportSubmodels']>(),
+    shouldIncludeAdditionalSubmodel: vi.fn<GeneratorVariantExportBuilderHooks['shouldIncludeAdditionalSubmodel']>(
+      () => true,
+    ),
+    appendExportSubmodel: vi.fn<GeneratorVariantExportBuilderHooks['appendExportSubmodel']>(),
   };
 }
 

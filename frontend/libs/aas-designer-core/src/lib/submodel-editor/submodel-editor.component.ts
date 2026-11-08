@@ -1,5 +1,12 @@
 import * as aas from '@aas-core-works/aas-core3.1-typescript';
-import { AppConfigService, EncodingService, NotificationService, PortalService } from '@aas/common-services';
+import {
+  AppConfigService,
+  AppRouteSegments,
+  buildAbsoluteRoute,
+  EncodingService,
+  NotificationService,
+  PortalService,
+} from '@aas/common-services';
 import { ShellResult, SupplementalFile } from '@aas/model';
 import {
   ConceptDescriptionClient,
@@ -12,7 +19,7 @@ import { CommonModule } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
 import { Component, inject, OnInit, signal, ChangeDetectionStrategy } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
 import { PrimeTemplate } from '@openng/optimus-ui/api';
 import { ButtonModule } from '@openng/optimus-ui/button';
@@ -70,6 +77,7 @@ export class SubmodelEditorComponent implements OnInit {
   shellsClient = inject(ShellsClient);
   conceptDescriptionClient = inject(ConceptDescriptionClient);
   notificationService = inject(NotificationService);
+  private readonly router = inject(Router);
   editorStore = inject(V3EditorDataStoreService);
   http = inject(HttpClient);
 
@@ -157,6 +165,9 @@ export class SubmodelEditorComponent implements OnInit {
       this.shellResult.set(shellResult);
       this.submodelNode.set(submodelNode);
       this.selectedElement.set(undefined);
+    } catch {
+      this.notificationService.showMessageAlways('ERROR_LOADING_SUBMODEL', 'ERROR', 'error');
+      void this.router.navigate(buildAbsoluteRoute(AppRouteSegments.submodels));
     } finally {
       this.loading.set(false);
     }

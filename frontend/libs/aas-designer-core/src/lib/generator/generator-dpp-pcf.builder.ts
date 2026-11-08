@@ -66,7 +66,9 @@ function createProductCarbonFootprintsList(entries: DppPcfEntryCollection) {
       'https://admin-shell.io/idta/CarbonFootprint/ProductCarbonFootprints/1/0',
     ),
   ]);
-  list.semanticIdListElement = createSemanticId('https://admin-shell.io/idta/CarbonFootprint/ProductCarbonFootprint/1/0');
+  list.semanticIdListElement = createSemanticId(
+    'https://admin-shell.io/idta/CarbonFootprint/ProductCarbonFootprint/1/0',
+  );
   list.value = entries.productCarbonFootprints.map((entry) => createProductCarbonFootprintEntry(entry.values));
 
   return list;
@@ -157,7 +159,7 @@ function createProductOrSectorSpecificCarbonFootprintEntry(
   values: Record<string, DppAssistantFieldValue>,
   index: number,
 ) {
-  const collection = new aas.types.SubmodelElementCollection(null, null, `Element ${index}`);
+  const collection = new aas.types.SubmodelElementCollection(null, null, `Element_${index}`);
   collection.value = [
     createStringPropertyList('PcfCalculationMethods', toLineItems(values['pcf-calculation-methods'])),
     createNamedCollection('ProductOrSectorSpecificRule', [

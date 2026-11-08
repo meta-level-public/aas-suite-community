@@ -5,7 +5,7 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideNoopAnimations } from '@angular/platform-browser/animations';
 import { TranslateModule } from '@ngx-translate/core';
 import { DynamicDialogConfig, DynamicDialogRef } from '@openng/optimus-ui/dynamicdialog';
-import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, type Mock, vi } from 'vitest';
 import { ViewerStoreService } from '../viewer-store.service';
 import { AasViewerStandaloneComponent } from './aas-viewer-standalone.component';
 
@@ -15,7 +15,7 @@ function rect(top: number, bottom: number) {
 
 describe('AasViewerStandaloneComponent content reveal', () => {
   let fixture: ComponentFixture<AasViewerStandaloneComponent>;
-  let scrollIntoView: ReturnType<typeof vi.fn>;
+  let scrollIntoView: Mock<HTMLElement['scrollIntoView']>;
   let contentTop: number;
 
   beforeEach(() => {
@@ -32,7 +32,7 @@ describe('AasViewerStandaloneComponent content reveal', () => {
     fixture.detectChanges();
 
     // The toolbar ends at 40px; the position of the content column is set per test
-    scrollIntoView = vi.fn();
+    scrollIntoView = vi.fn<HTMLElement['scrollIntoView']>();
     const toolbar = fixture.nativeElement.querySelector('.viewer-toolbar') as HTMLElement;
     const content = fixture.nativeElement.querySelector('.viewer-content-column') as HTMLElement;
     vi.spyOn(toolbar, 'getBoundingClientRect').mockReturnValue(rect(0, 40) as DOMRect);

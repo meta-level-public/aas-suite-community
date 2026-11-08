@@ -573,8 +573,8 @@ export class UploadAasDialogComponent {
     }
 
     const normalizedDetails = details
-      .replace(/^Saving submodel '.*?' failed via (PUT|POST) .*?:\s*/i, '')
-      .replace(/^Saving submodel .*? failed via (PUT|POST) .*?:\s*/i, '')
+      // The request URL contains no whitespace but colons (e.g. `http://host:8081/...`), so it is matched as one token.
+      .replace(/^Saving submodel (?:'.*?'|.*?) failed via (?:PUT|POST) \S+(?: after PUT-miss for AAS '.*?')?:\s*/i, '')
       .trim();
 
     const knownSummaries = [

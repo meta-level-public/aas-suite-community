@@ -9,6 +9,7 @@ import { InputTextModule } from '@openng/optimus-ui/inputtext';
 import { TableModule } from '@openng/optimus-ui/table';
 import { ViewerStoreService } from '../viewer-store.service';
 import type { SearchHit } from './search.types';
+import { getAasModelTypeName } from '@aas/helpers';
 
 // moved to search.types.ts
 
@@ -81,7 +82,7 @@ export class SearchInAasDialogComponent {
   }
 
   private static getElementType(el: aas.types.ISubmodelElement): string {
-    return el.modelType?.name ?? (el as any)?.modelType ?? 'Element';
+    return getAasModelTypeName(el) ?? 'Element';
   }
 
   private addOrUpdateHit(

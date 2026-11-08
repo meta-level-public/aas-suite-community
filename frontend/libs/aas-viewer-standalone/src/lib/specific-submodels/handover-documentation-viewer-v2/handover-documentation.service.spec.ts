@@ -13,14 +13,20 @@ import { HandoverStructureMode } from './structure-mode';
 // Minimal stubs for semantic id helper expectations
 // We rely on real class instances from aas-core types to keep instanceof checks working.
 
-function mkSubmodel(
-  opts: Partial<aas.types.Submodel> & { elements?: aas.types.ISubmodelElement[] } = {},
-): aas.types.Submodel {
-  const administration = (opts as any).administration
+interface SubmodelStubOptions {
+  id?: string;
+  idShort?: string;
+  semanticId?: aas.types.Reference;
+  administration?: { version?: string; revision?: string };
+  elements?: aas.types.ISubmodelElement[];
+}
+
+function mkSubmodel(opts: SubmodelStubOptions = {}): aas.types.Submodel {
+  const administration = opts.administration
     ? new aas.types.AdministrativeInformation(
         null,
-        (opts as any).administration.version ?? null,
-        (opts as any).administration.revision ?? null,
+        opts.administration.version ?? null,
+        opts.administration.revision ?? null,
       )
     : null;
 
@@ -33,11 +39,11 @@ function mkSubmodel(
     null,
     administration,
     aas.types.ModellingKind.Instance,
-    (opts.semanticId as any) ?? null,
+    opts.semanticId ?? null,
     null,
     null,
     null,
-    (opts.elements as any) ?? null,
+    opts.elements ?? null,
   );
 }
 

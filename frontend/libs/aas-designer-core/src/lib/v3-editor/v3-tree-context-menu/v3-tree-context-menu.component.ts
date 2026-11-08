@@ -13,6 +13,7 @@ import { TieredMenu } from '@openng/optimus-ui/tieredmenu';
 import { saveAs } from 'file-saver-es';
 import { cloneDeep } from 'lodash-es';
 import { v4 as uuid } from 'uuid';
+import { SubmodelResult } from '../../generator/model/submodel-result';
 import { SearchSubmodelComponent } from '../components/search-submodel/search-submodel.component';
 import { CMTransformOption } from '../model/cm-transform-option';
 import { CMTypeOption } from '../model/cm-type-option';
@@ -98,10 +99,8 @@ export class V3TreeContextMenuComponent {
   @Input({ required: true }) shellResult: ShellResult | undefined;
   @Input({ required: true }) allSubmodelsNode: TreeNode<V3TreeItem<aas.types.Submodel>> | undefined;
   @Input({ required: true }) shellNode: TreeNode<V3TreeItem<aas.types.AssetAdministrationShell>> | undefined;
-  @Input({ required: true }) conceptDescriptionsRootNode:
-    | TreeNode<V3TreeItem<aas.types.ConceptDescription | ConceptDescriptionRoot>>
-    | undefined;
-  @Input({ required: true }) filesRootNode: TreeNode<V3TreeItem<SupplementalFile>> | undefined;
+  @Input({ required: true }) conceptDescriptionsRootNode: V3TreeNode | undefined;
+  @Input({ required: true }) filesRootNode: V3TreeNode | undefined;
   @Input({ required: true }) copiedElement: V3TreeItem<any> | undefined;
   @Input({ required: true }) availableSubmodelTemplates: SubmodelTemplate[] = [];
 
@@ -533,15 +532,7 @@ export class V3TreeContextMenuComponent {
   async insertSubmodelTemplate(templateId: string) {
     const template = await this.editorService.getTemplate(+templateId);
 
-    if (this.conceptDescriptionsRootNode != null)
-      ElementInserter.insertSubmodelTemplate(
-        this.node as TreeNode,
-        template,
-        this.treeService,
-        this.conceptDescriptionsRootNode,
-        this.shellResult,
-        this.portalService.iriPrefix,
-      );
+    this.insertTemplate(template);
   }
 
   async insertRepoSubmodelTemplate(templateUrl: string) {
@@ -551,12 +542,16 @@ export class V3TreeContextMenuComponent {
         .filter((conceptDescriptionId) => conceptDescriptionId != null && conceptDescriptionId !== '') ?? [];
     const template = await this.editorService.getRepoSubmodelTemplate(templateUrl, knownConceptDescriptionIds);
 
+    this.insertTemplate(template);
+  }
+
+  private insertTemplate(template: SubmodelResult) {
     if (this.conceptDescriptionsRootNode != null)
       ElementInserter.insertSubmodelTemplate(
         this.node as TreeNode,
         template,
         this.treeService,
-        this.conceptDescriptionsRootNode,
+        this.conceptDescriptionsRootNode as TreeNode<V3TreeItem<aas.types.ConceptDescription | ConceptDescriptionRoot>>,
         this.shellResult,
         this.portalService.iriPrefix,
       );

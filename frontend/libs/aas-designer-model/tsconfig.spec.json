@@ -2,11 +2,11 @@
   "extends": "./tsconfig.json",
   "compilerOptions": {
     "outDir": "../../dist/out-tsc",
-    "module": "commonjs",
+    "module": "preserve",
     "target": "es2016",
     "types": ["vitest/globals", "node"],
-    "moduleResolution": "node10"
+    "moduleResolution": "bundler"
   },
   "files": ["src/test-setup.vitest.ts"],
-  "include": ["vitest.config.ts", "src/**/*.test.ts", "src/**/*.spec.ts", "src/**/*.d.ts"]
+  "include": ["vitest.config.mts", "src/**/*.test.ts", "src/**/*.spec.ts", "src/**/*.d.ts"]
 }

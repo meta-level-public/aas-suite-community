@@ -40,6 +40,7 @@ import { type GeneratorFileUploadCardState } from '../generator-file-upload-card
 import { GeneratorService } from '../generator.service';
 import { DocumentItem } from '../model/document-item';
 import { SubmodelEditorHostComponent } from '../submodel-editor-host/submodel-editor-host.component';
+import { getAasModelTypeName } from '@aas/helpers';
 
 type FieldType = 'Property' | 'MultiLanguageProperty' | 'File';
 
@@ -539,15 +540,7 @@ export class BatteryHandoverComponent implements OnInit, OnDestroy {
   }
 
   private getModelTypeName(element: any): string {
-    const rawType = element?.modelType?.name ?? element?.modelType;
-    if (typeof rawType === 'string') {
-      return rawType;
-    }
-    const ctorName = rawType?.constructor?.name;
-    if (typeof ctorName === 'string' && ctorName.length > 0 && ctorName !== 'Object') {
-      return ctorName;
-    }
-    return rawType != null ? String(rawType) : '';
+    return getAasModelTypeName(element) ?? '';
   }
 
   private isMultiLanguagePropertyElement(element: any, modelTypeLower: string): boolean {

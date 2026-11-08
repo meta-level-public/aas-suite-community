@@ -1,0 +1,25 @@
+// Shared legend layout for the collapsible capability-style fieldsets of the v3 editor addons.
+:host ::ng-deep .capability-fieldset .p-fieldset-legend {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  padding: 0 !important;
+}
+
+:host ::ng-deep .capability-fieldset.p-fieldset-toggleable .p-fieldset-legend a {
+  padding: 0 !important;
+}
+
+:host ::ng-deep .capability-fieldset.p-fieldset-toggleable .p-fieldset-toggle-button {
+  display: flex;
+  align-items: center;
+  width: 100%;
+}
+
+:host ::ng-deep .capability-fieldset .p-fieldset-legend-label,
+:host ::ng-deep .capability-fieldset .p-fieldset-legend-text {
+  display: flex;
+  align-items: center;
+  flex: 1;
+  width: 100%;
+}

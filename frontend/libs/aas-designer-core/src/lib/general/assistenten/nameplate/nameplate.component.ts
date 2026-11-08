@@ -1,6 +1,6 @@
 import * as aas from '@aas-core-works/aas-core3.1-typescript';
 import { NotificationService, PortalService } from '@aas/common-services';
-import { FilenameHelper, SemanticIdHelper } from '@aas/helpers';
+import { FilenameHelper, SemanticIdHelper, getAasModelTypeName } from '@aas/helpers';
 import { ShellResult, SupplementalFile } from '@aas/model';
 import { Component, EventEmitter, Input, OnDestroy, OnInit, Output, ChangeDetectionStrategy } from '@angular/core';
 import { FormsModule } from '@angular/forms';
@@ -511,7 +511,7 @@ export class NameplateComponent implements OnInit, OnDestroy {
     const displayName = getBatteryEditorElementDisplayName(
       element,
       this.getPreferredLanguage(),
-      element?.modelType?.name,
+      getAasModelTypeName(element) ?? undefined,
     );
     if (displayName !== '' && displayName !== idShort) {
       return displayName;

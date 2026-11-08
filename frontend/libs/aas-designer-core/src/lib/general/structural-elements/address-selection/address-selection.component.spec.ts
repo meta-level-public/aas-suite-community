@@ -1,5 +1,22 @@
+import * as aas from '@aas-core-works/aas-core3.1-typescript';
 import { HerstellerAdresse } from '../../../generator/model/hersteller-adresse';
+import { V3TreeItem } from '../../../v3-editor/model/v3-tree-item';
 import { AddressSelectionComponent } from './address-selection.component';
+
+function emptyEnglishMlp(idShort: string): aas.types.MultiLanguageProperty {
+  const mlp = new aas.types.MultiLanguageProperty();
+  mlp.idShort = idShort;
+  mlp.value = [new aas.types.LangStringTextType('en', '')];
+  return mlp;
+}
+
+function mlpValue(collection: aas.types.SubmodelElementCollection, idShort: string) {
+  const element = collection.value?.find((entry) => entry.idShort === idShort);
+  if (!(element instanceof aas.types.MultiLanguageProperty)) {
+    throw new Error(`MultiLanguageProperty ${idShort} not found`);
+  }
+  return element.value?.map((entry) => ({ language: entry.language, text: entry.text }));
+}
 
 describe('AddressSelectionComponent', () => {
   it('applies localized address values and keeps zipcode unchanged', () => {
@@ -40,17 +57,11 @@ describe('AddressSelectionComponent', () => {
       ],
     };
 
-    component.submodelElementCollection = {
-      content: {
-        value: [
-          { idShort: 'street', value: [{ language: 'en', text: '' }] },
-          { idShort: 'stateCounty', value: [{ language: 'en', text: '' }] },
-          { idShort: 'nationalCode', value: [{ language: 'en', text: '' }] },
-          { idShort: 'cityTown', value: [{ language: 'en', text: '' }] },
-          { idShort: 'zipCode', value: [{ language: 'en', text: '' }] },
-        ],
-      },
-    } as any;
+    const collection = new aas.types.SubmodelElementCollection();
+    collection.value = ['street', 'stateCounty', 'nationalCode', 'cityTown', 'zipCode'].map(emptyEnglishMlp);
+    const collectionItem = new V3TreeItem<aas.types.SubmodelElementCollection>();
+    collectionItem.content = collection;
+    component.submodelElementCollection = collectionItem;
 
     const appliedSpy = vi.fn();
     component.applied.subscribe(appliedSpy);
@@ -63,12 +74,8 @@ describe('AddressSelectionComponent', () => {
     expect(component.editableNode.value.find((entry: any) => entry.idShort === 'zipCode').value).toEqual([
       { language: 'en', text: '12345' },
     ]);
-    expect(
-      component.submodelElementCollection.content.value.find((entry: any) => entry.idShort === 'street').value,
-    ).toEqual([{ language: 'en', text: 'Example Street 1' }]);
-    expect(
-      component.submodelElementCollection.content.value.find((entry: any) => entry.idShort === 'zipCode').value,
-    ).toEqual([{ language: 'en', text: '12345' }]);
+    expect(mlpValue(collection, 'street')).toEqual([{ language: 'en', text: 'Example Street 1' }]);
+    expect(mlpValue(collection, 'zipCode')).toEqual([{ language: 'en', text: '12345' }]);
     expect(appliedSpy).toHaveBeenCalledTimes(1);
   });
 });

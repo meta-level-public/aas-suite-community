@@ -1,17 +1,30 @@
 import * as aas from '@aas-core-works/aas-core3.1-typescript';
-import { AppConfigService, EncodingService, NotificationService, PortalService } from '@aas/common-services';
+import {
+  AppConfigService,
+  AppRouteSegments,
+  buildAbsoluteRoute,
+  EncodingService,
+  NotificationService,
+  PortalService,
+} from '@aas/common-services';
 import { ConceptDescriptionClient, SubmodelClient } from '@aas/webapi-client';
 import { HttpClient } from '@angular/common/http';
 import { signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
+import { throwError } from 'rxjs';
 import { V3EditorDataStoreService } from '../v3-editor/v3-editor-data-store.service';
 import { SubmodelEditorComponent } from './submodel-editor.component';
 
 describe('SubmodelEditorComponent supplemental files', () => {
+  const router = { navigate: vi.fn().mockResolvedValue(true) };
+  const submodelClient: { submodel_GetSmPlain?: ReturnType<typeof vi.fn> } = {};
+  const notifications = { showMessageAlways: vi.fn() };
+
   function createComponent() {
     TestBed.configureTestingModule({
       providers: [
+        { provide: Router, useValue: router },
         {
           provide: AppConfigService,
           useValue: {
@@ -33,7 +46,7 @@ describe('SubmodelEditorComponent supplemental files', () => {
         },
         {
           provide: SubmodelClient,
-          useValue: {},
+          useValue: submodelClient,
         },
         {
           provide: ConceptDescriptionClient,
@@ -41,9 +54,7 @@ describe('SubmodelEditorComponent supplemental files', () => {
         },
         {
           provide: NotificationService,
-          useValue: {
-            showMessageAlways: vi.fn(),
-          },
+          useValue: notifications,
         },
         {
           provide: V3EditorDataStoreService,
@@ -74,6 +85,17 @@ describe('SubmodelEditorComponent supplemental files', () => {
   afterEach(() => {
     TestBed.resetTestingModule();
     vi.restoreAllMocks();
+  });
+
+  it('reports a submodel that cannot be loaded and returns to the submodel list', async () => {
+    submodelClient.submodel_GetSmPlain = vi.fn(() => throwError(() => new Error('not found')));
+    const component = createComponent();
+
+    await component.loadSubmodel('urn:example:missing');
+
+    expect(notifications.showMessageAlways).toHaveBeenCalledWith('ERROR_LOADING_SUBMODEL', 'ERROR', 'error');
+    expect(router.navigate).toHaveBeenCalledWith(buildAbsoluteRoute(AppRouteSegments.submodels));
+    expect(component.loading()).toBe(false);
   });
 
   it('builds attachment URLs for nested list and collection paths', () => {

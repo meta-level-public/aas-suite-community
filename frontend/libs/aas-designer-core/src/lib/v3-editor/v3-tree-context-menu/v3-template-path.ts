@@ -1,4 +1,5 @@
 import * as aas from '@aas-core-works/aas-core3.1-typescript';
+import { InstanceHelper } from '@aas/helpers';
 import { TreeNode } from '@openng/optimus-ui/api';
 import { EditorTypeOption } from '../model/editor-type-option';
 import { V3TreeItem } from '../model/v3-tree-item';
@@ -83,4 +84,27 @@ export function getSubmodelIdOfItem(item: V3TreeItem<unknown> | null | undefined
     current = current.parent;
   }
   return '';
+}
+
+/**
+ * Keys of a ModelReference to the given tree item: the submodel id first, then one key per element down to the
+ * item (children of a SubmodelElementList by index). Empty if the item is not inside a submodel.
+ */
+export function getModelReferenceKeysOfItem(item: V3TreeItem<unknown> | null | undefined): aas.types.Key[] {
+  const keys: aas.types.Key[] = [];
+  let current = item;
+  while (current != null) {
+    const content = current.content;
+    if (content instanceof aas.types.Submodel) {
+      return [new aas.types.Key(aas.types.KeyTypes.Submodel, content.id ?? ''), ...keys];
+    }
+    const parentContent = current.parent?.content;
+    const value =
+      parentContent instanceof aas.types.SubmodelElementList
+        ? (parentContent.value ?? []).indexOf(content as aas.types.ISubmodelElement).toString()
+        : ((content as aas.types.IReferable | undefined)?.idShort ?? '');
+    keys.unshift(new aas.types.Key(InstanceHelper.getKeyType(content), value));
+    current = current.parent;
+  }
+  return [];
 }

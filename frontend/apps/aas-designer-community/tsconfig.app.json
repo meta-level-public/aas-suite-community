@@ -5,7 +5,7 @@
     "types": []
   },
   "include": ["src/**/*.ts"],
-  "exclude": ["vitest.config.ts", "src/test-setup.vitest.ts", "src/**/*.test.ts", "src/**/*.spec.ts"],
+  "exclude": ["vitest.config.mts", "src/test-setup.vitest.ts", "src/**/*.test.ts", "src/**/*.spec.ts"],
   "angularCompilerOptions": {
     "extendedDiagnostics": {
       "checks": {

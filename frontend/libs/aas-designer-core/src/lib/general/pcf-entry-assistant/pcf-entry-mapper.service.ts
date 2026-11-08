@@ -65,7 +65,7 @@ export class PcfEntryMapperService {
   }
 
   private createProductCarbonFootprintEntry(entry: DppPcfEntry, index: number) {
-    const collection = new aas.types.SubmodelElementCollection(null, null, `Element ${index}`);
+    const collection = new aas.types.SubmodelElementCollection(null, null, `Element_${index}`);
     collection.semanticId = new aas.types.Reference(aas.types.ReferenceTypes.ExternalReference, [
       new aas.types.Key(
         aas.types.KeyTypes.GlobalReference,
@@ -121,7 +121,7 @@ export class PcfEntryMapperService {
   }
 
   private createProductOrSectorSpecificCarbonFootprintEntry(entry: DppPcfEntry, index: number) {
-    const collection = new aas.types.SubmodelElementCollection(null, null, `Element ${index}`);
+    const collection = new aas.types.SubmodelElementCollection(null, null, `Element_${index}`);
     collection.value = [
       this.createStringPropertyList('PcfCalculationMethods', this.toLineItems(entry.values['pcf-calculation-methods'])),
       this.createNamedCollection('ProductOrSectorSpecificRule', [
@@ -239,7 +239,7 @@ export class PcfEntryMapperService {
     const list = new aas.types.SubmodelElementList(aas.types.AasSubmodelElements.Property, null, null, idShort);
     list.valueTypeListElement = aas.types.DataTypeDefXsd.String;
     list.value = values.map((value, index) => {
-      const property = new aas.types.Property(aas.types.DataTypeDefXsd.String, null, null, `Element ${index}`);
+      const property = new aas.types.Property(aas.types.DataTypeDefXsd.String, null, null, `Element_${index}`);
       property.value = value;
       return property;
     });

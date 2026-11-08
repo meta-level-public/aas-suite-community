@@ -201,12 +201,22 @@ public class SaveShellInInfrastructure
             }
             catch
             {
-                await ShellDeleter.DeleteShell(
-                    editorDescriptor,
-                    appUser.CurrentInfrastructureSettings,
-                    cancellationToken,
-                    client
-                );
+                try
+                {
+                    await ShellDeleter.DeleteShell(
+                        editorDescriptor,
+                        appUser.CurrentInfrastructureSettings,
+                        cancellationToken,
+                        client
+                    );
+                }
+                catch (System.Exception rollbackException)
+                {
+                    // keep the original error; the failed rollback is only logged
+                    Console.WriteLine(
+                        "Error rolling back the created shell: " + rollbackException.Message
+                    );
+                }
                 throw;
             }
         }

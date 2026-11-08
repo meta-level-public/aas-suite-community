@@ -5,24 +5,7 @@ import { Router } from '@angular/router';
 @Component({
   selector: 'app-login',
   templateUrl: './login.component.html',
-  styles: [
-    `
-      :host {
-        display: block;
-        height: 100%;
-        width: 100%;
-        min-width: 0;
-        min-height: 0;
-      }
-
-      aas-login-page {
-        display: block;
-        height: 100%;
-        width: 100%;
-        min-height: 0;
-      }
-    `,
-  ],
+  styleUrl: './login.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [SharedLoginPageComponent],
 })

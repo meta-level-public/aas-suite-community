@@ -1,6 +1,6 @@
 import * as aas from '@aas-core-works/aas-core3.1-typescript';
 import { AppConfigService, NotificationService, PortalService } from '@aas/common-services';
-import { IdGenerationUtil } from '@aas/helpers';
+import { IdGenerationUtil, getAasModelTypeName } from '@aas/helpers';
 import { HttpClient } from '@angular/common/http';
 import { Component, isDevMode, OnDestroy, OnInit, signal, ChangeDetectionStrategy } from '@angular/core';
 import { FormsModule } from '@angular/forms';
@@ -193,7 +193,7 @@ export class SaveAndConfirmComponent implements OnInit, OnDestroy {
     const shell = this.generatorService.getCurrentGeneratorRootShell();
     if (shell == null) return;
     const previousMetadata = this.dppMetadata?.aasId === shell.id ? this.dppMetadata : null;
-    const previousSelection = new Map(this.dppSubmodels.map((submodel) => [submodel.semanticId, submodel.selected]));
+    const previousSelection = new Map(this.dppSubmodels.map((submodel) => [submodel.id, submodel.selected]));
     const semanticIdOf = (submodel: aas.types.Submodel) => submodel.semanticId?.keys?.at(-1)?.value?.trim() ?? '';
     this.dppSubmodels = this.generatorService
       .getAdditionalSubmodelsIncludedInExport()
@@ -207,7 +207,7 @@ export class SaveAndConfirmComponent implements OnInit, OnDestroy {
         id: submodel.id,
         name: submodel.idShort ?? submodel.id,
         semanticId: semanticIdOf(submodel),
-        selected: semanticIdOf(submodel) !== '' && (previousSelection.get(semanticIdOf(submodel)) ?? true),
+        selected: semanticIdOf(submodel) !== '' && (previousSelection.get(submodel.id) ?? true),
       }));
     this.dppMetadata = previousMetadata ?? {
       aasId: shell.id,
@@ -246,7 +246,7 @@ export class SaveAndConfirmComponent implements OnInit, OnDestroy {
       });
     }
     if (modelTypeName === 'SubmodelElementCollection') {
-      submodel.value.forEach((s: any) => {
+      submodel.value?.forEach((s: any) => {
         documentNode.children?.push(this.getTreeNode(s));
       });
     }
@@ -260,10 +260,7 @@ export class SaveAndConfirmComponent implements OnInit, OnDestroy {
   }
 
   private getModelTypeName(submodel: any): string {
-    if (typeof submodel?.modelType === 'string') {
-      return submodel.modelType;
-    }
-    return submodel?.modelType?.name ?? 'Unknown';
+    return getAasModelTypeName(submodel) ?? 'Unknown';
   }
 
   private getGenericNodeValue(submodel: any, modelTypeName: string): any {
@@ -644,10 +641,6 @@ export class SaveAndConfirmComponent implements OnInit, OnDestroy {
     let number = 1;
 
     for (const error of errors) {
-      if (error.message.includes('RFC 8089')) {
-        continue;
-      }
-
       const mappedError = new AasDesignerVerificationError(error);
       const translated = this.translate.instant('errorMessages.' + error.message);
 

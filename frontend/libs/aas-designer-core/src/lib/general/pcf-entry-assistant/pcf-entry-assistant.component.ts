@@ -3,9 +3,9 @@ import {
   DppAssistantFieldDefinition,
   DppAssistantFieldGroupDefinition,
   DppAssistantService,
-  DppPcfEntry,
+  type DppPcfEntry,
   DppPcfEntryDefinition,
-  DppPcfEntryType,
+  type DppPcfEntryType,
 } from 'battery-passport-assistant';
 import {
   Component,

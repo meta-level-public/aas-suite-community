@@ -35,9 +35,12 @@ import { Popover, PopoverModule } from '@openng/optimus-ui/popover';
 import { TableModule } from '@openng/optimus-ui/table';
 import { ToolbarModule } from '@openng/optimus-ui/toolbar';
 import { TooltipModule } from '@openng/optimus-ui/tooltip';
-import 'prismjs';
 import { lastValueFrom } from 'rxjs';
 import { V3TreeService } from '../../../v3-tree/v3-tree.service';
+import { loadPrismLanguages } from '../../../../general/prism/prism-loader';
+
+// Load Prism (core + languages) for code highlighting in production builds
+void loadPrismLanguages();
 
 @Component({
   selector: 'aas-file-content-editor',

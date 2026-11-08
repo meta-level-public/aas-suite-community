@@ -1,5 +1,6 @@
 import * as aas from '@aas-core-works/aas-core3.1-typescript';
 import { MultiLanguagePropertyValue } from '@aas/model';
+import { getAasModelTypeName } from '@aas/helpers';
 
 export interface BatteryPassportTechnicalDataPrefillSource {
   manufacturer?: MultiLanguagePropertyValue[];
@@ -57,36 +58,41 @@ function prefillTechnicalDataFromDigitalNameplate(
 }
 
 function setElementFromPropertyString(submodel: aas.types.Submodel, idShortAliases: string[], value: string) {
+  // Without a value from the source, keep what was already filled in (e.g. from the digital nameplate).
+  if (value.trim() === '') {
+    return;
+  }
+
   walkSubmodelElements(submodel.submodelElements ?? [], (element) => {
     if (!matchesAlias(element.idShort, idShortAliases)) {
       return;
     }
 
-    if (element.modelType.name === 'Property') {
+    if (elementKind(element) === 'Property') {
       (element as aas.types.Property).value = value;
-    } else if (element.modelType.name === 'MultiLanguageProperty') {
+    } else if (elementKind(element) === 'MultiLanguageProperty') {
       (element as aas.types.MultiLanguageProperty).value = mlp2LangString([{ language: 'en', text: value }]);
     }
   });
 }
 
 function copySemanticPrefillValue(source: aas.types.ISubmodelElement, target: aas.types.ISubmodelElement) {
-  if (target.modelType.name === 'Property') {
+  if (elementKind(target) === 'Property') {
     (target as aas.types.Property).value = getElementPrefillStringValue(source);
     return;
   }
 
-  if (target.modelType.name === 'MultiLanguageProperty') {
+  if (elementKind(target) === 'MultiLanguageProperty') {
     (target as aas.types.MultiLanguageProperty).value = getElementPrefillMultiLanguageValue(source);
   }
 }
 
 function getElementPrefillStringValue(element: aas.types.ISubmodelElement) {
-  if (element.modelType.name === 'Property') {
+  if (elementKind(element) === 'Property') {
     return (element as aas.types.Property).value ?? '';
   }
 
-  if (element.modelType.name === 'MultiLanguageProperty') {
+  if (elementKind(element) === 'MultiLanguageProperty') {
     return langStringToSingleString((element as aas.types.MultiLanguageProperty).value ?? []);
   }
 
@@ -94,7 +100,7 @@ function getElementPrefillStringValue(element: aas.types.ISubmodelElement) {
 }
 
 function getElementPrefillMultiLanguageValue(element: aas.types.ISubmodelElement) {
-  if (element.modelType.name === 'MultiLanguageProperty') {
+  if (elementKind(element) === 'MultiLanguageProperty') {
     return ((element as aas.types.MultiLanguageProperty).value ?? []).map(
       (entry) => new aas.types.LangStringTextType(entry.language, entry.text),
     );
@@ -104,11 +110,11 @@ function getElementPrefillMultiLanguageValue(element: aas.types.ISubmodelElement
 }
 
 function hasSemanticPrefillValue(element: aas.types.ISubmodelElement) {
-  if (element.modelType.name === 'Property') {
+  if (elementKind(element) === 'Property') {
     return `${(element as aas.types.Property).value ?? ''}`.trim() !== '';
   }
 
-  if (element.modelType.name === 'MultiLanguageProperty') {
+  if (elementKind(element) === 'MultiLanguageProperty') {
     return ((element as aas.types.MultiLanguageProperty).value ?? []).some((entry) => entry.text.trim() !== '');
   }
 
@@ -116,7 +122,7 @@ function hasSemanticPrefillValue(element: aas.types.ISubmodelElement) {
 }
 
 function isSemanticPrefillElement(element: aas.types.ISubmodelElement) {
-  return element.modelType.name === 'Property' || element.modelType.name === 'MultiLanguageProperty';
+  return elementKind(element) === 'Property' || elementKind(element) === 'MultiLanguageProperty';
 }
 
 function getElementSemanticValues(element: aas.types.ISubmodelElement) {
@@ -138,11 +144,11 @@ function walkSubmodelElements(
   elements.forEach((element) => {
     visitor(element);
 
-    if (element.modelType.name === 'SubmodelElementCollection') {
+    if (elementKind(element) === 'SubmodelElementCollection') {
       walkSubmodelElements((element as aas.types.SubmodelElementCollection).value ?? [], visitor);
     }
 
-    if (element.modelType.name === 'SubmodelElementList') {
+    if (elementKind(element) === 'SubmodelElementList') {
       walkSubmodelElements((element as aas.types.SubmodelElementList).value ?? [], visitor);
     }
   });
@@ -182,4 +188,24 @@ function mlp2LangString(value: MultiLanguagePropertyValue[] | undefined) {
     }
   });
   return result.length > 0 ? result : null;
+}
+
+type PrefillElementKind =
+  | 'Property'
+  | 'MultiLanguageProperty'
+  | 'SubmodelElementCollection'
+  | 'SubmodelElementList'
+  | 'Other';
+
+function elementKind(element: aas.types.ISubmodelElement): PrefillElementKind {
+  const name = getAasModelTypeName(element);
+  switch (name) {
+    case 'Property':
+    case 'MultiLanguageProperty':
+    case 'SubmodelElementCollection':
+    case 'SubmodelElementList':
+      return name;
+    default:
+      return 'Other';
+  }
 }
