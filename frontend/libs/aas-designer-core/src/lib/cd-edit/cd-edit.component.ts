@@ -3,21 +3,22 @@ import { NotificationService } from '@aas/common-services';
 import { ShellResult } from '@aas/model';
 import { AasInfrastructureClient, AvailableInfastructure, ConceptDescriptionClient } from '@aas/webapi-client';
 import { CommonModule } from '@angular/common';
-import { Component, computed, inject, input, OnInit, signal } from '@angular/core';
+import { Component, computed, inject, input, OnInit, signal, ChangeDetectionStrategy } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, Router } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
-import { ButtonModule } from 'primeng/button';
-import { ToolbarModule } from 'primeng/toolbar';
+import { ButtonModule } from '@openng/optimus-ui/button';
+import { ToolbarModule } from '@openng/optimus-ui/toolbar';
 import { lastValueFrom } from 'rxjs';
 import { map } from 'rxjs/operators';
-import { V3ConceptDescriptionComponent } from '../v3-editor';
+import { V3ConceptDescriptionComponent } from '../v3-editor/components/v3-concept-description/v3-concept-description.component';
 import { V3TreeItem } from '../v3-editor/model/v3-tree-item';
 import { PortalService } from '@aas/common-services';
 
 @Component({
   selector: 'aas-cd-edit',
   imports: [CommonModule, TranslateModule, ButtonModule, ToolbarModule, V3ConceptDescriptionComponent],
+  changeDetection: ChangeDetectionStrategy.Eager,
   templateUrl: './cd-edit.component.html',
 })
 export class CdEditComponent implements OnInit {
@@ -56,6 +57,10 @@ export class CdEditComponent implements OnInit {
     try {
       const cdRes = await lastValueFrom(this.cdClient.conceptDescription_GetCd(id));
       const cdObj = aas.jsonization.conceptDescriptionFromJsonable(JSON.parse(cdRes)).value;
+      if (cdObj == null) {
+        // The API answers an unknown ID with a list of error messages instead of a concept description.
+        throw new Error('Concept description not found or not parseable.');
+      }
       return cdObj;
     } catch {
       this.notificationService.showMessageAlways('CONCEPT_DESCRIPTION_NOT_LOADED', 'ERROR', 'error');

@@ -1,8 +1,8 @@
 import { AppConfigService, PortalService } from '@aas/common-services';
 import { CommonModule } from '@angular/common';
-import { Component, Input } from '@angular/core';
+import { Component, Input, ChangeDetectionStrategy } from '@angular/core';
 import { TranslateModule } from '@ngx-translate/core';
-import { ButtonModule } from 'primeng/button';
+import { ButtonModule } from '@openng/optimus-ui/button';
 
 interface DisclaimerLink {
   label: string;
@@ -15,6 +15,7 @@ interface DisclaimerLink {
   selector: 'aas-disclaimer',
   templateUrl: './disclaimer.component.html',
   styleUrls: ['./disclaimer.component.css'],
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [CommonModule, TranslateModule, ButtonModule],
 })
 export class DisclaimerComponent {

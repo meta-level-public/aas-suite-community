@@ -2,22 +2,22 @@ import * as aas from '@aas-core-works/aas-core3.1-typescript';
 import { VerificationError } from '@aas-core-works/aas-core3.1-typescript/verification';
 import { HelpLabelComponent, openShellSelectDialog } from '@aas/common-components';
 import { NotificationService } from '@aas/common-services';
-import { InstanceHelper } from '@aas/helpers';
+import { InstanceHelper, UrlHelper } from '@aas/helpers';
 import { ShellResult } from '@aas/model';
 import { NgClass } from '@angular/common';
-import { Component, inject, Input, OnChanges, SimpleChanges } from '@angular/core';
+import { Component, inject, Input, OnChanges, SimpleChanges, ChangeDetectionStrategy } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { cloneDeep } from 'lodash-es';
-import { PrimeTemplate, TreeNode } from 'primeng/api';
-import { Button } from 'primeng/button';
-import { Dialog } from 'primeng/dialog';
-import { DialogService } from 'primeng/dynamicdialog';
-import { InputText } from 'primeng/inputtext';
-import { Select } from 'primeng/select';
-import { TableModule } from 'primeng/table';
-import { Tooltip } from 'primeng/tooltip';
-import { Tree, TreeNodeSelectEvent } from 'primeng/tree';
+import { PrimeTemplate, TreeNode } from '@openng/optimus-ui/api';
+import { Button } from '@openng/optimus-ui/button';
+import { Dialog } from '@openng/optimus-ui/dialog';
+import { DialogService } from '@openng/optimus-ui/dynamicdialog';
+import { InputText } from '@openng/optimus-ui/inputtext';
+import { Select } from '@openng/optimus-ui/select';
+import { TableModule } from '@openng/optimus-ui/table';
+import { Tooltip } from '@openng/optimus-ui/tooltip';
+import { Tree, TreeNodeSelectEvent } from '@openng/optimus-ui/tree';
 import { v4 as uuid } from 'uuid';
 import { NullIfEmptyDirective } from '../../../general/directives/null-if-empty.directive';
 import { V3UndoDirective } from '../../../general/directives/v3-undo.directive';
@@ -46,93 +46,8 @@ import { V3ComponentBase } from '../v3-component-base';
     ErrorPanelComponent,
     TranslateModule,
   ],
-  styles: [
-    `
-      .reference-picker-node {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        gap: 0.5rem;
-        width: 100%;
-        padding-right: 0.25rem;
-      }
-      .reference-picker-node-main {
-        min-width: 0;
-      }
-      .reference-picker-node-label {
-        font-weight: 600;
-        line-height: 1.1rem;
-      }
-      .reference-picker-node-path {
-        font-size: var(--aas-text-xs);
-        color: var(--text-color-secondary);
-        line-height: 1rem;
-        white-space: nowrap;
-        overflow: hidden;
-        text-overflow: ellipsis;
-        max-width: 34rem;
-      }
-      .reference-picker-type-badge {
-        font-size: var(--aas-text-xs);
-        padding: 0.12rem 0.45rem;
-        border-radius: var(--aas-radius-pill);
-        border: 1px solid;
-        line-height: 1;
-        white-space: nowrap;
-      }
-      .reference-type-property {
-        background: var(--aas-info-surface);
-        color: var(--aas-info-text);
-        border-color: var(--aas-info-border);
-      }
-      .reference-type-range {
-        background: var(--aas-success-surface);
-        color: var(--aas-success-text);
-        border-color: var(--aas-success-border);
-      }
-      .reference-type-mlp {
-        background: var(--aas-warning-surface);
-        color: var(--aas-warning-text);
-        border-color: var(--aas-warning-border);
-      }
-      .reference-type-collection {
-        background: color-mix(in srgb, var(--p-primary-50) 84%, var(--p-surface-0));
-        color: var(--p-primary-700);
-        border-color: color-mix(in srgb, var(--p-primary-400) 45%, var(--p-content-border-color));
-      }
-      .reference-type-list {
-        background: var(--aas-surface-subtle);
-        color: var(--p-text-muted-color);
-        border-color: var(--p-content-border-color);
-      }
-      .reference-type-submodel {
-        background: var(--aas-danger-surface);
-        color: var(--aas-danger-text);
-        border-color: var(--aas-danger-border);
-      }
-      .reference-type-default {
-        background: var(--aas-surface-subtle);
-        color: var(--p-text-muted-color);
-        border-color: var(--p-content-border-color);
-      }
-      .reference-picker-panel {
-        border: 1px solid var(--p-content-border-color);
-        border-radius: var(--aas-radius-sm);
-        background: var(--aas-surface-overlay);
-      }
-      .reference-picker-tree {
-        height: 26rem;
-        overflow: auto;
-      }
-      .reference-picker-details {
-        min-height: 26rem;
-      }
-      .reference-picker-value {
-        overflow-wrap: anywhere;
-        word-break: break-word;
-      }
-    `,
-  ],
+  changeDetection: ChangeDetectionStrategy.Eager,
+  styleUrl: './v3-reference.component.scss',
 })
 export class V3ReferenceComponent extends V3ComponentBase implements OnChanges {
   private readonly allFilterValue = '__all__';
@@ -537,16 +452,14 @@ export class V3ReferenceComponent extends V3ComponentBase implements OnChanges {
       url += '#' + keys[1].value;
     }
     // basic validation: http/https only
-    if (!/^https?:\/\//i.test(url)) return null;
+    if (!UrlHelper.isHttpUrl(url)) return null;
     return url;
   }
 
   openExternalReference() {
     const url = this.externalReferenceUrl;
     if (!url) return;
-    if (typeof window !== 'undefined') {
-      window.open(url, '_blank');
-    }
+    UrlHelper.openExternalUrl(url);
   }
 
   // Determine if jump is possible (ModelReference & first key resolves to a Submodel)

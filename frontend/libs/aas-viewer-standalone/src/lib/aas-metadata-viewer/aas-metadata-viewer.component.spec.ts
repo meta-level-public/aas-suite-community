@@ -23,7 +23,9 @@ describe('AasMetadataViewerComponent', () => {
   };
 
   const httpClientMock = {
-    get: vi.fn(() => of(new Blob(['thumbnail'], { type: 'image/png' }))),
+    get: vi.fn((_url: string, _options: { responseType: 'blob'; headers: HttpHeaders }) =>
+      of(new Blob(['thumbnail'], { type: 'image/png' })),
+    ),
   };
 
   const helpServiceMock = {

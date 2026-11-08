@@ -3,14 +3,14 @@ import * as aas from '@aas-core-works/aas-core3.1-typescript';
 import { HelpLabelComponent } from '@aas/common-components';
 import { AasConfirmationService } from '@aas/common-services';
 import { SemanticIdHelper } from '@aas/helpers';
-import { Component, Input, OnInit, output } from '@angular/core';
+import { Component, Input, OnInit, output, ChangeDetectionStrategy } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
-import { PrimeTemplate } from 'primeng/api';
-import { Button } from 'primeng/button';
-import { InputText } from 'primeng/inputtext';
-import { Message } from 'primeng/message';
-import { Select } from 'primeng/select';
+import { PrimeTemplate } from '@openng/optimus-ui/api';
+import { Button } from '@openng/optimus-ui/button';
+import { InputText } from '@openng/optimus-ui/inputtext';
+import { Message } from '@openng/optimus-ui/message';
+import { Select } from '@openng/optimus-ui/select';
 import { v4 as uuid } from 'uuid';
 import { NullIfEmptyDirective } from '../../../general/directives/null-if-empty.directive';
 import { V3UndoDirective } from '../../../general/directives/v3-undo.directive';
@@ -24,6 +24,7 @@ type Key = aas.types.Key;
   selector: 'aas-v3-key-list',
   templateUrl: './v3-key-list.component.html',
   styleUrls: ['../../../../host.scss'],
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [
     Button,
     HelpLabelComponent,

@@ -97,7 +97,6 @@
         stripedRows
         [scrollable]="true"
         scrollHeight="flex"
-        responsiveLayout="scroll"
         [lazy]="true"
         (onLazyLoad)="nextPage($event)"
         [showCurrentPageReport]="true"
@@ -112,22 +111,22 @@
       >
         <ng-template #header>
           <tr>
-            <th scope="col" style="min-width: 20rem; max-width: 20rem">
+            <th scope="col" class="min-w-80 max-w-80">
               {{ 'IRDI' | translate }}
             </th>
             <th scope="col">{{ 'BENENNUNG' | translate }}</th>
             <th scope="col"></th>
-            <th scope="col" style="min-width: 10rem; max-width: 10rem"></th>
+            <th scope="col" class="min-w-40 max-w-40"></th>
           </tr>
         </ng-template>
         <ng-template pTemplate="body" let-item>
           <tr>
-            <td style="min-width: 20rem; max-width: 20rem">{{ item.irdi }}</td>
+            <td class="min-w-80 max-w-80">{{ item.irdi }}</td>
             <td>{{ item.benennung }}</td>
             <td>
-              <p-button (onClick)="showDetails(item.irdi)" icon="pi pi-eye"></p-button>
+              <p-button [ariaLabel]="'SHOW' | translate" (onClick)="showDetails(item.irdi)" icon="pi pi-eye"></p-button>
             </td>
-            <td class="justify-center" style="min-width: 10rem; max-width: 10rem">
+            <td class="justify-center min-w-40 max-w-40">
               <p-button label="{{ 'APPLY' | translate }}" (onClick)="selectItem(item)" [loading]="loading"></p-button>
             </td>
           </tr>
@@ -149,18 +148,18 @@
         <td>{{ 'IRDI' | translate }}</td>
         <td colspan="2" class="font-bold">{{ detailsItem?.irdi }}</td>
       </tr>
-      @for (item of detailsItem?.preferredName | keyvalue; track item; let i = $index) {
+      @for (item of $safeNavigationMigration(detailsItem?.preferredName) | keyvalue; track item; let i = $index) {
         <tr>
           <td>
             @if (i === 0) {
               {{ 'PREFERRED_NAME' | translate }}
             }
           </td>
-          <td style="min-width: 6rem; max-width: 6rem">{{ item.key }}</td>
+          <td class="min-w-24 max-w-24">{{ item.key }}</td>
           <td class="font-bold">{{ item.value }}</td>
         </tr>
       }
-      @for (item of detailsItem?.definition | keyvalue; track item; let i = $index) {
+      @for (item of $safeNavigationMigration(detailsItem?.definition) | keyvalue; track item; let i = $index) {
         <tr>
           <td>
             @if (i === 0) {

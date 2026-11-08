@@ -525,11 +525,7 @@ describe('NameplateComponent', () => {
       (element: any) => element.idShort === 'ManufacturerName',
     );
 
-    const component = new NameplateComponent(
-      { navigate: vi.fn() } as any,
-      generatorService as any,
-      createTranslateServiceMock() as any,
-    );
+    const { component } = createComponent(generatorService);
 
     component.selectedHersteller = {
       name: 'ACME GmbH',
@@ -577,11 +573,7 @@ describe('NameplateComponent', () => {
       showStandardGeneratorManufacturingDate: false,
     });
 
-    const component = new NameplateComponent(
-      { navigate: vi.fn() } as any,
-      generatorService as any,
-      createTranslateServiceMock() as any,
-    );
+    const { component } = createComponent(generatorService);
 
     await component.ngOnInit();
 
@@ -615,11 +607,7 @@ describe('NameplateComponent', () => {
       ],
     });
 
-    const component = new NameplateComponent(
-      { navigate: vi.fn() } as any,
-      generatorService as any,
-      createTranslateServiceMock() as any,
-    );
+    const { component } = createComponent(generatorService);
 
     await component.ngOnInit();
 

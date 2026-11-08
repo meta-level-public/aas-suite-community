@@ -2,19 +2,19 @@ import { DateProxyPipe } from '@aas/common-pipes';
 import { AasConfirmationService, NotificationService } from '@aas/common-services';
 import { AasInfrastructureClient, AvailableInfastructure, OrgaTokenDto } from '@aas/webapi-client';
 import { Clipboard } from '@angular/cdk/clipboard';
-import { Component, inject, OnInit, signal, ViewChild } from '@angular/core';
+import { Component, inject, OnInit, signal, ViewChild, ChangeDetectionStrategy } from '@angular/core';
 import { FormsModule, NgForm } from '@angular/forms';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
-import { MenuItem, PrimeTemplate } from 'primeng/api';
-import { Button } from 'primeng/button';
-import { Checkbox } from 'primeng/checkbox';
-import { DatePicker } from 'primeng/datepicker';
-import { Dialog } from 'primeng/dialog';
-import { InputText } from 'primeng/inputtext';
-import { Menu } from 'primeng/menu';
-import { Select } from 'primeng/select';
-import { TableModule } from 'primeng/table';
-import { Textarea } from 'primeng/textarea';
+import { MenuItem, PrimeTemplate } from '@openng/optimus-ui/api';
+import { Button } from '@openng/optimus-ui/button';
+import { Checkbox } from '@openng/optimus-ui/checkbox';
+import { DatePicker } from '@openng/optimus-ui/datepicker';
+import { Dialog } from '@openng/optimus-ui/dialog';
+import { InputText } from '@openng/optimus-ui/inputtext';
+import { Menu } from '@openng/optimus-ui/menu';
+import { Select } from '@openng/optimus-ui/select';
+import { TableModule } from '@openng/optimus-ui/table';
+import { Textarea } from '@openng/optimus-ui/textarea';
 import { lastValueFrom } from 'rxjs';
 import { Organisation } from '@aas-designer-model';
 import { OrganisationService } from '../organisation.service';
@@ -22,6 +22,7 @@ import { OrganisationService } from '../organisation.service';
 @Component({
   selector: 'aas-organisation-token',
   templateUrl: './organisation-token.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [
     Button,
     TableModule,

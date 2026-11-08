@@ -1,18 +1,19 @@
 import { HelpLabelComponent } from '@aas/common-components';
 import { SettingsClient } from '@aas/webapi-client';
 import { CommonModule } from '@angular/common';
-import { Component, computed, inject, model, ViewChild } from '@angular/core';
+import { Component, computed, inject, model, ViewChild, ChangeDetectionStrategy } from '@angular/core';
 import { TranslateModule } from '@ngx-translate/core';
 import { QRCodeComponent } from 'angularx-qrcode';
-import { ButtonModule } from 'primeng/button';
-import { DynamicDialogConfig } from 'primeng/dynamicdialog';
-import { SkeletonModule } from 'primeng/skeleton';
+import { ButtonModule } from '@openng/optimus-ui/button';
+import { DynamicDialogConfig } from '@openng/optimus-ui/dynamicdialog';
+import { SkeletonModule } from '@openng/optimus-ui/skeleton';
 import { lastValueFrom } from 'rxjs';
 
 @Component({
   selector: 'aas-viewer-setup-code',
   imports: [CommonModule, TranslateModule, SkeletonModule, QRCodeComponent, HelpLabelComponent, ButtonModule],
   templateUrl: './viewer-setup-code.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './viewer-setup-code.component.scss',
 })
 export class ViewerSetupCodeComponent {

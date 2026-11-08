@@ -1,16 +1,16 @@
 import { AasConfirmationService, AppConfigService, NotificationService, PortalService } from '@aas/common-services';
 import { emailRegEx } from '@aas/model';
-import { Component, OnInit, ViewChild } from '@angular/core';
+import { Component, OnInit, ViewChild, ChangeDetectionStrategy } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
-import { AvatarModule } from 'primeng/avatar';
-import { ButtonModule } from 'primeng/button';
-import { FieldsetModule } from 'primeng/fieldset';
-import { FileUpload, FileUploadModule } from 'primeng/fileupload';
-import { InputGroupModule } from 'primeng/inputgroup';
-import { InputGroupAddonModule } from 'primeng/inputgroupaddon';
-import { InputTextModule } from 'primeng/inputtext';
-import { ToolbarModule } from 'primeng/toolbar';
+import { AvatarModule } from '@openng/optimus-ui/avatar';
+import { ButtonModule } from '@openng/optimus-ui/button';
+import { FieldsetModule } from '@openng/optimus-ui/fieldset';
+import { FileUpload, FileUploadModule } from '@openng/optimus-ui/fileupload';
+import { InputGroupModule } from '@openng/optimus-ui/inputgroup';
+import { InputGroupAddonModule } from '@openng/optimus-ui/inputgroupaddon';
+import { InputTextModule } from '@openng/optimus-ui/inputtext';
+import { ToolbarModule } from '@openng/optimus-ui/toolbar';
 import { Profile } from './profile';
 import { ProfileService } from './profile.service';
 import { HelpLabelComponent } from '@aas/common-components';
@@ -31,6 +31,7 @@ import { HelpLabelComponent } from '@aas/common-components';
     ToolbarModule,
     HelpLabelComponent,
   ],
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrls: ['../../../host.scss'],
 })
 export class ProfileComponent implements OnInit {

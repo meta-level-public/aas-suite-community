@@ -1,10 +1,10 @@
 import * as aas from '@aas-core-works/aas-core3.1-typescript';
 import { SemanticIdHelper } from '@aas/helpers';
-import { Component, Input, OnChanges, computed, signal } from '@angular/core';
+import { Component, Input, OnChanges, computed, signal, ChangeDetectionStrategy } from '@angular/core';
 import { TranslateModule } from '@ngx-translate/core';
-import { InputGroup } from 'primeng/inputgroup';
-import { InputGroupAddon } from 'primeng/inputgroupaddon';
-import { InputText } from 'primeng/inputtext';
+import { InputGroup } from '@openng/optimus-ui/inputgroup';
+import { InputGroupAddon } from '@openng/optimus-ui/inputgroupaddon';
+import { InputText } from '@openng/optimus-ui/inputtext';
 import { GenericViewerComponent } from '../../generic-viewer/generic-viewer.component';
 
 const SEMANTICS = {
@@ -106,6 +106,7 @@ const EMPTY_VIEW_MODEL: ProductConditionViewModel = {
   selector: 'aas-product-condition-viewer',
   templateUrl: './product-condition-viewer.component.html',
   styleUrls: ['./product-condition-viewer.component.css'],
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [TranslateModule, InputGroup, InputGroupAddon, InputText, GenericViewerComponent],
 })
 export class ProductConditionViewerComponent implements OnChanges {

@@ -25,17 +25,19 @@
             pInputText
             type="text"
             (input)="dt.filterGlobal(getEventValue($event), 'contains')"
-            placeholder="Search keyword"
+            [placeholder]="'SEARCH_BY_KEYWORD' | translate"
           />
         </span>
       </div>
     </ng-template>
     <ng-template pTemplate="body" let-element>
       <tr [pSelectableRow]="element">
-        <td class="justify-center" style="min-width: 10rem; max-width: 10rem">
+        <td class="justify-center min-w-40 max-w-40">
           <p-button label="{{ 'APPLY' | translate }}" (onClick)="onApply(element)" size="small"></p-button>
         </td>
-        <td style="white-space: nowrap; min-width: 16rem; width: 16rem"><lib-help-label [tag]="element.label"></lib-help-label></td>
+        <td class="!whitespace-nowrap min-w-64 w-64">
+          <lib-help-label [tag]="element.label"></lib-help-label>
+        </td>
         <td class="text-sm">{{ element.description | translate }}</td>
       </tr>
     </ng-template>
@@ -49,11 +51,6 @@
   </p-table>
 
   <ng-template pTemplate="footer">
-    <p-button
-      icon="pi pi-times"
-      (onClick)="onHide()"
-      label="{{ 'CLOSE' | translate }}"
-      styleClass="p-button-secondary"
-    ></p-button>
+    <p-button severity="secondary" icon="pi pi-times" (onClick)="onHide()" label="{{ 'CLOSE' | translate }}"></p-button>
   </ng-template>
 </p-dialog>

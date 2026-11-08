@@ -59,7 +59,7 @@
           <aas-property-value-editor
             [property]="property.content"
             [shellResult]="shellResult"
-            [parentCollection]="property.parent?.content"
+            [parentCollection]="$safeNavigationMigration(property.parent?.content)"
             class="w-full"
           ></aas-property-value-editor>
         </div>

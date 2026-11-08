@@ -27,8 +27,7 @@ export class SiDatatypeDataService {
           this.parseTTLFile(ttlData);
         },
         (_error) => {
-          // eslint-disable-next-line no-console
-          console.log('Error fetching TTL file:', _error);
+          console.error('Error fetching TTL file:', _error);
         },
       );
     } finally {

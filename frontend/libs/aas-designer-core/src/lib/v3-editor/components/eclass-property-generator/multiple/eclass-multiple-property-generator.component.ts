@@ -1,21 +1,21 @@
 import * as aas from '@aas-core-works/aas-core3.1-typescript';
 import { NgClass } from '@angular/common';
-import { Component, Input, OnInit } from '@angular/core';
+import { ChangeDetectionStrategy, Component, Input, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { cloneDeep } from 'lodash-es';
-import { MenuItem, PrimeTemplate, TreeNode } from 'primeng/api';
-import { Button } from 'primeng/button';
-import { Checkbox } from 'primeng/checkbox';
-import { Dialog } from 'primeng/dialog';
-import { InputText } from 'primeng/inputtext';
-import { Popover } from 'primeng/popover';
-import { Skeleton } from 'primeng/skeleton';
-import { Steps } from 'primeng/steps';
-import { TableModule } from 'primeng/table';
-import { Tag } from 'primeng/tag';
-import { Tree } from 'primeng/tree';
-import { TreeTableModule } from 'primeng/treetable';
+import { MenuItem, PrimeTemplate, TreeNode } from '@openng/optimus-ui/api';
+import { Button } from '@openng/optimus-ui/button';
+import { Checkbox } from '@openng/optimus-ui/checkbox';
+import { Dialog } from '@openng/optimus-ui/dialog';
+import { InputText } from '@openng/optimus-ui/inputtext';
+import { Popover } from '@openng/optimus-ui/popover';
+import { Skeleton } from '@openng/optimus-ui/skeleton';
+import { Steps } from '@openng/optimus-ui/steps';
+import { TableModule } from '@openng/optimus-ui/table';
+import { Tag } from '@openng/optimus-ui/tag';
+import { Tree } from '@openng/optimus-ui/tree';
+import { TreeTableModule } from '@openng/optimus-ui/treetable';
 import { EClassLogoComponent } from '../../../../general/eclass-logo/eclass-logo.component';
 import { EditorTypeOption } from '../../../model/editor-type-option';
 import { V3TreeItem } from '../../../model/v3-tree-item';
@@ -25,6 +25,7 @@ import { EClassPropertyService } from '../eclass-property.service';
 
 @Component({
   selector: 'aas-eclass-multiple-property-generator',
+  changeDetection: ChangeDetectionStrategy.Eager,
   templateUrl: './eclass-multiple-property-generator.component.html',
   imports: [
     Button,

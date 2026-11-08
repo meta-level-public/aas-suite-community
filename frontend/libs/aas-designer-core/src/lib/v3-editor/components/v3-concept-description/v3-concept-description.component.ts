@@ -3,10 +3,10 @@ import { HelpLabelComponent } from '@aas/common-components';
 import { DataspecificationIec61360Helper } from '@aas/helpers';
 import { EClassItem, ShellResult } from '@aas/model';
 import { NgClass } from '@angular/common';
-import { Component, Input, OnChanges, SimpleChanges, viewChild } from '@angular/core';
+import { Component, Input, OnChanges, SimpleChanges, viewChild, ChangeDetectionStrategy } from '@angular/core';
 import { TranslateModule } from '@ngx-translate/core';
-import { Fieldset } from 'primeng/fieldset';
-import { Message } from 'primeng/message';
+import { Fieldset } from '@openng/optimus-ui/fieldset';
+import { Message } from '@openng/optimus-ui/message';
 import { Info } from '../../../general/model/info-item';
 import { V3TreeItem } from '../../model/v3-tree-item';
 import { V3AdministrationComponent } from '../v3-administration/v3-administration.component';
@@ -20,6 +20,7 @@ import { V3ReferenceComponent } from '../v3-reference/v3-reference.component';
 @Component({
   selector: 'aas-v3-concept-description',
   templateUrl: './v3-concept-description.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [
     Fieldset,
     HelpLabelComponent,

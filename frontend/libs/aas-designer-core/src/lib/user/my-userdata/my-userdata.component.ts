@@ -1,16 +1,17 @@
 import { ADDITIONAL_USER_SPACE_MENU_ITEMS } from '@aas-designer-model';
-import { Component, inject, signal } from '@angular/core';
+import { Component, inject, signal, ChangeDetectionStrategy } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, NavigationEnd, Router, RouterModule } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
-import { TreeNode } from 'primeng/api';
-import { SplitterModule } from 'primeng/splitter';
+import { TreeNode } from '@openng/optimus-ui/api';
+import { SplitterModule } from '@openng/optimus-ui/splitter';
 import { SidebarTreeNavComponent } from '../../general/sidebar-tree-nav/sidebar-tree-nav.component';
 
 @Component({
   selector: 'aas-userdata',
   imports: [SplitterModule, TranslateModule, RouterModule, SidebarTreeNavComponent],
   templateUrl: './my-userdata.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrls: ['../../../host.scss'],
 })
 export class MyUserdataComponent {

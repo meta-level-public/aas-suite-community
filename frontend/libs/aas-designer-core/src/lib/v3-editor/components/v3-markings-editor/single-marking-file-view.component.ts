@@ -1,14 +1,16 @@
 import { AppConfigService, EncodingService, PortalService } from '@aas/common-services';
+import { TranslateModule } from '@ngx-translate/core';
 import { UrlHelper } from '@aas/helpers';
 import { CommonModule } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
-import { Component, computed, inject, input } from '@angular/core';
+import { Component, computed, inject, input, ChangeDetectionStrategy } from '@angular/core';
 import { DomSanitizer } from '@angular/platform-browser';
 import { lastValueFrom } from 'rxjs';
 
 @Component({
   selector: 'aas-single-marking-file-view',
-  imports: [CommonModule],
+  imports: [CommonModule, TranslateModule],
+  changeDetection: ChangeDetectionStrategy.Eager,
   templateUrl: './single-marking-file-view.component.html',
 })
 export class SingleMarkingFileViewComponent {

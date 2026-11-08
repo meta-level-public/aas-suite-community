@@ -1,10 +1,10 @@
 import * as aas from '@aas-core-works/aas-core3.1-typescript';
 import { HelpLabelComponent } from '@aas/common-components';
 import { ShellResult } from '@aas/model';
-import { Component, Input } from '@angular/core';
+import { Component, Input, ChangeDetectionStrategy } from '@angular/core';
 import { TranslateModule } from '@ngx-translate/core';
-import { Fieldset } from 'primeng/fieldset';
-import { Message } from 'primeng/message';
+import { Fieldset } from '@openng/optimus-ui/fieldset';
+import { Message } from '@openng/optimus-ui/message';
 import { Info } from '../../../general/model/info-item';
 import { V3TreeItem } from '../../model/v3-tree-item';
 import { V3TreeService } from '../../v3-tree/v3-tree.service';
@@ -25,6 +25,7 @@ type VerificationError = aas.verification.VerificationError;
 @Component({
   selector: 'aas-v3-relationship-element',
   templateUrl: './v3-relationship-element.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [
     Fieldset,
     HelpLabelComponent,

@@ -40,6 +40,7 @@
       <div class="flex gap-2 mb-2">
         <input pInputText class="w-full" [(ngModel)]="supplementalSemanticIdInput" />
         <p-button
+          [ariaLabel]="'ADD' | translate"
           icon="pi pi-plus"
           [text]="true"
           (onClick)="addSupplementalSemanticId(supplementalSemanticIdInput)"
@@ -54,6 +55,7 @@
             (blur)="normalizeSupplementalSemanticId(i)"
           />
           <p-button
+            [ariaLabel]="'REMOVE' | translate"
             icon="pi pi-times"
             [text]="true"
             severity="danger"
@@ -88,6 +90,7 @@
             (onClick)="addPropertyToContainer(ci); $event.stopPropagation()"
           ></p-button>
           <p-button
+            [ariaLabel]="'DELETE' | translate"
             icon="pi pi-trash"
             severity="danger"
             [text]="true"
@@ -118,6 +121,7 @@
               <strong>{{ property.idShort || ('PROPERTY' | translate) + ' ' + (pi + 1) }}</strong>
               <span class="flex-1"></span>
               <p-button
+                [ariaLabel]="'DELETE' | translate"
                 icon="pi pi-trash"
                 severity="danger"
                 [text]="true"
@@ -192,12 +196,22 @@
       <small class="text-color-secondary block mb-1">{{ 'CAPABILITY_RELATION_INTERNAL_HINT' | translate }}</small>
       <div class="flex gap-2 mb-2">
         <p-select class="w-full" [options]="availableCapabilityRefs" [(ngModel)]="selectedRealizedBy"></p-select>
-        <p-button icon="pi pi-plus" [text]="true" (onClick)="addRealizedBy(selectedRealizedBy)"></p-button>
+        <p-button
+          [ariaLabel]="'ADD' | translate"
+          icon="pi pi-plus"
+          [text]="true"
+          (onClick)="addRealizedBy(selectedRealizedBy)"
+        ></p-button>
       </div>
       <small class="text-color-secondary block mb-1">{{ 'CAPABILITY_RELATION_EXTERNAL_HINT' | translate }}</small>
       <div class="flex gap-2 mb-2">
         <input pInputText class="w-full" [(ngModel)]="realizedByInput" />
-        <p-button icon="pi pi-plus" [text]="true" (onClick)="addRealizedBy(realizedByInput, 'external')"></p-button>
+        <p-button
+          [ariaLabel]="'ADD' | translate"
+          icon="pi pi-plus"
+          [text]="true"
+          (onClick)="addRealizedBy(realizedByInput, 'external')"
+        ></p-button>
       </div>
       @for (ref of realizedByRefs; track $index; let i = $index) {
         <p-fieldset [toggleable]="true" styleClass="mb-2 capability-fieldset">
@@ -206,6 +220,7 @@
               <strong>{{ 'CAPABILITY_REALIZED_BY' | translate }} {{ i + 1 }}</strong>
               <span class="flex-1"></span>
               <p-button
+                [ariaLabel]="'DELETE' | translate"
                 icon="pi pi-trash"
                 severity="danger"
                 [text]="true"
@@ -239,12 +254,18 @@
       <small class="text-color-secondary block mb-1">{{ 'CAPABILITY_RELATION_INTERNAL_HINT' | translate }}</small>
       <div class="flex gap-2 mb-2">
         <p-select class="w-full" [options]="availableCapabilityRefs" [(ngModel)]="selectedGeneralizedBy"></p-select>
-        <p-button icon="pi pi-plus" [text]="true" (onClick)="addGeneralizedBy(selectedGeneralizedBy)"></p-button>
+        <p-button
+          [ariaLabel]="'ADD' | translate"
+          icon="pi pi-plus"
+          [text]="true"
+          (onClick)="addGeneralizedBy(selectedGeneralizedBy)"
+        ></p-button>
       </div>
       <small class="text-color-secondary block mb-1">{{ 'CAPABILITY_RELATION_EXTERNAL_HINT' | translate }}</small>
       <div class="flex gap-2 mb-2">
         <input pInputText class="w-full" [(ngModel)]="generalizedByInput" />
         <p-button
+          [ariaLabel]="'ADD' | translate"
           icon="pi pi-plus"
           [text]="true"
           (onClick)="addGeneralizedBy(generalizedByInput, 'external')"
@@ -257,6 +278,7 @@
               <strong>{{ 'CAPABILITY_GENERALIZED_BY' | translate }} {{ i + 1 }}</strong>
               <span class="flex-1"></span>
               <p-button
+                [ariaLabel]="'DELETE' | translate"
                 icon="pi pi-trash"
                 severity="danger"
                 [text]="true"
@@ -311,6 +333,7 @@
           <strong>{{ 'PROPERTY_CONSTRAINT' | translate }} {{ cIdx + 1 }}</strong>
           <span class="flex-1"></span>
           <p-button
+            [ariaLabel]="'DELETE' | translate"
             icon="pi pi-trash"
             [text]="true"
             severity="danger"
@@ -357,6 +380,7 @@
               [(ngModel)]="constraint.selectedTargetProperty"
             ></p-select>
             <p-button
+              [ariaLabel]="'ADD' | translate"
               icon="pi pi-plus"
               [text]="true"
               (onClick)="addConstraintTargetProperty(cIdx, constraint.selectedTargetProperty)"
@@ -365,6 +389,7 @@
           <div class="flex gap-2 mb-2">
             <input pInputText class="w-full" [(ngModel)]="constraint.targetPropertyInput" />
             <p-button
+              [ariaLabel]="'ADD' | translate"
               icon="pi pi-plus"
               [text]="true"
               (onClick)="addConstraintTargetProperty(cIdx, constraint.targetPropertyInput)"
@@ -374,6 +399,7 @@
             <div class="flex justify-between items-center mb-1">
               <span>{{ target }}</span>
               <p-button
+                [ariaLabel]="'REMOVE' | translate"
                 icon="pi pi-times"
                 [text]="true"
                 severity="danger"
@@ -393,6 +419,7 @@
           <strong>{{ 'TRANSITION_CONSTRAINT' | translate }} {{ tIdx + 1 }}</strong>
           <span class="flex-1"></span>
           <p-button
+            [ariaLabel]="'DELETE' | translate"
             icon="pi pi-trash"
             [text]="true"
             severity="danger"

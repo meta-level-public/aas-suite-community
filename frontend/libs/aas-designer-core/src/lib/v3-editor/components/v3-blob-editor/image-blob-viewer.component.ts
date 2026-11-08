@@ -1,10 +1,12 @@
 import { SafePipe } from '@aas/common-pipes';
+import { TranslateModule } from '@ngx-translate/core';
 import { FilenameHelper } from '@aas/helpers';
-import { Component, computed, effect, input, signal } from '@angular/core';
+import { Component, computed, effect, input, signal, ChangeDetectionStrategy } from '@angular/core';
 
 @Component({
   selector: 'aas-image-blob-viewer',
-  imports: [SafePipe],
+  imports: [SafePipe, TranslateModule],
+  changeDetection: ChangeDetectionStrategy.Eager,
   templateUrl: './image-blob-viewer.component.html',
 })
 export class ImageBlobViewerComponent {

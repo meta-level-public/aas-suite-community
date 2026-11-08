@@ -1,8 +1,17 @@
 import * as aas from '@aas-core-works/aas-core3.1-typescript';
 import { BomHierarchyChartComponent } from '@aas/bom-diagram';
-import { Component, EventEmitter, inject, Input, OnChanges, Output, SimpleChanges } from '@angular/core';
+import {
+  Component,
+  EventEmitter,
+  inject,
+  Input,
+  OnChanges,
+  Output,
+  type SimpleChanges,
+  ChangeDetectionStrategy,
+} from '@angular/core';
 import { TranslateModule } from '@ngx-translate/core';
-import { ButtonModule } from 'primeng/button';
+import { ButtonModule } from '@openng/optimus-ui/button';
 import { ViewerStoreService } from '../../viewer-store.service';
 type Entity = aas.types.Entity;
 type ISubmodelElement = aas.types.ISubmodelElement;
@@ -12,6 +21,7 @@ type Submodel = aas.types.Submodel;
   selector: 'aas-bom-viewer',
   templateUrl: './bom-viewer.component.html',
   styleUrls: ['./bom-viewer.component.css'],
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [BomHierarchyChartComponent, TranslateModule, ButtonModule],
 })
 export class BomViewerComponent implements OnChanges {

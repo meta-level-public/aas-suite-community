@@ -8,11 +8,8 @@
     >
       <ng-template #header>
         <div class="flex items-center gap-1.5">
-          <div
-            class="flex items-center justify-center w-6 h-6 rounded-full"
-            style="background: var(--aas-info-surface)"
-          >
-            <i class="pi pi-info-circle text-xs" style="color: var(--aas-info-text)"></i>
+          <div class="flex items-center justify-center w-6 h-6 rounded-full bg-[var(--aas-info-surface)]">
+            <i class="pi pi-info-circle text-xs text-[var(--aas-info-text)]"></i>
           </div>
           <lib-help-label tag="DETAILS" isLabelBold="true"></lib-help-label>
         </div>
@@ -48,17 +45,14 @@
     >
       <ng-template #header>
         <div class="flex items-center gap-1.5">
-          <div
-            class="flex items-center justify-center w-6 h-6 rounded-full"
-            style="background: var(--aas-info-surface)"
-          >
-            <i class="pi pi-sitemap text-xs" style="color: var(--aas-info-text)"></i>
+          <div class="flex items-center justify-center w-6 h-6 rounded-full bg-[var(--aas-info-surface)]">
+            <i class="pi pi-sitemap text-xs text-[var(--aas-info-text)]"></i>
           </div>
           <lib-help-label tag="CONTENT" isLabelBold="true"></lib-help-label>
         </div>
       </ng-template>
       <div class="flex flex-col gap-3 p-3">
-        <p-message severity="info" text="{{ 'CAPABILITY_RELATION_INTERNAL_HINT' | translate }}"></p-message>
+        <p-message severity="info">{{ 'CAPABILITY_RELATION_INTERNAL_HINT' | translate }}</p-message>
         <div class="flex flex-row w-full gap-2">
           <lib-help-label class="w-48 mt-2" tag="FIRST_REFERENCE_ELEMENT"></lib-help-label>
           <aas-v3-reference
@@ -71,7 +65,7 @@
           ></aas-v3-reference>
         </div>
 
-        <p-message severity="info" text="{{ 'CAPABILITY_RELATION_EXTERNAL_HINT' | translate }}"></p-message>
+        <p-message severity="info">{{ 'CAPABILITY_RELATION_EXTERNAL_HINT' | translate }}</p-message>
         <div class="flex flex-row w-full gap-2">
           <lib-help-label class="w-48 mt-2" tag="SECOND_REFERENCE_ELEMENT"></lib-help-label>
           <aas-v3-reference
@@ -99,11 +93,8 @@
     >
       <ng-template #header>
         <div class="flex items-center gap-1.5">
-          <div
-            class="flex items-center justify-center w-6 h-6 rounded-full"
-            style="background: var(--aas-success-surface)"
-          >
-            <i class="pi pi-bookmark text-xs" style="color: var(--aas-success-text)"></i>
+          <div class="flex items-center justify-center w-6 h-6 rounded-full bg-[var(--aas-success-surface)]">
+            <i class="pi pi-bookmark text-xs text-[var(--aas-success-text)]"></i>
           </div>
           <lib-help-label tag="SEMANTIC_ID" isLabelBold="true"></lib-help-label>
         </div>
@@ -126,11 +117,8 @@
     >
       <ng-template #header>
         <div class="flex items-center gap-1.5">
-          <div
-            class="flex items-center justify-center w-6 h-6 rounded-full"
-            style="background: var(--aas-success-surface)"
-          >
-            <i class="pi pi-check-circle text-xs" style="color: var(--aas-success-text)"></i>
+          <div class="flex items-center justify-center w-6 h-6 rounded-full bg-[var(--aas-success-surface)]">
+            <i class="pi pi-check-circle text-xs text-[var(--aas-success-text)]"></i>
           </div>
           <lib-help-label tag="QUALIFIERS" isLabelBold="true"></lib-help-label>
         </div>
@@ -148,11 +136,8 @@
     >
       <ng-template #header>
         <div class="flex items-center gap-1.5">
-          <div
-            class="flex items-center justify-center w-6 h-6 rounded-full"
-            style="background: var(--aas-warning-surface)"
-          >
-            <i class="pi pi-database text-xs" style="color: var(--aas-warning-text)"></i>
+          <div class="flex items-center justify-center w-6 h-6 rounded-full bg-[var(--aas-warning-surface)]">
+            <i class="pi pi-database text-xs text-[var(--aas-warning-text)]"></i>
           </div>
           <lib-help-label tag="EMBEDDED_DATA_SPECIFICATIONS" isLabelBold="true"></lib-help-label>
         </div>

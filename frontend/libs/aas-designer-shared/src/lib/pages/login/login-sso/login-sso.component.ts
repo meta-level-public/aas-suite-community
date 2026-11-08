@@ -1,8 +1,8 @@
 import { NotificationService } from '@aas/common-services';
 import { SystemConfigurationDto } from '@aas/webapi-client';
-import { Component, inject, input, signal } from '@angular/core';
+import { Component, inject, input, signal, ChangeDetectionStrategy } from '@angular/core';
 import { TranslateModule } from '@ngx-translate/core';
-import { ButtonModule } from 'primeng/button';
+import { ButtonModule } from '@openng/optimus-ui/button';
 
 export function resolveSsoConfigName(systemConfiguration: SystemConfigurationDto | null): string {
   const configuredName = systemConfiguration?.ssoConfigName?.trim();
@@ -13,6 +13,7 @@ export function resolveSsoConfigName(systemConfiguration: SystemConfigurationDto
   selector: 'aas-login-sso',
   imports: [TranslateModule, ButtonModule],
   templateUrl: './login-sso.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './login-sso.component.scss',
 })
 export class LoginSsoComponent {

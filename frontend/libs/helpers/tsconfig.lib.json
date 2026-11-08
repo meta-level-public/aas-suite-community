@@ -7,6 +7,6 @@
     "inlineSources": true,
     "types": []
   },
-  "exclude": ["vitest.config.ts", "**/*.test.ts", "**/*.spec.ts"],
+  "exclude": ["vitest.config.mts", "**/*.test.ts", "**/*.spec.ts"],
   "include": ["**/*.ts"]
 }

@@ -1,12 +1,12 @@
 import { DateProxyPipe } from '@aas/common-pipes';
 import { ChangeDetectionStrategy, Component, OnInit, inject } from '@angular/core';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
-import { MenuItem } from 'primeng/api';
-import { ButtonModule } from 'primeng/button';
-import { MenuModule } from 'primeng/menu';
-import { TableModule } from 'primeng/table';
-import { ToolbarModule } from 'primeng/toolbar';
-import { AasConfirmationService } from '@aas/aas-designer-shared';
+import { MenuItem } from '@openng/optimus-ui/api';
+import { ButtonModule } from '@openng/optimus-ui/button';
+import { MenuModule } from '@openng/optimus-ui/menu';
+import { TableModule } from '@openng/optimus-ui/table';
+import { ToolbarModule } from '@openng/optimus-ui/toolbar';
+import { AasConfirmationService } from '@aas/common-services';
 import { RequestForOfferService } from './request-for-offer.service';
 
 import Docxtemplater from 'docxtemplater';
@@ -24,7 +24,7 @@ function loadFile(url: any, callback: any) {
   imports: [ToolbarModule, TableModule, ButtonModule, TranslateModule, DateProxyPipe, MenuModule],
   styleUrls: ['../../host.scss'],
   templateUrl: './request-for-offer.component.html',
-  changeDetection: ChangeDetectionStrategy.Default,
+  changeDetection: ChangeDetectionStrategy.Eager,
 })
 export class RequestForOfferComponent implements OnInit {
   requests: RequestForOffer[] = [];
@@ -123,8 +123,7 @@ export class RequestForOfferComponent implements OnInit {
       } catch (_error) {
         // The error thrown here contains additional information when logged with JSON.stringify (it contains a properties object containing all suberrors).
 
-        // eslint-disable-next-line no-console
-        console.log(error);
+        console.error(error);
 
         throw error;
       }

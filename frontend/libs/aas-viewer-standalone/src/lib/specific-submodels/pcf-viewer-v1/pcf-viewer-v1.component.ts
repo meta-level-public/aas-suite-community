@@ -1,7 +1,7 @@
 import * as aas from '@aas-core-works/aas-core3.1-typescript';
 
 import { SemanticIdHelper } from '@aas/helpers';
-import { Component, computed, input } from '@angular/core';
+import { Component, computed, input, ChangeDetectionStrategy } from '@angular/core';
 import { TranslateModule } from '@ngx-translate/core';
 import { AddressMapComponent } from './address-map/address-map.component';
 import { PcfStepViewerComponent } from './pcf-step-viewer/pcf-step-viewer.component';
@@ -10,6 +10,7 @@ import { PcfStepViewerComponent } from './pcf-step-viewer/pcf-step-viewer.compon
   selector: 'aas-pcf-viewer-v1',
   imports: [PcfStepViewerComponent, AddressMapComponent, TranslateModule],
   templateUrl: './pcf-viewer-v1.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrls: ['./pcf-viewer-v1.component.css'],
 })
 export class PcfViewerV1Component {

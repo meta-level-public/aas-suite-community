@@ -1,17 +1,29 @@
 import { NotificationService } from '@aas/common-services';
 import { HelpTextDto } from '@aas/webapi-client';
 import { CommonModule } from '@angular/common';
-import { Component, computed, ElementRef, inject, input, linkedSignal, model, OnDestroy, signal } from '@angular/core';
+import {
+  Component,
+  computed,
+  ElementRef,
+  inject,
+  input,
+  linkedSignal,
+  model,
+  signal,
+  ChangeDetectionStrategy,
+} from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
-import { ButtonModule } from 'primeng/button';
-import { DialogModule } from 'primeng/dialog';
-import { EditorModule } from 'primeng/editor';
-import { FloatLabelModule } from 'primeng/floatlabel';
-import { PopoverModule } from 'primeng/popover';
-import { SelectModule } from 'primeng/select';
-import { TextareaModule } from 'primeng/textarea';
-import { lastValueFrom, Subscription } from 'rxjs';
+import { ButtonModule } from '@openng/optimus-ui/button';
+import { DialogModule } from '@openng/optimus-ui/dialog';
+import { EditorModule } from '@openng/optimus-ui/editor';
+import { FloatLabelModule } from '@openng/optimus-ui/floatlabel';
+import { PopoverModule } from '@openng/optimus-ui/popover';
+import { SelectModule } from '@openng/optimus-ui/select';
+import { TextareaModule } from '@openng/optimus-ui/textarea';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { lastValueFrom } from 'rxjs';
+import { HelpEditModeService } from '../help-service/help-edit-mode.service';
 import { HelpService } from '../help-service/help.service';
 
 @Component({
@@ -34,9 +46,10 @@ import { HelpService } from '../help-service/help.service';
     DialogModule,
     EditorModule,
   ],
+  changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './help-label.component.html',
 })
-export class HelpLabelComponent implements OnDestroy {
+export class HelpLabelComponent {
   for = input<string>('help-label');
   tag = input.required<string>();
   styleClass = input<string>();
@@ -45,6 +58,7 @@ export class HelpLabelComponent implements OnDestroy {
   width = input<string>('w-48');
 
   helpService = inject(HelpService);
+  private readonly helpEditMode = inject(HelpEditModeService);
 
   editDialogVisible = model(false);
   helpDialogVisible = model(false);
@@ -91,14 +105,11 @@ export class HelpLabelComponent implements OnDestroy {
   });
 
   elRef = inject(ElementRef);
-  subscriptions: Subscription[] = [];
 
   constructor() {
-    this.subscriptions.push(
-      this.translate.onLangChange.subscribe((event: any) => {
-        this.langugage.set(event.lang);
-      }),
-    );
+    this.translate.onLangChange.pipe(takeUntilDestroyed()).subscribe((event) => {
+      this.langugage.set(event.lang);
+    });
   }
 
   currentGloabalText = computed(() => {
@@ -152,7 +163,8 @@ export class HelpLabelComponent implements OnDestroy {
   }
 
   isEditmode() {
-    return window.sessionStorage.getItem('HELP_EDITMODE_ACTIVE') === 'true';
+    // Signal read, so the OnPush view updates as soon as the edit mode is toggled
+    return this.helpEditMode.isActive();
   }
 
   async saveHelpText() {
@@ -168,9 +180,5 @@ export class HelpLabelComponent implements OnDestroy {
         this.loading.set(false);
       }
     }
-  }
-
-  ngOnDestroy(): void {
-    this.subscriptions.forEach((s) => s.unsubscribe);
   }
 }

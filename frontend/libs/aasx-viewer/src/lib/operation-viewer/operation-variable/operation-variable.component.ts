@@ -1,7 +1,7 @@
 import { Component, Input } from '@angular/core';
-import { Panel } from 'primeng/panel';
-import { TableModule } from 'primeng/table';
-import { PrimeTemplate } from 'primeng/api';
+import { Panel } from '@openng/optimus-ui/panel';
+import { TableModule } from '@openng/optimus-ui/table';
+import { PrimeTemplate } from '@openng/optimus-ui/api';
 import { TranslateModule } from '@ngx-translate/core';
 
 @Component({

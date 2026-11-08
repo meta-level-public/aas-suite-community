@@ -1,5 +1,5 @@
 import { InjectionToken } from '@angular/core';
-import { MenuItem } from 'primeng/api';
+import { MenuItem } from '@openng/optimus-ui/api';
 
 export interface ShellMenuItemConfig {
   /**

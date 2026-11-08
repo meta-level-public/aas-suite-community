@@ -1,5 +1,6 @@
 import * as aas from '@aas-core-works/aas-core3.1-typescript';
 
+import { of } from 'rxjs';
 import { describe, expect, it } from 'vitest';
 
 import { GeneratorExportService } from './generator-export.service';
@@ -11,7 +12,7 @@ function createGeneratorExportService() {
 function createEnvironmentWithEmptyPropertyValue() {
   const shell = new aas.types.AssetAdministrationShell(
     'urn:test:aas',
-    new aas.types.AssetInformation(aas.types.AssetKind.Instance),
+    new aas.types.AssetInformation(aas.types.AssetKind.Instance, 'urn:test:asset'),
   );
   const property = new aas.types.Property(aas.types.DataTypeDefXsd.String, undefined, undefined, 'SerialNumber');
   property.value = '';
@@ -97,5 +98,50 @@ describe('GeneratorExportService', () => {
       | aas.types.MultiLanguageProperty
       | undefined;
     expect(property?.value).toBeNull();
+  });
+
+  it('removes empty description texts of the shell, e.g. an untouched second language', () => {
+    const service = createGeneratorExportService();
+    const environment = createEnvironmentWithEmptyPropertyValue();
+    const shell = environment.assetAdministrationShells![0];
+    shell.description = [
+      new aas.types.LangStringTextType('en', 'Release test pump'),
+      new aas.types.LangStringTextType('de', ''),
+    ];
+
+    const fixedEnvironment = service.applyTemplateFixes(environment);
+
+    expect(Array.from(aas.verification.verify(fixedEnvironment))).toEqual([]);
+    expect(fixedEnvironment.assetAdministrationShells?.[0].description?.map((entry) => entry.language)).toEqual(['en']);
+  });
+
+  it('unsets empty element lists, e.g. a handover document list without documents', () => {
+    const service = createGeneratorExportService();
+    const environment = createEnvironmentWithEmptyPropertyValue();
+    const documents = new aas.types.SubmodelElementList(aas.types.AasSubmodelElements.SubmodelElementCollection);
+    documents.idShort = 'Documents';
+    documents.value = [];
+    environment.submodels![0].submodelElements = [documents];
+
+    const fixedEnvironment = service.applyTemplateFixes(environment);
+
+    expect(Array.from(aas.verification.verify(fixedEnvironment))).toEqual([]);
+    const fixedDocuments = fixedEnvironment.submodels?.[0].submodelElements?.[0] as aas.types.SubmodelElementList;
+    expect(fixedDocuments.value).toBeNull();
+  });
+
+  it('leaves concept descriptions unset when none are available, so the environment stays valid', async () => {
+    const http = { get: () => of(null) };
+    const service = new GeneratorExportService(http as never, { config: { apiPath: '' } } as never);
+    const exportState = { env: new aas.types.Environment(), requiredSemanticIds: ['urn:example:semantic'] };
+
+    await (
+      service as unknown as { loadExportConceptDescriptions: (state: unknown, cds: unknown[]) => Promise<void> }
+    ).loadExportConceptDescriptions(exportState, []);
+
+    expect(exportState.env.conceptDescriptions).toBeNull();
+    expect(Array.from(aas.verification.verify(exportState.env)).map((error) => error.message)).not.toContain(
+      'Concept descriptions must be either not set or have at least one item.',
+    );
   });
 });

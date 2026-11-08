@@ -1,6 +1,6 @@
 import { Component, Input } from '@angular/core';
-import { PrimeTemplate, SortEvent } from 'primeng/api';
-import { TableModule } from 'primeng/table';
+import { PrimeTemplate, SortEvent } from '@openng/optimus-ui/api';
+import { TableModule } from '@openng/optimus-ui/table';
 
 import { GenericViewerComponent } from '../generic-viewer/generic-viewer.component';
 

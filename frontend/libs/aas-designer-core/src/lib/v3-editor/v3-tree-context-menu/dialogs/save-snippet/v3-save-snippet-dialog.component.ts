@@ -1,15 +1,16 @@
-import { Component, Input, model } from '@angular/core';
+import { Component, Input, model, ChangeDetectionStrategy } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
-import { ButtonModule } from 'primeng/button';
-import { DialogModule } from 'primeng/dialog';
-import { InputTextModule } from 'primeng/inputtext';
-import { TextareaModule } from 'primeng/textarea';
+import { ButtonModule } from '@openng/optimus-ui/button';
+import { DialogModule } from '@openng/optimus-ui/dialog';
+import { InputTextModule } from '@openng/optimus-ui/inputtext';
+import { TextareaModule } from '@openng/optimus-ui/textarea';
 
 @Component({
   selector: 'aas-v3-save-snippet-dialog',
   templateUrl: './v3-save-snippet-dialog.component.html',
 
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [FormsModule, TranslateModule, DialogModule, ButtonModule, InputTextModule, TextareaModule],
 })
 export class V3SaveSnippetDialogComponent {

@@ -1,15 +1,16 @@
 import * as aas from '@aas-core-works/aas-core3.1-typescript';
 
 import { HelpLabelComponent } from '@aas/common-components';
-import { Component, input } from '@angular/core';
+import { Component, input, ChangeDetectionStrategy } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
-import { ButtonModule } from 'primeng/button';
-import { CheckboxModule } from 'primeng/checkbox';
+import { ButtonModule } from '@openng/optimus-ui/button';
+import { CheckboxModule } from '@openng/optimus-ui/checkbox';
 
 @Component({
   selector: 'aas-level-type',
   imports: [FormsModule, TranslateModule, CheckboxModule, ButtonModule, HelpLabelComponent],
+  changeDetection: ChangeDetectionStrategy.Eager,
   templateUrl: './level-type.component.html',
 })
 export class LevelTypeComponent {

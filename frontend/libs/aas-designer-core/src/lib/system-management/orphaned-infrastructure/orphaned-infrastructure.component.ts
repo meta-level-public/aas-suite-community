@@ -1,17 +1,18 @@
 import { AasConfirmationService, NotificationService } from '@aas/common-services';
 import { AasInfrastructureClient, OrphanedInfrastructureDto } from '@aas/webapi-client';
-import { Component, inject, OnInit, signal } from '@angular/core';
+import { Component, inject, OnInit, signal, ChangeDetectionStrategy } from '@angular/core';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
-import { ButtonModule } from 'primeng/button';
-import { TableModule } from 'primeng/table';
-import { TagModule } from 'primeng/tag';
-import { ToolbarModule } from 'primeng/toolbar';
+import { ButtonModule } from '@openng/optimus-ui/button';
+import { TableModule } from '@openng/optimus-ui/table';
+import { TagModule } from '@openng/optimus-ui/tag';
+import { ToolbarModule } from '@openng/optimus-ui/toolbar';
 import { lastValueFrom } from 'rxjs';
 
 @Component({
   selector: 'aas-orphaned-infrastructure',
   standalone: true,
   imports: [TranslateModule, TableModule, TagModule, ToolbarModule, ButtonModule],
+  changeDetection: ChangeDetectionStrategy.Eager,
   templateUrl: './orphaned-infrastructure.component.html',
 })
 export class OrphanedInfrastructureComponent implements OnInit {

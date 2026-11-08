@@ -1,8 +1,8 @@
 import { Component, Input } from '@angular/core';
 import { DomSanitizer } from '@angular/platform-browser';
 import { AasxViewerService } from '../aasx-viewer.service';
-import { TableModule } from 'primeng/table';
-import { PrimeTemplate } from 'primeng/api';
+import { TableModule } from '@openng/optimus-ui/table';
+import { PrimeTemplate } from '@openng/optimus-ui/api';
 
 import { MarkingsViewerComponent } from '../markings-viewer/markings-viewer.component';
 import { TranslateModule } from '@ngx-translate/core';

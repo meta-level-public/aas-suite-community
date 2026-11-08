@@ -50,39 +50,19 @@
           }
         </div>
       </p-popover>
-      @if (portalService.loggedIn && orgaSettings.length <= 1) {
+      @if (portalService.loggedIn) {
+        <!-- Icon or logo only: two-letter initials next to the language button looked like a language code -->
         <p-button
           class="topbar-button text-0"
           [rounded]="true"
+          [icon]="orgaLogo ? undefined : 'pi pi-building'"
           [pTooltip]="orgaFullName"
           tooltipPosition="bottom"
-          iconPos="right"
+          [ariaLabel]="orgaFullName ?? ('ORGA_ICON' | translate)"
+          (onClick)="orgaSettings.length > 1 && opOrga.toggle($event)"
         >
           @if (orgaLogo) {
-            <img [src]="orgaLogo" class="mr-2" height="30" alt="{{ 'ORGA_ICON' | translate }}" />
-          }
-          @if (!orgaLogo) {
-            {{ orgaInitials }}
-            <i class="mr-2 pi pi-building"></i>
-          }
-        </p-button>
-      }
-
-      @if (portalService.loggedIn && orgaSettings.length > 1) {
-        <p-button
-          class="topbar-button text-0"
-          [label]="orgaInitials"
-          [rounded]="true"
-          (onClick)="opOrga.toggle($event)"
-          [pTooltip]="orgaFullName"
-          tooltipPosition="bottom"
-        >
-          @if (orgaLogo) {
-            <img [src]="orgaLogo" class="mr-2" height="30" alt="{{ 'ORGA_ICON' | translate }}" />
-          }
-          @if (!orgaLogo) {
-            {{ orgaInitials }}
-            <i class="mr-2 pi pi-building"></i>
+            <img [src]="orgaLogo" height="30" alt="{{ 'ORGA_ICON' | translate }}" />
           }
         </p-button>
       }
@@ -105,11 +85,16 @@
     @if (!portalService.user?.profilbildBase64) {
       <p-avatar
         [icon]="portalService.loggedIn ? 'pi pi-user' : 'pi pi-bars'"
-        class="mr-2 cursor-pointer"
+        class="mr-2 cursor-pointer user-avatar"
         size="large"
         shape="circle"
-        [style]="{ 'background-color': '#ece9fc', color: '#2a1261' }"
+        role="button"
+        tabindex="0"
+        aria-haspopup="menu"
+        [ariaLabel]="'USER_MENU' | translate"
         (click)="userMenu.toggle($event)"
+        (keydown.enter)="userMenu.toggle($event)"
+        (keydown.space)="$event.preventDefault(); userMenu.toggle($event)"
       ></p-avatar>
     }
     @if (portalService.user?.profilbildBase64 ?? '') {
@@ -117,8 +102,14 @@
         [image]="portalService.user?.profilbildBase64 ?? ''"
         shape="circle"
         size="large"
-        [style]="{ 'background-color': '#ece9fc', color: '#2a1261' }"
+        class="cursor-pointer user-avatar"
+        role="button"
+        tabindex="0"
+        aria-haspopup="menu"
+        [ariaLabel]="'USER_MENU' | translate"
         (click)="userMenu.toggle($event)"
+        (keydown.enter)="userMenu.toggle($event)"
+        (keydown.space)="$event.preventDefault(); userMenu.toggle($event)"
       ></p-avatar>
     }
     <p-menu

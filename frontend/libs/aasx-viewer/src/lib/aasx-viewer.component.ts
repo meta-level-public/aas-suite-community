@@ -2,17 +2,17 @@ import { CURRENT_LANGUAGE_KEY, DEFAULT_LANGUAGE } from '@aas/common-services';
 import { Component, Input, OnChanges, OnInit } from '@angular/core';
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 import moment from 'moment';
-import { SelectItem } from 'primeng/api';
-import { Select, SelectChangeEvent } from 'primeng/select';
+import { SelectItem } from '@openng/optimus-ui/api';
+import { Select, SelectChangeEvent } from '@openng/optimus-ui/select';
 import { AasxViewerService } from './aasx-viewer.service';
 
 import { FormsModule } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
-import { Card } from 'primeng/card';
-import { Image } from 'primeng/image';
-import { Listbox } from 'primeng/listbox';
-import { ScrollTop } from 'primeng/scrolltop';
-import { Skeleton } from 'primeng/skeleton';
+import { Card } from '@openng/optimus-ui/card';
+import { Image } from '@openng/optimus-ui/image';
+import { Listbox } from '@openng/optimus-ui/listbox';
+import { ScrollTop } from '@openng/optimus-ui/scrolltop';
+import { Skeleton } from '@openng/optimus-ui/skeleton';
 import { AasxModelViewerComponent } from './aasx-model-viewer/aasx-model-viewer.component';
 
 @Component({

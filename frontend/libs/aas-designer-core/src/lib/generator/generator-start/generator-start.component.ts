@@ -1,9 +1,9 @@
 import { BreadcrumbService } from '@aas/aas-designer-shared';
-import { Component, OnDestroy, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import { NavigationEnd, Router, RouterOutlet } from '@angular/router';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
-import { MenuItem } from 'primeng/api';
-import { Steps } from 'primeng/steps';
+import { MenuItem } from '@openng/optimus-ui/api';
+import { Steps } from '@openng/optimus-ui/steps';
 import { filter, Subscription } from 'rxjs';
 import { GeneratorService } from '../generator.service';
 
@@ -12,6 +12,7 @@ import { GeneratorService } from '../generator.service';
   templateUrl: './generator-start.component.html',
   styleUrls: ['../../../host.scss', './generator-start.component.scss'],
   imports: [Steps, RouterOutlet, TranslateModule],
+  changeDetection: ChangeDetectionStrategy.Eager,
   host: {
     class: 'flex flex-col flex-1 min-h-0',
   },

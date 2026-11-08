@@ -2,11 +2,11 @@ import * as aas from '@aas-core-works/aas-core3.1-typescript';
 import { DateProxyPipe } from '@aas/common-pipes';
 import { SemanticIdHelper } from '@aas/helpers';
 import { AsyncPipe, NgComponentOutlet } from '@angular/common';
-import { Component, computed, Input, OnChanges, signal, Type } from '@angular/core';
+import { Component, computed, Input, OnChanges, signal, Type, ChangeDetectionStrategy } from '@angular/core';
 import { TranslateModule } from '@ngx-translate/core';
-import { InputGroup } from 'primeng/inputgroup';
-import { InputGroupAddon } from 'primeng/inputgroupaddon';
-import { InputText } from 'primeng/inputtext';
+import { InputGroup } from '@openng/optimus-ui/inputgroup';
+import { InputGroupAddon } from '@openng/optimus-ui/inputgroupaddon';
+import { InputText } from '@openng/optimus-ui/inputtext';
 import { MarkingsViewerPlainComponent } from '../../markings-viewer-plain/markings-viewer-plain.component';
 import { ViewerStoreService } from '../../viewer-store.service';
 
@@ -60,6 +60,7 @@ const DOCUMENT_IDENTIFIER_SEMANTIC_IDS = [
   selector: 'aas-battery-nameplate-viewer',
   templateUrl: './battery-nameplate-viewer.component.html',
   styleUrls: ['./battery-nameplate-viewer.component.css'],
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [
     MarkingsViewerPlainComponent,
     AsyncPipe,

@@ -3,17 +3,19 @@ import { AppConfigService, AppRouteUrls, PluginRegistryService, ViewportService 
 
 import { ADDITIONAL_MENU_ITEMS, AuthRoles } from '@aas-designer-model';
 import { AccessService, PortalService } from '@aas/common-services';
-import { Component, effect, inject, OnInit, output, signal } from '@angular/core';
+import { Component, DestroyRef, effect, inject, OnInit, output, signal, ChangeDetectionStrategy } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { NavigationEnd, Router, RouterModule } from '@angular/router';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
-import { ButtonModule } from 'primeng/button';
-import { TooltipModule } from 'primeng/tooltip';
+import { ButtonModule } from '@openng/optimus-ui/button';
+import { TooltipModule } from '@openng/optimus-ui/tooltip';
 import { filter } from 'rxjs/operators';
 
 @Component({
   selector: 'app-menu',
   templateUrl: './app.menu.component.html',
   styleUrls: ['./app.menu.component.scss'],
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [ButtonModule, RouterModule, TooltipModule, TranslateModule],
 })
 export class AppMenuComponent implements OnInit {
@@ -27,13 +29,16 @@ export class AppMenuComponent implements OnInit {
   pluginRegistry = inject(PluginRegistryService);
   viewport = inject(ViewportService);
   private router = inject(Router);
+  private destroyRef = inject(DestroyRef);
+  // Signal statt router.url, damit sich die Template-Bindings nur nach abgeschlossener Navigation ändern
+  private currentUrl = signal<string>('');
 
   constructor(
     private translate: TranslateService,
     private accessService: AccessService,
     private appConfigService: AppConfigService,
   ) {
-    this.translate.onLangChange.subscribe(() => this.createMenu());
+    this.translate.onLangChange.pipe(takeUntilDestroyed()).subscribe(() => this.createMenu());
 
     effect(() => {
       this.pluginRegistry.plugins();
@@ -43,7 +48,8 @@ export class AppMenuComponent implements OnInit {
     });
 
     // Create menu immediately when login state changes
-    this.portalService.loginStateChanged.subscribe(() => {
+    this.portalService.loginStateChanged.pipe(takeUntilDestroyed()).subscribe(() => {
+      this.helpService.initHelp();
       // Use setTimeout to ensure the user data is fully saved before creating menu
       setTimeout(() => {
         this.createMenu();
@@ -56,19 +62,20 @@ export class AppMenuComponent implements OnInit {
     this.createMenu();
     this.updateActiveTab(this.router.url);
 
-    this.router.events.pipe(filter((event) => event instanceof NavigationEnd)).subscribe((event: NavigationEnd) => {
-      this.updateActiveTab(event.urlAfterRedirects);
-      // On phones the menu overlays the page, so close it once a page was chosen
-      if (this.viewport.isMobile() && this.sidebarExpanded()) {
-        this.toggleSidebar();
-      }
-    });
+    this.router.events
+      .pipe(
+        filter((event) => event instanceof NavigationEnd),
+        takeUntilDestroyed(this.destroyRef),
+      )
+      .subscribe((event: NavigationEnd) => {
+        this.updateActiveTab(event.urlAfterRedirects);
+        // On phones the menu overlays the page, so close it once a page was chosen
+        if (this.viewport.isMobile() && this.sidebarExpanded()) {
+          this.toggleSidebar();
+        }
+      });
 
-    this.portalService.loginStateChanged.subscribe(() => {
-      this.helpService.initHelp();
-    });
-
-    this.portalService.currentInfrastructureChanged.subscribe(() => {
+    this.portalService.currentInfrastructureChanged.pipe(takeUntilDestroyed(this.destroyRef)).subscribe(() => {
       this.createMenu();
       this.updateActiveTab(this.router.url);
     });
@@ -231,58 +238,45 @@ export class AppMenuComponent implements OnInit {
   }
 
   isActive(tab: any): boolean {
-    const currentUrl = this.router.url;
-    const routerLink = Array.isArray(tab.routerLink) ? tab.routerLink[0] : tab.routerLink;
+    return this.matchesTab(tab, this.currentUrl());
+  }
 
-    // Check main routerLink - exact match or starts with
-    if (currentUrl === routerLink || currentUrl.startsWith(routerLink + '/')) {
+  /** Path of a router link, e.g. ['/', 'dashboard'] or ['/dashboard'] -> '/dashboard'. */
+  private toPath(link: unknown): string {
+    const segments = (Array.isArray(link) ? link : [link])
+      .map((segment) => String(segment ?? ''))
+      .flatMap((segment) => segment.split('/'))
+      .filter((segment) => segment !== '');
+    return '/' + segments.join('/');
+  }
+
+  private matchesPath(url: string, path: string): boolean {
+    return path !== '/' && (url === path || url.startsWith(path + '/'));
+  }
+
+  private matchesTab(tab: any, currentUrl: string): boolean {
+    // Query parameters and fragments do not decide which menu entry is active
+    const url = currentUrl.split(/[?#]/)[0];
+    const path = this.toPath(tab.routerLink);
+
+    if (this.matchesPath(url, path)) {
       return true;
     }
 
     // Check altLink (e.g., /viewer for generator tab)
-    if (tab.altLink) {
-      const altLink = Array.isArray(tab.altLink) ? tab.altLink[0] : tab.altLink;
-      if (currentUrl === altLink || currentUrl.startsWith(altLink + '/')) {
-        return true;
-      }
-    }
-
-    // Check for /generator routes which should match /aas tab
-    if (routerLink === '/aas' && currentUrl.startsWith('/generator')) {
+    if (tab.altLink && this.matchesPath(url, this.toPath(tab.altLink))) {
       return true;
     }
 
-    return false;
+    // Check for /generator routes which should match /aas tab
+    return path === '/aas' && this.matchesPath(url, '/generator');
   }
 
   private updateActiveTab(url: string) {
-    const matchingTab = this.tabs.find((tab) => {
-      const routerLink = Array.isArray(tab.routerLink) ? tab.routerLink[0] : tab.routerLink;
-
-      // Check main routerLink
-      if (url.startsWith(routerLink)) {
-        return true;
-      }
-
-      // Check altLink (e.g., /viewer for generator tab)
-      if (tab.altLink) {
-        const altLink = Array.isArray(tab.altLink) ? tab.altLink[0] : tab.altLink;
-        if (url.startsWith(altLink)) {
-          return true;
-        }
-      }
-
-      // Check for /generator routes which should match /aas tab
-      if (routerLink === '/aas' && url.startsWith('/generator')) {
-        return true;
-      }
-
-      return false;
-    });
-
+    this.currentUrl.set(url);
+    const matchingTab = this.tabs.find((tab) => this.matchesTab(tab, url));
     if (matchingTab) {
-      const value = Array.isArray(matchingTab.routerLink) ? matchingTab.routerLink[0] : matchingTab.routerLink;
-      this.activeTabValue.set(value);
+      this.activeTabValue.set(this.toPath(matchingTab.routerLink));
     }
   }
 }

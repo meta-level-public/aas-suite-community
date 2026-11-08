@@ -32,6 +32,7 @@
                       @if (semanticId.keys[0].value != null && UrlHelper.isEclassId(semanticId.keys[0].value)) {
                         <p-inputgroup-addon>
                           <p-button
+                            [ariaLabel]="'OPEN_LINK' | translate"
                             icon="pi pi-external-link"
                             severity="secondary"
                             (onClick)="UrlHelper.openEclass(semanticId.keys[0].value)"
@@ -41,6 +42,7 @@
                       @if (semanticId.keys[0].value != null && UrlHelper.isIecCddId(semanticId.keys[0].value)) {
                         <p-inputgroup-addon>
                           <p-button
+                            [ariaLabel]="'OPEN_LINK' | translate"
                             icon="pi pi-external-link"
                             severity="secondary"
                             (onClick)="UrlHelper.openIecCdd(semanticId.keys[0].value)"
@@ -54,8 +56,13 @@
                   <td><lib-help-label tag="DEFINITION"></lib-help-label></td>
                   <td class="font-bold">
                     <aas-v3-lang-string-display
-                      [langStrings]="$any(cd()?.embeddedDataSpecifications?.[0]?.dataSpecificationContent).definition"
-                      [langStringParent]="$any(cd()?.embeddedDataSpecifications?.[0]?.dataSpecificationContent)"
+                      [langStrings]="
+                        $any($safeNavigationMigration(cd()?.embeddedDataSpecifications?.[0]?.dataSpecificationContent))
+                          .definition
+                      "
+                      [langStringParent]="
+                        $any($safeNavigationMigration(cd()?.embeddedDataSpecifications?.[0]?.dataSpecificationContent))
+                      "
                       [langStringParentPropertyName]="'definition'"
                       class="w-full"
                     ></aas-v3-lang-string-display>
@@ -64,25 +71,38 @@
                 <tr>
                   <td><lib-help-label tag="SOURCE_OF_DEFINITION"></lib-help-label></td>
                   <td class="font-bold">
-                    {{ $any(cd()?.embeddedDataSpecifications?.[0]?.dataSpecificationContent)?.sourceOfDefinition }}
+                    {{
+                      $any($safeNavigationMigration(cd()?.embeddedDataSpecifications?.[0]?.dataSpecificationContent))
+                        ?.sourceOfDefinition
+                    }}
                   </td>
                 </tr>
                 <tr>
                   <td><lib-help-label tag="UNIT"></lib-help-label></td>
                   <td class="font-bold">
-                    {{ $any(cd()?.embeddedDataSpecifications?.[0]?.dataSpecificationContent)?.unit }}
+                    {{
+                      $any($safeNavigationMigration(cd()?.embeddedDataSpecifications?.[0]?.dataSpecificationContent))
+                        ?.unit
+                    }}
                   </td>
                 </tr>
                 <tr>
                   <td><lib-help-label tag="SYMBOL"></lib-help-label></td>
                   <td class="font-bold">
-                    {{ $any(cd()?.embeddedDataSpecifications?.[0]?.dataSpecificationContent)?.symbol }}
+                    {{
+                      $any($safeNavigationMigration(cd()?.embeddedDataSpecifications?.[0]?.dataSpecificationContent))
+                        ?.symbol
+                    }}
                   </td>
                 </tr>
                 <tr>
                   <td><lib-help-label tag="DATA_TYPE"></lib-help-label></td>
                   <td class="font-bold">
-                    {{ getDatatypeLabel(cd()?.embeddedDataSpecifications?.[0]?.dataSpecificationContent) }}
+                    {{
+                      getDatatypeLabel(
+                        $safeNavigationMigration(cd()?.embeddedDataSpecifications?.[0]?.dataSpecificationContent)
+                      )
+                    }}
                   </td>
                 </tr>
               </ng-template>
@@ -93,11 +113,9 @@
             <div class="semantic-actions">
               <div class="semantic-actions-panel">
                 @if (semanticId.keys != null && cd() == null) {
-                  <p-message
-                    severity="error"
-                    text="{{ 'CD_NOT_IN_REPOSITORY' | translate }}"
-                    class="semantic-warning w-full"
-                  ></p-message>
+                  <p-message severity="error" class="semantic-warning w-full">{{
+                    'CD_NOT_IN_REPOSITORY' | translate
+                  }}</p-message>
                   <p-button
                     label="{{ 'CREATE_CD' | translate }}"
                     icon="pi pi-plus"
@@ -135,6 +153,7 @@
                   ></p-button>
                 }
                 <p-button
+                  severity="danger"
                   label="{{ 'REMOVE' | translate }}"
                   icon="pi pi-trash"
                   (onClick)="removeReferenceBlock()"
@@ -166,6 +185,7 @@
                       @if (item.keys[0].value != null && UrlHelper.isEclassId(item.keys[0].value)) {
                         <p-inputgroup-addon>
                           <p-button
+                            [ariaLabel]="'OPEN_LINK' | translate"
                             icon="pi pi-external-link"
                             severity="secondary"
                             (onClick)="UrlHelper.openEclass(item.keys[0].value)"
@@ -175,6 +195,7 @@
                       @if (item.keys[0].value != null && UrlHelper.isIecCddId(item.keys[0].value)) {
                         <p-inputgroup-addon>
                           <p-button
+                            [ariaLabel]="'OPEN_LINK' | translate"
                             icon="pi pi-external-link"
                             severity="secondary"
                             (onClick)="UrlHelper.openIecCdd(item.keys[0].value)"
@@ -188,7 +209,7 @@
                   <td><lib-help-label tag="DEFINITION"></lib-help-label></td>
                   <td class="font-bold">
                     <aas-v3-lang-string-display
-                      [langStrings]="getDataspec(item)?.definition"
+                      [langStrings]="$safeNavigationMigration(getDataspec(item)?.definition)"
                       [langStringParent]="getDataspec(item)"
                       [langStringParentPropertyName]="'definition'"
                       class="w-full"
@@ -227,11 +248,9 @@
             <div class="semantic-actions">
               <div class="semantic-actions-panel">
                 @if (getCd(item)?.id == null) {
-                  <p-message
-                    severity="error"
-                    text="{{ 'CD_NOT_IN_REPOSITORY' | translate }}"
-                    class="semantic-warning w-full"
-                  ></p-message>
+                  <p-message severity="error" class="semantic-warning w-full">{{
+                    'CD_NOT_IN_REPOSITORY' | translate
+                  }}</p-message>
                   <p-button
                     label="{{ 'CREATE_CD' | translate }}"
                     icon="pi pi-plus"
@@ -269,6 +288,7 @@
                   ></p-button>
                 }
                 <p-button
+                  severity="danger"
                   label="{{ 'REMOVE' | translate }}"
                   (onClick)="removeAdditionalReference(item)"
                   icon="pi pi-trash"

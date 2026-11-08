@@ -15,12 +15,12 @@ a { color: var(--teal); }
 a:focus-visible, button:focus-visible, input:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
 
 /* Explorer header */
-.explorer-header { display: flex; align-items: center; gap: 16px; padding: 14px 16px; border: 1px solid var(--line); border-radius: var(--radius); background: var(--surface); box-shadow: var(--shadow); }
+.explorer-header { display: flex; flex-wrap: wrap; align-items: center; gap: 16px; padding: 14px 16px; border: 1px solid var(--line); border-radius: var(--radius); background: var(--surface); box-shadow: var(--shadow); }
 .explorer-title { display: flex; align-items: center; gap: 10px; flex: 0 0 auto; }
 .explorer-logo { display: grid; place-items: center; width: 38px; height: 38px; border-radius: 9px; background: var(--accent); color: white; font-size: 20px; }
 h1 { margin: 0; font-size: 18px; line-height: 1.2; white-space: nowrap; }
 .explorer-title p { margin: 1px 0 0; color: var(--muted); font-size: 12px; }
-.lookup { min-width: 0; flex: 1; display: flex; gap: 8px; }
+.lookup { min-width: 0; flex: 1 1 360px; display: flex; gap: 8px; }
 .lookup-field { position: relative; flex: 1; min-width: 160px; display: flex; }
 .lookup-field .icon { position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: var(--muted); font-size: 16px; }
 .lookup-field input { padding-left: 36px; }
@@ -29,7 +29,7 @@ input { min-width: 0; flex: 1; padding: 10px 12px; border: 1px solid #c3d0d5; bo
 input:focus { border-color: var(--teal); background: white; }
 button { padding: 10px 18px; border: 1px solid var(--accent); border-radius: 7px; background: var(--accent); color: white; font: inherit; font-size: 14px; font-weight: 600; cursor: pointer; }
 button:disabled { opacity: .55; cursor: default; }
-.example-select { flex: 0 1 260px; min-width: 0; padding: 10px 12px; border: 1px solid #c3d0d5; border-radius: 7px; background: #fbfcfd; color: var(--ink); font: inherit; font-size: 14px; cursor: pointer; }
+.example-select { flex: 0 1 260px; min-width: 200px; padding: 10px 12px; border: 1px solid #c3d0d5; border-radius: 7px; background: #fbfcfd; color: var(--ink); font: inherit; font-size: 14px; cursor: pointer; }
 .example-select:focus { border-color: var(--teal); background: white; }
 .hint { color: var(--muted); font-size: 13px; }
 h2 { margin: 0 0 5px; font-size: 20px; }

@@ -102,7 +102,7 @@ namespace AasDesignerAasApi.Controllers
                 AuthRoles.SYSTEM_ADMIN,
             ]
         )]
-        public async Task<string> GetCd(string id)
+        public async Task<ActionResult<string>> GetCd(string id)
         {
             if (HttpContext.Items[AasDesignerConstants.APP_USER] is not AppUser benutzer)
                 throw new UserNotFoundException();
@@ -111,14 +111,14 @@ namespace AasDesignerAasApi.Controllers
 
             var command = new GetSingleCdQuery { AppUser = benutzer, Id = id };
 
-            return await mediator.Send(command);
+            return await UpstreamActionResult.ExecuteAsync(() => mediator.Send(command));
         }
 
         [HttpPost]
         [AasDesignerAuthorize(
             RequiredRoles = [AuthRoles.SHELLS_EDITOR, AuthRoles.ORGA_ADMIN, AuthRoles.SYSTEM_ADMIN]
         )]
-        public async Task<bool> UpdateCd(string cdString)
+        public async Task<ActionResult<bool>> UpdateCd(string cdString)
         {
             if (HttpContext.Items[AasDesignerConstants.APP_USER] is not AppUser benutzer)
                 throw new UserNotFoundException();
@@ -131,14 +131,14 @@ namespace AasDesignerAasApi.Controllers
                 ConceptDescriptionString = cdString,
             };
 
-            return await mediator.Send(command);
+            return await UpstreamActionResult.ExecuteAsync(() => mediator.Send(command));
         }
 
         [HttpDelete]
         [AasDesignerAuthorize(
             RequiredRoles = [AuthRoles.SHELLS_EDITOR, AuthRoles.ORGA_ADMIN, AuthRoles.SYSTEM_ADMIN]
         )]
-        public async Task<bool> DeleteCd(string cdIdentifierBase64)
+        public async Task<ActionResult<bool>> DeleteCd(string cdIdentifierBase64)
         {
             if (HttpContext.Items[AasDesignerConstants.APP_USER] is not AppUser benutzer)
                 throw new UserNotFoundException();
@@ -151,7 +151,7 @@ namespace AasDesignerAasApi.Controllers
                 CdIdentifierBase64 = cdIdentifierBase64,
             };
 
-            return await mediator.Send(command);
+            return await UpstreamActionResult.ExecuteAsync(() => mediator.Send(command));
         }
     }
 }

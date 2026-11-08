@@ -1,19 +1,20 @@
 import { NotificationService } from '@aas/common-services';
 import { BenutzerInfrastrukturRechtDto, InfrastrukturRechteClient, InfraUserRechtDto } from '@aas/webapi-client';
 import { CommonModule } from '@angular/common';
-import { Component, inject, input, OnChanges, output, signal } from '@angular/core';
+import { Component, inject, input, OnChanges, output, signal, ChangeDetectionStrategy } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
-import { ButtonModule } from 'primeng/button';
-import { CheckboxModule } from 'primeng/checkbox';
-import { ProgressSpinnerModule } from 'primeng/progressspinner';
-import { TableModule } from 'primeng/table';
+import { ButtonModule } from '@openng/optimus-ui/button';
+import { CheckboxModule } from '@openng/optimus-ui/checkbox';
+import { ProgressSpinnerModule } from '@openng/optimus-ui/progressspinner';
+import { TableModule } from '@openng/optimus-ui/table';
 
 export type InfraRechteMode = 'user' | 'infra';
 
 @Component({
   selector: 'aas-infrastruktur-rechte',
   templateUrl: './infrastruktur-rechte.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [
     CommonModule,
     FormsModule,

@@ -3,42 +3,52 @@ import { TagHelper } from '@aas/helpers';
 import { Clipboard, ClipboardModule } from '@angular/cdk/clipboard';
 import { CommonModule } from '@angular/common';
 import { HttpErrorResponse } from '@angular/common/http';
-import { Component, computed, inject, model, OnDestroy, OnInit, signal, ViewChild } from '@angular/core';
+import {
+  Component,
+  computed,
+  inject,
+  model,
+  OnDestroy,
+  OnInit,
+  signal,
+  ViewChild,
+  ChangeDetectionStrategy,
+} from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { saveAs } from 'file-saver-es';
-import { MenuItem } from 'primeng/api';
-import { ButtonModule } from 'primeng/button';
-import { ChipModule } from 'primeng/chip';
-import { DialogService, DynamicDialogConfig, DynamicDialogRef } from 'primeng/dynamicdialog';
-import { InputGroupModule } from 'primeng/inputgroup';
-import { InputGroupAddonModule } from 'primeng/inputgroupaddon';
-import { InputTextModule } from 'primeng/inputtext';
-import { MultiSelectModule } from 'primeng/multiselect';
-import { SkeletonModule } from 'primeng/skeleton';
-import { TableModule } from 'primeng/table';
-import { TagModule } from 'primeng/tag';
-import { TieredMenuModule } from 'primeng/tieredmenu';
-import { TooltipModule } from 'primeng/tooltip';
+import { MenuItem } from '@openng/optimus-ui/api';
+import { ButtonModule } from '@openng/optimus-ui/button';
+import { ChipModule } from '@openng/optimus-ui/chip';
+import { DialogService, DynamicDialogConfig, DynamicDialogRef } from '@openng/optimus-ui/dynamicdialog';
+import { InputGroupModule } from '@openng/optimus-ui/inputgroup';
+import { InputGroupAddonModule } from '@openng/optimus-ui/inputgroupaddon';
+import { InputTextModule } from '@openng/optimus-ui/inputtext';
+import { MultiSelectModule } from '@openng/optimus-ui/multiselect';
+import { SkeletonModule } from '@openng/optimus-ui/skeleton';
+import { TableModule } from '@openng/optimus-ui/table';
+import { TagModule } from '@openng/optimus-ui/tag';
+import { TieredMenuModule } from '@openng/optimus-ui/tieredmenu';
+import { TooltipModule } from '@openng/optimus-ui/tooltip';
 import { lastValueFrom } from 'rxjs';
 
 import { ADDITIONAL_SHELL_MENU_ITEMS } from '@aas-designer-model';
-import { HelpLabelComponent, WaitDialogComponent } from '@aas/common-components';
+import { HelpLabelComponent, WaitDialogComponent, CursorPaginatorComponent } from '@aas/common-components';
 import { AccessService, PortalService } from '@aas/common-services';
 import {
-    AasInfrastructureClient,
-    AssetKind,
-    AvailableInfastructure,
-    CreateInstanceRequest,
-    CreateSharedLink,
-    ShellListDto,
-    ShellListVm,
-    ShellsClient,
-    TransferShellResponse,
+  AasInfrastructureClient,
+  AssetKind,
+  AvailableInfastructure,
+  CreateInstanceRequest,
+  CreateSharedLink,
+  ShellListDto,
+  ShellListVm,
+  ShellsClient,
+  TransferShellResponse,
 } from '@aas/webapi-client';
-import { MessageModule } from 'primeng/message';
-import { SelectModule } from 'primeng/select';
+import { MessageModule } from '@openng/optimus-ui/message';
+import { SelectModule } from '@openng/optimus-ui/select';
 import { AasxExportComponent } from '../general/aasx-export/aasx-export.component';
 import { PcnRegisterSubscriptionComponent } from '../pcn/pcn-register-subscription/pcn-register-subscription.component';
 import { ViewerSetupCodeComponent } from '../viewer-setup-code/viewer-setup-code.component';
@@ -48,12 +58,12 @@ import { ObserveVisibilityDirective } from './observe-visibility.directive';
 import { ShellThumbnailCellComponent } from './shell-thumbnail-cell.component';
 import { ShellsListActions } from './shells-list.actions';
 import {
-    Column,
-    readShellsListPageSize,
-    SHELLS_LIST_COLUMNS,
-    SHELLS_LIST_DEFAULT_COLUMNS,
-    SHELLS_LIST_PAGE_OPTIONS,
-    writeShellsListPageSize,
+  Column,
+  readShellsListPageSize,
+  SHELLS_LIST_COLUMNS,
+  SHELLS_LIST_DEFAULT_COLUMNS,
+  SHELLS_LIST_PAGE_OPTIONS,
+  writeShellsListPageSize,
 } from './shells-list.config';
 import { ShellsListStore } from './shells-list.store';
 import { ShellSearchOpenResult, ShellsSearchComponent } from './shells-search/shells-search.component';
@@ -61,6 +71,7 @@ import { UploadAasDialogComponent } from './upload-aas-dialog/upload-aas-dialog.
 @Component({
   selector: 'aas-shells-list',
   imports: [
+    CursorPaginatorComponent,
     CommonModule,
     FormsModule,
     TranslateModule,
@@ -86,6 +97,7 @@ import { UploadAasDialogComponent } from './upload-aas-dialog/upload-aas-dialog.
   ],
   templateUrl: './shells-list.component.html',
   styleUrls: ['../../host.scss', './shells-list.component.scss'],
+  changeDetection: ChangeDetectionStrategy.Eager,
   providers: [ShellsListStore, ShellsListActions],
 })
 export class ShellsListComponent implements OnInit, OnDestroy {
@@ -220,7 +232,7 @@ export class ShellsListComponent implements OnInit, OnDestroy {
     this.menuItems = this.buildShellMenu(shell, canEdit, transferTargets);
   }
 
-  onRowClick(_event: MouseEvent, shell: ShellListDto) {
+  onRowClick(_event: Event, shell: ShellListDto) {
     // Check if readonly infrastructure
     const canEdit = !this.selectedRepository()?.isReadonly;
 

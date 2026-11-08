@@ -18,7 +18,7 @@
               [showClear]="true"
               [showButtonBar]="true"
               appendTo="body"
-              styleClass="w-full"
+              class="w-full"
             ></p-datepicker>
             <div class="text-sm text-color-secondary whitespace-nowrap">
               <lib-help-label tag="RAW_DATA"></lib-help-label> {{ property.value }}
@@ -36,7 +36,7 @@
               [showClear]="true"
               [showButtonBar]="true"
               appendTo="body"
-              styleClass="w-full"
+              class="w-full"
             ></p-datepicker>
             <div class="text-sm text-color-secondary whitespace-nowrap">
               <lib-help-label tag="RAW_DATA"></lib-help-label> {{ property.value }}
@@ -61,7 +61,12 @@
           <p-inputgroup class="w-full">
             <input pInputText [(ngModel)]="property.value" class="w-full" vwsV3Undo nullIfEmpty />
             <p-inputgroup-addon>
-              <p-button icon="pi pi-times" severity="secondary" (onClick)="property.value = null" />
+              <p-button
+                [ariaLabel]="'REMOVE' | translate"
+                icon="pi pi-times"
+                severity="secondary"
+                (onClick)="property.value = null"
+              />
             </p-inputgroup-addon>
           </p-inputgroup>
         }
@@ -103,6 +108,7 @@
       <input pInputText [(ngModel)]="property.value" class="w-full" />
       <p-inputgroup-addon>
         <p-button
+          [ariaLabel]="'OPEN_LINK' | translate"
           icon="pi pi-external-link"
           severity="secondary"
           (onClick)="openEclassLink(property.value ?? '')"

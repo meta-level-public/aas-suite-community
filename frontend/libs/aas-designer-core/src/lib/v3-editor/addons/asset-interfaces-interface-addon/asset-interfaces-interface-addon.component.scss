@@ -1,0 +1,17 @@
+@use '../capability-fieldset';
+
+.aid-addon-container {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+:host ::ng-deep .aid-fieldset {
+  border: 1px solid var(--p-content-border-color);
+  background: var(--p-content-background);
+  border-radius: var(--p-border-radius);
+}
+
+:host ::ng-deep .aid-fieldset .p-fieldset-content {
+  padding: 0.9rem;
+}

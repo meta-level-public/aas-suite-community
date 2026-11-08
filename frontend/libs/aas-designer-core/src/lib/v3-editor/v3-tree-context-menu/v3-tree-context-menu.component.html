@@ -1,6 +1,9 @@
 <p-button
+  [ariaLabel]="'MORE_ACTIONS' | translate"
+  [text]="true"
+  severity="secondary"
   icon="pi pi-ellipsis-v"
-  styleClass="p-button-text p-button-secondary tree-action-button border-none p-0 m-0 no-focus-border z-10"
+  styleClass="tree-action-button border-none p-0 m-0 no-focus-border z-10"
   (onClick)="onShowActions($event, menu)"
   #btn
 ></p-button>

@@ -1,6 +1,6 @@
 import { Component, Input } from '@angular/core';
-import { TableModule } from 'primeng/table';
-import { PrimeTemplate } from 'primeng/api';
+import { TableModule } from '@openng/optimus-ui/table';
+import { PrimeTemplate } from '@openng/optimus-ui/api';
 
 import { TranslateModule } from '@ngx-translate/core';
 import { ObjectValuePipe } from '../../util/object-value.pipe';

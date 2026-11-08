@@ -2,23 +2,24 @@ import { DirtyCheckable, PaymentModel, PaymentPeriod } from '@aas-designer-model
 import { NotificationService } from '@aas/common-services';
 import { AutocompleteOffDirective } from '@aas/helpers';
 import { SystemManagementClient } from '@aas/webapi-client';
-import { Component, inject, OnInit, ViewChild } from '@angular/core';
+import { Component, inject, OnInit, ViewChild, ChangeDetectionStrategy } from '@angular/core';
 import { FormsModule, NgForm } from '@angular/forms';
 import { Router } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
-import { PrimeTemplate } from 'primeng/api';
-import { Button } from 'primeng/button';
-import { Checkbox } from 'primeng/checkbox';
-import { InputText } from 'primeng/inputtext';
-import { Message } from 'primeng/message';
-import { Select } from 'primeng/select';
-import { Toolbar } from 'primeng/toolbar';
+import { PrimeTemplate } from '@openng/optimus-ui/api';
+import { Button } from '@openng/optimus-ui/button';
+import { Checkbox } from '@openng/optimus-ui/checkbox';
+import { InputText } from '@openng/optimus-ui/inputtext';
+import { Message } from '@openng/optimus-ui/message';
+import { Select } from '@openng/optimus-ui/select';
+import { Toolbar } from '@openng/optimus-ui/toolbar';
 import { lastValueFrom } from 'rxjs';
 import { PaymentService } from '../payment.service';
 
 @Component({
   selector: 'aas-create-payment-model',
   templateUrl: './create-payment-model.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [
     FormsModule,
     AutocompleteOffDirective,

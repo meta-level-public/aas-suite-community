@@ -276,7 +276,7 @@ function validateManifest(manifest) {
     throw new Error('Plugin route must be a top-level route, for example /hello-world-demo.');
   }
   if (!manifest.icon.startsWith('pi pi-')) {
-    throw new Error('Icon must be a PrimeIcons class starting with pi pi-.');
+    throw new Error('Icon must be an @openng/icons (formerly PrimeIcons) class starting with pi pi-.');
   }
   if (Number.isNaN(manifest.sortOrder)) {
     throw new Error('Sort order must be a number.');

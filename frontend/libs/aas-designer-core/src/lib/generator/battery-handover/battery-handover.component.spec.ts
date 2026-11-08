@@ -34,7 +34,7 @@ function createTranslateServiceMock() {
 }
 
 function createGeneratorService(additionalV3Submodels: any[] = []) {
-  const uploadedFiles = new Map<string, { filename: string; contentType: string; file: File }>();
+  const uploadedFiles = new Map<string, { filename: string; contentType: string; file: File; embeddedPath: string }>();
   let documentItems: any[] = [];
 
   const syncEditedGeneratorSubmodel = vi.fn((submodel: any) => {

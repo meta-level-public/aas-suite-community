@@ -1,14 +1,15 @@
-import { Component } from '@angular/core';
+import { Component, ChangeDetectionStrategy } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
-import { ButtonModule } from 'primeng/button';
-import { DynamicDialogConfig, DynamicDialogRef } from 'primeng/dynamicdialog';
-import { ListboxChangeEvent, ListboxModule } from 'primeng/listbox';
+import { ButtonModule } from '@openng/optimus-ui/button';
+import { DynamicDialogConfig, DynamicDialogRef } from '@openng/optimus-ui/dynamicdialog';
+import { ListboxChangeEvent, ListboxModule } from '@openng/optimus-ui/listbox';
 import { OrgaSettings } from '@aas-designer-model';
 
 @Component({
   selector: 'aas-select-organisation',
   imports: [ListboxModule, FormsModule, ButtonModule, TranslateModule],
+  changeDetection: ChangeDetectionStrategy.Eager,
   templateUrl: './select-organisation.component.html',
 })
 export class SelectOrganisationComponent {

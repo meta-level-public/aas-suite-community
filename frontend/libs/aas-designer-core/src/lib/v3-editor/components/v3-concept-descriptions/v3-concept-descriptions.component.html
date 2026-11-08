@@ -20,7 +20,6 @@
     [value]="conceptDescriptions ?? []"
     class="w-full"
     size="small"
-    responsiveLayout="scroll"
     scrollHeight="flex"
     selectionMode="multiple"
     [(selection)]="selectedCds"
@@ -38,8 +37,10 @@
       <tr>
         <td>
           <p-button
+            [ariaLabel]="'MORE_ACTIONS' | translate"
+            [text]="true"
+            severity="secondary"
             icon="pi pi-ellipsis-v"
-            styleClass="p-button-text p-button-secondary"
             (onClick)="menu.toggle($event)"
           ></p-button>
           <p-menu

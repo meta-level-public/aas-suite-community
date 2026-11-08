@@ -1,7 +1,8 @@
 import { SubmodelElementCollection } from '@aas-core-works/aas-core3.1-typescript/types';
 
-import { Component, Input, OnChanges } from '@angular/core';
+import { Component, Input, OnChanges, ChangeDetectionStrategy } from '@angular/core';
 import { LeafletDirective, LeafletLayersDirective } from '@bluehalo/ngx-leaflet';
+import { TranslateModule } from '@ngx-translate/core';
 import * as Leaflet from 'leaflet';
 import { tileLayer } from 'leaflet';
 import { OpenStreetMapProvider } from 'leaflet-geosearch';
@@ -10,7 +11,8 @@ import { PcfHelper } from '../pcf-helper';
 @Component({
   selector: 'aas-pcf-map-overview',
   templateUrl: './pcf-map-overview.component.html',
-  imports: [LeafletDirective, LeafletLayersDirective],
+  changeDetection: ChangeDetectionStrategy.Eager,
+  imports: [LeafletDirective, LeafletLayersDirective, TranslateModule],
 })
 export class PcfMapOverviewComponent implements OnChanges {
   @Input({ required: true }) pcfList: SubmodelElementCollection[] = [];

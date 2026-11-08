@@ -1,10 +1,10 @@
-import { Component, input, model } from '@angular/core';
+import { Component, input, model, ChangeDetectionStrategy } from '@angular/core';
 import { TranslateModule } from '@ngx-translate/core';
 import { HelpLabelComponent } from '@aas/common-components';
-import { ButtonModule } from 'primeng/button';
-import { DialogModule } from 'primeng/dialog';
-import { InputTextModule } from 'primeng/inputtext';
-import { TableModule } from 'primeng/table';
+import { ButtonModule } from '@openng/optimus-ui/button';
+import { DialogModule } from '@openng/optimus-ui/dialog';
+import { InputTextModule } from '@openng/optimus-ui/inputtext';
+import { TableModule } from '@openng/optimus-ui/table';
 import { CMTypeOption } from '../../../model/cm-type-option';
 
 export interface AvailableElementItem {
@@ -18,6 +18,7 @@ export interface AvailableElementItem {
   selector: 'aas-v3-insert-element-dialog',
   templateUrl: './v3-insert-element-dialog.component.html',
 
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [TranslateModule, DialogModule, TableModule, ButtonModule, InputTextModule, HelpLabelComponent],
 })
 export class V3InsertElementDialogComponent {

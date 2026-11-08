@@ -1,28 +1,31 @@
 import * as aas from '@aas-core-works/aas-core3.1-typescript';
 import { EncodingService } from '@aas/common-services';
+import { UrlHelper } from '@aas/helpers';
 import { Property } from '@aas/model';
 import { HttpClient, HttpParams } from '@angular/common/http';
-import { Component, inject, Input, model } from '@angular/core';
+import { Component, inject, Input, model, ChangeDetectionStrategy } from '@angular/core';
 import { lastValueFrom } from 'rxjs';
 import { ViewerStoreService } from '../viewer-store.service';
 
 import { FormsModule } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
-import { Accordion, AccordionContent, AccordionHeader, AccordionPanel } from 'primeng/accordion';
-import { PrimeTemplate } from 'primeng/api';
-import { Button } from 'primeng/button';
-import { Divider } from 'primeng/divider';
-import { Fieldset } from 'primeng/fieldset';
-import { InputText } from 'primeng/inputtext';
-import { Ripple } from 'primeng/ripple';
-import { SelectButton } from 'primeng/selectbutton';
-import { TableModule } from 'primeng/table';
+import { Accordion, AccordionContent, AccordionHeader, AccordionPanel } from '@openng/optimus-ui/accordion';
+import { PrimeTemplate } from '@openng/optimus-ui/api';
+import { Button } from '@openng/optimus-ui/button';
+import { Divider } from '@openng/optimus-ui/divider';
+import { Fieldset } from '@openng/optimus-ui/fieldset';
+import { InputText } from '@openng/optimus-ui/inputtext';
+import { Message } from '@openng/optimus-ui/message';
+import { Ripple } from '@openng/optimus-ui/ripple';
+import { SelectButton } from '@openng/optimus-ui/selectbutton';
+import { TableModule } from '@openng/optimus-ui/table';
 import { OperationVariableComponent } from './operation-variable/operation-variable.component';
 import { ExpandedStateDirective } from '../expanded-state/expanded-state.directive';
 
 @Component({
   selector: 'aas-operation-viewer',
   templateUrl: './operation-viewer.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [
     ExpandedStateDirective,
     TableModule,
@@ -36,6 +39,7 @@ import { ExpandedStateDirective } from '../expanded-state/expanded-state.directi
     AccordionContent,
     FormsModule,
     InputText,
+    Message,
     Divider,
     SelectButton,
     Button,
@@ -57,34 +61,32 @@ export class OperationViewerComponent {
 
   viewerStore = inject(ViewerStoreService);
 
-  async getExecuteUrl() {
-    let url = (await this.viewerStore.currentSmUrl()) ?? '';
-    // const infra = PortalService.getCurrentAasInfrastructureSetting();
-    // if (infra != null) {
-    //   url = infra.aasRepositoryUrl ?? '';
-    // }
+  /**
+   * Invoke URL for the operation. The submodel endpoint already ends with `/submodels/{id}`, the AAS endpoint
+   * with `/shells/{id}`. Returns an empty string when the required endpoint is not known.
+   */
+  getExecuteUrl(): string {
+    const operationPath = `submodel-elements/${this.idShortPath}/invoke/$value`;
 
-    const currentIdShortPath = this.idShortPath;
-    const currentSubmodelId = EncodingService.base64urlEncode(this.submodelId);
-    const currentAasId = 'TODO';
-
-    switch (this.executeType()) {
-      case 'shell':
-        url += `/submodels/${currentSubmodelId}/submodel-elements/${currentIdShortPath}/invoke/$value`;
-        break;
-      case 'aas-repo':
-        url += `/shells/${currentAasId}/submodels/${currentSubmodelId}/submodel-elements/${currentIdShortPath}/invoke/$value`;
-        break;
-      case 'sm-repo':
-        url += `/submodels/${currentSubmodelId}/submodel-elements/${currentIdShortPath}/invoke/$value`;
-        break;
+    if (this.executeType() === 'sm-repo') {
+      // Use the submodel this operation belongs to, not the one currently selected in the navigation.
+      const smUrl = this.viewerStore.submodels().find((sm) => sm.id === this.submodelId)?.url ?? '';
+      return smUrl === '' ? '' : UrlHelper.appendSlash(smUrl) + operationPath;
     }
 
-    return url;
+    const aasUrl = this.viewerStore.aasUrl();
+    if (aasUrl === '' || this.submodelId === '') {
+      return '';
+    }
+    return `${UrlHelper.appendSlash(aasUrl)}submodels/${EncodingService.base64urlEncode(this.submodelId)}/${operationPath}`;
   }
-  async calculateUrl() {
-    const url = await this.getExecuteUrl();
-    this.executeUrl.set(url);
+
+  canExecute(): boolean {
+    return this.getExecuteUrl() !== '';
+  }
+
+  calculateUrl() {
+    this.executeUrl.set(this.getExecuteUrl());
   }
 
   calculateVariables() {
@@ -110,6 +112,8 @@ export class OperationViewerComponent {
     );
   }
   async execute() {
+    const url = this.getExecuteUrl();
+    if (url === '') return;
     // REST-Aufruf starten
     const body: any = {
       inputVariables: this.inputVariables(),
@@ -122,11 +126,11 @@ export class OperationViewerComponent {
       params = params.set(v.idShort, v.value);
     });
 
-    const res = await lastValueFrom(this.http.post(this.executeUrl(), body, { params }));
-    // eslint-disable-next-line no-console
-    console.log(res);
+    await lastValueFrom(this.http.post(url, body, { params }));
   }
   async executeAsync() {
+    const executeUrl = this.getExecuteUrl();
+    if (executeUrl === '') return;
     // REST-Aufruf starten
     const body: any = {
       inputVariables: this.inputVariables(),
@@ -137,9 +141,7 @@ export class OperationViewerComponent {
       body[v.idShort] = v.value;
     });
 
-    const url = this.executeUrl().replace('/invoke/', '/invoke-async/');
-    const res = await lastValueFrom(this.http.post(url, body));
-    // eslint-disable-next-line no-console
-    console.log(res);
+    const url = executeUrl.replace('/invoke/', '/invoke-async/');
+    await lastValueFrom(this.http.post(url, body));
   }
 }

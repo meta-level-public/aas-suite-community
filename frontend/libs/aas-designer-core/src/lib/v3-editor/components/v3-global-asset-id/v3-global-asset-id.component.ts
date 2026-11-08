@@ -1,12 +1,12 @@
 import { openShellSelectDialog } from '@aas/common-components';
 import { PortalService } from '@aas/common-services';
 import { IdGenerationUtil } from '@aas/helpers';
-import { Component, inject, Input } from '@angular/core';
+import { Component, inject, Input, ChangeDetectionStrategy } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
-import { Button } from 'primeng/button';
-import { DialogService } from 'primeng/dynamicdialog';
-import { InputText } from 'primeng/inputtext';
+import { Button } from '@openng/optimus-ui/button';
+import { DialogService } from '@openng/optimus-ui/dynamicdialog';
+import { InputText } from '@openng/optimus-ui/inputtext';
 import { NullIfEmptyDirective } from '../../../general/directives/null-if-empty.directive';
 import { V3UndoDirective } from '../../../general/directives/v3-undo.directive';
 import { V3TreeService } from '../../v3-tree/v3-tree.service';
@@ -14,6 +14,7 @@ import { V3TreeService } from '../../v3-tree/v3-tree.service';
 @Component({
   selector: 'aas-v3-global-asset-id',
   templateUrl: './v3-global-asset-id.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [FormsModule, InputText, V3UndoDirective, NullIfEmptyDirective, Button, TranslateModule],
 })
 export class V3GlobalAssetIdComponent {

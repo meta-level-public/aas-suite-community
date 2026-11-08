@@ -6,7 +6,6 @@
   stripedRows
   [scrollable]="true"
   scrollHeight="flex"
-  responsiveLayout="scroll"
   [rowsPerPageOptions]="[10, 25, 50]"
   [loading]="vecService.loading()"
   [paginator]="true"
@@ -27,7 +26,7 @@
   </ng-template>
   <ng-template #header let-columns>
     <tr>
-      <th style="width: 5rem"></th>
+      <th class="w-20"></th>
       <th pSortableColumn="shortGroupName">{{ 'VEC_ELEMENT' | translate }} <p-sortIcon field="shortGroupName" /></th>
       @for (col of columns; track $index) {
         <th [pSortableColumn]="col">{{ col }} <p-sortIcon [field]="col" /></th>
@@ -61,7 +60,7 @@
   </ng-template>
   <ng-template #body let-entry let-columns="columns">
     <tr>
-      <td class="justify-center" style="min-width: 10rem; max-width: 10rem">
+      <td class="justify-center min-w-40 max-w-40">
         <p-button
           label="{{ 'APPLY' | translate }}"
           (onClick)="selectItem(entry)"

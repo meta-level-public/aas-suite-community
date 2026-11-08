@@ -31,7 +31,7 @@ COPY services/aas-designer/AasDesignerSystemManagementApi/AasDesignerSystemManag
 
 # Restore dependencies.
 WORKDIR /src/services/aas-designer/AasDesignerApi.Enterprise
-RUN dotnet restore -a $TARGETARCH
+RUN dotnet restore --os linux-musl -a $TARGETARCH
 
 # Copy remaining source files.
 WORKDIR /src
@@ -47,17 +47,16 @@ RUN echo '{"sdk":{"version":"10.0.100","rollForward":"latestPreview","allowPrere
 FROM build AS publish
 ARG TARGETARCH
 WORKDIR /src/services/aas-designer/AasDesignerApi.Enterprise
-RUN dotnet publish -c Release -o /app/publish /p:RunNSwag=false /p:GenerateDocumentationFile=false -a $TARGETARCH
+RUN dotnet publish -c Release -o /app/publish /p:RunNSwag=false /p:GenerateDocumentationFile=false --os linux-musl -a $TARGETARCH
 
 # Runtime stage
-FROM mcr.microsoft.com/dotnet/aspnet:10.0 AS final
+FROM mcr.microsoft.com/dotnet/aspnet:10.0-alpine AS final
 WORKDIR /app
-
-RUN rm -rf /var/lib/apt/lists/* \
-    && apt-get update -o Acquire::Retries=3 \
-    && apt-get install -y --no-install-recommends curl libgssapi-krb5-2 \
-    && apt-get clean \
-    && rm -rf /var/lib/apt/lists/*
+# Alpine instead of Ubuntu: current OpenSSL and fewer open CVEs in the base image.
+# icu-libs/tzdata: cultures (e.g. "de") and time zones; the Alpine image defaults to invariant globalization.
+RUN apk upgrade --no-cache \
+    && apk add --no-cache icu-libs tzdata curl krb5-libs
+ENV DOTNET_SYSTEM_GLOBALIZATION_INVARIANT=false
 
 COPY --from=publish /app/publish .
 

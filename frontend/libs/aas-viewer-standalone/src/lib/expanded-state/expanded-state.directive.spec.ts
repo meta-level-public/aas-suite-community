@@ -5,7 +5,7 @@ import { Component, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { By } from '@angular/platform-browser';
 import { provideNoopAnimations } from '@angular/platform-browser/animations';
-import { Accordion, AccordionContent, AccordionHeader, AccordionPanel } from 'primeng/accordion';
+import { Accordion, AccordionContent, AccordionHeader, AccordionPanel } from '@openng/optimus-ui/accordion';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import { ViewerStoreService } from '../viewer-store.service';
 import { ExpandedStateDirective } from './expanded-state.directive';

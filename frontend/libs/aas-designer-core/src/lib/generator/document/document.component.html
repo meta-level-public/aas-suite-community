@@ -5,7 +5,7 @@
     [showSidebar]="documentNodes.length > 0"
     [contentCardClass]="'battery-handover-card document-guided-card'"
   >
-    <p generator-shell-intro class="text-lg battery-editor-page-copy mb-0" style="color: var(--p-text-muted-color)">
+    <p generator-shell-intro class="text-lg battery-editor-page-copy mb-0 text-muted-color">
       {{ pageDescriptionKey | translate }}
     </p>
 
@@ -34,6 +34,7 @@
 
     <div class="battery-editor-nav-actions" generator-shell-sidebar-actions>
       <p-button
+        severity="secondary"
         [fluid]="true"
         label="{{ 'BACK' | translate }}"
         (onClick)="prevPage()"

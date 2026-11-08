@@ -1,15 +1,16 @@
 <div class="card flex flex-col">
   <p-toolbar>
     <ng-template #start>
-      <!-- <p-button icon="pi pi-plus" class="mr-2"/>
-    <p-button icon="pi pi-print" class="mr-2"/>
-    <p-button icon="pi pi-upload" /> -->
+      <!-- <p-button [ariaLabel]="'ADD' | translate" icon="pi pi-plus" class="mr-2"/>
+    <p-button [ariaLabel]="'PRINT' | translate" icon="pi pi-print" class="mr-2"/>
+    <p-button [ariaLabel]="'UPLOAD' | translate" icon="pi pi-upload" /> -->
     </ng-template>
     <ng-template #center>
-      <div style="width: 100rem">
+      <div class="w-[100rem]">
         <p-inputGroup>
           <p-inputGroupAddon>{{ 'INSTANCE_VIEWER_URL_OR_IP' | translate }}</p-inputGroupAddon>
           <input pInputText [(ngModel)]="inputUrl" (keydown.enter)="loadData()" appendTo="body" /><p-button
+            [ariaLabel]="'SEARCH' | translate"
             icon="pi pi-search"
             (onClick)="loadData()"
             [disabled]="inputUrl() === ''"

@@ -1,5 +1,5 @@
 import { SelectionCardComponent } from '@aas/aas-designer-shared';
-import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { Component, EventEmitter, Input, Output, ChangeDetectionStrategy } from '@angular/core';
 import { TranslateModule } from '@ngx-translate/core';
 
 @Component({
@@ -7,6 +7,7 @@ import { TranslateModule } from '@ngx-translate/core';
   imports: [TranslateModule, SelectionCardComponent],
   templateUrl: './battery-passport-assistant.html',
   styleUrl: './battery-passport-assistant.scss',
+  changeDetection: ChangeDetectionStrategy.Eager,
   host: {
     class: 'block h-full w-full',
   },

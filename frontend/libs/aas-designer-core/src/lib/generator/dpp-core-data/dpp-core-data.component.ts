@@ -1,9 +1,9 @@
 import { SemanticIdHelper } from '@aas/helpers';
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import { Router } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
 import { DppPcfEntry, DppPcfEntryType } from 'battery-passport-assistant';
-import { Button } from 'primeng/button';
+import { Button } from '@openng/optimus-ui/button';
 import { PcfEntryAssistantComponent } from '../../general/pcf-entry-assistant/pcf-entry-assistant.component';
 import { GeneratorPageShellComponent } from '../generator-page-shell/generator-page-shell.component';
 import { GeneratorService } from '../generator.service';
@@ -15,6 +15,7 @@ import { GeneratorService } from '../generator.service';
   host: {
     class: 'flex flex-col flex-1',
   },
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [Button, TranslateModule, PcfEntryAssistantComponent, GeneratorPageShellComponent],
 })
 export class DppCoreDataComponent implements OnInit {

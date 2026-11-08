@@ -2,7 +2,7 @@ import * as aas from '@aas-core-works/aas-core3.1-typescript';
 import { signal } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { TranslateModule } from '@ngx-translate/core';
-import { MessageService } from 'primeng/api';
+import { MessageService } from '@openng/optimus-ui/api';
 import { ViewerStoreService } from '../../viewer-store.service';
 import { CircularityViewerComponent } from './circularity-viewer.component';
 import { createCircularityExampleSubmodel } from './circularity-viewer.fixture';

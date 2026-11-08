@@ -5,7 +5,19 @@ import {
   SubmodelElementCollection,
 } from '@aas-core-works/aas-core3.1-typescript/types';
 import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
-import { Component, inject, input, Input, model, OnChanges, OnDestroy, OnInit, output, signal } from '@angular/core';
+import {
+  Component,
+  inject,
+  input,
+  Input,
+  model,
+  OnChanges,
+  OnDestroy,
+  OnInit,
+  output,
+  signal,
+  ChangeDetectionStrategy,
+} from '@angular/core';
 import { lastValueFrom } from 'rxjs';
 
 import * as aas from '@aas-core-works/aas-core3.1-typescript';
@@ -17,18 +29,18 @@ import { jsonization } from '@aas-core-works/aas-core3.1-typescript';
 import { HelpLabelComponent } from '@aas/common-components';
 import { FormsModule } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
-import { Button } from 'primeng/button';
-import { Card } from 'primeng/card';
-import { UIChart } from 'primeng/chart';
-import { DatePicker } from 'primeng/datepicker';
-import { InputGroup } from 'primeng/inputgroup';
-import { InputGroupAddon } from 'primeng/inputgroupaddon';
-import { InputNumber } from 'primeng/inputnumber';
-import { InputText } from 'primeng/inputtext';
-import { Message } from 'primeng/message';
-import { MultiSelect } from 'primeng/multiselect';
-import { Select } from 'primeng/select';
-import { ToggleSwitch } from 'primeng/toggleswitch';
+import { Button } from '@openng/optimus-ui/button';
+import { Card } from '@openng/optimus-ui/card';
+import { UIChart } from '@openng/optimus-ui/chart';
+import { DatePicker } from '@openng/optimus-ui/datepicker';
+import { InputGroup } from '@openng/optimus-ui/inputgroup';
+import { InputGroupAddon } from '@openng/optimus-ui/inputgroupaddon';
+import { InputNumber } from '@openng/optimus-ui/inputnumber';
+import { InputText } from '@openng/optimus-ui/inputtext';
+import { Message } from '@openng/optimus-ui/message';
+import { MultiSelect } from '@openng/optimus-ui/multiselect';
+import { Select } from '@openng/optimus-ui/select';
+import { ToggleSwitch } from '@openng/optimus-ui/toggleswitch';
 import { ViewerStoreService } from '../../viewer-store.service';
 
 type LinkedSegmentOption = { label: string; segmentIdShort: string; url: string; query: string };
@@ -52,6 +64,7 @@ type ViewerSelectionSnapshot = {
 @Component({
   selector: 'aas-time-series-viewer',
   templateUrl: './time-series-viewer.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [
     Card,
     HelpLabelComponent,
@@ -504,8 +517,7 @@ export class TimeSeriesViewerComponent implements OnInit, OnChanges, OnDestroy {
             reader.readAsArrayBuffer(blob);
           });
         } catch (e) {
-          // eslint-disable-next-line no-console
-          console.log(e);
+          console.error(e);
           this.hasLoadingError.set(true);
           this.notificationService.showMessageAlways('LOADING_EXTERNAL_DATA_ERROR', 'info');
         }
@@ -529,8 +541,7 @@ export class TimeSeriesViewerComponent implements OnInit, OnChanges, OnDestroy {
           );
           this.hasLoadingError.set(false);
         } catch (e) {
-          // eslint-disable-next-line no-console
-          console.log(e);
+          console.error(e);
           this.hasLoadingError.set(true);
         }
       }
@@ -549,8 +560,7 @@ export class TimeSeriesViewerComponent implements OnInit, OnChanges, OnDestroy {
           );
           this.hasLoadingError.set(false);
         } catch (e) {
-          // eslint-disable-next-line no-console
-          console.log(e);
+          console.error(e);
           this.hasLoadingError.set(true);
         }
       }
@@ -632,8 +642,6 @@ export class TimeSeriesViewerComponent implements OnInit, OnChanges, OnDestroy {
   }
 
   ngOnDestroy(): void {
-    // eslint-disable-next-line no-console
-    console.log('destroyed');
     this.resetAutorerefresh();
   }
 
@@ -673,8 +681,7 @@ export class TimeSeriesViewerComponent implements OnInit, OnChanges, OnDestroy {
         this.timeSeries = jsonization.submodelFromJsonable(res).value;
         this.rebuildViewerState();
       } catch (e) {
-        // eslint-disable-next-line no-console
-        console.log(e);
+        console.error(e);
       }
     }
 

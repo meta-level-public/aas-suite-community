@@ -65,7 +65,7 @@ namespace AasDesignerAasApi.Controllers
         [AasDesignerAuthorize(
             RequiredRoles = [AuthRoles.BENUTZER, AuthRoles.ORGA_ADMIN, AuthRoles.SYSTEM_ADMIN]
         )]
-        public async Task<string> GetSmPlain(string smIdentifier)
+        public async Task<ActionResult<string>> GetSmPlain(string smIdentifier)
         {
             if (HttpContext.Items[AasDesignerConstants.APP_USER] is not AppUser benutzer)
                 throw new UserNotFoundException();
@@ -74,7 +74,7 @@ namespace AasDesignerAasApi.Controllers
 
             var command = new GetSmPlainQuery { AppUser = benutzer, SmIdentifier = smIdentifier };
 
-            return await mediator.Send(command);
+            return await UpstreamActionResult.ExecuteAsync(() => mediator.Send(command));
         }
 
         [HttpPost]

@@ -2,9 +2,9 @@ import * as aas from '@aas-core-works/aas-core3.1-typescript';
 import { VerificationError } from '@aas-core-works/aas-core3.1-typescript/verification';
 import { HelpLabelComponent } from '@aas/common-components';
 import { NgClass } from '@angular/common';
-import { Component, Input } from '@angular/core';
+import { Component, Input, ChangeDetectionStrategy } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { Select } from 'primeng/select';
+import { Select } from '@openng/optimus-ui/select';
 import { Info } from '../../../general/model/info-item';
 import { V3TreeItem } from '../../model/v3-tree-item';
 import { ErrorLineComponent } from '../error-line/error-line.component';
@@ -13,6 +13,7 @@ import { ErrorHandlingAction, V3ComponentBase } from '../v3-component-base';
 @Component({
   selector: 'aas-v3-category',
   templateUrl: './v3-category.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [HelpLabelComponent, Select, FormsModule, NgClass, ErrorLineComponent],
 })
 export class V3CategoryComponent extends V3ComponentBase {

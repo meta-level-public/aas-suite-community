@@ -11,15 +11,15 @@ import {
   OnDestroy,
   inject,
 } from '@angular/core';
-import { TranslateModule } from '@ngx-translate/core';
-import { Accordion, AccordionContent, AccordionHeader, AccordionPanel } from 'primeng/accordion';
-import { PrimeTemplate } from 'primeng/api';
-import { InputGroup } from 'primeng/inputgroup';
-import { InputGroupAddon } from 'primeng/inputgroupaddon';
-import { InputText } from 'primeng/inputtext';
-import { Button } from 'primeng/button';
-import { TableModule } from 'primeng/table';
-import { Tag } from 'primeng/tag';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
+import { Accordion, AccordionContent, AccordionHeader, AccordionPanel } from '@openng/optimus-ui/accordion';
+import { PrimeTemplate } from '@openng/optimus-ui/api';
+import { InputGroup } from '@openng/optimus-ui/inputgroup';
+import { InputGroupAddon } from '@openng/optimus-ui/inputgroupaddon';
+import { InputText } from '@openng/optimus-ui/inputtext';
+import { Button } from '@openng/optimus-ui/button';
+import { TableModule } from '@openng/optimus-ui/table';
+import { Tag } from '@openng/optimus-ui/tag';
 import { GenericViewerComponent } from '../../generic-viewer/generic-viewer.component';
 import { SubmodelHeroHeaderComponent } from '../../shared/submodel-hero-header/submodel-hero-header.component';
 import { ViewerStoreService } from '../../viewer-store.service';
@@ -88,6 +88,7 @@ type CapabilitySetGroup = {
 export class CapabilityDescriptionViewerComponent implements OnChanges, OnDestroy {
   viewerStore = inject(ViewerStoreService);
   private readonly cdr = inject(ChangeDetectorRef);
+  private readonly translate = inject(TranslateService);
   private renderToken = 0;
 
   @Input({ required: true }) submodel: aas.types.Submodel | undefined;
@@ -107,7 +108,7 @@ export class CapabilityDescriptionViewerComponent implements OnChanges, OnDestro
   loading = false;
 
   get headerTitle(): string {
-    return 'Capability Description';
+    return this.translate.instant('MARKT_SUBMODEL_CAPABILITY_DESC');
   }
 
   get headerIconClass(): string {
@@ -472,12 +473,24 @@ export class CapabilityDescriptionViewerComponent implements OnChanges, OnDestro
     idShortPath: string;
   }> {
     if (ref == null) {
-      return { element: null, submodelId: '', displayPath: '', hint: 'Keine Referenz vorhanden', idShortPath: '' };
+      return {
+        element: null,
+        submodelId: '',
+        displayPath: '',
+        hint: this.translate.instant('CAPABILITY_HINT_NO_REFERENCE'),
+        idShortPath: '',
+      };
     }
 
     const keys = ref.keys ?? [];
     if (keys.length === 0) {
-      return { element: null, submodelId: '', displayPath: '', hint: 'Leere Referenz', idShortPath: '' };
+      return {
+        element: null,
+        submodelId: '',
+        displayPath: '',
+        hint: this.translate.instant('CAPABILITY_HINT_EMPTY_REFERENCE'),
+        idShortPath: '',
+      };
     }
 
     const submodelKey = keys.find((k) => this.normalizedKeyType(k.type) === 'submodel');
@@ -505,7 +518,7 @@ export class CapabilityDescriptionViewerComponent implements OnChanges, OnDestro
         element: null,
         submodelId,
         displayPath,
-        hint: 'Pfad konnte nicht geparst werden',
+        hint: this.translate.instant('CAPABILITY_HINT_PATH_NOT_PARSED'),
         idShortPath: idShortParts.join('.'),
       };
     }
@@ -516,7 +529,7 @@ export class CapabilityDescriptionViewerComponent implements OnChanges, OnDestro
         element: null,
         submodelId,
         displayPath,
-        hint: 'Submodel nicht im Viewer geladen',
+        hint: this.translate.instant('CAPABILITY_HINT_SUBMODEL_NOT_LOADED'),
         idShortPath: idShortParts.join('.'),
       };
     }
@@ -531,7 +544,7 @@ export class CapabilityDescriptionViewerComponent implements OnChanges, OnDestro
           element: null,
           submodelId: sm.sm.id,
           displayPath,
-          hint: `Element "${part}" nicht gefunden`,
+          hint: this.translate.instant('CAPABILITY_HINT_ELEMENT_NOT_FOUND', { element: part }),
           idShortPath: idShortParts.join('.'),
         };
       }
@@ -542,7 +555,7 @@ export class CapabilityDescriptionViewerComponent implements OnChanges, OnDestro
             element: null,
             submodelId: sm.sm.id,
             displayPath,
-            hint: `Element "${parsed.idShort}" ist keine SubmodelElementList`,
+            hint: this.translate.instant('CAPABILITY_HINT_NOT_A_LIST', { element: parsed.idShort }),
             idShortPath: idShortParts.join('.'),
           };
         }
@@ -552,7 +565,10 @@ export class CapabilityDescriptionViewerComponent implements OnChanges, OnDestro
             element: null,
             submodelId: sm.sm.id,
             displayPath,
-            hint: `Index ${parsed.index} außerhalb der Liste "${parsed.idShort}"`,
+            hint: this.translate.instant('CAPABILITY_HINT_INDEX_OUT_OF_RANGE', {
+              index: parsed.index,
+              list: parsed.idShort,
+            }),
             idShortPath: idShortParts.join('.'),
           };
         }

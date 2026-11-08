@@ -1,23 +1,24 @@
 import { PaymentModel } from '@aas-designer-model';
 import { AppConfigService, PortalService } from '@aas/common-services';
 import { emailRegEx } from '@aas/model';
-import { Component, Input, model, OnInit, ViewChild } from '@angular/core';
+import { Component, Input, model, OnInit, ViewChild, ChangeDetectionStrategy } from '@angular/core';
 import { FormsModule, NgForm } from '@angular/forms';
 import { ContactService } from '../contact.service';
 
 import { AasEmailValidator, CountryCodeComponent } from '@aas/common-components';
 import { AutocompleteOffDirective } from '@aas/helpers';
 import { TranslateModule } from '@ngx-translate/core';
-import { PrimeTemplate } from 'primeng/api';
-import { Checkbox } from 'primeng/checkbox';
-import { InputText } from 'primeng/inputtext';
-import { Select } from 'primeng/select';
-import { Textarea } from 'primeng/textarea';
+import { PrimeTemplate } from '@openng/optimus-ui/api';
+import { Checkbox } from '@openng/optimus-ui/checkbox';
+import { InputText } from '@openng/optimus-ui/inputtext';
+import { Select } from '@openng/optimus-ui/select';
+import { Textarea } from '@openng/optimus-ui/textarea';
 import { RequestData } from '../model/request-data';
 
 @Component({
   selector: 'aas-contact-request-offer',
   templateUrl: './contact-request-offer.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [
     FormsModule,
     AutocompleteOffDirective,

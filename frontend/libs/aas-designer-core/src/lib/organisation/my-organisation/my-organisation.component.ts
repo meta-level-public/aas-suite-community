@@ -1,12 +1,12 @@
 import { ADDITIONAL_ORGANISATION_MENU_ITEMS, OrganisationMenuItemContext } from '@aas-designer-model';
 import { AccessService } from '@aas/common-services';
 import { AasInfrastructureClient, SystemConfigurationDto, SystemManagementClient } from '@aas/webapi-client';
-import { Component, effect, inject, OnInit, signal } from '@angular/core';
+import { Component, effect, inject, OnInit, signal, ChangeDetectionStrategy } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, NavigationEnd, Router, RouterModule } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
-import { TreeNode } from 'primeng/api';
-import { SplitterModule } from 'primeng/splitter';
+import { TreeNode } from '@openng/optimus-ui/api';
+import { SplitterModule } from '@openng/optimus-ui/splitter';
 import { lastValueFrom } from 'rxjs';
 import { filter } from 'rxjs/operators';
 import { SidebarTreeNavComponent } from '../../general/sidebar-tree-nav/sidebar-tree-nav.component';
@@ -16,6 +16,7 @@ import { OrganisationStateService } from '../organisation-state.service';
   selector: 'aas-my-organisation',
   imports: [SplitterModule, TranslateModule, RouterModule, SidebarTreeNavComponent],
   templateUrl: './my-organisation.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrls: ['../../../host.scss', './my-organisation.component.scss'],
 })
 export class MyOrganisationComponent implements OnInit {

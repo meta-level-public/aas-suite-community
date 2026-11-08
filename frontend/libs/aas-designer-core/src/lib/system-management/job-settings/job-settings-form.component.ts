@@ -1,16 +1,17 @@
 import { NotificationService } from '@aas/common-services';
-import { Component, inject, input, OnInit, signal } from '@angular/core';
+import { Component, inject, input, OnInit, signal, ChangeDetectionStrategy } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
-import { ButtonModule } from 'primeng/button';
-import { InputNumberModule } from 'primeng/inputnumber';
-import { ToggleSwitchModule } from 'primeng/toggleswitch';
+import { ButtonModule } from '@openng/optimus-ui/button';
+import { InputNumberModule } from '@openng/optimus-ui/inputnumber';
+import { ToggleSwitchModule } from '@openng/optimus-ui/toggleswitch';
 import { JobSettingsDto, JobSettingsService } from './job-settings.service';
 
 @Component({
   selector: 'aas-job-settings-form',
   templateUrl: './job-settings-form.component.html',
   imports: [TranslateModule, FormsModule, ButtonModule, InputNumberModule, ToggleSwitchModule],
+  changeDetection: ChangeDetectionStrategy.Eager,
   host: { class: 'flex flex-col flex-1 min-h-0 w-full' },
 })
 export class JobSettingsFormComponent implements OnInit {

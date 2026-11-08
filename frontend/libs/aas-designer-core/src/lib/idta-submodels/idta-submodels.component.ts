@@ -1,22 +1,25 @@
 import { FilenameHelper } from '@aas/helpers';
-import { Component, computed, effect, OnInit, signal } from '@angular/core';
+import { Component, computed, effect, OnInit, signal, ChangeDetectionStrategy } from '@angular/core';
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
-import { PrimeTemplate, TreeNode } from 'primeng/api';
-import { Splitter } from 'primeng/splitter';
+import { PrimeTemplate, TreeNode } from '@openng/optimus-ui/api';
+import { Splitter } from '@openng/optimus-ui/splitter';
 import { IdtaService } from './idta.service';
 
 import { TranslateModule } from '@ngx-translate/core';
 import { MarkdownComponent, provideMarkdown } from 'ngx-markdown';
-import 'prismjs';
-import 'prismjs/components/prism-json';
-import { Tooltip } from 'primeng/tooltip';
+import { Tooltip } from '@openng/optimus-ui/tooltip';
 import { SidebarTreeNavComponent } from '../general/sidebar-tree-nav/sidebar-tree-nav.component';
+import { loadPrismLanguages } from '../general/prism/prism-loader';
+
+// Load Prism (core + languages) for code highlighting in production builds
+void loadPrismLanguages('json');
 
 @Component({
   selector: 'aas-submodels',
   templateUrl: './idta-submodels.component.html',
   styleUrls: ['../../host.scss'],
   imports: [Splitter, PrimeTemplate, Tooltip, MarkdownComponent, TranslateModule, SidebarTreeNavComponent],
+  changeDetection: ChangeDetectionStrategy.Eager,
   providers: [provideMarkdown()],
 })
 export class IdtaSubmodelsComponent implements OnInit {
@@ -52,8 +55,6 @@ export class IdtaSubmodelsComponent implements OnInit {
 
       // Check if node is selectable and is a file
       if (!node || !node.selectable) {
-        // eslint-disable-next-line no-console
-        console.log('Node not selectable', node);
         return;
       }
 
@@ -68,8 +69,6 @@ export class IdtaSubmodelsComponent implements OnInit {
       try {
         this.loading.set(true);
         const blob = await this.idtaService.getFile((node as any).fullPath);
-        // eslint-disable-next-line no-console
-        console.log('Loaded blob for node', node?.label, blob);
 
         if (!blob) return;
 
@@ -85,8 +84,7 @@ export class IdtaSubmodelsComponent implements OnInit {
             const formatted = JSON.stringify(parsed, null, 2);
             this.jsonData.set(formatted);
           } catch (e) {
-            // eslint-disable-next-line no-console
-            console.log(e);
+            console.error(e);
             this.jsonData.set('Error: Invalid JSON format');
           }
         } else if (FilenameHelper.isPdf(node.label)) {
@@ -94,8 +92,7 @@ export class IdtaSubmodelsComponent implements OnInit {
           this.fileUrl.set(url);
         }
       } catch (error) {
-        // eslint-disable-next-line no-console
-        console.log(error);
+        console.error(error);
       } finally {
         this.loading.set(false);
       }
@@ -106,8 +103,6 @@ export class IdtaSubmodelsComponent implements OnInit {
     this.loading.set(true);
     try {
       const treeData = await this.idtaService.getTree();
-      // eslint-disable-next-line no-console
-      console.log('Tree data loaded', treeData);
       // Generate unique keys for all nodes
       this.generateKeys(treeData);
       // Make all file nodes selectable
@@ -115,11 +110,6 @@ export class IdtaSubmodelsComponent implements OnInit {
       // Sort tree alphabetically
       this.sortTree(treeData);
       this.tree.set(treeData);
-
-      // Debug: Log Software Nameplate structure
-      const softwareNameplate = treeData.find((n: TreeNode) => n.label === 'Software Nameplate');
-      // eslint-disable-next-line no-console
-      console.log('Software Nameplate structure', softwareNameplate);
     } finally {
       this.loading.set(false);
     }
@@ -151,8 +141,6 @@ export class IdtaSubmodelsComponent implements OnInit {
         // This is a document file - make it selectable and mark as leaf
         node.selectable = true;
         node.leaf = true;
-        // eslint-disable-next-line no-console
-        console.log('File node made selectable:', node.label);
       } else {
         // This is a folder - not selectable
         node.selectable = false;

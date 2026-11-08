@@ -1,13 +1,13 @@
 import * as aas from '@aas-core-works/aas-core3.1-typescript';
 
-import { Component, Input, OnChanges, OnDestroy } from '@angular/core';
+import { Component, Input, OnChanges, OnDestroy, ChangeDetectionStrategy } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
-import { Button } from 'primeng/button';
-import { InputGroup } from 'primeng/inputgroup';
-import { InputGroupAddon } from 'primeng/inputgroupaddon';
-import { InputText } from 'primeng/inputtext';
-import { Message } from 'primeng/message';
+import { Button } from '@openng/optimus-ui/button';
+import { InputGroup } from '@openng/optimus-ui/inputgroup';
+import { InputGroupAddon } from '@openng/optimus-ui/inputgroupaddon';
+import { InputText } from '@openng/optimus-ui/inputtext';
+import { Message } from '@openng/optimus-ui/message';
 import { Subscription } from 'rxjs';
 import { NullIfEmptyDirective } from '../../../general/directives/null-if-empty.directive';
 import { LanguageService } from '@aas/aas-designer-shared';
@@ -16,6 +16,7 @@ type MultiLanguageProperty = aas.types.MultiLanguageProperty;
 @Component({
   selector: 'aas-v3-mlp-current-editor',
   templateUrl: './v3-mlp-current-editor.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [
     InputGroup,
     FormsModule,

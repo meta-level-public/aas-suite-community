@@ -74,7 +74,12 @@
                         }
                       }
                       <p-button
-                        styleClass="p-button-text p-button-outlined p-button-rounded mb-3"
+                        [ariaLabel]="'DELETE' | translate"
+                        severity="danger"
+                        [text]="true"
+                        [outlined]="true"
+                        [rounded]="true"
+                        styleClass="mb-3"
                         icon="pi pi-trash"
                         (onClick)="deleteVariable(input, 'in')"
                       ></p-button>
@@ -111,7 +116,12 @@
                         }
                       }
                       <p-button
-                        styleClass="p-button-text p-button-outlined p-button-rounded mb-3"
+                        [ariaLabel]="'DELETE' | translate"
+                        severity="danger"
+                        [text]="true"
+                        [outlined]="true"
+                        [rounded]="true"
+                        styleClass="mb-3"
                         icon="pi pi-trash"
                         (onClick)="deleteVariable(output, 'out')"
                       ></p-button>
@@ -148,7 +158,12 @@
                         }
                       }
                       <p-button
-                        styleClass="p-button-text p-button-outlined p-button-rounded mb-3"
+                        [ariaLabel]="'DELETE' | translate"
+                        severity="danger"
+                        [text]="true"
+                        [outlined]="true"
+                        [rounded]="true"
+                        styleClass="mb-3"
                         icon="pi pi-trash"
                         (onClick)="deleteVariable(inout, 'inout')"
                       ></p-button>

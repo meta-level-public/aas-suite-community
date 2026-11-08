@@ -1,0 +1,52 @@
+/*
+ * Status colors (success, warning, danger, info) for light and dark mode.
+ * Part of the viewer styles because the shared viewer components use them in every app (designer, markt, viewer-wc).
+ */
+:root {
+  --aas-danger-surface: color-mix(in srgb, var(--p-red-50) 84%, var(--p-surface-0));
+  --aas-danger-surface-strong: color-mix(in srgb, var(--p-red-100) 72%, var(--p-surface-0));
+  --aas-danger-border: color-mix(in srgb, var(--p-red-400) 45%, var(--p-content-border-color));
+  --aas-danger-text: var(--p-red-700);
+  --aas-danger-icon: var(--p-red-500);
+  --aas-warning-surface: color-mix(in srgb, var(--p-amber-50) 84%, var(--p-surface-0));
+  --aas-warning-border: color-mix(in srgb, var(--p-amber-400) 45%, var(--p-content-border-color));
+  --aas-warning-text: var(--p-amber-900);
+  --aas-warning-icon: var(--p-amber-700);
+  --aas-success-surface: color-mix(in srgb, var(--p-green-50) 84%, var(--p-surface-0));
+  --aas-success-surface-strong: color-mix(in srgb, var(--p-green-100) 72%, var(--p-surface-0));
+  --aas-success-border: color-mix(in srgb, var(--p-green-400) 45%, var(--p-content-border-color));
+  --aas-success-text: var(--p-green-700);
+  --aas-success-icon: var(--p-green-500);
+  --aas-info-surface: color-mix(in srgb, var(--p-blue-50) 84%, var(--p-surface-0));
+  --aas-info-border: color-mix(in srgb, var(--p-blue-400) 45%, var(--p-content-border-color));
+  --aas-info-text: var(--p-blue-700);
+  --aas-info-icon: var(--p-blue-500);
+}
+
+/* Status colors on dark surfaces: tinted backgrounds and light text instead of pastel boxes */
+html.my-app-dark {
+  --aas-danger-surface: color-mix(in srgb, var(--p-red-500) 14%, var(--p-content-background));
+  --aas-danger-surface-strong: color-mix(in srgb, var(--p-red-500) 24%, var(--p-content-background));
+  --aas-danger-border: color-mix(in srgb, var(--p-red-400) 45%, var(--p-content-border-color));
+  --aas-danger-text: var(--p-red-300);
+  --aas-danger-icon: var(--p-red-400);
+  --aas-warning-surface: color-mix(in srgb, var(--p-amber-500) 14%, var(--p-content-background));
+  --aas-warning-border: color-mix(in srgb, var(--p-amber-400) 45%, var(--p-content-border-color));
+  --aas-warning-text: var(--p-amber-200);
+  --aas-warning-icon: var(--p-amber-400);
+  --aas-success-surface: color-mix(in srgb, var(--p-green-500) 14%, var(--p-content-background));
+  --aas-success-surface-strong: color-mix(in srgb, var(--p-green-500) 24%, var(--p-content-background));
+  --aas-success-border: color-mix(in srgb, var(--p-green-400) 45%, var(--p-content-border-color));
+  --aas-success-text: var(--p-green-300);
+  --aas-success-icon: var(--p-green-400);
+  --aas-info-surface: color-mix(in srgb, var(--p-blue-500) 14%, var(--p-content-background));
+  --aas-info-border: color-mix(in srgb, var(--p-blue-400) 45%, var(--p-content-border-color));
+  --aas-info-text: var(--p-blue-300);
+  --aas-info-icon: var(--p-blue-400);
+}
+
+/* Status text and the marker for required form fields, based on the status colors above */
+.aas-text-danger,
+.aas-required-marker {
+  color: var(--aas-danger-text);
+}

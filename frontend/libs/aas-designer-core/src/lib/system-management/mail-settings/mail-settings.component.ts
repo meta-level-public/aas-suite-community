@@ -1,14 +1,14 @@
 import { NotificationService } from '@aas/common-services';
-import { Component, inject, OnInit, signal } from '@angular/core';
+import { Component, inject, OnInit, signal, ChangeDetectionStrategy } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
-import { MessageService } from 'primeng/api';
-import { Button } from 'primeng/button';
-import { Checkbox } from 'primeng/checkbox';
-import { InputGroupModule } from 'primeng/inputgroup';
-import { InputGroupAddonModule } from 'primeng/inputgroupaddon';
-import { InputTextModule } from 'primeng/inputtext';
-import { PasswordModule } from 'primeng/password';
+import { MessageService } from '@openng/optimus-ui/api';
+import { Button } from '@openng/optimus-ui/button';
+import { Checkbox } from '@openng/optimus-ui/checkbox';
+import { InputGroupModule } from '@openng/optimus-ui/inputgroup';
+import { InputGroupAddonModule } from '@openng/optimus-ui/inputgroupaddon';
+import { InputTextModule } from '@openng/optimus-ui/inputtext';
+import { PasswordModule } from '@openng/optimus-ui/password';
 import { showSystemManagementError } from '../shared/system-management-error.util';
 import { MailSettingsDto, MailSettingsService } from './mail-settings.service';
 
@@ -24,6 +24,7 @@ import { MailSettingsDto, MailSettingsService } from './mail-settings.service';
     InputTextModule,
     PasswordModule,
   ],
+  changeDetection: ChangeDetectionStrategy.Eager,
   templateUrl: './mail-settings.component.html',
 })
 export class MailSettingsComponent implements OnInit {

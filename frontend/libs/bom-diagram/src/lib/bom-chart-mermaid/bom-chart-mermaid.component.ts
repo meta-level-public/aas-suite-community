@@ -25,31 +25,45 @@ import {
   OnDestroy,
   OnInit,
   Output,
-  SimpleChanges,
+  type SimpleChanges,
   ViewChild,
+  ChangeDetectionStrategy,
 } from '@angular/core';
 
 import { Property } from '@aas/model';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
-import cytoscape from 'cytoscape';
-// @ts-expect-error package has no maintained type declarations
-import cytoscapeDagre from 'cytoscape-dagre';
-// @ts-expect-error package has no maintained type declarations
-import cytoscapeSvg from 'cytoscape-svg';
-import { ButtonModule } from 'primeng/button';
-import { DialogService, DynamicDialogRef } from 'primeng/dynamicdialog';
-import { TooltipModule } from 'primeng/tooltip';
+import type cytoscape from 'cytoscape';
+import { ButtonModule } from '@openng/optimus-ui/button';
+import { DialogService, DynamicDialogRef } from '@openng/optimus-ui/dynamicdialog';
+import { TooltipModule } from '@openng/optimus-ui/tooltip';
 import { v4 as guid } from 'uuid';
 import { BomEntityDialogComponent } from './bom-entity-dialog/bom-entity-dialog.component';
 import { InitBomAssistantComponent } from './init-bom-assistant/init-bom-assistant.component';
 
-cytoscape.use(cytoscapeDagre as any);
-cytoscape.use(cytoscapeSvg as any);
+// cytoscape (+ plugins, ~700 kB) is loaded on first render so the editor chunk does not carry it
+let cytoscapeLoader: Promise<typeof cytoscape> | undefined;
+
+function loadCytoscape(): Promise<typeof cytoscape> {
+  cytoscapeLoader ??= Promise.all([
+    import('cytoscape'),
+    // @ts-expect-error package has no maintained type declarations
+    import('cytoscape-dagre'),
+    // @ts-expect-error package has no maintained type declarations
+    import('cytoscape-svg'),
+  ]).then(([cytoscapeModule, dagreModule, svgModule]) => {
+    const lib = cytoscapeModule.default;
+    lib.use(dagreModule.default as any);
+    lib.use(svgModule.default as any);
+    return lib;
+  });
+  return cytoscapeLoader;
+}
 
 @Component({
   selector: 'aas-bom-hierarchy-chart',
   imports: [TranslateModule, ButtonModule, TooltipModule],
   templateUrl: './bom-chart-mermaid.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrls: ['./bom-chart-mermaid.component.scss'],
 })
 export class BomHierarchyChartComponent implements OnChanges, OnInit, AfterViewInit, OnDestroy {
@@ -74,6 +88,7 @@ export class BomHierarchyChartComponent implements OnChanges, OnInit, AfterViewI
   ref: DynamicDialogRef | undefined | null;
 
   private cy: cytoscape.Core | undefined;
+  private cytoscapeRenderToken = 0;
   private pendingRender = false;
   private lastTapItemId: string | null = null;
   private lastTapAt = 0;
@@ -150,7 +165,7 @@ export class BomHierarchyChartComponent implements OnChanges, OnInit, AfterViewI
 
     this.resetGraphModel();
     this.convertToGraphRecursive(resolvedEntryNode, null, null);
-    this.renderCytoscape();
+    void this.renderCytoscape();
     this.cdRef.markForCheck();
   }
 
@@ -168,7 +183,12 @@ export class BomHierarchyChartComponent implements OnChanges, OnInit, AfterViewI
     this.reparentArmedItemId = null;
   }
 
-  private renderCytoscape() {
+  private async renderCytoscape() {
+    const renderToken = ++this.cytoscapeRenderToken;
+    const cytoscape = await loadCytoscape();
+    // a newer render or destroyGraph() happened while cytoscape was loading
+    if (renderToken !== this.cytoscapeRenderToken) return;
+
     const container = this.chartContainer?.nativeElement;
     if (!container) return;
 
@@ -312,6 +332,7 @@ export class BomHierarchyChartComponent implements OnChanges, OnInit, AfterViewI
       this.cy.zoom(readableMinZoom);
       this.cy.center();
     }
+    this.cdRef.markForCheck();
   }
 
   private buildCytoscapeElements(): cytoscape.ElementDefinition[] {
@@ -392,6 +413,7 @@ export class BomHierarchyChartComponent implements OnChanges, OnInit, AfterViewI
   }
 
   private destroyGraph() {
+    this.cytoscapeRenderToken++;
     if (this.cy) {
       this.cy.destroy();
       this.cy = undefined;
@@ -995,7 +1017,7 @@ export class BomHierarchyChartComponent implements OnChanges, OnInit, AfterViewI
 
   createRootEntity(reinitialize = false) {
     this.ref = this.dialogService.open(InitBomAssistantComponent, {
-      header: 'Create BOM',
+      header: this.translate.instant('CREATE_BOM'),
       width: '90vw',
       modal: true,
       closable: true,

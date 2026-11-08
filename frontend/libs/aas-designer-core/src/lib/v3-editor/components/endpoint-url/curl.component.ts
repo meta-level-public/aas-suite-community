@@ -1,17 +1,20 @@
 import { Clipboard } from '@angular/cdk/clipboard';
 
-import { Component, computed, inject, input } from '@angular/core';
+import { Component, computed, inject, input, ChangeDetectionStrategy } from '@angular/core';
 import { TranslateModule } from '@ngx-translate/core';
 import { NotificationService } from '@aas/common-services';
 import { MarkdownModule, provideMarkdown } from 'ngx-markdown';
-import 'prismjs';
-import 'prismjs/components/prism-bash';
-import { ButtonModule } from 'primeng/button';
+import { ButtonModule } from '@openng/optimus-ui/button';
+import { loadPrismLanguages } from '../../../general/prism/prism-loader';
+
+// Load Prism (core + languages) for code highlighting in production builds
+void loadPrismLanguages('bash');
 
 @Component({
   selector: 'aas-curl',
   imports: [TranslateModule, ButtonModule, MarkdownModule],
   providers: [provideMarkdown()],
+  changeDetection: ChangeDetectionStrategy.Eager,
   templateUrl: './curl.component.html',
 })
 export class CurlComponent {

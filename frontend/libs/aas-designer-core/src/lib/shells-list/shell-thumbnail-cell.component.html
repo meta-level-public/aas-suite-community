@@ -1,0 +1,18 @@
+<div class="thumb-cell" aasObserveVisibility (visible)="thumbnailVisible.emit(shellId())">
+  @if (thumb()?.thumbLoaded && !thumb()?.thumbError) {
+    <img
+      [src]="$safeNavigationMigration(thumb()?.fileUrl)"
+      class="shell-thumb"
+      [alt]="alt()"
+      loading="lazy"
+      decoding="async"
+      (error)="thumbnailError.emit(shellId())"
+    />
+  } @else if (thumb()?.thumbLoading) {
+    <p-skeleton width="50px" height="48px"></p-skeleton>
+  } @else {
+    <div class="shell-thumb-placeholder" [pTooltip]="'NO_DATA_FOUND' | translate" tooltipPosition="top">
+      <i class="pi pi-image"></i>
+    </div>
+  }
+</div>

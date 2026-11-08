@@ -27,7 +27,11 @@
             <span class="font-medium text-900 block mb-2">{{ 'NEW_IDENTIFIER' | translate }}</span>
             <p-inputGroup>
               <input pInputText [(ngModel)]="newAasIdentifier" class="w-25rem" nullIfEmpty />
-              <p-button (onClick)="generateAasIri()" icon="pi pi-sparkles"></p-button>
+              <p-button
+                [ariaLabel]="'GENERATE_ID' | translate"
+                (onClick)="generateAasIri()"
+                icon="pi pi-sparkles"
+              ></p-button>
             </p-inputGroup>
           </div>
           <div class="flex flex-row gap-2"></div>
@@ -116,6 +120,11 @@
     <aas-vec-lookup (selectedItem)="selectVec($event)"></aas-vec-lookup>
   }
   <ng-template #footer>
-    <p-button label="{{ 'CLOSE' | translate }}" icon="pi pi-check" (onClick)="showEclassSearch = false" />
+    <p-button
+      severity="secondary"
+      label="{{ 'CLOSE' | translate }}"
+      icon="pi pi-check"
+      (onClick)="showEclassSearch = false"
+    />
   </ng-template>
 </p-dialog>

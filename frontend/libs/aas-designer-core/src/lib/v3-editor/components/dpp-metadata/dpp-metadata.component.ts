@@ -2,18 +2,19 @@ import { NotificationService } from '@aas/common-services';
 import { Clipboard } from '@angular/cdk/clipboard';
 import { CommonModule } from '@angular/common';
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
-import { Component, computed, effect, inject, input, output, signal } from '@angular/core';
+import { Component, computed, effect, inject, input, output, signal, ChangeDetectionStrategy } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { Button } from 'primeng/button';
-import { Checkbox } from 'primeng/checkbox';
-import { Dialog } from 'primeng/dialog';
-import { InputGroup } from 'primeng/inputgroup';
-import { InputGroupAddon } from 'primeng/inputgroupaddon';
-import { InputText } from 'primeng/inputtext';
-import { Select } from 'primeng/select';
-import { Tooltip } from 'primeng/tooltip';
-import { TranslateModule } from '@ngx-translate/core';
+import { Button } from '@openng/optimus-ui/button';
+import { Checkbox } from '@openng/optimus-ui/checkbox';
+import { Dialog } from '@openng/optimus-ui/dialog';
+import { InputGroup } from '@openng/optimus-ui/inputgroup';
+import { InputGroupAddon } from '@openng/optimus-ui/inputgroupaddon';
+import { InputText } from '@openng/optimus-ui/inputtext';
+import { Select } from '@openng/optimus-ui/select';
+import { Tooltip } from '@openng/optimus-ui/tooltip';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { firstValueFrom } from 'rxjs';
+import { DPP_GRANULARITY_OPTIONS, DPP_STATUS_OPTIONS, DppStatus } from './dpp-metadata-options';
 
 export interface DppSubmodelOption {
   id: string;
@@ -31,8 +32,6 @@ interface DppMetadataSettings {
   contentSpecificationIds: string[];
   publicUrl: string | null;
 }
-
-type DppStatus = 'Draft' | 'Active' | 'Suspended' | 'Withdrawn';
 
 interface DppReadinessResult {
   ready: boolean;
@@ -55,12 +54,14 @@ interface DppReadinessResult {
     Tooltip,
     TranslateModule,
   ],
+  changeDetection: ChangeDetectionStrategy.Eager,
   templateUrl: './dpp-metadata.component.html',
 })
 export class DppMetadataComponent {
   private readonly http = inject(HttpClient);
   private readonly clipboard = inject(Clipboard);
   private readonly notificationService = inject(NotificationService);
+  private readonly translate = inject(TranslateService);
 
   aasId = input.required<string>();
   editable = input(false);
@@ -84,17 +85,8 @@ export class DppMetadataComponent {
   readinessError = '';
   readinessResult: DppReadinessResult | null = null;
   publicUrl = signal<string | null>(null);
-  readonly granularityOptions = [
-    { value: 'Item', label: 'DPP_GRANULARITY_ITEM' },
-    { value: 'Model', label: 'DPP_GRANULARITY_MODEL' },
-    { value: 'Batch', label: 'DPP_GRANULARITY_BATCH' },
-  ];
-  readonly statusOptions: { value: DppStatus; label: string }[] = [
-    { value: 'Draft', label: 'DPP_STATUS_DRAFT' },
-    { value: 'Active', label: 'DPP_STATUS_ACTIVE' },
-    { value: 'Suspended', label: 'DPP_STATUS_SUSPENDED' },
-    { value: 'Withdrawn', label: 'DPP_STATUS_WITHDRAWN' },
-  ];
+  readonly granularityOptions = DPP_GRANULARITY_OPTIONS;
+  readonly statusOptions = DPP_STATUS_OPTIONS;
 
   candidateCount = computed(
     () =>
@@ -191,7 +183,7 @@ export class DppMetadataComponent {
     } catch (error) {
       const response = error as HttpErrorResponse;
       this.readinessError =
-        typeof response.error === 'string' ? response.error : 'Die DPP-Bereitschaft konnte nicht geprüft werden.';
+        typeof response.error === 'string' ? response.error : this.translate.instant('DPP_READINESS_CHECK_FAILED');
     } finally {
       this.readinessLoading = false;
     }
@@ -230,7 +222,7 @@ export class DppMetadataComponent {
     } catch (error) {
       const response = error as HttpErrorResponse;
       this.error =
-        typeof response.error === 'string' ? response.error : 'DPP-Metadaten konnten nicht gespeichert werden.';
+        typeof response.error === 'string' ? response.error : this.translate.instant('DPP_METADATA_SAVE_FAILED');
     } finally {
       this.saving = false;
     }

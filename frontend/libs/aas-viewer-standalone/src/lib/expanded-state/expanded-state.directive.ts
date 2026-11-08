@@ -1,5 +1,5 @@
 import { computed, DestroyRef, Directive, effect, inject, input, untracked } from '@angular/core';
-import { Accordion } from 'primeng/accordion';
+import { Accordion } from '@openng/optimus-ui/accordion';
 import { ViewerStoreService } from '../viewer-store.service';
 
 /**

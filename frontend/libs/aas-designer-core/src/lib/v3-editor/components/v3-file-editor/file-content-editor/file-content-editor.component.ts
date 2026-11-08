@@ -6,33 +6,48 @@ import { FilenameHelper } from '@aas/helpers';
 import { ShellResult, SupplementalFile } from '@aas/model';
 import { CommonModule } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
-import { Component, computed, effect, inject, input, model, output, signal, viewChild } from '@angular/core';
+import {
+  Component,
+  computed,
+  effect,
+  inject,
+  input,
+  model,
+  output,
+  signal,
+  viewChild,
+  ChangeDetectionStrategy,
+} from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { DomSanitizer } from '@angular/platform-browser';
 import { TranslateModule } from '@ngx-translate/core';
 import { saveAs } from 'file-saver-es';
 import mime from 'mime';
 import { MarkdownModule, provideMarkdown } from 'ngx-markdown';
-import { ButtonModule } from 'primeng/button';
-import { DialogModule } from 'primeng/dialog';
-import { FileSelectEvent, FileUpload, FileUploadModule } from 'primeng/fileupload';
-import { InputGroupModule } from 'primeng/inputgroup';
-import { InputGroupAddonModule } from 'primeng/inputgroupaddon';
-import { InputTextModule } from 'primeng/inputtext';
-import { MessageModule } from 'primeng/message';
-import { Popover, PopoverModule } from 'primeng/popover';
-import { TableModule } from 'primeng/table';
-import { ToolbarModule } from 'primeng/toolbar';
-import { TooltipModule } from 'primeng/tooltip';
-import 'prismjs';
+import { ButtonModule } from '@openng/optimus-ui/button';
+import { DialogModule } from '@openng/optimus-ui/dialog';
+import { FileSelectEvent, FileUpload, FileUploadModule } from '@openng/optimus-ui/fileupload';
+import { InputGroupModule } from '@openng/optimus-ui/inputgroup';
+import { InputGroupAddonModule } from '@openng/optimus-ui/inputgroupaddon';
+import { InputTextModule } from '@openng/optimus-ui/inputtext';
+import { MessageModule } from '@openng/optimus-ui/message';
+import { Popover, PopoverModule } from '@openng/optimus-ui/popover';
+import { TableModule } from '@openng/optimus-ui/table';
+import { ToolbarModule } from '@openng/optimus-ui/toolbar';
+import { TooltipModule } from '@openng/optimus-ui/tooltip';
 import { lastValueFrom } from 'rxjs';
 import { V3TreeService } from '../../../v3-tree/v3-tree.service';
+import { loadPrismLanguages } from '../../../../general/prism/prism-loader';
+
+// Load Prism (core + languages) for code highlighting in production builds
+void loadPrismLanguages();
 
 @Component({
   selector: 'aas-file-content-editor',
   standalone: true,
   templateUrl: './file-content-editor.component.html',
   providers: [provideMarkdown()],
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [
     CommonModule,
     FormsModule,

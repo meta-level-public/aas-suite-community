@@ -1,11 +1,11 @@
 import * as aas from '@aas-core-works/aas-core3.1-typescript';
 import { CommonModule } from '@angular/common';
-import { Component, Input, OnChanges } from '@angular/core';
+import { Component, Input, OnChanges, ChangeDetectionStrategy } from '@angular/core';
 import { TranslateModule } from '@ngx-translate/core';
-import { InputGroup } from 'primeng/inputgroup';
-import { InputGroupAddon } from 'primeng/inputgroupaddon';
-import { InputText } from 'primeng/inputtext';
-import { Tag } from 'primeng/tag';
+import { InputGroup } from '@openng/optimus-ui/inputgroup';
+import { InputGroupAddon } from '@openng/optimus-ui/inputgroupaddon';
+import { InputText } from '@openng/optimus-ui/inputtext';
+import { Tag } from '@openng/optimus-ui/tag';
 
 type ChangelogEntry = {
   idShort: string;
@@ -20,6 +20,7 @@ type ChangelogEntry = {
   selector: 'aas-aas-designer-changelog-viewer',
   templateUrl: './aas-designer-changelog-viewer.component.html',
   styleUrls: ['./aas-designer-changelog-viewer.component.css'],
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [CommonModule, InputGroup, InputGroupAddon, InputText, Tag, TranslateModule],
 })
 export class AasDesignerChangelogViewerComponent implements OnChanges {

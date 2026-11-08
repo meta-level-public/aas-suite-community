@@ -2,18 +2,19 @@ import { ISubmodelElement } from '@aas-core-works/aas-core3.1-typescript/types';
 
 import { SafePipe } from '@aas/common-pipes';
 import { FilenameHelper } from '@aas/helpers';
-import { Component, EventEmitter, Input, OnChanges, Output } from '@angular/core';
+import { Component, EventEmitter, Input, OnChanges, Output, ChangeDetectionStrategy } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
 import { MarkdownComponent } from 'ngx-markdown';
-import { ButtonModule } from 'primeng/button';
-import { Message } from 'primeng/message';
-import { Select } from 'primeng/select';
+import { ButtonModule } from '@openng/optimus-ui/button';
+import { Message } from '@openng/optimus-ui/message';
+import { Select } from '@openng/optimus-ui/select';
 import { SelectDocumentFile } from '../select-document-file';
 
 @Component({
   selector: 'aas-handover-documentation-file',
   templateUrl: './handover-documentation-file.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [Select, FormsModule, ButtonModule, MarkdownComponent, Message, TranslateModule, SafePipe],
 })
 export class HandoverDocumentationFileComponent implements OnChanges {

@@ -1,7 +1,7 @@
 import * as aas from '@aas-core-works/aas-core3.1-typescript';
 import { AssetInformation } from '@aas-core-works/aas-core3.1-typescript/types';
 import { AsyncPipe, NgComponentOutlet } from '@angular/common';
-import { Component, EventEmitter, Input, Output, Type } from '@angular/core';
+import { Component, EventEmitter, Input, Output, Type, ChangeDetectionStrategy } from '@angular/core';
 import { SubmodelHeroHeaderComponent } from '../shared/submodel-hero-header/submodel-hero-header.component';
 import { AasDesignerChangelogViewerComponent } from '../specific-submodels/aas-designer-changelog-viewer/aas-designer-changelog-viewer.component';
 import { ArticleInformationViewerComponent } from '../specific-submodels/article-information-viewer/article-information-viewer.component';
@@ -35,6 +35,7 @@ import { SpecializedSubmodelViewerType, SubmodelViewerResolver } from '../submod
       }
     `,
   ],
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [
     AsyncPipe,
     NgComponentOutlet,

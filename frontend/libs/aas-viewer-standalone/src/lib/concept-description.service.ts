@@ -25,6 +25,12 @@ export class ConceptDescriptionService {
       return undefined;
     }
 
+    // Without a CD repository (e.g. viewer embedded in the editor without viewer descriptor) the
+    // relative URL would hit the host root and always fail.
+    if (server == null || server.trim() === '') {
+      return undefined;
+    }
+
     const pending = this.pendingLoads.get(id);
     if (pending != null) {
       return pending;

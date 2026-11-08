@@ -5,12 +5,12 @@ import { DateProxyPipe } from '@aas/common-pipes';
 import { ElementFinder, SemanticIdHelper } from '@aas/helpers';
 import { AsyncPipe, NgComponentOutlet } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
-import { Component, computed, inject, Input, OnChanges, signal, Type } from '@angular/core';
+import { Component, computed, inject, Input, OnChanges, signal, Type, ChangeDetectionStrategy } from '@angular/core';
 import { DomSanitizer, SafeUrl } from '@angular/platform-browser';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
-import { InputGroup } from 'primeng/inputgroup';
-import { InputGroupAddon } from 'primeng/inputgroupaddon';
-import { InputText } from 'primeng/inputtext';
+import { InputGroup } from '@openng/optimus-ui/inputgroup';
+import { InputGroupAddon } from '@openng/optimus-ui/inputgroupaddon';
+import { InputText } from '@openng/optimus-ui/inputtext';
 import { lastValueFrom } from 'rxjs';
 import { AasViewerService } from '../../aas-viewer.service';
 import { MarkingsViewerPlainComponent } from '../../markings-viewer-plain/markings-viewer-plain.component';
@@ -20,6 +20,7 @@ import { ViewerStoreService } from '../../viewer-store.service';
   selector: 'aas-nameplate-viewer',
   templateUrl: './nameplate-viewer.component.html',
   styleUrls: ['./nameplate-viewer.component.css'],
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [
     MarkingsViewerPlainComponent,
     AsyncPipe,

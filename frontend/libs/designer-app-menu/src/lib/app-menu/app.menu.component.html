@@ -6,12 +6,16 @@
     <div class="sidebar-header">
       <button
         pButton
-        [icon]="sidebarExpanded() ? 'pi pi-chevron-left' : 'pi pi-bars'"
-        class="p-button-text sidebar-toggle"
+        [text]="true"
+        class="sidebar-toggle"
         (click)="toggleSidebar()"
         [pTooltip]="sidebarExpanded() ? ('COLLAPSE' | translate) : ('EXPAND' | translate)"
+        [attr.aria-label]="sidebarExpanded() ? ('COLLAPSE' | translate) : ('EXPAND' | translate)"
+        [attr.aria-expanded]="sidebarExpanded()"
         tooltipPosition="right"
-      ></button>
+      >
+        <i pButtonIcon [class]="sidebarExpanded() ? 'pi pi-chevron-left' : 'pi pi-bars'"></i>
+      </button>
     </div>
 
     <nav class="sidebar-nav">

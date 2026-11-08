@@ -1,6 +1,6 @@
 import { Component, Input } from '@angular/core';
-import { TableModule } from 'primeng/table';
-import { PrimeTemplate } from 'primeng/api';
+import { TableModule } from '@openng/optimus-ui/table';
+import { PrimeTemplate } from '@openng/optimus-ui/api';
 
 import { OperationVariableComponent } from './operation-variable/operation-variable.component';
 import { TranslateModule } from '@ngx-translate/core';

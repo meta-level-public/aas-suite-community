@@ -11,8 +11,8 @@
   </div>
 
   <div class="flex-auto h-0">
-    <div style="position: relative; height: 100%">
-      <div style="position: absolute; height: 100%; width: 100%">
+    <div class="relative h-full">
+      <div class="absolute h-full w-full">
         <p-table
           #dt1
           [value]="productDesignations()"
@@ -32,24 +32,24 @@
         >
           <ng-template #header>
             <tr>
-              <th style="width: 10%"></th>
+              <th class="w-[10%]"></th>
               <th pSortableColumn="name">
                 <div class="inline-flex items-center gap-2">
-                  <i class="pi pi-tag text-sm" style="color: var(--p-text-muted-color)"></i>
+                  <i class="pi pi-tag text-sm text-muted-color"></i>
                   <span>{{ 'NAME' | translate }}</span>
                   <p-sortIcon field="name"></p-sortIcon>
                 </div>
               </th>
-              <th pSortableColumn="anlageDatum" style="width: 14rem; min-width: 14rem">
+              <th pSortableColumn="anlageDatum" class="w-56 min-w-56">
                 <div class="inline-flex items-center gap-2">
-                  <i class="pi pi-calendar-plus text-sm" style="color: var(--p-text-muted-color)"></i>
+                  <i class="pi pi-calendar-plus text-sm text-muted-color"></i>
                   <span>{{ 'ANGELEGT' | translate }}</span>
                   <p-sortIcon field="anlageDatum"></p-sortIcon>
                 </div>
               </th>
-              <th pSortableColumn="aenderungsDatum" style="width: 14rem; min-width: 14rem">
+              <th pSortableColumn="aenderungsDatum" class="w-56 min-w-56">
                 <div class="inline-flex items-center gap-2">
-                  <i class="pi pi-calendar text-sm" style="color: var(--p-text-muted-color)"></i>
+                  <i class="pi pi-calendar text-sm text-muted-color"></i>
                   <span>{{ 'GEAENDERT' | translate }}</span>
                   <p-sortIcon field="aenderungsDatum"></p-sortIcon>
                 </div>
@@ -60,8 +60,10 @@
             <tr>
               <td>
                 <p-button
+                  [ariaLabel]="'MORE_ACTIONS' | translate"
+                  [text]="true"
+                  severity="secondary"
                   icon="pi pi-ellipsis-v"
-                  styleClass="p-button-text p-button-secondary"
                   (onClick)="menu.toggle($event)"
                 ></p-button>
                 <p-menu
@@ -74,21 +76,21 @@
               </td>
               <td>
                 <div class="flex items-center gap-2">
-                  <i class="pi pi-bookmark text-sm" style="color: var(--aas-info-text)"></i>
+                  <i class="pi pi-bookmark text-sm text-[var(--aas-info-text)]"></i>
                   <span class="font-medium">{{ productDesignation.name }}</span>
                 </div>
               </td>
-              <td style="width: 14rem; min-width: 14rem">
+              <td class="w-56 min-w-56">
                 <div class="flex items-center gap-2">
-                  <i class="pi pi-clock text-xs" style="color: var(--p-text-muted-color)"></i>
+                  <i class="pi pi-clock text-xs text-muted-color"></i>
                   <span class="text-sm whitespace-nowrap">
                     {{ productDesignation.anlageDatum | vwsDate: 'SHORT_DATE_TIME' }}
                   </span>
                 </div>
               </td>
-              <td style="width: 14rem; min-width: 14rem">
+              <td class="w-56 min-w-56">
                 <div class="flex items-center gap-2">
-                  <i class="pi pi-clock text-xs" style="color: var(--p-text-muted-color)"></i>
+                  <i class="pi pi-clock text-xs text-muted-color"></i>
                   <span class="text-sm whitespace-nowrap">
                     {{ productDesignation.aenderungsDatum | vwsDate: 'SHORT_DATE_TIME' }}
                   </span>
@@ -107,22 +109,23 @@
 
         <!-- Add new Address -->
         @if (displayproductDesignationModal) {
-          <p-dialog header="Title" [(visible)]="displayproductDesignationModal" [style]="{ width: '60vw' }">
+          <p-dialog
+            [header]="'PRODUCT_DESIGNATION' | translate"
+            [(visible)]="displayproductDesignationModal"
+            [style]="{ width: '60vw' }"
+          >
             <ng-template #header>
               @if (productDesignationModalOption === 'new') {
                 <div class="flex flex-col">
                   <div class="flex items-center gap-3 mb-2">
-                    <div
-                      class="flex items-center justify-center w-12 h-12 rounded-full"
-                      style="background: var(--aas-info-surface)"
-                    >
-                      <i class="pi pi-tag text-xl" style="color: var(--aas-info-text)"></i>
+                    <div class="flex items-center justify-center w-12 h-12 rounded-full bg-[var(--aas-info-surface)]">
+                      <i class="pi pi-tag text-xl text-[var(--aas-info-text)]"></i>
                     </div>
-                    <div class="font-semibold" style="font-size: var(--aas-title-md)">
+                    <div class="font-semibold text-[length:var(--aas-title-md)]">
                       {{ 'ADD_PRODUCT_DESIGNATION' | translate }}
                     </div>
                   </div>
-                  <p class="text-sm ml-15" style="color: var(--p-text-muted-color)">
+                  <p class="text-sm ml-15 text-muted-color">
                     {{ 'PRODUCT_DESIGNATION_CREATE_DESCRIPTION' | translate }}
                   </p>
                 </div>
@@ -130,17 +133,14 @@
               @if (productDesignationModalOption === 'update') {
                 <div class="flex flex-col">
                   <div class="flex items-center gap-3 mb-2">
-                    <div
-                      class="flex items-center justify-center w-12 h-12 rounded-full"
-                      style="background: var(--aas-info-surface)"
-                    >
-                      <i class="pi pi-pencil text-xl" style="color: var(--aas-info-text)"></i>
+                    <div class="flex items-center justify-center w-12 h-12 rounded-full bg-[var(--aas-info-surface)]">
+                      <i class="pi pi-pencil text-xl text-[var(--aas-info-text)]"></i>
                     </div>
-                    <div class="font-semibold" style="font-size: var(--aas-title-md)">
+                    <div class="font-semibold text-[length:var(--aas-title-md)]">
                       {{ 'EDIT_PRODUCT_DESIGNATION' | translate }}
                     </div>
                   </div>
-                  <p class="text-sm ml-15" style="color: var(--p-text-muted-color)">
+                  <p class="text-sm ml-15 text-muted-color">
                     {{ 'PRODUCT_DESIGNATION_EDIT_DESCRIPTION' | translate }}
                   </p>
                 </div>
@@ -150,17 +150,16 @@
             <div class="flex flex-col gap-6 py-4">
               <!-- Name Section -->
               <div
-                class="p-4 rounded-lg border"
-                style="background: var(--aas-surface-subtle); border-color: var(--p-content-border-color)"
+                class="p-4 rounded-lg border bg-[var(--aas-surface-subtle)] border-[color:var(--p-content-border-color)]"
               >
                 <div class="flex items-center gap-2 mb-3">
-                  <i class="pi pi-key" style="color: var(--p-text-muted-color)"></i>
+                  <i class="pi pi-key text-muted-color"></i>
                   <div class="font-semibold text-base">
                     {{ 'NAME' | translate }}
-                    <span class="ml-1" style="color: var(--aas-danger-icon)">*</span>
+                    <span class="ml-1 text-[var(--aas-danger-icon)]">*</span>
                   </div>
                 </div>
-                <p class="text-sm mb-3" style="color: var(--p-text-muted-color)">
+                <p class="text-sm mb-3 text-muted-color">
                   {{ 'PRODUCT_DESIGNATION_NAME_HELP' | translate }}
                 </p>
                 <input
@@ -170,24 +169,21 @@
                   class="inputfield w-full"
                   name="NAME"
                   [(ngModel)]="productDesignationDialogEntry.name"
-                  placeholder="z.B. ABC-123"
+                  [placeholder]="'PRODUCT_DESIGNATION_NAME_PLACEHOLDER' | translate"
                   required
                 />
               </div>
 
               <!-- Multilingual Section -->
-              <div
-                class="p-4 rounded-lg border"
-                style="background: var(--aas-info-surface); border-color: var(--aas-info-border)"
-              >
+              <div class="p-4 rounded-lg border bg-[var(--aas-info-surface)] border-[color:var(--aas-info-border)]">
                 <div class="flex items-center gap-2 mb-3">
-                  <i class="pi pi-globe" style="color: var(--aas-info-text)"></i>
+                  <i class="pi pi-globe text-[var(--aas-info-text)]"></i>
                   <div class="font-semibold text-base">
                     {{ 'MULTILINGUAL_DESIGNATIONS' | translate }}
-                    <span class="ml-1" style="color: var(--aas-danger-icon)">*</span>
+                    <span class="ml-1 text-[var(--aas-danger-icon)]">*</span>
                   </div>
                 </div>
-                <p class="text-sm mb-4" style="color: var(--p-text-muted-color)">
+                <p class="text-sm mb-4 text-muted-color">
                   {{ 'MULTILINGUAL_DESIGNATIONS_HELP' | translate }}
                 </p>
                 <aas-v3-lang-string-list
@@ -208,7 +204,7 @@
                   <p-button
                     label="{{ 'CANCEL' | translate }}"
                     icon="pi pi-times"
-                    severity="danger"
+                    severity="secondary"
                     outlined="true"
                     (onClick)="displayproductDesignationModal = false"
                     [loading]="loading"
@@ -216,7 +212,6 @@
                   <p-button
                     label="{{ 'SAVE' | translate }}"
                     icon="pi pi-save"
-                    severity="success"
                     [disabled]="dataValid() === false"
                     (onClick)="saveNewproductDesignation()"
                     [loading]="loading"

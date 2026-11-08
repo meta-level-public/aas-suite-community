@@ -1,40 +1,40 @@
 import {
-    DataTypeDefXsd,
-    Entity,
-    EntityType,
-    ISubmodelElement,
-    Key,
-    KeyTypes,
-    Property,
-    Reference,
-    ReferenceTypes,
-    RelationshipElement,
-    SpecificAssetId,
-    Submodel,
+  DataTypeDefXsd,
+  Entity,
+  EntityType,
+  ISubmodelElement,
+  Key,
+  KeyTypes,
+  Property,
+  Reference,
+  ReferenceTypes,
+  RelationshipElement,
+  SpecificAssetId,
+  Submodel,
 } from '@aas-core-works/aas-core3.1-typescript/types';
 
-import { NotificationService } from '@aas/common-services';
-import { ChangeDetectorRef, Component, inject, input, Input, output } from '@angular/core';
+import { ID_SHORT_KEY_FILTER, isValidIdShort, NotificationService } from '@aas/common-services';
+import { ChangeDetectorRef, Component, inject, input, Input, output, ChangeDetectionStrategy } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
-import { ButtonModule } from 'primeng/button';
-import { DialogService } from 'primeng/dynamicdialog';
-import { FieldsetModule } from 'primeng/fieldset';
-import { InputGroupModule } from 'primeng/inputgroup';
-import { InputGroupAddonModule } from 'primeng/inputgroupaddon';
-import { InputTextModule } from 'primeng/inputtext';
-import { KeyFilterModule } from 'primeng/keyfilter';
-import { MessageModule } from 'primeng/message';
-import { SelectModule } from 'primeng/select';
-import { TableModule } from 'primeng/table';
+import { ButtonModule } from '@openng/optimus-ui/button';
+import { DialogService } from '@openng/optimus-ui/dynamicdialog';
+import { FieldsetModule } from '@openng/optimus-ui/fieldset';
+import { InputGroupModule } from '@openng/optimus-ui/inputgroup';
+import { InputGroupAddonModule } from '@openng/optimus-ui/inputgroupaddon';
+import { InputTextModule } from '@openng/optimus-ui/inputtext';
+import { KeyFilterModule } from '@openng/optimus-ui/keyfilter';
+import { MessageModule } from '@openng/optimus-ui/message';
+import { SelectModule } from '@openng/optimus-ui/select';
+import { TableModule } from '@openng/optimus-ui/table';
 import { SearchForAssetComponent } from '../search-for-asset/search-for-asset.component';
 import {
-    cloneKeys,
-    cloneSpecificAssetIds,
-    createUniqueSiblingIdShort,
-    entityHasExclusiveAssetReference,
-    entityHasRequiredAssetReference,
-    specificAssetIdsAreComplete,
+  cloneKeys,
+  cloneSpecificAssetIds,
+  createUniqueSiblingIdShort,
+  entityHasExclusiveAssetReference,
+  entityHasRequiredAssetReference,
+  specificAssetIdsAreComplete,
 } from '../utils/entity-asset-reference.util';
 
 @Component({
@@ -54,6 +54,7 @@ import {
     KeyFilterModule,
   ],
   templateUrl: './create-child-entity.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './create-child-entity.component.css',
 })
 export class CreateChildEntityComponent {
@@ -70,7 +71,7 @@ export class CreateChildEntityComponent {
   dialogService = inject(DialogService);
   translate = inject(TranslateService);
   cdRef = inject(ChangeDetectorRef);
-  idShortRegex = /[a-zA-Z0-9_]/;
+  idShortRegex = ID_SHORT_KEY_FILTER;
 
   newEntity: Entity;
   entityTypeOptions: { label: string; value: EntityType }[];
@@ -117,8 +118,7 @@ export class CreateChildEntityComponent {
           const keysForSecondEntity: Key[] = [...keysForParentEntity, new Key(KeyTypes.Entity, this.newEntity.idShort)];
           second = new Reference(ReferenceTypes.ModelReference, keysForSecondEntity);
         } else {
-          // eslint-disable-next-line no-console
-          console.log('No parent relationship found');
+          console.warn('No parent relationship found');
 
           const keysForParentEntity: Key[] = [
             new Key(KeyTypes.Submodel, this.submodel?.id ?? ''),
@@ -172,6 +172,7 @@ export class CreateChildEntityComponent {
   isNewEntityValid() {
     return (
       this.hasIdShort() &&
+      this.hasValidIdShort() &&
       this.specificAssetIdsValid() &&
       this.hasExclusiveAssetReference() &&
       this.hasRequiredAssetReference() &&
@@ -183,6 +184,10 @@ export class CreateChildEntityComponent {
 
   hasIdShort() {
     return this.newEntity?.idShort != null && this.newEntity.idShort.length > 0;
+  }
+
+  hasValidIdShort() {
+    return isValidIdShort(this.newEntity?.idShort);
   }
 
   hasDuplicateSiblingIdShort() {

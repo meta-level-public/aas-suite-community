@@ -1,4 +1,4 @@
-import { DialogService } from 'primeng/dynamicdialog';
+import { DialogService } from '@openng/optimus-ui/dynamicdialog';
 import { firstValueFrom } from 'rxjs';
 import { DialogFooter } from '../dialog-footer/dialog-footer.component';
 import { ShellSelectResult } from './shell-select-result';

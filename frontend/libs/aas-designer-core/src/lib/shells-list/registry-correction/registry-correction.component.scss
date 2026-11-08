@@ -156,7 +156,7 @@
 
 .registry-list-entry {
   padding: 0.45rem 0;
-  border-bottom: 1px solid color-mix(in srgb, var(--surface-border) 70%, transparent);
+  border-bottom: 1px solid color-mix(in srgb, var(--p-content-border-color) 70%, transparent);
   word-break: break-word;
 }
 

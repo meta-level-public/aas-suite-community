@@ -3,14 +3,22 @@ import { AssetAdministrationShell, SpecificAssetId } from '@aas-core-works/aas-c
 import { AasConfirmationService, AppConfigService, EncodingService } from '@aas/common-services';
 import { UrlHelper } from '@aas/helpers';
 import { AasInfrastructureClient, AasViewerClient, AvailableInfastructure, ViewerDescriptor } from '@aas/webapi-client';
-import { ChangeDetectionStrategy, Component, inject, Input, OnChanges, signal, WritableSignal } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  inject,
+  Input,
+  OnChanges,
+  signal,
+  type WritableSignal,
+} from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
-import { ButtonModule } from 'primeng/button';
-import { FieldsetModule } from 'primeng/fieldset';
-import { InputTextModule } from 'primeng/inputtext';
-import { SelectModule } from 'primeng/select';
-import { TableModule } from 'primeng/table';
+import { ButtonModule } from '@openng/optimus-ui/button';
+import { FieldsetModule } from '@openng/optimus-ui/fieldset';
+import { InputTextModule } from '@openng/optimus-ui/inputtext';
+import { SelectModule } from '@openng/optimus-ui/select';
+import { TableModule } from '@openng/optimus-ui/table';
 import { lastValueFrom } from 'rxjs';
 import { AasSearchService } from './aas-search.service';
 import { PagedResult } from './paged-result';
@@ -112,8 +120,7 @@ export class AasResultListComponent implements OnChanges {
             }
           } catch (e) {
             // gings eben nicht
-            // eslint-disable-next-line no-console
-            console.log('Error loading AAS by discovery', e);
+            console.warn('Error loading AAS by discovery', e);
           }
         }
       }
@@ -144,8 +151,6 @@ export class AasResultListComponent implements OnChanges {
   }
 
   async openViewer(result: any) {
-    // eslint-disable-next-line no-console
-    console.log(result);
     let url = '';
     if (this.selectedSource?.url === 'custom') {
       url = this.selectedCustomSource;

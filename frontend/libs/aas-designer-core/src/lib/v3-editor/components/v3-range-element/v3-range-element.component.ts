@@ -2,14 +2,14 @@ import * as aas from '@aas-core-works/aas-core3.1-typescript';
 import { HelpLabelComponent } from '@aas/common-components';
 import { ShellResult } from '@aas/model';
 import { NgClass } from '@angular/common';
-import { Component, Input, OnChanges } from '@angular/core';
+import { Component, Input, OnChanges, ChangeDetectionStrategy } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
-import { Checkbox } from 'primeng/checkbox';
-import { DatePicker } from 'primeng/datepicker';
-import { Fieldset } from 'primeng/fieldset';
-import { InputText } from 'primeng/inputtext';
-import { Select } from 'primeng/select';
+import { Checkbox } from '@openng/optimus-ui/checkbox';
+import { DatePicker } from '@openng/optimus-ui/datepicker';
+import { Fieldset } from '@openng/optimus-ui/fieldset';
+import { InputText } from '@openng/optimus-ui/inputtext';
+import { Select } from '@openng/optimus-ui/select';
 import { NullIfEmptyDirective } from '../../../general/directives/null-if-empty.directive';
 import { UndoDirective } from '../../../general/directives/undo.directive';
 import { V3UndoDirective } from '../../../general/directives/v3-undo.directive';
@@ -28,6 +28,7 @@ import { V3SemanticDescriptionComponent } from '../v3-semantic-description/v3-se
 @Component({
   selector: 'aas-v3-range-element',
   templateUrl: './v3-range-element.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [
     Fieldset,
     HelpLabelComponent,

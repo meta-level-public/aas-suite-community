@@ -2,12 +2,12 @@ import { LanguageService, SseNotificationService } from '@aas/aas-designer-share
 import { AasViewerStandaloneComponent, ShellNavigator } from '@aas/aas-viewer-standalone';
 import { buildShellsListRoute, NotificationService, PortalService, ViewportService } from '@aas/common-services';
 import { AasInfrastructureClient, AasViewerClient, AvailableInfastructure, ViewerDescriptor } from '@aas/webapi-client';
-import { Component, inject, OnDestroy, OnInit, signal, ViewChild } from '@angular/core';
+import { Component, inject, OnDestroy, OnInit, signal, ViewChild, ChangeDetectionStrategy } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
-import { Button } from 'primeng/button';
-import { Tooltip } from 'primeng/tooltip';
-import { DialogService, DynamicDialogRef } from 'primeng/dynamicdialog';
+import { Button } from '@openng/optimus-ui/button';
+import { Tooltip } from '@openng/optimus-ui/tooltip';
+import { DialogService, DynamicDialogRef } from '@openng/optimus-ui/dynamicdialog';
 import { lastValueFrom, skip, Subscription } from 'rxjs';
 import { AasSharedDataService } from '../../asset-administration-shell-tree/services/aas-shared-data.service';
 import { AasxExportComponent } from '../../general/aasx-export/aasx-export.component';
@@ -21,6 +21,7 @@ import { DesignerShellNavigationService } from '../designer-shell-navigation.ser
   selector: 'aas-v3-viewer',
   templateUrl: './v3-viewer.component.html',
   host: { class: 'flex flex-col flex-1' },
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [Button, Tooltip, AasViewerStandaloneComponent, AasxExportComponent, TranslateModule],
 })
 export class V3ViewerComponent implements OnInit, OnDestroy {
@@ -84,8 +85,6 @@ export class V3ViewerComponent implements OnInit, OnDestroy {
         const currentInfraId = PortalService.getCurrentAasInfrastructureSetting()?.id;
         if (message.aasIdentifier === this.aasId && currentInfraId === message.infrastructureId) {
           const content = JSON.parse(message.content).submodel as PcnChangeInfo;
-          // eslint-disable-next-line no-console
-          console.log('PCN_UPDATE_RECEIVED', content);
           this.ref = this.dialogService.open(PcnChangesComponent, {
             width: '50%',
             contentStyle: { overflow: 'auto' },

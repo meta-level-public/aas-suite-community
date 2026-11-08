@@ -6,10 +6,10 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { TranslateModule } from '@ngx-translate/core';
 import { OAuthService } from 'angular-oauth2-oidc';
-import { ConfirmationService } from 'primeng/api';
-import { DialogService } from 'primeng/dynamicdialog';
+import { ConfirmationService } from '@openng/optimus-ui/api';
+import { DialogService } from '@openng/optimus-ui/dynamicdialog';
 import { Subject } from 'rxjs';
-import { vi } from 'vitest';
+import { assert, vi } from 'vitest';
 
 import { DocumentItem } from '../../../generator/model/document-item';
 import { EditorTypeOption } from '../../model/editor-type-option';
@@ -107,11 +107,13 @@ describe('V3SubmodelElementListEditorComponent', () => {
 
   it('recognizes the handover document list and derives document rows', () => {
     const listNode = createHandoverSubmodelList();
-    listNode.content.value = [new aas.types.SubmodelElementCollection(null, null, 'Ignored')];
-    listNode.content.value[0].value = [];
-    listNode.content.value[0].semanticId = new aas.types.Reference(aas.types.ReferenceTypes.ExternalReference, [
+    assert.exists(listNode.content);
+    const documentCollection = new aas.types.SubmodelElementCollection(null, null, 'Ignored');
+    documentCollection.value = [];
+    documentCollection.semanticId = new aas.types.Reference(aas.types.ReferenceTypes.ExternalReference, [
       new aas.types.Key(aas.types.KeyTypes.GlobalReference, HandoverSemantics.DOCUMENT_V2),
     ]);
+    listNode.content.value = [documentCollection];
     const version = new aas.types.SubmodelElementCollection(null, null, 'DocumentVersion');
     version.semanticId = new aas.types.Reference(aas.types.ReferenceTypes.ExternalReference, [
       new aas.types.Key(aas.types.KeyTypes.GlobalReference, '0173-1#02-ABI503#001/0173-1#01-AHF582#001'),
@@ -139,16 +141,16 @@ describe('V3SubmodelElementListEditorComponent', () => {
       true,
       null,
       null,
-      [] as any,
+      [],
     );
     const digitalFile = new aas.types.File();
     digitalFile.idShort = 'DigitalFile';
     digitalFile.contentType = 'application/pdf';
     digitalFile.value = 'file:/aasx/files/operation-manual.pdf';
-    fileList.value = [digitalFile] as any;
+    fileList.value = [digitalFile];
 
     version.value = [title, fileList];
-    (listNode.content.value[0] as aas.types.SubmodelElementCollection).value?.push(version);
+    documentCollection.value.push(version);
 
     component.submodelElementList = listNode;
 
@@ -167,12 +169,12 @@ describe('V3SubmodelElementListEditorComponent', () => {
     component.addHandoverDocument();
     dialogService.emitClose(createDocumentItem());
 
-    expect(component.submodelElementList.content.value).toHaveLength(1);
-    expect(component.submodelElementList.content.value?.[0]).toBeInstanceOf(aas.types.SubmodelElementCollection);
-    expect(component.submodelElementList.content.value?.[0].idShort).toBe('Document00');
-    expect(component.submodelElementList.content.value?.[0].semanticId?.keys[0].value).toBe(
-      HandoverSemantics.DOCUMENT_V2,
-    );
+    const documents = component.submodelElementList?.content?.value;
+    expect(documents).toHaveLength(1);
+    const createdDocument = documents?.[0];
+    assert.instanceOf(createdDocument, aas.types.SubmodelElementCollection);
+    expect(createdDocument.idShort).toBe('Document00');
+    expect(createdDocument.semanticId?.keys[0].value).toBe(HandoverSemantics.DOCUMENT_V2);
     expect(treeService.refreshSml).toHaveBeenCalled();
   });
 });

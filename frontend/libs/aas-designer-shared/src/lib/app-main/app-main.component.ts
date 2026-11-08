@@ -2,14 +2,25 @@ import { buildAbsoluteRoute, buildMySpaceProfileRoute, PortalService } from '@aa
 import { AppMenuComponent, MenuService } from '@aas/designer-app-menu';
 import { AppTopBarComponent } from '@aas/designer-app-topbar';
 import { CommonModule } from '@angular/common';
-import { ChangeDetectorRef, Component, inject, NgZone, OnInit, signal } from '@angular/core';
+import {
+  ChangeDetectorRef,
+  Component,
+  DestroyRef,
+  inject,
+  NgZone,
+  OnInit,
+  signal,
+  ChangeDetectionStrategy,
+} from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
-import { PrimeNG } from 'primeng/config';
+import { Optimus } from '@openng/optimus-ui/config';
 
 @Component({
   selector: 'app-root',
   templateUrl: './app-main.component.html',
   styleUrls: ['../host.scss'],
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [CommonModule, RouterModule, AppMenuComponent, AppTopBarComponent],
 })
 export class AppMainComponent implements OnInit {
@@ -39,10 +50,11 @@ export class AppMainComponent implements OnInit {
 
   sidebarExpanded = signal<boolean>(false);
 
-  primeng = inject(PrimeNG);
+  primeng = inject(Optimus);
   portalService = inject(PortalService);
   private cdr = inject(ChangeDetectorRef);
   private ngZone = inject(NgZone);
+  private destroyRef = inject(DestroyRef);
 
   // Use signal for reactive login state
   isLoggedIn = signal(false);
@@ -62,7 +74,7 @@ export class AppMainComponent implements OnInit {
     this.isLoggedIn.set(this.portalService.loggedIn);
 
     // Update login state when it changes
-    this.portalService.loginStateChanged.subscribe((state) => {
+    this.portalService.loginStateChanged.pipe(takeUntilDestroyed(this.destroyRef)).subscribe((state) => {
       this.isLoggedIn.set(state && this.portalService.loggedIn);
 
       // Reset sidebar after logout

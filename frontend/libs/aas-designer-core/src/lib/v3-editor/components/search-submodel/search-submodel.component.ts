@@ -1,20 +1,30 @@
+import { CursorPaginatorComponent } from '@aas/common-components';
 import * as aas from '@aas-core-works/aas-core3.1-typescript';
 
 import { SmDto, SubmodelClient } from '@aas/webapi-client';
-import { Component, inject, model, OnInit, signal, OnDestroy } from '@angular/core';
+import { Component, inject, model, OnInit, signal, OnDestroy, ChangeDetectionStrategy } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
-import { ButtonModule } from 'primeng/button';
-import { DialogService, DynamicDialogRef } from 'primeng/dynamicdialog';
-import { InputTextModule } from 'primeng/inputtext';
-import { SelectModule } from 'primeng/select';
-import { TableModule } from 'primeng/table';
+import { ButtonModule } from '@openng/optimus-ui/button';
+import { DialogService, DynamicDialogRef } from '@openng/optimus-ui/dynamicdialog';
+import { InputTextModule } from '@openng/optimus-ui/inputtext';
+import { SelectModule } from '@openng/optimus-ui/select';
+import { TableModule } from '@openng/optimus-ui/table';
 import { lastValueFrom } from 'rxjs';
 import { PortalService } from '@aas/common-services';
 
 @Component({
   selector: 'aas-search-submodel',
-  imports: [FormsModule, TranslateModule, InputTextModule, TableModule, ButtonModule, SelectModule],
+  imports: [
+    CursorPaginatorComponent,
+    FormsModule,
+    TranslateModule,
+    InputTextModule,
+    TableModule,
+    ButtonModule,
+    SelectModule,
+  ],
+  changeDetection: ChangeDetectionStrategy.Eager,
   templateUrl: './search-submodel.component.html',
 })
 export class SearchSubmodelComponent implements OnInit, OnDestroy {
@@ -83,7 +93,6 @@ export class SearchSubmodelComponent implements OnInit, OnDestroy {
   }
 
   async loadFirstPage() {
-    window.localStorage.setItem('sm-list-footer-state', this.pageSize().toString());
     this.cursor = undefined;
     this.firstPage.set(true);
     await this.loadPaged();

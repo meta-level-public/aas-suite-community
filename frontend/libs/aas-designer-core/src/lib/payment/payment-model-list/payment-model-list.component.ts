@@ -1,7 +1,7 @@
 import { PaymentModel } from '@aas-designer-model';
-import { Component, inject, OnInit } from '@angular/core';
+import { Component, inject, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
-import { MenuItem, PrimeTemplate } from 'primeng/api';
+import { MenuItem, PrimeTemplate } from '@openng/optimus-ui/api';
 import { PaymentService } from '../payment.service';
 
 import { DateProxyPipe } from '@aas/common-pipes';
@@ -11,15 +11,16 @@ import { CurrencyPipe, registerLocaleData } from '@angular/common';
 import localeDe from '@angular/common/locales/de';
 import localeDeExtra from '@angular/common/locales/extra/de';
 import { Router, RouterLink } from '@angular/router';
-import { Button } from 'primeng/button';
-import { Menu } from 'primeng/menu';
-import { TableModule } from 'primeng/table';
+import { Button } from '@openng/optimus-ui/button';
+import { Menu } from '@openng/optimus-ui/menu';
+import { TableModule } from '@openng/optimus-ui/table';
 import { lastValueFrom } from 'rxjs';
 
 @Component({
   selector: 'aas-payment-model-list',
   templateUrl: './payment-model-list.component.html',
   styleUrls: ['../../../host.scss'],
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [Button, Button, RouterLink, TableModule, PrimeTemplate, Menu, CurrencyPipe, TranslateModule, DateProxyPipe],
 })
 export class PaymentModelListComponent implements OnInit {

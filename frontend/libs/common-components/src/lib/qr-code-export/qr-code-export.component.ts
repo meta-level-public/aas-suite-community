@@ -1,7 +1,8 @@
-import { Component, ElementRef, inject, input } from '@angular/core';
+import { escapeHtml } from '@aas/helpers';
+import { Component, ElementRef, inject, input, ChangeDetectionStrategy } from '@angular/core';
 import { TranslateModule } from '@ngx-translate/core';
 import { QRCodeComponent } from 'angularx-qrcode';
-import { Button } from 'primeng/button';
+import { Button } from '@openng/optimus-ui/button';
 
 /**
  * Shows a value (e.g. a link) as QR code and offers it as SVG download and for printing.
@@ -11,6 +12,7 @@ import { Button } from 'primeng/button';
   selector: 'lib-qr-code-export',
   templateUrl: './qr-code-export.component.html',
   styleUrls: ['./qr-code-export.component.css'],
+  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [QRCodeComponent, Button, TranslateModule],
 })
 export class QrCodeExportComponent {
@@ -86,8 +88,4 @@ export class QrCodeExportComponent {
   private safeFileName() {
     return this.fileName().replace(/[^a-zA-Z0-9._-]+/g, '_') || 'qr-code';
   }
-}
-
-function escapeHtml(text: string): string {
-  return text.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
 }

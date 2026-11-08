@@ -237,7 +237,7 @@
   border: 1px solid transparent;
   border-radius: var(--p-border-radius);
   background: transparent;
-  color: var(--text-color-secondary);
+  color: var(--p-text-muted-color);
   text-align: left;
   transition:
     background-color 0.15s ease,
@@ -245,8 +245,8 @@
     border-color 0.15s ease;
 
   &:hover {
-    background: var(--surface-hover);
-    color: var(--text-color);
+    background: var(--p-content-hover-background);
+    color: var(--p-text-color);
   }
 
   &.active {
@@ -424,8 +424,10 @@
     padding: 1rem;
   }
 
+  /* Stacked below the form: limit the navigation height so it scrolls on its own instead of pushing the form
+     out of view (a nameplate has more than 25 fields) */
   .battery-editor-sidebar {
-    height: auto;
+    height: min(50dvh, 30rem);
   }
 
   .battery-editor-nav-actions {

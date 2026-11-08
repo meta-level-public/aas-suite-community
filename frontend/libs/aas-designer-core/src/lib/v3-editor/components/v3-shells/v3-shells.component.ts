@@ -1,27 +1,28 @@
 import { FilenameHelper } from '@aas/helpers';
 import { PackageMetadata, ShellResult, SupplementalFile } from '@aas/model';
-import { Component, Input, OnInit, ViewChild } from '@angular/core';
+import { Component, Input, OnInit, ViewChild, ChangeDetectionStrategy } from '@angular/core';
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 import { saveAs } from 'file-saver-es';
-import { FileUpload } from 'primeng/fileupload';
+import { FileUpload } from '@openng/optimus-ui/fileupload';
 import { V3TreeItem } from '../../model/v3-tree-item';
 import { V3EditorService } from '../../v3-editor.service';
 import { V3TreeService } from '../../v3-tree/v3-tree.service';
 
 import { FormsModule } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
-import { Button } from 'primeng/button';
-import { Fieldset } from 'primeng/fieldset';
-import { Image } from 'primeng/image';
-import { InputText } from 'primeng/inputtext';
-import { Skeleton } from 'primeng/skeleton';
-import { Tag } from 'primeng/tag';
+import { Button } from '@openng/optimus-ui/button';
+import { Fieldset } from '@openng/optimus-ui/fieldset';
+import { Image } from '@openng/optimus-ui/image';
+import { InputText } from '@openng/optimus-ui/inputtext';
+import { Skeleton } from '@openng/optimus-ui/skeleton';
+import { Tag } from '@openng/optimus-ui/tag';
 import { NullIfEmptyDirective } from '../../../general/directives/null-if-empty.directive';
 import { V3UndoDirective } from '../../../general/directives/v3-undo.directive';
 
 @Component({
   selector: 'aas-v3-shells',
   templateUrl: './v3-shells.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [
     Fieldset,
     FormsModule,

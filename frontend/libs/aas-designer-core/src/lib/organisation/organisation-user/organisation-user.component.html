@@ -5,11 +5,7 @@
       <div class="hero-actions">
         @if (mode() === 'list') {
           @if (!moreUsersAllowed) {
-            <div
-              pTooltip="{{ 'NO_MORE_USERS_ALLOWED' | translate }}"
-              tooltipPosition="left"
-              style="display: inline-block"
-            >
+            <div pTooltip="{{ 'NO_MORE_USERS_ALLOWED' | translate }}" tooltipPosition="left" class="inline-block">
               <p-button
                 label="{{ 'ADD_USER' | translate }}"
                 icon="pi pi-plus"
@@ -29,6 +25,7 @@
         }
         @if (mode() === 'create') {
           <p-button
+            severity="secondary"
             label="{{ 'CANCEL' | translate }}"
             icon="pi pi-times"
             [loading]="loading()"

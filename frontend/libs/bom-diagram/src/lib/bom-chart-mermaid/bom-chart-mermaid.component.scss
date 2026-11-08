@@ -19,15 +19,15 @@
 }
 
 .mode-badge-edit {
-  color: #9d174d;
-  background: #fce7f3;
-  border-color: #f9a8d4;
+  color: var(--p-primary-color);
+  background: color-mix(in srgb, var(--p-primary-color) 12%, var(--p-content-background));
+  border-color: color-mix(in srgb, var(--p-primary-color) 40%, var(--p-content-border-color));
 }
 
 .mode-badge-view {
-  color: #334155;
-  background: #e2e8f0;
-  border-color: #cbd5e1;
+  color: var(--p-text-color);
+  background: var(--p-content-hover-background);
+  border-color: var(--p-content-border-color);
 }
 
 .toolbar-separator {
@@ -56,10 +56,10 @@
   position: absolute;
   width: 1.4rem;
   height: 1.4rem;
-  border: 1px solid #94a3b8;
+  border: 1px solid var(--p-content-border-color);
   border-radius: 999px;
-  background: #ffffff;
-  color: #334155;
+  background: var(--p-content-background);
+  color: var(--p-text-color);
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -73,9 +73,9 @@
 }
 
 .reparent-handle-armed {
-  color: #ffffff;
-  background: #db2777;
-  border-color: #be185d;
+  color: var(--p-primary-contrast-color);
+  background: var(--p-primary-color);
+  border-color: var(--p-primary-active-color);
 }
 
 .floating-node-actions {
@@ -85,9 +85,9 @@
   align-items: flex-start;
   gap: 0.5rem;
   padding: 0.45rem 0.55rem;
-  border: 1px solid #cbd5e1;
+  border: 1px solid var(--p-content-border-color);
   border-radius: 10px;
-  background: #ffffff;
+  background: var(--p-content-background);
   box-shadow: 0 10px 24px rgba(15, 23, 42, 0.16);
   z-index: 4;
 }
@@ -109,9 +109,9 @@
 
 .floating-node-actions-hint {
   font-size: 0.78rem;
-  color: #7c2d12;
-  background: #fff7ed;
-  border: 1px solid #fed7aa;
+  color: var(--aas-warning-text);
+  background: var(--aas-warning-surface);
+  border: 1px solid var(--aas-warning-border);
   border-radius: 6px;
   padding: 0.3rem 0.45rem;
   max-width: 22rem;

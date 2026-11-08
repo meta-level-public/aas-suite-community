@@ -1,13 +1,14 @@
 import * as aas from '@aas-core-works/aas-core3.1-typescript';
-import { Component, Input } from '@angular/core';
+import { Component, Input, ChangeDetectionStrategy } from '@angular/core';
 import { TranslateModule } from '@ngx-translate/core';
-import { PrimeTemplate } from 'primeng/api';
-import { Panel } from 'primeng/panel';
-import { TableModule } from 'primeng/table';
+import { PrimeTemplate } from '@openng/optimus-ui/api';
+import { Panel } from '@openng/optimus-ui/panel';
+import { TableModule } from '@openng/optimus-ui/table';
 
 @Component({
   selector: 'aas-operation-variable',
   templateUrl: './operation-variable.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [Panel, TableModule, PrimeTemplate, TranslateModule],
 })
 export class OperationVariableComponent {

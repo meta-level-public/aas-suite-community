@@ -1,11 +1,11 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectionStrategy } from '@angular/core';
 
 import { Router } from '@angular/router';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
-import { ConfirmationService, TreeNode } from 'primeng/api';
+import { ConfirmationService, TreeNode } from '@openng/optimus-ui/api';
 
-import { Button } from 'primeng/button';
-import { DialogService, DynamicDialogRef } from 'primeng/dynamicdialog';
+import { Button } from '@openng/optimus-ui/button';
+import { DialogService, DynamicDialogRef } from '@openng/optimus-ui/dynamicdialog';
 import { SidebarTreeNavComponent } from '../../general/sidebar-tree-nav/sidebar-tree-nav.component';
 import { HandoverdocumentationDocumentAddonComponent } from '../../v3-editor/addons/handoverdocumentation-document-addon/handoverdocumentation-document-addon.component';
 import { GeneratorPageShellComponent } from '../generator-page-shell/generator-page-shell.component';
@@ -20,6 +20,7 @@ import { DocumentItem } from '../model/document-item';
   host: {
     class: 'flex flex-col flex-1',
   },
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [
     Button,
     TranslateModule,
@@ -85,7 +86,7 @@ export class DocumentComponent implements OnInit {
   }
 
   get pageDescriptionKey() {
-    return 'BATTERY_PASSPORT_HANDOVER_EXPL';
+    return 'GENERATOR_HANDOVER_EXPL';
   }
 
   get nextLabel() {

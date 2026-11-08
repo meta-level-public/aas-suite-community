@@ -4,15 +4,15 @@ import { AasEmailValidator, CountryCodeComponent } from '@aas/common-components'
 import { NotificationService, PortalService } from '@aas/common-services';
 import { FilenameHelper } from '@aas/helpers';
 import { emailRegEx, urlRegEx } from '@aas/model';
-import { Component, effect, input, OnDestroy, ViewChild } from '@angular/core';
+import { Component, effect, input, OnDestroy, ViewChild, ChangeDetectionStrategy } from '@angular/core';
 import { FormsModule, NgForm } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
-import { ButtonModule } from 'primeng/button';
-import { FileSelectEvent, FileUploadModule } from 'primeng/fileupload';
-import { InputTextModule } from 'primeng/inputtext';
-import { KeyFilterModule } from 'primeng/keyfilter';
-import { ToggleSwitchModule } from 'primeng/toggleswitch';
-import { ToolbarModule } from 'primeng/toolbar';
+import { ButtonModule } from '@openng/optimus-ui/button';
+import { FileSelectEvent, FileUploadModule } from '@openng/optimus-ui/fileupload';
+import { InputTextModule } from '@openng/optimus-ui/inputtext';
+import { KeyFilterModule } from '@openng/optimus-ui/keyfilter';
+import { ToggleSwitchModule } from '@openng/optimus-ui/toggleswitch';
+import { ToolbarModule } from '@openng/optimus-ui/toolbar';
 import { OrganisationService } from '../../organisation.service';
 
 @Component({
@@ -29,6 +29,7 @@ import { OrganisationService } from '../../organisation.service';
     FileUploadModule,
     KeyFilterModule,
   ],
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrls: ['../../../../host.scss'],
 })
 export class OrganisationDetailsEditComponent extends DirtyCheckable implements OnDestroy {

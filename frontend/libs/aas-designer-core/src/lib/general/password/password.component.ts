@@ -2,15 +2,16 @@ import { Clipboard } from '@angular/cdk/clipboard';
 
 import { NotificationService } from '@aas/common-services';
 import { AutocompleteOffDirective } from '@aas/helpers';
-import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { Component, EventEmitter, Input, Output, ChangeDetectionStrategy } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
-import { Button } from 'primeng/button';
-import { Password } from 'primeng/password';
+import { Button } from '@openng/optimus-ui/button';
+import { Password } from '@openng/optimus-ui/password';
 
 @Component({
   selector: 'aas-password',
   templateUrl: './password.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [Password, FormsModule, AutocompleteOffDirective, Button, TranslateModule],
 })
 export class PasswordComponent {

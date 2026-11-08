@@ -4,13 +4,13 @@ import { HttpClient, HttpParams } from '@angular/common/http';
 import { Component, Input, OnChanges } from '@angular/core';
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 import { clone } from 'lodash-es';
-import { TreeNode } from 'primeng/api';
+import { TreeNode } from '@openng/optimus-ui/api';
 import { lastValueFrom } from 'rxjs';
 import { ZipViewerService } from './zip-viewer/zip-viewer.service';
 
 import { TranslateModule } from '@ngx-translate/core';
-import { Skeleton } from 'primeng/skeleton';
-import { Tree } from 'primeng/tree';
+import { Skeleton } from '@openng/optimus-ui/skeleton';
+import { Tree } from '@openng/optimus-ui/tree';
 
 @Component({
   selector: 'aas-file-viewer',

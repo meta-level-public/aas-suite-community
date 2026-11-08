@@ -9,17 +9,17 @@ import { DateProxyPipe } from '@aas/common-pipes';
 import { SemanticIdHelper } from '@aas/helpers';
 import { CommonModule } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
-import { Component, computed, inject, model } from '@angular/core';
+import { Component, computed, inject, model, ChangeDetectionStrategy } from '@angular/core';
 import { TranslateModule } from '@ngx-translate/core';
-import { ButtonModule } from 'primeng/button';
-import { DynamicDialogConfig } from 'primeng/dynamicdialog';
-import { TableModule } from 'primeng/table';
+import { DynamicDialogConfig } from '@openng/optimus-ui/dynamicdialog';
+import { TableModule } from '@openng/optimus-ui/table';
 import { lastValueFrom } from 'rxjs';
 import { PcnChangeInfo } from './pcn-change-info';
 
 @Component({
   selector: 'aas-pcn-changes',
-  imports: [CommonModule, TranslateModule, TableModule, DateProxyPipe, ButtonModule],
+  imports: [CommonModule, TranslateModule, TableModule, DateProxyPipe],
+  changeDetection: ChangeDetectionStrategy.Eager,
   templateUrl: './pcn-changes.component.html',
 })
 export class PcnChangesComponent {
@@ -42,8 +42,6 @@ export class PcnChangesComponent {
     changeRecordPath = changeRecordPath.replace('[', '%5B').replace(']', '%5D');
     const res = await lastValueFrom(this.httpClient.get<any>(changeRecordPath));
     const smc = aas.jsonization.submodelElementCollectionFromJsonable(res).value;
-    // eslint-disable-next-line no-console
-    console.log('changeRecord', smc);
     return smc;
   });
 
@@ -54,8 +52,6 @@ export class PcnChangesComponent {
     }
     const res = await lastValueFrom(this.httpClient.get<any>(allRecordsPath));
     const smlRecords = aas.jsonization.submodelElementListFromJsonable(res).value;
-    // eslint-disable-next-line no-console
-    console.log('changeRecord', smlRecords);
 
     let changeRecordPath = this.pcnChangeData()?.changeRecord;
     const indexRegex = /\[(\d+)\]/;

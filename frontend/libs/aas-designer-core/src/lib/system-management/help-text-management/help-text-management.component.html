@@ -34,6 +34,7 @@
           <div class="flex flex-wrap justify-between items-center flex-1 gap-2">
             <div class="flex gap-2">
               <p-button
+                [ariaLabel]="'SELECT_FILE' | translate"
                 icon="pi pi-file"
                 [rounded]="true"
                 [outlined]="true"
@@ -59,6 +60,7 @@
                   <span class="font-semibold">{{ file.name }}</span>
                   <div>{{ formatSize(file.size) }}</div>
                   <p-button
+                    [ariaLabel]="'REMOVE' | translate"
                     icon="pi pi-times"
                     (onClick)="onRemoveTemplatingFile($event, file, removeFileCallback, i)"
                     [outlined]="true"
@@ -76,7 +78,6 @@
                 icon="pi pi-save"
                 (onClick)="doUpload()"
                 size="small"
-                severity="success"
                 [disabled]="selectedFile == null"
               ></p-button>
               <p-button
@@ -118,7 +119,7 @@
         <lib-help-label tag="AMOUNT" [showLabel]="false"></lib-help-label>
         {{ 'AMOUNT' | translate }}
       </p-inputgroup-addon>
-      <input pInputText [value]="helpInfo()?.amountTexts" [readonly]="true" />
+      <input pInputText [value]="$safeNavigationMigration(helpInfo()?.amountTexts)" [readonly]="true" />
     </p-inputgroup>
   </div>
 </div>

@@ -61,6 +61,15 @@ namespace AasDesignerCommon.Shells
                 if (!response.IsSuccessStatusCode)
                 {
                     LogDeleteFailure("AAS", response.StatusCode);
+                    // The shell is still there: keep its submodels, discovery and registry
+                    // entries and report the failure instead of a successful deletion.
+                    if (response.StatusCode != HttpStatusCode.NotFound)
+                    {
+                        UpstreamResponseGuard.EnsureSuccess(
+                            response,
+                            $"Deleting AAS '{editorDescriptor.AasDescriptorEntry.OldId}'"
+                        );
+                    }
                 }
             }
 

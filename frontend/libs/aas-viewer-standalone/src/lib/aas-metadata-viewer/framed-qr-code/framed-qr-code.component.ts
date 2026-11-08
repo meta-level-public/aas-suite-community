@@ -1,12 +1,23 @@
-import { AfterViewInit, Component, ElementRef, Input, OnChanges, SimpleChanges, ViewChild } from '@angular/core';
+import {
+  AfterViewInit,
+  Component,
+  ElementRef,
+  Input,
+  OnChanges,
+  type SimpleChanges,
+  ViewChild,
+  ChangeDetectionStrategy,
+} from '@angular/core';
 import { SafeUrl } from '@angular/platform-browser';
-import { QRCodeComponent, QRCodeErrorCorrectionLevel } from 'angularx-qrcode';
+import { TranslateModule } from '@ngx-translate/core';
+import { QRCodeComponent, type QRCodeErrorCorrectionLevel } from 'angularx-qrcode';
 
 @Component({
   selector: 'aas-framed-qr-code',
   templateUrl: './framed-qr-code.component.html',
   styleUrls: ['./framed-qr-code.component.css'],
-  imports: [QRCodeComponent],
+  changeDetection: ChangeDetectionStrategy.Eager,
+  imports: [QRCodeComponent, TranslateModule],
 })
 export class FramedQrCodeComponent implements OnChanges, AfterViewInit {
   @Input() qrdata: string = '';

@@ -19,4 +19,16 @@ describe('GeneratorStateStore', () => {
 
     expect(store.shell()?.submodels).toBeNull();
   });
+
+  it('keeps the asset kind when asset metadata is updated without a kind', () => {
+    const store = new GeneratorStateStore();
+    store.updateAssetMetadata({ kind: 'Instance' }, 'https://example.com/');
+
+    store.updateAssetMetadata(
+      { assetShellId: 'releaseTestPump', assetShellDescription: [{ language: 'en', text: 'Release test pump' }] },
+      'https://example.com/',
+    );
+
+    expect(store.shell()?.assetInformation.assetKind).toBe(aas.types.AssetKind.Instance);
+  });
 });

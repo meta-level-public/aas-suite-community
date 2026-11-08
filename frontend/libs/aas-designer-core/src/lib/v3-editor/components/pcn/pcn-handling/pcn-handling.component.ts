@@ -1,6 +1,6 @@
 import * as aas from '@aas-core-works/aas-core3.1-typescript';
 
-import { Component, effect, inject, input } from '@angular/core';
+import { Component, effect, inject, input, ChangeDetectionStrategy } from '@angular/core';
 import { TranslateModule } from '@ngx-translate/core';
 import { V3TreeItem } from '../../../model/v3-tree-item';
 import { PcnReceivingComponent } from '../pcn-receiving/pcn-receiving.component';
@@ -10,6 +10,7 @@ import { PcnStateStoreService } from '../pcn-state-store.service';
 @Component({
   selector: 'aas-pcn-handling',
   imports: [PcnReceivingComponent, PcnSendingComponent, TranslateModule],
+  changeDetection: ChangeDetectionStrategy.Eager,
   templateUrl: './pcn-handling.component.html',
 })
 export class PcnHandlingComponent {

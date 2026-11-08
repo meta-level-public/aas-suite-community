@@ -1,8 +1,18 @@
 import { OrgaPaymentModel, PaymentModel } from '@aas-designer-model';
 import { SystemConfigurationDto, SystemManagementClient } from '@aas/webapi-client';
-import { Component, EventEmitter, inject, Input, OnChanges, OnInit, Output, SimpleChanges } from '@angular/core';
+import {
+  Component,
+  EventEmitter,
+  inject,
+  Input,
+  OnChanges,
+  OnInit,
+  Output,
+  SimpleChanges,
+  ChangeDetectionStrategy,
+} from '@angular/core';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
-import { MenuItem, PrimeTemplate } from 'primeng/api';
+import { MenuItem, PrimeTemplate } from '@openng/optimus-ui/api';
 import { PaymentService } from '../payment.service';
 
 import { OrgaUserSeatStats } from '@aas-designer-model';
@@ -13,20 +23,21 @@ import localeDe from '@angular/common/locales/de';
 import localeDeExtra from '@angular/common/locales/extra/de';
 import { signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { Button } from 'primeng/button';
-import { DatePicker } from 'primeng/datepicker';
-import { Dialog } from 'primeng/dialog';
-import { Menu } from 'primeng/menu';
-import { Select } from 'primeng/select';
-import { TableModule } from 'primeng/table';
-import { Toolbar } from 'primeng/toolbar';
-import { Tooltip } from 'primeng/tooltip';
+import { Button } from '@openng/optimus-ui/button';
+import { DatePicker } from '@openng/optimus-ui/datepicker';
+import { Dialog } from '@openng/optimus-ui/dialog';
+import { Menu } from '@openng/optimus-ui/menu';
+import { Select } from '@openng/optimus-ui/select';
+import { TableModule } from '@openng/optimus-ui/table';
+import { Toolbar } from '@openng/optimus-ui/toolbar';
+import { Tooltip } from '@openng/optimus-ui/tooltip';
 import { lastValueFrom } from 'rxjs';
 import { OrganisationStateService } from '../../organisation/organisation-state.service';
 
 @Component({
   selector: 'aas-orga-payment-model-list',
   templateUrl: './orga-payment-model-list.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [
     Toolbar,
     TableModule,
@@ -132,7 +143,7 @@ export class OrgaPaymentModelListComponent implements OnInit, OnChanges {
     this.menuItems = [
       {
         label: this.translate.instant('CANCEL_OPTION'),
-        icon: 'pi pi-delete',
+        icon: 'pi pi-times-circle',
         command: (_event) => {
           this.cancelOption(bezahlmodell);
         },

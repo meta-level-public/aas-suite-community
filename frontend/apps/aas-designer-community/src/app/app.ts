@@ -1,28 +1,29 @@
 import { ActiveComponentsService } from '@aas/aas-designer-shared';
 import { NotificationService, PortalService } from '@aas/common-services';
-import { Component, HostListener, inject, OnInit } from '@angular/core';
+import { Component, HostListener, inject, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import { NavigationEnd, Router, RouterOutlet } from '@angular/router';
 import { TranslateService } from '@ngx-translate/core';
-import { MessageService } from 'primeng/api';
+import { MessageService } from '@openng/optimus-ui/api';
 import { filter } from 'rxjs/operators';
 
 import { ConfirmDialogComponent, SseNotificationService } from '@aas/aas-designer-shared';
 import { registerLocaleData } from '@angular/common';
-import { ButtonModule } from 'primeng/button';
-import { PrimeNG } from 'primeng/config';
-import { ToastModule } from 'primeng/toast';
+import { ButtonModule } from '@openng/optimus-ui/button';
+import { Optimus } from '@openng/optimus-ui/config';
+import { ToastModule } from '@openng/optimus-ui/toast';
 
 @Component({
   selector: 'aas-root',
   templateUrl: './app.html',
   styleUrl: './app.css',
   standalone: true,
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [RouterOutlet, ToastModule, ButtonModule, ConfirmDialogComponent],
 })
 export class App implements OnInit {
   private static readonly lastAllowedRouteStorageKey = 'aasLastAllowedRoute';
   private static readonly previousAllowedRouteStorageKey = 'aasPreviousAllowedRoute';
-  primeng = inject(PrimeNG);
+  primeng = inject(Optimus);
   sseNotificationService = inject(SseNotificationService);
 
   constructor(
@@ -67,6 +68,7 @@ export class App implements OnInit {
 
   @HostListener('window:logoutUser', ['$event'])
   onUserLogout(_event: Event) {
+    this.sseNotificationService.disconnect();
     this.portalService.logout(true, true);
   }
 

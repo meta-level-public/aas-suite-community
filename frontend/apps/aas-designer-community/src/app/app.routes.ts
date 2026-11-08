@@ -7,7 +7,6 @@ import {
   AppNotfoundComponent,
   canActivate,
   CreateInvitedAccountComponent,
-  PublicViewerComponent,
   SsoLoginSuccessComponent,
 } from '@aas/aas-designer-shared';
 import { AppRoutePaths, AppRouteSegments } from '@aas/common-services';
@@ -36,22 +35,22 @@ export const appRoutes: Routes = [
       },
       {
         path: AppRouteSegments.generator,
-        loadChildren: () => import('@aas/aas-designer-core').then((m) => m.GENERATOR_ROUTES),
+        loadChildren: () => import('@aas/aas-designer-core/generator').then((m) => m.GENERATOR_ROUTES),
         canActivate: [() => canActivate([AuthRoles.BENUTZER, AuthRoles.ORGA_ADMIN, AuthRoles.SYSTEM_ADMIN])],
       },
       {
         path: AppRouteSegments.viewer,
-        loadChildren: () => import('@aas/aas-designer-core').then((m) => m.AASX_VIEW_ROUTES),
+        loadChildren: () => import('@aas/aas-designer-core/aasx-view').then((m) => m.AASX_VIEW_ROUTES),
         canActivate: [() => canActivate([AuthRoles.BENUTZER, AuthRoles.ORGA_ADMIN, AuthRoles.SYSTEM_ADMIN])],
       },
       {
         path: AppRouteSegments.instanceViewer,
-        loadChildren: () => import('@aas/aas-designer-core').then((m) => m.INSTANCE_VIEWER_ROUTES),
+        loadChildren: () => import('@aas/aas-designer-core/instance-viewer').then((m) => m.INSTANCE_VIEWER_ROUTES),
         canActivate: [() => canActivate([AuthRoles.BENUTZER, AuthRoles.ORGA_ADMIN, AuthRoles.SYSTEM_ADMIN])],
       },
       {
         path: AppRouteSegments.shellsList,
-        loadChildren: () => import('@aas/aas-designer-core').then((m) => m.SHELLS_LIST_ROUTES),
+        loadChildren: () => import('@aas/aas-designer-core/shells-list').then((m) => m.SHELLS_LIST_ROUTES),
         canActivate: [
           () =>
             canActivate([
@@ -65,7 +64,7 @@ export const appRoutes: Routes = [
       },
       {
         path: AppRouteSegments.cdsList,
-        loadChildren: () => import('@aas/aas-designer-core').then((m) => m.CDS_LIST_ROUTES),
+        loadChildren: () => import('@aas/aas-designer-core/cds-list').then((m) => m.CDS_LIST_ROUTES),
         canActivate: [
           () =>
             canActivate([
@@ -79,17 +78,17 @@ export const appRoutes: Routes = [
       },
       {
         path: AppRoutePaths.cdEditWithInfrastructure,
-        loadChildren: () => import('@aas/aas-designer-core').then((m) => m.CD_EDIT_ROUTES),
+        loadChildren: () => import('@aas/aas-designer-core/cd-edit').then((m) => m.CD_EDIT_ROUTES),
         canActivate: [() => canActivate([AuthRoles.SHELLS_EDITOR, AuthRoles.ORGA_ADMIN, AuthRoles.SYSTEM_ADMIN])],
       },
       {
         path: AppRoutePaths.cdEdit,
-        loadChildren: () => import('@aas/aas-designer-core').then((m) => m.CD_EDIT_ROUTES),
+        loadChildren: () => import('@aas/aas-designer-core/cd-edit').then((m) => m.CD_EDIT_ROUTES),
         canActivate: [() => canActivate([AuthRoles.SHELLS_EDITOR, AuthRoles.ORGA_ADMIN, AuthRoles.SYSTEM_ADMIN])],
       },
       {
         path: AppRouteSegments.submodels,
-        loadChildren: () => import('@aas/aas-designer-core').then((m) => m.SUBMODELS_LIST_ROUTES),
+        loadChildren: () => import('@aas/aas-designer-core/submodels-list').then((m) => m.SUBMODELS_LIST_ROUTES),
         canActivate: [
           () =>
             canActivate([
@@ -103,37 +102,37 @@ export const appRoutes: Routes = [
       },
       {
         path: AppRoutePaths.submodelEditWithInfrastructure,
-        loadChildren: () => import('@aas/aas-designer-core').then((m) => m.SUBMODEL_EDITOR_ROUTES),
+        loadChildren: () => import('@aas/aas-designer-core/submodel-editor').then((m) => m.SUBMODEL_EDITOR_ROUTES),
         canActivate: [() => canActivate([AuthRoles.SHELLS_EDITOR, AuthRoles.ORGA_ADMIN, AuthRoles.SYSTEM_ADMIN])],
       },
       {
         path: AppRoutePaths.submodelEdit,
-        loadChildren: () => import('@aas/aas-designer-core').then((m) => m.SUBMODEL_EDITOR_ROUTES),
+        loadChildren: () => import('@aas/aas-designer-core/submodel-editor').then((m) => m.SUBMODEL_EDITOR_ROUTES),
         canActivate: [() => canActivate([AuthRoles.SHELLS_EDITOR, AuthRoles.ORGA_ADMIN, AuthRoles.SYSTEM_ADMIN])],
       },
       {
         path: AppRouteSegments.idtaSubmodels,
-        loadChildren: () => import('@aas/aas-designer-core').then((m) => m.IDTA_SUBMODELS_ROUTES),
+        loadChildren: () => import('@aas/aas-designer-core/idta-submodels').then((m) => m.IDTA_SUBMODELS_ROUTES),
         canActivate: [() => canActivate([AuthRoles.BENUTZER, AuthRoles.ORGA_ADMIN, AuthRoles.SYSTEM_ADMIN])],
       },
       {
         path: AppRouteSegments.mySpace,
-        loadChildren: () => import('@aas/aas-designer-core').then((m) => m.USER_ROUTES),
+        loadChildren: () => import('@aas/aas-designer-core/user').then((m) => m.USER_ROUTES),
         canActivate: [() => canActivate([AuthRoles.BENUTZER, AuthRoles.ORGA_ADMIN, AuthRoles.SYSTEM_ADMIN])],
       },
       {
         path: AppRouteSegments.plugins,
-        loadChildren: () => import('@aas/aas-designer-core').then((m) => m.PLUGINS_ROUTES),
+        loadChildren: () => import('@aas/aas-designer-core/plugins').then((m) => m.PLUGINS_ROUTES),
         canActivate: [() => canActivate([AuthRoles.BENUTZER, AuthRoles.ORGA_ADMIN, AuthRoles.SYSTEM_ADMIN])],
       },
       {
         path: AppRouteSegments.systemManagement,
-        loadChildren: () => import('@aas/aas-designer-core').then((m) => m.SYSTEM_MANAGEMENT_ROUTES),
+        loadChildren: () => import('@aas/aas-designer-core/system-management').then((m) => m.SYSTEM_MANAGEMENT_ROUTES),
         canActivate: [() => canActivate([AuthRoles.SYSTEM_ADMIN])],
       },
       {
         path: AppRouteSegments.myOrganization,
-        loadChildren: () => import('@aas/aas-designer-core').then((m) => m.ORGANISATION_ROUTES),
+        loadChildren: () => import('@aas/aas-designer-core/organisation').then((m) => m.ORGANISATION_ROUTES),
         canActivate: [() => canActivate([AuthRoles.ORGA_ADMIN])],
       },
       {
@@ -141,12 +140,12 @@ export const appRoutes: Routes = [
         children: [
           {
             path: AppRoutePaths.empty,
-            loadChildren: () => import('@aas/aas-designer-core').then((m) => m.GENERATOR_ROUTES),
+            loadChildren: () => import('@aas/aas-designer-core/generator').then((m) => m.GENERATOR_ROUTES),
             canActivate: [() => canActivate([AuthRoles.BENUTZER, AuthRoles.ORGA_ADMIN, AuthRoles.SYSTEM_ADMIN])],
           },
           {
             path: AppRouteSegments.v3,
-            loadChildren: () => import('@aas/aas-designer-core').then((m) => m.V3_EDITOR_ROUTES),
+            loadChildren: () => import('@aas/aas-designer-core/v3-editor').then((m) => m.V3_EDITOR_ROUTES),
           },
         ],
       },
@@ -154,7 +153,8 @@ export const appRoutes: Routes = [
   },
   {
     path: AppRouteSegments.publicViewer,
-    component: PublicViewerComponent,
+    // lazy: the public viewer pulls in the complete AAS viewer (charts, maps, markdown)
+    loadComponent: () => import('@aas/aas-designer-shared/public-viewer').then((m) => m.PublicViewerComponent),
   },
   {
     path: AppRouteSegments.ssoLoginSuccess,

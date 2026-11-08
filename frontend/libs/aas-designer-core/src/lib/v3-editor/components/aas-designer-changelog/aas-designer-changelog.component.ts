@@ -1,9 +1,9 @@
 import * as aas from '@aas-core-works/aas-core3.1-typescript';
 
 import { DateProxyPipe } from '@aas/common-pipes';
-import { Component, input, linkedSignal } from '@angular/core';
+import { Component, input, linkedSignal, ChangeDetectionStrategy } from '@angular/core';
 import { TranslateModule } from '@ngx-translate/core';
-import { TableModule } from 'primeng/table';
+import { TableModule } from '@openng/optimus-ui/table';
 
 import { ISubmodelElement } from '@aas-core-works/aas-core3.1-typescript/types';
 import { ChangelogEntry } from './changelog-entry';
@@ -12,6 +12,7 @@ import { ChangelogEntry } from './changelog-entry';
   selector: 'aas-aas-designer-changelog',
 
   imports: [TranslateModule, TableModule, DateProxyPipe],
+  changeDetection: ChangeDetectionStrategy.Eager,
   templateUrl: './aas-designer-changelog.component.html',
 })
 export class AasDesignerChangelogComponent {

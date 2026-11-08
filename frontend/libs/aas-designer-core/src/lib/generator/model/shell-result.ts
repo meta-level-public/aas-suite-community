@@ -26,8 +26,7 @@ export class ShellResult {
       shellResult.v3Shell = instanceOrErrorPlain.value;
 
       if (instanceOrErrorPlain.error != null) {
-        // eslint-disable-next-line no-console
-        console.log(
+        console.warn(
           'De-serialization failed: ' +
             `${instanceOrErrorPlain.error.path}: ` +
             `${instanceOrErrorPlain.error.message}`,

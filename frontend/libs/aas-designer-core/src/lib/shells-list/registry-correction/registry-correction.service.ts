@@ -77,15 +77,59 @@ export class RegistryCorrectionService {
   }
 
   async saveAasDescriptor(originalAasId: string, descriptor: RegistryAasDescriptor) {
-    await this.deleteDescriptor(`${this.getProxyBase('aas-reg')}shell-descriptors/${this.encodeId(originalAasId)}`);
-    await lastValueFrom(this.http.post(`${this.getProxyBase('aas-reg')}shell-descriptors`, descriptor));
+    const base = this.getProxyBase('aas-reg');
+    await this.replaceDescriptor(
+      `${base}shell-descriptors/${this.encodeId(originalAasId)}`,
+      `${base}shell-descriptors`,
+      descriptor,
+    );
   }
 
   async saveSubmodelDescriptor(originalSubmodelId: string, descriptor: RegistrySubmodelDescriptor) {
-    await this.deleteDescriptor(
-      `${this.getProxyBase('sm-reg')}submodel-descriptors/${this.encodeId(originalSubmodelId)}`,
+    const base = this.getProxyBase('sm-reg');
+    await this.replaceDescriptor(
+      `${base}submodel-descriptors/${this.encodeId(originalSubmodelId)}`,
+      `${base}submodel-descriptors`,
+      descriptor,
     );
-    await lastValueFrom(this.http.post(`${this.getProxyBase('sm-reg')}submodel-descriptors`, descriptor));
+  }
+
+  /**
+   * The registry cannot change a descriptor id via PUT, so the original descriptor is deleted and the new one posted.
+   * If posting fails, the original descriptor is restored (best effort) and the original error is rethrown.
+   */
+  private async replaceDescriptor(
+    descriptorUrl: string,
+    collectionUrl: string,
+    descriptor: RegistrySubmodelDescriptor,
+  ) {
+    const previousDescriptor = await this.getExistingDescriptor(descriptorUrl);
+    await this.deleteDescriptor(descriptorUrl);
+
+    try {
+      await lastValueFrom(this.http.post(collectionUrl, descriptor));
+    } catch (error) {
+      if (previousDescriptor != null) {
+        try {
+          await lastValueFrom(this.http.post(collectionUrl, previousDescriptor));
+        } catch {
+          // Restoring failed as well; the original error is more relevant for the caller.
+        }
+      }
+      throw error;
+    }
+  }
+
+  private async getExistingDescriptor(url: string) {
+    try {
+      return await lastValueFrom(this.http.get<RegistrySubmodelDescriptor>(url));
+    } catch (error) {
+      if (error instanceof HttpErrorResponse && error.status === 404) {
+        return null;
+      }
+
+      throw error;
+    }
   }
 
   private async deleteDescriptor(url: string) {

@@ -1,13 +1,13 @@
 import * as aas from '@aas-core-works/aas-core3.1-typescript';
 
 import { HelpLabelComponent } from '@aas/common-components';
-import { Component, inject, Input, OnInit } from '@angular/core';
+import { Component, inject, Input, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
-import { Button } from 'primeng/button';
-import { InputGroup } from 'primeng/inputgroup';
-import { InputGroupAddon } from 'primeng/inputgroupaddon';
-import { InputText } from 'primeng/inputtext';
+import { Button } from '@openng/optimus-ui/button';
+import { InputGroup } from '@openng/optimus-ui/inputgroup';
+import { InputGroupAddon } from '@openng/optimus-ui/inputgroupaddon';
+import { InputText } from '@openng/optimus-ui/inputtext';
 import { NullIfEmptyDirective } from '../../../general/directives/null-if-empty.directive';
 import { V3TreeService } from '../../v3-tree/v3-tree.service';
 import { ErrorPanelComponent } from '../error-panel/error-panel.component';
@@ -16,6 +16,7 @@ type VerificationError = aas.verification.VerificationError;
 @Component({
   selector: 'aas-v3-administration',
   templateUrl: './v3-administration.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [
     Button,
     HelpLabelComponent,

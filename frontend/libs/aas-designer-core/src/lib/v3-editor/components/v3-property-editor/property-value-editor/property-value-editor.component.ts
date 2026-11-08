@@ -3,16 +3,16 @@ import { ValueList } from '@aas-core-works/aas-core3.1-typescript/types';
 import { HelpLabelComponent } from '@aas/common-components';
 import { SemanticIdHelper } from '@aas/helpers';
 import { ShellResult } from '@aas/model';
-import { Component, Input, OnChanges } from '@angular/core';
+import { Component, Input, OnChanges, ChangeDetectionStrategy } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
-import { Button } from 'primeng/button';
-import { DatePicker } from 'primeng/datepicker';
-import { InputGroup } from 'primeng/inputgroup';
-import { InputGroupAddon } from 'primeng/inputgroupaddon';
-import { InputText } from 'primeng/inputtext';
-import { Select } from 'primeng/select';
-import { SelectButton } from 'primeng/selectbutton';
+import { Button } from '@openng/optimus-ui/button';
+import { DatePicker } from '@openng/optimus-ui/datepicker';
+import { InputGroup } from '@openng/optimus-ui/inputgroup';
+import { InputGroupAddon } from '@openng/optimus-ui/inputgroupaddon';
+import { InputText } from '@openng/optimus-ui/inputtext';
+import { Select } from '@openng/optimus-ui/select';
+import { SelectButton } from '@openng/optimus-ui/selectbutton';
 import { NullIfEmptyDirective } from '../../../../general/directives/null-if-empty.directive';
 import { V3UndoDirective } from '../../../../general/directives/v3-undo.directive';
 import { V3TreeService } from '../../../v3-tree/v3-tree.service';
@@ -24,6 +24,7 @@ import { ClassificationSystemComponent } from '../classification-system/classifi
   selector: 'aas-property-value-editor',
   templateUrl: './property-value-editor.component.html',
   styleUrls: ['./property-value-editor.component.css'],
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [
     DatePicker,
     FormsModule,

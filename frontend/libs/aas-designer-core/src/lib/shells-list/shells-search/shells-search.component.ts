@@ -1,10 +1,10 @@
 import { ShellListDto, ShellListVm, ShellsClient, ShellSearchParams } from '@aas/webapi-client';
-import { Component, inject, model, signal } from '@angular/core';
+import { Component, inject, model, signal, ChangeDetectionStrategy } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
-import { ButtonModule } from 'primeng/button';
-import { DynamicDialogConfig, DynamicDialogRef } from 'primeng/dynamicdialog';
-import { InputTextModule } from 'primeng/inputtext';
+import { ButtonModule } from '@openng/optimus-ui/button';
+import { DynamicDialogConfig, DynamicDialogRef } from '@openng/optimus-ui/dynamicdialog';
+import { InputTextModule } from '@openng/optimus-ui/inputtext';
 import { lastValueFrom } from 'rxjs';
 
 export interface ShellSearchOpenResult {
@@ -17,6 +17,7 @@ export interface ShellSearchOpenResult {
   selector: 'aas-shells-search',
   imports: [FormsModule, TranslateModule, InputTextModule, ButtonModule],
   templateUrl: './shells-search.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './shells-search.component.scss',
 })
 export class ShellsSearchComponent {

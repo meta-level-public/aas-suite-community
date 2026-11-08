@@ -5,16 +5,16 @@ import { AasEmailValidator, CountryCodeComponent } from '@aas/common-components'
 import { AppConfigService, NotificationService, ThemeDefinitionService } from '@aas/common-services';
 import { AutocompleteOffDirective } from '@aas/helpers';
 import { emailRegEx } from '@aas/model';
-import { Component, EventEmitter, OnInit, Output, ViewChild } from '@angular/core';
+import { Component, EventEmitter, OnInit, Output, ViewChild, ChangeDetectionStrategy } from '@angular/core';
 import { FormsModule, NgForm } from '@angular/forms';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
-import { SelectItem } from 'primeng/api';
-import { Button } from 'primeng/button';
-import { Checkbox } from 'primeng/checkbox';
-import { Fieldset } from 'primeng/fieldset';
-import { InputText } from 'primeng/inputtext';
-import { Select } from 'primeng/select';
-import { Toolbar } from 'primeng/toolbar';
+import { SelectItem } from '@openng/optimus-ui/api';
+import { Button } from '@openng/optimus-ui/button';
+import { Checkbox } from '@openng/optimus-ui/checkbox';
+import { Fieldset } from '@openng/optimus-ui/fieldset';
+import { InputText } from '@openng/optimus-ui/inputtext';
+import { Select } from '@openng/optimus-ui/select';
+import { Toolbar } from '@openng/optimus-ui/toolbar';
 import { AuthRoles } from '../../general/model/auth-roles';
 import { PasswordComponent } from '../../general/password/password.component';
 import { AdministratorService } from '../administrator.service';
@@ -22,6 +22,7 @@ import { AdministratorService } from '../administrator.service';
 @Component({
   selector: 'aas-administration-create',
   templateUrl: './administration-create.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [
     FormsModule,
     AutocompleteOffDirective,

@@ -1,11 +1,11 @@
 import * as aas from '@aas-core-works/aas-core3.1-typescript';
 import { ISubmodelElement } from '@aas-core-works/aas-core3.1-typescript/types';
 import { FilenameHelper, HandoverSemanticGroups, SemanticIdHelper } from '@aas/helpers';
-import { Component, Input, OnChanges, OnDestroy, effect, inject, signal } from '@angular/core';
+import { Component, Input, OnChanges, OnDestroy, effect, inject, signal, ChangeDetectionStrategy } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
-import { Accordion, AccordionContent, AccordionHeader, AccordionPanel } from 'primeng/accordion';
-import { Card } from 'primeng/card';
-import { Ripple } from 'primeng/ripple';
+import { Accordion, AccordionContent, AccordionHeader, AccordionPanel } from '@openng/optimus-ui/accordion';
+import { Card } from '@openng/optimus-ui/card';
+import { Ripple } from '@openng/optimus-ui/ripple';
 import { Subscription } from 'rxjs';
 import { ViewerStoreService } from '../../viewer-store.service';
 import { HandoverDocumentationDocumentComponent } from './handover-documentation-document/handover-documentation-document.component';
@@ -15,6 +15,7 @@ import { ExpandedStateDirective } from '../../expanded-state/expanded-state.dire
 @Component({
   selector: 'aas-handover-documentation-viewer',
   templateUrl: './handover-documentation-viewer.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [
     ExpandedStateDirective,
     Card,

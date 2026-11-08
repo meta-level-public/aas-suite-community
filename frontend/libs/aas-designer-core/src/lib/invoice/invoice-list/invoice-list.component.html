@@ -33,44 +33,46 @@
       <ng-template #header>
         <tr>
           <th scope="col"></th>
-          <th scope="col" style="min-width: 20rem; max-width: 25rem">{{ 'ORGA' | translate }}</th>
-          <th scope="col" style="width: 16rem">{{ 'DATE' | translate }}</th>
-          <th scope="col" style="min-width: 20rem; max-width: 20rem">{{ 'SUMME' | translate }}</th>
-          <th scope="col" style="min-width: 20rem; width: 80%">{{ 'TEXT' | translate }}</th>
+          <th scope="col" class="min-w-80 max-w-[25rem]">{{ 'ORGA' | translate }}</th>
+          <th scope="col" class="w-64">{{ 'DATE' | translate }}</th>
+          <th scope="col" class="min-w-80 max-w-80">{{ 'SUMME' | translate }}</th>
+          <th scope="col" class="min-w-80 w-[80%]">{{ 'TEXT' | translate }}</th>
         </tr>
       </ng-template>
       <ng-template pTemplate="body" let-invoice>
         <tr>
-          <td style="width: 2%; min-width: 1rem">
+          <td class="w-[2%] min-w-4">
             <p-button
+              [ariaLabel]="'MORE_ACTIONS' | translate"
+              [text]="true"
+              severity="secondary"
               icon="pi pi-ellipsis-v"
-              styleClass="p-button-text p-button-secondary"
               (onClick)="menu.toggle($event)"
             ></p-button>
             <p-menu appendTo="body" (onShow)="onShowActions(invoice)" #menu [popup]="true" [model]="menuItems"></p-menu>
           </td>
-          <td style="min-width: 20rem; max-width: 25rem">{{ invoice.organisation.name }}</td>
+          <td class="min-w-80 max-w-[25rem]">{{ invoice.organisation.name }}</td>
 
-          <td style="min-width: 16rem">{{ invoice.rechnungsdatum | vwsDate: 'SHORT_DATE' }}</td>
-          <td style="min-width: 20rem; max-width: 20rem">
+          <td class="min-w-64">{{ invoice.rechnungsdatum | vwsDate: 'SHORT_DATE' }}</td>
+          <td class="min-w-80 max-w-80">
             {{ getInvoiceSumme(invoice.summe) | currency: 'EUR' : 'symbol' : '.2-2' : 'de-DE' }}
             {{ 'MWST_SUFFIX' | translate }}
           </td>
-          <td style="min-width: 20rem; width: 80%">
+          <td class="min-w-80 w-[80%]">
             <div>
               <p-table [value]="getInvoiceData(invoice.daten)">
                 <ng-template #header>
                   <tr>
-                    <th scope="col" style="width: 33%">{{ 'NAME' | translate }}</th>
-                    <th scope="col" style="width: 33%">{{ 'TIMESPAN' | translate }}</th>
-                    <th scope="col" style="width: 33%">{{ 'PRICE' | translate }}</th>
+                    <th scope="col" class="w-[33%]">{{ 'NAME' | translate }}</th>
+                    <th scope="col" class="w-[33%]">{{ 'TIMESPAN' | translate }}</th>
+                    <th scope="col" class="w-[33%]">{{ 'PRICE' | translate }}</th>
                   </tr>
                 </ng-template>
                 <ng-template pTemplate="body" let-row let-rowIndex="rowIndex">
                   <tr>
-                    <td style="width: 33%">{{ row.name }}</td>
-                    <td style="width: 33%">{{ row.zeitraum }}</td>
-                    <td style="width: 33%">
+                    <td class="w-[33%]">{{ row.name }}</td>
+                    <td class="w-[33%]">{{ row.zeitraum }}</td>
+                    <td class="w-[33%]">
                       {{ row.preis | currency: 'EUR' : 'symbol' : '.2-2' : 'de-DE' }} {{ 'MWST_SUFFIX' | translate }}
                     </td>
                   </tr>

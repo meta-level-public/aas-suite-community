@@ -1,15 +1,16 @@
 import * as aas from '@aas-core-works/aas-core3.1-typescript';
 import { AasExtractHelper } from '@aas/helpers';
-import { Component, Input, computed, signal } from '@angular/core';
+import { Component, Input, computed, signal, ChangeDetectionStrategy } from '@angular/core';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
-import { InputGroup } from 'primeng/inputgroup';
-import { InputGroupAddon } from 'primeng/inputgroupaddon';
-import { InputText } from 'primeng/inputtext';
+import { InputGroup } from '@openng/optimus-ui/inputgroup';
+import { InputGroupAddon } from '@openng/optimus-ui/inputgroupaddon';
+import { InputText } from '@openng/optimus-ui/inputtext';
 import { HandoverStructureMode } from '../structure-mode';
 
 @Component({
   selector: 'aas-handover-doc-classifications',
   templateUrl: './document-classifications.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [InputGroup, InputGroupAddon, InputText, TranslateModule],
 })
 export class DocumentClassificationsComponent {

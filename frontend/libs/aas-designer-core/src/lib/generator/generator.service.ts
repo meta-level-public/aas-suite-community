@@ -8,7 +8,7 @@ import { lastValueFrom } from 'rxjs';
 import * as aas from '@aas-core-works/aas-core3.1-typescript';
 import { OrgaUserSeatStats } from '@aas-designer-model';
 import { AppConfigService, PortalService } from '@aas/common-services';
-import { FilenameHelper, IdGenerationUtil, SemanticIdHelper } from '@aas/helpers';
+import { FilenameHelper, IdGenerationUtil, SemanticIdHelper, getAasModelTypeName } from '@aas/helpers';
 import { ApiException } from '@aas/jwt-auth';
 import { ConceptDescription, FileResult, MultiLanguagePropertyValue, ShellResult } from '@aas/model';
 import { SaveShellResult } from '@aas/webapi-client';
@@ -871,7 +871,12 @@ export class GeneratorService {
     const environment = this.generatorExportService.getVerifiableEnvironment(exportState);
     const validationErrors = Array.from(aas.verification.verify(environment));
     if (validationErrors.length > 0) {
-      throw new Error(`Die erzeugte AAS ist ungültig: ${validationErrors[0].message}`);
+      // eslint-disable-next-line no-console
+      console.error(
+        'Generated AAS is invalid',
+        validationErrors.map((error) => `${error.path}: ${error.message}`),
+      );
+      throw new Error(`Die erzeugte AAS ist ungültig: ${validationErrors[0].message} (${validationErrors[0].path})`);
     }
 
     return lastValueFrom(
@@ -1716,17 +1721,7 @@ export class GeneratorService {
   }
 
   private getSubmodelElementModelTypeName(element: any): string {
-    const rawType = element?.modelType?.name ?? element?.modelType;
-    if (typeof rawType === 'string') {
-      return rawType;
-    }
-
-    const ctorName = rawType?.constructor?.name;
-    if (typeof ctorName === 'string' && ctorName.length > 0 && ctorName !== 'Object') {
-      return ctorName;
-    }
-
-    return rawType != null ? String(rawType) : '';
+    return getAasModelTypeName(element) ?? '';
   }
 
   private isDppFileElement(element: any, modelTypeLower: string) {
@@ -1744,7 +1739,10 @@ export class GeneratorService {
     const templateElements = pcfSubmodel.submodelElements ?? [];
     for (const generatedElement of generatedElements) {
       const templateElement = templateElements.find((element) => element.idShort === generatedElement.idShort);
-      if (templateElement instanceof aas.types.SubmodelElementList && generatedElement instanceof aas.types.SubmodelElementList) {
+      if (
+        templateElement instanceof aas.types.SubmodelElementList &&
+        generatedElement instanceof aas.types.SubmodelElementList
+      ) {
         templateElement.value = generatedElement.value;
       } else if (templateElement == null) {
         templateElements.push(generatedElement);

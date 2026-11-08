@@ -1,18 +1,18 @@
 import { buildShellRegistryCorrectionRoute, buildShellsListRoute, NotificationService } from '@aas/common-services';
 import { CommonModule } from '@angular/common';
-import { Component, computed, inject, OnInit, signal } from '@angular/core';
+import { Component, computed, inject, OnInit, signal, ChangeDetectionStrategy } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
-import { AccordionModule } from 'primeng/accordion';
-import { TreeNode } from 'primeng/api';
-import { ButtonModule } from 'primeng/button';
-import { InputGroupModule } from 'primeng/inputgroup';
-import { InputGroupAddonModule } from 'primeng/inputgroupaddon';
-import { InputTextModule } from 'primeng/inputtext';
-import { SkeletonModule } from 'primeng/skeleton';
-import { SplitterModule } from 'primeng/splitter';
-import { TextareaModule } from 'primeng/textarea';
+import { AccordionModule } from '@openng/optimus-ui/accordion';
+import { TreeNode } from '@openng/optimus-ui/api';
+import { ButtonModule } from '@openng/optimus-ui/button';
+import { InputGroupModule } from '@openng/optimus-ui/inputgroup';
+import { InputGroupAddonModule } from '@openng/optimus-ui/inputgroupaddon';
+import { InputTextModule } from '@openng/optimus-ui/inputtext';
+import { SkeletonModule } from '@openng/optimus-ui/skeleton';
+import { SplitterModule } from '@openng/optimus-ui/splitter';
+import { TextareaModule } from '@openng/optimus-ui/textarea';
 import { SidebarTreeNavComponent } from '../../general/sidebar-tree-nav/sidebar-tree-nav.component';
 import {
   RegistryAasDescriptor,
@@ -39,6 +39,7 @@ import {
     SidebarTreeNavComponent,
   ],
   templateUrl: './registry-correction.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrls: ['../../../host.scss', './registry-correction.component.scss'],
 })
 export class RegistryCorrectionComponent implements OnInit {
@@ -483,8 +484,14 @@ export class RegistryCorrectionComponent implements OnInit {
       this.notificationService.showMessageAlways('REGISTRY_CORRECTION_SAVE_SUCCESS', 'SUCCESS', 'success', false);
       this.cancelEditSubmodel(submodelId);
       this.selectedNodeKey.set(this.buildSubmodelKey(nextId));
+      // Drop the cached descriptors so that loadAasDescriptor loads the selected submodel descriptor exactly once.
+      this.submodelDescriptors.update((map) => {
+        const next = { ...map };
+        delete next[submodelId];
+        delete next[nextId];
+        return next;
+      });
       await this.loadAasDescriptor(this.buildSubmodelKey(nextId));
-      await this.loadSubmodelDescriptor(nextId);
     } catch {
       this.notificationService.showMessageAlways('REGISTRY_CORRECTION_SAVE_FAILED', 'ERROR', 'error', false);
     } finally {

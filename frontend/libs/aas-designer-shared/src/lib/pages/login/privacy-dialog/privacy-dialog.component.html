@@ -10,20 +10,21 @@
     @if (portalService.currentLanguage.toLowerCase() === 'de') {
       <iframe
         [src]="this.appConfigService.config.datenschutzLinkDe | safe: 'resourceUrl'"
-        style="width: 100%; height: calc(100% - 50px); border: 0"
         title="{{ 'PRIVACY' | translate }}"
+        class="w-full h-[calc(100%_-_50px)] border-0"
       ></iframe>
     }
     @if (portalService.currentLanguage.toLowerCase() !== 'de') {
       <iframe
         [src]="this.appConfigService.config.datenschutzLinkEn | safe: 'resourceUrl'"
-        style="width: 100%; height: calc(100% - 50px); border: 0"
         title="{{ 'PRIVACY' | translate }}"
+        class="w-full h-[calc(100%_-_50px)] border-0"
       ></iframe>
     }
 
     <p-button
-      styleClass="p-button-secondary w-full"
+      severity="secondary"
+      styleClass="w-full"
       type="button"
       label="{{ 'PRIVACY_DENY' | translate }}"
       (onClick)="reject()"

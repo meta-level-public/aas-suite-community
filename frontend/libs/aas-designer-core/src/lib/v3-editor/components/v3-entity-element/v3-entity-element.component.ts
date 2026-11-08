@@ -5,14 +5,14 @@ import { HelpLabelComponent } from '@aas/common-components';
 import { AppConfigService } from '@aas/common-services';
 import { ShellResult } from '@aas/model';
 import { NgClass } from '@angular/common';
-import { Component, Input } from '@angular/core';
+import { Component, Input, ChangeDetectionStrategy } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
-import { SelectItem } from 'primeng/api';
-import { Fieldset } from 'primeng/fieldset';
-import { InputTextModule } from 'primeng/inputtext';
-import { Message } from 'primeng/message';
-import { Select } from 'primeng/select';
+import { SelectItem } from '@openng/optimus-ui/api';
+import { Fieldset } from '@openng/optimus-ui/fieldset';
+import { InputTextModule } from '@openng/optimus-ui/inputtext';
+import { Message } from '@openng/optimus-ui/message';
+import { Select } from '@openng/optimus-ui/select';
 import { NullIfEmptyDirective } from '../../../general/directives/null-if-empty.directive';
 import { V3UndoDirective } from '../../../general/directives/v3-undo.directive';
 import { Info } from '../../../general/model/info-item';
@@ -30,6 +30,7 @@ import { V3SpecificAssetIdsComponent } from '../v3-specific-asset-ids/v3-specifi
 @Component({
   selector: 'aas-v3-entity-element',
   templateUrl: './v3-entity-element.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [
     Fieldset,
     HelpLabelComponent,

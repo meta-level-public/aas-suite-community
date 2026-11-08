@@ -1,18 +1,18 @@
 import { HelpLabelComponent } from '@aas/common-components';
 import { AppConfigService } from '@aas/common-services';
 import { AasInfrastructureSettingsDto, SystemManagementClient, SystemType } from '@aas/webapi-client';
-import { Component, effect, inject, input, output, signal } from '@angular/core';
+import { Component, effect, inject, input, output, signal, ChangeDetectionStrategy } from '@angular/core';
 import { TranslateModule } from '@ngx-translate/core';
-import { ButtonModule } from 'primeng/button';
-import { FieldsetModule } from 'primeng/fieldset';
-import { InputGroupModule } from 'primeng/inputgroup';
-import { InputGroupAddonModule } from 'primeng/inputgroupaddon';
-import { InputTextModule } from 'primeng/inputtext';
-import { SkeletonModule } from 'primeng/skeleton';
-import { TableModule } from 'primeng/table';
-import { TagModule } from 'primeng/tag';
-import { ToolbarModule } from 'primeng/toolbar';
-import { TooltipModule } from 'primeng/tooltip';
+import { ButtonModule } from '@openng/optimus-ui/button';
+import { FieldsetModule } from '@openng/optimus-ui/fieldset';
+import { InputGroupModule } from '@openng/optimus-ui/inputgroup';
+import { InputGroupAddonModule } from '@openng/optimus-ui/inputgroupaddon';
+import { InputTextModule } from '@openng/optimus-ui/inputtext';
+import { SkeletonModule } from '@openng/optimus-ui/skeleton';
+import { TableModule } from '@openng/optimus-ui/table';
+import { TagModule } from '@openng/optimus-ui/tag';
+import { ToolbarModule } from '@openng/optimus-ui/toolbar';
+import { TooltipModule } from '@openng/optimus-ui/tooltip';
 import { lastValueFrom } from 'rxjs';
 import { HasChangesCheckable } from '../../my-organisation/has-changes-checkable';
 
@@ -34,6 +34,7 @@ import { HasChangesCheckable } from '../../my-organisation/has-changes-checkable
   ],
   templateUrl: './infrastructure-list.component.html',
   styleUrl: './infrastructure-list.component.scss',
+  changeDetection: ChangeDetectionStrategy.Eager,
   providers: [{ provide: HasChangesCheckable, useExisting: InfrastructureListComponent }],
 })
 export class InfrastructureListComponent extends HasChangesCheckable {

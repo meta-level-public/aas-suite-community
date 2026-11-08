@@ -4,14 +4,14 @@ import { HandoverSemantics } from '@aas/helpers';
 import { describe, expect, it } from 'vitest';
 
 import {
-    buildDocumentationExportSubmodel,
-    createDocumentationDocument,
-    createDocumentationSubmodel,
-    getDocumentFilename,
-    getDocumentationDocumentHost,
-    isDocumentationDocumentCollection,
-    populateDocumentationSubmodel,
-    syncDocumentationDocuments,
+  buildDocumentationExportSubmodel,
+  createDocumentationDocument,
+  createDocumentationSubmodel,
+  getDocumentFilename,
+  getDocumentationDocumentHost,
+  isDocumentationDocumentCollection,
+  populateDocumentationSubmodel,
+  syncDocumentationDocuments,
 } from './generator-documentation.builder';
 import { DocumentItem } from './model/document-item';
 
@@ -162,7 +162,8 @@ describe('generator-documentation.builder', () => {
     });
 
     const host = getDocumentationDocumentHost(submodel);
-    const hostChildren = host?.value ?? [];
+    expect(host).toBe(documentHost);
+    const hostChildren = documentHost.value ?? [];
 
     expect(hostChildren.filter((element: any) => element.idShort === 'Title')).toHaveLength(1);
     expect(hostChildren.filter((element: any) => isDocumentationDocumentCollection(element))).toHaveLength(2);

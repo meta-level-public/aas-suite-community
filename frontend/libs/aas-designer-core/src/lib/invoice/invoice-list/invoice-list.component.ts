@@ -1,11 +1,11 @@
-import { Component, ElementRef, ViewChild } from '@angular/core';
+import { Component, ElementRef, ViewChild, ChangeDetectionStrategy } from '@angular/core';
 import { OrgaRechnung } from '@aas-designer-model';
 import { InvoiceService } from '../invoice.service';
 
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
-import { MenuItem, PrimeTemplate } from 'primeng/api';
+import { MenuItem, PrimeTemplate } from '@openng/optimus-ui/api';
 
 import { CurrencyPipe, DecimalPipe } from '@angular/common';
 import moment from 'moment';
@@ -15,15 +15,16 @@ import { registerLocaleData } from '@angular/common';
 import localeDe from '@angular/common/locales/de';
 import localeDeExtra from '@angular/common/locales/extra/de';
 import { FormsModule } from '@angular/forms';
-import { Button } from 'primeng/button';
-import { DatePicker } from 'primeng/datepicker';
-import { Menu } from 'primeng/menu';
-import { TableModule } from 'primeng/table';
-import { Toolbar } from 'primeng/toolbar';
+import { Button } from '@openng/optimus-ui/button';
+import { DatePicker } from '@openng/optimus-ui/datepicker';
+import { Menu } from '@openng/optimus-ui/menu';
+import { TableModule } from '@openng/optimus-ui/table';
+import { Toolbar } from '@openng/optimus-ui/toolbar';
 
 @Component({
   selector: 'aas-invoice-list',
   templateUrl: './invoice-list.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [
     Toolbar,
     DatePicker,

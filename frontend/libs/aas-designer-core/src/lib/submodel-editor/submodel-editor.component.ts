@@ -1,5 +1,12 @@
 import * as aas from '@aas-core-works/aas-core3.1-typescript';
-import { AppConfigService, EncodingService, NotificationService, PortalService } from '@aas/common-services';
+import {
+  AppConfigService,
+  AppRouteSegments,
+  buildAbsoluteRoute,
+  EncodingService,
+  NotificationService,
+  PortalService,
+} from '@aas/common-services';
 import { ShellResult, SupplementalFile } from '@aas/model';
 import {
   ConceptDescriptionClient,
@@ -10,17 +17,17 @@ import {
 } from '@aas/webapi-client';
 import { CommonModule } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
-import { Component, inject, OnInit, signal } from '@angular/core';
+import { Component, inject, OnInit, signal, ChangeDetectionStrategy } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
-import { PrimeTemplate } from 'primeng/api';
-import { ButtonModule } from 'primeng/button';
-import { DialogModule } from 'primeng/dialog';
-import { InputGroupModule } from 'primeng/inputgroup';
-import { InputGroupAddonModule } from 'primeng/inputgroupaddon';
-import { InputTextModule } from 'primeng/inputtext';
-import { Splitter } from 'primeng/splitter';
+import { PrimeTemplate } from '@openng/optimus-ui/api';
+import { ButtonModule } from '@openng/optimus-ui/button';
+import { DialogModule } from '@openng/optimus-ui/dialog';
+import { InputGroupModule } from '@openng/optimus-ui/inputgroup';
+import { InputGroupAddonModule } from '@openng/optimus-ui/inputgroupaddon';
+import { InputTextModule } from '@openng/optimus-ui/inputtext';
+import { Splitter } from '@openng/optimus-ui/splitter';
 import { lastValueFrom } from 'rxjs';
 import { EditorTypeOption } from '../v3-editor/model/editor-type-option';
 import { V3TreeItem } from '../v3-editor/model/v3-tree-item';
@@ -58,6 +65,7 @@ interface SubmodelInfoSummary {
     V3EditorComponent,
   ],
   templateUrl: './submodel-editor.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrls: ['../../host.scss'],
 })
 export class SubmodelEditorComponent implements OnInit {
@@ -69,6 +77,7 @@ export class SubmodelEditorComponent implements OnInit {
   shellsClient = inject(ShellsClient);
   conceptDescriptionClient = inject(ConceptDescriptionClient);
   notificationService = inject(NotificationService);
+  private readonly router = inject(Router);
   editorStore = inject(V3EditorDataStoreService);
   http = inject(HttpClient);
 
@@ -156,6 +165,9 @@ export class SubmodelEditorComponent implements OnInit {
       this.shellResult.set(shellResult);
       this.submodelNode.set(submodelNode);
       this.selectedElement.set(undefined);
+    } catch {
+      this.notificationService.showMessageAlways('ERROR_LOADING_SUBMODEL', 'ERROR', 'error');
+      void this.router.navigate(buildAbsoluteRoute(AppRouteSegments.submodels));
     } finally {
       this.loading.set(false);
     }
@@ -185,9 +197,9 @@ export class SubmodelEditorComponent implements OnInit {
     try {
       await this.saveConceptDescriptions();
       await lastValueFrom(this.http.post(`${this.appConfigService.config.aasApiPath}/Submodel/SaveSm`, formData));
-      this.notificationService.showMessageAlways('SAVE_SUCCESS', 'SUCCESS', 'success');
+      this.notificationService.showMessageAlways('SAVED', 'SUCCESS', 'success');
     } catch {
-      this.notificationService.showMessageAlways('SAVE_FAILED', 'ERROR', 'error');
+      this.notificationService.showMessageAlways('SAVE_ERROR', 'ERROR', 'error');
     } finally {
       this.saving.set(false);
     }

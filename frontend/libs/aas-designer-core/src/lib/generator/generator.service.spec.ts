@@ -1,6 +1,7 @@
 import * as aas from '@aas-core-works/aas-core3.1-typescript';
 import { HandoverSemantics } from '@aas/helpers';
 import { of } from 'rxjs';
+import { assert } from 'vitest';
 import { prefillBatteryPassportTechnicalData } from './generator-battery-passport-prefill.builder';
 import { getDocumentationDocumentHost } from './generator-documentation.builder';
 import { GeneratorService } from './generator.service';
@@ -29,10 +30,26 @@ function createNameplateSummary(overrides: Record<string, unknown> = {}) {
     markings: [],
     address: {
       ...defaultAddress,
-      ...((overrides.address as Record<string, unknown> | undefined) ?? {}),
+      ...((overrides['address'] as Record<string, unknown> | undefined) ?? {}),
     },
     ...overrides,
   };
+}
+
+// Plain JSON-like submodel stubs: the battery passport prefill also supports untyped submodels (modelType.name).
+interface PlainSubmodelElementStub {
+  idShort: string;
+  modelType: { name: string };
+  value: string | Array<{ language: string; text: string }> | null;
+  semanticId?: { keys: Array<{ value: string }> };
+}
+
+interface PlainSubmodelStub {
+  submodelElements: PlainSubmodelElementStub[];
+}
+
+function asSubmodel(stub: PlainSubmodelStub): aas.types.Submodel {
+  return stub as unknown as aas.types.Submodel;
 }
 
 function serializeConceptDescription(conceptDescription: aas.types.ConceptDescription | Record<string, unknown>) {
@@ -219,13 +236,13 @@ describe('GeneratorService', () => {
       | undefined;
 
     expect(importedMarkings?.value).toBeNull();
-    expect(service.getCurrentGeneratorNameplateSource()?.nameplate.markings).toEqual([]);
+    expect(service.getCurrentGeneratorNameplateSource()?.nameplate?.markings).toEqual([]);
   });
 
   it('prefills technical data fields from matching nameplate semantic ids', () => {
     const sharedSerialSemanticId = 'urn:test:shared:serial-number';
     const sharedPlantSemanticId = 'urn:test:shared:plant';
-    const digitalNameplate = {
+    const digitalNameplate: PlainSubmodelStub = {
       submodelElements: [
         {
           idShort: 'ProductionSerial',
@@ -244,8 +261,8 @@ describe('GeneratorService', () => {
           },
         },
       ],
-    } as never;
-    const technicalData = {
+    };
+    const technicalData: PlainSubmodelStub = {
       submodelElements: [
         {
           idShort: 'TechnicalSerialField',
@@ -272,13 +289,17 @@ describe('GeneratorService', () => {
           },
         },
       ],
-    } as never;
+    };
 
-    prefillBatteryPassportTechnicalData(digitalNameplate, technicalData, createNameplateSummary());
+    prefillBatteryPassportTechnicalData(
+      asSubmodel(digitalNameplate),
+      asSubmodel(technicalData),
+      createNameplateSummary(),
+    );
 
-    expect(technicalData.submodelElements[0].value).toBe('SN-42');
-    expect(technicalData.submodelElements[1].value).toBe('Werk Nord');
-    expect(technicalData.submodelElements[2].value).toBe('keep-me');
+    expect(technicalData.submodelElements[0]?.value).toBe('SN-42');
+    expect(technicalData.submodelElements[1]?.value).toBe('Werk Nord');
+    expect(technicalData.submodelElements[2]?.value).toBe('keep-me');
   });
 
   it('falls back to nameplate summary values for battery passport technical data aliases', () => {
@@ -289,7 +310,7 @@ describe('GeneratorService', () => {
       }),
     };
 
-    const technicalData = {
+    const technicalData: PlainSubmodelStub = {
       submodelElements: [
         {
           idShort: 'ManufacturerName',
@@ -302,12 +323,12 @@ describe('GeneratorService', () => {
           value: null,
         },
       ],
-    } as never;
+    };
 
-    prefillBatteryPassportTechnicalData(null, technicalData, nameplateSource.nameplate);
+    prefillBatteryPassportTechnicalData(null, asSubmodel(technicalData), nameplateSource.nameplate);
 
-    expect(technicalData.submodelElements[0].value).toBe('ACME GmbH');
-    expect(technicalData.submodelElements[1].value?.[0]?.text).toBe('Battery Pack X');
+    expect(technicalData.submodelElements[0]?.value).toBe('ACME GmbH');
+    expect(technicalData.submodelElements[1]?.value).toEqual([expect.objectContaining({ text: 'Battery Pack X' })]);
   });
 
   it('stores uploaded DBP files by stable key', () => {
@@ -466,7 +487,8 @@ describe('GeneratorService', () => {
     expect(service.additionalV3Submodels).toHaveLength(2);
     const bootstrappedAddressInformation = service.additionalV3Submodels[0].submodelElements?.find(
       (element) => element.idShort === 'AddressInformation',
-    ) as aas.types.ISubmodelElementCollection;
+    );
+    assert.instanceOf(bootstrappedAddressInformation, aas.types.SubmodelElementCollection);
     expect(bootstrappedAddressInformation.value?.some((element) => element.idShort === 'ContactInformation')).toBe(
       true,
     );
@@ -669,7 +691,7 @@ describe('GeneratorService', () => {
         filePath: 'file:/aasx/files/operation-manual.pdf',
         mimeType: 'application/pdf',
       },
-    ] as DocumentItem[];
+    ] as unknown as DocumentItem[]; // deliberately partial: only the fields the export reads
     service.additionalV3Submodels = [handoverTemplate];
     service.standardGeneratorTemplateRoles = [
       {
@@ -946,6 +968,9 @@ describe('GeneratorService', () => {
     );
 
     const conceptDescription = new aas.types.ConceptDescription('https://example.com/cd/1');
+    const dataSpecificationContent = new aas.types.DataSpecificationIec61360([
+      new aas.types.LangStringTextType('en', 'Example preferred name'),
+    ]);
     const embeddedDataSpecification = new aas.types.EmbeddedDataSpecification(
       new aas.types.Reference(aas.types.ReferenceTypes.ExternalReference, [
         new aas.types.Key(
@@ -953,10 +978,10 @@ describe('GeneratorService', () => {
           'https://admin-shell.io/DataSpecificationTemplates/DataSpecificationIEC61360/3/0',
         ),
       ]),
-      new aas.types.DataSpecificationIec61360([new aas.types.LangStringTextType('en', 'Example preferred name')]),
+      dataSpecificationContent,
     );
 
-    embeddedDataSpecification.dataSpecificationContent.definition = [
+    dataSpecificationContent.definition = [
       new aas.types.LangStringDefinitionTypeIec61360('de', 'Erste Definition'),
       new aas.types.LangStringDefinitionTypeIec61360('de', 'Doppelte Definition'),
       new aas.types.LangStringDefinitionTypeIec61360('en', 'English Definition'),
@@ -969,8 +994,10 @@ describe('GeneratorService', () => {
     hydrateGeneratorExportStore(service, { kind: 'Type' });
 
     const exportState = await service.getExportStateV3();
-    const exportedDefinition =
-      exportState.env.conceptDescriptions?.[0]?.embeddedDataSpecifications?.[0]?.dataSpecificationContent.definition;
+    const exportedContent =
+      exportState.env.conceptDescriptions?.[0]?.embeddedDataSpecifications?.[0]?.dataSpecificationContent;
+    assert.instanceOf(exportedContent, aas.types.DataSpecificationIec61360);
+    const exportedDefinition = exportedContent.definition;
     const serializedEnvironment = JSON.parse(`${exportState.formData.get('plainJson') ?? ''}`);
     const serializedDefinition =
       serializedEnvironment.conceptDescriptions[0].embeddedDataSpecifications[0].dataSpecificationContent.definition;
@@ -992,6 +1019,9 @@ describe('GeneratorService', () => {
     );
 
     const conceptDescription = new aas.types.ConceptDescription('https://example.com/cd/typed');
+    const dataSpecificationContent = new aas.types.DataSpecificationIec61360([
+      new aas.types.LangStringTextType('en', 'Preferred name'),
+    ]);
     const embeddedDataSpecification = new aas.types.EmbeddedDataSpecification(
       new aas.types.Reference(aas.types.ReferenceTypes.ExternalReference, [
         new aas.types.Key(
@@ -999,11 +1029,9 @@ describe('GeneratorService', () => {
           'https://admin-shell.io/DataSpecificationTemplates/DataSpecificationIEC61360/3/0',
         ),
       ]),
-      new aas.types.DataSpecificationIec61360([new aas.types.LangStringTextType('en', 'Preferred name')]),
+      dataSpecificationContent,
     );
-    embeddedDataSpecification.dataSpecificationContent.definition = [
-      new aas.types.LangStringDefinitionTypeIec61360('en', 'Definition'),
-    ];
+    dataSpecificationContent.definition = [new aas.types.LangStringDefinitionTypeIec61360('en', 'Definition')];
     conceptDescription.embeddedDataSpecifications = [embeddedDataSpecification];
 
     service.vwsTyp = 'typ';
@@ -1122,7 +1150,7 @@ describe('GeneratorService', () => {
       | undefined;
 
     expect(markings?.value).toBeNull();
-    expect(service.getCurrentGeneratorNameplateSource()?.nameplate.markings).toEqual([]);
+    expect(service.getCurrentGeneratorNameplateSource()?.nameplate?.markings).toEqual([]);
   });
 
   it('bootstraps dpp and dbp helper flows with a blank editable nameplate and document model', async () => {

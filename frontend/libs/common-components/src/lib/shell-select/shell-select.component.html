@@ -21,7 +21,6 @@
     [value]="shells()"
     [tableStyle]="{ 'min-width': '50rem' }"
     [loading]="loading()"
-    responsiveLayout="scroll"
     [rows]="10"
     [paginator]="false"
     [rowsPerPageOptions]="[5, 10, 25, 50]"
@@ -75,6 +74,7 @@
         <td [attr.colspan]="8">
           <div class="flex flex-row gap-2 justify-center">
             <p-button
+              severity="secondary"
               label="{{ 'FIRST' | translate }}"
               icon="pi pi-angle-left"
               (onClick)="loadFirstPage()"
@@ -91,7 +91,7 @@
               icon="pi pi-angle-right"
               iconPos="right"
               (onClick)="loadNextPage()"
-              [disabled]="cursor == null"
+              [disabled]="cursor() == null"
             ></p-button>
           </div>
         </td>

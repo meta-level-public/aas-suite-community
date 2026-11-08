@@ -1,12 +1,12 @@
 import { HelpLabelComponent } from '@aas/common-components';
 import { OrganisationUebersichtDto } from '@aas/webapi-client';
-import { Component, input } from '@angular/core';
+import { Component, input, ChangeDetectionStrategy } from '@angular/core';
 import { TranslateModule } from '@ngx-translate/core';
-import { ButtonModule } from 'primeng/button';
-import { InputGroupModule } from 'primeng/inputgroup';
-import { InputGroupAddonModule } from 'primeng/inputgroupaddon';
-import { InputTextModule } from 'primeng/inputtext';
-import { TableModule } from 'primeng/table';
+import { ButtonModule } from '@openng/optimus-ui/button';
+import { InputGroupModule } from '@openng/optimus-ui/inputgroup';
+import { InputGroupAddonModule } from '@openng/optimus-ui/inputgroupaddon';
+import { InputTextModule } from '@openng/optimus-ui/inputtext';
+import { TableModule } from '@openng/optimus-ui/table';
 
 @Component({
   selector: 'aas-organisation-details-list',
@@ -20,6 +20,7 @@ import { TableModule } from 'primeng/table';
     InputTextModule,
     HelpLabelComponent,
   ],
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrls: ['../../../../host.scss'],
 })
 export class OrganisationDetailsListComponent {

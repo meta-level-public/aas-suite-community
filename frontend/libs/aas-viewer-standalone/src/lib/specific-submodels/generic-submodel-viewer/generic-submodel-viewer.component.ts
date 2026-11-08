@@ -1,11 +1,12 @@
 import * as aas from '@aas-core-works/aas-core3.1-typescript';
-import { Component, Input } from '@angular/core';
+import { Component, Input, ChangeDetectionStrategy } from '@angular/core';
 import { SubmodelElementsListComponent } from '../../submodel-elements-list/submodel-elements-list.component';
 
 @Component({
   selector: 'aas-generic-submodel-viewer',
   templateUrl: './generic-submodel-viewer.component.html',
   styleUrls: ['./generic-submodel-viewer.component.css'],
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [SubmodelElementsListComponent],
 })
 export class GenericSubmodelViewerComponent {

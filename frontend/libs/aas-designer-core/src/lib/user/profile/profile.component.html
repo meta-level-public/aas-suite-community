@@ -21,7 +21,7 @@
       <!-- Personal Information Section -->
       <div class="detail-card">
         <div class="flex items-center gap-2 mb-4">
-          <i class="pi pi-user" style="color: var(--p-primary-700)"></i>
+          <i class="pi pi-user text-[var(--p-primary-700)]"></i>
           <div class="font-semibold text-lg">{{ 'PERSONAL_INFORMATION' | translate }}</div>
         </div>
 
@@ -29,8 +29,7 @@
           <p-inputgroup>
             <p-inputgroup-addon class="font-bold w-56"
               ><i class="pi pi-id-card mr-2"></i><lib-help-label tag="VORNAME" [showLabel]="false"></lib-help-label
-              >{{ 'VORNAME' | translate
-              }}<span class="ml-1" style="color: var(--aas-danger-icon)">*</span></p-inputgroup-addon
+              >{{ 'VORNAME' | translate }}<span class="ml-1 text-[var(--aas-danger-icon)]">*</span></p-inputgroup-addon
             >
             <input
               pInputText
@@ -44,8 +43,7 @@
           <p-inputgroup>
             <p-inputgroup-addon class="font-bold w-56"
               ><i class="pi pi-id-card mr-2"></i><lib-help-label tag="NAME" [showLabel]="false"></lib-help-label
-              >{{ 'NAME' | translate
-              }}<span class="ml-1" style="color: var(--aas-danger-icon)">*</span></p-inputgroup-addon
+              >{{ 'NAME' | translate }}<span class="ml-1 text-[var(--aas-danger-icon)]">*</span></p-inputgroup-addon
             >
             <input
               pInputText
@@ -79,19 +77,18 @@
       <!-- Profile Image Section -->
       <div class="detail-card">
         <div class="flex items-center gap-2 mb-4">
-          <i class="pi pi-image" style="color: var(--p-text-muted-color)"></i>
+          <i class="pi pi-image text-muted-color"></i>
           <div class="font-semibold text-lg">{{ 'PROFILE_IMAGE' | translate }}</div>
         </div>
 
         <div class="flex flex-row gap-6">
           <div class="flex-1">
             <div class="flex items-center gap-2 mb-3">
-              <i class="pi pi-eye text-sm" style="color: var(--p-text-muted-color)"></i>
+              <i class="pi pi-eye text-sm text-muted-color"></i>
               <div class="font-semibold text-base">{{ 'CURRENT_PROFILE_IMAGE' | translate }}</div>
             </div>
             <div
-              class="flex flex-col items-center p-4 rounded-lg border"
-              style="background: var(--aas-surface-overlay-strong); border-color: var(--p-content-border-color)"
+              class="flex flex-col items-center p-4 rounded-lg border bg-[var(--aas-surface-overlay-strong)] border-[color:var(--p-content-border-color)]"
             >
               @if (profile.profilbildBase64) {
                 <p-avatar [image]="profile.profilbildBase64" shape="circle" size="xlarge"></p-avatar>
@@ -104,13 +101,10 @@
                   styleClass="mt-4"
                 ></p-button>
               } @else {
-                <div
-                  class="flex items-center justify-center w-32 h-32 rounded-full"
-                  style="background: var(--aas-surface-subtle)"
-                >
-                  <i class="pi pi-user text-5xl" style="color: var(--p-text-muted-color)"></i>
+                <div class="flex items-center justify-center w-32 h-32 rounded-full bg-[var(--aas-surface-subtle)]">
+                  <i class="pi pi-user text-5xl text-muted-color"></i>
                 </div>
-                <p class="text-sm mt-3" style="color: var(--p-text-muted-color)">
+                <p class="text-sm mt-3 text-muted-color">
                   {{ 'NO_PROFILE_IMAGE' | translate }}
                 </p>
               }
@@ -119,7 +113,7 @@
 
           <div class="flex-[2]">
             <div class="flex items-center gap-2 mb-3">
-              <i class="pi pi-upload text-sm" style="color: var(--p-text-muted-color)"></i>
+              <i class="pi pi-upload text-sm text-muted-color"></i>
               <div class="font-semibold text-base">{{ 'UPLOAD_NEW_IMAGE' | translate }}</div>
             </div>
             <p-fileUpload

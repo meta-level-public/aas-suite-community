@@ -1,14 +1,14 @@
-import { Component, inject, model, signal } from '@angular/core';
+import { Component, inject, model, signal, ChangeDetectionStrategy } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
 import { HelpLabelComponent } from '@aas/common-components';
 import { NotificationService } from '@aas/common-services';
 import { PcnClient, PcnRegistrationRequest } from '@aas/webapi-client';
-import { ButtonModule } from 'primeng/button';
-import { DynamicDialogConfig, DynamicDialogRef } from 'primeng/dynamicdialog';
-import { InputTextModule } from 'primeng/inputtext';
-import { PasswordModule } from 'primeng/password';
-import { SelectModule } from 'primeng/select';
+import { ButtonModule } from '@openng/optimus-ui/button';
+import { DynamicDialogConfig, DynamicDialogRef } from '@openng/optimus-ui/dynamicdialog';
+import { InputTextModule } from '@openng/optimus-ui/inputtext';
+import { PasswordModule } from '@openng/optimus-ui/password';
+import { SelectModule } from '@openng/optimus-ui/select';
 import { lastValueFrom } from 'rxjs';
 
 @Component({
@@ -22,6 +22,7 @@ import { lastValueFrom } from 'rxjs';
     PasswordModule,
     HelpLabelComponent,
   ],
+  changeDetection: ChangeDetectionStrategy.Eager,
   templateUrl: './pcn-register-subscription.component.html',
 })
 export class PcnRegisterSubscriptionComponent {

@@ -1,16 +1,17 @@
 import * as aas from '@aas-core-works/aas-core3.1-typescript';
-import { Component, Input } from '@angular/core';
+import { Component, Input, ChangeDetectionStrategy } from '@angular/core';
 import { HelpLabelComponent } from '@aas/common-components';
 import { TranslateModule } from '@ngx-translate/core';
-import { InputGroup } from 'primeng/inputgroup';
-import { InputGroupAddon } from 'primeng/inputgroupaddon';
-import { InputText } from 'primeng/inputtext';
+import { InputGroup } from '@openng/optimus-ui/inputgroup';
+import { InputGroupAddon } from '@openng/optimus-ui/inputgroupaddon';
+import { InputText } from '@openng/optimus-ui/inputtext';
 import { OpenShellButtonComponent } from '../open-shell-button/open-shell-button.component';
 
 @Component({
   selector: 'aas-reference-element-v3',
   templateUrl: './reference-element.component.html',
   styleUrls: ['./reference-element.component.css'],
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [InputGroup, InputGroupAddon, InputText, TranslateModule, HelpLabelComponent, OpenShellButtonComponent],
 })
 export class ReferenceElementComponent {

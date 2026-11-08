@@ -1,13 +1,13 @@
 import { ConceptDescription, ISubmodelElement } from '@aas-core-works/aas-core3.1-typescript/types';
 import { SubmodelElementUtil } from '@aas/helpers';
-import { Component, inject, Input, OnChanges, OnDestroy, signal } from '@angular/core';
+import { Component, inject, Input, OnChanges, OnDestroy, signal, ChangeDetectionStrategy } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
-import { Accordion, AccordionContent, AccordionHeader, AccordionPanel } from 'primeng/accordion';
-import { InputGroup } from 'primeng/inputgroup';
-import { InputGroupAddon } from 'primeng/inputgroupaddon';
-import { InputText } from 'primeng/inputtext';
-import { Ripple } from 'primeng/ripple';
+import { Accordion, AccordionContent, AccordionHeader, AccordionPanel } from '@openng/optimus-ui/accordion';
+import { InputGroup } from '@openng/optimus-ui/inputgroup';
+import { InputGroupAddon } from '@openng/optimus-ui/inputgroupaddon';
+import { InputText } from '@openng/optimus-ui/inputtext';
+import { Ripple } from '@openng/optimus-ui/ripple';
 import { Subscription } from 'rxjs';
 import { ConceptDescriptionService } from '../concept-description.service';
 import { SemanticDescriptionPopupComponent } from '../semantic-description-popup/semantic-description-popup.component';
@@ -17,6 +17,7 @@ import { RelationshipElementViewerComponent } from './relationship-element/relat
 @Component({
   selector: 'aas-relationship-viewer-v3',
   templateUrl: './relationship-viewer.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [
     InputGroup,
     InputGroupAddon,

@@ -1,9 +1,10 @@
 import * as aas from '@aas-core-works/aas-core3.1-typescript';
-import { Component, inject, Input, OnChanges, signal } from '@angular/core';
+import { Component, inject, Input, OnChanges, signal, ChangeDetectionStrategy } from '@angular/core';
 import { LanguageIsoMap, LanguageService } from '@aas/aas-designer-shared';
 import { PortalService } from '@aas/common-services';
 @Component({
   selector: 'aas-v3-lang-string-display',
+  changeDetection: ChangeDetectionStrategy.Eager,
   templateUrl: './v3-lang-string-display.component.html',
 })
 export class V3LangStringDisplayComponent implements OnChanges {

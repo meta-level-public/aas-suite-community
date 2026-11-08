@@ -6,14 +6,22 @@ import { inject, Injectable, signal } from '@angular/core';
 import { Router } from '@angular/router';
 import { TranslateService } from '@ngx-translate/core';
 import { get, set } from 'lodash-es';
-import { MenuItem } from 'primeng/api';
-import { DialogService, DynamicDialogRef } from 'primeng/dynamicdialog';
+import { MenuItem } from '@openng/optimus-ui/api';
+import { DialogService, DynamicDialogRef } from '@openng/optimus-ui/dynamicdialog';
 import { Subject } from 'rxjs';
 import { IdValidatorComponent } from '../components/id-validator/id-validator.component';
 import { V3TreeService } from '../v3-tree/v3-tree.service';
 import { AasDesignerVerificationError } from './aas-designer-verification-error';
 
 type VerificationError = aas.verification.VerificationError;
+
+/** aas-core 3.1 reports file paths and URLs that are not valid URIs (PathType) with this message. */
+export const INVALID_PATH_MESSAGE = 'String with max 2048 and min 1 characters conformant to a URI as per RFC 2396.';
+
+/** Percent-encodes characters that are not allowed in a URI, keeping existing escapes, and turns backslashes into slashes. */
+export function encodeFilePath(value: string): string {
+  return encodeURI(value.trim().replace(/\\/g, '/')).replace(/%25([0-9A-Fa-f]{2})/g, '%$1');
+}
 
 @Injectable()
 export class V3EditorValidationService {
@@ -74,7 +82,6 @@ export class V3EditorValidationService {
         let number = 1;
         this.constraintOptions = [];
         for (const error of errs ?? []) {
-          if (error.message.includes('RFC 8089')) continue;
           if (!this.shouldIncludeValidationError(error)) continue;
           const myError = new AasDesignerVerificationError(error);
           myError.messageTranslated = this.translate.instant('errorMessages.' + error.message);
@@ -91,8 +98,7 @@ export class V3EditorValidationService {
           validationErrors.push(myError);
         }
       } catch (e: any) {
-        // eslint-disable-next-line no-console
-        console.log(e);
+        console.error(e);
       }
     }
     this.validationErrors.set(validationErrors);
@@ -161,7 +167,8 @@ export class V3EditorValidationService {
       error.message ===
         'Constraint AASd-123: For model references the value of type of the first key of keys shall be one of AAS identifiables.' ||
       error.message ===
-        'Constraint AASd-122: For external references the value of type of the first key of keys shall be one of Generic Globally Identifiables.'
+        'Constraint AASd-122: For external references the value of type of the first key of keys shall be one of Generic Globally Identifiables.' ||
+      error.message === INVALID_PATH_MESSAGE
     );
   }
 
@@ -197,6 +204,11 @@ export class V3EditorValidationService {
       case 'Constraint AASd-122: For external references the value of type of the first key of keys shall be one of Generic Globally Identifiables.':
         this.fixAllGlobalReference(error);
         break;
+      case INVALID_PATH_MESSAGE:
+        this.validationErrors()
+          .filter((e) => e.message === error.message)
+          .forEach((e) => this.encodePathAt(e.path.toString().substring(1)));
+        break;
     }
 
     this.validate();
@@ -217,9 +229,12 @@ export class V3EditorValidationService {
           this.shellResult.v3Shell.conceptDescriptions = null;
           break;
         case 'Value must be either not set or have at least one item.':
-        case 'Description must be either not set or have at least one item.':
         case 'Value must be consistent with the value type.':
           x.value = null;
+          break;
+        case 'Description must be either not set or have at least one item.':
+          // The error path points to the element itself, not to its description.
+          this.clearDescriptionAt(path);
           break;
         case 'The value must not be empty.':
           if (
@@ -237,17 +252,16 @@ export class V3EditorValidationService {
           }
           break;
         case 'String shall have a maximum length of 18 characters.':
-          if (x === '') {
-            set(this.shellResult?.v3Shell, path, null);
-          } else if (x.length > 18) {
-            set(this.shellResult?.v3Shell, path, x.substring(0, 18));
-          }
+          this.shortenAt(path);
           break;
         case 'Constraint AASd-123: For model references the value of type of the first key of keys shall be one of AAS identifiables.':
           set(this.shellResult?.v3Shell, path.toString() + '.type', 0);
           break;
         case 'Constraint AASd-122: For external references the value of type of the first key of keys shall be one of Generic Globally Identifiables.':
           if (x.keys != null && x.keys[0] != null) x.keys[0].type = aas.types.KeyTypes.GlobalReference;
+          break;
+        case INVALID_PATH_MESSAGE:
+          this.encodePathAt(path);
           break;
       }
     }
@@ -276,6 +290,9 @@ export class V3EditorValidationService {
       case 'Constraint AASd-122: For external references the value of type of the first key of keys shall be one of Generic Globally Identifiables.':
         label = 'SET_GLOBAL_REFERENCE_ALL';
         break;
+      case INVALID_PATH_MESSAGE:
+        label = 'ENCODE_PATH_ALL';
+        break;
     }
 
     return label;
@@ -302,6 +319,9 @@ export class V3EditorValidationService {
         break;
       case 'Constraint AASd-122: For external references the value of type of the first key of keys shall be one of Generic Globally Identifiables.':
         label = 'SET_GLOBAL_REFERENCE';
+        break;
+      case INVALID_PATH_MESSAGE:
+        label = 'ENCODE_PATH';
         break;
     }
 
@@ -348,12 +368,39 @@ export class V3EditorValidationService {
     this.validationErrors()
       .filter((e) => e.message === error.message)
       .forEach((e) => {
-        if (this.shellResult?.v3Shell != null) {
-          const path = e.path.toString().substring(1);
-          const x = get(this.shellResult.v3Shell, path + '.description');
-          if (x != null) set(this.shellResult.v3Shell, path + '.description', null);
-        }
+        this.clearDescriptionAt(e.path.toString().substring(1));
       });
+  }
+
+  private clearDescriptionAt(path: string): void {
+    if (this.shellResult?.v3Shell == null) return;
+    const description = get(this.shellResult.v3Shell, path + '.description');
+    if (description != null) set(this.shellResult.v3Shell, path + '.description', null);
+  }
+
+  /** Shortens a string or a short name (LangStringShortNameTypeIec61360) to 18 characters; empty strings become null. */
+  /**
+   * Percent-encodes a file path or URL that is not a valid URI (e.g. spaces or umlauts in file names).
+   * Already encoded parts stay as they are.
+   */
+  private encodePathAt(path: string): void {
+    if (this.shellResult?.v3Shell == null) return;
+    const value = get(this.shellResult.v3Shell, path);
+    if (typeof value === 'string' && value !== '') {
+      set(this.shellResult.v3Shell, path, encodeFilePath(value));
+    }
+  }
+
+  private shortenAt(path: string): void {
+    if (this.shellResult?.v3Shell == null) return;
+    const x = get(this.shellResult.v3Shell, path);
+    if (x instanceof LangStringShortNameTypeIec61360) {
+      x.text = x.text.substring(0, 18);
+    } else if (x === '') {
+      set(this.shellResult.v3Shell, path, null);
+    } else if (typeof x === 'string' && x.length > 18) {
+      set(this.shellResult.v3Shell, path, x.substring(0, 18));
+    }
   }
 
   private fixEmpty(error: VerificationError): void {
@@ -374,19 +421,7 @@ export class V3EditorValidationService {
     this.validationErrors()
       .filter((e) => e.message === error.message)
       .forEach((e) => {
-        if (this.shellResult?.v3Shell != null) {
-          const path = e.path.toString().substring(1);
-          const x = get(this.shellResult.v3Shell, path);
-          if (x === '') {
-            set(this.shellResult?.v3Shell, path, null);
-          }
-          if (x !== '' && x.length > 18) {
-            set(this.shellResult?.v3Shell, path, x.substring(0, 18));
-          }
-          if (x instanceof LangStringShortNameTypeIec61360) {
-            x.text = x.text.substring(0, 18);
-          }
-        }
+        this.shortenAt(e.path.toString().substring(1));
       });
   }
 

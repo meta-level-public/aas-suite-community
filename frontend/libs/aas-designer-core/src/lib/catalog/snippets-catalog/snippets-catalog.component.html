@@ -8,8 +8,8 @@
   </div>
 
   <div class="flex-auto min-h-0">
-    <div style="position: relative; height: 100%">
-      <div style="position: absolute; height: 100%; width: 100%">
+    <div class="relative h-full">
+      <div class="absolute h-full w-full">
         <p-table
           #dt1
           [value]="snippetData"
@@ -29,31 +29,31 @@
         >
           <ng-template #header>
             <tr>
-              <th scope="col" style="width: 5%; min-width: 1rem"></th>
-              <th scope="col" pSortableColumn="name" style="width: 25%; min-width: 18rem">
+              <th scope="col" class="w-[5%] min-w-4"></th>
+              <th scope="col" pSortableColumn="name" class="w-[25%] min-w-72">
                 {{ 'NAME' | translate }} <p-sortIcon field="name"></p-sortIcon>
               </th>
-              <th scope="col" pSortableColumn="typ" style="width: 12%; min-width: 10rem">
+              <th scope="col" pSortableColumn="typ" class="w-[12%] min-w-40">
                 {{ 'TYP' | translate }} <p-sortIcon field="typ"></p-sortIcon>
               </th>
-              <th scope="col" pSortableColumn="anlageDatum" style="width: 12%; min-width: 10rem">
+              <th scope="col" pSortableColumn="anlageDatum" class="w-[12%] min-w-40">
                 {{ 'ANGELEGT' | translate }} <p-sortIcon field="anlageDatum"></p-sortIcon>
               </th>
-              <th scope="col" pSortableColumn="aenderungsDatum" style="width: 12%; min-width: 10rem">
+              <th scope="col" pSortableColumn="aenderungsDatum" class="w-[12%] min-w-40">
                 {{ 'GEAENDERT' | translate }} <p-sortIcon field="aenderungsDatum"></p-sortIcon>
               </th>
-              <th scope="col" pSortableColumn="anlageBenutzer" style="width: 12%; min-width: 10rem">
+              <th scope="col" pSortableColumn="anlageBenutzer" class="w-[12%] min-w-40">
                 {{ 'CREATED_BY' | translate }} <p-sortIcon field="anlageBenutzer"></p-sortIcon>
               </th>
-              <th scope="col" style="width: 10%; min-width: 3rem"></th>
+              <th scope="col" class="w-[10%] min-w-12"></th>
             </tr>
 
             <tr>
-              <th scope="col" style="width: 5%; min-width: 1rem"></th>
-              <th scope="col" style="width: 25%; min-width: 18rem">
+              <th scope="col" class="w-[5%] min-w-4"></th>
+              <th scope="col" class="w-[25%] min-w-72">
                 <p-columnFilter type="text" field="name"></p-columnFilter>
               </th>
-              <th scope="col" style="width: 12%; min-width: 10rem">
+              <th scope="col" class="w-[12%] min-w-40">
                 <p-columnFilter field="typ" matchMode="in" [showMenu]="false">
                   <ng-template pTemplate="filter" let-value let-filter="filterCallback">
                     <p-multiSelect
@@ -67,16 +67,16 @@
                   </ng-template>
                 </p-columnFilter>
               </th>
-              <th scope="col" style="width: 12%; min-width: 10rem">
+              <th scope="col" class="w-[12%] min-w-40">
                 <p-columnFilter type="date" field="anlageDatum"></p-columnFilter>
               </th>
-              <th scope="col" style="width: 12%; min-width: 10rem">
+              <th scope="col" class="w-[12%] min-w-40">
                 <p-columnFilter type="date" field="aenderungsDatum"></p-columnFilter>
               </th>
-              <th scope="col" style="width: 12%; min-width: 10rem">
+              <th scope="col" class="w-[12%] min-w-40">
                 <p-columnFilter type="text" field="anlageBenutzer"></p-columnFilter>
               </th>
-              <th scope="col" style="width: 10%; min-width: 3rem">
+              <th scope="col" class="w-[10%] min-w-12">
                 <p-columnFilter field="freigabeLevel" matchMode="equals" [showMenu]="false">
                   <ng-template pTemplate="filter" let-value let-filter="filterCallback">
                     <p-select
@@ -103,10 +103,12 @@
 
           <ng-template pTemplate="body" let-snippet>
             <tr>
-              <td style="width: 5%; min-width: 1rem">
+              <td class="w-[5%] min-w-4">
                 <p-button
+                  [ariaLabel]="'MORE_ACTIONS' | translate"
+                  [text]="true"
+                  severity="secondary"
                   icon="pi pi-ellipsis-v"
-                  styleClass="p-button-text p-button-secondary"
                   (onClick)="menu.toggle($event)"
                 ></p-button>
                 <p-menu
@@ -117,49 +119,47 @@
                   [model]="menuItems"
                 ></p-menu>
               </td>
-              <td field="name" style="width: 25%; min-width: 18rem; max-width: 18rem">
+              <td field="name" class="w-[25%] min-w-72 max-w-72">
                 <div class="flex flex-col gap-1">
                   <p-popover #op>
                     <div class="p-4 max-w-md">
                       <div class="flex items-start gap-2 mb-2">
-                        <i class="pi pi-info-circle mt-1" style="color: var(--aas-info-text)"></i>
+                        <i class="pi pi-info-circle mt-1 text-[var(--aas-info-text)]"></i>
                         <div class="font-semibold text-base">{{ 'DESCRIPTION' | translate }}</div>
                       </div>
-                      <div class="text-sm" style="white-space: pre-wrap; color: var(--p-text-color)">
+                      <div class="text-sm whitespace-pre-wrap text-color">
                         {{ snippet.description }}
                       </div>
                     </div>
                   </p-popover>
                   <div class="flex items-center gap-2">
-                    <i class="pi pi-tag text-xs" style="color: var(--p-text-muted-color)"></i>
+                    <i class="pi pi-tag text-xs text-muted-color"></i>
                     <span class="font-medium">{{ snippet.name }}</span>
                   </div>
                   @if (snippet.description) {
                     <div
-                      class="flex items-center gap-2 text-sm cursor-pointer transition-colors"
-                      style="
-                        color: var(--p-text-muted-color);
-                        overflow: hidden;
-                        text-overflow: ellipsis;
-                        white-space: nowrap;
-                      "
+                      class="flex items-center gap-2 text-sm cursor-pointer transition-colors text-muted-color overflow-hidden text-ellipsis whitespace-nowrap"
+                      role="button"
+                      tabindex="0"
                       (click)="op.toggle($event)"
+                      (keydown.enter)="op.toggle($event)"
+                      (keydown.space)="$event.preventDefault(); op.toggle($event)"
                     >
-                      <i class="pi pi-align-left text-xs"></i>
+                      <i class="pi pi-align-left text-xs" aria-hidden="true"></i>
                       <span>{{ snippet.description }}</span>
                     </div>
                   }
                 </div>
               </td>
-              <td field="typ" style="width: 12%; min-width: 10rem">{{ snippet.typ }}</td>
-              <td field="anlageDatum" style="width: 12%; min-width: 10rem">
-                {{ snippet?.anlageDatum | vwsDate: 'SHORT_DATE_TIME' }}
+              <td field="typ" class="w-[12%] min-w-40">{{ snippet.typ }}</td>
+              <td field="anlageDatum" class="w-[12%] min-w-40">
+                {{ $safeNavigationMigration(snippet?.anlageDatum) | vwsDate: 'SHORT_DATE_TIME' }}
               </td>
-              <td field="aenderungsDatum" style="width: 12%; min-width: 10rem">
-                {{ snippet?.aenderungsDatum | vwsDate: 'SHORT_DATE_TIME' }}
+              <td field="aenderungsDatum" class="w-[12%] min-w-40">
+                {{ $safeNavigationMigration(snippet?.aenderungsDatum) | vwsDate: 'SHORT_DATE_TIME' }}
               </td>
-              <td field="anlageBenutzer" style="width: 16%; min-width: 10rem">{{ snippet.anlageBenutzer }}</td>
-              <td field="freigabeLevel" style="width: 10%; min-width: 3rem">
+              <td field="anlageBenutzer" class="w-[16%] min-w-40">{{ snippet.anlageBenutzer }}</td>
+              <td field="freigabeLevel" class="w-[10%] min-w-12">
                 <p-tag
                   [value]="snippet.freigabeLevel | translate"
                   [severity]="getTagSeverity(snippet.freigabeLevel)"
@@ -169,7 +169,7 @@
           </ng-template>
           <ng-template pTemplate="emptymessage" let-snippet>
             <tr>
-              <td colspan="7" style="width: 100%; min-width: 20rem" class="text-center">
+              <td colspan="7" class="text-center w-full min-w-80">
                 {{ emptyText | translate }}
               </td>
             </tr>
@@ -184,42 +184,33 @@
   <ng-template #header>
     <div class="flex flex-col">
       <div class="flex items-center gap-3 mb-2">
-        <div
-          class="flex items-center justify-center w-12 h-12 rounded-full"
-          style="background: var(--aas-info-surface)"
-        >
-          <i class="pi pi-eye text-xl" style="color: var(--aas-info-text)"></i>
+        <div class="flex items-center justify-center w-12 h-12 rounded-full bg-[var(--aas-info-surface)]">
+          <i class="pi pi-eye text-xl text-[var(--aas-info-text)]"></i>
         </div>
-        <div class="font-semibold" style="font-size: var(--aas-title-md)">{{ 'SNIPPET_VIEW' | translate }}</div>
+        <div class="font-semibold text-[length:var(--aas-title-md)]">{{ 'SNIPPET_VIEW' | translate }}</div>
       </div>
       @if (selectedSnippet?.name) {
-        <p class="text-sm ml-15" style="color: var(--p-text-muted-color)">{{ selectedSnippet?.name }}</p>
+        <p class="text-sm ml-15 text-muted-color">{{ selectedSnippet?.name }}</p>
       }
     </div>
   </ng-template>
 
   <div class="flex flex-col gap-4 py-4">
     @if (selectedSnippet?.description) {
-      <div
-        class="p-4 rounded-lg border"
-        style="background: var(--aas-info-surface); border-color: var(--aas-info-border)"
-      >
+      <div class="p-4 rounded-lg border bg-[var(--aas-info-surface)] border-[color:var(--aas-info-border)]">
         <div class="flex items-center gap-2 mb-2">
-          <i class="pi pi-info-circle" style="color: var(--aas-info-text)"></i>
+          <i class="pi pi-info-circle text-[var(--aas-info-text)]"></i>
           <div class="font-semibold text-base">{{ 'DESCRIPTION' | translate }}</div>
         </div>
-        <div class="text-sm" style="white-space: pre-wrap; color: var(--p-text-color)">
+        <div class="text-sm whitespace-pre-wrap text-color">
           {{ selectedSnippet?.description }}
         </div>
       </div>
     }
 
-    <div
-      class="p-4 rounded-lg border"
-      style="background: var(--aas-surface-subtle); border-color: var(--p-content-border-color)"
-    >
+    <div class="p-4 rounded-lg border bg-[var(--aas-surface-subtle)] border-[color:var(--p-content-border-color)]">
       <div class="flex items-center gap-2 mb-3">
-        <i class="pi pi-list" style="color: var(--p-text-muted-color)"></i>
+        <i class="pi pi-list text-muted-color"></i>
         <div class="font-semibold text-base">{{ 'CONTENT' | translate }}</div>
       </div>
       <p-treeTable [value]="snippedDialogEntry" class="p-treetable-sm">

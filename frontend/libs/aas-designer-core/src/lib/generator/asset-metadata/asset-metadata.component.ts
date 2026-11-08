@@ -1,19 +1,19 @@
 import * as aas from '@aas-core-works/aas-core3.1-typescript';
 import { HelpLabelComponent } from '@aas/common-components';
-import { PortalService } from '@aas/common-services';
+import { ID_SHORT_KEY_FILTER, PortalService } from '@aas/common-services';
 import { FilenameHelper } from '@aas/helpers';
 import { ApiException } from '@aas/jwt-auth';
 import { MultiLanguagePropertyValue } from '@aas/model';
 import { ShellsClient } from '@aas/webapi-client';
-import { Component, DoCheck, OnDestroy, OnInit } from '@angular/core';
+import { Component, DoCheck, OnDestroy, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
-import { ConfirmationService, TreeNode } from 'primeng/api';
-import { Button } from 'primeng/button';
-import { InputText } from 'primeng/inputtext';
-import { KeyFilter } from 'primeng/keyfilter';
-import { Tag } from 'primeng/tag';
+import { ConfirmationService, TreeNode } from '@openng/optimus-ui/api';
+import { Button } from '@openng/optimus-ui/button';
+import { InputText } from '@openng/optimus-ui/inputtext';
+import { KeyFilter } from '@openng/optimus-ui/keyfilter';
+import { Tag } from '@openng/optimus-ui/tag';
 import { lastValueFrom } from 'rxjs';
 import { Info } from '../../general/model/info-item';
 import { SidebarTreeNavComponent } from '../../general/sidebar-tree-nav/sidebar-tree-nav.component';
@@ -59,6 +59,7 @@ interface AssetMetadataViewModel {
   host: {
     class: 'flex flex-col flex-1',
   },
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [
     HelpLabelComponent,
     FormsModule,
@@ -76,7 +77,7 @@ interface AssetMetadataViewModel {
 export class AssetMetadataComponent implements OnInit, DoCheck, OnDestroy {
   info = Info;
 
-  idShortRegex = /[a-z0-9_-]/i;
+  idShortRegex = ID_SHORT_KEY_FILTER;
   generatedAssetShellId = '';
   generatedAssetId = '';
   generatedAssetShellIdentifier = '';

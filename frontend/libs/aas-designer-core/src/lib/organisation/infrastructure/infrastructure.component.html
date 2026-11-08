@@ -70,7 +70,6 @@
               pRipple
               label="{{ 'SAVE' | translate }}"
               icon="pi pi-save"
-              severity="success"
               [loading]="loading()"
               (onClick)="save()"
               [disabled]="!hasChanges()"
@@ -88,7 +87,6 @@
               pRipple
               label="{{ 'SAVE' | translate }}"
               icon="pi pi-save"
-              severity="success"
               [loading]="loading()"
               (onClick)="save()"
               [disabled]="!hasChanges()"
@@ -126,7 +124,7 @@
       }
       @if (accessService.isAllowed('ORGA_ADMIN') && settings()?.id) {
         <div class="detail-card mt-4">
-          <h3 class="text-sm font-semibold mb-3" style="color: var(--p-primary-color)">
+          <h3 class="text-sm font-semibold mb-3 text-primary">
             {{ 'INFRA_RECHTE.TITLE' | translate }}
           </h3>
           <aas-infrastruktur-rechte
@@ -176,7 +174,7 @@
           class="w-full font-mono text-sm"
         ></textarea>
         @if (rawPolicyError()) {
-          <small class="text-red-600">{{ rawPolicyError() | translate }}</small>
+          <small class="text-[var(--aas-danger-text)]">{{ rawPolicyError() | translate }}</small>
         }
       </div>
     } @else {
@@ -195,7 +193,7 @@
       </div>
 
       @for (rule of policyRules(); track $index; let ruleIndex = $index) {
-        <section class="rounded border border-slate-200 p-4">
+        <section class="rounded border border-surface p-4">
           <div class="mb-4 flex items-center justify-between gap-4">
             <div>
               <div class="font-semibold">
@@ -238,7 +236,7 @@
             </div>
           </div>
 
-          <div class="mt-5 border-t border-slate-200 pt-4">
+          <div class="mt-5 border-t border-surface pt-4">
             <div class="mb-3 flex items-start justify-between gap-4">
               <div>
                 <div class="font-semibold">{{ 'DPP_RESOURCE_CONDITIONS' | translate }}</div>
@@ -316,11 +314,11 @@
                 />
               </div>
             } @empty {
-              <div class="rounded bg-slate-50 p-3 text-sm">{{ 'DPP_RESOURCE_ALL' | translate }}</div>
+              <div class="rounded bg-surface-50 p-3 text-sm">{{ 'DPP_RESOURCE_ALL' | translate }}</div>
             }
           </div>
 
-          <div class="mt-5 border-t border-slate-200 pt-4">
+          <div class="mt-5 border-t border-surface pt-4">
             <div class="font-semibold">{{ 'DPP_VISIBLE_SEMANTIC_IDS' | translate }}</div>
             <small>{{ 'DPP_VISIBLE_SEMANTIC_IDS_HELP' | translate }}</small>
             <div class="mt-3 flex flex-col gap-2">
@@ -359,7 +357,7 @@
           </div>
         </section>
       } @empty {
-        <div class="rounded border border-slate-200 p-4 text-sm">{{ 'DPP_ACCESS_RULES_EMPTY' | translate }}</div>
+        <div class="rounded border border-surface p-4 text-sm">{{ 'DPP_ACCESS_RULES_EMPTY' | translate }}</div>
       }
     }
   </div>

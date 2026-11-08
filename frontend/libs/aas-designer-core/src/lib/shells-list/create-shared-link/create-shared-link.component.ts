@@ -1,14 +1,14 @@
-import { Component, inject, model, signal } from '@angular/core';
+import { Component, inject, model, signal, ChangeDetectionStrategy } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
 import { NotificationService } from '@aas/common-services';
 import { CreateSharedLink } from '@aas/webapi-client';
-import { ButtonModule } from 'primeng/button';
-import { DatePickerModule } from 'primeng/datepicker';
-import { DynamicDialogConfig, DynamicDialogRef } from 'primeng/dynamicdialog';
-import { InputTextModule } from 'primeng/inputtext';
-import { PasswordModule } from 'primeng/password';
-import { TextareaModule } from 'primeng/textarea';
+import { ButtonModule } from '@openng/optimus-ui/button';
+import { DatePickerModule } from '@openng/optimus-ui/datepicker';
+import { DynamicDialogConfig, DynamicDialogRef } from '@openng/optimus-ui/dynamicdialog';
+import { InputTextModule } from '@openng/optimus-ui/inputtext';
+import { PasswordModule } from '@openng/optimus-ui/password';
+import { TextareaModule } from '@openng/optimus-ui/textarea';
 
 @Component({
   selector: 'aas-create-shared-link',
@@ -21,6 +21,7 @@ import { TextareaModule } from 'primeng/textarea';
     PasswordModule,
     TextareaModule,
   ],
+  changeDetection: ChangeDetectionStrategy.Eager,
   templateUrl: './create-shared-link.component.html',
 })
 export class CreateSharedLinkComponent {

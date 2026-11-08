@@ -15,12 +15,13 @@
         @if (viewerAppConfig != null && viewerAppConfig.length > 0) {
           <qrcode #qrcode [qrdata]="viewerAppConfig" [width]="200" [errorCorrectionLevel]="'M'"> </qrcode>
           <p-button
+            [ariaLabel]="'DOWNLOAD' | translate"
             icon="pi pi-download"
             (onClick)="downloadQrCode()"
             [text]="true"
             [rounded]="true"
             size="small"
-            title="QR-Code herunterladen"
+            [title]="'DOWNLOAD_QR_CODE' | translate"
           >
           </p-button>
         } @else {

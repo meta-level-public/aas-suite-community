@@ -14,6 +14,27 @@ export class UrlHelper {
     return u;
   }
 
+  /** True for absolute http(s) URLs. Other schemes such as `javascript:` or `data:` are rejected. */
+  static isHttpUrl(value: string | null | undefined): boolean {
+    if (value == null || value.trim() === '') return false;
+    try {
+      const url = new URL(value.trim());
+      return url.protocol === 'http:' || url.protocol === 'https:';
+    } catch {
+      return false;
+    }
+  }
+
+  /**
+   * Opens a link taken from model data (e.g. a semantic ID) in a new tab.
+   * Only http(s) URLs are opened, and the new page gets no access to this window.
+   */
+  static openExternalUrl(value: string | null | undefined): boolean {
+    if (!UrlHelper.isHttpUrl(value)) return false;
+    window.open(value!.trim(), '_blank', 'noopener,noreferrer');
+    return true;
+  }
+
   static openEclass(irdi: string) {
     const url =
       'https://eclass.eu/eclass-standard/content-suche/show?tx_eclasssearch_ecsearch%5Bsearchtxt%5D=' +

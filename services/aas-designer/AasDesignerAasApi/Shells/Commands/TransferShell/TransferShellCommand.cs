@@ -203,6 +203,11 @@ public class TransferShellHandler : IRequestHandler<TransferShellCommand, Transf
         {
             // load and write back
             var loadedFile = FileLoader.LoadFile(file, request.AppUser);
+            if (loadedFile.Length == 0)
+            {
+                // missing in the source repository: nothing to copy
+                continue;
+            }
 
             var smId =
                 modifications.FirstOrDefault(m => m.Id == file.SubmodelId)?.NewId ?? string.Empty;

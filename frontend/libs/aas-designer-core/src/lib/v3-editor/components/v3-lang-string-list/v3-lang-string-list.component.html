@@ -12,19 +12,22 @@
 
   @if (langStrings != null && langStrings.length == 0) {
     <div class="flex flex-row justify-between">
-      <p-message
-        severity="info"
-        text="{{ 'NO_VALUES_SET_BUT_EMPTY_OR_AT_LEAST_ONE' | translate }}"
-        class="mr-2"
-      ></p-message>
+      <p-message severity="info" class="mr-2">{{ 'NO_VALUES_SET_BUT_EMPTY_OR_AT_LEAST_ONE' | translate }}</p-message>
       <p-button
-        styleClass="p-button-text p-button-outlined p-button-rounded"
+        [ariaLabel]="'ADD' | translate"
+        [text]="true"
+        [outlined]="true"
+        [rounded]="true"
         icon="pi pi-plus"
         (onClick)="addNewDisplayName()"
       ></p-button>
       @if (removeBlockAllowed) {
         <p-button
-          styleClass="p-button-text p-button-outlined p-button-rounded"
+          [ariaLabel]="'DELETE' | translate"
+          severity="danger"
+          [text]="true"
+          [outlined]="true"
+          [rounded]="true"
           icon="pi pi-trash"
           (onClick)="removeLangStringBlock()"
         ></p-button>
@@ -83,7 +86,12 @@
             required="true"
           ></textarea>
           <p-inputgroup-addon>
-            <p-button icon="pi pi-times" severity="secondary" (onClick)="removeDisplayName(i)" />
+            <p-button
+              [ariaLabel]="'REMOVE' | translate"
+              icon="pi pi-times"
+              severity="secondary"
+              (onClick)="removeDisplayName(i)"
+            />
           </p-inputgroup-addon>
         </p-inputgroup>
         @if (hasTextErrors(entry)) {
@@ -103,17 +111,25 @@
           </div>
         }
       </div>
-      <div style="width: 36px">
+      <div class="w-[36px]">
         @if (deleteAllowed) {
           <p-button
+            [ariaLabel]="'DELETE' | translate"
+            severity="danger"
+            [rounded]="true"
+            [text]="true"
             icon="pi pi-trash"
-            styleClass="p-button-danger p-button-rounded p-button-text"
             (onClick)="removeDisplayName(i)"
           ></p-button>
         }
       </div>
-      <div style="width: 36px">
-        <p-button icon="pi pi-plus" (onClick)="addNewDisplayName()" [text]="true"></p-button>
+      <div class="w-[36px]">
+        <p-button
+          [ariaLabel]="'ADD' | translate"
+          icon="pi pi-plus"
+          (onClick)="addNewDisplayName()"
+          [text]="true"
+        ></p-button>
       </div>
     </div>
   }
@@ -122,6 +138,7 @@
     <div class="flex flex-row w-full justify-start mb-3">
       @if (removeBlockAllowed) {
         <p-button
+          severity="danger"
           label="{{ 'REMOVE_BLOCK' | translate }}"
           (onClick)="removeLangStringBlock()"
           icon="pi pi-trash"

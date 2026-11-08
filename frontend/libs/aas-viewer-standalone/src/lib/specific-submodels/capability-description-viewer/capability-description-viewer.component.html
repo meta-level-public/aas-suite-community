@@ -15,22 +15,28 @@
 } @else {
   <div class="capability-container">
     <div class="section-card">
-      <h3 class="section-title"><i class="fa-solid fa-chart-simple"></i> Capability Overview</h3>
+      <h3 class="section-title"><i class="fa-solid fa-chart-simple"></i> {{ 'CAPABILITY_OVERVIEW' | translate }}</h3>
       <div class="summary-grid">
         <p-inputgroup>
-          <p-inputgroup-addon class="font-bold min-w-40">Capabilities</p-inputgroup-addon>
+          <p-inputgroup-addon class="font-bold min-w-40">{{ 'CAPABILITIES' | translate }}</p-inputgroup-addon>
           <input pInputText type="text" [value]="capabilities.length" readonly />
         </p-inputgroup>
         <p-inputgroup>
-          <p-inputgroup-addon class="font-bold min-w-40">Offered</p-inputgroup-addon>
+          <p-inputgroup-addon class="font-bold min-w-40">{{
+            'CAPABILITY_ROLE_OFFERED' | translate
+          }}</p-inputgroup-addon>
           <input pInputText type="text" [value]="offeredCount" readonly />
         </p-inputgroup>
         <p-inputgroup>
-          <p-inputgroup-addon class="font-bold min-w-40">Required</p-inputgroup-addon>
+          <p-inputgroup-addon class="font-bold min-w-40">{{
+            'CAPABILITY_ROLE_REQUIRED' | translate
+          }}</p-inputgroup-addon>
           <input pInputText type="text" [value]="requiredCount" readonly />
         </p-inputgroup>
         <p-inputgroup>
-          <p-inputgroup-addon class="font-bold min-w-40">Property Sets</p-inputgroup-addon>
+          <p-inputgroup-addon class="font-bold min-w-40">{{
+            'CAPABILITY_PROPERTY_SETS' | translate
+          }}</p-inputgroup-addon>
           <input pInputText type="text" [value]="totalPropertySetCount" readonly />
         </p-inputgroup>
       </div>
@@ -38,7 +44,7 @@
 
     @if (capabilities.length > 0) {
       <div class="section-card">
-        <h3 class="section-title"><i class="fa-solid fa-list-check"></i> Capabilities</h3>
+        <h3 class="section-title"><i class="fa-solid fa-list-check"></i> {{ 'CAPABILITIES' | translate }}</h3>
 
         <p-accordion [multiple]="true" aasExpandedState="capabilities">
           @for (capability of capabilities; track capability.id + '-' + i; let i = $index) {
@@ -47,13 +53,13 @@
                 <div class="flex items-center w-full gap-3">
                   <div class="flex gap-2 mr-2">
                     @if (capability.roleOffered) {
-                      <p-tag severity="success" value="Offered"></p-tag>
+                      <p-tag severity="success" [value]="'CAPABILITY_ROLE_OFFERED' | translate"></p-tag>
                     }
                     @if (capability.roleRequired) {
-                      <p-tag severity="warn" value="Required"></p-tag>
+                      <p-tag severity="warn" [value]="'CAPABILITY_ROLE_REQUIRED' | translate"></p-tag>
                     }
                     @if (capability.roleNotAssigned) {
-                      <p-tag severity="secondary" value="Not assigned"></p-tag>
+                      <p-tag severity="secondary" [value]="'CAPABILITY_ROLE_NOT_ASSIGNED' | translate"></p-tag>
                     }
                   </div>
                   <div class="font-bold">{{ capability.id }}</div>
@@ -73,25 +79,31 @@
 
                   <div class="detail-grid">
                     <div class="mini-card">
-                      <h4 class="mini-title">Relations</h4>
+                      <h4 class="mini-title">{{ 'CAPABILITY_RELATIONS' | translate }}</h4>
                       <div class="flex flex-col gap-2">
                         <p-inputgroup>
-                          <p-inputgroup-addon class="min-w-48 font-bold">Realized by</p-inputgroup-addon>
+                          <p-inputgroup-addon class="min-w-48 font-bold">{{
+                            'CAPABILITY_RELATION_REALIZED_BY' | translate
+                          }}</p-inputgroup-addon>
                           <input pInputText type="text" [value]="capability.realizedByCount" readonly />
                         </p-inputgroup>
                         <p-inputgroup>
-                          <p-inputgroup-addon class="min-w-48 font-bold">Composed of</p-inputgroup-addon>
+                          <p-inputgroup-addon class="min-w-48 font-bold">{{
+                            'CAPABILITY_RELATION_COMPOSED_OF' | translate
+                          }}</p-inputgroup-addon>
                           <input pInputText type="text" [value]="capability.composedOfCount" readonly />
                         </p-inputgroup>
                         <p-inputgroup>
-                          <p-inputgroup-addon class="min-w-48 font-bold">Generalized by</p-inputgroup-addon>
+                          <p-inputgroup-addon class="min-w-48 font-bold">{{
+                            'CAPABILITY_RELATION_GENERALIZED_BY' | translate
+                          }}</p-inputgroup-addon>
                           <input pInputText type="text" [value]="capability.generalizedByCount" readonly />
                         </p-inputgroup>
                       </div>
                     </div>
 
                     <div class="mini-card">
-                      <h4 class="mini-title">Constraints</h4>
+                      <h4 class="mini-title">{{ 'CONSTRAINTS' | translate }}</h4>
                       <p-inputgroup>
                         <p-inputgroup-addon class="min-w-48 font-bold">
                           <lib-help-label tag="CONSTRAINT" [showLabel]="false"></lib-help-label>
@@ -104,12 +116,12 @@
 
                   @if (capability.propertySets.length > 0) {
                     <div class="mini-card">
-                      <h4 class="mini-title">Property Sets</h4>
+                      <h4 class="mini-title">{{ 'CAPABILITY_PROPERTY_SETS' | translate }}</h4>
                       <p-table [value]="capability.propertySets" stripedRows size="small">
                         <ng-template pTemplate="header">
                           <tr>
-                            <th>Set</th>
-                            <th>Wert</th>
+                            <th>{{ 'CAPABILITY_PROPERTY_SET' | translate }}</th>
+                            <th>{{ 'VALUE' | translate }}</th>
                             <th>{{ 'COMMENT' | translate }}</th>
                           </tr>
                         </ng-template>
@@ -120,7 +132,9 @@
                                 <td class="font-bold">{{ $first ? row.id : '' }}</td>
                                 <td>
                                   @if (mapping.kind === 'reference') {
-                                    <div><strong>Referenz auf:</strong> {{ mapping.valuePath || '-' }}</div>
+                                    <div>
+                                      <strong>{{ 'REFERENCE_TO' | translate }}:</strong> {{ mapping.valuePath || '-' }}
+                                    </div>
                                     @if (mapping.resolveHint !== '') {
                                       <small class="text-color-secondary">{{ mapping.resolveHint }}</small>
                                     }
@@ -169,8 +183,8 @@
       </div>
     } @else {
       <div class="section-card">
-        <h3 class="section-title"><i class="fa-solid fa-circle-info"></i> Hinweis</h3>
-        <div>No capability containers found in this submodel.</div>
+        <h3 class="section-title"><i class="fa-solid fa-circle-info"></i> {{ 'HINT' | translate }}</h3>
+        <div>{{ 'CAPABILITY_NO_CONTAINERS_FOUND' | translate }}</div>
       </div>
     }
   </div>

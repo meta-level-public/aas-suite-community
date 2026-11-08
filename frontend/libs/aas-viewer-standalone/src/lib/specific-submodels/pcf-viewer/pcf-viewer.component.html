@@ -1,7 +1,5 @@
-Hallo
-
 <div class="flex flex-col gap-2">
-  <p-card header="Product Carbon Footprint" class="mt-2">
+  <p-card [header]="'PCF_VIEWER.TITLE' | translate" class="mt-2">
     <p-accordion [multiple]="true" class="w-full" [value]="expandedPcfPanels()" aasExpandedState="pcf">
       @for (pcf of pcfList; track pcf) {
         <p-accordion-panel [value]="pcf.idShort ?? 0">
@@ -57,7 +55,7 @@ Hallo
     }
   </p-card>
 
-  <p-card header="Transport Carbon Footprint">
+  <p-card [header]="'TRANSPORT_CARBON_FOOTPRINT' | translate">
     <p-accordion [multiple]="true" class="w-full" [value]="expandedTcfPanels()" aasExpandedState="tcf">
       @for (tcf of tcfList; track $index) {
         <p-accordion-panel [value]="tcf.idShort ?? 0">
@@ -80,7 +78,7 @@ Hallo
     }
   </p-card>
 
-  <p-card header="Map">
+  <p-card [header]="'MAP' | translate">
     <aas-pcf-map-overview [pcfList]="pcfList" [tcfList]="tcfList"></aas-pcf-map-overview>
   </p-card>
 </div>

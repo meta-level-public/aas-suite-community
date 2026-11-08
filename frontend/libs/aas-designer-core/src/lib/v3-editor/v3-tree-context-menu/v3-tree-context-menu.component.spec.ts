@@ -1,9 +1,9 @@
 import * as aas from '@aas-core-works/aas-core3.1-typescript';
 import { Clipboard } from '@angular/cdk/clipboard';
 import { TestBed } from '@angular/core/testing';
-import { TreeNode } from 'primeng/api';
-import { DialogService } from 'primeng/dynamicdialog';
-import { vi } from 'vitest';
+import { TreeNode } from '@openng/optimus-ui/api';
+import { DialogService } from '@openng/optimus-ui/dynamicdialog';
+import { assert, vi } from 'vitest';
 
 import { NotificationService, PortalService } from '@aas/common-services';
 import { TranslateService } from '@ngx-translate/core';
@@ -25,7 +25,7 @@ function createComponent(confirmResult: boolean) {
   });
 
   const treeService = {
-    aasTreeData: [],
+    aasTreeData: [] as TreeNode<V3TreeItem<any>>[],
     buildChildTree: vi.fn(),
     registerFieldUndoStep: vi.fn(),
     selectById: vi.fn(),
@@ -142,7 +142,8 @@ describe('V3TreeContextMenuComponent', () => {
     await component.insertSubmodelElementlistChild();
     vi.runAllTimers();
 
-    const list = component.node.data.content as aas.types.SubmodelElementList;
+    const list = component.node.data?.content;
+    assert.instanceOf(list, aas.types.SubmodelElementList);
     const inserted = list.value?.[1] as aas.types.SubmodelElementCollection;
     const insertedProperty = inserted.value?.[0] as aas.types.Property;
 
@@ -182,7 +183,8 @@ describe('V3TreeContextMenuComponent', () => {
     await component.insertSubmodelElementlistChild();
     vi.runAllTimers();
 
-    const list = component.node.data.content as aas.types.SubmodelElementList;
+    const list = component.node.data?.content;
+    assert.instanceOf(list, aas.types.SubmodelElementList);
     const inserted = list.value?.[1] as aas.types.SubmodelElementCollection;
     const insertedProperty = inserted.value?.[0] as aas.types.Property;
     const insertedMlp = inserted.value?.[1] as aas.types.MultiLanguageProperty;
@@ -288,7 +290,8 @@ describe('V3TreeContextMenuComponent', () => {
     entityProperty.idShort = 'EntityProperty';
     entityProperty.qualifiers = [createQualifier(aas.types.QualifierKind.TemplateQualifier, 'EntityTemplate')];
 
-    const entity = new aas.types.Entity(aas.types.EntityType.CoManagedEntity);
+    const entity = new aas.types.Entity();
+    entity.entityType = aas.types.EntityType.CoManagedEntity;
     entity.idShort = 'Entity';
     entity.statements = [entityProperty];
 

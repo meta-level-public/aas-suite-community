@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, computed, input } from '@angular/core';
+import { Component, computed, input, ChangeDetectionStrategy } from '@angular/core';
 import { LeafletModule } from '@bluehalo/ngx-leaflet';
 import * as Leaflet from 'leaflet';
 import { tileLayer } from 'leaflet';
@@ -10,6 +10,7 @@ import { ContactInformation } from './contact-information';
   selector: 'aas-contact-information-map',
   imports: [CommonModule, LeafletModule],
   templateUrl: './contact-information-map.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrls: ['./contact-information-map.component.css'],
 })
 export class ContactInformationMap {

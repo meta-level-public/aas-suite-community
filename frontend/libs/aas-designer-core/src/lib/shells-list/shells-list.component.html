@@ -14,7 +14,12 @@
             (keydown.enter)="findAsset()"
           />
           <p-inputgroup-addon>
-            <p-button icon="pi pi-search" severity="secondary" (onClick)="findAsset()" />
+            <p-button
+              [ariaLabel]="'SEARCH' | translate"
+              icon="pi pi-search"
+              severity="secondary"
+              (onClick)="findAsset()"
+            />
           </p-inputgroup-addon>
         </p-inputgroup>
 
@@ -26,9 +31,28 @@
           optionLabel="name"
         />
 
-        <p-button icon="pi pi-qrcode" (onClick)="showViewerSetup()" [outlined]="true" [loading]="loading()"></p-button>
-        <p-button icon="pi pi-refresh" (onClick)="loadFirstPage()" [outlined]="true" [loading]="loading()"></p-button>
-        <p-button icon="pi pi-search" (onClick)="openSearch()" [outlined]="true" [loading]="loading()"></p-button>
+        <p-button
+          [ariaLabel]="'QR_CODE' | translate"
+          icon="pi pi-qrcode"
+          (onClick)="showViewerSetup()"
+          [outlined]="true"
+          [loading]="loading()"
+        ></p-button>
+        <p-button
+          [ariaLabel]="'RELOAD' | translate"
+          severity="secondary"
+          icon="pi pi-refresh"
+          (onClick)="loadFirstPage()"
+          [outlined]="true"
+          [loading]="loading()"
+        ></p-button>
+        <p-button
+          [ariaLabel]="'SEARCH' | translate"
+          icon="pi pi-search"
+          (onClick)="openSearch()"
+          [outlined]="true"
+          [loading]="loading()"
+        ></p-button>
         @if (searchResultActive()) {
           <p-button
             label="{{ 'RESET' | translate }}"
@@ -63,7 +87,6 @@
               [value]="shells()"
               [tableStyle]="{ 'min-width': '50rem' }"
               [loading]="loading()"
-              responsiveLayout="scroll"
               [rows]="10"
               [paginator]="false"
               [rowsPerPageOptions]="[5, 10, 25, 50]"
@@ -146,8 +169,10 @@
                         [ngClass]="{ tableCheckboxTriStateFake: (this.selectedShells() ?? []).length > 0 }"
                       ></p-tableHeaderCheckbox>
                       <p-button
+                        [ariaLabel]="'MORE_ACTIONS' | translate"
+                        [text]="true"
+                        severity="secondary"
                         icon="pi pi-ellipsis-v"
-                        styleClass="p-button-text p-button-secondary"
                         (onClick)="bulkMenu.toggle($event)"
                         [disabled]="(this.selectedShells() ?? []).length === 0"
                       ></p-button>
@@ -181,7 +206,7 @@
                 </tr>
                 <!-- activate filter as soon as basyx supports it -->
                 <!-- <tr>
-              <th scope="col" style="width: 3rem"></th>
+              <th scope="col" class="!w-12"></th>
               @for (col of columns; track $index) {
                 @if (col.filterable) {
                   @if (col.field === 'assetKind') {
@@ -196,7 +221,7 @@
             </tr> -->
                 <!-- first enable local filter, so that at least "something" is there -->
                 <tr>
-                  <th scope="col" style="width: 3rem"></th>
+                  <th scope="col" class="!w-12"></th>
                   @for (col of columns; track $index) {
                     @if (col.filterable) {
                       @if (col.field === 'assetKind') {
@@ -211,13 +236,20 @@
                 </tr>
               </ng-template>
               <ng-template #body let-shell let-columns="columns">
-                <tr (click)="onRowClick($event, shell)" class="cursor-pointer">
+                <tr
+                  (click)="onRowClick($event, shell)"
+                  (keydown.enter)="$event.target === $event.currentTarget && onRowClick($event, shell)"
+                  tabindex="0"
+                  class="cursor-pointer"
+                >
                   <td (click)="$event.stopPropagation()">
                     <div class="flex flex-row items-center">
                       <p-tableCheckbox [value]="shell"></p-tableCheckbox>
                       <p-button
+                        [ariaLabel]="'MORE_ACTIONS' | translate"
+                        [text]="true"
+                        severity="secondary"
                         icon="pi pi-ellipsis-v"
-                        styleClass="p-button-text p-button-secondary"
                         (onClick)="menu.toggle($event)"
                       ></p-button>
                       <p-tieredMenu
@@ -244,10 +276,7 @@
                         </td>
                       }
                       @case ('string') {
-                        <td
-                          [style.max-width]="col.width"
-                          style="overflow: hidden; text-overflow: ellipsis; white-space: nowrap"
-                        >
+                        <td [style.max-width]="col.width" class="overflow-hidden text-ellipsis !whitespace-nowrap">
                           <span [pTooltip]="shell[col.field]" tooltipPosition="top">{{ shell[col.field] }}</span>
                         </td>
                       }
@@ -309,27 +338,15 @@
               <ng-template pTemplate="footer" let-columns>
                 <tr>
                   <td [attr.colspan]="8">
-                    <div class="flex flex-row gap-2 justify-center">
-                      <p-button
-                        label="{{ 'FIRST' | translate }}"
-                        icon="pi pi-angle-left"
-                        (onClick)="loadFirstPage()"
-                        [disabled]="firstPage()"
-                      ></p-button>
-                      <p-select
-                        [options]="pageOptions"
-                        [(ngModel)]="pageSize"
-                        appendTo="body"
-                        (ngModelChange)="loadFirstPage()"
-                      ></p-select>
-                      <p-button
-                        label="{{ 'NEXT' | translate }}"
-                        icon="pi pi-angle-right"
-                        iconPos="right"
-                        (onClick)="loadNextPage()"
-                        [disabled]="cursor == null"
-                      ></p-button>
-                    </div>
+                    <aas-cursor-paginator
+                      [isFirstPage]="firstPage()"
+                      [hasNextPage]="cursor != null"
+                      [pageOptions]="pageOptions"
+                      [(pageSize)]="pageSize"
+                      (firstRequested)="loadFirstPage()"
+                      (nextRequested)="loadNextPage()"
+                      (pageSizeChanged)="loadFirstPage()"
+                    ></aas-cursor-paginator>
                   </td>
                 </tr>
               </ng-template>
@@ -349,6 +366,7 @@
               />
               <p-inputgroup-addon>
                 <p-button
+                  [ariaLabel]="'SEARCH' | translate"
                   icon="pi pi-search"
                   severity="secondary"
                   (onClick)="lookupAasById()"
@@ -407,14 +425,18 @@
 
                 <!-- Card 2: AssetInformation -->
                 <div class="theme-form-section mt-3">
-                  <h3 class="theme-form-section-heading">AssetInformation</h3>
+                  <h3 class="theme-form-section-heading">{{ 'ASSET_INFORMATION' | translate }}</h3>
                   <p-inputgroup>
-                    <p-inputgroup-addon class="found-shell-label">assetKind</p-inputgroup-addon>
+                    <p-inputgroup-addon class="found-shell-label">{{
+                      'MARKT_ASSET_KIND' | translate
+                    }}</p-inputgroup-addon>
                     <input pInputText readonly class="cursor-default" [value]="foundShellAssetKind() ?? ''" />
                   </p-inputgroup>
                   @if (foundShellGlobalAssetId()) {
                     <p-inputgroup class="mt-2">
-                      <p-inputgroup-addon class="found-shell-label">globalAssetId</p-inputgroup-addon>
+                      <p-inputgroup-addon class="found-shell-label">{{
+                        'GLOBAL_ASSET_ID' | translate
+                      }}</p-inputgroup-addon>
                       <input pInputText readonly class="cursor-default" [value]="foundShellGlobalAssetId() ?? ''" />
                     </p-inputgroup>
                   }
@@ -423,7 +445,7 @@
                 <!-- Card 3: Submodels -->
                 @if (foundShellSubmodelIds().length > 0) {
                   <div class="theme-form-section mt-3">
-                    <h3 class="theme-form-section-heading">Submodels</h3>
+                    <h3 class="theme-form-section-heading">{{ 'SUBMODELS' | translate }}</h3>
                     @for (id of foundShellSubmodelIds(); track id) {
                       <p-inputgroup [class.mt-2]="!$first">
                         <p-inputgroup-addon><i class="pi pi-link"></i></p-inputgroup-addon>
@@ -434,7 +456,7 @@
                 }
               }
               @case ('not-found') {
-                <p class="mt-4 text-red-600">{{ 'AAS_NOT_FOUND' | translate }}</p>
+                <p class="mt-4 text-[var(--aas-danger-text)]">{{ 'AAS_NOT_FOUND' | translate }}</p>
               }
               @case ('error') {
                 <p-message severity="error" styleClass="w-full mt-4">

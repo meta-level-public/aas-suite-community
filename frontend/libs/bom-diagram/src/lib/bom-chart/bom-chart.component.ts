@@ -1,13 +1,14 @@
 import { Entity } from '@aas-core-works/aas-core3.1-typescript/types';
 
-import { Component, Input, OnChanges, OnInit, SimpleChanges } from '@angular/core';
-import { MenuItem, TreeNode } from 'primeng/api';
-import { OrganizationChartModule } from 'primeng/organizationchart';
-import { SpeedDialModule } from 'primeng/speeddial';
+import { Component, Input, OnChanges, OnInit, type SimpleChanges, ChangeDetectionStrategy } from '@angular/core';
+import { MenuItem, TreeNode } from '@openng/optimus-ui/api';
+import { OrganizationChartModule } from '@openng/optimus-ui/organizationchart';
+import { SpeedDialModule } from '@openng/optimus-ui/speeddial';
 
 @Component({
   selector: 'aas-bom-chart',
   imports: [OrganizationChartModule, SpeedDialModule],
+  changeDetection: ChangeDetectionStrategy.Eager,
   templateUrl: './bom-chart.component.html',
 })
 export class BomChartComponent implements OnChanges, OnInit {

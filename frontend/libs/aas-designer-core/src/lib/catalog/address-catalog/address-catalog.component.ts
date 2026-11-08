@@ -2,18 +2,18 @@ import { ConfirmDialogComponent } from '@aas/aas-designer-shared';
 import { CountryCodeComponent } from '@aas/common-components';
 import { NotificationService } from '@aas/common-services';
 import { CommonModule } from '@angular/common';
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { cloneDeep } from 'lodash-es';
-import { ConfirmationService, MenuItem } from 'primeng/api';
-import { ButtonModule } from 'primeng/button';
-import { DialogModule } from 'primeng/dialog';
-import { InputTextModule } from 'primeng/inputtext';
-import { MenuModule } from 'primeng/menu';
-import { TableModule } from 'primeng/table';
-import { TagModule } from 'primeng/tag';
-import { ToolbarModule } from 'primeng/toolbar';
+import { ConfirmationService, MenuItem } from '@openng/optimus-ui/api';
+import { ButtonModule } from '@openng/optimus-ui/button';
+import { DialogModule } from '@openng/optimus-ui/dialog';
+import { InputTextModule } from '@openng/optimus-ui/inputtext';
+import { MenuModule } from '@openng/optimus-ui/menu';
+import { TableModule } from '@openng/optimus-ui/table';
+import { TagModule } from '@openng/optimus-ui/tag';
+import { ToolbarModule } from '@openng/optimus-ui/toolbar';
 import { MultilanguagePropertyComponent } from '../../general/structural-elements/multilanguage-property/multilanguage-property.component';
 import { HerstellerAdresse } from '../../generator/model/hersteller-adresse';
 import { AddressCatalogService } from '../service/address-catalog.service';
@@ -37,6 +37,7 @@ import { AddressCatalogService } from '../service/address-catalog.service';
     MultilanguagePropertyComponent,
   ],
   providers: [ConfirmationService],
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrls: ['../../../host.scss'],
 })
 export class AddressCatalogComponent implements OnInit {

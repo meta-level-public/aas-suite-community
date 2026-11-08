@@ -8,9 +8,9 @@ import { get } from 'lodash-es';
 import { lastValueFrom } from 'rxjs';
 
 import {
-    buildGeneratorExportPayload,
-    GeneratorExportBuilderHooks,
-    GeneratorExportState,
+  buildGeneratorExportPayload,
+  GeneratorExportBuilderHooks,
+  GeneratorExportState,
 } from './generator-export.builder';
 
 export type GeneratorExportServiceHooks = Omit<GeneratorExportBuilderHooks, 'loadExportConceptDescriptions'>;
@@ -87,6 +87,12 @@ export class GeneratorExportService {
         }
       }
     }
+
+    // The AAS metamodel forbids empty lists ("must be either not set or have at least one item"); this happens on a
+    // fresh installation where the repository has no concept descriptions for the used semantic IDs yet.
+    if (exportState.env.conceptDescriptions?.length === 0) {
+      exportState.env.conceptDescriptions = null;
+    }
   }
 
   private applyKnownTemplateFixes(env: aas.types.Environment) {
@@ -105,6 +111,12 @@ export class GeneratorExportService {
         if (error.message.startsWith('The value must not be empty.')) {
           changed = this.fixEmptyStringValue(env, error.path.toString()) || changed;
           changed = this.fixEmptyStringValue(verifiableEnv, error.path.toString()) || changed;
+        }
+
+        const emptyListProperty = this.getEmptyListPropertyName(error.message);
+        if (emptyListProperty != null) {
+          changed = this.fixEmptyList(env, error.path.toString(), emptyListProperty) || changed;
+          changed = this.fixEmptyList(verifiableEnv, error.path.toString(), emptyListProperty) || changed;
         }
       }
 
@@ -168,21 +180,53 @@ export class GeneratorExportService {
     return this.setPropertyToNullWhenEmpty(parentTarget, propertySuffix);
   }
 
+  /**
+   * aas-core reports empty lists on the owning object, naming the property in the message,
+   * e.g. "Value must be either not set or have at least one item." → `value`.
+   */
+  private getEmptyListPropertyName(message: string) {
+    const match = message.match(/^([A-Z][a-z ]*) must be either not set or have at least one item\.$/);
+    if (match == null) {
+      return null;
+    }
+
+    const [first, ...rest] = match[1].toLowerCase().split(' ');
+    return first + rest.map((word) => word.charAt(0).toUpperCase() + word.slice(1)).join('');
+  }
+
+  private fixEmptyList(env: aas.types.Environment, path: string, propertyName: string) {
+    const normalizedPath = path.startsWith('.') ? path.substring(1) : path;
+    const target = (normalizedPath === '' ? env : get(env, normalizedPath)) as Record<string, unknown> | null;
+
+    if (target == null || typeof target !== 'object') {
+      return false;
+    }
+
+    const list = target[propertyName];
+    if (!Array.isArray(list) || list.length > 0) {
+      return false;
+    }
+
+    target[propertyName] = null;
+    return true;
+  }
+
   private removeEmptyLangStringEntry(env: aas.types.Environment, path: string) {
     if (!path.endsWith('.text')) {
       return false;
     }
 
     const normalizedPath = path.startsWith('.') ? path.substring(1) : path;
-    const entryMatch = normalizedPath.match(/^(.*)\.value\[(\d+)\]\.text$/);
+    // Language string lists: `value` of an MLP, but also `description`, `displayName`, ... of any referable.
+    const entryMatch = normalizedPath.match(/^(.*)\.(\w+)\[(\d+)\]\.text$/);
     if (entryMatch == null) {
       return false;
     }
 
-    const [, ownerPath, indexRaw] = entryMatch;
+    const [, ownerPath, listProperty, indexRaw] = entryMatch;
     const index = Number(indexRaw);
-    const owner = get(env, ownerPath) as { value?: unknown } | null | undefined;
-    const entries = Array.isArray(owner?.value) ? owner.value : null;
+    const owner = get(env, ownerPath) as Record<string, unknown> | null | undefined;
+    const entries = Array.isArray(owner?.[listProperty]) ? (owner[listProperty] as unknown[]) : null;
 
     if (entries == null || !Number.isInteger(index) || index < 0 || index >= entries.length) {
       return false;
@@ -195,7 +239,7 @@ export class GeneratorExportService {
 
     entries.splice(index, 1);
     if (entries.length === 0 && owner != null) {
-      owner.value = null;
+      owner[listProperty] = null;
     }
 
     return true;

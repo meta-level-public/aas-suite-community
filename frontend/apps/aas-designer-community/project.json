@@ -6,6 +6,7 @@
   "sourceRoot": "apps/aas-designer-community/src",
   "tags": ["scope:designer-community"],
   "targets": {
+    "typecheck": {},
     "build": {
       "executor": "@angular/build:application",
       "outputs": ["{options.outputPath}"],
@@ -80,8 +81,8 @@
           "budgets": [
             {
               "type": "initial",
-              "maximumWarning": "8mb",
-              "maximumError": "10mb"
+              "maximumWarning": "2.5mb",
+              "maximumError": "3mb"
             },
             {
               "type": "anyComponentStyle",
@@ -129,7 +130,7 @@
       "executor": "@analogjs/vitest-angular:test",
       "outputs": ["{workspaceRoot}/coverage/{projectRoot}"],
       "options": {
-        "configFile": "vitest.config.ts",
+        "configFile": "vitest.config.mts",
         "coverage": false,
         "watch": false,
         "passWithNoTests": true

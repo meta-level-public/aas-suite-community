@@ -1,22 +1,23 @@
 import { DateProxyPipe } from '@aas/common-pipes';
 import { AasConfirmationService } from '@aas/common-services';
 import { CorsConfig } from '@aas/model';
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
-import { MenuItem, PrimeTemplate } from 'primeng/api';
-import { Button } from 'primeng/button';
-import { Dialog } from 'primeng/dialog';
-import { InputText } from 'primeng/inputtext';
-import { Menu } from 'primeng/menu';
-import { TableModule } from 'primeng/table';
-import { Textarea } from 'primeng/textarea';
+import { MenuItem, PrimeTemplate } from '@openng/optimus-ui/api';
+import { Button } from '@openng/optimus-ui/button';
+import { Dialog } from '@openng/optimus-ui/dialog';
+import { InputText } from '@openng/optimus-ui/inputtext';
+import { Menu } from '@openng/optimus-ui/menu';
+import { TableModule } from '@openng/optimus-ui/table';
+import { Textarea } from '@openng/optimus-ui/textarea';
 import { CorsConfigService } from '../cors-config.service';
 
 @Component({
   selector: 'aas-cors-list',
   templateUrl: './cors-list.component.html',
   styleUrls: ['../../host.scss'],
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [
     Button,
     TableModule,

@@ -2,15 +2,15 @@ import { HelpLabelComponent } from '@aas/common-components';
 import { AasConfirmationService, NotificationService } from '@aas/common-services';
 import { PcnClient, PcnRegistrationRequest } from '@aas/webapi-client';
 import { CommonModule } from '@angular/common';
-import { Component, computed, inject, model, signal } from '@angular/core';
+import { Component, computed, inject, model, signal, ChangeDetectionStrategy } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
-import { ButtonModule } from 'primeng/button';
-import { InputTextModule } from 'primeng/inputtext';
-import { MessageModule } from 'primeng/message';
-import { PasswordModule } from 'primeng/password';
-import { SelectModule } from 'primeng/select';
-import { ToolbarModule } from 'primeng/toolbar';
+import { ButtonModule } from '@openng/optimus-ui/button';
+import { InputTextModule } from '@openng/optimus-ui/inputtext';
+import { MessageModule } from '@openng/optimus-ui/message';
+import { PasswordModule } from '@openng/optimus-ui/password';
+import { SelectModule } from '@openng/optimus-ui/select';
+import { ToolbarModule } from '@openng/optimus-ui/toolbar';
 import { lastValueFrom } from 'rxjs';
 import { V3EditorDataStoreService } from '../../../v3-editor-data-store.service';
 import { PcnStateStoreService } from '../pcn-state-store.service';
@@ -29,6 +29,7 @@ import { PcnStateStoreService } from '../pcn-state-store.service';
     SelectModule,
     ToolbarModule,
   ],
+  changeDetection: ChangeDetectionStrategy.Eager,
   templateUrl: './pcn-receiving.component.html',
 })
 export class PcnReceivingComponent {

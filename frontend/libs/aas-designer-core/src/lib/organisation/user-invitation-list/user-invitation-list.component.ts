@@ -1,20 +1,20 @@
 import { UserInvitation } from '@aas-designer-model';
-import { AasConfirmationService } from '@aas/aas-designer-shared';
-import { NotificationService } from '@aas/common-services';
-import { ChangeDetectorRef, Component, OnChanges, OnInit, inject } from '@angular/core';
+import { AasConfirmationService, NotificationService } from '@aas/common-services';
+import { ChangeDetectorRef, Component, OnChanges, OnInit, inject, ChangeDetectionStrategy } from '@angular/core';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
-import { MenuItem } from 'primeng/api';
-import { ButtonModule } from 'primeng/button';
-import { FieldsetModule } from 'primeng/fieldset';
-import { MenuModule } from 'primeng/menu';
-import { TableModule } from 'primeng/table';
-import { TagModule } from 'primeng/tag';
-import { ToolbarModule } from 'primeng/toolbar';
+import { MenuItem } from '@openng/optimus-ui/api';
+import { ButtonModule } from '@openng/optimus-ui/button';
+import { FieldsetModule } from '@openng/optimus-ui/fieldset';
+import { MenuModule } from '@openng/optimus-ui/menu';
+import { TableModule } from '@openng/optimus-ui/table';
+import { TagModule } from '@openng/optimus-ui/tag';
+import { ToolbarModule } from '@openng/optimus-ui/toolbar';
 import { OrganisationService } from '../organisation.service';
 
 @Component({
   selector: 'aas-user-invitation-list',
   imports: [TranslateModule, TableModule, ButtonModule, MenuModule, TagModule, FieldsetModule, ToolbarModule],
+  changeDetection: ChangeDetectionStrategy.Eager,
   templateUrl: './user-invitation-list.component.html',
 })
 export class UserInvitationListComponent implements OnChanges, OnInit {

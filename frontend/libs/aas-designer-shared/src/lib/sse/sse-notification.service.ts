@@ -15,6 +15,11 @@ export class SseNotificationService {
   clientId = '';
 
   sseConnectErrorCount = 0;
+  private reconnectTimer: ReturnType<typeof setTimeout> | undefined;
+
+  /** First reconnect delay after an error; doubles with every further error up to the maximum. */
+  static readonly reconnectBaseDelayMs = 1000;
+  static readonly reconnectMaxDelayMs = 30000;
 
   shellUpdated = new EventEmitter<ShellUpdateMessage>();
   submodelUpdated = new EventEmitter<SubmodelUpdateMessage>();
@@ -22,88 +27,101 @@ export class SseNotificationService {
   importProgressUpdated = new EventEmitter<ImportProgressMessage>();
 
   createSse(url: string) {
-    if (this.eventSource == null) {
-      this.eventSource = new EventSource(url);
-
-      this.eventSource.onopen = () => {
-        // eslint-disable-next-line no-console
-        console.log('SSE connection opened');
-      };
-
-      this.eventSource.onerror = (error) => {
-        // eslint-disable-next-line no-console
-        console.log('SSE connection error', error);
-        this.eventSource?.close();
-        this.eventSource = undefined;
-        this.sseConnectErrorCount++;
-        if (this.sseConnectErrorCount < 10) {
-          this.createSse(url);
-        } else {
-          setTimeout(() => this.createSse(url), 10000);
-        }
-      };
-
-      this.eventSource.addEventListener('ProductChangeNotificationReceived', (event) => {
-        const item = JSON.parse(event.data);
-        this.eventSource?.close();
-        this.eventSource = undefined;
-        this.createSse(url);
-
-        const pcnUpdateMessage: PcnUpdateMessage = {
-          aasIdentifier: item.Identifier,
-          infrastructureId: item.InfrastructureId,
-          content: item.AdditionalContent,
-        };
-        this.productChangeNotificationReceived.next(pcnUpdateMessage);
-      });
-
-      this.eventSource.addEventListener('ShellUpdated', (event) => {
-        const item = JSON.parse(event.data);
-        this.eventSource?.close();
-        this.eventSource = undefined;
-        this.createSse(url);
-
-        const shellUpdateMessage: ShellUpdateMessage = {
-          aasIdentifier: item.Identifier,
-          infrastructureId: item.InfrastructureId,
-        };
-        this.shellUpdated.next(shellUpdateMessage);
-      });
-
-      this.eventSource.addEventListener('SubmodelUpdated', (event) => {
-        const item = JSON.parse(event.data);
-        this.eventSource?.close();
-        this.eventSource = undefined;
-        this.createSse(url);
-
-        const submodelUpdateMessage: SubmodelUpdateMessage = {
-          submodelIdentifier: item.Identifier,
-          infrastructureId: item.InfrastructureId,
-        };
-        this.submodelUpdated.next(submodelUpdateMessage);
-      });
-
-      this.eventSource.addEventListener('ImportProgressUpdated', (event) => {
-        const item = JSON.parse(event.data);
-        this.eventSource?.close();
-        this.eventSource = undefined;
-        this.createSse(url);
-
-        const importProgressMessage: ImportProgressMessage = {
-          operationId: item.operationId,
-          progressPercent: item.progressPercent,
-          stage: item.stage,
-          message: item.message,
-          processedFiles: item.processedFiles,
-          totalFiles: item.totalFiles,
-          currentFileName: item.currentFileName,
-          completed: item.completed,
-          failed: item.failed,
-          infrastructureId: item.infrastructureId,
-        };
-        this.importProgressUpdated.next(importProgressMessage);
-      });
+    if (this.eventSource != null) {
+      return;
     }
+    this.eventSource = new EventSource(url);
+
+    this.eventSource.onopen = () => {
+      this.sseConnectErrorCount = 0;
+    };
+
+    this.eventSource.onerror = (error) => {
+      console.warn('SSE connection error', error);
+      this.closeEventSource();
+      this.sseConnectErrorCount++;
+      this.scheduleReconnect(url, this.getReconnectDelay());
+    };
+
+    // The server ends the request after each update, so the connection is reopened after every event.
+    this.listen(url, 'ProductChangeNotificationReceived', (item) =>
+      this.productChangeNotificationReceived.next({
+        aasIdentifier: item.Identifier,
+        infrastructureId: item.InfrastructureId,
+        content: item.AdditionalContent,
+      }),
+    );
+
+    this.listen(url, 'ShellUpdated', (item) =>
+      this.shellUpdated.next({
+        aasIdentifier: item.Identifier,
+        infrastructureId: item.InfrastructureId,
+      }),
+    );
+
+    this.listen(url, 'SubmodelUpdated', (item) =>
+      this.submodelUpdated.next({
+        submodelIdentifier: item.Identifier,
+        infrastructureId: item.InfrastructureId,
+      }),
+    );
+
+    this.listen(url, 'ImportProgressUpdated', (item) =>
+      this.importProgressUpdated.next({
+        operationId: item.operationId,
+        progressPercent: item.progressPercent,
+        stage: item.stage,
+        message: item.message,
+        processedFiles: item.processedFiles,
+        totalFiles: item.totalFiles,
+        currentFileName: item.currentFileName,
+        completed: item.completed,
+        failed: item.failed,
+        infrastructureId: item.infrastructureId,
+      }),
+    );
+  }
+
+  /** Closes the connection and stops pending reconnects. */
+  disconnect() {
+    clearTimeout(this.reconnectTimer);
+    this.reconnectTimer = undefined;
+    this.closeEventSource();
+  }
+
+  /** Exponential backoff: 1 s, 2 s, 4 s, ... up to 30 s. */
+  getReconnectDelay(): number {
+    const delay = SseNotificationService.reconnectBaseDelayMs * 2 ** Math.max(0, this.sseConnectErrorCount - 1);
+    return Math.min(delay, SseNotificationService.reconnectMaxDelayMs);
+  }
+
+  private listen(url: string, eventName: string, publish: (item: any) => void) {
+    this.eventSource?.addEventListener(eventName, (event) => {
+      this.closeEventSource();
+      this.createSse(url);
+
+      let item: any;
+      try {
+        item = JSON.parse((event as MessageEvent).data);
+      } catch {
+        console.warn(`SSE event ${eventName} contains no valid JSON`);
+        return;
+      }
+      publish(item);
+    });
+  }
+
+  private scheduleReconnect(url: string, delayMs: number) {
+    clearTimeout(this.reconnectTimer);
+    this.reconnectTimer = setTimeout(() => {
+      this.reconnectTimer = undefined;
+      this.createSse(url);
+    }, delayMs);
+  }
+
+  private closeEventSource() {
+    this.eventSource?.close();
+    this.eventSource = undefined;
   }
 
   async initialize() {

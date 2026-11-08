@@ -1,4 +1,4 @@
-import { definePreset } from '@primeuix/themes';
+import { definePreset } from '@openng/optimus-ui-themes';
 import { AasSuitePreset } from './aas-suite-theme';
 
 export const EvergreenPreset = definePreset(AasSuitePreset, {

@@ -1,14 +1,12 @@
 <div class="flex flex-col gap-2">
-  <p-message
-    severity="info"
-    text="{{
-      'LICENSES_USED' | translate: { maxUsers: maxUsersString, currentUsers: userSeatStats()?.activeUserSeatsCount }
-    }}"
-  ></p-message>
+  <p-message severity="info">{{
+    'LICENSES_USED'
+      | translate
+        : { maxUsers: maxUsersString, currentUsers: $safeNavigationMigration(userSeatStats()?.activeUserSeatsCount) }
+  }}</p-message>
   <p-table
     #dt
     [value]="users() ?? []"
-    responsiveLayout="scroll"
     [rows]="10"
     [globalFilterFields]="['organisation']"
     [rows]="10"
@@ -21,50 +19,52 @@
   >
     <ng-template #header>
       <tr>
-        <th scope="col" style="width: 4%; min-width: 1rem"></th>
-        <th scope="col" pSortableColumn="name" style="width: 24%; min-width: 10rem">
+        <th scope="col" class="w-[4%] min-w-4"></th>
+        <th scope="col" pSortableColumn="name" class="w-[24%] min-w-40">
           {{ 'LASTNAME' | translate }}<p-sortIcon field="name"></p-sortIcon>
         </th>
-        <th scope="col" pSortableColumn="vorname" style="width: 24%; min-width: 10rem">
+        <th scope="col" pSortableColumn="vorname" class="w-[24%] min-w-40">
           {{ 'FIRSTNAME' | translate }}<p-sortIcon field="vorname"></p-sortIcon>
         </th>
-        <th scope="col" pSortableColumn="email" style="width: 39%; min-width: 10rem">
+        <th scope="col" pSortableColumn="email" class="w-[39%] min-w-40">
           {{ 'EMAIL' | translate }}<p-sortIcon field="email"></p-sortIcon>
         </th>
-        <th scope="col" pSortableColumn="accountAktiv" style="width: 5%; min-width: 6rem">
+        <th scope="col" pSortableColumn="accountAktiv" class="w-[5%] min-w-24">
           {{ 'ACTIVE' | translate }}<p-sortIcon field="accountAktiv"></p-sortIcon>
         </th>
-        <th scope="col" pSortableColumn="createdBySso" style="width: 5%; min-width: 6rem">
+        <th scope="col" pSortableColumn="createdBySso" class="w-[5%] min-w-24">
           {{ 'SSO' | translate }}<p-sortIcon field="createdBySso"></p-sortIcon>
         </th>
         <th scope="col">{{ 'USER_RIGHTS' | translate }}</th>
       </tr>
       <tr>
-        <th scope="col" style="width: 4%; min-width: 1rem"></th>
-        <th scope="col" style="width: 24%; min-width: 10rem">
+        <th scope="col" class="w-[4%] min-w-4"></th>
+        <th scope="col" class="w-[24%] min-w-40">
           <p-columnFilter type="text" field="name"></p-columnFilter>
         </th>
-        <th scope="col" style="width: 24%; min-width: 10rem">
+        <th scope="col" class="w-[24%] min-w-40">
           <p-columnFilter type="text" field="vorname"></p-columnFilter>
         </th>
-        <th scope="col" style="width: 39%; min-width: 10rem">
+        <th scope="col" class="w-[39%] min-w-40">
           <p-columnFilter type="text" field="email"></p-columnFilter>
         </th>
-        <th scope="col" style="width: 5%; min-width: 6rem">
+        <th scope="col" class="w-[5%] min-w-24">
           <p-columnFilter type="boolean" field="accountAktiv"></p-columnFilter>
         </th>
-        <th scope="col" style="width: 5%; min-width: 6rem">
+        <th scope="col" class="w-[5%] min-w-24">
           <p-columnFilter type="boolean" field="createdBySso"></p-columnFilter>
         </th>
-        <th scope="col" style="width: 4%; min-width: 1rem"></th>
+        <th scope="col" class="w-[4%] min-w-4"></th>
       </tr>
     </ng-template>
     <ng-template pTemplate="body" let-benutzer>
       <tr>
         <td>
           <p-button
+            [ariaLabel]="'MORE_ACTIONS' | translate"
+            [text]="true"
+            severity="secondary"
             icon="pi pi-ellipsis-v"
-            styleClass="p-button-text p-button-secondary"
             (onClick)="menu.toggle($event)"
           ></p-button>
           <p-menu
@@ -75,13 +75,13 @@
             [model]="menuItems()"
           ></p-menu>
         </td>
-        <td style="width: 15%; min-width: 10rem">
+        <td class="w-[15%] min-w-40">
           {{ benutzer.name }}
         </td>
-        <td style="width: 15%; min-width: 10rem">
+        <td class="w-[15%] min-w-40">
           {{ benutzer.vorname }}
         </td>
-        <td style="width: 15%; min-width: 10rem">
+        <td class="w-[15%] min-w-40">
           {{ benutzer.email }}
         </td>
         <td>
@@ -118,8 +118,8 @@
   closeIcon="null"
 >
   <ng-template #header>
-    <div class="font-medium mb-3" style="font-size: var(--aas-title-md); color: var(--p-text-color)">
-      {{ 'EDIT_ROLES_FOR_USER' | translate: { user: currentEditUser()?.email } }}
+    <div class="font-medium mb-3 text-[length:var(--aas-title-md)] text-color">
+      {{ 'EDIT_ROLES_FOR_USER' | translate: { user: $safeNavigationMigration(currentEditUser()?.email) } }}
     </div>
   </ng-template>
   <div class="flex flex-col gap-1">
@@ -138,7 +138,7 @@
           </div>
           <label for="role-{{ $index }}" class="cursor-pointer flex flex-col gap-0.5 min-w-0">
             <span class="font-semibold leading-5">{{ role }}</span>
-            <span class="text-sm" style="color: var(--p-text-muted-color)">
+            <span class="text-sm text-muted-color">
               {{ 'ROLE_DESC_' + role | translate }}
             </span>
           </label>
@@ -149,6 +149,7 @@
   <ng-template #footer>
     <div class="flex flex-row gap-2">
       <p-button
+        severity="secondary"
         label="{{ 'CANCEL' | translate }}"
         icon="pi pi-times"
         (onClick)="cancelEditRoles()"
@@ -166,7 +167,7 @@
 
 <p-dialog [(visible)]="infraRechteVisible" appendTo="body" [style]="{ minWidth: '50rem' }" closable="true">
   <ng-template #header>
-    <div class="font-medium mb-3" style="font-size: var(--aas-title-md); color: var(--p-text-color)">
+    <div class="font-medium mb-3 text-[length:var(--aas-title-md)] text-color">
       {{ 'INFRA_RECHTE.TITLE' | translate }} – {{ currentInfraRechteUser()?.email }}
     </div>
   </ng-template>

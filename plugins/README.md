@@ -76,6 +76,14 @@ Use [plugins/hello-world-demo](plugins/hello-world-demo) as the template for a n
 
 This workflow mirrors the repository's demo plugin and keeps the custom plugin aligned with the supported AAS Suite plugin contract.
 
+## Security model
+
+Plugins are trusted extensions. Install only plugins whose source you know.
+
+- The plugin frontend runs in an iframe on the same origin as the AAS Suite (no `sandbox`). This is required because plugins call `/designer-api/...` with the signed-in user's session and CSRF cookie. As a consequence the plugin has the same rights as the signed-in user and can access the page of the AAS Suite.
+- An optional backend assembly in `backend/` runs inside the AAS Suite backend process.
+- Only system administrators can add plugins (by placing the ZIP in the plugin directory). Use `roles` and `organizationIds` in the manifest to limit who sees a plugin, but do not rely on them as a security boundary for untrusted code.
+
 ## ZIP Structure
 
 The ZIP must contain `manifest.json` at the archive root. The compiled static frontend files must also be in the archive root or below it.
@@ -145,7 +153,7 @@ Rules enforced by the backend:
 - `id` must be URL-safe, for example `my-plugin`.
 - `route` must be a unique top-level route, for example `/my-plugin`.
 - Reserved AAS Suite routes such as `/plugins`, `/shells-list`, `/submodels`, `/my-space`, `/system-management`, `/public-viewer`, `/error` and `/forbidden` are not allowed.
-- `icon` must be a PrimeIcons class beginning with `pi pi-`.
+- `icon` must be an icon class from `@openng/icons` (formerly PrimeIcons) beginning with `pi pi-`.
 - `entryPoint` must point to an existing file in the ZIP, usually `index.html`.
 
 ## Creating a Plugin

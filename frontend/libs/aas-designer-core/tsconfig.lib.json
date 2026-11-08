@@ -9,6 +9,6 @@
     "skipLibCheck": true,
     "noErrorTruncation": false
   },
-  "exclude": ["src/**/*.spec.ts", "src/test-setup.vitest.ts", "vitest.config.ts", "src/**/*.test.ts"],
+  "exclude": ["src/**/*.spec.ts", "src/test-setup.vitest.ts", "vitest.config.mts", "src/**/*.test.ts"],
   "include": ["src/**/*.ts", "../aas-designer-shared/src/lib/model/newsItem.ts"]
 }

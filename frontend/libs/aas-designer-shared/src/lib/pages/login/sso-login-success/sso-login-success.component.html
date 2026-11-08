@@ -4,7 +4,7 @@
   @if (hasProblem()) {
     <p-card header="{{ 'ERROR_OCCURED' | translate }}">
       <div class="flex flex-col gap-2">
-        @switch (loginResult()?.resultCode) {
+        @switch ($safeNavigationMigration(loginResult()?.resultCode)) {
           @case (ResultCode.NO_VALID_ROLES) {
             <div class="text-xl">{{ 'NO_ROLES' | translate }}</div>
             <div>{{ 'NO_ROLES_EXPL' | translate }}</div>

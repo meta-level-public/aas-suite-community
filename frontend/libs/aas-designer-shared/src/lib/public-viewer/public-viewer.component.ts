@@ -1,14 +1,14 @@
 import { AasViewerStandaloneComponent } from '@aas/aas-viewer-standalone';
 import { AppConfigService, PortalService } from '@aas/common-services';
 import { AasViewerClient, SharedLinksClient, ViewerDescriptor, ViewerResultCode } from '@aas/webapi-client';
-import { Component, inject, OnDestroy, OnInit, Renderer2, signal } from '@angular/core';
+import { Component, inject, OnDestroy, OnInit, Renderer2, signal, ChangeDetectionStrategy } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
-import { Button } from 'primeng/button';
-import { Card } from 'primeng/card';
-import { Password } from 'primeng/password';
-import { Skeleton } from 'primeng/skeleton';
+import { Button } from '@openng/optimus-ui/button';
+import { Card } from '@openng/optimus-ui/card';
+import { Password } from '@openng/optimus-ui/password';
+import { Skeleton } from '@openng/optimus-ui/skeleton';
 import { lastValueFrom } from 'rxjs';
 import { AuthenticateResponse } from '@aas-designer-model';
 import { DisclaimerComponent } from '../disclaimer/disclaimer.component';
@@ -18,6 +18,7 @@ import { PublicViewerService } from './public-viewer.service';
   selector: 'aas-public-viewer',
   templateUrl: './public-viewer.component.html',
   styleUrls: ['../host.scss', './public-viewer.component.css'],
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [
     Card,
     Password,
@@ -30,6 +31,7 @@ import { PublicViewerService } from './public-viewer.service';
   ],
 })
 export class PublicViewerComponent implements OnInit, OnDestroy {
+  readonly currentYear = new Date().getFullYear();
   accesscode: string = '';
   aasIdentifier: string | undefined;
 

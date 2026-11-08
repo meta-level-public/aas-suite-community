@@ -2,7 +2,7 @@ import * as aas from '@aas-core-works/aas-core3.1-typescript';
 
 import { DateProxyPipe } from '@aas/common-pipes';
 import { SubmodelElementCollection } from '@aas/model';
-import { Component, computed, input } from '@angular/core';
+import { Component, computed, input, ChangeDetectionStrategy } from '@angular/core';
 import { TranslateModule } from '@ngx-translate/core';
 import { AddressMapComponent } from '../address-map/address-map.component';
 
@@ -10,6 +10,7 @@ import { AddressMapComponent } from '../address-map/address-map.component';
   selector: 'aas-pcf-step-viewer',
   templateUrl: './pcf-step-viewer.component.html',
   styleUrls: ['./pcf-step-viewer.component.css'],
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [TranslateModule, DateProxyPipe, AddressMapComponent],
 })
 export class PcfStepViewerComponent {

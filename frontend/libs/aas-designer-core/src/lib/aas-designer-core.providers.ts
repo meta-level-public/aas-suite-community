@@ -7,9 +7,9 @@ import { HTTP_INTERCEPTORS, HttpClient, provideHttpClient, withInterceptorsFromD
 import { ErrorHandler, inject, provideAppInitializer } from '@angular/core';
 import { provideRouter, withComponentInputBinding } from '@angular/router';
 import { TranslateLoader, TranslateModule, TranslateService } from '@ngx-translate/core';
-import { ConfirmationService, MessageService } from 'primeng/api';
-import { providePrimeNG } from 'primeng/config';
-import { DialogService } from 'primeng/dynamicdialog';
+import { ConfirmationService, MessageService } from '@openng/optimus-ui/api';
+import { provideOptimus } from '@openng/optimus-ui/config';
+import { DialogService } from '@openng/optimus-ui/dynamicdialog';
 import { lastValueFrom } from 'rxjs';
 import { APP_ROUTES } from './app.routes';
 import { ErrorHandlerService } from './service/error-handler.service';
@@ -55,7 +55,7 @@ export const AAS_DESIGNER_CORE_PROVIDERS = [
   DialogService,
   NewsService,
   provideHttpClient(withInterceptorsFromDi()),
-  providePrimeNG({
+  provideOptimus({
     theme: {
       preset: AasSuitePreset,
       options: {

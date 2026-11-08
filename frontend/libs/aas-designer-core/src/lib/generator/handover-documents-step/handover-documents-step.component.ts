@@ -1,12 +1,13 @@
-import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { Component, EventEmitter, Input, Output, ChangeDetectionStrategy } from '@angular/core';
 import { TranslateModule } from '@ngx-translate/core';
-import { Button } from 'primeng/button';
+import { Button } from '@openng/optimus-ui/button';
 import { DocumentItem } from '../model/document-item';
 
 @Component({
   selector: 'aas-handover-documents-step',
   templateUrl: './handover-documents-step.component.html',
   styleUrl: './handover-documents-step.component.scss',
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [Button, TranslateModule],
 })
 export class HandoverDocumentsStepComponent {

@@ -1,15 +1,16 @@
 import {
-    AfterViewInit,
-    ChangeDetectorRef,
-    Component,
-    ComponentRef,
-    inject,
-    Input,
-    OnDestroy,
-    QueryList,
-    Type,
-    ViewChildren,
-    ViewContainerRef,
+  AfterViewInit,
+  ChangeDetectorRef,
+  Component,
+  ComponentRef,
+  inject,
+  Input,
+  OnDestroy,
+  QueryList,
+  Type,
+  ViewChildren,
+  ViewContainerRef,
+  ChangeDetectionStrategy,
 } from '@angular/core';
 import { Subscription } from 'rxjs';
 
@@ -17,6 +18,7 @@ import { Subscription } from 'rxjs';
   selector: 'aas-submodel-elements-list',
   templateUrl: './submodel-elements-list.component.html',
   styleUrls: ['./submodel-elements-list.component.css'],
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [],
 })
 export class SubmodelElementsListComponent implements AfterViewInit, OnDestroy {

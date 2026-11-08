@@ -1,6 +1,6 @@
 <div class="nameplate-container">
   <div class="section-card">
-    <h3 class="section-title"><i class="fa-solid fa-cube"></i> Software Product</h3>
+    <h3 class="section-title"><i class="fa-solid fa-cube"></i> {{ 'SOFTWARE_PRODUCT' | translate }}</h3>
     <div class="flex flex-col gap-2">
       @if (manufacturerName != '') {
         <p-inputgroup>
@@ -40,13 +40,13 @@
       }
       @if (manufacturerProductType != '') {
         <p-inputgroup>
-          <p-inputgroup-addon class="font-bold w-48">Product Type</p-inputgroup-addon>
+          <p-inputgroup-addon class="font-bold w-48">{{ 'PRODUCT_TYPE' | translate }}</p-inputgroup-addon>
           <input pInputText type="text" [value]="manufacturerProductType" readonly />
         </p-inputgroup>
       }
       @if (softwareType != '') {
         <p-inputgroup>
-          <p-inputgroup-addon class="font-bold w-48">Software Type</p-inputgroup-addon>
+          <p-inputgroup-addon class="font-bold w-48">{{ 'SOFTWARE_TYPE' | translate }}</p-inputgroup-addon>
           <input pInputText type="text" [value]="softwareType" readonly />
         </p-inputgroup>
       }
@@ -93,7 +93,7 @@
         releaseNotes != ''
       ) {
         <div class="section-card">
-          <h3 class="section-title"><i class="fa-solid fa-code-branch"></i> Release</h3>
+          <h3 class="section-title"><i class="fa-solid fa-code-branch"></i> {{ 'RELEASE' | translate }}</h3>
           <div class="flex flex-col gap-2">
             @if (version != '' || versionName != '') {
               <p-inputgroup>
@@ -102,37 +102,37 @@
                   {{ 'VERSION' | translate }}
                 </p-inputgroup-addon>
                 <input pInputText type="text" [value]="version" readonly />
-                <p-inputgroup-addon class="font-bold min-w-40">Version Name</p-inputgroup-addon>
+                <p-inputgroup-addon class="font-bold min-w-40">{{ 'VERSION_NAME' | translate }}</p-inputgroup-addon>
                 <input pInputText type="text" [value]="versionName" readonly />
               </p-inputgroup>
             }
             @if (versionInfo != '') {
               <p-inputgroup>
-                <p-inputgroup-addon class="font-bold w-48">Version Info</p-inputgroup-addon>
+                <p-inputgroup-addon class="font-bold w-48">{{ 'VERSION_INFO' | translate }}</p-inputgroup-addon>
                 <input pInputText type="text" [value]="versionInfo" readonly />
               </p-inputgroup>
             }
             @if (releaseDate != '') {
               <p-inputgroup>
-                <p-inputgroup-addon class="font-bold w-48">Release Date</p-inputgroup-addon>
+                <p-inputgroup-addon class="font-bold w-48">{{ 'RELEASE_DATE' | translate }}</p-inputgroup-addon>
                 <input pInputText type="text" [value]="releaseDate" readonly />
               </p-inputgroup>
             }
             @if (buildDate != '') {
               <p-inputgroup>
-                <p-inputgroup-addon class="font-bold w-48">Build Date</p-inputgroup-addon>
+                <p-inputgroup-addon class="font-bold w-48">{{ 'BUILD_DATE' | translate }}</p-inputgroup-addon>
                 <input pInputText type="text" [value]="buildDate" readonly />
               </p-inputgroup>
             }
             @if (releaseInformation != '') {
               <p-inputgroup>
-                <p-inputgroup-addon class="font-bold w-48">Release Info</p-inputgroup-addon>
+                <p-inputgroup-addon class="font-bold w-48">{{ 'RELEASE_INFO' | translate }}</p-inputgroup-addon>
                 <input pInputText type="text" [value]="releaseInformation" readonly />
               </p-inputgroup>
             }
             @if (releaseNotes != '') {
               <p-inputgroup>
-                <p-inputgroup-addon class="font-bold w-48">Release Notes</p-inputgroup-addon>
+                <p-inputgroup-addon class="font-bold w-48">{{ 'RELEASE_NOTES' | translate }}</p-inputgroup-addon>
                 <input pInputText type="text" [value]="releaseNotes" readonly />
               </p-inputgroup>
             }
@@ -142,11 +142,11 @@
 
       @if (installationURI != '' || installationFile != '' || installerType != '' || installationChecksum != '') {
         <div class="section-card">
-          <h3 class="section-title"><i class="fa-solid fa-download"></i> Installation Package</h3>
+          <h3 class="section-title"><i class="fa-solid fa-download"></i> {{ 'INSTALLATION_PACKAGE' | translate }}</h3>
           <div class="flex flex-col gap-2">
             @if (installationURI != '') {
               <p-inputgroup>
-                <p-inputgroup-addon class="font-bold w-48">Installation URI</p-inputgroup-addon>
+                <p-inputgroup-addon class="font-bold w-48">{{ 'INSTALLATION_URI' | translate }}</p-inputgroup-addon>
                 <input pInputText type="text" [value]="installationURI" readonly />
                 @if (isLink(installationURI)) {
                   <p-inputgroup-addon class="w-auto">
@@ -159,19 +159,19 @@
             }
             @if (installationFile != '') {
               <p-inputgroup>
-                <p-inputgroup-addon class="font-bold w-48">Installation File</p-inputgroup-addon>
+                <p-inputgroup-addon class="font-bold w-48">{{ 'INSTALLATION_FILE' | translate }}</p-inputgroup-addon>
                 <input pInputText type="text" [value]="installationFile" readonly />
               </p-inputgroup>
             }
             @if (installerType != '') {
               <p-inputgroup>
-                <p-inputgroup-addon class="font-bold w-48">Installer Type</p-inputgroup-addon>
+                <p-inputgroup-addon class="font-bold w-48">{{ 'INSTALLER_TYPE' | translate }}</p-inputgroup-addon>
                 <input pInputText type="text" [value]="installerType" readonly />
               </p-inputgroup>
             }
             @if (installationChecksum != '') {
               <p-inputgroup>
-                <p-inputgroup-addon class="font-bold w-48">Checksum</p-inputgroup-addon>
+                <p-inputgroup-addon class="font-bold w-48">{{ 'CHECKSUM' | translate }}</p-inputgroup-addon>
                 <input pInputText type="text" [value]="installationChecksum" readonly />
               </p-inputgroup>
             }
@@ -195,7 +195,7 @@
     slaInformation != ''
   ) {
     <div class="section-card">
-      <h3 class="section-title"><i class="fa-solid fa-desktop"></i> Installed Instance</h3>
+      <h3 class="section-title"><i class="fa-solid fa-desktop"></i> {{ 'INSTALLED_INSTANCE' | translate }}</h3>
       <div class="flex flex-col gap-2">
         @if (serialNumber != '') {
           <p-inputgroup>
@@ -208,49 +208,49 @@
         }
         @if (inventoryTag != '') {
           <p-inputgroup>
-            <p-inputgroup-addon class="font-bold w-48">Inventory Tag</p-inputgroup-addon>
+            <p-inputgroup-addon class="font-bold w-48">{{ 'INVENTORY_TAG' | translate }}</p-inputgroup-addon>
             <input pInputText type="text" [value]="inventoryTag" readonly />
           </p-inputgroup>
         }
         @if (instanceName != '') {
           <p-inputgroup>
-            <p-inputgroup-addon class="font-bold w-48">Instance Name</p-inputgroup-addon>
+            <p-inputgroup-addon class="font-bold w-48">{{ 'INSTANCE_NAME' | translate }}</p-inputgroup-addon>
             <input pInputText type="text" [value]="instanceName" readonly />
           </p-inputgroup>
         }
         @if (installedVersion != '') {
           <p-inputgroup>
-            <p-inputgroup-addon class="font-bold w-48">Installed Version</p-inputgroup-addon>
+            <p-inputgroup-addon class="font-bold w-48">{{ 'INSTALLED_VERSION' | translate }}</p-inputgroup-addon>
             <input pInputText type="text" [value]="installedVersion" readonly />
           </p-inputgroup>
         }
         @if (installationDate != '') {
           <p-inputgroup>
-            <p-inputgroup-addon class="font-bold w-48">Installation Date</p-inputgroup-addon>
+            <p-inputgroup-addon class="font-bold w-48">{{ 'INSTALLATION_DATE' | translate }}</p-inputgroup-addon>
             <input pInputText type="text" [value]="installationDate" readonly />
           </p-inputgroup>
         }
         @if (installationPath != '' || installationSource != '') {
           <p-inputgroup>
-            <p-inputgroup-addon class="font-bold min-w-32">Path</p-inputgroup-addon>
+            <p-inputgroup-addon class="font-bold min-w-32">{{ 'PATH' | translate }}</p-inputgroup-addon>
             <input pInputText type="text" [value]="installationPath" readonly />
-            <p-inputgroup-addon class="font-bold min-w-32">Source</p-inputgroup-addon>
+            <p-inputgroup-addon class="font-bold min-w-32">{{ 'SOURCE' | translate }}</p-inputgroup-addon>
             <input pInputText type="text" [value]="installationSource" readonly />
           </p-inputgroup>
         }
         @if (installedOnArchitecture != '' || installedOnOS != '' || installedOnHost != '') {
           <p-inputgroup>
-            <p-inputgroup-addon class="font-bold min-w-32">Architecture</p-inputgroup-addon>
+            <p-inputgroup-addon class="font-bold min-w-32">{{ 'ARCHITECTURE' | translate }}</p-inputgroup-addon>
             <input pInputText type="text" [value]="installedOnArchitecture" readonly />
-            <p-inputgroup-addon class="font-bold min-w-24">OS</p-inputgroup-addon>
+            <p-inputgroup-addon class="font-bold min-w-24">{{ 'OPERATING_SYSTEM' | translate }}</p-inputgroup-addon>
             <input pInputText type="text" [value]="installedOnOS" readonly />
-            <p-inputgroup-addon class="font-bold min-w-32">Host</p-inputgroup-addon>
+            <p-inputgroup-addon class="font-bold min-w-32">{{ 'HOST' | translate }}</p-inputgroup-addon>
             <input pInputText type="text" [value]="installedOnHost" readonly />
           </p-inputgroup>
         }
         @if (slaInformation != '') {
           <p-inputgroup>
-            <p-inputgroup-addon class="font-bold w-48">SLA Information</p-inputgroup-addon>
+            <p-inputgroup-addon class="font-bold w-48">{{ 'SLA_INFORMATION' | translate }}</p-inputgroup-addon>
             <input pInputText type="text" [value]="slaInformation" readonly />
           </p-inputgroup>
         }
@@ -262,7 +262,7 @@
     <div class="section-grid-2">
       @if (installedModules.length > 0) {
         <div class="section-card">
-          <h3 class="section-title"><i class="fa-solid fa-puzzle-piece"></i> Installed Modules</h3>
+          <h3 class="section-title"><i class="fa-solid fa-puzzle-piece"></i> {{ 'INSTALLED_MODULES' | translate }}</h3>
           <p-table [value]="installedModules" stripedRows size="small">
             <ng-template pTemplate="body" let-module>
               <tr>
@@ -275,12 +275,12 @@
 
       @if (configurationPaths.length > 0) {
         <div class="section-card">
-          <h3 class="section-title"><i class="fa-solid fa-folder-tree"></i> Configuration Paths</h3>
+          <h3 class="section-title"><i class="fa-solid fa-folder-tree"></i> {{ 'CONFIGURATION_PATHS' | translate }}</h3>
           <p-table [value]="configurationPaths" stripedRows size="small">
             <ng-template pTemplate="header">
               <tr>
                 <th>URI</th>
-                <th>Type</th>
+                <th>{{ 'TYPE' | translate }}</th>
               </tr>
             </ng-template>
             <ng-template pTemplate="body" let-path>
@@ -307,17 +307,17 @@
     <div class="section-grid-12">
       <div class="span-7">
         <div class="section-card">
-          <h3 class="section-title"><i class="fa-solid fa-address-card"></i> Contact</h3>
+          <h3 class="section-title"><i class="fa-solid fa-address-card"></i> {{ 'CONTACT' | translate }}</h3>
           <div class="flex flex-col gap-2">
             @if (contactRole != '') {
               <p-inputgroup>
-                <p-inputgroup-addon class="font-bold w-40">Role</p-inputgroup-addon>
+                <p-inputgroup-addon class="font-bold w-40">{{ 'Role' | translate }}</p-inputgroup-addon>
                 <input pInputText type="text" [value]="contactRole" readonly />
               </p-inputgroup>
             }
             @if (contactName != '' || contactFirstName != '') {
               <p-inputgroup>
-                <p-inputgroup-addon class="font-bold w-40">Name</p-inputgroup-addon>
+                <p-inputgroup-addon class="font-bold w-40">{{ 'NAME' | translate }}</p-inputgroup-addon>
                 <input pInputText type="text" [value]="(contactName + ' ' + contactFirstName).trim()" readonly />
               </p-inputgroup>
             }
@@ -364,7 +364,7 @@
             }
             @if (contactState != '') {
               <p-inputgroup>
-                <p-inputgroup-addon class="font-bold w-40">State/County</p-inputgroup-addon>
+                <p-inputgroup-addon class="font-bold w-40">{{ 'STATE_COUNTY' | translate }}</p-inputgroup-addon>
                 <input pInputText type="text" [value]="contactState" readonly />
               </p-inputgroup>
             }
@@ -402,19 +402,19 @@
                   {{ 'LANGUAGE' | translate }}
                 </p-inputgroup-addon>
                 <input pInputText type="text" [value]="contactLanguage" readonly />
-                <p-inputgroup-addon class="font-bold min-w-32">Time Zone</p-inputgroup-addon>
+                <p-inputgroup-addon class="font-bold min-w-32">{{ 'TIME_ZONE' | translate }}</p-inputgroup-addon>
                 <input pInputText type="text" [value]="contactTimeZone" readonly />
               </p-inputgroup>
             }
             @if (contactLink != '') {
               <p-inputgroup>
-                <p-inputgroup-addon class="font-bold w-40">Link</p-inputgroup-addon>
+                <p-inputgroup-addon class="font-bold w-40">{{ 'LINK' | translate }}</p-inputgroup-addon>
                 <input pInputText type="text" [value]="contactLink" readonly />
               </p-inputgroup>
             }
             @if (contactFurtherDetails != '') {
               <p-inputgroup>
-                <p-inputgroup-addon class="font-bold w-40">Details</p-inputgroup-addon>
+                <p-inputgroup-addon class="font-bold w-40">{{ 'DETAILS' | translate }}</p-inputgroup-addon>
                 <input pInputText type="text" [value]="contactFurtherDetails" readonly />
               </p-inputgroup>
             }
@@ -423,7 +423,7 @@
       </div>
       <div class="span-5">
         <div class="section-card">
-          <h3 class="section-title"><i class="fa-solid fa-map-location-dot"></i> Map</h3>
+          <h3 class="section-title"><i class="fa-solid fa-map-location-dot"></i> {{ 'MAP' | translate }}</h3>
           <aas-contact-information-map
             [contactInformation]="mapContact"
             [showLayer]="showContactMap"

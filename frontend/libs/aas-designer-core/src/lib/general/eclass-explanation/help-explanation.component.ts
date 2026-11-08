@@ -2,18 +2,19 @@ import { InfoItem } from '@aas-designer-model';
 import { LanguageService } from '@aas/aas-designer-shared';
 import { PortalService } from '@aas/common-services';
 import { ConceptDescription } from '@aas/model';
-import { Component, Input, ViewChild } from '@angular/core';
+import { Component, Input, ViewChild, ChangeDetectionStrategy } from '@angular/core';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
-import { Popover } from 'primeng/popover';
+import { Popover } from '@openng/optimus-ui/popover';
 import { GeneratorService } from '../../generator/generator.service';
 import { EclassExplanationService } from './help-explanation.service';
 
-import { Button } from 'primeng/button';
-import { Skeleton } from 'primeng/skeleton';
+import { Button } from '@openng/optimus-ui/button';
+import { Skeleton } from '@openng/optimus-ui/skeleton';
 import { EClassLogoComponent } from '../eclass-logo/eclass-logo.component';
 @Component({
   selector: 'aas-help-explanation',
   templateUrl: './help-explanation.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [Popover, Skeleton, EClassLogoComponent, Button, TranslateModule],
 })
 export class HelpExplanationComponent {

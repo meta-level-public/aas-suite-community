@@ -2,18 +2,20 @@
   <p-splitter stateKey="submodelsTree" stateStorage="local" [panelSizes]="[20, 80]" class="aas-splitter-fill">
     <ng-template pTemplate>
       <div class="flex flex-col h-full p-2 text-base">
-        <div class="hero-section" style="margin: 0 0 0.5rem 0">
+        <div class="hero-section mx-0 mt-0 mb-2">
           <div class="hero-content">
             <h1 class="hero-title">{{ 'IDTA_SUBMODELS' | translate }}</h1>
             @if (loading() === false) {
               <div class="hero-actions">
                 <p-button
+                  ariaLabel="{{ 'EXPAND_ALL' | translate }}"
                   icon="pi pi-chevron-down"
                   pTooltip="{{ 'EXPAND_ALL' | translate }}"
                   (onClick)="expandAll()"
                   size="small"
                 ></p-button>
                 <p-button
+                  ariaLabel="{{ 'COLLAPSE_ALL' | translate }}"
                   icon="pi pi-chevron-right"
                   pTooltip="{{ 'COLLAPSE_ALL' | translate }}"
                   (onClick)="collapseAll()"
@@ -30,14 +32,14 @@
     </ng-template>
     <ng-template pTemplate>
       <div class="flex flex-col h-full p-2 text-base">
-        <div class="hero-section" style="margin: 0 0 0.5rem 0">
+        <div class="hero-section mx-0 mt-0 mb-2">
           <div class="hero-content">
             <h1 class="hero-title">
               @if (
                 selectedNode() &&
-                (FilenameHelper.isPdf(selectedNode()?.label) ||
-                  FilenameHelper.isMarkdown(selectedNode()?.label) ||
-                  FilenameHelper.isJson(selectedNode()?.label))
+                (FilenameHelper.isPdf($safeNavigationMigration(selectedNode()?.label)) ||
+                  FilenameHelper.isMarkdown($safeNavigationMigration(selectedNode()?.label)) ||
+                  FilenameHelper.isJson($safeNavigationMigration(selectedNode()?.label)))
               ) {
                 {{ selectedNode()?.label }}
               } @else {
@@ -48,27 +50,26 @@
         </div>
         @if (
           selectedNode() &&
-          (FilenameHelper.isPdf(selectedNode()?.label) ||
-            FilenameHelper.isMarkdown(selectedNode()?.label) ||
-            FilenameHelper.isJson(selectedNode()?.label))
+          (FilenameHelper.isPdf($safeNavigationMigration(selectedNode()?.label)) ||
+            FilenameHelper.isMarkdown($safeNavigationMigration(selectedNode()?.label)) ||
+            FilenameHelper.isJson($safeNavigationMigration(selectedNode()?.label)))
         ) {
-          <p class="text-sm mt-1" style="color: var(--p-text-muted-color)">{{ 'IDTA_SOURCE' | translate }}</p>
+          <p class="text-sm mt-1 text-muted-color">{{ 'IDTA_SOURCE' | translate }}</p>
         }
         <div class="flex-1 min-h-0 relative">
           <div class="absolute inset-0 overflow-auto">
             @if (!selectedNode()) {
               <div class="flex items-center justify-center h-full">
                 <div
-                  class="max-w-2xl p-6 rounded-lg border"
-                  style="background: var(--aas-info-surface); border-color: var(--aas-info-border)"
+                  class="max-w-2xl p-6 rounded-lg border bg-[var(--aas-info-surface)] border-[color:var(--aas-info-border)]"
                 >
                   <div class="flex items-start gap-3">
-                    <i class="pi pi-info-circle text-2xl mt-1" style="color: var(--aas-info-text)"></i>
+                    <i class="pi pi-info-circle text-2xl mt-1 text-[var(--aas-info-text)]"></i>
                     <div>
-                      <h3 class="text-lg font-semibold mb-2" style="color: var(--aas-info-text)">
+                      <h3 class="text-lg font-semibold mb-2 text-[var(--aas-info-text)]">
                         {{ 'IDTA_SUBMODELS' | translate }}
                       </h3>
-                      <p class="leading-relaxed" style="color: var(--aas-info-text)">
+                      <p class="leading-relaxed text-[var(--aas-info-text)]">
                         {{ 'IDTA_SUBMODELS_INFO' | translate }}
                       </p>
                     </div>
@@ -78,22 +79,21 @@
             }
             @if (
               selectedNode() &&
-              !FilenameHelper.isPdf(selectedNode()?.label) &&
-              !FilenameHelper.isMarkdown(selectedNode()?.label) &&
-              !FilenameHelper.isJson(selectedNode()?.label)
+              !FilenameHelper.isPdf($safeNavigationMigration(selectedNode()?.label)) &&
+              !FilenameHelper.isMarkdown($safeNavigationMigration(selectedNode()?.label)) &&
+              !FilenameHelper.isJson($safeNavigationMigration(selectedNode()?.label))
             ) {
               <div class="flex items-center justify-center h-full">
                 <div
-                  class="max-w-2xl p-6 rounded-lg border"
-                  style="background: var(--aas-warning-surface); border-color: var(--aas-warning-border)"
+                  class="max-w-2xl p-6 rounded-lg border bg-[var(--aas-warning-surface)] border-[color:var(--aas-warning-border)]"
                 >
                   <div class="flex items-start gap-3">
-                    <i class="pi pi-folder-open text-2xl mt-1" style="color: var(--aas-warning-text)"></i>
+                    <i class="pi pi-folder-open text-2xl mt-1 text-[var(--aas-warning-text)]"></i>
                     <div>
-                      <h3 class="text-lg font-semibold mb-2" style="color: var(--aas-warning-text)">
+                      <h3 class="text-lg font-semibold mb-2 text-[var(--aas-warning-text)]">
                         {{ selectedNode()?.label }}
                       </h3>
-                      <p class="leading-relaxed" style="color: var(--aas-warning-text)">
+                      <p class="leading-relaxed text-[var(--aas-warning-text)]">
                         {{ 'IDTA_CATEGORY_SELECTED' | translate }}
                       </p>
                     </div>
@@ -101,18 +101,17 @@
                 </div>
               </div>
             }
-            @if (fileUrl() && FilenameHelper.isPdf(selectedNode()?.label)) {
+            @if (fileUrl() && FilenameHelper.isPdf($safeNavigationMigration(selectedNode()?.label))) {
               <object
-                class="w-full h-full"
+                class="w-full h-full object-scale-down"
                 [data]="fileUrl()"
-                style="object-fit: scale-down"
                 [title]="selectedNode()?.label || 'IDTA Submodel Documentation'"
               ></object>
             }
-            @if (isMdLoaded() && FilenameHelper.isMarkdown(selectedNode()?.label)) {
+            @if (isMdLoaded() && FilenameHelper.isMarkdown($safeNavigationMigration(selectedNode()?.label))) {
               <markdown class="w-full h-full overflow-auto">{{ mdText() }}</markdown>
             }
-            @if (isJsonLoaded() && FilenameHelper.isJson(selectedNode()?.label)) {
+            @if (isJsonLoaded() && FilenameHelper.isJson($safeNavigationMigration(selectedNode()?.label))) {
               <div class="w-full h-full overflow-auto p-4">
                 <markdown>{{ '```json\n' + jsonData() + '\n```' }}</markdown>
               </div>

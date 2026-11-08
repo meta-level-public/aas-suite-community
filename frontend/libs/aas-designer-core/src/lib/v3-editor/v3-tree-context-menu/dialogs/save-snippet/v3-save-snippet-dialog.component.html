@@ -35,17 +35,18 @@
   <ng-template pTemplate="footer">
     <div class="flex flex-row gap-2 justify-end">
       <p-button
+        severity="secondary"
         pRipple
         label="{{ 'CANCEL' | translate }}"
         icon="pi pi-times"
-        styleClass="p-button-secondary mr-2"
+        styleClass="mr-2"
         (onClick)="confirmed.set(false); visible.set(false)"
       ></p-button>
       <p-button
         pRipple
         label="{{ 'SAVE' | translate }}"
         icon="pi pi-save"
-        styleClass="p-button-success mr-2"
+        styleClass="mr-2"
         (onClick)="confirmed.set(true)"
       ></p-button>
     </div>

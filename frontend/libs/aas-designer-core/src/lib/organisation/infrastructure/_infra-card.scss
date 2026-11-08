@@ -14,7 +14,7 @@
   );
   box-shadow:
     0 10px 28px color-mix(in srgb, black 6%, transparent),
-    inset 0 1px 0 color-mix(in srgb, white 55%, transparent);
+    inset 0 1px 0 color-mix(in srgb, var(--p-content-background) 55%, transparent);
 
   &__icon-wrap {
     display: flex;
@@ -32,13 +32,17 @@
     align-items: center;
     background: radial-gradient(
       circle at top,
-      color-mix(in srgb, white 72%, color-mix(in srgb, var(--p-primary-color) 18%, white)),
-      color-mix(in srgb, var(--p-primary-color) 18%, white)
+      color-mix(
+        in srgb,
+        var(--p-content-background) 72%,
+        color-mix(in srgb, var(--p-primary-color) 18%, var(--p-content-background))
+      ),
+      color-mix(in srgb, var(--p-primary-color) 18%, var(--p-content-background))
     );
     color: var(--p-primary-color);
     box-shadow:
       0 6px 14px color-mix(in srgb, var(--p-primary-color) 16%, transparent),
-      inset 0 1px 0 color-mix(in srgb, white 60%, transparent);
+      inset 0 1px 0 color-mix(in srgb, var(--p-content-background) 60%, transparent);
   }
 
   &__title {

@@ -1,9 +1,9 @@
 import { AasConfirmationService, AccessService } from '@aas/common-services';
-import { Component, computed, inject, signal, viewChild } from '@angular/core';
+import { Component, computed, inject, signal, viewChild, ChangeDetectionStrategy } from '@angular/core';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
-import { ButtonModule } from 'primeng/button';
-import { TableModule } from 'primeng/table';
-import { ToolbarModule } from 'primeng/toolbar';
+import { ButtonModule } from '@openng/optimus-ui/button';
+import { TableModule } from '@openng/optimus-ui/table';
+import { ToolbarModule } from '@openng/optimus-ui/toolbar';
 import { OrganisationStateService } from '../organisation-state.service';
 import { OrganisationDetailsEditComponent } from './organisation-details-edit/organisation-details-edit.component';
 import { OrganisationDetailsListComponent } from './organisation-details-list/organisation-details-list.component';
@@ -19,6 +19,7 @@ import { OrganisationDetailsListComponent } from './organisation-details-list/or
     OrganisationDetailsListComponent,
   ],
   templateUrl: './orga-details.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrls: ['../../../host.scss'],
 })
 export class OrgaDetailsComponent {

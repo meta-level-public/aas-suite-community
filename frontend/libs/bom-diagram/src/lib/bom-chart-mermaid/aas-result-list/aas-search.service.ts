@@ -46,8 +46,6 @@ export class AasSearchService {
     const params = new HttpParams().set('assetIds', [EncodingService.base64urlEncode(specificAssetId)].toString());
 
     const result = await lastValueFrom(this.http.get<PagedResult>(`${url}/shells`, { params, headers }));
-    // eslint-disable-next-line no-console
-    console.log('AasSearchService.findAasByRepo', result);
     const pagedResult = PagedResult.fromDto(result);
 
     // im pages result wollen wir nur die ids haben

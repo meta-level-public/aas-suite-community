@@ -6,16 +6,16 @@ import { HelpLabelComponent } from '@aas/common-components';
 import { AppConfigService } from '@aas/common-services';
 import { FilenameHelper } from '@aas/helpers';
 import { ShellResult } from '@aas/model';
-import { Component, inject, Input, signal } from '@angular/core';
+import { Component, inject, Input, signal, ChangeDetectionStrategy } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
-import { Button } from 'primeng/button';
-import { Dialog } from 'primeng/dialog';
-import { DialogService } from 'primeng/dynamicdialog';
-import { InputGroup } from 'primeng/inputgroup';
-import { InputText } from 'primeng/inputtext';
-import { Message } from 'primeng/message';
-import { Select } from 'primeng/select';
+import { Button } from '@openng/optimus-ui/button';
+import { Dialog } from '@openng/optimus-ui/dialog';
+import { DialogService } from '@openng/optimus-ui/dynamicdialog';
+import { InputGroup } from '@openng/optimus-ui/inputgroup';
+import { InputText } from '@openng/optimus-ui/inputtext';
+import { Message } from '@openng/optimus-ui/message';
+import { Select } from '@openng/optimus-ui/select';
 import { V3UndoDirective } from '../../../general/directives/v3-undo.directive';
 import { Info } from '../../../general/model/info-item';
 import { V3TreeService } from '../../v3-tree/v3-tree.service';
@@ -29,6 +29,7 @@ type VerificationError = aas.verification.VerificationError;
   selector: 'aas-v3-asset',
   templateUrl: './v3-asset.component.html',
   styleUrls: ['../../../../host.scss'],
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [
     Button,
     HelpLabelComponent,

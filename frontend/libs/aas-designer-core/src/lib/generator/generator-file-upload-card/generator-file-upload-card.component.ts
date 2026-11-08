@@ -1,8 +1,8 @@
 import { HelpLabelComponent } from '@aas/common-components';
-import { Component, input, output, signal } from '@angular/core';
+import { Component, input, output, signal, ChangeDetectionStrategy } from '@angular/core';
 import { TranslateModule } from '@ngx-translate/core';
-import { Button } from 'primeng/button';
-import { FileSelectEvent, FileUpload } from 'primeng/fileupload';
+import { Button } from '@openng/optimus-ui/button';
+import { FileSelectEvent, FileUpload } from '@openng/optimus-ui/fileupload';
 
 export interface GeneratorFileUploadCardState {
   filename?: string | null;
@@ -18,6 +18,7 @@ export interface GeneratorFileUploadCardState {
   selector: 'aas-generator-file-upload-card',
   templateUrl: './generator-file-upload-card.component.html',
   styleUrl: './generator-file-upload-card.component.scss',
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [HelpLabelComponent, Button, FileUpload, TranslateModule],
 })
 export class GeneratorFileUploadCardComponent {

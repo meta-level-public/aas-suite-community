@@ -3,14 +3,14 @@ import { DataTypeDefXsd } from '@aas-core-works/aas-core3.1-typescript/types';
 
 import { HelpLabelComponent } from '@aas/common-components';
 import { HttpClient } from '@angular/common/http';
-import { Component, inject, Input, OnInit } from '@angular/core';
+import { Component, inject, Input, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
-import { MenuItem } from 'primeng/api';
-import { Button } from 'primeng/button';
-import { InputText } from 'primeng/inputtext';
-import { Select } from 'primeng/select';
-import { TieredMenu } from 'primeng/tieredmenu';
+import { MenuItem } from '@openng/optimus-ui/api';
+import { Button } from '@openng/optimus-ui/button';
+import { InputText } from '@openng/optimus-ui/inputtext';
+import { Select } from '@openng/optimus-ui/select';
+import { TieredMenu } from '@openng/optimus-ui/tieredmenu';
 import { lastValueFrom } from 'rxjs';
 import { NullIfEmptyDirective } from '../../../general/directives/null-if-empty.directive';
 import { V3UndoDirective } from '../../../general/directives/v3-undo.directive';
@@ -21,6 +21,7 @@ import { AaspeQualifier, AaspeQualifierEntry } from './aaspe-qualifier-entry';
 @Component({
   selector: 'aas-v3-qualifiers',
   templateUrl: './v3-qualifiers.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [
     Button,
     TieredMenu,
@@ -108,8 +109,9 @@ export class V3QualifiersComponent extends V3ComponentBase implements OnInit {
       };
 
       this.addItems = [...this.addItems, aaspeMenuEntry];
-    } catch {
-      // ignore
+    } catch (error) {
+      // The AASPE qualifiers are an optional extension of the menu; the standard entries stay available.
+      console.warn('AASPE qualifiers could not be loaded', error);
     }
   }
 

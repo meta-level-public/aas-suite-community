@@ -11,7 +11,13 @@ import {
 import { CsrfInterceptor, HttpErrorInterceptor, LanguageInterceptor, RequestContextInterceptor } from '@aas/jwt-auth';
 import { CustomTranslateLoader } from '@aas/translations';
 import { API_BASE_URL } from '@aas/webapi-client';
-import { HTTP_INTERCEPTORS, HttpClient, provideHttpClient, withInterceptorsFromDi } from '@angular/common/http';
+import {
+  HTTP_INTERCEPTORS,
+  HttpClient,
+  provideHttpClient,
+  withInterceptorsFromDi,
+  withXhr,
+} from '@angular/common/http';
 import {
   ApplicationConfig,
   ErrorHandler,
@@ -23,9 +29,9 @@ import {
 import { provideAnimationsAsync } from '@angular/platform-browser/animations/async';
 import { provideRouter, Route, Router, Routes } from '@angular/router';
 import { TranslateLoader, TranslateModule, TranslateService } from '@ngx-translate/core';
-import { ConfirmationService, MessageService } from 'primeng/api';
-import { providePrimeNG } from 'primeng/config';
-import { DialogService } from 'primeng/dynamicdialog';
+import { ConfirmationService, MessageService } from '@openng/optimus-ui/api';
+import { provideOptimus } from '@openng/optimus-ui/config';
+import { DialogService } from '@openng/optimus-ui/dynamicdialog';
 import { lastValueFrom } from 'rxjs';
 import { appRoutes } from './app.routes';
 
@@ -122,7 +128,7 @@ function registerPluginRoutes(router: Router, routes: Routes, plugins: PluginMen
 function createPluginRoutes(plugins: PluginMenuItem[]): Route[] {
   return plugins.map((plugin) => ({
     path: plugin.route.replace(/^\/+/, ''),
-    loadComponent: () => import('@aas/aas-designer-core').then((m) => m.PluginHostComponent),
+    loadComponent: () => import('@aas/aas-designer-core/plugin-host').then((m) => m.PluginHostComponent),
     canActivate: [() => canActivate([AuthRoles.BENUTZER, AuthRoles.ORGA_ADMIN, AuthRoles.SYSTEM_ADMIN])],
     data: { pluginId: plugin.id, pluginRoute: plugin.route },
   }));
@@ -153,9 +159,9 @@ export function getAppConfig(): ApplicationConfig {
         provide: API_BASE_URL,
         useValue: getRuntimeVar('__AAS_FRONTEND_DESIGNER_BASE_URL', getDesignerBaseUrlFallback()),
       },
-      provideHttpClient(withInterceptorsFromDi()),
+      provideHttpClient(withXhr(), withInterceptorsFromDi()),
       provideMenuReopenFix(),
-      providePrimeNG({
+      provideOptimus({
         theme: {
           preset: AasSuitePreset,
           options: {

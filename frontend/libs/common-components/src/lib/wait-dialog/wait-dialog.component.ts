@@ -1,11 +1,12 @@
-import { Component, inject, signal } from '@angular/core';
+import { Component, inject, signal, ChangeDetectionStrategy } from '@angular/core';
 import { TranslateModule } from '@ngx-translate/core';
-import { DynamicDialogConfig, DynamicDialogRef } from 'primeng/dynamicdialog';
-import { ProgressBarModule } from 'primeng/progressbar';
+import { DynamicDialogConfig, DynamicDialogRef } from '@openng/optimus-ui/dynamicdialog';
+import { ProgressBarModule } from '@openng/optimus-ui/progressbar';
 
 @Component({
   selector: 'lib-wait-dialog',
   imports: [TranslateModule, ProgressBarModule],
+  changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './wait-dialog.component.html',
 })
 export class WaitDialogComponent {

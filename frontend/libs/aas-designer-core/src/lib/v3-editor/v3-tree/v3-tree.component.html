@@ -3,6 +3,7 @@
     <div class="w-full flex justify-between">
       <div>
         <p-button
+          ariaLabel="{{ 'EXTENDED_SEARCH' | translate }}"
           severity="secondary"
           type="button"
           icon="pi pi-search-plus"
@@ -16,6 +17,7 @@
       </div>
       <div class="flex flex-row gap-2">
         <p-button
+          ariaLabel="{{ 'EXPAND_ALL' | translate }}"
           type="button"
           icon="pi pi-chevron-down"
           pTooltip="{{ 'EXPAND_ALL' | translate }}"
@@ -23,6 +25,7 @@
           size="small"
         ></p-button>
         <p-button
+          ariaLabel="{{ 'COLLAPSE_ALL' | translate }}"
           type="button"
           icon="pi pi-chevron-right"
           pTooltip="{{ 'COLLAPSE_ALL' | translate }}"
@@ -40,7 +43,7 @@
         class="aas-tree p-2 h-full flex flex-col focus-visible:outline focus-visible:outline-2 focus-visible:outline-primary"
         tabindex="0"
         role="tree"
-        aria-label="AAS tree"
+        [attr.aria-label]="'AAS_TREE' | translate"
         (keydown)="onTreeKeydown($event)"
       >
         <div class="mb-2">
@@ -178,7 +181,8 @@
   [closable]="true"
   header="{{ 'IMPORT_PLAIN_JSON' | translate }}"
   [style]="{ width: '50rem' }"
-  [breakpoints]="{ '1199px': '75vw', '575px': '90vw' }" [maximizable]="true"
+  [breakpoints]="{ '1199px': '75vw', '575px': '90vw' }"
+  [maximizable]="true"
   [contentStyle]="{ display: 'flex', 'flex-direction': 'column', overflow: 'hidden' }"
 >
   <div class="col-span-12 flex flex-col flex-1 min-h-0">
@@ -190,7 +194,7 @@
       class="w-full flex-1"
       name="name"
       rows="5"
-      style="resize: none; min-height: 8rem;"
+      style="resize: none; min-height: 8rem"
       [(ngModel)]="plainJson"
       (ngModelChange)="checkJsonValidity()"
       required
@@ -228,14 +232,14 @@
   <ng-template #footer>
     <div class="flex flex-row gap-2 justify-end">
       <p-button
+        severity="secondary"
         pRipple
         label="{{ 'CANCEL' | translate }}"
         icon="pi pi-times"
-        styleClass="p-button-secondary mr-2"
+        styleClass="mr-2"
         (onClick)="importJsonDialogVisible = false"
       ></p-button>
       <p-button
-        styleClass="p-button-success"
         label="{{ 'IMPORT' | translate }}"
         icon="pi pi-download"
         [disabled]="plainJson === '' || !jsonValid()"

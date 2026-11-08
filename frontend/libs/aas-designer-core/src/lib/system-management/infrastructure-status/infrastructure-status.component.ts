@@ -7,14 +7,14 @@ import {
   RecreateContainerData,
 } from '@aas/webapi-client';
 import { CommonModule } from '@angular/common';
-import { Component, computed, inject, model, signal } from '@angular/core';
+import { Component, computed, inject, model, signal, ChangeDetectionStrategy } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
-import { ButtonModule } from 'primeng/button';
-import { InputNumberModule } from 'primeng/inputnumber';
-import { TableModule } from 'primeng/table';
-import { TagModule } from 'primeng/tag';
-import { ToolbarModule } from 'primeng/toolbar';
+import { ButtonModule } from '@openng/optimus-ui/button';
+import { InputNumberModule } from '@openng/optimus-ui/inputnumber';
+import { TableModule } from '@openng/optimus-ui/table';
+import { TagModule } from '@openng/optimus-ui/tag';
+import { ToolbarModule } from '@openng/optimus-ui/toolbar';
 import { lastValueFrom } from 'rxjs';
 
 @Component({
@@ -32,6 +32,7 @@ import { lastValueFrom } from 'rxjs';
     FileSizePipe,
   ],
   templateUrl: './infrastructure-status.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrls: ['../../../host.scss'],
 })
 export class InfrastructureStatusComponent {

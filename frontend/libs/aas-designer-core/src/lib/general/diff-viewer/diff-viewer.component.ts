@@ -1,10 +1,11 @@
-import { Component, input, Input } from '@angular/core';
+import { Component, input, Input, ChangeDetectionStrategy } from '@angular/core';
 import { NgxObjectDiffComponent } from './ngx-object-diff/ngx-object-diff.component';
 import { NgxObjectDiffService } from './ngx-object-diff/ngx-object-diff.service';
 
 @Component({
   selector: 'aas-diff-viewer',
   templateUrl: './diff-viewer.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [NgxObjectDiffComponent],
 })
 export class DiffViewerComponent {

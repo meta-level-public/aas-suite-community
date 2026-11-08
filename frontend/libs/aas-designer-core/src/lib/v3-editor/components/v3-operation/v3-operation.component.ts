@@ -5,16 +5,16 @@ import { InstanceHelper } from '@aas/helpers';
 import { ShellResult } from '@aas/model';
 import { NgClass } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
-import { Component, inject, Input, model, OnInit } from '@angular/core';
+import { Component, inject, Input, model, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
-import { Accordion, AccordionContent, AccordionHeader, AccordionPanel } from 'primeng/accordion';
-import { Button } from 'primeng/button';
-import { Divider } from 'primeng/divider';
-import { Fieldset } from 'primeng/fieldset';
-import { InputText } from 'primeng/inputtext';
-import { Ripple } from 'primeng/ripple';
-import { SelectButton } from 'primeng/selectbutton';
+import { Accordion, AccordionContent, AccordionHeader, AccordionPanel } from '@openng/optimus-ui/accordion';
+import { Button } from '@openng/optimus-ui/button';
+import { Divider } from '@openng/optimus-ui/divider';
+import { Fieldset } from '@openng/optimus-ui/fieldset';
+import { InputText } from '@openng/optimus-ui/inputtext';
+import { Ripple } from '@openng/optimus-ui/ripple';
+import { SelectButton } from '@openng/optimus-ui/selectbutton';
 import { lastValueFrom } from 'rxjs';
 import { NullIfEmptyDirective } from '../../../general/directives/null-if-empty.directive';
 import { Info } from '../../../general/model/info-item';
@@ -33,6 +33,7 @@ type Property = aas.types.Property;
 @Component({
   selector: 'aas-v3-operation',
   templateUrl: './v3-operation.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [
     Fieldset,
     HelpLabelComponent,
@@ -217,9 +218,7 @@ export class V3OperationComponent extends V3ComponentBase implements OnInit {
       inoutputVariables: this.inoutputVariables(),
     };
 
-    const res = await lastValueFrom(this.http.post(this.executeUrl(), body));
-    // eslint-disable-next-line no-console
-    console.log(res);
+    await lastValueFrom(this.http.post(this.executeUrl(), body));
   }
   async executeAsync() {
     // REST-Aufruf starten
@@ -229,8 +228,6 @@ export class V3OperationComponent extends V3ComponentBase implements OnInit {
     };
 
     const url = this.executeUrl().replace('/invoke/', '/invoke-async/');
-    const res = await lastValueFrom(this.http.post(url, body));
-    // eslint-disable-next-line no-console
-    console.log(res);
+    await lastValueFrom(this.http.post(url, body));
   }
 }

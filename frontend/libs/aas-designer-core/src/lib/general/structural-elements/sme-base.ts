@@ -1,15 +1,18 @@
 import { DirtyCheckable, Info } from '@aas-designer-model';
+import { ID_SHORT_KEY_FILTER } from '@aas/common-services';
 import { AssetAdministrationShellEnvironment, IdentifierType } from '@aas/model';
+import { Directive, OnDestroy } from '@angular/core';
 import { Subscription } from 'rxjs';
 import { v4 as uuid } from 'uuid';
 import { AasSharedDataService } from '../../asset-administration-shell-tree/services/aas-shared-data.service';
 
-export abstract class SmeBase extends DirtyCheckable {
+@Directive()
+export abstract class SmeBase extends DirtyCheckable implements OnDestroy {
   editableNode: any;
   aasStructure: AssetAdministrationShellEnvironment = {} as AssetAdministrationShellEnvironment;
   loading: boolean = false;
 
-  idShortRegex = /[a-z0-9_]/i;
+  idShortRegex = ID_SHORT_KEY_FILTER;
   Info = Info;
   IdentifierType = IdentifierType;
   subscriptions: Subscription[] = [];
@@ -32,6 +35,10 @@ export abstract class SmeBase extends DirtyCheckable {
         }
       }),
     );
+  }
+
+  ngOnDestroy(): void {
+    this.subscriptions.forEach((s) => s.unsubscribe());
   }
 
   override isDirty() {

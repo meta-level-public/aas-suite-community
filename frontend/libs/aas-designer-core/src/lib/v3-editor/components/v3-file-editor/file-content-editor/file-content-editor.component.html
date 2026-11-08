@@ -77,12 +77,17 @@
         <input
           pInputText
           [value]="currentFileValue()"
-          (input)="updateFileValue($any($event).target?.value)"
+          (input)="updateFileValue($safeNavigationMigration($any($event).target?.value))"
           class="w-full"
           nullIfEmpty
         />
         <p-inputgroup-addon>
-          <p-button icon="pi pi-times" severity="secondary" (onClick)="this.fileValueOutgoing.emit(null)" />
+          <p-button
+            [ariaLabel]="'REMOVE' | translate"
+            icon="pi pi-times"
+            severity="secondary"
+            (onClick)="this.fileValueOutgoing.emit(null)"
+          />
         </p-inputgroup-addon>
       </p-inputgroup>
     </div>
@@ -92,13 +97,18 @@
         <input
           pInputText
           [value]="currentFileContentType()"
-          (input)="updateFileContentType($any($event).target?.value)"
+          (input)="updateFileContentType($safeNavigationMigration($any($event).target?.value))"
           class="w-full"
           nullIfEmpty
         />
         <!-- <input pInputText [(ngModel)]="fileContentTypeIncoming" class="w-full" nullIfEmpty /> -->
         <p-inputgroup-addon>
-          <p-button icon="pi pi-times" severity="secondary" (onClick)="this.fileContentTypeOutgoing.emit('')" />
+          <p-button
+            [ariaLabel]="'REMOVE' | translate"
+            icon="pi pi-times"
+            severity="secondary"
+            (onClick)="this.fileContentTypeOutgoing.emit('')"
+          />
         </p-inputgroup-addon>
       </p-inputgroup>
     </div>
@@ -119,6 +129,7 @@
       </p-inputgroup>
       <div class="flex flex-row gap-2 justify-center">
         <p-button
+          severity="secondary"
           label="{{ 'CANCEL' | translate }}"
           icon="pi pi-times"
           (onClick)="newUrl.set(''); opNewUrl.hide()"
@@ -149,7 +160,7 @@
       } @else {
         @switch (previewType()) {
           @case ('image') {
-            <img [src]="fileResourceUrl() | safe: 'resourceUrl'" class="w-48rem" alt="File preview image" />
+            <img [src]="fileResourceUrl() | safe: 'resourceUrl'" class="w-48rem" [alt]="'IMAGE_PREVIEW' | translate" />
           }
           @case ('pdf') {
             <div class="flex flex-col gap-2 w-48rem">
@@ -157,7 +168,7 @@
                 [data]="fileResourceUrl() | safe: 'resourceUrl'"
                 class="w-48rem h-30rem"
                 type="application/pdf"
-                title="PDF file preview"
+                [title]="'PDF_PREVIEW' | translate"
               ></object>
               <p-button
                 label="{{ 'OPEN_FULLSCREEN' | translate }}"
@@ -179,7 +190,7 @@
                 class="w-full h-full"
                 [data]="fileResourceUrl() | safe: 'resourceUrl'"
                 type="application/pdf"
-                title="PDF fullscreen preview"
+                [title]="'PDF_FULLSCREEN_PREVIEW' | translate"
               ></object>
             </p-dialog>
           }
@@ -212,7 +223,6 @@
     size="small"
     class="col-span-12"
     [value]="shellResult()?.supplementalFiles ?? []"
-    responsiveLayout="scroll"
     scrollHeight="flex"
     [globalFilterFields]="['fileName', 'filePath', 'isThumbnail', 'isLocal']"
     [rows]="10"

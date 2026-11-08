@@ -1,13 +1,14 @@
 import { Entity, ISubmodelElement } from '@aas-core-works/aas-core3.1-typescript/types';
 
-import { Component, Input, OnChanges } from '@angular/core';
+import { Component, Input, OnChanges, ChangeDetectionStrategy } from '@angular/core';
 import { TranslateModule } from '@ngx-translate/core';
-import { PrimeTemplate } from 'primeng/api';
-import { TableModule } from 'primeng/table';
+import { PrimeTemplate } from '@openng/optimus-ui/api';
+import { TableModule } from '@openng/optimus-ui/table';
 
 @Component({
   selector: 'aas-bom-child-node',
   templateUrl: './bom-child-node.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [TableModule, PrimeTemplate, TranslateModule],
 })
 export class BomChildNodeComponent implements OnChanges {

@@ -1,16 +1,16 @@
 import { AuthenticateResponse, OrgaSettings, ResultCode, UserInvitation } from '@aas-designer-model';
 import { AppConfigService, PortalService } from '@aas/common-services';
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, inject, ChangeDetectionStrategy } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
-import { ButtonModule } from 'primeng/button';
-import { CheckboxModule } from 'primeng/checkbox';
-import { DialogService, DynamicDialogRef } from 'primeng/dynamicdialog';
-import { FieldsetModule } from 'primeng/fieldset';
-import { InputTextModule } from 'primeng/inputtext';
-import { PasswordModule } from 'primeng/password';
-import { ToolbarModule } from 'primeng/toolbar';
+import { ButtonModule } from '@openng/optimus-ui/button';
+import { CheckboxModule } from '@openng/optimus-ui/checkbox';
+import { DialogService, DynamicDialogRef } from '@openng/optimus-ui/dynamicdialog';
+import { FieldsetModule } from '@openng/optimus-ui/fieldset';
+import { InputTextModule } from '@openng/optimus-ui/inputtext';
+import { PasswordModule } from '@openng/optimus-ui/password';
+import { ToolbarModule } from '@openng/optimus-ui/toolbar';
 import { DisclaimerComponent } from '../disclaimer/disclaimer.component';
 import { SelectOrganisationComponent } from '../select-organisation/select-organisation.component';
 import { CreateInvitatedAccountService } from './create-invitated-account.service';
@@ -29,6 +29,7 @@ import { CreateInvitatedAccountService } from './create-invitated-account.servic
     TranslateModule,
   ],
   templateUrl: './create-invited-account.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './create-invited-account.component.scss',
 })
 export class CreateInvitedAccountComponent implements OnInit {

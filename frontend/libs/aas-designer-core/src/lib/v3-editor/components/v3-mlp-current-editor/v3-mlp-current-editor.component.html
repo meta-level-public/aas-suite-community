@@ -6,9 +6,12 @@
 }
 @if (item == null) {
   <div class="flex flex-row gap-2">
-    <p-message severity="info" text="{{ 'NO_MLP_VALUE_IN_CURRENT_LANGUAGE' | translate }}"></p-message>
+    <p-message severity="info">{{ 'NO_MLP_VALUE_IN_CURRENT_LANGUAGE' | translate }}</p-message>
     <p-button
-      styleClass="p-button-text p-button-outlined p-button-rounded"
+      [ariaLabel]="'ADD' | translate"
+      [text]="true"
+      [outlined]="true"
+      [rounded]="true"
       icon="pi pi-plus"
       (onClick)="addCurrentLang()"
     ></p-button>

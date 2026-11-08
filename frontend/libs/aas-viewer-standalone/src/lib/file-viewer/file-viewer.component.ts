@@ -2,28 +2,29 @@ import { File, ISubmodelElement } from '@aas-core-works/aas-core3.1-typescript/t
 import { FilenameHelper, SubmodelElementUtil } from '@aas/helpers';
 import { FileResult } from '@aas/model';
 import { HttpClient } from '@angular/common/http';
-import { Component, inject, Input, OnDestroy } from '@angular/core';
+import { Component, inject, Input, OnDestroy, ChangeDetectionStrategy } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
-import { Accordion, AccordionContent, AccordionHeader, AccordionPanel } from 'primeng/accordion';
-import { TreeNode } from 'primeng/api';
-import { Button } from 'primeng/button';
-import { InputGroup } from 'primeng/inputgroup';
-import { InputGroupAddon } from 'primeng/inputgroupaddon';
-import { InputText } from 'primeng/inputtext';
-import { Ripple } from 'primeng/ripple';
+import { Accordion, AccordionContent, AccordionHeader, AccordionPanel } from '@openng/optimus-ui/accordion';
+import { TreeNode } from '@openng/optimus-ui/api';
+import { Button } from '@openng/optimus-ui/button';
+import { InputGroup } from '@openng/optimus-ui/inputgroup';
+import { InputGroupAddon } from '@openng/optimus-ui/inputgroupaddon';
+import { InputText } from '@openng/optimus-ui/inputtext';
+import { Ripple } from '@openng/optimus-ui/ripple';
 import { lastValueFrom, Subscription } from 'rxjs';
 import { ViewerStoreService } from '../viewer-store.service';
 import { ZipViewerService } from './zip-viewer/zip-viewer.service';
 
 import { MarkdownComponent } from 'ngx-markdown';
-import { Message } from 'primeng/message';
-import { Skeleton } from 'primeng/skeleton';
+import { Message } from '@openng/optimus-ui/message';
+import { Skeleton } from '@openng/optimus-ui/skeleton';
 
 @Component({
   selector: 'aas-v3-file-viewer',
   templateUrl: './file-viewer.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [
     Accordion,
     AccordionPanel,

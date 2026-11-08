@@ -17,6 +17,7 @@
       <label for="typ" class="flex items-center mt-2 mb-2">{{ 'MISSING_REF_OPTIONS' | translate }}</label>
       <div class="flex gap-2">
         <p-button
+          severity="danger"
           label="{{ 'DELETE_REFERENCE' | translate }}"
           (onClick)="removeSubmodel()"
           icon="pi pi-trash"
@@ -34,7 +35,12 @@
         <div class="flex flex-col gap-2">
           <textarea pTextarea [(ngModel)]="jsonToImport" class="w-full" rows="10"></textarea>
           <div class="flex gap-2">
-            <p-button label="{{ 'CANCEL' | translate }}" (onClick)="cancelImportJson()" icon="pi pi-trash"></p-button>
+            <p-button
+              severity="danger"
+              label="{{ 'CANCEL' | translate }}"
+              (onClick)="cancelImportJson()"
+              icon="pi pi-trash"
+            ></p-button>
             <p-button
               label="{{ 'APPLY' | translate }}"
               (onClick)="doImportJson()"

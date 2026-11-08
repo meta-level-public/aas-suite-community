@@ -16,7 +16,12 @@
         <p-inputgroup>
           <input pInputText [(ngModel)]="valuePair.value" class="w-full" vwsV3Undo />
           <p-inputgroup-addon>
-            <p-button icon="pi pi-times" severity="secondary" (onClick)="valuePair.value = ''" />
+            <p-button
+              [ariaLabel]="'REMOVE' | translate"
+              icon="pi pi-times"
+              severity="secondary"
+              (onClick)="valuePair.value = ''"
+            />
           </p-inputgroup-addon>
         </p-inputgroup>
         @if (hasContentErrors(valuePair)) {
@@ -25,15 +30,23 @@
           </div>
         }
       </div>
-      <div style="width: 36px">
+      <div class="w-[36px]">
         <p-button
+          [ariaLabel]="'DELETE' | translate"
+          severity="danger"
+          [rounded]="true"
+          [text]="true"
           icon="pi pi-trash"
-          styleClass="p-button-danger p-button-rounded p-button-text"
           (onClick)="removeValueOption(i)"
         ></p-button>
       </div>
-      <div style="width: 36px">
-        <p-button icon="pi pi-plus" (onClick)="addNewValueOption()" [text]="true"></p-button>
+      <div class="w-[36px]">
+        <p-button
+          [ariaLabel]="'ADD' | translate"
+          icon="pi pi-plus"
+          (onClick)="addNewValueOption()"
+          [text]="true"
+        ></p-button>
       </div>
     </div>
   }

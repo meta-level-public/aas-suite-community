@@ -24,6 +24,8 @@ module.exports = [
           style: 'kebab-case',
         },
       ],
+      // see root eslint.config.js: components stay on ChangeDetectionStrategy.Eager for now
+      '@angular-eslint/prefer-on-push-component-change-detection': 'off',
     },
   },
   {

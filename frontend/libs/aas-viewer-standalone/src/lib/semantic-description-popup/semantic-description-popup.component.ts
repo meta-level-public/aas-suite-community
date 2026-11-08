@@ -2,12 +2,21 @@ import { DataSpecificationIec61360 } from '@aas-core-works/aas-core3.1-typescrip
 import { HelpLabelComponent, UiLabelResolver } from '@aas/common-components';
 import { CURRENT_LANGUAGE_KEY, DEFAULT_LANGUAGE } from '@aas/common-services';
 import { CommonModule } from '@angular/common';
-import { Component, computed, DestroyRef, inject, input, signal, viewChild } from '@angular/core';
+import {
+  Component,
+  computed,
+  DestroyRef,
+  inject,
+  input,
+  signal,
+  viewChild,
+  ChangeDetectionStrategy,
+} from '@angular/core';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
-import { ButtonModule } from 'primeng/button';
-import { MessageModule } from 'primeng/message';
-import { Popover, PopoverModule } from 'primeng/popover';
-import { TableModule } from 'primeng/table';
+import { ButtonModule } from '@openng/optimus-ui/button';
+import { MessageModule } from '@openng/optimus-ui/message';
+import { Popover, PopoverModule } from '@openng/optimus-ui/popover';
+import { TableModule } from '@openng/optimus-ui/table';
 import { ConceptDescriptionService } from '../concept-description.service';
 import { ViewerStoreService } from '../viewer-store.service';
 import { LocalizedTextComponent } from './localized-text.component';
@@ -27,6 +36,7 @@ let openPopover: Popover | null = null;
     LocalizedTextComponent,
     MessageModule,
   ],
+  changeDetection: ChangeDetectionStrategy.Eager,
   templateUrl: './semantic-description-popup.component.html',
 })
 export class SemanticDescriptionPopupComponent {

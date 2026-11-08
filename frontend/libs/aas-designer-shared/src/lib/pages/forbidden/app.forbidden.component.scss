@@ -1,0 +1,28 @@
+// Inverse brand panel: stays dark in both themes, built from the theme's surface palette.
+.forbidden-aside {
+  background: var(--p-surface-900);
+  color: var(--p-surface-0);
+}
+
+:host-context(html.my-app-dark) .forbidden-aside {
+  background: var(--p-surface-950);
+  border-right: 1px solid var(--p-content-border-color);
+}
+
+.forbidden-aside-badge {
+  border: 1px solid color-mix(in srgb, var(--p-surface-0) 20%, transparent);
+  color: var(--p-surface-200);
+}
+
+.forbidden-aside-muted {
+  color: var(--p-surface-300);
+}
+
+.forbidden-aside-note {
+  border: 1px solid color-mix(in srgb, var(--p-surface-0) 10%, transparent);
+  background: color-mix(in srgb, var(--p-surface-0) 5%, transparent);
+}
+
+.forbidden-aside-note-text {
+  color: var(--p-surface-100);
+}

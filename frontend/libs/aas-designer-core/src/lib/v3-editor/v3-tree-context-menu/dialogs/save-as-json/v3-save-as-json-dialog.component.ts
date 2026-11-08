@@ -1,14 +1,15 @@
-import { Component, EventEmitter, Input, Output, model } from '@angular/core';
+import { Component, EventEmitter, Input, Output, model, ChangeDetectionStrategy } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
-import { ButtonModule } from 'primeng/button';
-import { DialogModule } from 'primeng/dialog';
-import { TextareaModule } from 'primeng/textarea';
+import { ButtonModule } from '@openng/optimus-ui/button';
+import { DialogModule } from '@openng/optimus-ui/dialog';
+import { TextareaModule } from '@openng/optimus-ui/textarea';
 
 @Component({
   selector: 'aas-v3-save-as-json-dialog',
   templateUrl: './v3-save-as-json-dialog.component.html',
 
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [TranslateModule, DialogModule, ButtonModule, TextareaModule, FormsModule],
 })
 export class V3SaveAsJsonDialogComponent {

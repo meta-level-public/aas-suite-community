@@ -1,6 +1,6 @@
 import * as aas from '@aas-core-works/aas-core3.1-typescript';
 import { ShellResult } from '@aas/model';
-import { Component, Input } from '@angular/core';
+import { Component, Input, ChangeDetectionStrategy } from '@angular/core';
 import { DomSanitizer } from '@angular/platform-browser';
 import { V3TreeItem } from '../../model/v3-tree-item';
 import { V3EditorService } from '../../v3-editor.service';
@@ -11,8 +11,8 @@ import { HelpLabelComponent } from '@aas/common-components';
 import { NgClass } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
-import { Fieldset } from 'primeng/fieldset';
-import { InputText } from 'primeng/inputtext';
+import { Fieldset } from '@openng/optimus-ui/fieldset';
+import { InputText } from '@openng/optimus-ui/inputtext';
 import { NullIfEmptyDirective } from '../../../general/directives/null-if-empty.directive';
 import { EndpointUrlComponent } from '../endpoint-url/endpoint-url.component';
 import { V3CategoryComponent } from '../v3-category/v3-category.component';
@@ -27,6 +27,7 @@ import { FileContentEditorComponent } from './file-content-editor/file-content-e
 @Component({
   selector: 'aas-v3-file-editor',
   templateUrl: './v3-file-editor.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [
     Fieldset,
     HelpLabelComponent,

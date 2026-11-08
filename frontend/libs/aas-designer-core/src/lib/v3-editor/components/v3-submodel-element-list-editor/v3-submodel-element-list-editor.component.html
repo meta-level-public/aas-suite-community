@@ -141,7 +141,7 @@
               }
             </div>
           } @else {
-            <p-message severity="info" text="{{ 'BATTERY_PASSPORT_HANDOVER_DOCUMENTS_EMPTY' | translate }}"></p-message>
+            <p-message severity="info">{{ 'BATTERY_PASSPORT_HANDOVER_DOCUMENTS_EMPTY' | translate }}</p-message>
           }
         </div>
       }
@@ -172,7 +172,7 @@
           <div class="w-12rem">
             <div class="flex flex-row">
               <div class="flex w-full justify-end">
-                <p-button icon="pi pi-trash" styleClass="aas-oben p-button-text" (onClick)="removeElement(row)"></p-button>
+                <p-button [ariaLabel]="'DELETE' | translate" severity="danger" [text]="true" icon="pi pi-trash" styleClass="aas-oben" (onClick)="removeElement(row)"></p-button>
               </div>
             </div>
           </div>

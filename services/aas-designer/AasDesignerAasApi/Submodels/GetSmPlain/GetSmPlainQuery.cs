@@ -42,6 +42,7 @@ public class GetSmPlainHandler : IRequestHandler<GetSmPlainQuery, string>
             + request.SmIdentifier.ToBase64UrlEncoded(Encoding.UTF8);
 
         var response = await client.GetAsync(url, cancellationToken);
+        UpstreamResponseGuard.ThrowIfNotFound(response, "Submodel");
         var responseContent = await response.Content.ReadAsStringAsync(cancellationToken);
 
         var jsonNode = AasJsonNodeParser.Parse(responseContent);

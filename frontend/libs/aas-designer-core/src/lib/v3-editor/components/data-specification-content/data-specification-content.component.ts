@@ -1,19 +1,20 @@
 import * as aas from '@aas-core-works/aas-core3.1-typescript';
+import { UrlHelper } from '@aas/helpers';
 import { HelpLabelComponent } from '@aas/common-components';
 import { EClassItem, ShellResult } from '@aas/model';
 import { JsonPipe } from '@angular/common';
-import { Component, Input, model } from '@angular/core';
+import { Component, Input, model, ChangeDetectionStrategy } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
-import { Button } from 'primeng/button';
-import { Dialog } from 'primeng/dialog';
-import { InputGroup } from 'primeng/inputgroup';
-import { InputGroupAddon } from 'primeng/inputgroupaddon';
-import { InputText } from 'primeng/inputtext';
-import { Message } from 'primeng/message';
-import { Ripple } from 'primeng/ripple';
-import { Select } from 'primeng/select';
-import { Tab, TabList, Tabs } from 'primeng/tabs';
+import { Button } from '@openng/optimus-ui/button';
+import { Dialog } from '@openng/optimus-ui/dialog';
+import { InputGroup } from '@openng/optimus-ui/inputgroup';
+import { InputGroupAddon } from '@openng/optimus-ui/inputgroupaddon';
+import { InputText } from '@openng/optimus-ui/inputtext';
+import { Message } from '@openng/optimus-ui/message';
+import { Ripple } from '@openng/optimus-ui/ripple';
+import { Select } from '@openng/optimus-ui/select';
+import { Tab, TabList, Tabs } from '@openng/optimus-ui/tabs';
 import { NullIfEmptyDirective } from '../../../general/directives/null-if-empty.directive';
 import { EClassLogoComponent } from '../../../general/eclass-logo/eclass-logo.component';
 import { EclassSearchComponent } from '../../../general/eclass-search/eclass-search.component';
@@ -32,6 +33,7 @@ type VerificationError = aas.verification.VerificationError;
   selector: 'aas-data-specification-content',
   templateUrl: './data-specification-content.component.html',
   styleUrls: ['../../../../host.scss'],
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [
     HelpLabelComponent,
     V3LangStringListComponent,
@@ -244,6 +246,6 @@ export class DataSpecificationContentComponent extends V3ComponentBase {
   }
 
   openLink(link: string) {
-    if (link != null && link !== '') window.open(link, '_blank');
+    UrlHelper.openExternalUrl(link);
   }
 }

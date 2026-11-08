@@ -1,17 +1,17 @@
 @if (layers.length === 0) {
-  <div>keine Geoinformationen vorhanden</div>
+  <div>{{ 'PCF_NO_GEO_INFORMATION' | translate }}</div>
 }
 <div class="flex flex-row justify-between gap-5">
   <div class="flex flex-row items-center gap-3">
-    <div>PCF Address</div>
+    <div>{{ 'PCF_ADDRESS' | translate }}</div>
     <img src="assets/map-images/marker-icon-pcf.png" />
   </div>
   <div class="flex flex-row items-center gap-3">
-    <div>TCF HandoverAddress</div>
+    <div>{{ 'TCF_HANDOVER_ADDRESS' | translate }}</div>
     <img src="assets/map-images/marker-icon-tcf-handover.png" />
   </div>
   <div class="flex flex-row items-center gap-3">
-    <div>TCF TakeoverAddress</div>
+    <div>{{ 'TCF_TAKEOVER_ADDRESS' | translate }}</div>
     <img src="assets/map-images/marker-icon-tcf-takeover.png" />
   </div>
 </div>

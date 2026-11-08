@@ -18,7 +18,35 @@
       "@aas/aas-compare": ["libs/aas-compare/src/index.ts"],
       "@aas/aas-designer-assets": ["libs/aas-designer-assets/src/index.ts"],
       "@aas/aas-designer-core": ["libs/aas-designer-core/src/index.ts"],
+      "@aas/aas-designer-core/aasx-view": ["libs/aas-designer-core/src/lib/aasx-view/aasx-view.routes.ts"],
+      "@aas/aas-designer-core/cd-edit": ["libs/aas-designer-core/src/lib/cd-edit/cd-edit.routes.ts"],
+      "@aas/aas-designer-core/cds-list": ["libs/aas-designer-core/src/lib/cds-list/cds-list.routes.ts"],
+      "@aas/aas-designer-core/generator": ["libs/aas-designer-core/src/lib/generator/generator.routes.ts"],
+      "@aas/aas-designer-core/idta-submodels": [
+        "libs/aas-designer-core/src/lib/idta-submodels/idta-submodels.routes.ts"
+      ],
+      "@aas/aas-designer-core/instance-viewer": [
+        "libs/aas-designer-core/src/lib/instance-viewer/instance-viewer.routes.ts"
+      ],
+      "@aas/aas-designer-core/organisation": ["libs/aas-designer-core/src/lib/organisation/organisation.routes.ts"],
+      "@aas/aas-designer-core/plugin-host": [
+        "libs/aas-designer-core/src/lib/plugins/plugin-host/plugin-host.component.ts"
+      ],
+      "@aas/aas-designer-core/plugins": ["libs/aas-designer-core/src/lib/plugins/plugins.routes.ts"],
+      "@aas/aas-designer-core/shells-list": ["libs/aas-designer-core/src/lib/shells-list/shells-list.routes.ts"],
+      "@aas/aas-designer-core/submodel-editor": [
+        "libs/aas-designer-core/src/lib/submodel-editor/submodel-editor.routes.ts"
+      ],
+      "@aas/aas-designer-core/submodels-list": [
+        "libs/aas-designer-core/src/lib/submodels-list/submodels-list.routes.ts"
+      ],
+      "@aas/aas-designer-core/system-management": [
+        "libs/aas-designer-core/src/lib/system-management/system-management.routes.ts"
+      ],
+      "@aas/aas-designer-core/user": ["libs/aas-designer-core/src/lib/user/user.routes.ts"],
+      "@aas/aas-designer-core/v3-editor": ["libs/aas-designer-core/src/lib/v3-editor/v3-editor.routes.ts"],
       "@aas/aas-designer-shared": ["libs/aas-designer-shared/src/index.ts"],
+      "@aas/aas-designer-shared/public-viewer": ["libs/aas-designer-shared/src/public-viewer.ts"],
       "@aas/aas-designer-styles": ["libs/aas-designer-styles/src/index.ts"],
       "@aas/aas-viewer-standalone": ["libs/aas-viewer-standalone/src/index.ts"],
       "@aas/aasx-v3-viewer": ["libs/aasx-v3-viewer/src/index.ts"],
@@ -44,7 +72,10 @@
     "allowSyntheticDefaultImports": true,
     "strict": true,
     "resolveJsonModule": true,
-    "esModuleInterop": true
+    "esModuleInterop": true,
+    "noUncheckedSideEffectImports": false,
+    "types": ["*"],
+    "ignoreDeprecations": "6.0"
   },
   "angularCompilerOptions": {
     "enableI18nLegacyMessageIdFormat": false,

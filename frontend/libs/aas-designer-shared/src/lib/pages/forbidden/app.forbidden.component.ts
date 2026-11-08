@@ -1,12 +1,14 @@
 import { PortalService } from '@aas/common-services';
-import { Component, inject } from '@angular/core';
+import { Component, inject, ChangeDetectionStrategy } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
-import { ButtonModule } from 'primeng/button';
+import { ButtonModule } from '@openng/optimus-ui/button';
 
 @Component({
   selector: 'app-forbidden',
   templateUrl: './app.forbidden.component.html',
+  styleUrl: './app.forbidden.component.scss',
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [ButtonModule, RouterLink, TranslateModule],
 })
 export class AppForbiddenComponent {

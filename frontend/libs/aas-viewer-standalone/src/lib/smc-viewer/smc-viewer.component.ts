@@ -6,10 +6,10 @@ import {
   SubmodelElementList,
 } from '@aas-core-works/aas-core3.1-typescript/types';
 import { SubmodelElementUtil } from '@aas/helpers';
-import { Component, effect, inject, Input, OnChanges, OnDestroy, signal } from '@angular/core';
+import { Component, effect, inject, Input, OnChanges, OnDestroy, signal, ChangeDetectionStrategy } from '@angular/core';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
-import { Accordion, AccordionContent, AccordionHeader, AccordionPanel } from 'primeng/accordion';
-import { SortEvent } from 'primeng/api';
+import { Accordion, AccordionContent, AccordionHeader, AccordionPanel } from '@openng/optimus-ui/accordion';
+import { SortEvent } from '@openng/optimus-ui/api';
 import { Subscription } from 'rxjs';
 import { ConceptDescriptionService } from '../concept-description.service';
 import { SemanticDescriptionPopupComponent } from '../semantic-description-popup/semantic-description-popup.component';
@@ -20,6 +20,7 @@ import { ViewerStoreService } from '../viewer-store.service';
   selector: 'aas-smc-viewer-v3',
   templateUrl: './smc-viewer.component.html',
   styleUrls: ['./smc-viewer.component.css'],
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [
     Accordion,
     AccordionPanel,

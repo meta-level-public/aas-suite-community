@@ -30,13 +30,13 @@ function fileElement(idShort: string, value: string, contentType: string, semant
   return element;
 }
 
-function blobElement(idShort: string, value: string, contentType: string, semanticId?: string) {
+function blobElement(idShort: string, base64Value: string, contentType: string, semanticId?: string) {
   const element = new aas.types.Blob();
   if (semanticId) {
     element.semanticId = semanticRef(semanticId);
   }
   element.idShort = idShort;
-  element.value = value;
+  element.value = Uint8Array.from(atob(base64Value), (char) => char.charCodeAt(0));
   element.contentType = contentType;
   return element;
 }

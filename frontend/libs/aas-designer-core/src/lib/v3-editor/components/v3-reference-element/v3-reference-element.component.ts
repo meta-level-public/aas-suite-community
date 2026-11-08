@@ -2,9 +2,9 @@ import * as aas from '@aas-core-works/aas-core3.1-typescript';
 import { HelpLabelComponent } from '@aas/common-components';
 import { ShellResult } from '@aas/model';
 import { NgClass } from '@angular/common';
-import { Component, Input } from '@angular/core';
+import { Component, Input, ChangeDetectionStrategy } from '@angular/core';
 import { TranslateModule } from '@ngx-translate/core';
-import { Fieldset } from 'primeng/fieldset';
+import { Fieldset } from '@openng/optimus-ui/fieldset';
 import { Info } from '../../../general/model/info-item';
 import { V3TreeItem } from '../../model/v3-tree-item';
 import { EndpointUrlComponent } from '../endpoint-url/endpoint-url.component';
@@ -18,6 +18,7 @@ import { V3SemanticDescriptionComponent } from '../v3-semantic-description/v3-se
 @Component({
   selector: 'aas-v3-reference-element',
   templateUrl: './v3-reference-element.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [
     Fieldset,
     HelpLabelComponent,

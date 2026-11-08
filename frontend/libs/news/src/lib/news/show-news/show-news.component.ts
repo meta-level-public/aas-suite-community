@@ -4,9 +4,9 @@ import { PortalService } from '@aas/common-services';
 import { ChangeDetectionStrategy, Component, computed, inject, OnInit, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
-import { Button } from 'primeng/button';
-import { Checkbox } from 'primeng/checkbox';
-import { DynamicDialogRef } from 'primeng/dynamicdialog';
+import { Button } from '@openng/optimus-ui/button';
+import { Checkbox } from '@openng/optimus-ui/checkbox';
+import { DynamicDialogRef } from '@openng/optimus-ui/dynamicdialog';
 import { NewsService } from '../news.service';
 
 @Component({

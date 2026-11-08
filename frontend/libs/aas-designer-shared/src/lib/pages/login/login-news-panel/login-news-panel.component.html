@@ -26,6 +26,7 @@
         @if (hasMultipleNews()) {
           <div class="news-navigation">
             <p-button
+              severity="secondary"
               icon="pi pi-chevron-left"
               [text]="true"
               [disabled]="!canNavigateBack()"
@@ -41,8 +42,6 @@
               [attr.aria-label]="'NEXT_NEWS_ARIA' | translate"
             />
           </div>
-
-
         }
       </div>
     } @else {

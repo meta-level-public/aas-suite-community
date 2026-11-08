@@ -78,10 +78,14 @@
 </p-popover>
 
 <p-button
+  [ariaLabel]="'INFO' | translate"
+  [rounded]="true"
+  severity="info"
+  [outlined]="true"
+  size="small"
   type="text"
   tabindex="-1"
   icon="fa-solid fa-info"
-  styleClass="mini-info p-button-rounded p-button-info p-button-outlined ml-3 p-button-sm"
-  styleClass="p-button-sm"
+  styleClass="mini-info ml-3"
   (onClick)="loadData($event)"
 ></p-button>

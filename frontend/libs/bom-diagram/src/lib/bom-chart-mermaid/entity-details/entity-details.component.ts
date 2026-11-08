@@ -11,6 +11,7 @@ import {
   RelationshipElement,
   SpecificAssetId,
 } from '@aas-core-works/aas-core3.1-typescript/types';
+import { ID_SHORT_KEY_FILTER, isValidIdShort } from '@aas/common-services';
 
 import {
   ChangeDetectionStrategy,
@@ -24,16 +25,16 @@ import {
 } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
-import { ButtonModule } from 'primeng/button';
-import { DialogService } from 'primeng/dynamicdialog';
-import { FieldsetModule } from 'primeng/fieldset';
-import { InputGroupModule } from 'primeng/inputgroup';
-import { InputGroupAddonModule } from 'primeng/inputgroupaddon';
-import { InputTextModule } from 'primeng/inputtext';
-import { KeyFilterModule } from 'primeng/keyfilter';
-import { MessageModule } from 'primeng/message';
-import { SelectModule } from 'primeng/select';
-import { TableModule } from 'primeng/table';
+import { ButtonModule } from '@openng/optimus-ui/button';
+import { DialogService } from '@openng/optimus-ui/dynamicdialog';
+import { FieldsetModule } from '@openng/optimus-ui/fieldset';
+import { InputGroupModule } from '@openng/optimus-ui/inputgroup';
+import { InputGroupAddonModule } from '@openng/optimus-ui/inputgroupaddon';
+import { InputTextModule } from '@openng/optimus-ui/inputtext';
+import { KeyFilterModule } from '@openng/optimus-ui/keyfilter';
+import { MessageModule } from '@openng/optimus-ui/message';
+import { SelectModule } from '@openng/optimus-ui/select';
+import { TableModule } from '@openng/optimus-ui/table';
 import { SearchForAssetComponent } from '../search-for-asset/search-for-asset.component';
 import {
   cloneSpecificAssetIds,
@@ -84,7 +85,7 @@ export class EntityDetailsComponent implements OnChanges {
   translate = inject(TranslateService);
   cdRef = inject(ChangeDetectorRef);
 
-  idShortRegex = /[a-zA-Z0-9_]/;
+  idShortRegex = ID_SHORT_KEY_FILTER;
   entityTypeOptions: { label: string; value: EntityType }[];
   referenceTypeOptions: { label: string; value: string }[];
 
@@ -141,6 +142,10 @@ export class EntityDetailsComponent implements OnChanges {
 
   hasIdShort() {
     return this.entity?.idShort != null && this.entity.idShort.length > 0;
+  }
+
+  hasValidIdShort() {
+    return isValidIdShort(this.entity?.idShort);
   }
 
   hasDuplicateSiblingIdShort() {

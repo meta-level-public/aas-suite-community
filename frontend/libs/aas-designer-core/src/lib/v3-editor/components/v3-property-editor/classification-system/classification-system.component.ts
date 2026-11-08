@@ -1,16 +1,17 @@
 import * as aas from '@aas-core-works/aas-core3.1-typescript';
-import { Component, Input, OnChanges, OnInit } from '@angular/core';
+import { Component, Input, OnChanges, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 
 import { FormsModule } from '@angular/forms';
-import { InputText } from 'primeng/inputtext';
-import { Select } from 'primeng/select';
+import { InputText } from '@openng/optimus-ui/inputtext';
+import { Select } from '@openng/optimus-ui/select';
 import { NullIfEmptyDirective } from '../../../../general/directives/null-if-empty.directive';
 import { V3UndoDirective } from '../../../../general/directives/v3-undo.directive';
 
 @Component({
   selector: 'aas-classification-system',
   templateUrl: './classification-system.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [Select, FormsModule, InputText, V3UndoDirective, NullIfEmptyDirective, TranslateModule],
 })
 export class ClassificationSystemComponent implements OnInit, OnChanges {

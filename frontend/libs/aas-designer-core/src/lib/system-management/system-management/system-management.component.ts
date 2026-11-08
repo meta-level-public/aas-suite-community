@@ -6,13 +6,13 @@ import {
 } from '@aas-designer-model';
 import { AppConfigService } from '@aas/common-services';
 import { SystemConfigurationDto, SystemManagementClient } from '@aas/webapi-client';
-import { Component, DestroyRef, inject, OnInit, signal } from '@angular/core';
+import { Component, DestroyRef, inject, OnInit, signal, ChangeDetectionStrategy } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, NavigationEnd, Router, RouterOutlet } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
-import { PrimeTemplate, TreeNode } from 'primeng/api';
-import { Skeleton } from 'primeng/skeleton';
-import { Splitter } from 'primeng/splitter';
+import { PrimeTemplate, TreeNode } from '@openng/optimus-ui/api';
+import { Skeleton } from '@openng/optimus-ui/skeleton';
+import { Splitter } from '@openng/optimus-ui/splitter';
 import { lastValueFrom } from 'rxjs';
 import { filter } from 'rxjs/operators';
 import { SidebarTreeNavComponent } from '../../general/sidebar-tree-nav/sidebar-tree-nav.component';
@@ -21,6 +21,7 @@ import { SidebarTreeNavComponent } from '../../general/sidebar-tree-nav/sidebar-
   selector: 'aas-system-management',
   templateUrl: './system-management.component.html',
   styleUrls: ['../../../host.scss'],
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [Splitter, PrimeTemplate, RouterOutlet, Skeleton, TranslateModule, SidebarTreeNavComponent],
 })
 export class SystemManagementComponent implements OnInit {

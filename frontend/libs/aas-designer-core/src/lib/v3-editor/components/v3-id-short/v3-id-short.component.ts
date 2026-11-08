@@ -1,15 +1,16 @@
 import * as aas from '@aas-core-works/aas-core3.1-typescript';
 
-import { Component, inject, Input } from '@angular/core';
+import { Component, inject, Input, ChangeDetectionStrategy } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
 import { HelpLabelComponent } from '@aas/common-components';
 import { InstanceHelper } from '@aas/helpers';
 import { ShellResult } from '@aas/model';
-import { Button } from 'primeng/button';
-import { InputGroup } from 'primeng/inputgroup';
-import { InputGroupAddon } from 'primeng/inputgroupaddon';
-import { InputText } from 'primeng/inputtext';
+import { Button } from '@openng/optimus-ui/button';
+import { InputGroup } from '@openng/optimus-ui/inputgroup';
+import { InputGroupAddon } from '@openng/optimus-ui/inputgroupaddon';
+import { InputText } from '@openng/optimus-ui/inputtext';
+import { KeyFilter } from '@openng/optimus-ui/keyfilter';
 import { NullIfEmptyDirective } from '../../../general/directives/null-if-empty.directive';
 import { Info } from '../../../general/model/info-item';
 import { V3TreeItem } from '../../model/v3-tree-item';
@@ -18,11 +19,13 @@ import { V3ComponentBase } from '../v3-component-base';
 @Component({
   selector: 'aas-v3-id-short',
   templateUrl: './v3-id-short.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [
     HelpLabelComponent,
     InputGroup,
     FormsModule,
     InputText,
+    KeyFilter,
     NullIfEmptyDirective,
     InputGroupAddon,
     Button,

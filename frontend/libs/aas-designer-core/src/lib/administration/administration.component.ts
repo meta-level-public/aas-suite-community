@@ -3,14 +3,14 @@ import { BreadcrumbService } from '@aas/aas-designer-shared';
 import { DateProxyPipe } from '@aas/common-pipes';
 import { AasConfirmationService, NotificationService } from '@aas/common-services';
 import { OrganisationClient, SystemConfigurationDto, SystemManagementClient } from '@aas/webapi-client';
-import { Component, inject, OnInit, signal, ViewChild } from '@angular/core';
+import { Component, inject, OnInit, signal, ViewChild, ChangeDetectionStrategy } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
-import { MenuItem, PrimeTemplate } from 'primeng/api';
-import { Button } from 'primeng/button';
-import { Menu } from 'primeng/menu';
-import { Table, TableModule } from 'primeng/table';
-import { Tag } from 'primeng/tag';
+import { MenuItem, PrimeTemplate } from '@openng/optimus-ui/api';
+import { Button } from '@openng/optimus-ui/button';
+import { Menu } from '@openng/optimus-ui/menu';
+import { Table, TableModule } from '@openng/optimus-ui/table';
+import { Tag } from '@openng/optimus-ui/tag';
 import { lastValueFrom } from 'rxjs';
 import { AdministratorService } from './administrator.service';
 
@@ -18,6 +18,7 @@ import { AdministratorService } from './administrator.service';
   selector: 'aas-administration',
   templateUrl: './administration.component.html',
   styleUrls: ['../../host.scss'],
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [Button, RouterLink, TableModule, PrimeTemplate, Button, Menu, Tag, TranslateModule, DateProxyPipe],
 })
 export class AdministrationComponent implements OnInit {

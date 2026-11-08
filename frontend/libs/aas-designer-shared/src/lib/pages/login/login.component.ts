@@ -4,7 +4,7 @@ import { SystemConfigurationDto, SystemManagementClient } from '@aas/webapi-clie
 import { ChangeDetectionStrategy, Component, computed, inject, input, OnInit, signal } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
-import { ButtonModule } from 'primeng/button';
+import { ButtonModule } from '@openng/optimus-ui/button';
 import { ContactFormComponent } from '../../contact/contact-form/contact-form.component';
 import { DisclaimerComponent } from '../../disclaimer/disclaimer.component';
 import { LoginBrandFooterComponent } from './login-brand-footer/login-brand-footer.component';
