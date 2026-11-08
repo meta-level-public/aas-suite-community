@@ -74,15 +74,22 @@
               ></p-select>
               @if (key.value != null) {
                 <p-button
-                  styleClass="p-button-text p-button-outlined p-button-rounded"
+                  [ariaLabel]="'EDIT' | translate"
+                  [text]="true"
+                  [outlined]="true"
+                  [rounded]="true"
                   icon="pi pi-pencil"
                   (onClick)="goToEditConceptDescription(key)"
                 ></p-button>
               }
-              <!-- <p-button styleClass="p-button-text p-button-outlined p-button-rounded" icon="pi pi-plus" (onClick)="addKey(keyTypesType.ConceptDescription)"></p-button> -->
+              <!-- <p-button [ariaLabel]="'ADD' | translate" [text]="true" [outlined]="true" [rounded]="true" icon="pi pi-plus" (onClick)="addKey(keyTypesType.ConceptDescription)"></p-button> -->
               @if (key.value != null) {
                 <p-button
-                  styleClass="p-button-text p-button-outlined p-button-rounded"
+                  [ariaLabel]="'DELETE' | translate"
+                  severity="danger"
+                  [text]="true"
+                  [outlined]="true"
+                  [rounded]="true"
                   icon="pi pi-trash"
                   (onClick)="deleteConceptDescription(key)"
                 ></p-button>

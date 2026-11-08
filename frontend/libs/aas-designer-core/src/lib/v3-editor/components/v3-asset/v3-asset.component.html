@@ -30,12 +30,13 @@
         <p-inputGroup>
           <input pInputText [(ngModel)]="asset.assetType" class="w-full" vwsV3Undo />
           <p-button
+            [ariaLabel]="'SHOW' | translate"
             icon="pi pi-eye"
             (onClick)="showTypeAsset.set(true)"
             severity="secondary"
             [disabled]="!asset.assetType || asset.assetType.length == 0"
           ></p-button>
-          <p-button icon="pi pi-search" (onClick)="search()"></p-button>
+          <p-button [ariaLabel]="'SEARCH' | translate" icon="pi pi-search" (onClick)="search()"></p-button>
         </p-inputGroup>
         <p-dialog [(visible)]="showTypeAsset" closable="true" [style]="{ width: '75%' }">
           <aas-aas-result-list

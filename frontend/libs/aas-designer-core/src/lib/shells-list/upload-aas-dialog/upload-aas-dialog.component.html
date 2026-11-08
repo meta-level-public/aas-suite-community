@@ -28,10 +28,12 @@
       <p-progressBar mode="indeterminate" [style]="{ height: '20px' }"></p-progressBar>
     }
     @if (isBulkImportIssueSummary) {
-      <div class="rounded-2xl overflow-hidden border border-orange-200 shadow-sm">
-        <div class="bg-linear-to-r from-orange-100 via-amber-50 to-white px-5 py-5 border-b border-orange-200">
+      <div class="rounded-2xl overflow-hidden border border-[var(--aas-warning-border)] shadow-sm">
+        <div class="bg-[var(--aas-warning-surface)] px-5 py-5 border-b border-[var(--aas-warning-border)]">
           <div class="flex items-start gap-3">
-            <div class="h-3rem w-3rem shrink-0 rounded-xl bg-orange-500 text-white flex items-center justify-center">
+            <div
+              class="h-3rem w-3rem shrink-0 rounded-xl bg-[var(--aas-warning-icon)] text-white flex items-center justify-center"
+            >
               <i class="pi pi-exclamation-triangle text-lg"></i>
             </div>
             <div class="flex flex-col gap-1">
@@ -46,7 +48,7 @@
             </div>
           </div>
         </div>
-        <div class="bg-white px-5 py-5 flex flex-col gap-5">
+        <div class="bg-surface-0 px-5 py-5 flex flex-col gap-5">
           <section class="flex flex-col gap-2 pb-4 border-b border-surface-200">
             <div class="text-xs uppercase tracking-wide text-600">
               {{ 'IMPORT_WITHOUT_SUBMODELS_SECTION_SUMMARY' | translate }}
@@ -70,7 +72,7 @@
                       </div>
                     </div>
                     <div
-                      class="text-xs uppercase tracking-wide text-orange-700 bg-orange-100 px-2 py-1 rounded-full self-start"
+                      class="text-xs uppercase tracking-wide text-[var(--aas-warning-text)] bg-[var(--aas-warning-surface)] px-2 py-1 rounded-full self-start"
                     >
                       {{ 'IMPORT_WITHOUT_SUBMODELS_SKIPPED' | translate }}
                     </div>
@@ -93,7 +95,7 @@
                   }
                   @if (issue.hasConflict) {
                     <div
-                      class="flex items-start gap-2 rounded-xl border border-yellow-200 bg-yellow-50 px-4 py-3 text-sm text-yellow-800"
+                      class="flex items-start gap-2 rounded-xl border border-[var(--aas-warning-border)] bg-[var(--aas-warning-surface)] px-4 py-3 text-sm text-[var(--aas-warning-text)]"
                     >
                       <i class="pi pi-exclamation-circle mt-0.5 shrink-0"></i>
                       <span>{{ 'IMPORT_CONFLICT_OVERWRITE_HINT' | translate }}</span>
@@ -233,7 +235,7 @@
               [style.border-radius]="'var(--p-border-radius)'"
               [class.-translate-y-0.5]="isImportModeSelected('original')"
               [class.ring-1]="isImportModeSelected('original')"
-              [class.ring-blue-200]="isImportModeSelected('original')"
+              [class.ring-[var(--aas-info-border)]]="isImportModeSelected('original')"
               [class.shadow-lg]="isImportModeSelected('original')"
             >
               @if (isImportModeSelected('original')) {
@@ -263,7 +265,7 @@
               [style.border-radius]="'var(--p-border-radius)'"
               [class.-translate-y-0.5]="isImportModeSelected('derived')"
               [class.ring-1]="isImportModeSelected('derived')"
-              [class.ring-emerald-300]="isImportModeSelected('derived')"
+              [class.ring-[var(--aas-success-border)]]="isImportModeSelected('derived')"
               [class.shadow-lg]="isImportModeSelected('derived')"
             >
               @if (isImportModeSelected('derived')) {
@@ -293,10 +295,12 @@
         <label for="overwrite">{{ 'OVERWRITE_IF_EXISTING_AAS' | translate }}</label>
       </div>
     } @else {
-      <div class="rounded-2xl overflow-hidden border border-orange-200 shadow-sm">
-        <div class="bg-linear-to-r from-orange-100 via-amber-50 to-white px-5 py-5 border-b border-orange-200">
+      <div class="rounded-2xl overflow-hidden border border-[var(--aas-warning-border)] shadow-sm">
+        <div class="bg-[var(--aas-warning-surface)] px-5 py-5 border-b border-[var(--aas-warning-border)]">
           <div class="flex items-start gap-3">
-            <div class="h-3rem w-3rem shrink-0 rounded-xl bg-orange-500 text-white flex items-center justify-center">
+            <div
+              class="h-3rem w-3rem shrink-0 rounded-xl bg-[var(--aas-warning-icon)] text-white flex items-center justify-center"
+            >
               <i class="pi pi-exclamation-triangle text-lg"></i>
             </div>
             <div class="flex flex-col gap-1">
@@ -310,7 +314,7 @@
             </div>
           </div>
         </div>
-        <div class="bg-white px-5 py-5 flex flex-col gap-5">
+        <div class="bg-surface-0 px-5 py-5 flex flex-col gap-5">
           <section class="flex flex-col gap-2 pb-4 border-b border-surface-200">
             <div class="text-xs uppercase tracking-wide text-600">
               {{ 'IMPORT_WITHOUT_SUBMODELS_SECTION_SUMMARY' | translate }}
@@ -332,7 +336,7 @@
                       <div class="flex items-center justify-between gap-3">
                         <div class="font-semibold text-900">{{ submodel.idShort || submodel.submodelId }}</div>
                         <div
-                          class="text-xs uppercase tracking-wide text-orange-700 bg-orange-100 px-2 py-1 rounded-full"
+                          class="text-xs uppercase tracking-wide text-[var(--aas-warning-text)] bg-[var(--aas-warning-surface)] px-2 py-1 rounded-full"
                         >
                           {{ 'IMPORT_WITHOUT_SUBMODELS_SKIPPED' | translate }}
                         </div>
@@ -349,10 +353,12 @@
                 <ul class="flex flex-col gap-3">
                   @for (submodel of importablePartialImportSubmodels; track submodel.submodelId) {
                     <li
-                      class="rounded-xl border border-emerald-200 bg-emerald-50 p-4 flex items-center justify-between gap-3"
+                      class="rounded-xl border border-[var(--aas-success-border)] bg-[var(--aas-success-surface)] p-4 flex items-center justify-between gap-3"
                     >
                       <div class="font-semibold text-900">{{ submodel.idShort || submodel.submodelId }}</div>
-                      <div class="text-xs uppercase tracking-wide text-emerald-700 bg-white px-2 py-1 rounded-full">
+                      <div
+                        class="text-xs uppercase tracking-wide text-[var(--aas-success-text)] bg-surface-0 px-2 py-1 rounded-full"
+                      >
                         {{ 'IMPORT_WITHOUT_SUBMODELS_IMPORTED' | translate }}
                       </div>
                     </li>

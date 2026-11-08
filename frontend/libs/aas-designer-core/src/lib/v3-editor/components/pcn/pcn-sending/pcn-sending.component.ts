@@ -2,15 +2,15 @@ import { HelpLabelComponent } from '@aas/common-components';
 import { NotificationService } from '@aas/common-services';
 import { LookupEntry } from '@aas/model';
 import { HttpClient } from '@angular/common/http';
-import { Component, inject, model, OnDestroy, signal } from '@angular/core';
+import { Component, inject, model, OnDestroy, signal, ChangeDetectionStrategy } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import mqtt from 'mqtt';
-import { ButtonModule } from 'primeng/button';
-import { DividerModule } from 'primeng/divider';
-import { InputTextModule } from 'primeng/inputtext';
-import { PasswordModule } from 'primeng/password';
-import { SelectModule } from 'primeng/select';
+import { ButtonModule } from '@openng/optimus-ui/button';
+import { DividerModule } from '@openng/optimus-ui/divider';
+import { InputTextModule } from '@openng/optimus-ui/inputtext';
+import { PasswordModule } from '@openng/optimus-ui/password';
+import { SelectModule } from '@openng/optimus-ui/select';
 import { lastValueFrom, Subscription } from 'rxjs';
 import { AutocompleteOffDirective } from '../../../../general/directives/autocomplete-off.directive';
 import { PcnStateStoreService } from '../pcn-state-store.service';
@@ -28,6 +28,7 @@ import { PcnStateStoreService } from '../pcn-state-store.service';
     PasswordModule,
   ],
   selector: 'aas-pcn-sending',
+  changeDetection: ChangeDetectionStrategy.Eager,
   templateUrl: './pcn-sending.component.html',
 })
 export class PcnSendingComponent implements OnDestroy {
@@ -72,8 +73,7 @@ export class PcnSendingComponent implements OnDestroy {
     if (reasons) {
       this.sortAndAssignReasons(reasons);
     } else {
-      // eslint-disable-next-line no-console
-      console.log('Failed to load reasons');
+      console.warn('Failed to load reasons');
     }
   }
 
@@ -93,73 +93,72 @@ export class PcnSendingComponent implements OnDestroy {
   }
 
   async sendMessage() {
-    try {
-      this.loading.set(true);
-      const brokerUrl = this.pcnBrokerUrl();
-      const topic = this.pcnBrokerTopic();
-      const username = this.pcnBrokerUsername();
-      const password = this.pcnBrokerPassword();
-      const message = this.message();
-      if (!brokerUrl || !topic || !message) {
-        // eslint-disable-next-line no-console
-        console.log('Broker URL, Topic, and Message are required.');
-        return;
-      }
+    const brokerUrl = this.pcnBrokerUrl();
+    const topic = this.pcnBrokerTopic();
+    const message = this.message();
+    if (!brokerUrl || !topic || !message) {
+      this.notificationService.showMessageAlways('REQUIRED_FIELD', 'ERROR', 'error', false);
+      return;
+    }
 
+    this.loading.set(true);
+    let messageToSend: string;
+    try {
       // neuen Eintrag in Record erstellen
       const changeRecordPath = await this.pcnStateStore.createNewChangeRecord(
         this.changeType(),
-        this.message(),
+        message,
         this.reason(),
       );
 
       if (!changeRecordPath) {
         this.notificationService.showMessageAlways('ERROR_CREATING_CHANGE_RECORD', 'ERROR', 'error', true);
+        this.loading.set(false);
         return;
       }
 
-      const submodelId = this.pcnStateStore.pcnSubmodelTreeItem()?.id ?? '';
       const smUrl = this.pcnStateStore.smUrl() ?? '';
-      const path = smUrl + '/submodel-elements/Records';
-
-      const messageToSend =
-        '{"submodel":{"id":"' + submodelId + '","path":"' + path + '","changeRecord":"' + changeRecordPath + '"}}';
-
-      // MQTT-Verbindung herstellen
-      const client = mqtt.connect(brokerUrl, {
-        username,
-        password,
-        rejectUnauthorized: false,
+      messageToSend = JSON.stringify({
+        submodel: {
+          id: this.pcnStateStore.pcnSubmodelTreeItem()?.id ?? '',
+          path: smUrl + '/submodel-elements/Records',
+          changeRecord: changeRecordPath,
+        },
       });
-
-      client.on('connect', () => {
-        // eslint-disable-next-line no-console
-        console.log('Connected to MQTT broker');
-        // Nachricht senden
-        client.publish(topic, messageToSend, { qos: 1 }, (err: any) => {
-          if (err) {
-            this.notificationService.showMessageAlways('ERROR_SENDING_MESSAGE', 'ERROR', 'error', true);
-            // eslint-disable-next-line no-console
-            console.log('Failed to send message:', err);
-          } else {
-            this.notificationService.showMessageAlways('MESSAGE_SENT_SUCCESS', 'SUCCESS', 'success', false);
-            // eslint-disable-next-line no-console
-            console.log('Message sent successfully:', message);
-          }
-          this.loading.set(false);
-          client.end(); // close connection
-        });
-      });
-
-      client.on('error', (err: any) => {
-        this.notificationService.showMessageAlways('ERROR_SENDING_MESSAGE', 'ERROR', 'error', true);
-        // eslint-disable-next-line no-console
-        console.log('MQTT connection error:', err);
-        this.loading.set(false);
-        client.end(); // close connection
-      });
-    } finally {
-      //this.loading.set(false);
+    } catch {
+      this.notificationService.showMessageAlways('ERROR_CREATING_CHANGE_RECORD', 'ERROR', 'error', true);
+      this.loading.set(false);
+      return;
     }
+
+    // MQTT-Verbindung herstellen; ohne Reconnect, damit ein nicht erreichbarer Broker den Vorgang beendet
+    const client = mqtt.connect(brokerUrl, {
+      username: this.pcnBrokerUsername(),
+      password: this.pcnBrokerPassword(),
+      connectTimeout: 10_000,
+      reconnectPeriod: 0,
+    });
+
+    let finished = false;
+    const finish = (success: boolean) => {
+      if (finished) {
+        return;
+      }
+      finished = true;
+      if (success) {
+        this.notificationService.showMessageAlways('MESSAGE_SENT_SUCCESS', 'SUCCESS', 'success', false);
+      } else {
+        this.notificationService.showMessageAlways('ERROR_SENDING_MESSAGE', 'ERROR', 'error', true);
+      }
+      this.loading.set(false);
+      client.end();
+    };
+
+    client.on('connect', () => {
+      client.publish(topic, messageToSend, { qos: 1 }, (err?: Error) => finish(err == null));
+    });
+    client.on('error', () => finish(false));
+    // connection closed (e.g. connect timeout) before the message was published
+    client.on('close', () => finish(false));
   }
 }

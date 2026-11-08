@@ -55,6 +55,7 @@ WORKDIR /app
 
 RUN rm -rf /var/lib/apt/lists/* \
     && apt-get update -o Acquire::Retries=3 \
+    && apt-get upgrade -y \
     && apt-get install -y --no-install-recommends curl libgssapi-krb5-2 \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*

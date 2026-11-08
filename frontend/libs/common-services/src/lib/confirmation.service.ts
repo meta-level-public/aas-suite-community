@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { Confirmation, ConfirmationService } from 'primeng/api';
+import { Confirmation, ConfirmationService } from '@openng/optimus-ui/api';
 
 @Injectable({
   providedIn: 'root',

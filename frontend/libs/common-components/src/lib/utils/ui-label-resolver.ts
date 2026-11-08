@@ -47,8 +47,7 @@ export class UiLabelResolver {
       case aas.types.DataTypeIec61360.Timestamp:
         return 'Timestamp';
       default:
-        // eslint-disable-next-line no-console
-        console.log('Unknown datatype', iecSpec?.dataType);
+        console.warn('Unknown datatype', iecSpec?.dataType);
         return 'Unknown';
     }
   }

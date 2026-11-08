@@ -4,6 +4,7 @@
       <!-- On phones the actions are shown as icons only -->
       @let compact = viewport.isMobile();
       <p-button
+        severity="secondary"
         [label]="compact ? '' : ('BACK' | translate)"
         [pTooltip]="compact ? ('BACK' | translate) : ''"
         [ariaLabel]="'BACK' | translate"
@@ -12,7 +13,6 @@
       ></p-button>
       <div class="flex gap-2">
         <p-button
-          styleClass="p-button-help"
           [label]="compact ? '' : ('DOWNLOAD' | translate)"
           [pTooltip]="compact ? ('DOWNLOAD' | translate) : ''"
           [ariaLabel]="'DOWNLOAD' | translate"

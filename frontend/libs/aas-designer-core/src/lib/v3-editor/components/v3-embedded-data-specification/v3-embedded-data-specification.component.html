@@ -12,12 +12,9 @@
 
 @if (dataSpecification != null && dataSpecification.length == 0) {
   <div class="flex flex-row justify-between">
-    <p-message
-      severity="info"
-      text="{{ 'NO_VALUES_SET_BUT_EMPTY_OR_AT_LEAST_ONE' | translate }}"
-      class="mr-2"
-    ></p-message>
+    <p-message severity="info" class="mr-2">{{ 'NO_VALUES_SET_BUT_EMPTY_OR_AT_LEAST_ONE' | translate }}</p-message>
     <p-button
+      [ariaLabel]="'ADD' | translate"
       text="true"
       outlined="true"
       rounded="true"
@@ -25,6 +22,8 @@
       (onClick)="addDataSpecification()"
     ></p-button>
     <p-button
+      [ariaLabel]="'DELETE' | translate"
+      severity="danger"
       text="true"
       outlined="true"
       rounded="true"
@@ -75,6 +74,7 @@
                       />
                       <p-inputgroup-addon>
                         <p-button
+                          [ariaLabel]="'OPEN_LINK' | translate"
                           icon="pi pi-external-link"
                           severity="secondary"
                           (onClick)="openLink(dataSpec.dataSpecification!.keys[0].value)"
@@ -93,6 +93,7 @@
               </div>
               <div class="flex flex-col gap-2 w-18rem">
                 <p-button
+                  severity="danger"
                   icon="pi pi-trash"
                   label="{{ 'REMOVE_SPEC' | translate }}"
                   (onClick)="removeDataSpecification($index)"
@@ -126,6 +127,7 @@
 @if (dataSpecification != null && dataSpecification.length > 0) {
   <div class="flex flex-row w-full justify-start mt-2 mb-2">
     <p-button
+      severity="danger"
       label="{{ 'REMOVE_BLOCK' | translate }}"
       (onClick)="removeDataSpecificationBlock()"
       icon="pi pi-trash"
@@ -181,6 +183,11 @@
     <aas-additional-lookup-sources (closeClicked)="showEclassSearch = false"></aas-additional-lookup-sources>
   }
   <ng-template #footer>
-    <p-button label="{{ 'CLOSE' | translate }}" icon="pi pi-check" (onClick)="showEclassSearch = false" />
+    <p-button
+      severity="secondary"
+      label="{{ 'CLOSE' | translate }}"
+      icon="pi pi-check"
+      (onClick)="showEclassSearch = false"
+    />
   </ng-template>
 </p-dialog>

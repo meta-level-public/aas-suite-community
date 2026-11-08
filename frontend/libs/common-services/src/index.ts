@@ -4,6 +4,7 @@ export * from './lib/app-config.service';
 export * from './lib/app-routes';
 export * from './lib/confirmation.service';
 export * from './lib/encoding.serice';
+export * from './lib/id-short.util';
 export * from './lib/notification.service';
 export * from './lib/plugins/plugin-menu-item';
 export * from './lib/plugins/plugin-registry.service';

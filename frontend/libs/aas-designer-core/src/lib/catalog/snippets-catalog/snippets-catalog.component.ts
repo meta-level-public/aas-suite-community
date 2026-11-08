@@ -2,10 +2,10 @@ import { Snippet } from '@aas-designer-model';
 import { DateProxyPipe } from '@aas/common-pipes';
 import { PortalService } from '@aas/common-services';
 import { AasMetamodelVersion } from '@aas/model';
-import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
+import { Component, EventEmitter, Input, OnInit, Output, ChangeDetectionStrategy } from '@angular/core';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { cloneDeep, uniq } from 'lodash-es';
-import { ConfirmationService, MenuItem, TreeNode } from 'primeng/api';
+import { ConfirmationService, MenuItem, TreeNode } from '@openng/optimus-ui/api';
 import { SnippetCatalogService } from '../service/snippet-catalog.service';
 
 import * as aas from '@aas-core-works/aas-core3.1-typescript';
@@ -14,16 +14,16 @@ import { NotificationService } from '@aas/common-services';
 import { InstanceHelper } from '@aas/helpers';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { ButtonModule } from 'primeng/button';
-import { DialogModule } from 'primeng/dialog';
-import { MenuModule } from 'primeng/menu';
-import { MultiSelectModule } from 'primeng/multiselect';
-import { PopoverModule } from 'primeng/popover';
-import { SelectModule } from 'primeng/select';
-import { TableModule } from 'primeng/table';
-import { TagModule } from 'primeng/tag';
-import { ToolbarModule } from 'primeng/toolbar';
-import { TreeTableModule } from 'primeng/treetable';
+import { ButtonModule } from '@openng/optimus-ui/button';
+import { DialogModule } from '@openng/optimus-ui/dialog';
+import { MenuModule } from '@openng/optimus-ui/menu';
+import { MultiSelectModule } from '@openng/optimus-ui/multiselect';
+import { PopoverModule } from '@openng/optimus-ui/popover';
+import { SelectModule } from '@openng/optimus-ui/select';
+import { TableModule } from '@openng/optimus-ui/table';
+import { TagModule } from '@openng/optimus-ui/tag';
+import { ToolbarModule } from '@openng/optimus-ui/toolbar';
+import { TreeTableModule } from '@openng/optimus-ui/treetable';
 
 @Component({
   selector: 'aas-snippets-catalog',
@@ -46,6 +46,7 @@ import { TreeTableModule } from 'primeng/treetable';
     DateProxyPipe,
   ],
   providers: [ConfirmationService],
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrls: ['../../../host.scss'],
 })
 export class SnippetsCatalogComponent implements OnInit {

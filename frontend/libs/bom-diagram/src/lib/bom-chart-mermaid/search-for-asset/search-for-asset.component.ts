@@ -1,22 +1,30 @@
 import {
-    AssetAdministrationShell,
-    AssetInformation,
-    SpecificAssetId,
+  AssetAdministrationShell,
+  AssetInformation,
+  SpecificAssetId,
 } from '@aas-core-works/aas-core3.1-typescript/types';
 
 import { AppConfigService, NotificationService, PortalService } from '@aas/common-services';
 import { UrlHelper } from '@aas/helpers';
 import { AasInfrastructureClient, AvailableInfastructure } from '@aas/webapi-client';
-import { ChangeDetectionStrategy, Component, inject, model, signal, ViewChild, WritableSignal } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  inject,
+  model,
+  signal,
+  ViewChild,
+  type WritableSignal,
+} from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
-import { ButtonModule } from 'primeng/button';
-import { DividerModule } from 'primeng/divider';
-import { DynamicDialogConfig, DynamicDialogRef } from 'primeng/dynamicdialog';
-import { FieldsetModule } from 'primeng/fieldset';
-import { InputTextModule } from 'primeng/inputtext';
-import { SelectModule } from 'primeng/select';
-import { Table, TableModule } from 'primeng/table';
+import { ButtonModule } from '@openng/optimus-ui/button';
+import { DividerModule } from '@openng/optimus-ui/divider';
+import { DynamicDialogConfig, DynamicDialogRef } from '@openng/optimus-ui/dynamicdialog';
+import { FieldsetModule } from '@openng/optimus-ui/fieldset';
+import { InputTextModule } from '@openng/optimus-ui/inputtext';
+import { SelectModule } from '@openng/optimus-ui/select';
+import { Table, TableModule } from '@openng/optimus-ui/table';
 import { lastValueFrom } from 'rxjs';
 import { cloneSpecificAssetIds } from '../utils/entity-asset-reference.util';
 import { AasSearchService } from './aas-search.service';

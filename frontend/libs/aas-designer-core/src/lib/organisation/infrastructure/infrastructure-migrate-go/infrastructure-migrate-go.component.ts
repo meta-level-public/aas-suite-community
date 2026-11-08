@@ -1,13 +1,14 @@
 import { NotificationService } from '@aas/common-services';
 import { AasInfrastructureClient, AvailableInfastructure } from '@aas/webapi-client';
-import { Component, inject, input, output, signal } from '@angular/core';
+import { Component, inject, input, output, signal, ChangeDetectionStrategy } from '@angular/core';
 import { TranslateModule } from '@ngx-translate/core';
-import { ButtonModule } from 'primeng/button';
+import { ButtonModule } from '@openng/optimus-ui/button';
 import { lastValueFrom } from 'rxjs';
 
 @Component({
   selector: 'aas-infrastructure-migrate-go',
   imports: [TranslateModule, ButtonModule],
+  changeDetection: ChangeDetectionStrategy.Eager,
   templateUrl: './infrastructure-migrate-go.component.html',
 })
 export class InfrastructureMigrateGoComponent {

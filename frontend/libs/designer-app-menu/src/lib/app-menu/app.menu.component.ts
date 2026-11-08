@@ -3,17 +3,19 @@ import { AppConfigService, AppRouteUrls, PluginRegistryService, ViewportService 
 
 import { ADDITIONAL_MENU_ITEMS, AuthRoles } from '@aas-designer-model';
 import { AccessService, PortalService } from '@aas/common-services';
-import { Component, effect, inject, OnInit, output, signal } from '@angular/core';
+import { Component, DestroyRef, effect, inject, OnInit, output, signal, ChangeDetectionStrategy } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { NavigationEnd, Router, RouterModule } from '@angular/router';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
-import { ButtonModule } from 'primeng/button';
-import { TooltipModule } from 'primeng/tooltip';
+import { ButtonModule } from '@openng/optimus-ui/button';
+import { TooltipModule } from '@openng/optimus-ui/tooltip';
 import { filter } from 'rxjs/operators';
 
 @Component({
   selector: 'app-menu',
   templateUrl: './app.menu.component.html',
   styleUrls: ['./app.menu.component.scss'],
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [ButtonModule, RouterModule, TooltipModule, TranslateModule],
 })
 export class AppMenuComponent implements OnInit {
@@ -27,13 +29,16 @@ export class AppMenuComponent implements OnInit {
   pluginRegistry = inject(PluginRegistryService);
   viewport = inject(ViewportService);
   private router = inject(Router);
+  private destroyRef = inject(DestroyRef);
+  // Signal statt router.url, damit sich die Template-Bindings nur nach abgeschlossener Navigation ändern
+  private currentUrl = signal<string>('');
 
   constructor(
     private translate: TranslateService,
     private accessService: AccessService,
     private appConfigService: AppConfigService,
   ) {
-    this.translate.onLangChange.subscribe(() => this.createMenu());
+    this.translate.onLangChange.pipe(takeUntilDestroyed()).subscribe(() => this.createMenu());
 
     effect(() => {
       this.pluginRegistry.plugins();
@@ -43,7 +48,8 @@ export class AppMenuComponent implements OnInit {
     });
 
     // Create menu immediately when login state changes
-    this.portalService.loginStateChanged.subscribe(() => {
+    this.portalService.loginStateChanged.pipe(takeUntilDestroyed()).subscribe(() => {
+      this.helpService.initHelp();
       // Use setTimeout to ensure the user data is fully saved before creating menu
       setTimeout(() => {
         this.createMenu();
@@ -56,19 +62,20 @@ export class AppMenuComponent implements OnInit {
     this.createMenu();
     this.updateActiveTab(this.router.url);
 
-    this.router.events.pipe(filter((event) => event instanceof NavigationEnd)).subscribe((event: NavigationEnd) => {
-      this.updateActiveTab(event.urlAfterRedirects);
-      // On phones the menu overlays the page, so close it once a page was chosen
-      if (this.viewport.isMobile() && this.sidebarExpanded()) {
-        this.toggleSidebar();
-      }
-    });
+    this.router.events
+      .pipe(
+        filter((event) => event instanceof NavigationEnd),
+        takeUntilDestroyed(this.destroyRef),
+      )
+      .subscribe((event: NavigationEnd) => {
+        this.updateActiveTab(event.urlAfterRedirects);
+        // On phones the menu overlays the page, so close it once a page was chosen
+        if (this.viewport.isMobile() && this.sidebarExpanded()) {
+          this.toggleSidebar();
+        }
+      });
 
-    this.portalService.loginStateChanged.subscribe(() => {
-      this.helpService.initHelp();
-    });
-
-    this.portalService.currentInfrastructureChanged.subscribe(() => {
+    this.portalService.currentInfrastructureChanged.pipe(takeUntilDestroyed(this.destroyRef)).subscribe(() => {
       this.createMenu();
       this.updateActiveTab(this.router.url);
     });
@@ -231,7 +238,7 @@ export class AppMenuComponent implements OnInit {
   }
 
   isActive(tab: any): boolean {
-    const currentUrl = this.router.url;
+    const currentUrl = this.currentUrl();
     const routerLink = Array.isArray(tab.routerLink) ? tab.routerLink[0] : tab.routerLink;
 
     // Check main routerLink - exact match or starts with
@@ -256,6 +263,7 @@ export class AppMenuComponent implements OnInit {
   }
 
   private updateActiveTab(url: string) {
+    this.currentUrl.set(url);
     const matchingTab = this.tabs.find((tab) => {
       const routerLink = Array.isArray(tab.routerLink) ? tab.routerLink[0] : tab.routerLink;
 

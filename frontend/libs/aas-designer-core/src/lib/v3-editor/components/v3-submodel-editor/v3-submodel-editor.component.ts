@@ -4,11 +4,20 @@ import { HelpLabelComponent } from '@aas/common-components';
 import { AppConfigService, PortalService } from '@aas/common-services';
 import { ShellResult } from '@aas/model';
 import { NgClass } from '@angular/common';
-import { Component, inject, input, Input, OnChanges, signal, SimpleChanges } from '@angular/core';
+import {
+  Component,
+  inject,
+  input,
+  Input,
+  OnChanges,
+  signal,
+  SimpleChanges,
+  ChangeDetectionStrategy,
+} from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
-import { Fieldset } from 'primeng/fieldset';
-import { Select } from 'primeng/select';
+import { Fieldset } from '@openng/optimus-ui/fieldset';
+import { Select } from '@openng/optimus-ui/select';
 import { V3UndoDirective } from '../../../general/directives/v3-undo.directive';
 import { Info } from '../../../general/model/info-item';
 import { V3TreeItem } from '../../model/v3-tree-item';
@@ -31,6 +40,7 @@ type VerificationError = aas.verification.VerificationError;
 @Component({
   selector: 'aas-v3-submodel-editor',
   templateUrl: './v3-submodel-editor.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [
     Fieldset,
     NgClass,

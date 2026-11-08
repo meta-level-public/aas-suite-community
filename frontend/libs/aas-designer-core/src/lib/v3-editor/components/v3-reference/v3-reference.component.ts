@@ -2,22 +2,22 @@ import * as aas from '@aas-core-works/aas-core3.1-typescript';
 import { VerificationError } from '@aas-core-works/aas-core3.1-typescript/verification';
 import { HelpLabelComponent, openShellSelectDialog } from '@aas/common-components';
 import { NotificationService } from '@aas/common-services';
-import { InstanceHelper } from '@aas/helpers';
+import { InstanceHelper, UrlHelper } from '@aas/helpers';
 import { ShellResult } from '@aas/model';
 import { NgClass } from '@angular/common';
-import { Component, inject, Input, OnChanges, SimpleChanges } from '@angular/core';
+import { Component, inject, Input, OnChanges, SimpleChanges, ChangeDetectionStrategy } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { cloneDeep } from 'lodash-es';
-import { PrimeTemplate, TreeNode } from 'primeng/api';
-import { Button } from 'primeng/button';
-import { Dialog } from 'primeng/dialog';
-import { DialogService } from 'primeng/dynamicdialog';
-import { InputText } from 'primeng/inputtext';
-import { Select } from 'primeng/select';
-import { TableModule } from 'primeng/table';
-import { Tooltip } from 'primeng/tooltip';
-import { Tree, TreeNodeSelectEvent } from 'primeng/tree';
+import { PrimeTemplate, TreeNode } from '@openng/optimus-ui/api';
+import { Button } from '@openng/optimus-ui/button';
+import { Dialog } from '@openng/optimus-ui/dialog';
+import { DialogService } from '@openng/optimus-ui/dynamicdialog';
+import { InputText } from '@openng/optimus-ui/inputtext';
+import { Select } from '@openng/optimus-ui/select';
+import { TableModule } from '@openng/optimus-ui/table';
+import { Tooltip } from '@openng/optimus-ui/tooltip';
+import { Tree, TreeNodeSelectEvent } from '@openng/optimus-ui/tree';
 import { v4 as uuid } from 'uuid';
 import { NullIfEmptyDirective } from '../../../general/directives/null-if-empty.directive';
 import { V3UndoDirective } from '../../../general/directives/v3-undo.directive';
@@ -46,6 +46,7 @@ import { V3ComponentBase } from '../v3-component-base';
     ErrorPanelComponent,
     TranslateModule,
   ],
+  changeDetection: ChangeDetectionStrategy.Eager,
   styles: [
     `
       .reference-picker-node {
@@ -537,16 +538,14 @@ export class V3ReferenceComponent extends V3ComponentBase implements OnChanges {
       url += '#' + keys[1].value;
     }
     // basic validation: http/https only
-    if (!/^https?:\/\//i.test(url)) return null;
+    if (!UrlHelper.isHttpUrl(url)) return null;
     return url;
   }
 
   openExternalReference() {
     const url = this.externalReferenceUrl;
     if (!url) return;
-    if (typeof window !== 'undefined') {
-      window.open(url, '_blank');
-    }
+    UrlHelper.openExternalUrl(url);
   }
 
   // Determine if jump is possible (ModelReference & first key resolves to a Submodel)

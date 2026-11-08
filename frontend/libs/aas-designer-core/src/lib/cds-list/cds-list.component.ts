@@ -4,26 +4,26 @@ import {
   LangStringDefinitionTypeIec61360,
   MultiLanguageProperty,
 } from '@aas-core-works/aas-core3.1-typescript/types';
-import { HelpLabelComponent } from '@aas/common-components';
+import { HelpLabelComponent, CursorPaginatorComponent } from '@aas/common-components';
 import { AasConfirmationService, EncodingService, PortalService } from '@aas/common-services';
 import { TagHelper } from '@aas/helpers';
 import { AasInfrastructureClient, AvailableInfastructure, ConceptDescriptionClient } from '@aas/webapi-client';
 import { CommonModule } from '@angular/common';
-import { Component, inject, model, OnDestroy, OnInit, signal } from '@angular/core';
+import { Component, inject, model, OnDestroy, OnInit, signal, ChangeDetectionStrategy } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
-import { FilterMatchMode, MenuItem } from 'primeng/api';
-import { ButtonModule } from 'primeng/button';
-import { ChipModule } from 'primeng/chip';
-import { InputGroupModule } from 'primeng/inputgroup';
-import { InputGroupAddonModule } from 'primeng/inputgroupaddon';
-import { InputTextModule } from 'primeng/inputtext';
-import { MultiSelectModule } from 'primeng/multiselect';
-import { SelectModule } from 'primeng/select';
-import { TableModule } from 'primeng/table';
-import { TagModule } from 'primeng/tag';
-import { TieredMenuModule } from 'primeng/tieredmenu';
+import { FilterMatchMode, MenuItem } from '@openng/optimus-ui/api';
+import { ButtonModule } from '@openng/optimus-ui/button';
+import { ChipModule } from '@openng/optimus-ui/chip';
+import { InputGroupModule } from '@openng/optimus-ui/inputgroup';
+import { InputGroupAddonModule } from '@openng/optimus-ui/inputgroupaddon';
+import { InputTextModule } from '@openng/optimus-ui/inputtext';
+import { MultiSelectModule } from '@openng/optimus-ui/multiselect';
+import { SelectModule } from '@openng/optimus-ui/select';
+import { TableModule } from '@openng/optimus-ui/table';
+import { TagModule } from '@openng/optimus-ui/tag';
+import { TieredMenuModule } from '@openng/optimus-ui/tieredmenu';
 import { lastValueFrom, Subscription } from 'rxjs';
 
 interface Column {
@@ -40,6 +40,7 @@ interface Column {
 @Component({
   selector: 'aas-cds-list',
   imports: [
+    CursorPaginatorComponent,
     CommonModule,
     FormsModule,
     TranslateModule,
@@ -56,6 +57,7 @@ interface Column {
     TieredMenuModule,
   ],
   templateUrl: './cds-list.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrls: ['../../host.scss'],
 })
 export class CdsListComponent implements OnDestroy, OnInit {
@@ -110,9 +112,11 @@ export class CdsListComponent implements OnDestroy, OnInit {
       this.loading.set(false);
     }
 
-    this.translate.onLangChange.subscribe((event) => {
-      this.currentLang = event.lang;
-    });
+    this.subscriptions.push(
+      this.translate.onLangChange.subscribe((event) => {
+        this.currentLang = event.lang;
+      }),
+    );
   }
 
   ngOnDestroy(): void {
@@ -168,10 +172,7 @@ export class CdsListComponent implements OnDestroy, OnInit {
     this.selectedColumns.set([colId, colIdShort, colDefinition, colUnit]);
   }
 
-  findCd() {
-    // eslint-disable-next-line no-console
-    console.log('findCd', this.cdId);
-  }
+  findCd() {}
 
   async initAvailableRepositories() {
     const res = await lastValueFrom(this.infrastructureClient.aasInfrastructure_GetAvailableInfrastructures());
@@ -279,7 +280,6 @@ export class CdsListComponent implements OnDestroy, OnInit {
       if (eds != null) {
         const dataspec = (eds.dataSpecificationContent as any)[field];
         if (dataspec != null) {
-          // console.log('getEdsValue', field, dataspec);
           return dataspec;
         }
         return '';

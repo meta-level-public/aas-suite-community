@@ -1,6 +1,6 @@
 import { CommonModule } from '@angular/common';
-import { Component, computed, input, output } from '@angular/core';
-import { ButtonModule } from 'primeng/button';
+import { Component, computed, input, output, ChangeDetectionStrategy } from '@angular/core';
+import { ButtonModule } from '@openng/optimus-ui/button';
 
 type SelectionCardSeverity = 'info' | 'success' | 'warn' | 'danger';
 
@@ -12,6 +12,7 @@ type SelectionCardSeverity = 'info' | 'success' | 'warn' | 'danger';
     class: 'block w-full h-full',
   },
   templateUrl: './selection-card.component.html',
+  changeDetection: ChangeDetectionStrategy.OnPush,
   styleUrl: './selection-card.component.scss',
 })
 export class SelectionCardComponent {

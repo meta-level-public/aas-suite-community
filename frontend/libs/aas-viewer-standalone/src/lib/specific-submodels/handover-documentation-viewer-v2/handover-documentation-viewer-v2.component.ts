@@ -2,17 +2,17 @@ import * as aas from '@aas-core-works/aas-core3.1-typescript';
 import { FilenameHelper } from '@aas/helpers';
 import { NgClass } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
-import { Component, inject, Input, OnChanges, OnDestroy, signal } from '@angular/core';
+import { Component, inject, Input, OnChanges, OnDestroy, signal, ChangeDetectionStrategy } from '@angular/core';
 import { DomSanitizer, SafeHtml, SafeResourceUrl } from '@angular/platform-browser';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { MarkdownComponent } from 'ngx-markdown';
-import { Accordion, AccordionContent, AccordionHeader, AccordionPanel } from 'primeng/accordion';
-import { PrimeTemplate } from 'primeng/api';
-import { ButtonModule } from 'primeng/button';
-import { Dialog } from 'primeng/dialog';
-import { Ripple } from 'primeng/ripple';
-import { Skeleton } from 'primeng/skeleton';
-import { Tooltip } from 'primeng/tooltip';
+import { Accordion, AccordionContent, AccordionHeader, AccordionPanel } from '@openng/optimus-ui/accordion';
+import { PrimeTemplate } from '@openng/optimus-ui/api';
+import { ButtonModule } from '@openng/optimus-ui/button';
+import { Dialog } from '@openng/optimus-ui/dialog';
+import { Ripple } from '@openng/optimus-ui/ripple';
+import { Skeleton } from '@openng/optimus-ui/skeleton';
+import { Tooltip } from '@openng/optimus-ui/tooltip';
 import { lastValueFrom, Subscription } from 'rxjs';
 import { ViewerStoreService } from '../../viewer-store.service';
 import { DocumentClassificationsComponent } from './document-classifications/document-classifications.component';
@@ -26,6 +26,7 @@ import { ExpandedStateDirective } from '../../expanded-state/expanded-state.dire
   selector: 'aas-handover-documentation-viewer-v2',
   templateUrl: './handover-documentation-viewer-v2.component.html',
   styleUrls: ['./handover-documentation-viewer-v2.component.css'],
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [
     ExpandedStateDirective,
     Skeleton,

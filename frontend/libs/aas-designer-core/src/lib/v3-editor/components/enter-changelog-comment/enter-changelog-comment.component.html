@@ -6,14 +6,14 @@
       [(ngModel)]="comment"
       rows="5"
       cols="30"
-      style="resize: none"
-      class="h-full w-full"
+      class="h-full w-full !resize-none"
     ></textarea>
     <label for="in_label">{{ 'COMMENT' | translate }}</label>
   </p-floatlabel>
 
   <div class="flex w-full gap-2 justify-end mt-4">
     <p-button
+      severity="secondary"
       label="{{ 'CANCEL' | translate }}"
       icon="pi pi-times"
       (onClick)="closeDialog(null)"
@@ -22,7 +22,6 @@
     <p-button
       label="{{ 'SAVE' | translate }}"
       icon="pi pi-save"
-      severity="success"
       (onClick)="closeDialog(comment())"
       [disabled]="comment() === ''"
     ></p-button>

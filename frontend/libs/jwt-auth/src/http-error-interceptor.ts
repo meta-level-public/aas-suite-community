@@ -107,6 +107,17 @@ export class HttpErrorInterceptor implements HttpInterceptor {
               ),
             );
           }
+          case 500:
+          case 502:
+          case 503: {
+            // Only our own backend gets a generic message; external repositories are handled by their callers.
+            if (!this.isApplicationUrl(request.url)) {
+              return throwError(() => error);
+            }
+            const ex = new ApiException('SERVER_ERROR_DETAIL', 'SERVER_ERROR');
+            ex.stacktrace = error.error?.Stacktrace ?? error.error?.stacktrace ?? '';
+            return throwError(() => ex);
+          }
           case 410: {
             this.dispatchLogout();
             return throwError(() => new ApiException('SESSION_TIMEOUT_DETAIL', 'SESSION_TIMEOUT'));

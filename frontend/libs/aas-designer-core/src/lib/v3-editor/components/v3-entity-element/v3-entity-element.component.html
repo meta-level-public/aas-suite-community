@@ -140,12 +140,7 @@
         </ng-template>
 
         @if (relationInvalid) {
-          <p-message
-            severity="error"
-            class="w-full"
-            text="{{ 'HAS_PART_AND_IS_PART_ERROR' | translate }}"
-            class="mr-2"
-          ></p-message>
+          <p-message class="w-full mr-2" severity="error">{{ 'HAS_PART_AND_IS_PART_ERROR' | translate }}</p-message>
         }
         <!-- <aas-bom-diagram
       [aasId]="shellResult?.id ?? 0"

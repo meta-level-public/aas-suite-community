@@ -2,19 +2,19 @@ import { DateProxyPipe } from '@aas/common-pipes';
 import { NotificationService } from '@aas/common-services';
 import { ProductDesignationClient, ProductDesignationDto } from '@aas/webapi-client';
 import { CommonModule } from '@angular/common';
-import { Component, inject, OnInit, signal } from '@angular/core';
+import { Component, inject, OnInit, signal, ChangeDetectionStrategy } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { cloneDeep } from 'lodash-es';
-import { ConfirmationService, MenuItem } from 'primeng/api';
-import { ButtonModule } from 'primeng/button';
-import { DialogModule } from 'primeng/dialog';
-import { InputTextModule } from 'primeng/inputtext';
-import { MenuModule } from 'primeng/menu';
-import { SelectModule } from 'primeng/select';
-import { TableModule } from 'primeng/table';
-import { TagModule } from 'primeng/tag';
-import { ToolbarModule } from 'primeng/toolbar';
+import { ConfirmationService, MenuItem } from '@openng/optimus-ui/api';
+import { ButtonModule } from '@openng/optimus-ui/button';
+import { DialogModule } from '@openng/optimus-ui/dialog';
+import { InputTextModule } from '@openng/optimus-ui/inputtext';
+import { MenuModule } from '@openng/optimus-ui/menu';
+import { SelectModule } from '@openng/optimus-ui/select';
+import { TableModule } from '@openng/optimus-ui/table';
+import { TagModule } from '@openng/optimus-ui/tag';
+import { ToolbarModule } from '@openng/optimus-ui/toolbar';
 import { lastValueFrom } from 'rxjs';
 import { ConfirmDialogComponent } from '@aas/aas-designer-shared';
 import { V3LangStringListComponent } from '../../v3-editor';
@@ -39,6 +39,7 @@ import { V3LangStringListComponent } from '../../v3-editor';
     DateProxyPipe,
   ],
   providers: [ConfirmationService],
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrls: ['../../../host.scss'],
 })
 export class ProductDesignationCatalogComponent implements OnInit {

@@ -4,19 +4,14 @@
   [showSidebar]="technicalDataNodes.length > 0 && technicalDataFields.length > 0"
   [contentCardClass]="'technical-data-group-card'"
 >
-  <p generator-shell-intro class="text-lg battery-editor-page-copy mb-0" style="color: var(--p-text-muted-color)">
+  <p generator-shell-intro class="text-lg battery-editor-page-copy mb-0 text-muted-color">
     {{ 'BATTERY_PASSPORT_TECHNICAL_DATA_EXPL' | translate }}
   </p>
 
   <div generator-shell-intro>
     @if (technicalDataModels.length === 0) {
       <div
-        class="p-3 border-round border-1"
-        style="
-          border-color: var(--aas-warning-border);
-          background: var(--aas-warning-surface);
-          color: var(--aas-warning-text);
-        "
+        class="p-3 border-round border-1 border-[color:var(--aas-warning-border)] bg-[var(--aas-warning-surface)] text-[var(--aas-warning-text)]"
       >
         {{ 'BATTERY_PASSPORT_TECHNICAL_DATA_MISSING' | translate }}
       </div>
@@ -26,14 +21,9 @@
   <div generator-shell-intro>
     @if (technicalDataModels.length > 0 && technicalDataFields.length === 0) {
       <div
-        class="p-3 border-round border-1"
-        style="
-          border-color: var(--aas-warning-border);
-          background: var(--aas-warning-surface);
-          color: var(--aas-warning-text);
-        "
+        class="p-3 border-round border-1 border-[color:var(--aas-warning-border)] bg-[var(--aas-warning-surface)] text-[var(--aas-warning-text)]"
       >
-        {{ 'BATTERY_PASSPORT_TECHNICAL_DATA_MISSING' | translate }} Fields missing
+        {{ 'BATTERY_PASSPORT_TECHNICAL_DATA_FIELDS_MISSING' | translate }}
       </div>
     }
   </div>
@@ -46,7 +36,7 @@
           <div>
             <h2 class="text-2xl font-bold mb-2">{{ activeItem.label }}</h2>
             @if (activeItem.description !== '') {
-              <p class="text-sm mb-0" style="color: var(--p-text-muted-color)">{{ activeItem.description }}</p>
+              <p class="text-sm mb-0 text-muted-color">{{ activeItem.description }}</p>
             }
           </div>
         </div>
@@ -61,8 +51,7 @@
 
       @if (activeItem.kind === 'container' && activeFields.length === 0) {
         <div
-          class="p-3 border-round border-1 mb-4"
-          style="border-color: var(--aas-info-border); background: var(--aas-info-surface); color: var(--aas-info-text)"
+          class="p-3 border-round border-1 mb-4 border-[color:var(--aas-info-border)] bg-[var(--aas-info-surface)] text-[var(--aas-info-text)]"
         >
           {{ 'GUIDED_EDITOR_CONTAINER_EMPTY_HINT' | translate }}
         </div>
@@ -73,7 +62,7 @@
           <div class="technical-data-field-card">
             <div class="font-bold mb-2">{{ field.label }}</div>
             @if (field.description !== '') {
-              <div class="text-sm mb-3" style="color: var(--p-text-muted-color)">{{ field.description }}</div>
+              <div class="text-sm mb-3 text-muted-color">{{ field.description }}</div>
             }
 
             @if (field.type === 'File') {
@@ -113,6 +102,7 @@
   <div class="battery-editor-nav-actions" generator-shell-sidebar-actions>
     @if (technicalDataModels.length > 0 && technicalDataFields.length > 0) {
       <p-button
+        severity="secondary"
         [fluid]="true"
         label="{{ 'BACK' | translate }}"
         (onClick)="prevGroup()"

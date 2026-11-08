@@ -2,12 +2,12 @@ import * as aas from '@aas-core-works/aas-core3.1-typescript';
 
 import { HelpLabelComponent } from '@aas/common-components';
 import { IdGenerationUtil } from '@aas/helpers';
-import { Component, Input } from '@angular/core';
+import { Component, Input, ChangeDetectionStrategy } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
-import { Button } from 'primeng/button';
-import { InputText } from 'primeng/inputtext';
-import { Message } from 'primeng/message';
+import { Button } from '@openng/optimus-ui/button';
+import { InputText } from '@openng/optimus-ui/inputtext';
+import { Message } from '@openng/optimus-ui/message';
 import { v4 as uuid } from 'uuid';
 import { NullIfEmptyDirective } from '../../../general/directives/null-if-empty.directive';
 import { Info } from '../../../general/model/info-item';
@@ -18,6 +18,7 @@ type SpecificAssetId = aas.types.SpecificAssetId;
 @Component({
   selector: 'aas-v3-specific-asset-ids',
   templateUrl: './v3-specific-asset-ids.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [Button, Message, Button, HelpLabelComponent, FormsModule, InputText, NullIfEmptyDirective, TranslateModule],
 })
 export class V3SpecificAssetIdsComponent {

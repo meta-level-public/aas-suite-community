@@ -1,10 +1,11 @@
 import { IAbstractLangString } from '@aas-core-works/aas-core3.1-typescript/types';
 
-import { Component, computed, input } from '@angular/core';
+import { Component, computed, input, ChangeDetectionStrategy } from '@angular/core';
 
 @Component({
   selector: 'aas-localized-text',
   imports: [],
+  changeDetection: ChangeDetectionStrategy.Eager,
   templateUrl: './localized-text.component.html',
 })
 export class LocalizedTextComponent {

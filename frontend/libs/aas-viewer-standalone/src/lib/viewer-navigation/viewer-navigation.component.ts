@@ -1,7 +1,15 @@
-import { afterRenderEffect, Component, ElementRef, inject, input, output } from '@angular/core';
+import {
+  afterRenderEffect,
+  Component,
+  ElementRef,
+  inject,
+  input,
+  output,
+  ChangeDetectionStrategy,
+} from '@angular/core';
 import { TranslateModule } from '@ngx-translate/core';
-import { ProgressBar } from 'primeng/progressbar';
-import { Tooltip } from 'primeng/tooltip';
+import { ProgressBar } from '@openng/optimus-ui/progressbar';
+import { Tooltip } from '@openng/optimus-ui/tooltip';
 import { ViewerStoreService } from '../viewer-store.service';
 
 /**
@@ -13,6 +21,7 @@ import { ViewerStoreService } from '../viewer-store.service';
   templateUrl: './viewer-navigation.component.html',
   styleUrls: ['./viewer-navigation.component.css'],
   host: { class: 'block min-w-0' },
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [ProgressBar, Tooltip, TranslateModule],
 })
 export class ViewerNavigationComponent {

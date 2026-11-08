@@ -141,16 +141,22 @@
       @if (propList && propList.length > 1) {
         <div class="w-9">
           <p-button
+            [ariaLabel]="'DELETE' | translate"
+            severity="danger"
+            [rounded]="true"
+            [text]="true"
             icon="pi pi-trash"
-            styleClass="p-button-danger p-button-rounded p-button-text"
             (onClick)="removeLanguage(prop)"
           ></p-button>
         </div>
       }
       <div class="w-9">
         <p-button
+          [ariaLabel]="'ADD' | translate"
+          size="small"
+          [rounded]="true"
+          [text]="true"
           icon="pi pi-plus"
-          styleClass="p-button-sm p-button-rounded p-button-text"
           (onClick)="addLanguage()"
         ></p-button>
       </div>

@@ -3,11 +3,11 @@ import { HelpLabelComponent } from '@aas/common-components';
 import { InstanceHelper, SemanticIdHelper } from '@aas/helpers';
 import { ShellResult } from '@aas/model';
 import { NgClass } from '@angular/common';
-import { Component, Input, OnChanges, SimpleChanges, ViewChild } from '@angular/core';
+import { Component, Input, OnChanges, SimpleChanges, ViewChild, ChangeDetectionStrategy } from '@angular/core';
 import { TranslateModule } from '@ngx-translate/core';
-import { PrimeTemplate } from 'primeng/api';
-import { Fieldset } from 'primeng/fieldset';
-import { TableModule } from 'primeng/table';
+import { PrimeTemplate } from '@openng/optimus-ui/api';
+import { Fieldset } from '@openng/optimus-ui/fieldset';
+import { TableModule } from '@openng/optimus-ui/table';
 import { Info } from '../../../general/model/info-item';
 import { AddressSelectionComponent } from '../../../general/structural-elements/address-selection/address-selection.component';
 import { EditorTypeOption } from '../../model/editor-type-option';
@@ -29,6 +29,7 @@ import { V3SemanticDescriptionComponent } from '../v3-semantic-description/v3-se
 @Component({
   selector: 'aas-v3-submodel-element-collection-editor',
   templateUrl: './v3-submodel-element-collection-editor.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [
     Fieldset,
     HelpLabelComponent,

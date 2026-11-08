@@ -1,23 +1,25 @@
 import { PortalService } from '@aas/common-services';
+import { mapWithConcurrency } from '@aas/helpers';
 import { EClassItem } from '@aas/model';
 import { KeyValuePipe } from '@angular/common';
-import { Component, EventEmitter, Input, OnChanges, OnInit, Output } from '@angular/core';
+import { Component, EventEmitter, Input, OnChanges, OnInit, Output, ChangeDetectionStrategy } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
-import { PrimeTemplate, SelectItem } from 'primeng/api';
-import { Button } from 'primeng/button';
-import { Dialog } from 'primeng/dialog';
-import { Divider } from 'primeng/divider';
-import { InputText } from 'primeng/inputtext';
-import { MultiSelect } from 'primeng/multiselect';
-import { Select } from 'primeng/select';
-import { TableLazyLoadEvent, TableModule } from 'primeng/table';
+import { PrimeTemplate, SelectItem } from '@openng/optimus-ui/api';
+import { Button } from '@openng/optimus-ui/button';
+import { Dialog } from '@openng/optimus-ui/dialog';
+import { Divider } from '@openng/optimus-ui/divider';
+import { InputText } from '@openng/optimus-ui/inputtext';
+import { MultiSelect } from '@openng/optimus-ui/multiselect';
+import { Select } from '@openng/optimus-ui/select';
+import { TableLazyLoadEvent, TableModule } from '@openng/optimus-ui/table';
 import { EclassSearchService } from './eclass-search.service';
 
 @Component({
   selector: 'aas-eclass-search',
   templateUrl: './eclass-search.component.html',
   styleUrls: ['../../../host.scss'],
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [
     FormsModule,
     InputText,
@@ -197,28 +199,19 @@ export class EclassSearchComponent implements OnInit, OnChanges {
             this.rows,
           );
 
-          const valuesToAdd = [];
-          if (valueList.values != null) {
-            // Values laden
-            for (const value of valueList.values) {
-              try {
-                const valueItem = await this.eclassSearchService.tableSearch(
-                  '',
-                  value.irdi,
-                  'values',
-                  ['en-US'],
-                  this.first,
-                  this.rows,
-                );
-
-                valuesToAdd.push({ value: valueItem.value, id: valueItem.irdi });
-              } catch (_error) {
-                // cannot be loaded
-              }
-            }
-          }
-
-          item.valueList = valuesToAdd;
+          // Load the values in parallel (limited, so large value lists do not flood the server).
+          // Values that cannot be loaded are left out.
+          item.valueList = await mapWithConcurrency(valueList.values ?? [], 6, async (value: any) => {
+            const valueItem = await this.eclassSearchService.tableSearch(
+              '',
+              value.irdi,
+              'values',
+              ['en-US'],
+              this.first,
+              this.rows,
+            );
+            return { value: valueItem.value, id: valueItem.irdi };
+          });
         } catch (_error) {
           // cannot be loaded
         }

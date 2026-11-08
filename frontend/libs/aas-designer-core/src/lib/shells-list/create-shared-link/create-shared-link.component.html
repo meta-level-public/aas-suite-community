@@ -36,12 +36,12 @@
   </div>
   <div class="flex flex-row gap-2 justify-end">
     <p-button
+      severity="secondary"
       label="{{ 'CANCEL' | translate }}"
       icon="pi pi-times"
       (onClick)="cancel()"
       type="button"
       [loading]="loading()"
-      styleClass="p-button-secondary"
     ></p-button>
     <p-button
       label="{{ 'CREATE_SHARE_LINK' | translate }}"

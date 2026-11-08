@@ -1,5 +1,5 @@
 import * as aas from '@aas-core-works/aas-core3.1-typescript';
-import { TreeNode } from 'primeng/api';
+import { TreeNode } from '@openng/optimus-ui/api';
 
 type EnumObject = Record<string, string | number>;
 

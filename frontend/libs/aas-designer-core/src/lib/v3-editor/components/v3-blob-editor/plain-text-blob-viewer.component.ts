@@ -1,4 +1,4 @@
-import { Component, computed, input } from '@angular/core';
+import { Component, computed, input, ChangeDetectionStrategy } from '@angular/core';
 import { marked } from 'marked';
 import { MarkdownModule, provideMarkdown } from 'ngx-markdown';
 import 'prismjs';
@@ -13,6 +13,7 @@ import 'prismjs/components/prism-batch';
   selector: 'aas-plain-text-blob-viewer',
   imports: [MarkdownModule],
   providers: [provideMarkdown()],
+  changeDetection: ChangeDetectionStrategy.Eager,
   templateUrl: './plain-text-blob-viewer.component.html',
 })
 export class PlainTextBlobViewerComponent {

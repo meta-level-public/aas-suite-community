@@ -1,13 +1,14 @@
 import { PortalService } from '@aas/common-services';
-import { Component, EventEmitter, inject, Input, OnInit, Output } from '@angular/core';
+import { Component, EventEmitter, inject, Input, OnInit, Output, ChangeDetectionStrategy } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
-import { SelectModule } from 'primeng/select';
+import { SelectModule } from '@openng/optimus-ui/select';
 import { CountryIsoMap, CountryService } from './country.service';
 
 @Component({
   selector: 'aas-country-code',
   templateUrl: './country-code.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [FormsModule, TranslateModule, SelectModule],
 })
 export class CountryCodeComponent implements OnInit {

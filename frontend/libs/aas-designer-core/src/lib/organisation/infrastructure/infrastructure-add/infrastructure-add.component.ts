@@ -1,19 +1,19 @@
 import { AasInfrastructureSettingsDto, HeaderParameter } from '@aas/webapi-client';
 import { NgClass } from '@angular/common';
-import { Component, computed, input } from '@angular/core';
+import { Component, computed, input, ChangeDetectionStrategy } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
-import { ButtonModule } from 'primeng/button';
-import { DividerModule } from 'primeng/divider';
-import { FileUploadModule } from 'primeng/fileupload';
-import { InputTextModule } from 'primeng/inputtext';
-import { MessageModule } from 'primeng/message';
-import { PasswordModule } from 'primeng/password';
-import { TableModule } from 'primeng/table';
-import { TagModule } from 'primeng/tag';
-import { TextareaModule } from 'primeng/textarea';
-import { ToggleSwitchModule } from 'primeng/toggleswitch';
-import { ToolbarModule } from 'primeng/toolbar';
+import { ButtonModule } from '@openng/optimus-ui/button';
+import { DividerModule } from '@openng/optimus-ui/divider';
+import { FileUploadModule } from '@openng/optimus-ui/fileupload';
+import { InputTextModule } from '@openng/optimus-ui/inputtext';
+import { MessageModule } from '@openng/optimus-ui/message';
+import { PasswordModule } from '@openng/optimus-ui/password';
+import { TableModule } from '@openng/optimus-ui/table';
+import { TagModule } from '@openng/optimus-ui/tag';
+import { TextareaModule } from '@openng/optimus-ui/textarea';
+import { ToggleSwitchModule } from '@openng/optimus-ui/toggleswitch';
+import { ToolbarModule } from '@openng/optimus-ui/toolbar';
 import { HasChangesCheckable } from '../../my-organisation/has-changes-checkable';
 
 @Component({
@@ -36,6 +36,7 @@ import { HasChangesCheckable } from '../../my-organisation/has-changes-checkable
   ],
   templateUrl: './infrastructure-add.component.html',
   styleUrls: ['../../../../host.scss'],
+  changeDetection: ChangeDetectionStrategy.Eager,
   providers: [{ provide: HasChangesCheckable, useExisting: InfrastructureAddComponent }],
 })
 export class InfrastructureAddComponent extends HasChangesCheckable {

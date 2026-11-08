@@ -1,13 +1,13 @@
 import { AppConfigService, NotificationService } from '@aas/common-services';
-import { Component, computed, inject, OnInit, signal } from '@angular/core';
+import { Component, computed, inject, OnInit, signal, ChangeDetectionStrategy } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
-import { MessageService } from 'primeng/api';
-import { Button } from 'primeng/button';
-import { InputGroupModule } from 'primeng/inputgroup';
-import { InputGroupAddonModule } from 'primeng/inputgroupaddon';
-import { InputTextModule } from 'primeng/inputtext';
-import { TooltipModule } from 'primeng/tooltip';
+import { MessageService } from '@openng/optimus-ui/api';
+import { Button } from '@openng/optimus-ui/button';
+import { InputGroupModule } from '@openng/optimus-ui/inputgroup';
+import { InputGroupAddonModule } from '@openng/optimus-ui/inputgroupaddon';
+import { InputTextModule } from '@openng/optimus-ui/inputtext';
+import { TooltipModule } from '@openng/optimus-ui/tooltip';
 import { showSystemManagementError } from '../shared/system-management-error.util';
 import {
   LegalLinksDocumentInfoDto,
@@ -83,6 +83,7 @@ function initFieldRecord<T>(value: T): Record<LegalLinkFieldName, T> {
     InputTextModule,
     TooltipModule,
   ],
+  changeDetection: ChangeDetectionStrategy.Eager,
   templateUrl: './legal-links-settings.component.html',
 })
 export class LegalLinksSettingsComponent implements OnInit {

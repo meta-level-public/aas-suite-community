@@ -1,5 +1,5 @@
 import { AssetAdministrationShellEnvironment, Identifier, MultiLanguageProperty } from '@aas/model';
-import { TreeNode } from 'primeng/api';
+import { TreeNode } from '@openng/optimus-ui/api';
 
 export class V2Searcher {
   matchingIds: string[] = [];

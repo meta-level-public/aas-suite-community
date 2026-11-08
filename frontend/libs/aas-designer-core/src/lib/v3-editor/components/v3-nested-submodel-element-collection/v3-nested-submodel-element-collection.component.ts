@@ -2,15 +2,15 @@ import * as aas from '@aas-core-works/aas-core3.1-typescript';
 import { AasConfirmationService } from '@aas/common-services';
 import { InstanceHelper } from '@aas/helpers';
 import { ShellResult } from '@aas/model';
-import { Component, forwardRef, Input, QueryList, ViewChildren } from '@angular/core';
+import { Component, forwardRef, Input, QueryList, ViewChildren, ChangeDetectionStrategy } from '@angular/core';
 import { V3TreeService } from '../../v3-tree/v3-tree.service';
 
 import { FormsModule } from '@angular/forms';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
-import { Accordion, AccordionContent, AccordionHeader, AccordionPanel } from 'primeng/accordion';
-import { Button } from 'primeng/button';
-import { InputText } from 'primeng/inputtext';
-import { Select } from 'primeng/select';
+import { Accordion, AccordionContent, AccordionHeader, AccordionPanel } from '@openng/optimus-ui/accordion';
+import { Button } from '@openng/optimus-ui/button';
+import { InputText } from '@openng/optimus-ui/inputtext';
+import { Select } from '@openng/optimus-ui/select';
 import { NullIfEmptyDirective } from '../../../general/directives/null-if-empty.directive';
 import { FileContentEditorComponent } from '../v3-file-editor/file-content-editor/file-content-editor.component';
 import { V3MlpCurrentEditorComponent } from '../v3-mlp-current-editor/v3-mlp-current-editor.component';
@@ -20,6 +20,7 @@ import { PropertyValueEditorComponent } from '../v3-property-editor/property-val
   selector: 'aas-v3-nested-submodel-element-collection',
   templateUrl: './v3-nested-submodel-element-collection.component.html',
   styleUrls: ['./v3-nested-submodel-element-collection.component.css'],
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [
     Accordion,
     AccordionPanel,

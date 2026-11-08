@@ -1,6 +1,6 @@
 import { InjectionToken } from '@angular/core';
 import { Routes } from '@angular/router';
-import { TreeNode } from 'primeng/api';
+import { TreeNode } from '@openng/optimus-ui/api';
 
 export const ADDITIONAL_USER_SPACE_MENU_ITEMS = new InjectionToken<TreeNode[]>('ADDITIONAL_USER_SPACE_MENU_ITEMS', {
   providedIn: 'root',

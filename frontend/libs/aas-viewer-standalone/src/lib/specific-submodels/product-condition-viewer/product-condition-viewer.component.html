@@ -116,19 +116,25 @@
               <div class="metric-label">{{ entry.label }}</div>
               @if (entry.atSoC) {
                 <p-inputgroup>
-                  <p-inputgroup-addon class="font-bold metric-addon">At SoC</p-inputgroup-addon>
+                  <p-inputgroup-addon class="font-bold metric-addon">{{
+                    'PRODUCT_CONDITION_AT_SOC' | translate
+                  }}</p-inputgroup-addon>
                   <input pInputText type="text" [value]="entry.atSoC" readonly />
                 </p-inputgroup>
               }
               @if (entry.powerCapabilityAt) {
                 <p-inputgroup>
-                  <p-inputgroup-addon class="font-bold metric-addon">Power Capability</p-inputgroup-addon>
+                  <p-inputgroup-addon class="font-bold metric-addon">{{
+                    'PRODUCT_CONDITION_POWER_CAPABILITY_VALUE' | translate
+                  }}</p-inputgroup-addon>
                   <input pInputText type="text" [value]="entry.powerCapabilityAt" readonly />
                 </p-inputgroup>
               }
               @if (entry.rpcLastUpdated) {
                 <p-inputgroup>
-                  <p-inputgroup-addon class="font-bold metric-addon">RPC Updated</p-inputgroup-addon>
+                  <p-inputgroup-addon class="font-bold metric-addon">{{
+                    'PRODUCT_CONDITION_RPC_UPDATED' | translate
+                  }}</p-inputgroup-addon>
                   <input pInputText type="text" [value]="entry.rpcLastUpdated" readonly />
                 </p-inputgroup>
               }
@@ -196,7 +202,9 @@
                 <div class="detail-card">
                   @if (event.value) {
                     <p-inputgroup>
-                      <p-inputgroup-addon class="font-bold metric-addon">Event</p-inputgroup-addon>
+                      <p-inputgroup-addon class="font-bold metric-addon">{{
+                        'PRODUCT_CONDITION_EVENT' | translate
+                      }}</p-inputgroup-addon>
                       <input pInputText type="text" [value]="event.value" readonly />
                     </p-inputgroup>
                   }

@@ -1,5 +1,3 @@
-import moment from 'moment';
-
 export class NewsItem {
   id?: number;
   description?: string;
@@ -11,7 +9,8 @@ export class NewsItem {
   static fromDto(dto: any) {
     const newsItem = new NewsItem();
     Object.assign(newsItem, dto);
-    newsItem.date = moment(dto.date).toDate();
+    // like moment(dto.date): a missing date means now
+    newsItem.date = new Date(dto.date ?? Date.now());
     return newsItem;
   }
 }

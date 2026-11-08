@@ -3,7 +3,7 @@ import { SupplementalFile } from '@aas/model';
 import { inject, Injectable } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
 import { cloneDeep } from 'lodash-es';
-import { TreeNode } from 'primeng/api';
+import { TreeNode } from '@openng/optimus-ui/api';
 import { V3TreeItem } from '../model/v3-tree-item';
 import { V3EditorComponent } from '../v3-editor/v3-editor.component';
 import { V3TreeComponent } from './v3-tree.component';

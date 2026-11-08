@@ -9,17 +9,17 @@ import {
   ProductRootClient,
   ProductRootDto,
 } from '@aas/webapi-client';
-import { Component, inject, Input, OnChanges, OnInit } from '@angular/core';
+import { Component, inject, Input, OnChanges, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { cloneDeep } from 'lodash-es';
-import { PrimeTemplate } from 'primeng/api';
-import { Button } from 'primeng/button';
-import { Divider } from 'primeng/divider';
-import { InputText } from 'primeng/inputtext';
-import { KeyFilter } from 'primeng/keyfilter';
-import { Select } from 'primeng/select';
-import { Textarea } from 'primeng/textarea';
+import { PrimeTemplate } from '@openng/optimus-ui/api';
+import { Button } from '@openng/optimus-ui/button';
+import { Divider } from '@openng/optimus-ui/divider';
+import { InputText } from '@openng/optimus-ui/inputtext';
+import { KeyFilter } from '@openng/optimus-ui/keyfilter';
+import { Select } from '@openng/optimus-ui/select';
+import { Textarea } from '@openng/optimus-ui/textarea';
 import { lastValueFrom } from 'rxjs';
 import { AasSharedDataService } from '../../../asset-administration-shell-tree/services/aas-shared-data.service';
 import { UndoDirective } from '../../directives/undo.directive';
@@ -29,6 +29,7 @@ import { SmeBase } from '../sme-base';
 @Component({
   selector: 'aas-multilanguage-property',
   templateUrl: './multilanguage-property.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [
     HelpExplanationComponent,
     FormsModule,
@@ -137,7 +138,7 @@ export class MultilanguagePropertyComponent extends SmeBase implements OnChanges
     const indx = this.propList.indexOf(el);
     this.propList.splice(indx, 1);
     this.syncSourcePropList();
-    this.registerUndoStep(this.translate.instant('DELETE_LANGUGAGE'));
+    this.registerUndoStep(this.translate.instant('DELETE_LANGUAGE'));
   }
 
   syncWithTree() {

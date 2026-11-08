@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { TreeNode } from 'primeng/api';
+import { TreeNode } from '@openng/optimus-ui/api';
 import { BehaviorSubject, ReplaySubject } from 'rxjs';
 
 import { AssetAdministrationShellEnvironment, FileResult } from '@aas/model';

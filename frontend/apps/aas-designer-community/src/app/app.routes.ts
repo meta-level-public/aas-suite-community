@@ -7,7 +7,6 @@ import {
   AppNotfoundComponent,
   canActivate,
   CreateInvitedAccountComponent,
-  PublicViewerComponent,
   SsoLoginSuccessComponent,
 } from '@aas/aas-designer-shared';
 import { AppRoutePaths, AppRouteSegments } from '@aas/common-services';
@@ -154,7 +153,8 @@ export const appRoutes: Routes = [
   },
   {
     path: AppRouteSegments.publicViewer,
-    component: PublicViewerComponent,
+    // lazy: the public viewer pulls in the complete AAS viewer (charts, maps, markdown)
+    loadComponent: () => import('@aas/aas-designer-shared/public-viewer').then((m) => m.PublicViewerComponent),
   },
   {
     path: AppRouteSegments.ssoLoginSuccess,

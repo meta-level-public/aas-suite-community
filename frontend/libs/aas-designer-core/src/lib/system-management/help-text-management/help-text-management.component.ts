@@ -1,16 +1,16 @@
 import { HelpLabelComponent } from '@aas/common-components';
 import { NotificationService } from '@aas/common-services';
 import { HelpInfoDto, HelpUpdate, SystemManagementClient } from '@aas/webapi-client';
-import { Component, inject, OnInit, signal } from '@angular/core';
+import { Component, inject, OnInit, signal, ChangeDetectionStrategy } from '@angular/core';
 import { TranslateModule } from '@ngx-translate/core';
-import { ButtonModule } from 'primeng/button';
-import { PrimeNG } from 'primeng/config';
-import { FileUploadModule } from 'primeng/fileupload';
-import { InputGroupModule } from 'primeng/inputgroup';
-import { InputGroupAddonModule } from 'primeng/inputgroupaddon';
-import { InputTextModule } from 'primeng/inputtext';
-import { TableModule } from 'primeng/table';
-import { ToolbarModule } from 'primeng/toolbar';
+import { ButtonModule } from '@openng/optimus-ui/button';
+import { Optimus } from '@openng/optimus-ui/config';
+import { FileUploadModule } from '@openng/optimus-ui/fileupload';
+import { InputGroupModule } from '@openng/optimus-ui/inputgroup';
+import { InputGroupAddonModule } from '@openng/optimus-ui/inputgroupaddon';
+import { InputTextModule } from '@openng/optimus-ui/inputtext';
+import { TableModule } from '@openng/optimus-ui/table';
+import { ToolbarModule } from '@openng/optimus-ui/toolbar';
 import { lastValueFrom } from 'rxjs';
 
 @Component({
@@ -26,6 +26,7 @@ import { lastValueFrom } from 'rxjs';
     HelpLabelComponent,
     ToolbarModule,
   ],
+  changeDetection: ChangeDetectionStrategy.Eager,
   templateUrl: './help-text-management.component.html',
 })
 export class HelpTextManagementComponent implements OnInit {
@@ -35,7 +36,7 @@ export class HelpTextManagementComponent implements OnInit {
   uploadMode = signal(false);
   selectedFile: File | null = null;
   loading = signal(false);
-  config = inject(PrimeNG);
+  config = inject(Optimus);
   fileAsBase64: string | null = null;
   notificationService = inject(NotificationService);
 

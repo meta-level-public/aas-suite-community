@@ -2,11 +2,11 @@ import { UserInvitation } from '@aas-designer-model';
 import { WorkspaceService } from '@aas/aas-designer-shared';
 import { AasConfirmationService, NotificationService, PortalService } from '@aas/common-services';
 import { OrganisationClient } from '@aas/webapi-client';
-import { Component, computed, inject, OnInit, signal, ViewChild } from '@angular/core';
+import { Component, computed, inject, OnInit, signal, ViewChild, ChangeDetectionStrategy } from '@angular/core';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
-import { ButtonModule } from 'primeng/button';
-import { ToolbarModule } from 'primeng/toolbar';
-import { TooltipModule } from 'primeng/tooltip';
+import { ButtonModule } from '@openng/optimus-ui/button';
+import { ToolbarModule } from '@openng/optimus-ui/toolbar';
+import { TooltipModule } from '@openng/optimus-ui/tooltip';
 import { lastValueFrom } from 'rxjs';
 import { OrganisationStateService } from '../organisation-state.service';
 import { OrganisationService } from '../organisation.service';
@@ -15,6 +15,7 @@ import { OrganisationUserListComponent } from './organisation-user-list/organisa
 @Component({
   selector: 'aas-organisation-user',
   templateUrl: './organisation-user.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [
     TranslateModule,
     OrganisationUserListComponent,

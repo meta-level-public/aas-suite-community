@@ -14,7 +14,12 @@
             (keydown.enter)="loadFirstPage()"
           />
           <p-inputgroup-addon>
-            <p-button icon="pi pi-search" severity="secondary" (onClick)="loadFirstPage()" />
+            <p-button
+              [ariaLabel]="'SEARCH' | translate"
+              icon="pi pi-search"
+              severity="secondary"
+              (onClick)="loadFirstPage()"
+            />
           </p-inputgroup-addon>
         </p-inputgroup>
         <lib-help-label tag="SOURCE_SELECTION" [showLabel]="false"></lib-help-label>
@@ -27,7 +32,14 @@
           optionLabel="name"
         />
 
-        <p-button icon="pi pi-refresh" (onClick)="loadFirstPage()" [outlined]="true" [loading]="loading()"></p-button>
+        <p-button
+          [ariaLabel]="'RELOAD' | translate"
+          severity="secondary"
+          icon="pi pi-refresh"
+          (onClick)="loadFirstPage()"
+          [outlined]="true"
+          [loading]="loading()"
+        ></p-button>
       </div>
     </div>
   </div>
@@ -43,7 +55,6 @@
             scrollHeight="flex"
             [rowHover]="true"
             dataKey="id"
-            responsiveLayout="scroll"
             sortField="idShort"
             [sortOrder]="1"
             (onRowSelect)="onRowClick($event.data)"
@@ -60,8 +71,8 @@
 
             <ng-template #body let-submodel>
               <tr [pSelectableRow]="submodel" class="cursor-pointer">
-                <td style="white-space: normal !important; word-wrap: break-word">{{ submodel.id }}</td>
-                <td style="white-space: normal !important; word-wrap: break-word">{{ submodel.idShort }}</td>
+                <td class="!whitespace-normal break-words">{{ submodel.id }}</td>
+                <td class="!whitespace-normal break-words">{{ submodel.idShort }}</td>
                 <td>
                   @if (submodel.hasDuplicateId) {
                     <p-tag severity="warn" [value]="submodel.duplicateIndex + '/' + submodel.duplicateCount"></p-tag>
@@ -81,27 +92,15 @@
             <ng-template pTemplate="footer">
               <tr>
                 <td [attr.colspan]="3">
-                  <div class="flex flex-row gap-2 justify-center">
-                    <p-button
-                      label="{{ 'FIRST' | translate }}"
-                      icon="pi pi-angle-left"
-                      (onClick)="loadFirstPage()"
-                      [disabled]="firstPage()"
-                    ></p-button>
-                    <p-select
-                      [options]="pageOptions"
-                      [(ngModel)]="pageSize"
-                      appendTo="body"
-                      (ngModelChange)="loadFirstPage()"
-                    ></p-select>
-                    <p-button
-                      label="{{ 'NEXT' | translate }}"
-                      icon="pi pi-angle-right"
-                      iconPos="right"
-                      (onClick)="loadNextPage()"
-                      [disabled]="cursor == null"
-                    ></p-button>
-                  </div>
+                  <aas-cursor-paginator
+                    [isFirstPage]="firstPage()"
+                    [hasNextPage]="cursor != null"
+                    [pageOptions]="pageOptions"
+                    [(pageSize)]="pageSize"
+                    (firstRequested)="loadFirstPage()"
+                    (nextRequested)="loadNextPage()"
+                    (pageSizeChanged)="loadFirstPage()"
+                  ></aas-cursor-paginator>
                 </td>
               </tr>
             </ng-template>

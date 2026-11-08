@@ -6,8 +6,8 @@ import { inject, Injectable, signal } from '@angular/core';
 import { Router } from '@angular/router';
 import { TranslateService } from '@ngx-translate/core';
 import { get, set } from 'lodash-es';
-import { MenuItem } from 'primeng/api';
-import { DialogService, DynamicDialogRef } from 'primeng/dynamicdialog';
+import { MenuItem } from '@openng/optimus-ui/api';
+import { DialogService, DynamicDialogRef } from '@openng/optimus-ui/dynamicdialog';
 import { Subject } from 'rxjs';
 import { IdValidatorComponent } from '../components/id-validator/id-validator.component';
 import { V3TreeService } from '../v3-tree/v3-tree.service';
@@ -91,8 +91,7 @@ export class V3EditorValidationService {
           validationErrors.push(myError);
         }
       } catch (e: any) {
-        // eslint-disable-next-line no-console
-        console.log(e);
+        console.error(e);
       }
     }
     this.validationErrors.set(validationErrors);

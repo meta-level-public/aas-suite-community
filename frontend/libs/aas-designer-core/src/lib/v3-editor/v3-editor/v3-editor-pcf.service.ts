@@ -4,7 +4,7 @@ import { inject, Injectable } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
 import { DppPcfEntry, DppPcfEntryType } from 'battery-passport-assistant';
 import { cloneDeep } from 'lodash-es';
-import { DialogService, DynamicDialogRef } from 'primeng/dynamicdialog';
+import { DialogService, DynamicDialogRef } from '@openng/optimus-ui/dynamicdialog';
 import { PcfEntryMapperService } from '../../general/pcf-entry-assistant/pcf-entry-mapper.service';
 import { PcfEntryAddonComponent } from '../addons/pcf-entry-addon/pcf-entry-addon.component';
 import { V3TreeItem } from '../model/v3-tree-item';

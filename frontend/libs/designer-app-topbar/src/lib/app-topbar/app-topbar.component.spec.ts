@@ -6,7 +6,7 @@ import { signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
-import { DialogService } from 'primeng/dynamicdialog';
+import { DialogService } from '@openng/optimus-ui/dynamicdialog';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { AppTopBarComponent } from './app-topbar.component';
 

@@ -1,17 +1,17 @@
 import { DateProxyPipe } from '@aas/common-pipes';
 import { HelpLabelComponent } from '@aas/common-components';
 import { NotificationService } from '@aas/common-services';
-import { Component, computed, inject, OnInit, ViewChild } from '@angular/core';
+import { Component, computed, inject, OnInit, ViewChild, ChangeDetectionStrategy } from '@angular/core';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
-import { ConfirmationService } from 'primeng/api';
-import { Button } from 'primeng/button';
-import { FileUpload } from 'primeng/fileupload';
-import { InputGroupModule } from 'primeng/inputgroup';
-import { InputGroupAddonModule } from 'primeng/inputgroupaddon';
-import { InputTextModule } from 'primeng/inputtext';
-import { Ripple } from 'primeng/ripple';
-import { TableModule } from 'primeng/table';
-import { Tab, TabList, TabPanel, TabPanels, Tabs } from 'primeng/tabs';
+import { ConfirmationService } from '@openng/optimus-ui/api';
+import { Button } from '@openng/optimus-ui/button';
+import { FileUpload } from '@openng/optimus-ui/fileupload';
+import { InputGroupModule } from '@openng/optimus-ui/inputgroup';
+import { InputGroupAddonModule } from '@openng/optimus-ui/inputgroupaddon';
+import { InputTextModule } from '@openng/optimus-ui/inputtext';
+import { Ripple } from '@openng/optimus-ui/ripple';
+import { TableModule } from '@openng/optimus-ui/table';
+import { Tab, TabList, TabPanel, TabPanels, Tabs } from '@openng/optimus-ui/tabs';
 import { EclassCertificate } from '@aas-designer-model';
 import { PortalService } from '@aas/common-services';
 import { EclassImportQueuedItem } from '../model/eclass-import-queued-item';
@@ -21,6 +21,7 @@ import { OrganisationService } from '../organisation.service';
 @Component({
   selector: 'aas-eclass-details',
   templateUrl: './eclass-details.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [
     Tabs,
     TabList,

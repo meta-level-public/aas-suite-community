@@ -1,8 +1,8 @@
 import * as aas from '@aas-core-works/aas-core3.1-typescript';
 import { Clipboard } from '@angular/cdk/clipboard';
 import { TestBed } from '@angular/core/testing';
-import { TreeNode } from 'primeng/api';
-import { DialogService } from 'primeng/dynamicdialog';
+import { TreeNode } from '@openng/optimus-ui/api';
+import { DialogService } from '@openng/optimus-ui/dynamicdialog';
 import { vi } from 'vitest';
 
 import { NotificationService, PortalService } from '@aas/common-services';

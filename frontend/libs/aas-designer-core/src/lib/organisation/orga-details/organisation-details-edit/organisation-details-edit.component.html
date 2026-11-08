@@ -102,6 +102,7 @@
             @if (organisation.logoBase64) {
               <img [src]="organisation.logoBase64" alt="ORGA_ICON" width="96" />
               <p-button
+                [ariaLabel]="'DELETE' | translate"
                 (onClick)="onClearOrgaLogo()"
                 icon="pi pi-trash"
                 [rounded]="true"
@@ -122,6 +123,7 @@
                 <div class="flex flex-wrap justify-between items-center flex-1 gap-2">
                   <div class="flex gap-2">
                     <p-button
+                      [ariaLabel]="'SELECT_IMAGE' | translate"
                       (onClick)="choose($event, chooseCallback)"
                       icon="pi pi-images"
                       [rounded]="true"

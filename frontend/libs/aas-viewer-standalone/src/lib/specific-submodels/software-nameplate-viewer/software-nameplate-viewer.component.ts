@@ -2,13 +2,13 @@ import * as aas from '@aas-core-works/aas-core3.1-typescript';
 import { ISubmodelElement } from '@aas-core-works/aas-core3.1-typescript/types';
 import { HelpLabelComponent } from '@aas/common-components';
 import { SemanticIdHelper } from '@aas/helpers';
-import { Component, Input, OnChanges } from '@angular/core';
+import { Component, Input, OnChanges, ChangeDetectionStrategy } from '@angular/core';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
-import { PrimeTemplate } from 'primeng/api';
-import { InputGroup } from 'primeng/inputgroup';
-import { InputGroupAddon } from 'primeng/inputgroupaddon';
-import { InputText } from 'primeng/inputtext';
-import { TableModule } from 'primeng/table';
+import { PrimeTemplate } from '@openng/optimus-ui/api';
+import { InputGroup } from '@openng/optimus-ui/inputgroup';
+import { InputGroupAddon } from '@openng/optimus-ui/inputgroupaddon';
+import { InputText } from '@openng/optimus-ui/inputtext';
+import { TableModule } from '@openng/optimus-ui/table';
 import { ContactInformation } from '../contact-information-viewer/contact-information';
 import { ContactInformationMap } from '../contact-information-viewer/contact-information-map.component';
 
@@ -18,6 +18,7 @@ type ConfigurationPathRow = { uri: string; type: string };
   selector: 'aas-software-nameplate-viewer',
   templateUrl: './software-nameplate-viewer.component.html',
   styleUrls: ['./software-nameplate-viewer.component.css'],
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [
     InputGroup,
     InputGroupAddon,

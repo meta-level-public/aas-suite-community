@@ -53,7 +53,7 @@
           <label for="noShellsListEndpoint" class="cursor-pointer select-none">{{
             'NO_SHELLS_LIST_ENDPOINT' | translate
           }}</label>
-          <p-message text="{{ 'NO_SHELLS_LIST_ENDPOINT_HINT' | translate }}" severity="info"></p-message>
+          <p-message severity="info">{{ 'NO_SHELLS_LIST_ENDPOINT_HINT' | translate }}</p-message>
         </div>
         <p-toggleswitch
           id="noShellsListEndpoint"
@@ -311,7 +311,7 @@
         <div class="flex flex-col gap-4">
           <!-- Header Parameter -->
           <div class="flex flex-col gap-3">
-            <p-message text="{{ 'ADD_HEADER_PARAM_EXPL' | translate }}" severity="info"></p-message>
+            <p-message severity="info">{{ 'ADD_HEADER_PARAM_EXPL' | translate }}</p-message>
             <div>
               <p-button
                 label="{{ 'ADD_HEADER_PARAM' | translate }}"
@@ -349,6 +349,7 @@
               </div>
               <div class="md:col-span-2 flex items-end">
                 <p-button
+                  [ariaLabel]="'DELETE' | translate"
                   icon="pi pi-trash"
                   [outlined]="true"
                   severity="danger"
@@ -371,7 +372,7 @@
 
           <!-- Zertifikat -->
           <div class="flex flex-col gap-3">
-            <p-message text="{{ 'ADD_CERTIFCATE_EXPL' | translate }}" severity="info"></p-message>
+            <p-message severity="info">{{ 'ADD_CERTIFCATE_EXPL' | translate }}</p-message>
             <div>
               <label for="certificate"> {{ 'CERTIFICATE_FILE' | translate }} </label>
               <p-fileUpload

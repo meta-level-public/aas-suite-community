@@ -10,7 +10,7 @@
         (qrCodeURL)="onQrCodeGenerated($event)"
       ></qrcode>
     </div>
-    <button class="download-button" (click)="downloadQrCode()" title="QR-Code herunterladen">
+    <button class="download-button" (click)="downloadQrCode()" [title]="'DOWNLOAD_QR_CODE' | translate">
       <i class="pi pi-download"></i>
     </button>
   </div>

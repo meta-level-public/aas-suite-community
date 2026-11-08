@@ -1,6 +1,6 @@
 /* You can add global styles to this file, and also import other style files */
 
-@import 'primeicons/primeicons.css';
+@import '@openng/icons/openng-icons.css';
 @import 'prismjs/themes/prism-coy.css';
 @import './styles-additional.css';
 @import './common-components.css';
@@ -8,6 +8,39 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+/*
+ * Theme-aware color utilities in the naming of the PrimeUI Tailwind plugin, which the templates use but which is
+ * not installed. Surfaces map to semantic tokens so they also work in dark mode.
+ */
+@layer utilities {
+  .text-color {
+    color: var(--p-text-color);
+  }
+  .text-muted-color,
+  .text-color-secondary,
+  .text-muted {
+    color: var(--p-text-muted-color);
+  }
+  .text-primary {
+    color: var(--p-primary-color);
+  }
+  .text-primary-contrast {
+    color: var(--p-primary-contrast-color);
+  }
+  .bg-surface-0 {
+    background-color: var(--p-content-background);
+  }
+  .bg-surface-50,
+  .bg-surface-100 {
+    background-color: var(--p-content-hover-background);
+  }
+  .border-surface,
+  .border-surface-200,
+  .border-surface-300 {
+    border-color: var(--p-content-border-color);
+  }
+}
 
 @layer components {
   .card {
@@ -50,24 +83,24 @@
   --aas-border-strong: color-mix(in srgb, var(--p-content-border-color) 70%, transparent);
   --aas-shadow-md: 0 16px 44px color-mix(in srgb, var(--p-primary-900) 18%, transparent);
   --aas-shadow-sm: 0 10px 24px color-mix(in srgb, var(--p-primary-900) 10%, transparent);
-  --aas-danger-surface: color-mix(in srgb, var(--p-red-50) 84%, var(--p-surface-0));
-  --aas-danger-surface-strong: color-mix(in srgb, var(--p-red-100) 72%, var(--p-surface-0));
-  --aas-danger-border: color-mix(in srgb, var(--p-red-400) 45%, var(--p-content-border-color));
-  --aas-danger-text: var(--p-red-700);
-  --aas-danger-icon: var(--p-red-500);
-  --aas-warning-surface: color-mix(in srgb, var(--p-amber-50) 84%, var(--p-surface-0));
-  --aas-warning-border: color-mix(in srgb, var(--p-amber-400) 45%, var(--p-content-border-color));
-  --aas-warning-text: var(--p-amber-900);
-  --aas-warning-icon: var(--p-amber-700);
-  --aas-success-surface: color-mix(in srgb, var(--p-green-50) 84%, var(--p-surface-0));
-  --aas-success-surface-strong: color-mix(in srgb, var(--p-green-100) 72%, var(--p-surface-0));
-  --aas-success-border: color-mix(in srgb, var(--p-green-400) 45%, var(--p-content-border-color));
-  --aas-success-text: var(--p-green-700);
-  --aas-success-icon: var(--p-green-500);
-  --aas-info-surface: color-mix(in srgb, var(--p-blue-50) 84%, var(--p-surface-0));
-  --aas-info-border: color-mix(in srgb, var(--p-blue-400) 45%, var(--p-content-border-color));
-  --aas-info-text: var(--p-blue-700);
-  --aas-info-icon: var(--p-blue-500);
+
+  /*
+   * Aliases for the PrimeNG <= 17 variables that many components still use. The current theme does not
+   * define them anymore, so they map to the theme tokens and follow light and dark mode.
+   */
+  --surface-card: var(--p-content-background);
+  --surface-0: var(--p-content-background);
+  --surface-ground: var(--p-content-hover-background);
+  --surface-hover: var(--p-content-hover-background);
+  --surface-border: var(--p-content-border-color);
+  --text-color: var(--p-text-color);
+  --text-color-secondary: var(--p-text-muted-color);
+  --primary-color: var(--p-primary-color);
+  --primary-text-color: var(--p-primary-contrast-color);
+  --red-500: var(--p-red-500);
+  --green-400: var(--p-green-400);
+  --gray-100: var(--p-surface-100);
+  --gray-300: var(--p-surface-300);
 }
 
 html,
@@ -165,6 +198,12 @@ html.my-app-dark > body {
 
 .topbar-logo-badge .logo {
   filter: drop-shadow(0 1px 1px rgba(0, 0, 0, 0.2));
+}
+
+/* User avatar in the topbar: primary tint that follows the theme and dark mode */
+.p-avatar.user-avatar {
+  background: var(--p-highlight-background);
+  color: var(--p-highlight-color);
 }
 
 .app-topbar-blur {

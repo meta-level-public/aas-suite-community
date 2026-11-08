@@ -2,24 +2,25 @@ import { Benutzer } from '@aas-designer-model';
 import { AasConfirmationService, NotificationService, PortalService } from '@aas/common-services';
 import { OrganisationClient, OrganisationUebersichtBenutzerDto, OrganisationUserSeatStats } from '@aas/webapi-client';
 import { CommonModule } from '@angular/common';
-import { Component, inject, input, OnInit, output, signal } from '@angular/core';
+import { Component, inject, input, OnInit, output, signal, ChangeDetectionStrategy } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
-import { MenuItem } from 'primeng/api';
-import { ButtonModule } from 'primeng/button';
-import { CheckboxModule } from 'primeng/checkbox';
-import { DialogModule } from 'primeng/dialog';
-import { DialogService, DynamicDialogRef } from 'primeng/dynamicdialog';
-import { MenuModule } from 'primeng/menu';
-import { MessageModule } from 'primeng/message';
-import { TableModule } from 'primeng/table';
-import { TagModule } from 'primeng/tag';
+import { MenuItem } from '@openng/optimus-ui/api';
+import { ButtonModule } from '@openng/optimus-ui/button';
+import { CheckboxModule } from '@openng/optimus-ui/checkbox';
+import { DialogModule } from '@openng/optimus-ui/dialog';
+import { DialogService, DynamicDialogRef } from '@openng/optimus-ui/dynamicdialog';
+import { MenuModule } from '@openng/optimus-ui/menu';
+import { MessageModule } from '@openng/optimus-ui/message';
+import { TableModule } from '@openng/optimus-ui/table';
+import { TagModule } from '@openng/optimus-ui/tag';
 import { InfrastrukturRechteComponent } from '../../infrastruktur-rechte/infrastruktur-rechte.component';
 import { OrganisationService } from '../../organisation.service';
 
 @Component({
   selector: 'aas-organisation-user-list',
   templateUrl: './organisation-user.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [
     CommonModule,
     FormsModule,

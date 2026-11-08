@@ -50,6 +50,7 @@
                 <i class="pi pi-file shrink-0 text-[var(--p-text-muted-color)]"></i>
                 <span class="flex-1 min-w-0 text-sm truncate" [title]="docInfo.fileName">{{ docInfo.fileName }}</span>
                 <p-button
+                  [ariaLabel]="'LEGAL_LINK_DOCUMENT_REMOVE' | translate"
                   icon="pi pi-times"
                   severity="danger"
                   [text]="true"
@@ -58,7 +59,7 @@
                   [pTooltip]="'LEGAL_LINK_DOCUMENT_REMOVE' | translate"
                   (onClick)="removeDocument(config.field)"
                 />
-                <input type="file" #fileInput style="display: none" (change)="onFileSelected($event, config.field)" />
+                <input type="file" #fileInput (change)="onFileSelected($event, config.field)" class="hidden" />
                 <p-button
                   icon="pi pi-upload"
                   [label]="'LEGAL_LINK_DOCUMENT_CHANGE' | translate"
@@ -70,7 +71,7 @@
                 <span class="flex-1 text-sm text-[var(--p-text-muted-color)]">
                   {{ 'LEGAL_LINK_NO_DOCUMENT' | translate }}
                 </span>
-                <input type="file" #fileInput style="display: none" (change)="onFileSelected($event, config.field)" />
+                <input type="file" #fileInput (change)="onFileSelected($event, config.field)" class="hidden" />
                 <p-button
                   icon="pi pi-folder-open"
                   [label]="'LEGAL_LINK_DOCUMENT_SELECT' | translate"
@@ -83,6 +84,12 @@
           }
 
           <p-button
+            [ariaLabel]="
+              (fieldMode()[config.field] === 'url'
+                ? 'LEGAL_LINK_MODE_SWITCH_TO_DOCUMENT'
+                : 'LEGAL_LINK_MODE_SWITCH_TO_URL'
+              ) | translate
+            "
             [icon]="fieldMode()[config.field] === 'url' ? 'pi pi-file-arrow-up' : 'pi pi-link'"
             severity="secondary"
             [pTooltip]="

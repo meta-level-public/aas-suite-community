@@ -4,7 +4,7 @@
   [showActions]="editingEntry == null"
 >
   @if (editingEntry == null) {
-    <p generator-shell-intro class="text-lg battery-editor-page-copy mb-0" style="color: var(--p-text-muted-color)">
+    <p generator-shell-intro class="text-lg battery-editor-page-copy mb-0 text-muted-color">
       {{ 'DPP_PCF_OVERVIEW_EXPL' | translate }}
     </p>
   }
@@ -16,7 +16,7 @@
           <div class="flex items-start justify-between gap-4 mb-5">
             <div>
               <h3 class="text-2xl font-bold mb-2">{{ 'DPP_PCF_TYPE_PRODUCT' | translate }}</h3>
-              <p class="text-sm mb-0" style="color: var(--p-text-muted-color)">
+              <p class="text-sm mb-0 text-muted-color">
                 {{ 'DPP_PCF_TYPE_PRODUCT_EXPL' | translate }}
               </p>
             </div>
@@ -35,7 +35,7 @@
                 <div class="dpp-pcf-entry-card">
                   <div>
                     <div class="font-bold">{{ getEntryTitle(entry, index) }}</div>
-                    <div class="text-sm" style="color: var(--p-text-muted-color)">
+                    <div class="text-sm text-muted-color">
                       {{ 'DPP_PCF_ENTRY_PRODUCT_HINT' | translate }}
                     </div>
                   </div>
@@ -63,7 +63,7 @@
             <div class="flex items-start justify-between gap-4 mb-5">
               <div>
                 <h3 class="text-2xl font-bold mb-2">{{ 'DPP_PCF_TYPE_PRODUCT_OR_SECTOR' | translate }}</h3>
-                <p class="text-sm mb-0" style="color: var(--p-text-muted-color)">
+                <p class="text-sm mb-0 text-muted-color">
                   {{ 'DPP_PCF_TYPE_PRODUCT_OR_SECTOR_EXPL' | translate }}
                 </p>
               </div>
@@ -82,7 +82,7 @@
                   <div class="dpp-pcf-entry-card">
                     <div>
                       <div class="font-bold">{{ getEntryTitle(entry, index) }}</div>
-                      <div class="text-sm" style="color: var(--p-text-muted-color)">
+                      <div class="text-sm text-muted-color">
                         {{ 'DPP_PCF_ENTRY_SECTOR_HINT' | translate }}
                       </div>
                     </div>
@@ -120,6 +120,7 @@
 
   @if (editingEntry == null) {
     <p-button
+      severity="secondary"
       generator-shell-actions
       label="{{ 'BACK' | translate }}"
       (onClick)="prevStep()"

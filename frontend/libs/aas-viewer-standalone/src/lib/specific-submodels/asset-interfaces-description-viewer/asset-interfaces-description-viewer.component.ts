@@ -2,20 +2,20 @@ import * as aas from '@aas-core-works/aas-core3.1-typescript';
 import { NotificationService } from '@aas/common-services';
 import { Clipboard } from '@angular/cdk/clipboard';
 import { NgTemplateOutlet } from '@angular/common';
-import { Component, computed, inject, input } from '@angular/core';
+import { Component, computed, inject, input, ChangeDetectionStrategy } from '@angular/core';
 import { TranslateModule } from '@ngx-translate/core';
-import { TreeNode } from 'primeng/api';
-import { Button } from 'primeng/button';
-import { IconField } from 'primeng/iconfield';
-import { InputGroup } from 'primeng/inputgroup';
-import { InputGroupAddon } from 'primeng/inputgroupaddon';
-import { InputIcon } from 'primeng/inputicon';
-import { InputText } from 'primeng/inputtext';
-import { Panel } from 'primeng/panel';
-import { TableModule } from 'primeng/table';
-import { Tag } from 'primeng/tag';
-import { Tooltip } from 'primeng/tooltip';
-import { TreeTable, TreeTableModule } from 'primeng/treetable';
+import { TreeNode } from '@openng/optimus-ui/api';
+import { Button } from '@openng/optimus-ui/button';
+import { IconField } from '@openng/optimus-ui/iconfield';
+import { InputGroup } from '@openng/optimus-ui/inputgroup';
+import { InputGroupAddon } from '@openng/optimus-ui/inputgroupaddon';
+import { InputIcon } from '@openng/optimus-ui/inputicon';
+import { InputText } from '@openng/optimus-ui/inputtext';
+import { Panel } from '@openng/optimus-ui/panel';
+import { TableModule } from '@openng/optimus-ui/table';
+import { Tag } from '@openng/optimus-ui/tag';
+import { Tooltip } from '@openng/optimus-ui/tooltip';
+import { TreeTable, TreeTableModule } from '@openng/optimus-ui/treetable';
 import {
   AidDataPoint,
   AidInterface,
@@ -34,6 +34,7 @@ type InterfaceView = AidInterface & {
   selector: 'aas-asset-interfaces-description-viewer',
   templateUrl: './asset-interfaces-description-viewer.component.html',
   styleUrls: ['./asset-interfaces-description-viewer.component.css'],
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [
     NgTemplateOutlet,
     Button,

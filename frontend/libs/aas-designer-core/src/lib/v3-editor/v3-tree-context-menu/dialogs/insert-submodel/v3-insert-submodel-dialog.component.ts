@@ -1,10 +1,11 @@
-import { Component, effect, inject, Input, model, signal } from '@angular/core';
+import { Component, effect, inject, Input, model, signal, ChangeDetectionStrategy } from '@angular/core';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { HelpLabelComponent } from '@aas/common-components';
-import { ButtonModule } from 'primeng/button';
-import { DialogModule } from 'primeng/dialog';
-import { InputTextModule } from 'primeng/inputtext';
-import { TableModule, TableRowExpandEvent } from 'primeng/table';
+import { NotificationService } from '@aas/common-services';
+import { ButtonModule } from '@openng/optimus-ui/button';
+import { DialogModule } from '@openng/optimus-ui/dialog';
+import { InputTextModule } from '@openng/optimus-ui/inputtext';
+import { TableModule, TableRowExpandEvent } from '@openng/optimus-ui/table';
 import { SubmodelTemplate } from '@aas-designer-model';
 import { CMTypeOption } from '../../../model/cm-type-option';
 import { V3EditorService } from '../../../v3-editor.service';
@@ -15,10 +16,12 @@ import { AvailableSubmodel } from '../../available-submodel';
   templateUrl: './v3-insert-submodel-dialog.component.html',
   styleUrls: ['./v3-insert-submodel-dialog.component.css'],
 
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [TranslateModule, DialogModule, TableModule, ButtonModule, InputTextModule, HelpLabelComponent],
 })
 export class V3InsertSubmodelDialogComponent {
   editorService = inject(V3EditorService);
+  notificationService = inject(NotificationService);
   translate = inject(TranslateService);
 
   visible = model<boolean>(false);
@@ -81,14 +84,20 @@ export class V3InsertSubmodelDialogComponent {
 
   async checkForIdtaLive(_event: TableRowExpandEvent) {
     // hier, falls noch nicht geladen, die IDTA-SMTs laden
-    var currentTmpl = this.idtaSmtRepoTemplates();
-    if (!currentTmpl || (currentTmpl.length === 0 && !this.isLoading())) {
-      this.isLoading.set(true);
-      var tmpl = await this.editorService.getIdtaSmtRepoTemplates();
-      this.idtaSmtRepoTemplates.set(tmpl);
-      this.initIdtaRepoTemplates();
+    const currentTmpl = this.idtaSmtRepoTemplates();
+    if (this.isLoading() || (currentTmpl != null && currentTmpl.length > 0)) {
+      return;
     }
 
-    this.isLoading.set(false);
+    this.isLoading.set(true);
+    try {
+      const tmpl = await this.editorService.getIdtaSmtRepoTemplates();
+      this.idtaSmtRepoTemplates.set(tmpl);
+      this.initIdtaRepoTemplates();
+    } catch {
+      this.notificationService.showMessageAlways('ERROR_LOADING_DATA', 'ERROR', 'error', true);
+    } finally {
+      this.isLoading.set(false);
+    }
   }
 }

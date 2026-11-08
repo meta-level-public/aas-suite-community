@@ -1,13 +1,14 @@
 import { Reference } from '@aas-core-works/aas-core3.1-typescript/types';
-import { Component, Input, OnChanges } from '@angular/core';
+import { Component, Input, OnChanges, ChangeDetectionStrategy } from '@angular/core';
 import * as aas from '@aas-core-works/aas-core3.1-typescript';
-import { TableModule } from 'primeng/table';
-import { PrimeTemplate } from 'primeng/api';
+import { TableModule } from '@openng/optimus-ui/table';
+import { PrimeTemplate } from '@openng/optimus-ui/api';
 import { TranslateModule } from '@ngx-translate/core';
 
 @Component({
   selector: 'relationship-element-viewer',
   templateUrl: './relationship-element-viewer.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [TableModule, PrimeTemplate, TranslateModule],
 })
 export class RelationshipElementViewerComponent implements OnChanges {
@@ -16,10 +17,7 @@ export class RelationshipElementViewerComponent implements OnChanges {
   @Input() idShort: any;
   @Input() titel: any;
 
-  ngOnChanges() {
-    // eslint-disable-next-line no-console
-    console.log(this.entity);
-  }
+  ngOnChanges() {}
 
   getTypeString(type: number) {
     return aas.types.KeyTypes[type];

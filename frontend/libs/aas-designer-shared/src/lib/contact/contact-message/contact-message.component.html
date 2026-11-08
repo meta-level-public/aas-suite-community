@@ -42,7 +42,7 @@
         pTextarea
         id="otherTopic"
         type="text"
-        class="w-full"
+        class="w-full !min-h-[100px]"
         name="message"
         [(ngModel)]="request.message"
         #message="ngModel"
@@ -50,7 +50,6 @@
         cols="30"
         required
         [autoResize]="true"
-        style="min-height: 100px"
       ></textarea>
       @if (!message.valid && message.touched) {
         <div class="p-error">
@@ -58,7 +57,7 @@
         </div>
       }
     </div>
-    <div style="position: absolute; left: -9999px">
+    <div class="absolute left-[-9999px]">
       <label>
         {{ 'BOT_CHECK_HINT' | translate }}
         <input type="text" name="botField" [(ngModel)]="invisibleFieldValue" autocomplete="off" />

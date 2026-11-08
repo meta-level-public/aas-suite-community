@@ -1,7 +1,17 @@
 import * as aas from '@aas-core-works/aas-core3.1-typescript';
 
 import { SemanticIdHelper } from '@aas/helpers';
-import { AfterViewInit, Component, computed, effect, ElementRef, input, signal, ViewChild } from '@angular/core';
+import {
+  AfterViewInit,
+  Component,
+  computed,
+  effect,
+  ElementRef,
+  input,
+  signal,
+  ViewChild,
+  ChangeDetectionStrategy,
+} from '@angular/core';
 import { TranslateModule } from '@ngx-translate/core';
 import * as L from 'leaflet';
 
@@ -18,6 +28,7 @@ interface AddressInfo {
   selector: 'aas-address-map',
   imports: [TranslateModule],
   templateUrl: './address-map.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrls: ['./address-map.component.css'],
 })
 export class AddressMapComponent implements AfterViewInit {

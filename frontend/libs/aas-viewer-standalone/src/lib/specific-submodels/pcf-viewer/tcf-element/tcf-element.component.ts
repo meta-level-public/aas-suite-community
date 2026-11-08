@@ -1,14 +1,15 @@
 import { SubmodelElementCollection } from '@aas-core-works/aas-core3.1-typescript/types';
-import { Component, Input } from '@angular/core';
+import { Component, Input, ChangeDetectionStrategy } from '@angular/core';
 import { TranslateModule } from '@ngx-translate/core';
-import { PrimeTemplate } from 'primeng/api';
-import { TableModule } from 'primeng/table';
+import { PrimeTemplate } from '@openng/optimus-ui/api';
+import { TableModule } from '@openng/optimus-ui/table';
 import { PcfHelper } from '../pcf-helper';
 import { TcfAddressComponent } from '../tcf-address/tcf-address.component';
 
 @Component({
   selector: 'aas-tcf-element',
   templateUrl: './tcf-element.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [TableModule, PrimeTemplate, TcfAddressComponent, TranslateModule],
 })
 export class TcfElementComponent {

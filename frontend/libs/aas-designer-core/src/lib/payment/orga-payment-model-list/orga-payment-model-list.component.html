@@ -9,7 +9,6 @@
     <p-table
       #dt
       [value]="bezahlmodelle"
-      responsiveLayout="scroll"
       [rows]="10"
       [paginator]="false"
       [rowHover]="true"
@@ -32,10 +31,12 @@
       <ng-template pTemplate="body" let-bezahlmodell>
         <tr>
           @if (showMenu) {
-            <td style="width: 3rem">
+            <td class="w-12">
               <p-button
+                [ariaLabel]="'MORE_ACTIONS' | translate"
+                [text]="true"
+                severity="secondary"
                 icon="pi pi-ellipsis-v"
-                styleClass="p-button-text p-button-secondary"
                 (onClick)="menu.toggle($event)"
               ></p-button>
               <p-menu
@@ -47,34 +48,33 @@
               ></p-menu>
             </td>
           }
-          <td style="width: 2%; min-width: 1rem">
+          <td class="w-[2%] min-w-4">
             @if (bezahlmodell.endDate != null && isInvalid(bezahlmodell)) {
               <em
-                class="pi pi-exclamation-triangle text-3xl"
-                style="color: var(--aas-danger-icon)"
+                class="pi pi-exclamation-triangle text-3xl text-[var(--aas-danger-icon)]"
                 pTooltip="{{ 'PAYMENT_MODEL_EXPIRED' | translate }}"
               ></em>
             }
           </td>
-          <td style="width: 25%; min-width: 10rem">
+          <td class="w-[25%] min-w-40">
             {{ bezahlmodell.paymentModel.nameLabel | translate }}
           </td>
-          <td style="width: 15%; min-width: 10rem">
+          <td class="w-[15%] min-w-40">
             {{
               bezahlmodell.paymentModel.anzahlNutzer === -1
                 ? ('UNLIMITED' | translate)
                 : bezahlmodell.paymentModel.anzahlNutzer
             }}
           </td>
-          <td style="width: 10%; min-width: 10rem">
+          <td class="w-[10%] min-w-40">
             {{ bezahlmodell.paymentModel.preis | currency: 'EUR' : 'symbol' : '.2-2' : 'de-DE' }}
             {{ bezahlmodell.paymentModel.paymentPeriod | translate }}
             {{ 'MWST_SUFFIX' | translate }}
           </td>
-          <td style="width: 20%; min-width: 10rem">
+          <td class="w-[20%] min-w-40">
             {{ bezahlmodell.anlageDatum | vwsDate: 'SHORT_DATE' }}
           </td>
-          <td style="width: 20%; min-width: 10rem">
+          <td class="w-[20%] min-w-40">
             {{ bezahlmodell.endDate | vwsDate: 'SHORT_DATE' }}
           </td>
         </tr>
@@ -83,11 +83,11 @@
         @if (bezahlmodelle.length > 0) {
           <tr>
             @if (showMenu) {
-              <td style="width: 3rem"></td>
+              <td class="w-12"></td>
             }
-            <td style="width: 3rem"></td>
-            <td style="width: 25%; min-width: 10rem"></td>
-            <td style="width: 15%; min-width: 10rem">
+            <td class="w-12"></td>
+            <td class="w-[25%] min-w-40"></td>
+            <td class="w-[15%] min-w-40">
               @if (hasUnlimitedUsers) {
                 {{ 'UNLIMITED' | translate }}
               } @else {
@@ -95,9 +95,9 @@
               }
               ({{ userSeatStats?.activeUserSeatsCount }} {{ 'IN_USE' | translate }})
             </td>
-            <td style="width: 20%; min-width: 10rem"></td>
-            <td style="width: 20%; min-width: 10rem"></td>
-            <td style="width: 20%; min-width: 10rem"></td>
+            <td class="w-[20%] min-w-40"></td>
+            <td class="w-[20%] min-w-40"></td>
+            <td class="w-[20%] min-w-40"></td>
           </tr>
         }
       </ng-template>
@@ -172,7 +172,7 @@
             pRipple
             label="{{ 'SAVE' | translate }}"
             icon="pi pi-save"
-            styleClass="p-button-success mr-2"
+            styleClass="mr-2"
             [disabled]="selectedPaymentModel == null"
             (onClick)="setPaymentModel()"
             [loading]="loading"
@@ -239,7 +239,9 @@
               {{ 'MWST_SUFFIX' | translate }}
             </td>
             <td class="font-bold">
-              {{ selectedPaymentModel?.preis | currency: 'EUR' : 'symbol' : '.2-2' : 'de-DE' }}
+              {{
+                $safeNavigationMigration(selectedPaymentModel?.preis) | currency: 'EUR' : 'symbol' : '.2-2' : 'de-DE'
+              }}
               {{ selectedPaymentModel?.paymentPeriod ?? '' | translate }}
               {{ 'MWST_SUFFIX' | translate }}
             </td>
@@ -271,7 +273,7 @@
           pRipple
           label="{{ 'SAVE' | translate }}"
           icon="pi pi-save"
-          styleClass="p-button-success mr-2"
+          styleClass="mr-2"
           [disabled]="nothingChanged"
           (onClick)="updatePaymentModel()"
           [loading]="loading"
@@ -306,7 +308,7 @@
         pRipple
         label="{{ 'SAVE' | translate }}"
         icon="pi pi-save"
-        styleClass="p-button-success mr-2"
+        styleClass="mr-2"
         (onClick)="updatePaymentModelEndDate()"
         [loading]="loading"
       ></p-button>

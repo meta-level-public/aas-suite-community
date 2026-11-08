@@ -1,0 +1,31 @@
+<div class="cursor-paginator">
+  <p-button
+    icon="pi pi-angle-double-left"
+    [rounded]="true"
+    [text]="true"
+    severity="secondary"
+    [disabled]="isFirstPage()"
+    [pTooltip]="'FIRST' | translate"
+    tooltipPosition="top"
+    [ariaLabel]="'FIRST' | translate"
+    (onClick)="firstRequested.emit()"
+  ></p-button>
+  <p-button
+    icon="pi pi-angle-right"
+    [rounded]="true"
+    [text]="true"
+    severity="secondary"
+    [disabled]="!hasNextPage()"
+    [pTooltip]="'NEXT' | translate"
+    tooltipPosition="top"
+    [ariaLabel]="'NEXT' | translate"
+    (onClick)="nextRequested.emit()"
+  ></p-button>
+  <p-select
+    [options]="pageOptions()"
+    [ngModel]="pageSize()"
+    (ngModelChange)="onPageSizeChange($event)"
+    appendTo="body"
+    [ariaLabel]="'ROWS_PER_PAGE' | translate"
+  ></p-select>
+</div>

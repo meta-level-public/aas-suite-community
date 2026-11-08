@@ -7,16 +7,16 @@ import {
   ShellListDto,
   ShellsClient,
 } from '@aas/webapi-client';
-import { Component, inject, model, OnInit, signal } from '@angular/core';
+import { Component, inject, model, OnInit, signal, ChangeDetectionStrategy } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
-import { ButtonModule } from 'primeng/button';
-import { DynamicDialogConfig, DynamicDialogRef } from 'primeng/dynamicdialog';
-import { SelectModule } from 'primeng/select';
-import { SkeletonModule } from 'primeng/skeleton';
-import { TableModule } from 'primeng/table';
-import { TagModule } from 'primeng/tag';
-import { ToolbarModule } from 'primeng/toolbar';
+import { ButtonModule } from '@openng/optimus-ui/button';
+import { DynamicDialogConfig, DynamicDialogRef } from '@openng/optimus-ui/dynamicdialog';
+import { SelectModule } from '@openng/optimus-ui/select';
+import { SkeletonModule } from '@openng/optimus-ui/skeleton';
+import { TableModule } from '@openng/optimus-ui/table';
+import { TagModule } from '@openng/optimus-ui/tag';
+import { ToolbarModule } from '@openng/optimus-ui/toolbar';
 import { lastValueFrom } from 'rxjs';
 import { ShellSelectResult } from './shell-select-result';
 
@@ -32,6 +32,7 @@ import { ShellSelectResult } from './shell-select-result';
     SkeletonModule,
     TagModule,
   ],
+  changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './shell-select.component.html',
 })
 export class ShellSelectComponent implements OnInit {
@@ -44,7 +45,7 @@ export class ShellSelectComponent implements OnInit {
   pageOptions = [1, 5, 10, 20, 50];
   pageSize = model(10);
 
-  cursor: string | undefined;
+  cursor = signal<string | undefined>(undefined);
   loading = signal(false);
 
   availableRepositories = signal<AvailableInfastructure[]>([]);
@@ -102,7 +103,7 @@ export class ShellSelectComponent implements OnInit {
   }
 
   async loadFirstPage() {
-    this.cursor = undefined;
+    this.cursor.set(undefined);
     this.firstPage.set(true);
     await this.loadPaged();
   }
@@ -125,11 +126,11 @@ export class ShellSelectComponent implements OnInit {
       try {
         this.loading.set(true);
         const res = await lastValueFrom(
-          this.shellsClient.shells_GetAllShells(this.pageSize(), this.cursor, undefined, undefined, undefined),
+          this.shellsClient.shells_GetAllShells(this.pageSize(), this.cursor(), undefined, undefined, undefined),
         );
         this.shells.set(res.shells ?? []);
 
-        this.cursor = res.cursor;
+        this.cursor.set(res.cursor);
       } finally {
         this.loading.set(false);
       }

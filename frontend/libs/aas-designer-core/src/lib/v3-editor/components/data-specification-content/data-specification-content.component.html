@@ -36,6 +36,7 @@
         <input pInputText [(ngModel)]="dataSpecificationContent.sourceOfDefinition" class="w-full" nullIfEmpty />
         <p-inputgroup-addon>
           <p-button
+            [ariaLabel]="'REMOVE' | translate"
             icon="pi pi-times"
             severity="secondary"
             (onClick)="dataSpecificationContent.sourceOfDefinition = null"
@@ -48,7 +49,12 @@
       <p-inputgroup>
         <input pInputText [(ngModel)]="dataSpecificationContent.unit" class="w-full" nullIfEmpty />
         <p-inputgroup-addon>
-          <p-button icon="pi pi-times" severity="secondary" (onClick)="dataSpecificationContent.unit = null" />
+          <p-button
+            [ariaLabel]="'REMOVE' | translate"
+            icon="pi pi-times"
+            severity="secondary"
+            (onClick)="dataSpecificationContent.unit = null"
+          />
         </p-inputgroup-addon>
       </p-inputgroup>
     </div>
@@ -64,9 +70,10 @@
             [outlined]="true"
           ></p-button>
         } @else if (dataSpecificationContent.unitId.keys == null || dataSpecificationContent.unitId.keys[0] == null) {
-          <p-message severity="error" text="{{ 'INVALID_ELEMENT' | translate }}"></p-message>
+          <p-message severity="error">{{ 'INVALID_ELEMENT' | translate }}</p-message>
           <p-message severity="error">{{ dataSpecificationContent.unitId | json }}</p-message>
           <p-button
+            severity="danger"
             label="{{ 'REMOVE' | translate }}"
             (onClick)="removeUnitId()"
             icon="pi pi-trash"
@@ -78,7 +85,12 @@
             <p-inputgroup>
               <input pInputText [(ngModel)]="dataSpecificationContent.unitId.keys[0].value" class="w-full" />
               <p-inputgroup-addon>
-                <p-button icon="pi pi-times" severity="secondary" (onClick)="removeUnitId()" />
+                <p-button
+                  [ariaLabel]="'REMOVE' | translate"
+                  icon="pi pi-times"
+                  severity="secondary"
+                  (onClick)="removeUnitId()"
+                />
               </p-inputgroup-addon>
               @if (
                 dataSpecificationContent.unitId.keys[0].value != null &&
@@ -86,6 +98,7 @@
               ) {
                 <p-inputgroup-addon>
                   <p-button
+                    [ariaLabel]="'OPEN_LINK' | translate"
                     icon="pi pi-external-link"
                     severity="secondary"
                     (onClick)="UrlHelper.openEclass(dataSpecificationContent.unitId.keys[0].value)"
@@ -98,6 +111,7 @@
               ) {
                 <p-inputgroup-addon>
                   <p-button
+                    [ariaLabel]="'OPEN_LINK' | translate"
                     icon="pi pi-external-link"
                     severity="secondary"
                     (onClick)="UrlHelper.openIecCddUnit(dataSpecificationContent.unitId.keys[0].value)"
@@ -106,13 +120,22 @@
               }
             </p-inputgroup>
             <p-button
+              [ariaLabel]="'SEARCH' | translate"
               (onClick)="lookupUnitIdValue()"
               icon="pi pi-search"
               size="small"
               outlined="true"
               text="true"
             ></p-button>
-            <p-button (onClick)="removeUnitId()" icon="pi pi-trash" size="small" outlined="true" text="true"></p-button>
+            <p-button
+              [ariaLabel]="'DELETE' | translate"
+              severity="danger"
+              (onClick)="removeUnitId()"
+              icon="pi pi-trash"
+              size="small"
+              outlined="true"
+              text="true"
+            ></p-button>
           </div>
           <div class="flex flex-row gap-2 items-center">
             <lib-help-label class="w-14rem" tag="REF_ID"></lib-help-label>
@@ -133,6 +156,7 @@
                 />
                 <p-inputgroup-addon>
                   <p-button
+                    [ariaLabel]="'OPEN_LINK' | translate"
                     icon="pi pi-external-link"
                     severity="secondary"
                     (onClick)="openLink(dataSpecificationContent.unitId.referredSemanticId.keys[0].value)"
@@ -151,7 +175,12 @@
         <p-inputgroup>
           <input pInputText [(ngModel)]="dataSpecificationContent.symbol" class="w-full" nullIfEmpty />
           <p-inputgroup-addon>
-            <p-button icon="pi pi-times" severity="secondary" (onClick)="dataSpecificationContent.symbol = null" />
+            <p-button
+              [ariaLabel]="'REMOVE' | translate"
+              icon="pi pi-times"
+              severity="secondary"
+              (onClick)="dataSpecificationContent.symbol = null"
+            />
           </p-inputgroup-addon>
         </p-inputgroup>
         @if (hasErrors(dataSpecificationContent, 'symbol')) {
@@ -193,6 +222,7 @@
             <input pInputText [(ngModel)]="dataSpecificationContent.valueFormat" class="w-full" nullIfEmpty />
             <p-inputgroup-addon>
               <p-button
+                [ariaLabel]="'REMOVE' | translate"
                 icon="pi pi-times"
                 severity="secondary"
                 (onClick)="dataSpecificationContent.valueFormat = null"
@@ -230,7 +260,12 @@
         <p-inputgroup>
           <input pInputText [(ngModel)]="dataSpecificationContent.value" class="w-full" nullIfEmpty />
           <p-inputgroup-addon>
-            <p-button icon="pi pi-times" severity="secondary" (onClick)="dataSpecificationContent.value = null" />
+            <p-button
+              [ariaLabel]="'REMOVE' | translate"
+              icon="pi pi-times"
+              severity="secondary"
+              (onClick)="dataSpecificationContent.value = null"
+            />
           </p-inputgroup-addon>
         </p-inputgroup>
         @if (hasValueErrors(dataSpecificationContent)) {
@@ -308,6 +343,11 @@
     <aas-additional-lookup-sources (closeClicked)="showUnitSearch.set(false)"></aas-additional-lookup-sources>
   }
   <ng-template #footer>
-    <p-button label="{{ 'CLOSE' | translate }}" icon="pi pi-check" (onClick)="showUnitSearch.set(false)" />
+    <p-button
+      severity="secondary"
+      label="{{ 'CLOSE' | translate }}"
+      icon="pi pi-check"
+      (onClick)="showUnitSearch.set(false)"
+    />
   </ng-template>
 </p-dialog>

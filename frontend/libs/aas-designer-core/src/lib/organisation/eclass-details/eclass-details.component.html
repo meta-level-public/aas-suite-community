@@ -15,8 +15,10 @@
           @if (eclass != null) {
             <div class="col-span-12 flex justify-end">
               <p-button
+                severity="danger"
+                size="small"
+                [outlined]="true"
                 icon="pi pi-trash"
-                styleClass="p-button-danger p-button-sm p-button-outlined"
                 label="{{ 'DELETE' | translate }}"
                 [loading]="loading"
                 (onClick)="removeEclassCert()"
@@ -25,13 +27,12 @@
           }
           @if (eclass == null) {
             <div
-              class="col-span-12 p-4 rounded-lg border"
-              style="background: var(--aas-info-surface); border-color: var(--aas-info-border)"
+              class="col-span-12 p-4 rounded-lg border bg-[var(--aas-info-surface)] border-[color:var(--aas-info-border)]"
             >
-              <p class="font-semibold mb-2" style="color: var(--aas-info-text)">
+              <p class="font-semibold mb-2 text-[var(--aas-info-text)]">
                 {{ 'NO_ECLASS_CERTIFICATE_FOUND' | translate }}
               </p>
-              <p class="mb-0" style="color: var(--p-text-color)">{{ 'ECLASS_EXPLANATION' | translate }}</p>
+              <p class="mb-0 text-color">{{ 'ECLASS_EXPLANATION' | translate }}</p>
             </div>
           }
           @if (eclass == null) {
@@ -51,7 +52,7 @@
               </p-fileUpload>
               <div class="flex justify-center items-center">
                 @if (loading) {
-                  <em class="pi pi-spin pi-spinner text-2xl" style="color: var(--p-primary-color)"></em>
+                  <em class="pi pi-spin pi-spinner text-2xl text-primary"></em>
                 }
               </div>
             </div>
@@ -116,7 +117,7 @@
       <div class="grid grid-cols-12 w-full">
         @if (eclass != null) {
           <div class="col-span-12 flex justify-end">
-          <p-button icon="pi pi-refresh" styleClass="p-button-secondary p-button-sm" label="{{ 'RELOAD' | translate }}" [loading]="loading" (onClick)="checkPendingImport(); getEclassCert(); getEclassImport()"></p-button>
+          <p-button severity="secondary" size="small" icon="pi pi-refresh" label="{{ 'RELOAD' | translate }}" [loading]="loading" (onClick)="checkPendingImport(); getEclassCert(); getEclassImport()"></p-button>
         </div>
         }
         @if (eclass == null) {
@@ -207,10 +208,10 @@
             <td>
               <div class="flex justify-center items-center">
                 @if (item.started == false || (item.started == true && item.error == true)) {
-                  <p-button
+                  <p-button [ariaLabel]="'DELETE' | translate"
                     icon="pi pi-trash"
                     [rounded]="true"
-                    severity="error"
+                    severity="danger"
                     [outlined]="true"
                     (onClick)="deletePendingItem(item.id)"
                   ></p-button>

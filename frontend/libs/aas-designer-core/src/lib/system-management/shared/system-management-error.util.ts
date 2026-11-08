@@ -2,7 +2,7 @@ import { NotificationService } from '@aas/common-services';
 import { ApiException } from '@aas/jwt-auth';
 import { HttpErrorResponse } from '@angular/common/http';
 import { TranslateService } from '@ngx-translate/core';
-import { MessageService } from 'primeng/api';
+import { MessageService } from '@openng/optimus-ui/api';
 
 export async function showSystemManagementError(
   error: unknown,

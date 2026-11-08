@@ -1,7 +1,7 @@
-<div class="min-h-screen bg-slate-50 px-4 py-8 md:px-8">
+<div class="min-h-screen bg-surface-50 px-4 py-8 md:px-8">
   <div class="mx-auto flex min-h-[calc(100vh-4rem)] max-w-5xl items-center justify-center">
     <div
-      class="grid w-full overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-2xl md:grid-cols-[22rem_minmax(0,1fr)]"
+      class="grid w-full overflow-hidden rounded-3xl border border-surface bg-surface-0 shadow-2xl md:grid-cols-[22rem_minmax(0,1fr)]"
     >
       <div class="flex flex-col justify-between bg-slate-900 px-8 py-10 text-white">
         <div>
@@ -30,33 +30,35 @@
       <div class="px-8 py-10 md:px-10">
         <div class="mb-8 flex items-start justify-between gap-4">
           <div>
-            <div class="mb-2 text-sm font-semibold uppercase tracking-[0.16em] text-slate-500">
+            <div class="mb-2 text-sm font-semibold uppercase tracking-[0.16em] text-muted-color">
               {{ 'FORBIDDEN_ACCESS_STATUS' | translate }}
             </div>
-            <div class="text-2xl font-semibold text-slate-900">{{ 'FORBIDDEN_HEADLINE' | translate }}</div>
+            <div class="text-2xl font-semibold text-color">{{ 'FORBIDDEN_HEADLINE' | translate }}</div>
           </div>
-          <div class="rounded-full bg-rose-50 px-3 py-1 text-sm font-semibold text-rose-700">
+          <div
+            class="rounded-full bg-[var(--aas-danger-surface)] px-3 py-1 text-sm font-semibold text-[var(--aas-danger-text)]"
+          >
             {{ 'FORBIDDEN_BADGE' | translate }}
           </div>
         </div>
 
-        <div class="mb-8 rounded-2xl border border-slate-200 bg-slate-50 p-5">
-          <div class="mb-2 text-sm font-semibold text-slate-900">{{ 'FORBIDDEN_REASON_LABEL' | translate }}</div>
-          <p class="m-0 text-sm leading-6 text-slate-700">
+        <div class="mb-8 rounded-2xl border border-surface bg-surface-50 p-5">
+          <div class="mb-2 text-sm font-semibold text-color">{{ 'FORBIDDEN_REASON_LABEL' | translate }}</div>
+          <p class="m-0 text-sm leading-6 text-muted-color">
             {{ reason }}
           </p>
         </div>
 
         <div class="mb-8 grid gap-4 md:grid-cols-2">
-          <div class="rounded-2xl border border-slate-200 p-5">
-            <div class="mb-2 text-sm font-semibold text-slate-900">{{ 'FORBIDDEN_WHAT_YOU_CAN_DO' | translate }}</div>
-            <p class="m-0 text-sm leading-6 text-slate-700">
+          <div class="rounded-2xl border border-surface p-5">
+            <div class="mb-2 text-sm font-semibold text-color">{{ 'FORBIDDEN_WHAT_YOU_CAN_DO' | translate }}</div>
+            <p class="m-0 text-sm leading-6 text-muted-color">
               {{ 'FORBIDDEN_WHAT_YOU_CAN_DO_TEXT' | translate }}
             </p>
           </div>
-          <div class="rounded-2xl border border-slate-200 p-5">
-            <div class="mb-2 text-sm font-semibold text-slate-900">{{ 'FORBIDDEN_TYPICAL_TRIGGER' | translate }}</div>
-            <p class="m-0 text-sm leading-6 text-slate-700">
+          <div class="rounded-2xl border border-surface p-5">
+            <div class="mb-2 text-sm font-semibold text-color">{{ 'FORBIDDEN_TYPICAL_TRIGGER' | translate }}</div>
+            <p class="m-0 text-sm leading-6 text-muted-color">
               {{ 'FORBIDDEN_TYPICAL_TRIGGER_TEXT' | translate }}
             </p>
           </div>

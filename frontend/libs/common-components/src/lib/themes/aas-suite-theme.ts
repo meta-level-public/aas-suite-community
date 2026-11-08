@@ -1,5 +1,5 @@
-import { definePreset } from '@primeuix/themes';
-import Lara from '@primeuix/themes/lara';
+import { definePreset } from '@openng/optimus-ui-themes';
+import Lara from '@openng/optimus-ui-themes/lara';
 
 export const AasSuitePreset = definePreset(Lara, {
   primitive: {

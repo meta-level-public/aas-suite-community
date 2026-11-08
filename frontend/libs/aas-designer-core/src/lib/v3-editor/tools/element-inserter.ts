@@ -1,7 +1,7 @@
 import * as aas from '@aas-core-works/aas-core3.1-typescript';
 import { IdGenerationUtil } from '@aas/helpers';
 import { ConceptDescriptionRoot, ShellResult } from '@aas/model';
-import { TreeNode } from 'primeng/api';
+import { TreeNode } from '@openng/optimus-ui/api';
 import { v4 as uuid } from 'uuid';
 import { SubmodelResult } from '../../generator/model/submodel-result';
 import { EditorTypeOption } from '../model/editor-type-option';

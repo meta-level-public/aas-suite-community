@@ -2,9 +2,9 @@ import * as aas from '@aas-core-works/aas-core3.1-typescript';
 import { Component, Input } from '@angular/core';
 import { SafeUrl } from '@angular/platform-browser';
 import { TranslateModule } from '@ngx-translate/core';
-import { PrimeTemplate } from 'primeng/api';
-import { Image } from 'primeng/image';
-import { TableModule } from 'primeng/table';
+import { PrimeTemplate } from '@openng/optimus-ui/api';
+import { Image } from '@openng/optimus-ui/image';
+import { TableModule } from '@openng/optimus-ui/table';
 type ISubmodelElement = aas.types.ISubmodelElement;
 
 @Component({

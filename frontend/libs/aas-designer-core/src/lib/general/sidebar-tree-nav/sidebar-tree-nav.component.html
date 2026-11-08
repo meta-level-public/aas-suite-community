@@ -28,7 +28,10 @@
           [disabled]="isDisabled(entry.node)"
           [attr.aria-disabled]="isDisabled(entry.node) ? 'true' : null"
           [style.--sidebar-tree-depth]="entry.depth"
+          [attr.aria-expanded]="entry.hasChildren ? entry.node.expanded === true : null"
           (click)="onNodeClick(entry.node)"
+          (keydown.arrowright)="entry.hasChildren && entry.node.expanded !== true && toggleNode(entry.node)"
+          (keydown.arrowleft)="entry.hasChildren && entry.node.expanded === true && toggleNode(entry.node)"
         >
           <span class="sidebar-tree-step-indent" aria-hidden="true"></span>
           <span class="sidebar-tree-step-index battery-editor-nav-index">{{ entry.indexLabel }}</span>
@@ -40,7 +43,11 @@
           </span>
 
           @if (entry.hasChildren) {
-            <span class="sidebar-tree-step-toggle" (click)="$event.stopPropagation(); toggleNode(entry.node)">
+            <span
+              class="sidebar-tree-step-toggle"
+              aria-hidden="true"
+              (click)="$event.stopPropagation(); toggleNode(entry.node)"
+            >
               <em [ngClass]="entry.node.expanded === true ? 'pi pi-chevron-down' : 'pi pi-chevron-right'"></em>
             </span>
           }
@@ -58,10 +65,17 @@
           [disabled]="isDisabled(entry.node)"
           [attr.aria-disabled]="isDisabled(entry.node) ? 'true' : null"
           [style.padding-left.rem]="0.75 + entry.depth * 1.25"
+          [attr.aria-expanded]="entry.hasChildren ? entry.node.expanded === true : null"
           (click)="onNodeClick(entry.node)"
+          (keydown.arrowright)="entry.hasChildren && entry.node.expanded !== true && toggleNode(entry.node)"
+          (keydown.arrowleft)="entry.hasChildren && entry.node.expanded === true && toggleNode(entry.node)"
         >
           @if (entry.hasChildren) {
-            <span class="sidebar-tree-toggle" (click)="$event.stopPropagation(); toggleNode(entry.node)">
+            <span
+              class="sidebar-tree-toggle"
+              aria-hidden="true"
+              (click)="$event.stopPropagation(); toggleNode(entry.node)"
+            >
               <em [ngClass]="entry.node.expanded === true ? 'pi pi-chevron-down' : 'pi pi-chevron-right'"></em>
             </span>
           } @else {

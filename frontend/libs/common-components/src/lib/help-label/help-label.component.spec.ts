@@ -4,8 +4,9 @@ import { signal } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideNoopAnimations } from '@angular/platform-browser/animations';
 import { TranslateModule } from '@ngx-translate/core';
-import { Editor } from 'primeng/editor';
+import { Editor } from '@openng/optimus-ui/editor';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import { HelpEditModeService } from '../help-service/help-edit-mode.service';
 import { HelpService } from '../help-service/help.service';
 import { HelpLabelComponent } from './help-label.component';
 
@@ -42,6 +43,7 @@ describe('HelpLabelComponent', () => {
   afterEach(() => {
     vi.restoreAllMocks();
     window.sessionStorage.removeItem('auth-user');
+    window.sessionStorage.removeItem('HELP_EDITMODE_ACTIVE');
     document.body.querySelectorAll('.p-dialog-mask, .p-dialog').forEach((dialog) => dialog.remove());
   });
 
@@ -57,5 +59,20 @@ describe('HelpLabelComponent', () => {
     expect(document.body.querySelector('p-editor')).not.toBeNull();
     // Quill is loaded lazily by the editor
     await vi.waitFor(() => expect(document.body.textContent).toContain('Title of the interface'), { timeout: 3000 });
+  });
+
+  it('shows the edit button as soon as the help edit mode is switched on', async () => {
+    const editButton = () => fixture.nativeElement.querySelector('p-button[icon="pi pi-pencil"]');
+    expect(editButton()).toBeNull();
+
+    TestBed.inject(HelpEditModeService).setActive(true);
+    await fixture.whenStable();
+    expect(editButton()).not.toBeNull();
+    expect(window.sessionStorage.getItem('HELP_EDITMODE_ACTIVE')).toBe('true');
+
+    TestBed.inject(HelpEditModeService).toggle();
+    await fixture.whenStable();
+    expect(editButton()).toBeNull();
+    expect(window.sessionStorage.getItem('HELP_EDITMODE_ACTIVE')).toBe('false');
   });
 });

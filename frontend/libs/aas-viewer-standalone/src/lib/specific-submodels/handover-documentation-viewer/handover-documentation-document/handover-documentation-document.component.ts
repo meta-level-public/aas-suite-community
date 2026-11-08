@@ -1,6 +1,17 @@
 import * as aas from '@aas-core-works/aas-core3.1-typescript';
 import { ISubmodelElement } from '@aas-core-works/aas-core3.1-typescript/types';
-import { Component, computed, effect, inject, input, Input, OnChanges, signal, ViewChild } from '@angular/core';
+import {
+  Component,
+  computed,
+  effect,
+  inject,
+  input,
+  Input,
+  OnChanges,
+  signal,
+  ViewChild,
+  ChangeDetectionStrategy,
+} from '@angular/core';
 import { DomSanitizer } from '@angular/platform-browser';
 import { AasViewerService } from '../../../aas-viewer.service';
 
@@ -9,12 +20,12 @@ import { FilenameHelper, SemanticIdHelper } from '@aas/helpers';
 import { HttpClient } from '@angular/common/http';
 import { TranslateModule } from '@ngx-translate/core';
 import { saveAs } from 'file-saver-es';
-import { Accordion, AccordionContent, AccordionHeader, AccordionPanel } from 'primeng/accordion';
-import { InputGroup } from 'primeng/inputgroup';
-import { InputGroupAddon } from 'primeng/inputgroupaddon';
-import { InputText } from 'primeng/inputtext';
-import { Ripple } from 'primeng/ripple';
-import { Textarea } from 'primeng/textarea';
+import { Accordion, AccordionContent, AccordionHeader, AccordionPanel } from '@openng/optimus-ui/accordion';
+import { InputGroup } from '@openng/optimus-ui/inputgroup';
+import { InputGroupAddon } from '@openng/optimus-ui/inputgroupaddon';
+import { InputText } from '@openng/optimus-ui/inputtext';
+import { Ripple } from '@openng/optimus-ui/ripple';
+import { Textarea } from '@openng/optimus-ui/textarea';
 import { lastValueFrom } from 'rxjs';
 import { ViewerStoreService } from '../../../viewer-store.service';
 import { HandoverDocumentationFileComponent } from '../handover-documentation-file/handover-documentation-file.component';
@@ -24,6 +35,7 @@ import { ExpandedStateDirective } from '../../../expanded-state/expanded-state.d
 @Component({
   selector: 'aas-handover-documentation-document',
   templateUrl: './handover-documentation-document.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [
     ExpandedStateDirective,
     InputGroup,
@@ -181,8 +193,7 @@ export class HandoverDocumentationDocumentComponent implements OnChanges {
 
       this.fileViewer?.selectedFileChanged();
     } catch (e) {
-      // eslint-disable-next-line no-console
-      console.log(e);
+      console.warn(e);
       // ignore
     }
   }

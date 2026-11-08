@@ -17,7 +17,12 @@
       <p-inputgroup>
         <input pInputText [(ngModel)]="administration.version" class="w-full" nullIfEmpty />
         <p-inputgroup-addon>
-          <p-button icon="pi pi-times" severity="secondary" (onClick)="administration.version = null" />
+          <p-button
+            [ariaLabel]="'REMOVE' | translate"
+            icon="pi pi-times"
+            severity="secondary"
+            (onClick)="administration.version = null"
+          />
         </p-inputgroup-addon>
       </p-inputgroup>
     </div>
@@ -26,7 +31,12 @@
       <p-inputgroup>
         <input pInputText [(ngModel)]="administration.revision" class="w-full" nullIfEmpty />
         <p-inputgroup-addon>
-          <p-button icon="pi pi-times" severity="secondary" (onClick)="administration.revision = null" />
+          <p-button
+            [ariaLabel]="'REMOVE' | translate"
+            icon="pi pi-times"
+            severity="secondary"
+            (onClick)="administration.revision = null"
+          />
         </p-inputgroup-addon>
       </p-inputgroup>
     </div>
@@ -41,11 +51,22 @@
               <p-inputgroup>
                 <input pInputText [(ngModel)]="key.value" class="w-full" />
                 <p-inputgroup-addon>
-                  <p-button icon="pi pi-times" severity="secondary" (onClick)="deleteKey(key)" />
+                  <p-button
+                    [ariaLabel]="'REMOVE' | translate"
+                    icon="pi pi-times"
+                    severity="secondary"
+                    (onClick)="deleteKey(key)"
+                  />
                 </p-inputgroup-addon>
               </p-inputgroup>
-              <p-button icon="pi pi-plus" (onClick)="addKey()" text="true"></p-button>
-              <p-button icon="pi pi-trash" (onClick)="deleteKey(key)" text="true"></p-button>
+              <p-button [ariaLabel]="'ADD' | translate" icon="pi pi-plus" (onClick)="addKey()" text="true"></p-button>
+              <p-button
+                [ariaLabel]="'DELETE' | translate"
+                severity="danger"
+                icon="pi pi-trash"
+                (onClick)="deleteKey(key)"
+                text="true"
+              ></p-button>
             </div>
           }
         </div>
@@ -70,7 +91,12 @@
             <p-inputgroup>
               <input pInputText [(ngModel)]="administration.templateId" class="w-full" nullIfEmpty />
               <p-inputgroup-addon>
-                <p-button icon="pi pi-times" severity="secondary" (onClick)="administration.templateId = null" />
+                <p-button
+                  [ariaLabel]="'REMOVE' | translate"
+                  icon="pi pi-times"
+                  severity="secondary"
+                  (onClick)="administration.templateId = null"
+                />
               </p-inputgroup-addon>
             </p-inputgroup>
           </div>
@@ -86,6 +112,7 @@
     @if (administration != null) {
       <div class="flex flex-row w-full justify-start mb-5">
         <p-button
+          severity="danger"
           label="{{ 'REMOVE_BLOCK' | translate }}"
           (onClick)="removeAdministrativeInformationBlock()"
           icon="pi pi-trash"

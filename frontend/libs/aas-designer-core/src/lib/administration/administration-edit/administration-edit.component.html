@@ -9,6 +9,7 @@
             </div>
             <div class="p-toolbar-group-end flex gap-2">
               <p-button
+                severity="secondary"
                 label="{{ 'CANCEL' | translate }}"
                 icon="pi pi-times"
                 (onClick)="close()"
@@ -19,7 +20,6 @@
                 pRipple
                 label="{{ 'SAVE' | translate }}"
                 icon="pi pi-save"
-                styleClass="p-button-success"
                 (onClick)="save()"
                 [loading]="loading"
                 [disabled]="validData() === false || !form.dirty"
@@ -36,10 +36,7 @@
                 ></p-button>
               }
               @if (organisation.bezahlmodelle.length > 1) {
-                <div
-                  pTooltip="{{ 'BEZAHLMODELL_CHANGE_ONLY_WITH_NO_OPTIONS' | translate }}"
-                  style="display: inline-block"
-                >
+                <div pTooltip="{{ 'BEZAHLMODELL_CHANGE_ONLY_WITH_NO_OPTIONS' | translate }}" class="inline-block">
                   <p-button
                     pRipple
                     label="{{ 'CHANGE_PAYMENT_MODEL' | translate }}"
@@ -240,7 +237,6 @@
             <p-table
               #dt
               [value]="orgaUsers"
-              responsiveLayout="scroll"
               [rows]="10"
               [globalFilterFields]="['organisation']"
               [rows]="10"
@@ -267,13 +263,13 @@
               </ng-template>
               <ng-template pTemplate="body" let-benutzer>
                 <tr>
-                  <td style="width: 25%; min-width: 10rem">
+                  <td class="w-[25%] min-w-40">
                     {{ benutzer.name }}
                   </td>
-                  <td style="width: 25%; min-width: 10rem">
+                  <td class="w-[25%] min-w-40">
                     {{ benutzer.vorname }}
                   </td>
-                  <td style="width: 25%; min-width: 10rem">
+                  <td class="w-[25%] min-w-40">
                     {{ benutzer.email }}
                   </td>
                   <td>

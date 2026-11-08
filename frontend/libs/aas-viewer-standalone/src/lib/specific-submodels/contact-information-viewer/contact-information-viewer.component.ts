@@ -1,14 +1,14 @@
 import * as aas from '@aas-core-works/aas-core3.1-typescript';
 import { ISubmodelElement } from '@aas-core-works/aas-core3.1-typescript/types';
 import { HelpLabelComponent } from '@aas/common-components';
-import { Component, computed, inject, input, Input, OnInit } from '@angular/core';
+import { Component, computed, inject, input, Input, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { isArray } from 'lodash-es';
-import { Accordion, AccordionContent, AccordionHeader, AccordionPanel } from 'primeng/accordion';
-import { InputGroup } from 'primeng/inputgroup';
-import { InputGroupAddon } from 'primeng/inputgroupaddon';
-import { InputText } from 'primeng/inputtext';
-import { Ripple } from 'primeng/ripple';
+import { Accordion, AccordionContent, AccordionHeader, AccordionPanel } from '@openng/optimus-ui/accordion';
+import { InputGroup } from '@openng/optimus-ui/inputgroup';
+import { InputGroupAddon } from '@openng/optimus-ui/inputgroupaddon';
+import { InputText } from '@openng/optimus-ui/inputtext';
+import { Ripple } from '@openng/optimus-ui/ripple';
 import { ViewerStoreService } from '../../viewer-store.service';
 import { ContactInformation } from './contact-information';
 
@@ -19,6 +19,7 @@ import { ExpandedStateDirective } from '../../expanded-state/expanded-state.dire
   selector: 'aas-contact-information-viewer',
   templateUrl: './contact-information-viewer.component.html',
   styleUrls: ['./contact-information-viewer.component.css'],
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [
     ExpandedStateDirective,
     Accordion,

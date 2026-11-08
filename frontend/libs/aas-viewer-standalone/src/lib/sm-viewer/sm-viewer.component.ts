@@ -1,6 +1,6 @@
 import * as aas from '@aas-core-works/aas-core3.1-typescript';
 import { Component, Input } from '@angular/core';
-import { SortEvent } from 'primeng/api';
+import { SortEvent } from '@openng/optimus-ui/api';
 import { SubmodelElementsListComponent } from '../submodel-elements-list/submodel-elements-list.component';
 
 @Component({

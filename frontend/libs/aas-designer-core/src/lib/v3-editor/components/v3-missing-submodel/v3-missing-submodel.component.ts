@@ -1,13 +1,13 @@
 import * as aas from '@aas-core-works/aas-core3.1-typescript';
 import { NotificationService } from '@aas/common-services';
 import { ShellResult } from '@aas/model';
-import { Component, inject, Input, model, signal } from '@angular/core';
+import { Component, inject, Input, model, signal, ChangeDetectionStrategy } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
-import { Button } from 'primeng/button';
-import { Fieldset } from 'primeng/fieldset';
-import { InputText } from 'primeng/inputtext';
-import { Textarea } from 'primeng/textarea';
+import { Button } from '@openng/optimus-ui/button';
+import { Fieldset } from '@openng/optimus-ui/fieldset';
+import { InputText } from '@openng/optimus-ui/inputtext';
+import { Textarea } from '@openng/optimus-ui/textarea';
 import { NullIfEmptyDirective } from '../../../general/directives/null-if-empty.directive';
 import { V3TreeItem } from '../../model/v3-tree-item';
 import { V3TreeService } from '../../v3-tree/v3-tree.service';
@@ -18,6 +18,7 @@ type Reference = aas.types.Reference;
 @Component({
   selector: 'aas-v3-missing-submodel',
   templateUrl: './v3-missing-submodel.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [Fieldset, InputText, NullIfEmptyDirective, Button, FormsModule, Textarea, TranslateModule],
 })
 export class V3MissingSubmodelComponent extends V3ComponentBase {

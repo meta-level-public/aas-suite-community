@@ -1,5 +1,5 @@
 import * as aas from '@aas-core-works/aas-core3.1-typescript';
-import { TreeNode } from 'primeng/api';
+import { TreeNode } from '@openng/optimus-ui/api';
 import { CMTypeOption } from '../../v3-editor/model/cm-type-option';
 import { V3TreeItem } from '../../v3-editor/model/v3-tree-item';
 import { V3TreeService } from '../../v3-editor/v3-tree/v3-tree.service';
@@ -90,8 +90,7 @@ export class V3Searcher {
         }
         break;
       default:
-        // eslint-disable-next-line no-console
-        console.log('Unknown editorType ' + treeNode.data.editorType);
+        console.warn('Unknown editorType ' + treeNode.data.editorType);
       //throw new Error('Unknown editorType ' + treeNode.data.editorType);
     }
 
@@ -135,8 +134,7 @@ export class V3Searcher {
         }
         break;
       default:
-        // eslint-disable-next-line no-console
-        console.log('Unknown editorType ' + treeNode.data.editorType);
+        console.warn('Unknown editorType ' + treeNode.data.editorType);
       //throw new Error('Unknown editorType ' + treeNode.data.editorType);
     }
 
@@ -178,8 +176,7 @@ export class V3Searcher {
       case CMTypeOption.ReferenceElement:
         break;
       default:
-        // eslint-disable-next-line no-console
-        console.log('Unknown editorType ' + treeNode.data.editorType);
+        console.warn('Unknown editorType ' + treeNode.data.editorType);
       //throw new Error('Unknown editorType ' + treeNode.data.editorType);
     }
 
@@ -215,8 +212,7 @@ export class V3Searcher {
         }
         break;
       default:
-        // eslint-disable-next-line no-console
-        console.log('Unknown editorType ' + treeNode.data.editorType);
+        console.warn('Unknown editorType ' + treeNode.data.editorType);
       //throw new Error('Unknown editorType ' + treeNode.data.editorType);
     }
 

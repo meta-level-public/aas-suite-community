@@ -16,13 +16,13 @@ import {
   EventEmitter,
   inject,
   signal,
-  WritableSignal,
+  type WritableSignal,
 } from '@angular/core';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
-import { ButtonModule } from 'primeng/button';
-import { DynamicDialogConfig, DynamicDialogRef } from 'primeng/dynamicdialog';
-import { ToolbarModule } from 'primeng/toolbar';
-import { TooltipModule } from 'primeng/tooltip';
+import { ButtonModule } from '@openng/optimus-ui/button';
+import { DynamicDialogConfig, DynamicDialogRef } from '@openng/optimus-ui/dynamicdialog';
+import { ToolbarModule } from '@openng/optimus-ui/toolbar';
+import { TooltipModule } from '@openng/optimus-ui/tooltip';
 import { AasResultListComponent } from '../aas-result-list/aas-result-list.component';
 import { CreateChildEntityComponent } from '../create-child-entity/create-child-entity.component';
 import { EntityDetailsComponent } from '../entity-details/entity-details.component';

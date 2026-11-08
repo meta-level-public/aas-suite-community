@@ -13,7 +13,7 @@
           label="{{ 'RELOAD' | translate }}"
           icon="pi pi-refresh"
           (onClick)="reload()"
-          severity="success"
+          severity="secondary"
         ></p-button>
       </div>
     </div>
@@ -25,7 +25,6 @@
       [value]="list ?? []"
       sortMode="single"
       sortField="isActive"
-      responsiveLayout="scroll"
       [rows]="10"
       [paginator]="true"
       [rowsPerPageOptions]="[5, 10, 15, 20, 25, 30, 100]"
@@ -200,11 +199,12 @@
             <div class="flex flex-col gap-2 items-center">
               <p-tableHeaderCheckbox />
               <p-button
+                [ariaLabel]="'RELOAD' | translate"
                 (onClick)="recreateAll()"
                 icon="pi pi-refresh"
                 [disabled]="selectedEntries()?.length == 0"
                 size="small"
-                severity="success"
+                severity="secondary"
               ></p-button>
             </div>
           </th>
@@ -563,8 +563,15 @@
           <td>
             <div class="flex flex-col gap-2 items-center">
               <p-tableCheckbox [value]="entry"></p-tableCheckbox>
-              <p-button (onClick)="recreate(entry)" icon="pi pi-refresh" size="small" severity="success"></p-button>
               <p-button
+                [ariaLabel]="'RELOAD' | translate"
+                (onClick)="recreate(entry)"
+                icon="pi pi-refresh"
+                size="small"
+                severity="secondary"
+              ></p-button>
+              <p-button
+                [ariaLabel]="'DELETE' | translate"
                 (onClick)="remove(entry.infrastructureId)"
                 icon="pi pi-trash"
                 size="small"
@@ -623,6 +630,7 @@
               <p-tag [value]="entry.discoveryStatus" [severity]="getTagSeverity(entry.discoveryStatus)"></p-tag>
               @if (entry.discoveryStatus === 'Running') {
                 <p-button
+                  [ariaLabel]="'STOP' | translate"
                   (onClick)="stop(entry.discoveryContainerName)"
                   icon="pi pi-stop-circle"
                   size="small"
@@ -630,6 +638,7 @@
                 ></p-button>
               } @else {
                 <p-button
+                  [ariaLabel]="'START' | translate"
                   (onClick)="start(entry.discoveryContainerName)"
                   icon="pi pi-play-circle"
                   size="small"
@@ -641,8 +650,7 @@
           <td>
             @if (entry.discoveryMaxMem - entry.discoveryMem < 50 * 1000 * 1000) {
               <div
-                class="w-6rem flex flex-col items-center"
-                style="background-color: var(--aas-danger-surface); border-radius: var(--aas-radius-xs)"
+                class="w-6rem flex flex-col items-center bg-[var(--aas-danger-surface)] rounded-[var(--aas-radius-xs)]"
               >
                 <div>{{ entry.discoveryMem | filesize }}</div>
                 <!-- anzeige in % -->
@@ -709,6 +717,7 @@
               <p-tag [value]="entry.aasEnvStatus" [severity]="getTagSeverity(entry.aasEnvStatus)"></p-tag>
               @if (entry.aasEnvStatus === 'Running') {
                 <p-button
+                  [ariaLabel]="'STOP' | translate"
                   (onClick)="stop(entry.aasEnvContainerName)"
                   icon="pi pi-stop-circle"
                   size="small"
@@ -716,6 +725,7 @@
                 ></p-button>
               } @else {
                 <p-button
+                  [ariaLabel]="'START' | translate"
                   (onClick)="start(entry.aasEnvContainerName)"
                   icon="pi pi-play-circle"
                   size="small"
@@ -727,8 +737,7 @@
           <td>
             @if (entry.aasEnvMaxMem - entry.aasEnvMem < 50 * 1000 * 1000) {
               <div
-                class="w-6rem flex flex-col items-center"
-                style="background-color: var(--aas-danger-surface); border-radius: var(--aas-radius-xs)"
+                class="w-6rem flex flex-col items-center bg-[var(--aas-danger-surface)] rounded-[var(--aas-radius-xs)]"
               >
                 <div>{{ entry.aasEnvMem | filesize }}</div>
                 <!-- anzeige in % -->
@@ -795,6 +804,7 @@
               <p-tag [value]="entry.aasRegistryStatus" [severity]="getTagSeverity(entry.aasRegistryStatus)"></p-tag>
               @if (entry.aasRegistryStatus === 'Running') {
                 <p-button
+                  [ariaLabel]="'STOP' | translate"
                   (onClick)="stop(entry.aasRegistryContainerName)"
                   icon="pi pi-stop-circle"
                   size="small"
@@ -802,6 +812,7 @@
                 ></p-button>
               } @else {
                 <p-button
+                  [ariaLabel]="'START' | translate"
                   (onClick)="start(entry.aasRegistryContainerName)"
                   icon="pi pi-play-circle"
                   size="small"
@@ -813,8 +824,7 @@
           <td>
             @if (entry.aasRegistryMaxMem - entry.aasRegistryMem < 50 * 1000 * 1000) {
               <div
-                class="w-6rem flex flex-col items-center"
-                style="background-color: var(--aas-danger-surface); border-radius: var(--aas-radius-xs)"
+                class="w-6rem flex flex-col items-center bg-[var(--aas-danger-surface)] rounded-[var(--aas-radius-xs)]"
               >
                 <div>{{ entry.aasRegistryMem | filesize }}</div>
                 <!-- anzeige in % -->
@@ -881,6 +891,7 @@
               <p-tag [value]="entry.smRegistryStatus" [severity]="getTagSeverity(entry.smRegistryStatus)"></p-tag>
               @if (entry.smRegistryStatus === 'Running') {
                 <p-button
+                  [ariaLabel]="'STOP' | translate"
                   (onClick)="stop(entry.smRegistryContainerName)"
                   icon="pi pi-stop-circle"
                   size="small"
@@ -888,6 +899,7 @@
                 ></p-button>
               } @else {
                 <p-button
+                  [ariaLabel]="'START' | translate"
                   (onClick)="start(entry.smRegistryContainerName)"
                   icon="pi pi-play-circle"
                   size="small"
@@ -899,8 +911,7 @@
           <td>
             @if (entry.smRegistryMaxMem - entry.smRegistryMem < 50 * 1000 * 1000) {
               <div
-                class="w-6rem flex flex-col items-center"
-                style="background-color: var(--aas-danger-surface); border-radius: var(--aas-radius-xs)"
+                class="w-6rem flex flex-col items-center bg-[var(--aas-danger-surface)] rounded-[var(--aas-radius-xs)]"
               >
                 <div>{{ entry.smRegistryMem | filesize }}</div>
                 <!-- anzeige in % -->
@@ -974,6 +985,7 @@
                 <p-tag [value]="entry.mongoStatus" [severity]="getTagSeverity(entry.mongoStatus)"></p-tag>
                 @if (entry.mongoStatus === 'Running') {
                   <p-button
+                    [ariaLabel]="'STOP' | translate"
                     (onClick)="stop(entry.mongoContainerName)"
                     icon="pi pi-stop-circle"
                     size="small"
@@ -981,6 +993,7 @@
                   ></p-button>
                 } @else {
                   <p-button
+                    [ariaLabel]="'START' | translate"
                     (onClick)="start(entry.mongoContainerName)"
                     icon="pi pi-play-circle"
                     size="small"
@@ -996,8 +1009,7 @@
             @if (!entry.isGoInfrastructure) {
               @if (entry.mongoMaxMem - entry.mongoMem < 50 * 1000 * 1000) {
                 <div
-                  class="w-6rem flex flex-col items-center"
-                  style="background-color: var(--aas-danger-surface); border-radius: var(--aas-radius-xs)"
+                  class="w-6rem flex flex-col items-center bg-[var(--aas-danger-surface)] rounded-[var(--aas-radius-xs)]"
                 >
                   <div>{{ entry.mongoMem | filesize }}</div>
                   <!-- anzeige in % -->
@@ -1069,6 +1081,7 @@
               <p-tag [value]="entry.mqttStatus" [severity]="getTagSeverity(entry.mqttStatus)"></p-tag>
               @if (entry.mqttStatus === 'Running') {
                 <p-button
+                  [ariaLabel]="'STOP' | translate"
                   (onClick)="stop(entry.mqttContainerName)"
                   icon="pi pi-stop-circle"
                   size="small"
@@ -1076,6 +1089,7 @@
                 ></p-button>
               } @else {
                 <p-button
+                  [ariaLabel]="'START' | translate"
                   (onClick)="start(entry.mqttContainerName)"
                   icon="pi pi-play-circle"
                   size="small"
@@ -1087,8 +1101,7 @@
           <td>
             @if (entry.mqttMaxMem - entry.mqttMem < 50 * 1000 * 1000) {
               <div
-                class="w-6rem flex flex-col items-center"
-                style="background-color: var(--aas-danger-surface); border-radius: var(--aas-radius-xs)"
+                class="w-6rem flex flex-col items-center bg-[var(--aas-danger-surface)] rounded-[var(--aas-radius-xs)]"
               >
                 <div>{{ entry.mqttMem | filesize }}</div>
                 <!-- anzeige in % -->

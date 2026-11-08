@@ -1,5 +1,5 @@
 import { InstanceHelper } from '@aas/helpers';
-import { Component, effect, ElementRef, inject, Input, signal } from '@angular/core';
+import { Component, effect, ElementRef, inject, Input, signal, ChangeDetectionStrategy } from '@angular/core';
 import { TranslateModule } from '@ngx-translate/core';
 import { BlobViewerComponent } from '../blob-viewer/blob-viewer.component';
 import { CapabilityELementViewerComponent } from '../capability-element-viewer/capability-element-viewer.component';
@@ -27,6 +27,7 @@ import { ViewerStoreService } from '../viewer-store.service';
       }
     `,
   ],
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [
     PropertyViewerComponent,
     MultilanguagePropertyViewerComponent,

@@ -145,7 +145,7 @@ Rules enforced by the backend:
 - `id` must be URL-safe, for example `my-plugin`.
 - `route` must be a unique top-level route, for example `/my-plugin`.
 - Reserved AAS Suite routes such as `/plugins`, `/shells-list`, `/submodels`, `/my-space`, `/system-management`, `/public-viewer`, `/error` and `/forbidden` are not allowed.
-- `icon` must be a PrimeIcons class beginning with `pi pi-`.
+- `icon` must be an icon class from `@openng/icons` (formerly PrimeIcons) beginning with `pi pi-`.
 - `entryPoint` must point to an existing file in the ZIP, usually `index.html`.
 
 ## Creating a Plugin

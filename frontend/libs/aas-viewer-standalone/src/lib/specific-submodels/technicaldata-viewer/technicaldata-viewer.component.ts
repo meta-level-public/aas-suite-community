@@ -4,15 +4,16 @@ import {
   Submodel,
   SubmodelElementCollection,
 } from '@aas-core-works/aas-core3.1-typescript/types';
-import { Component, Input } from '@angular/core';
+import { Component, Input, ChangeDetectionStrategy } from '@angular/core';
 import { DomSanitizer, SafeUrl } from '@angular/platform-browser';
-import { Card } from 'primeng/card';
+import { Card } from '@openng/optimus-ui/card';
 import { AasViewerService } from '../../aas-viewer.service';
 import { GenericViewerComponent } from '../../generic-viewer/generic-viewer.component';
 
 @Component({
   selector: 'aas-technicaldata-viewer',
   templateUrl: './technicaldata-viewer.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [Card, GenericViewerComponent],
 })
 export class TechnicaldataViewerComponent {

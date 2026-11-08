@@ -1,17 +1,18 @@
 import { Clipboard } from '@angular/cdk/clipboard';
 
-import { Component, computed, inject, input, signal } from '@angular/core';
+import { Component, computed, inject, input, signal, ChangeDetectionStrategy } from '@angular/core';
 import { TranslateModule } from '@ngx-translate/core';
 import { NotificationService } from '@aas/common-services';
 import { MarkdownModule, provideMarkdown } from 'ngx-markdown';
 import 'prismjs';
 import 'prismjs/components/prism-bash';
-import { ButtonModule } from 'primeng/button';
+import { ButtonModule } from '@openng/optimus-ui/button';
 
 @Component({
   selector: 'aas-url',
   imports: [TranslateModule, ButtonModule, MarkdownModule],
   providers: [provideMarkdown()],
+  changeDetection: ChangeDetectionStrategy.Eager,
   templateUrl: './url.component.html',
 })
 export class UrlComponent {

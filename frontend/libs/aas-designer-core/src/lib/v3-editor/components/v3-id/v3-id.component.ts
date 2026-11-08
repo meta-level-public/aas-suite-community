@@ -6,18 +6,28 @@ import { IdGenerationUtil, InstanceHelper } from '@aas/helpers';
 import { ApiException } from '@aas/jwt-auth';
 import { EClassItem, ShellResult } from '@aas/model';
 import { ShellsClient } from '@aas/webapi-client';
-import { Component, inject, Input, model, OnChanges, output, signal, ViewChild } from '@angular/core';
+import {
+  Component,
+  inject,
+  Input,
+  model,
+  OnChanges,
+  output,
+  signal,
+  ViewChild,
+  ChangeDetectionStrategy,
+} from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { cloneDeep } from 'lodash-es';
-import { Button } from 'primeng/button';
-import { Dialog } from 'primeng/dialog';
-import { InputGroup } from 'primeng/inputgroup';
-import { InputText } from 'primeng/inputtext';
-import { Popover } from 'primeng/popover';
-import { Ripple } from 'primeng/ripple';
-import { Tab, TabList, Tabs } from 'primeng/tabs';
+import { Button } from '@openng/optimus-ui/button';
+import { Dialog } from '@openng/optimus-ui/dialog';
+import { InputGroup } from '@openng/optimus-ui/inputgroup';
+import { InputText } from '@openng/optimus-ui/inputtext';
+import { Popover } from '@openng/optimus-ui/popover';
+import { Ripple } from '@openng/optimus-ui/ripple';
+import { Tab, TabList, Tabs } from '@openng/optimus-ui/tabs';
 import { lastValueFrom } from 'rxjs';
 import { v4 as uuid } from 'uuid';
 import { NullIfEmptyDirective } from '../../../general/directives/null-if-empty.directive';
@@ -35,6 +45,7 @@ import { VecLookupComponent } from '../vec-lookup/vec-lookup.component';
 @Component({
   selector: 'aas-v3-id',
   templateUrl: './v3-id.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [
     HelpLabelComponent,
     FormsModule,

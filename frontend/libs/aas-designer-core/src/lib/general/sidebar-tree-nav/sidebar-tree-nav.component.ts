@@ -1,10 +1,10 @@
 import { NgClass } from '@angular/common';
-import { Component, computed, effect, inject, input, output, signal } from '@angular/core';
+import { Component, computed, effect, inject, input, output, signal, ChangeDetectionStrategy } from '@angular/core';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
-import { TreeNode } from 'primeng/api';
-import { IconField } from 'primeng/iconfield';
-import { InputIcon } from 'primeng/inputicon';
-import { InputText } from 'primeng/inputtext';
+import { TreeNode } from '@openng/optimus-ui/api';
+import { IconField } from '@openng/optimus-ui/iconfield';
+import { InputIcon } from '@openng/optimus-ui/inputicon';
+import { InputText } from '@openng/optimus-ui/inputtext';
 
 type VisibleNode = {
   depth: number;
@@ -17,6 +17,7 @@ type VisibleNode = {
   selector: 'aas-sidebar-tree-nav',
   templateUrl: './sidebar-tree-nav.component.html',
   styleUrls: ['./sidebar-tree-nav.component.scss'],
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [NgClass, TranslateModule, InputText, IconField, InputIcon],
 })
 export class SidebarTreeNavComponent {

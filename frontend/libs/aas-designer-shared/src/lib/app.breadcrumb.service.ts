@@ -1,6 +1,6 @@
 import { MenuAction } from '@aas-designer-model';
 import { Injectable } from '@angular/core';
-import { MenuItem } from 'primeng/api';
+import { MenuItem } from '@openng/optimus-ui/api';
 import { Subject } from 'rxjs';
 
 @Injectable({ providedIn: 'root' })

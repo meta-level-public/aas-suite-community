@@ -3,15 +3,15 @@ import { HelpLabelComponent } from '@aas/common-components';
 import { FilenameHelper } from '@aas/helpers';
 import { ShellResult, SupplementalFile } from '@aas/model';
 import { HttpClient } from '@angular/common/http';
-import { Component, Input, OnChanges, inject } from '@angular/core';
+import { Component, Input, OnChanges, inject, ChangeDetectionStrategy } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { DomSanitizer } from '@angular/platform-browser';
 import { TranslateModule } from '@ngx-translate/core';
 import { saveAs } from 'file-saver-es';
-import { ButtonModule } from 'primeng/button';
-import { DialogModule } from 'primeng/dialog';
-import { Fieldset } from 'primeng/fieldset';
-import { InputText } from 'primeng/inputtext';
+import { ButtonModule } from '@openng/optimus-ui/button';
+import { DialogModule } from '@openng/optimus-ui/dialog';
+import { Fieldset } from '@openng/optimus-ui/fieldset';
+import { InputText } from '@openng/optimus-ui/inputtext';
 import { lastValueFrom } from 'rxjs';
 import { V3TreeItem } from '../../model/v3-tree-item';
 import { V3TreeService } from '../../v3-tree/v3-tree.service';
@@ -30,6 +30,7 @@ type ReferencingFileEntry = {
 @Component({
   selector: 'aas-v3-supplemental-file',
   templateUrl: './v3-supplemental-file.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [Fieldset, HelpLabelComponent, FormsModule, InputText, ButtonModule, DialogModule, TranslateModule],
 })
 export class V3SupplementalFileComponent extends V3ComponentBase implements OnChanges {

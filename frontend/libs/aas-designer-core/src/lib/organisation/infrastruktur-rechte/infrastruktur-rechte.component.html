@@ -8,9 +8,9 @@
       <ng-template #header>
         <tr>
           <th scope="col">{{ 'INFRA_RECHTE.INFRASTRUKTUR' | translate }}</th>
-          <th scope="col" style="width: 9rem; text-align: center">{{ 'INFRA_RECHTE.DARF_LESEN' | translate }}</th>
-          <th scope="col" style="width: 9rem; text-align: center">{{ 'INFRA_RECHTE.DARF_SCHREIBEN' | translate }}</th>
-          <th scope="col" style="width: 12rem; text-align: center">
+          <th scope="col" class="w-36 !text-center">{{ 'INFRA_RECHTE.DARF_LESEN' | translate }}</th>
+          <th scope="col" class="w-36 !text-center">{{ 'INFRA_RECHTE.DARF_SCHREIBEN' | translate }}</th>
+          <th scope="col" class="w-48 !text-center">
             {{ 'INFRA_RECHTE.DARF_MARKT_PUBLIZIEREN' | translate }}
           </th>
         </tr>
@@ -18,7 +18,7 @@
       <ng-template pTemplate="body" let-recht>
         <tr>
           <td>{{ recht.infrastrukturName }}</td>
-          <td style="text-align: center">
+          <td class="!text-center">
             <p-checkbox
               [(ngModel)]="recht.darfLesen"
               [binary]="true"
@@ -26,14 +26,14 @@
               (onChange)="markDirty()"
             ></p-checkbox>
           </td>
-          <td style="text-align: center">
+          <td class="!text-center">
             <p-checkbox
               [(ngModel)]="recht.darfSchreiben"
               [binary]="true"
               (onChange)="onDarfSchreibenChange(recht, $event.checked)"
             ></p-checkbox>
           </td>
-          <td style="text-align: center">
+          <td class="!text-center">
             <p-checkbox [(ngModel)]="recht.darfMarktPublizieren" [binary]="true" (onChange)="markDirty()"></p-checkbox>
           </td>
         </tr>
@@ -53,9 +53,9 @@
           <th scope="col">{{ 'LASTNAME' | translate }}</th>
           <th scope="col">{{ 'FIRSTNAME' | translate }}</th>
           <th scope="col">{{ 'EMAIL' | translate }}</th>
-          <th scope="col" style="width: 9rem; text-align: center">{{ 'INFRA_RECHTE.DARF_LESEN' | translate }}</th>
-          <th scope="col" style="width: 9rem; text-align: center">{{ 'INFRA_RECHTE.DARF_SCHREIBEN' | translate }}</th>
-          <th scope="col" style="width: 12rem; text-align: center">
+          <th scope="col" class="w-36 !text-center">{{ 'INFRA_RECHTE.DARF_LESEN' | translate }}</th>
+          <th scope="col" class="w-36 !text-center">{{ 'INFRA_RECHTE.DARF_SCHREIBEN' | translate }}</th>
+          <th scope="col" class="w-48 !text-center">
             {{ 'INFRA_RECHTE.DARF_MARKT_PUBLIZIEREN' | translate }}
           </th>
         </tr>
@@ -65,7 +65,7 @@
           <td>{{ recht.name }}</td>
           <td>{{ recht.vorname }}</td>
           <td>{{ recht.email }}</td>
-          <td style="text-align: center">
+          <td class="!text-center">
             <p-checkbox
               [(ngModel)]="recht.darfLesen"
               [binary]="true"
@@ -73,14 +73,14 @@
               (onChange)="markDirty()"
             ></p-checkbox>
           </td>
-          <td style="text-align: center">
+          <td class="!text-center">
             <p-checkbox
               [(ngModel)]="recht.darfSchreiben"
               [binary]="true"
               (onChange)="onDarfSchreibenChange(recht, $event.checked)"
             ></p-checkbox>
           </td>
-          <td style="text-align: center">
+          <td class="!text-center">
             <p-checkbox [(ngModel)]="recht.darfMarktPublizieren" [binary]="true" (onChange)="markDirty()"></p-checkbox>
           </td>
         </tr>
@@ -95,6 +95,7 @@
 
   <div class="flex justify-end gap-2 mt-2">
     <p-button
+      severity="secondary"
       label="{{ 'CANCEL' | translate }}"
       icon="pi pi-times"
       outlined="true"

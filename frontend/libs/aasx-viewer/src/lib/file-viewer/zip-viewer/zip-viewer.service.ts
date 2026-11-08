@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { cloneDeep, toLower } from 'lodash-es';
-import { PrimeIcons, TreeNode } from 'primeng/api';
+import { OpenngIcons, TreeNode } from '@openng/optimus-ui/api';
 import { v4 as uuid } from 'uuid';
 import { FileTreeService } from './tree-viewer';
 import { ZipTree } from './zip-tree';
@@ -18,16 +18,16 @@ export class ZipViewerService {
   static getFileIcon(file: string): string {
     const fileName = toLower(file);
     const imageFiles = ['.gif', '.png', '.jpg', '.svg', '.webp'];
-    let fileIcon = PrimeIcons.FILE;
+    let fileIcon = OpenngIcons.FILE;
     if (file.endsWith('.pdf')) {
-      fileIcon = PrimeIcons.FILE_PDF;
+      fileIcon = OpenngIcons.FILE_PDF;
     } else if (imageFiles.some((extension) => fileName.endsWith(extension))) {
-      fileIcon = PrimeIcons.IMAGE;
+      fileIcon = OpenngIcons.IMAGE;
     } else if (fileName.endsWith('.doc')) {
       // Ist in den PrimeIcons aktuell nicht enthalten als constante 13.10.2022
       fileIcon = 'pi pi-file-word';
     } else if (fileName.endsWith('.xlsx')) {
-      fileIcon = PrimeIcons.FILE_EXCEL;
+      fileIcon = OpenngIcons.FILE_EXCEL;
     }
     return fileIcon;
   }
@@ -37,8 +37,8 @@ export class ZipViewerService {
       key: ZipViewerService.buildNewKey(),
       label: cloneDeep(name) as string,
       data: 'Root Folder',
-      expandedIcon: PrimeIcons.FOLDER_OPEN,
-      collapsedIcon: PrimeIcons.FOLDER,
+      expandedIcon: OpenngIcons.FOLDER_OPEN,
+      collapsedIcon: OpenngIcons.FOLDER,
       children: [],
     };
 
@@ -62,8 +62,8 @@ export class ZipViewerService {
     const folder: FileStruct = {
       key: ZipViewerService.buildNewKey(),
       label: zipData.key,
-      expandedIcon: PrimeIcons.FOLDER_OPEN,
-      collapsedIcon: PrimeIcons.FOLDER,
+      expandedIcon: OpenngIcons.FOLDER_OPEN,
+      collapsedIcon: OpenngIcons.FOLDER,
       children: [],
     };
 

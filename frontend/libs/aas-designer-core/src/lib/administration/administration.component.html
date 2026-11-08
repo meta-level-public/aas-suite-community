@@ -7,12 +7,12 @@
           label="{{ 'RELOAD' | translate }}"
           icon="pi pi-refresh"
           (onClick)="loadData()"
-          severity="success"
+          severity="secondary"
         ></p-button>
         <p-button
           label="{{ 'RESET_FILTER' | translate }}"
           icon="pi pi-times"
-          severity="danger"
+          severity="secondary"
           outlined="true"
           (onClick)="resetFilter()"
         ></p-button>
@@ -24,7 +24,6 @@
     <p-table
       #dtOrga
       [value]="organisations"
-      responsiveLayout="scroll"
       [rows]="10"
       [globalFilterFields]="['name']"
       [paginator]="true"
@@ -44,55 +43,53 @@
       [columns]="columns"
     >
       <ng-template pTemplate="caption">
-        <div style="text-align: left">
-          <p-button icon="pi pi-external-link" label="Export" (onClick)="dtOrga.exportCSV()" />
+        <div class="text-left">
+          <p-button icon="pi pi-external-link" [label]="'EXPORT' | translate" (onClick)="dtOrga.exportCSV()" />
         </div>
       </ng-template>
       <ng-template #header>
         <tr>
-          <th scope="col" style="width: 2%; min-width: 1rem"></th>
-          <th pSortableColumn="orgaName" scope="col" style="width: 14%; min-width: 10rem">
+          <th scope="col" class="w-[2%] min-w-4"></th>
+          <th pSortableColumn="orgaName" scope="col" class="w-[14%] min-w-40">
             {{ 'ORGANIZATION' | translate }} <p-sortIcon field="orgaName"></p-sortIcon>
           </th>
-          <th pSortableColumn="orgaEmail" scope="col" style="width: 14%; min-width: 10rem">
+          <th pSortableColumn="orgaEmail" scope="col" class="w-[14%] min-w-40">
             {{ 'ORGA_EMAIL' | translate }} <p-sortIcon field="orgaEmail"></p-sortIcon>
           </th>
-          <th pSortableColumn="adresse.strasse" scope="col" style="width: 14%; min-width: 10rem">
+          <th pSortableColumn="adresse.strasse" scope="col" class="w-[14%] min-w-40">
             {{ 'STREET' | translate }} <p-sortIcon field="strasse"></p-sortIcon>
           </th>
-          <th pSortableColumn="adresse.plz" scope="col" style="width: 14%; min-width: 10rem">
+          <th pSortableColumn="adresse.plz" scope="col" class="w-[14%] min-w-40">
             {{ 'ZIP' | translate }} <p-sortIcon field="plz"></p-sortIcon>
           </th>
-          <th pSortableColumn="adresse.ort" scope="col" style="width: 14%; min-width: 10rem">
+          <th pSortableColumn="adresse.ort" scope="col" class="w-[14%] min-w-40">
             {{ 'CITY_TOWN' | translate }} <p-sortIcon field="ort"></p-sortIcon>
           </th>
-          <th pSortableColumn="aktiv" scope="col" style="width: 7%; min-width: 5rem">
+          <th pSortableColumn="aktiv" scope="col" class="w-[7%] min-w-20">
             {{ 'ACTIVE' | translate }} <p-sortIcon field="aktiv"></p-sortIcon>
           </th>
-          <th pSortableColumn="wartung" scope="col" style="width: 7%; min-width: 5rem">
+          <th pSortableColumn="wartung" scope="col" class="w-[7%] min-w-20">
             {{ 'MAINTENANCE' | translate }} <p-sortIcon field="wartung"></p-sortIcon>
           </th>
-          <th pSortableColumn="anzahlNutzer" scope="col" style="width: 7%; min-width: 5rem">
+          <th pSortableColumn="anzahlNutzer" scope="col" class="w-[7%] min-w-20">
             {{ 'ANZAHL_NUTZER' | translate }} <p-sortIcon field="anzahlNutzer"></p-sortIcon>
           </th>
-          <th pSortableColumn="hatGueltigesAbo" scope="col" style="width: 7%; min-width: 5rem">
+          <th pSortableColumn="hatGueltigesAbo" scope="col" class="w-[7%] min-w-20">
             {{ 'ABO_VALID' | translate }} <p-sortIcon field="hatGueltigesAbo"></p-sortIcon>
           </th>
-          <th pSortableColumn="hatInfrastruktur" scope="col" style="width: 7%; min-width: 5rem">
+          <th pSortableColumn="hatInfrastruktur" scope="col" class="w-[7%] min-w-20">
             {{ 'INTERNAL_INFRA' | translate }} <p-sortIcon field="hatInfrastruktur"></p-sortIcon>
           </th>
-          <th pSortableColumn="infrastrukturAktiv" scope="col" style="width: 7%; min-width: 5rem">
+          <th pSortableColumn="infrastrukturAktiv" scope="col" class="w-[7%] min-w-20">
             {{ 'INTERNAL_ACTIVE' | translate }} <p-sortIcon field="infrastrukturAktiv"></p-sortIcon>
           </th>
-          <th pSortableColumn="anzahlInfrastrukturen" scope="col" style="width: 7%; min-width: 5rem">
+          <th pSortableColumn="anzahlInfrastrukturen" scope="col" class="w-[7%] min-w-20">
             {{ 'ANZAHL_INFRA' | translate }} <p-sortIcon field="anzahlInfrastrukturen"></p-sortIcon>
           </th>
-          <th scope="col" style="width: 14%; min-width: 14rem">
-            {{ 'ANGELEGT' | translate }}<br />{{ 'GEAENDERT' | translate }}
-          </th>
+          <th scope="col" class="w-[14%] min-w-56">{{ 'ANGELEGT' | translate }}<br />{{ 'GEAENDERT' | translate }}</th>
         </tr>
         <tr>
-          <th scope="col" style="width: 2%; min-width: 1rem"></th>
+          <th scope="col" class="w-[2%] min-w-4"></th>
           <th scope="col"><p-columnFilter type="text" field="orgaName" matchMode="contains"></p-columnFilter></th>
           <th scope="col"><p-columnFilter type="text" field="orgaEmail" matchMode="contains"></p-columnFilter></th>
           <th scope="col"><p-columnFilter type="text" field="strasse" matchMode="contains"></p-columnFilter></th>
@@ -117,15 +114,17 @@
           <th scope="col">
             <p-columnFilter type="number" field="anzahlInfrastrukturen"></p-columnFilter>
           </th>
-          <th scope="col" style="width: 14%; min-width: 14rem"></th>
+          <th scope="col" class="w-[14%] min-w-56"></th>
         </tr>
       </ng-template>
       <ng-template pTemplate="body" let-organisation>
         <tr>
-          <td style="width: 2%; min-width: 1rem">
+          <td class="w-[2%] min-w-4">
             <p-button
+              [ariaLabel]="'MORE_ACTIONS' | translate"
+              [text]="true"
+              severity="secondary"
               icon="pi pi-ellipsis-v"
-              styleClass="p-button-text p-button-secondary"
               (onClick)="menu.toggle($event)"
             ></p-button>
             <p-menu
@@ -136,31 +135,31 @@
               [model]="menuItems"
             ></p-menu>
           </td>
-          <td style="width: 14%; min-width: 10rem">
+          <td class="w-[14%] min-w-40">
             {{ organisation.orgaName }}
           </td>
-          <td style="width: 14%; min-width: 10rem">
+          <td class="w-[14%] min-w-40">
             {{ organisation.orgaEmail }}
           </td>
-          <td style="width: 14%; min-width: 10rem">
+          <td class="w-[14%] min-w-40">
             {{ organisation.strasse }}
           </td>
-          <td style="width: 14%; min-width: 10rem">
+          <td class="w-[14%] min-w-40">
             {{ organisation.plz }}
           </td>
-          <td style="width: 14%; min-width: 10rem">
+          <td class="w-[14%] min-w-40">
             {{ organisation.ort }}
           </td>
-          <td style="width: 7%; min-width: 5rem">
+          <td class="w-[7%] min-w-20">
             {{ organisation.aktiv ? ('primeng.accept' | translate) : ('primeng.reject' | translate) }}
           </td>
-          <td style="width: 7%; min-width: 5rem">
+          <td class="w-[7%] min-w-20">
             {{ organisation.wartung ? ('primeng.accept' | translate) : ('primeng.reject' | translate) }}
           </td>
-          <td style="width: 7%; min-width: 5rem">
+          <td class="w-[7%] min-w-20">
             {{ organisation.anzahlNutzer }}
           </td>
-          <td style="width: 7%; min-width: 5rem">
+          <td class="w-[7%] min-w-20">
             <div class="flex w-full justify-center">
               <p-tag
                 value="{{
@@ -170,7 +169,7 @@
               ></p-tag>
             </div>
           </td>
-          <td style="width: 7%; min-width: 5rem">
+          <td class="w-[7%] min-w-20">
             <div class="flex w-full justify-center">
               <p-tag
                 value="{{
@@ -180,7 +179,7 @@
               ></p-tag>
             </div>
           </td>
-          <td style="width: 7%; min-width: 5rem">
+          <td class="w-[7%] min-w-20">
             <div class="flex w-full justify-center">
               <p-tag
                 value="{{
@@ -190,10 +189,10 @@
               ></p-tag>
             </div>
           </td>
-          <td style="width: 7%; min-width: 5rem">
+          <td class="w-[7%] min-w-20">
             {{ organisation.anzahlInfrastrukturen }}
           </td>
-          <td style="width: 14%; min-width: 14rem">
+          <td class="w-[14%] min-w-56">
             {{ organisation.anlageDatum | vwsDate: 'SHORT_DATE_TIME' }}<br />{{
               organisation.aenderungsDatum | vwsDate: 'SHORT_DATE_TIME'
             }}

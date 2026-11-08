@@ -1,7 +1,7 @@
 import { Component, Input, OnChanges } from '@angular/core';
 import { DomSanitizer, SafeUrl } from '@angular/platform-browser';
-import { PrimeTemplate } from 'primeng/api';
-import { TableModule } from 'primeng/table';
+import { PrimeTemplate } from '@openng/optimus-ui/api';
+import { TableModule } from '@openng/optimus-ui/table';
 import { AasxViewerService } from '../aasx-viewer.service';
 
 import { TranslateModule } from '@ngx-translate/core';

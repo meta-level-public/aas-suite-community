@@ -1,17 +1,18 @@
 import { AuthenticateResponse, AuthRoles, ResultCode } from '@aas-designer-model';
 import { AppConfigService, PortalService } from '@aas/common-services';
 import { HttpClient } from '@angular/common/http';
-import { Component, inject, OnInit, signal } from '@angular/core';
+import { Component, inject, OnInit, signal, ChangeDetectionStrategy } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
-import { ButtonModule } from 'primeng/button';
-import { CardModule } from 'primeng/card';
+import { ButtonModule } from '@openng/optimus-ui/button';
+import { CardModule } from '@openng/optimus-ui/card';
 import { lastValueFrom } from 'rxjs';
 import { PrivacyDialogComponent } from '../privacy-dialog/privacy-dialog.component';
 
 @Component({
   selector: 'aas-sso-login-success',
   imports: [ButtonModule, PrivacyDialogComponent, TranslateModule, CardModule],
+  changeDetection: ChangeDetectionStrategy.Eager,
   templateUrl: './sso-login-success.component.html',
 })
 export class SsoLoginSuccessComponent implements OnInit {

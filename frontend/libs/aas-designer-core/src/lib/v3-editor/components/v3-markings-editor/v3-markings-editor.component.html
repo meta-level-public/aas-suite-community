@@ -1,8 +1,8 @@
 <p-toolbar class="mb-2">
   <div class="p-toolbar-group-start">
     <div class="my-2">
-      <!-- <p-button pRipple label="New" icon="pi pi-plus" styleClass="p-button-success mr-2" (onClick)="openNew()"></p-button> -->
-      <!-- <p-button pRipple label="Delete" icon="pi pi-trash" styleClass="p-button-danger" (onClick)="deleteSelectedProducts()" [disabled]="!selectedProducts || !selectedProducts.length"></p-button> -->
+      <!-- <p-button pRipple label="New" icon="pi pi-plus" styleClass="mr-2" (onClick)="openNew()"></p-button> -->
+      <!-- <p-button severity="danger" pRipple label="Delete" icon="pi pi-trash" (onClick)="deleteSelectedProducts()" [disabled]="!selectedProducts || !selectedProducts.length"></p-button> -->
     </div>
   </div>
 
@@ -24,15 +24,14 @@
             @if (selectedMarkingToAdd.filename !== '') {
               <img
                 src="/assets/markings/{{ selectedMarkingToAdd.filename }}"
-                style="width: 48px; max-height: 48px"
-                class="mr-2"
+                class="mr-2 w-[48px] max-h-[48px]"
                 alt="
             marking
             logo"
               />
             }
             @if (selectedMarkingToAdd.filename === '') {
-              <div class="mr-2" style="width: 48px"></div>
+              <div class="mr-2 w-[48px]"></div>
             }
             <div class="w-14rem mr-2">
               {{ selectedMarkingToAdd.irdi }}
@@ -46,13 +45,12 @@
           @if (marking.filename !== '') {
             <img
               src="/assets/markings/{{ marking.filename }}"
-              style="width: 48px; max-height: 48px"
-              class="mr-2"
-              alt="marking logo"
+              class="mr-2 w-[48px] max-h-[48px]"
+              [alt]="'MARKING_LOGO' | translate"
             />
           }
           @if (marking.filename === '') {
-            <div class="mr-2" style="width: 48px"></div>
+            <div class="mr-2 w-[48px]"></div>
           }
           <div class="w-14rem mr-2">{{ marking.irdi }}</div>
           <div>{{ marking.preferredNameEn }}</div>
@@ -70,14 +68,7 @@
   </div>
 </p-toolbar>
 
-<p-table
-  #dt
-  [value]="markingsSmc()?.value ?? []"
-  responsiveLayout="scroll"
-  [paginator]="false"
-  [showCurrentPageReport]="false"
-  [rowHover]="true"
->
+<p-table #dt [value]="markingsSmc()?.value ?? []" [paginator]="false" [showCurrentPageReport]="false" [rowHover]="true">
   <!-- [dataKey]="nameplate != null ? 'id' : 'mlGenUuid'" -->
   <ng-template pTemplate="caption">
     <div class="flex flex-col md:flex-row md:justify-between md:items-center">
@@ -103,15 +94,15 @@
   </ng-template>
   <ng-template pTemplate="body" let-marking>
     <tr>
-      <td style="width: 15%; min-width: 10rem">
+      <td class="w-[15%] min-w-40">
         {{ getMarkingName(marking) }}
       </td>
-      <!-- <td style="width: 15%; min-width: 10rem">
+      <!-- <td class="w-[15%] min-w-40">
     <em>{{ getMarkingFilename(marking) }}</em>
   </td> -->
-      <td style="width: 15%; min-width: 10rem">
+      <td class="w-[15%] min-w-40">
         @if (getFileSrc(marking); as fileSrc) {
-          <img [src]="fileSrc" height="50" width="50" class="scaleImage" alt="marking" />
+          <img [src]="fileSrc" height="50" width="50" class="scaleImage" [alt]="'MARKING_LOGO' | translate" />
         } @else {
           <aas-single-marking-file-view
             [idShortPath]="getMarkingFileIdShort(marking)"
@@ -122,17 +113,22 @@
           ></aas-single-marking-file-view>
         }
       </td>
-      <td style="width: 15%; min-width: 10rem">
+      <td class="w-[15%] min-w-40">
         {{ getMarkingAdditionalText(marking) }}
       </td>
-      <td style="width: 15%; min-width: 10rem">
+      <td class="w-[15%] min-w-40">
         <p-button
-          styleClass="p-button-rounded p-button-text"
+          [ariaLabel]="'DELETE' | translate"
+          severity="danger"
+          [rounded]="true"
+          [text]="true"
           (onClick)="deleteMarking(marking)"
           icon="pi pi-trash"
         ></p-button>
         <p-button
-          styleClass="p-button-rounded p-button-text"
+          [ariaLabel]="'EDIT' | translate"
+          [rounded]="true"
+          [text]="true"
           (onClick)="startEditMarking(marking)"
           icon="pi pi-pencil"
         ></p-button>
@@ -178,14 +174,9 @@
     <p-button
       label="{{ 'CANCEL' | translate }}"
       (onClick)="showEditMarkingDialog.set(false)"
-      icon="pi pi-time"
+      icon="pi pi-times"
       severity="secondary"
     ></p-button>
-    <p-button
-      label="{{ 'APPLY' | translate }}"
-      (onClick)="saveEditedMarking()"
-      icon="pi pi-check"
-      severity="success"
-    ></p-button>
+    <p-button label="{{ 'APPLY' | translate }}" (onClick)="saveEditedMarking()" icon="pi pi-check"></p-button>
   </ng-template>
 </p-dialog>

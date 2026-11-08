@@ -1,8 +1,9 @@
-import { Component, Input } from '@angular/core';
+import { Component, Input, ChangeDetectionStrategy } from '@angular/core';
 
 @Component({
   selector: 'aas-submodel-hero-header',
   templateUrl: './submodel-hero-header.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrls: ['./submodel-hero-header.component.css'],
 })
 export class SubmodelHeroHeaderComponent {

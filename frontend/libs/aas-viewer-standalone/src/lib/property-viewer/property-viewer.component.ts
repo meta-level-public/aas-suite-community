@@ -1,14 +1,13 @@
-import { Component, inject, Input, OnChanges, OnDestroy, signal } from '@angular/core';
-import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
+import { Component, inject, Input, OnChanges, OnDestroy, signal, ChangeDetectionStrategy } from '@angular/core';
 
 import * as aas from '@aas-core-works/aas-core3.1-typescript';
 import { ConceptDescription, ISubmodelElement } from '@aas-core-works/aas-core3.1-typescript/types';
-import { formatDateLike, SubmodelElementUtil } from '@aas/helpers';
+import { formatDateLike, highlightMatches, SubmodelElementUtil } from '@aas/helpers';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
-import { InputGroup } from 'primeng/inputgroup';
-import { InputGroupAddon } from 'primeng/inputgroupaddon';
-import { InputText } from 'primeng/inputtext';
-import { Tooltip } from 'primeng/tooltip';
+import { InputGroup } from '@openng/optimus-ui/inputgroup';
+import { InputGroupAddon } from '@openng/optimus-ui/inputgroupaddon';
+import { InputText } from '@openng/optimus-ui/inputtext';
+import { Tooltip } from '@openng/optimus-ui/tooltip';
 import { Subscription } from 'rxjs';
 import { ConceptDescriptionService } from '../concept-description.service';
 import { ViewerStoreService } from '../viewer-store.service';
@@ -19,11 +18,11 @@ import { SemanticDescriptionPopupComponent } from '../semantic-description-popup
   selector: 'aas-property-viewer',
   templateUrl: './property-viewer.component.html',
   styleUrls: ['./property-viewer.component.css'],
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [InputGroup, InputGroupAddon, InputText, SemanticDescriptionPopupComponent, TranslateModule, Tooltip],
 })
 export class PropertyViewerComponent implements OnChanges, OnDestroy {
   viewerStore = inject(ViewerStoreService);
-  sanitizer = inject(DomSanitizer);
   @Input({ required: true }) property: aas.types.Property | null | undefined;
   @Input() compact: boolean = false;
 
@@ -83,21 +82,14 @@ export class PropertyViewerComponent implements OnChanges, OnDestroy {
   }
 
   // Highlight matched query if this element is currently targeted
-  get highlightedValueHtml(): SafeHtml | null {
+  get highlightedValueHtml(): string | null {
     const q = this.viewerStore.highlightedTextQuery()?.trim();
     if (!q) return null;
     // best-effort: only highlight when this element is the current highlight target prefix matches
     // The GenericViewer handles the block-level highlight via CSS; here we add inline highlight for value text.
     const raw = String(this.formattedValue ?? '');
     if (!raw) return null;
-    try {
-      const escapedQ = q.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-      const re = new RegExp(escapedQ, 'gi');
-      const html = raw.replace(re, (m) => `<mark>${m}</mark>`);
-      return this.sanitizer.bypassSecurityTrustHtml(html);
-    } catch {
-      return null;
-    }
+    return highlightMatches(raw, q);
   }
 
   get datatypeString() {

@@ -1,15 +1,16 @@
 import * as aas from '@aas-core-works/aas-core3.1-typescript';
 import { AasExtractHelper } from '@aas/helpers';
-import { Component, computed, Input, signal } from '@angular/core';
+import { Component, computed, Input, signal, ChangeDetectionStrategy } from '@angular/core';
 import { TranslateModule } from '@ngx-translate/core';
-import { InputGroup } from 'primeng/inputgroup';
-import { InputGroupAddon } from 'primeng/inputgroupaddon';
-import { InputText } from 'primeng/inputtext';
+import { InputGroup } from '@openng/optimus-ui/inputgroup';
+import { InputGroupAddon } from '@openng/optimus-ui/inputgroupaddon';
+import { InputText } from '@openng/optimus-ui/inputtext';
 import { HandoverStructureMode } from '../structure-mode';
 
 @Component({
   selector: 'aas-handover-doc-identification',
   templateUrl: './document-identification.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [InputGroup, InputGroupAddon, InputText, TranslateModule],
 })
 export class DocumentIdentificationComponent {

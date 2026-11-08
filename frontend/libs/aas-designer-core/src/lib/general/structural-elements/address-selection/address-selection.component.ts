@@ -1,20 +1,29 @@
 import * as aas from '@aas-core-works/aas-core3.1-typescript';
 import { PortalService } from '@aas/common-services';
-import { ChangeDetectorRef, Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
+import {
+  ChangeDetectorRef,
+  Component,
+  EventEmitter,
+  Input,
+  OnInit,
+  Output,
+  ChangeDetectionStrategy,
+} from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { PrimeTemplate } from 'primeng/api';
-import { Select } from 'primeng/select';
+import { PrimeTemplate } from '@openng/optimus-ui/api';
+import { Select } from '@openng/optimus-ui/select';
 import { HerstellerAdresse } from '../../../generator/model/hersteller-adresse';
 import { V3TreeItem } from '../../../v3-editor/model/v3-tree-item';
 import { AddressSelectionService } from './address-selection.service';
 
 import { TranslateModule } from '@ngx-translate/core';
-import { Button } from 'primeng/button';
-import { Divider } from 'primeng/divider';
+import { Button } from '@openng/optimus-ui/button';
+import { Divider } from '@openng/optimus-ui/divider';
 
 @Component({
   selector: 'aas-address-selection',
   templateUrl: './address-selection.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [Select, FormsModule, PrimeTemplate, Button, Divider, TranslateModule],
 })
 export class AddressSelectionComponent implements OnInit {

@@ -1,6 +1,7 @@
 import * as aas from '@aas-core-works/aas-core3.1-typescript';
 import { VerificationError } from '@aas-core-works/aas-core3.1-typescript/verification';
 import { inject } from '@angular/core';
+import { ID_SHORT_KEY_FILTER } from '@aas/common-services';
 import { UrlHelper } from '@aas/helpers';
 import { V3EditorUiStateStoreService } from '../v3-editor-ui-state-store.service';
 
@@ -21,7 +22,7 @@ export class V3ComponentBase {
   entityTypes: { label: string; value: number }[];
   categoryOptions: { label: string; value: string | null }[];
 
-  idShortRegex = /[a-zA-Z0-9_]/;
+  idShortRegex = ID_SHORT_KEY_FILTER;
 
   UrlHelper = UrlHelper;
 

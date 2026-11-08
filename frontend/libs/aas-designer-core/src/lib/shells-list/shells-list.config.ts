@@ -1,4 +1,4 @@
-import { FilterMatchMode } from 'primeng/api';
+import { FilterMatchMode } from '@openng/optimus-ui/api';
 
 export interface Column {
   field: string;

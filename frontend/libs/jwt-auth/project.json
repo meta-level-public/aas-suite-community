@@ -6,6 +6,16 @@
   "prefix": "vws",
   "tags": ["scope:shared"],
   "targets": {
+    "test": {
+      "executor": "@analogjs/vitest-angular:test",
+      "outputs": ["{workspaceRoot}/coverage/{projectRoot}"],
+      "options": {
+        "configFile": "vitest.config.ts",
+        "coverage": false,
+        "watch": false,
+        "passWithNoTests": true
+      }
+    },
     "lint": {
       "executor": "@nx/eslint:lint"
     }

@@ -78,17 +78,27 @@
                   <span>{{ rowData?.displayName }}</span>
                   @if (rowNode.node.children == null) {
                     <p-button
+                      [ariaLabel]="'INFO' | translate"
+                      [outlined]="true"
+                      [rounded]="true"
+                      size="small"
                       icon="pi pi-info"
-                      styleClass="p-button-outlined p-button-rounded p-button-sm"
                       (onClick)="showDefinition(rowData, opDefinition, $event)"
                     ></p-button>
                   }
 
-                  <div class="cursor-pointer" (click)="showInfo(rowData.irdi, op, $event)">
-                    @if (rowData?.hasValueList) {
-                      <p-tag severity="info" value="Valuelist"></p-tag>
-                    }
-                  </div>
+                  @if (rowData?.hasValueList) {
+                    <p-tag
+                      severity="info"
+                      value="Valuelist"
+                      class="cursor-pointer"
+                      role="button"
+                      tabindex="0"
+                      (click)="showInfo(rowData.irdi, op, $event)"
+                      (keydown.enter)="showInfo(rowData.irdi, op, $event)"
+                      (keydown.space)="$event.preventDefault(); showInfo(rowData.irdi, op, $event)"
+                    ></p-tag>
+                  }
                   @if (rowNode.node.children != null) {
                     {{ rowNode.node.label }}
                   }
@@ -149,11 +159,7 @@
 
   <ng-template pTemplate="footer">
     <div class="w-full flex flex-row justify-end gap-2">
-      <p-button
-        label="{{ 'CANCEL' | translate }}"
-        (onClick)="showCandidates = false"
-        styleClass="p-button-secondary"
-      ></p-button>
+      <p-button severity="secondary" label="{{ 'CANCEL' | translate }}" (onClick)="showCandidates = false"></p-button>
       @if (activeIndex == 0 && eclassImported) {
         <p-button
           label="{{ 'SELECT_TARGET' | translate }}"

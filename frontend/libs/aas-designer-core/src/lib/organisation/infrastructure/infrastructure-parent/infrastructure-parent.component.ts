@@ -1,10 +1,10 @@
 import { AccessService, NotificationService } from '@aas/common-services';
 import { AasInfrastructureClient, AasInfrastructureSettingsDto } from '@aas/webapi-client';
-import { Component, ElementRef, inject, output, signal, viewChild } from '@angular/core';
+import { Component, ElementRef, inject, output, signal, viewChild, ChangeDetectionStrategy } from '@angular/core';
 import { TranslateModule } from '@ngx-translate/core';
-import { ButtonModule } from 'primeng/button';
-import { DialogModule } from 'primeng/dialog';
-import { ToolbarModule } from 'primeng/toolbar';
+import { ButtonModule } from '@openng/optimus-ui/button';
+import { DialogModule } from '@openng/optimus-ui/dialog';
+import { ToolbarModule } from '@openng/optimus-ui/toolbar';
 import { lastValueFrom } from 'rxjs';
 import { InfrastrukturRechteComponent } from '../../infrastruktur-rechte/infrastruktur-rechte.component';
 import { HasChangesCheckable } from '../../my-organisation/has-changes-checkable';
@@ -13,8 +13,16 @@ import { InfrastructureAddComponent } from '../infrastructure-add/infrastructure
 
 @Component({
   selector: 'aas-infrastructure-parent',
-  imports: [ToolbarModule, TranslateModule, ButtonModule, DialogModule, InfrastructureAddComponent, InfrastrukturRechteComponent],
+  imports: [
+    ToolbarModule,
+    TranslateModule,
+    ButtonModule,
+    DialogModule,
+    InfrastructureAddComponent,
+    InfrastrukturRechteComponent,
+  ],
   templateUrl: './infrastructure-parent.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   providers: [{ provide: HasChangesCheckable, useExisting: InfrastructureParentComponent }],
 })
 export class InfrastructureParentComponent extends HasChangesCheckable {

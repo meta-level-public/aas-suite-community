@@ -5,10 +5,10 @@ import { NewsService } from '@aas/news';
 import { ChangeDetectionStrategy, Component, inject, OnInit, signal } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
-import { MessageService } from 'primeng/api';
-import { Button } from 'primeng/button';
-import { TableModule } from 'primeng/table';
-import { Tag } from 'primeng/tag';
+import { MessageService } from '@openng/optimus-ui/api';
+import { Button } from '@openng/optimus-ui/button';
+import { TableModule } from '@openng/optimus-ui/table';
+import { Tag } from '@openng/optimus-ui/tag';
 import { showSystemManagementError } from '../shared/system-management-error.util';
 
 @Component({

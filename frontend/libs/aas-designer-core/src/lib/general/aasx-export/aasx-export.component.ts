@@ -1,20 +1,21 @@
-import { Component, inject, signal } from '@angular/core';
+import { Component, inject, signal, ChangeDetectionStrategy } from '@angular/core';
 
 import { HelpLabelComponent } from '@aas/common-components';
 import { NotificationService } from '@aas/common-services';
 import { ShellExportOptions, ShellsClient, SubmodelMetadata } from '@aas/webapi-client';
 import { FormsModule } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
-import { ButtonModule } from 'primeng/button';
-import { DialogModule } from 'primeng/dialog';
-import { PickListModule } from 'primeng/picklist';
-import { ProgressBarModule } from 'primeng/progressbar';
-import { SelectButtonModule } from 'primeng/selectbutton';
+import { ButtonModule } from '@openng/optimus-ui/button';
+import { DialogModule } from '@openng/optimus-ui/dialog';
+import { PickListModule } from '@openng/optimus-ui/picklist';
+import { ProgressBarModule } from '@openng/optimus-ui/progressbar';
+import { SelectButtonModule } from '@openng/optimus-ui/selectbutton';
 import { lastValueFrom } from 'rxjs';
 
 @Component({
   selector: 'aas-aasx-export',
   templateUrl: './aasx-export.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [
     FormsModule,
     DialogModule,

@@ -1,13 +1,14 @@
 import { HttpClient } from '@angular/common/http';
-import { Component, inject, OnInit, output, signal } from '@angular/core';
+import { Component, inject, OnInit, output, signal, ChangeDetectionStrategy } from '@angular/core';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
-import { AccordionModule } from 'primeng/accordion';
+import { AccordionModule } from '@openng/optimus-ui/accordion';
 import { lastValueFrom } from 'rxjs';
 import { LookupSource } from './lookup-source';
 
 @Component({
   selector: 'aas-additional-lookup-sources',
   imports: [AccordionModule, TranslateModule],
+  changeDetection: ChangeDetectionStrategy.Eager,
   templateUrl: './additional-lookup-sources.component.html',
 })
 export class AdditionalLookupSourcesComponent implements OnInit {

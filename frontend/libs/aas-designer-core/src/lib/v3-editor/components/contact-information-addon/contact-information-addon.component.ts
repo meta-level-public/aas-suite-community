@@ -1,12 +1,12 @@
 import * as aas from '@aas-core-works/aas-core3.1-typescript';
 
-import { Component, inject, signal } from '@angular/core';
+import { Component, inject, signal, ChangeDetectionStrategy } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
-import { ButtonModule } from 'primeng/button';
-import { DialogService, DynamicDialogRef } from 'primeng/dynamicdialog';
-import { FieldsetModule } from 'primeng/fieldset';
-import { InputTextModule } from 'primeng/inputtext';
+import { ButtonModule } from '@openng/optimus-ui/button';
+import { DialogService, DynamicDialogRef } from '@openng/optimus-ui/dynamicdialog';
+import { FieldsetModule } from '@openng/optimus-ui/fieldset';
+import { InputTextModule } from '@openng/optimus-ui/inputtext';
 import contactInformationTemplate from './contact-information-template.json';
 import { ContactInformation, createEmptyContactInformation } from './contact-information.model';
 
@@ -14,6 +14,7 @@ import { ContactInformation, createEmptyContactInformation } from './contact-inf
   selector: 'app-contact-information-addon',
   templateUrl: './contact-information-addon.component.html',
 
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [FormsModule, TranslateModule, FieldsetModule, InputTextModule, ButtonModule],
 })
 export class ContactInformationAddonComponent {
@@ -44,8 +45,9 @@ export class ContactInformationAddonComponent {
       }
       return collection ?? new aas.types.SubmodelElementCollection();
     } else {
-      // eslint-disable-next-line no-console
-      console.log('De-serialization failed: ' + `${instanceOrError.error.path}: ` + `${instanceOrError.error.message}`);
+      console.warn(
+        'De-serialization failed: ' + `${instanceOrError.error.path}: ` + `${instanceOrError.error.message}`,
+      );
       // Fallback: return empty SubmodelElementCollection
       return new aas.types.SubmodelElementCollection();
     }

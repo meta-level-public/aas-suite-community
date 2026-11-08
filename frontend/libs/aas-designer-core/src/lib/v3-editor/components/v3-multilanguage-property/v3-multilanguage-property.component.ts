@@ -13,13 +13,13 @@ import {
   ProductRootDto,
 } from '@aas/webapi-client';
 import { NgClass } from '@angular/common';
-import { Component, inject, Input, OnChanges, signal, SimpleChanges } from '@angular/core';
+import { Component, inject, Input, OnChanges, signal, SimpleChanges, ChangeDetectionStrategy } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
-import { Button } from 'primeng/button';
-import { Divider } from 'primeng/divider';
-import { Fieldset } from 'primeng/fieldset';
-import { Select } from 'primeng/select';
+import { Button } from '@openng/optimus-ui/button';
+import { Divider } from '@openng/optimus-ui/divider';
+import { Fieldset } from '@openng/optimus-ui/fieldset';
+import { Select } from '@openng/optimus-ui/select';
 import { lastValueFrom } from 'rxjs';
 import { UndoDirective } from '../../../general/directives/undo.directive';
 import { Info } from '../../../general/model/info-item';
@@ -39,6 +39,7 @@ import { V3ValueIdComponent } from '../v3-value-id/v3-value-id.component';
   selector: 'aas-v3-multilanguage-property',
   templateUrl: './v3-multilanguage-property.component.html',
   styleUrls: ['../../../../host.scss'],
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [
     Fieldset,
     HelpLabelComponent,

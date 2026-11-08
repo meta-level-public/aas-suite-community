@@ -1,8 +1,8 @@
-import { Component, computed, inject, input } from '@angular/core';
+import { Component, computed, inject, input, ChangeDetectionStrategy } from '@angular/core';
 import { TranslateModule } from '@ngx-translate/core';
-import { ButtonModule } from 'primeng/button';
-import { InputGroupAddon } from 'primeng/inputgroupaddon';
-import { TooltipModule } from 'primeng/tooltip';
+import { ButtonModule } from '@openng/optimus-ui/button';
+import { InputGroupAddon } from '@openng/optimus-ui/inputgroupaddon';
+import { TooltipModule } from '@openng/optimus-ui/tooltip';
 import { ViewerStoreService } from '../viewer-store.service';
 
 @Component({
@@ -10,6 +10,7 @@ import { ViewerStoreService } from '../viewer-store.service';
   templateUrl: './open-shell-button.component.html',
   // Renders an addon of the surrounding p-inputgroup, so the host must not create its own box
   host: { class: 'contents' },
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [ButtonModule, InputGroupAddon, TooltipModule, TranslateModule],
 })
 export class OpenShellButtonComponent {

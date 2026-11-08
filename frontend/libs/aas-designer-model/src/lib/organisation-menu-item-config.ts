@@ -1,6 +1,6 @@
 import { InjectionToken } from '@angular/core';
 import { Routes } from '@angular/router';
-import { TreeNode } from 'primeng/api';
+import { TreeNode } from '@openng/optimus-ui/api';
 
 export interface OrganisationMenuItemConfig {
   /**

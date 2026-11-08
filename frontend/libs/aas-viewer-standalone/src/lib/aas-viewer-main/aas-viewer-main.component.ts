@@ -1,9 +1,10 @@
-import { Component, HostListener } from '@angular/core';
-import { DialogService, DynamicDialogRef } from 'primeng/dynamicdialog';
+import { Component, HostListener, ChangeDetectionStrategy } from '@angular/core';
+import { DialogService, DynamicDialogRef } from '@openng/optimus-ui/dynamicdialog';
 import { AasViewerStandaloneComponent } from '../aas-viewer-standalone/aas-viewer-standalone.component';
 
 @Component({
   selector: 'aas-viewer-main',
+  changeDetection: ChangeDetectionStrategy.Eager,
   templateUrl: './aas-viewer-main.component.html',
 })
 export class AasViewerMainComponent {

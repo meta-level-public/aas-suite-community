@@ -1,5 +1,5 @@
 import { AsyncPipe } from '@angular/common';
-import { Component, computed, input } from '@angular/core';
+import { Component, computed, input, ChangeDetectionStrategy } from '@angular/core';
 import { LeafletDirective, LeafletLayerDirective } from '@bluehalo/ngx-leaflet';
 import * as Leaflet from 'leaflet';
 import { tileLayer } from 'leaflet';
@@ -8,6 +8,7 @@ import { OpenStreetMapProvider } from 'leaflet-geosearch';
 @Component({
   selector: 'aas-nameplate-map',
   templateUrl: './nameplate-map.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [LeafletDirective, LeafletLayerDirective, AsyncPipe],
 })
 export class NameplateMapComponent {

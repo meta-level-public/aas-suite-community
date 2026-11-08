@@ -28,6 +28,8 @@ RUN corepack pnpm nx build aas-designer-community --configuration production
 # Stage 2: Serve with Caddy
 FROM caddy:2-alpine
 
+RUN apk upgrade --no-cache
+
 # Copy built files from builder
 COPY --from=builder /app/dist/apps/aas-designer-community/browser/ /usr/share/caddy/
 

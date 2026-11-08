@@ -9,6 +9,7 @@
 
           <div class="p-toolbar-group-end flex gap-2">
             <p-button
+              severity="secondary"
               label="{{ 'CLOSE' | translate }}"
               icon="pi pi-times"
               outlined="true"
@@ -19,7 +20,6 @@
               pRipple
               label="{{ 'SAVE' | translate }}"
               icon="pi pi-save"
-              styleClass="p-button-success"
               (onClick)="save()"
               [loading]="loading"
               [disabled]="validData() === false"

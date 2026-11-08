@@ -1,40 +1,40 @@
 import * as aas from '@aas-core-works/aas-core3.1-typescript';
-import { Component, OnDestroy, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import { Router } from '@angular/router';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
-import { TreeNode } from 'primeng/api';
-import { Button } from 'primeng/button';
-import { DialogService, DynamicDialogRef } from 'primeng/dynamicdialog';
-import { FileSelectEvent } from 'primeng/fileupload';
+import { TreeNode } from '@openng/optimus-ui/api';
+import { Button } from '@openng/optimus-ui/button';
+import { DialogService, DynamicDialogRef } from '@openng/optimus-ui/dynamicdialog';
+import { FileSelectEvent } from '@openng/optimus-ui/fileupload';
 import { HandoverdocumentationDocumentAddonComponent } from '../../v3-editor/addons/handoverdocumentation-document-addon/handoverdocumentation-document-addon.component';
 import {
-    BatteryEditorTreeItem,
-    createBatteryEditorEnumOptions,
-    createBatteryEditorTreeKey,
-    findBatteryEditorTreeItemByKey,
-    flattenBatteryEditorTreeItems,
-    formatBatteryEditorLabel,
-    getBatteryEditorElementDisplayName,
-    getBatteryEditorTreeItemIndexLabel,
-    getFirstBatteryEditorTreeItem,
-    isBatteryEditorContainerElement,
-    mapBatteryEditorTreeItemsToNodes,
-    resolveBatteryEditorDescriptionFromConceptDescriptions,
-    stringifyBatteryEditorDebugValue,
+  BatteryEditorTreeItem,
+  createBatteryEditorEnumOptions,
+  createBatteryEditorTreeKey,
+  findBatteryEditorTreeItemByKey,
+  flattenBatteryEditorTreeItems,
+  formatBatteryEditorLabel,
+  getBatteryEditorElementDisplayName,
+  getBatteryEditorTreeItemIndexLabel,
+  getFirstBatteryEditorTreeItem,
+  isBatteryEditorContainerElement,
+  mapBatteryEditorTreeItemsToNodes,
+  resolveBatteryEditorDescriptionFromConceptDescriptions,
+  stringifyBatteryEditorDebugValue,
 } from '../battery-editor-field-utils';
 import {
-    getBatteryPassportAdditionalSubmodels,
-    getBatteryPassportTemplateKey,
-    hasBatteryPassportSubmodel,
+  getBatteryPassportAdditionalSubmodels,
+  getBatteryPassportTemplateKey,
+  hasBatteryPassportSubmodel,
 } from '../battery-passport-template-registry';
 import { getDocumentationDocumentHost, isDocumentationDocumentCollection } from '../generator-documentation.builder';
 import { GeneratorFilePreviewState } from '../generator-file-preview.utils';
 import {
-    buildGeneratorFileUploadCardState,
-    getGeneratorDisplayedContentType,
-    getGeneratorDisplayedFileName,
-    getGeneratorStoredFileReference,
-    hasGeneratorFileSelection,
+  buildGeneratorFileUploadCardState,
+  getGeneratorDisplayedContentType,
+  getGeneratorDisplayedFileName,
+  getGeneratorStoredFileReference,
+  hasGeneratorFileSelection,
 } from '../generator-file-upload-card-state.utils';
 import { type GeneratorFileUploadCardState } from '../generator-file-upload-card/generator-file-upload-card.component';
 import { GeneratorService } from '../generator.service';
@@ -64,6 +64,7 @@ interface HandoverField {
   host: {
     class: 'flex flex-col flex-1',
   },
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [Button, TranslateModule, SubmodelEditorHostComponent],
 })
 export class BatteryHandoverComponent implements OnInit, OnDestroy {

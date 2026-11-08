@@ -1,5 +1,5 @@
 import { EnvironmentProviders, provideAppInitializer } from '@angular/core';
-import { Menu } from 'primeng/menu';
+import { Menu } from '@openng/optimus-ui/menu';
 
 type MenuOverlayInternals = { visible: boolean; onOverlayAfterLeave(): void };
 

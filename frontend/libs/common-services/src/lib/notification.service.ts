@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
-import { MessageService } from 'primeng/api';
-import { Message } from 'primeng/message';
+import { MessageService } from '@openng/optimus-ui/api';
+import { Message } from '@openng/optimus-ui/message';
 
 @Injectable({
   providedIn: 'root',

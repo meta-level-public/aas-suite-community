@@ -6,16 +6,16 @@ import {
   VersionEntry,
 } from '@aas/webapi-client';
 import { CommonModule } from '@angular/common';
-import { Component, effect, inject, input, model, OnInit, signal } from '@angular/core';
+import { Component, effect, inject, input, model, OnInit, signal, ChangeDetectionStrategy } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
-import { ButtonModule } from 'primeng/button';
-import { CardModule } from 'primeng/card';
-import { FieldsetModule } from 'primeng/fieldset';
-import { SelectModule } from 'primeng/select';
-import { TableModule } from 'primeng/table';
-import { TagModule } from 'primeng/tag';
-import { ToolbarModule } from 'primeng/toolbar';
+import { ButtonModule } from '@openng/optimus-ui/button';
+import { CardModule } from '@openng/optimus-ui/card';
+import { FieldsetModule } from '@openng/optimus-ui/fieldset';
+import { SelectModule } from '@openng/optimus-ui/select';
+import { TableModule } from '@openng/optimus-ui/table';
+import { TagModule } from '@openng/optimus-ui/tag';
+import { ToolbarModule } from '@openng/optimus-ui/toolbar';
 import { lastValueFrom } from 'rxjs';
 
 @Component({
@@ -32,6 +32,7 @@ import { lastValueFrom } from 'rxjs';
     CardModule,
     SelectModule,
   ],
+  changeDetection: ChangeDetectionStrategy.Eager,
   templateUrl: './infrastructure-update-versions.component.html',
 })
 export class InfrastructureUpdateVersionsComponent implements OnInit {

@@ -51,7 +51,7 @@
           @if (operation.inputVariables && operation.inputVariables.length > 0) {
             <p-accordion-panel value="in">
               <p-accordion-header>
-                {{ 'INPUT_VARIABLES' | translate }} ({{ operation.inputVariables.length }})">
+                {{ 'INPUT_VARIABLES' | translate }} ({{ operation.inputVariables.length }})
               </p-accordion-header>
               <p-accordion-content>
                 @for (input of inputVariables(); track $index) {
@@ -71,7 +71,7 @@
           @if (operation.outputVariables && operation.outputVariables.length > 0) {
             <p-accordion-panel value="out">
               <p-accordion-header>
-                {{ 'OUTPUT_VARIABLES' | translate }} ({{ operation.outputVariables.length }})">
+                {{ 'OUTPUT_VARIABLES' | translate }} ({{ operation.outputVariables.length }})
               </p-accordion-header>
               <p-accordion-content>
                 @for (output of outputVariables(); track $index) {
@@ -91,7 +91,7 @@
           @if (operation.inoutputVariables && operation.inoutputVariables.length > 0) {
             <p-accordion-panel value="inout">
               <p-accordion-header>
-                {{ 'INOUT_VARIABLES' | translate }} ({{ operation.inoutputVariables.length }})">
+                {{ 'INOUT_VARIABLES' | translate }} ({{ operation.inoutputVariables.length }})
               </p-accordion-header>
               <p-accordion-content>
                 @for (inout of inoutputVariables(); track $index) {
@@ -129,14 +129,21 @@
             (onClick)="execute()"
             label="{{ 'EXECUTE' | translate }}"
             [outlined]="true"
+            [disabled]="!canExecute()"
           ></p-button>
           <p-button
             icon="pi pi-arrow-circle-right"
             (onClick)="executeAsync()"
             label="{{ 'EXECUTE_ASYNC' | translate }}"
             [outlined]="true"
+            [disabled]="!canExecute()"
           ></p-button>
         </div>
+        @if (!canExecute()) {
+          <p-message severity="warn" variant="simple" size="small">{{
+            'OPERATION_ENDPOINT_MISSING' | translate
+          }}</p-message>
+        }
       </div>
     </p-fieldset>
   }

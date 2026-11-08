@@ -2,16 +2,17 @@ import * as aas from '@aas-core-works/aas-core3.1-typescript';
 import { AssetAdministrationShell, KeyTypes, Reference } from '@aas-core-works/aas-core3.1-typescript/types';
 import { VerificationError } from '@aas-core-works/aas-core3.1-typescript/verification';
 
-import { Component, Input, input } from '@angular/core';
+import { Component, Input, input, ChangeDetectionStrategy } from '@angular/core';
 import { TranslateModule } from '@ngx-translate/core';
-import { ButtonModule } from 'primeng/button';
-import { MessageModule } from 'primeng/message';
+import { ButtonModule } from '@openng/optimus-ui/button';
+import { MessageModule } from '@openng/optimus-ui/message';
 import { ErrorHandlingAction } from '../v3-component-base';
 
 @Component({
   selector: 'aas-error-line',
 
   imports: [TranslateModule, ButtonModule, MessageModule],
+  changeDetection: ChangeDetectionStrategy.Eager,
   templateUrl: './error-line.component.html',
 })
 export class ErrorLineComponent {
@@ -56,12 +57,8 @@ export class ErrorLineComponent {
     }
   }
 
-  fixExternalReferences(error: VerificationError) {
-    // eslint-disable-next-line no-console
-    console.log('fixExternalRefernces', error);
+  fixExternalReferences(_error: VerificationError) {
     const parentContent = this.parent;
-    // eslint-disable-next-line no-console
-    console.log(parentContent);
     if (parentContent != null && parentContent instanceof Reference) {
       parentContent.type = aas.types.ReferenceTypes.ExternalReference;
       parentContent.keys.forEach((key) => {

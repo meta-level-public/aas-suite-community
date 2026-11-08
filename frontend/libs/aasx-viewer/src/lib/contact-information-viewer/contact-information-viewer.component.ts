@@ -1,8 +1,8 @@
 import { Component, Input } from '@angular/core';
 import { TranslateModule } from '@ngx-translate/core';
-import { PrimeTemplate } from 'primeng/api';
-import { Button } from 'primeng/button';
-import { TableModule } from 'primeng/table';
+import { PrimeTemplate } from '@openng/optimus-ui/api';
+import { Button } from '@openng/optimus-ui/button';
+import { TableModule } from '@openng/optimus-ui/table';
 import { ContactInformationElementViewerComponent } from './contact-information-element-viewer/contact-information-element-viewer.component';
 
 @Component({

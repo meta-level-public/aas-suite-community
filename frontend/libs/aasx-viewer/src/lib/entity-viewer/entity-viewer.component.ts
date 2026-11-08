@@ -1,7 +1,7 @@
 import { Component, Input } from '@angular/core';
 import { EntityElementViewerComponent } from './entity-element-viewer/entity-element-viewer.component';
 
-import { Panel } from 'primeng/panel';
+import { Panel } from '@openng/optimus-ui/panel';
 import { RelationshipViewerComponent } from '../relationship-element/relationship-viewer.component';
 import { TranslateModule } from '@ngx-translate/core';
 

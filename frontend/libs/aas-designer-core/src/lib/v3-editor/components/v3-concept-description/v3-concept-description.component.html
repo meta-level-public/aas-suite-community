@@ -8,11 +8,8 @@
     >
       <ng-template #header>
         <div class="flex items-center gap-1.5">
-          <div
-            class="flex items-center justify-center w-6 h-6 rounded-full"
-            style="background: var(--aas-info-surface)"
-          >
-            <i class="pi pi-info-circle text-xs" style="color: var(--aas-info-text)"></i>
+          <div class="flex items-center justify-center w-6 h-6 rounded-full bg-[var(--aas-info-surface)]">
+            <i class="pi pi-info-circle text-xs text-[var(--aas-info-text)]"></i>
           </div>
           <lib-help-label tag="DETAILS" isLabelBold="true"></lib-help-label>
         </div>
@@ -59,10 +56,9 @@
       <ng-template #header>
         <div class="flex items-center gap-1.5">
           <div
-            class="flex items-center justify-center w-6 h-6 rounded-full"
-            style="background: color-mix(in srgb, var(--p-primary-50) 84%, var(--p-surface-0))"
+            class="flex items-center justify-center w-6 h-6 rounded-full bg-[color:color-mix(in_srgb,var(--p-primary-50)_84%,var(--p-surface-0))]"
           >
-            <i class="pi pi-shield text-xs" style="color: var(--p-primary-700)"></i>
+            <i class="pi pi-shield text-xs text-[var(--p-primary-700)]"></i>
           </div>
           <lib-help-label tag="ADMINISTRATTIVE_INFORMATION" isLabelBold="true"></lib-help-label>
         </div>
@@ -101,11 +97,7 @@
       }
 
       @for (error of caseOfErrors; track error) {
-        <p-message
-          severity="error"
-          text="{{ 'errorMessages.' + error.message | translate }}"
-          class="w-full"
-        ></p-message>
+        <p-message severity="error" class="w-full">{{ 'errorMessages.' + error.message | translate }}</p-message>
       }
     </p-fieldset>
     <p-fieldset

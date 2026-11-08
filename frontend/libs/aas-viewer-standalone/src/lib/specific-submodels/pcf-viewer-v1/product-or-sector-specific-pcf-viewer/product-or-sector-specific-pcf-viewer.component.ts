@@ -1,7 +1,7 @@
 import * as aas from '@aas-core-works/aas-core3.1-typescript';
 
 import { SemanticIdHelper } from '@aas/helpers';
-import { Component, computed, input } from '@angular/core';
+import { Component, computed, input, ChangeDetectionStrategy } from '@angular/core';
 import { TranslateModule } from '@ngx-translate/core';
 import { ProductOrSectorSpecificPcfStepViewerComponent } from '../product-or-sector-specific-pcf-step-viewer/product-or-sector-specific-pcf-step-viewer.component';
 
@@ -9,6 +9,7 @@ import { ProductOrSectorSpecificPcfStepViewerComponent } from '../product-or-sec
   selector: 'aas-product-or-sector-specific-pcf-viewer',
   imports: [ProductOrSectorSpecificPcfStepViewerComponent, TranslateModule],
   templateUrl: './product-or-sector-specific-pcf-viewer.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './product-or-sector-specific-pcf-viewer.component.css',
 })
 export class ProductOrSectorSpecificPcfViewerComponent {

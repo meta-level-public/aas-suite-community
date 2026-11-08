@@ -1,11 +1,11 @@
 import * as aas from '@aas-core-works/aas-core3.1-typescript';
 import { LookupEntry } from '@aas/model';
 import { HttpClient } from '@angular/common/http';
-import { Component, inject, Input, OnChanges, OnInit, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, Input, OnChanges, OnDestroy, OnInit, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
-import { InputText } from 'primeng/inputtext';
-import { Select } from 'primeng/select';
+import { InputText } from '@openng/optimus-ui/inputtext';
+import { Select } from '@openng/optimus-ui/select';
 import { lastValueFrom, Subscription } from 'rxjs';
 import { NullIfEmptyDirective } from '../../../../general/directives/null-if-empty.directive';
 import { V3UndoDirective } from '../../../../general/directives/v3-undo.directive';
@@ -13,9 +13,10 @@ import { V3UndoDirective } from '../../../../general/directives/v3-undo.directiv
 @Component({
   selector: 'aas-class-id',
   templateUrl: './class-id.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [Select, FormsModule, InputText, V3UndoDirective, NullIfEmptyDirective, TranslateModule],
 })
-export class ClassIdComponent implements OnInit, OnChanges {
+export class ClassIdComponent implements OnInit, OnChanges, OnDestroy {
   @Input({ required: true }) classId: aas.types.Property | undefined;
   @Input({ required: true }) className: aas.types.MultiLanguageProperty | undefined;
   @Input({ required: true }) isVdiClassId: boolean = false;
@@ -42,6 +43,10 @@ export class ClassIdComponent implements OnInit, OnChanges {
     this.classLabel.set(this.translate.currentLang === 'de' ? 'descriptionDe' : 'descriptionEn');
 
     await this.loadClasses();
+  }
+
+  ngOnDestroy(): void {
+    this.subscriptions.forEach((s) => s.unsubscribe());
   }
 
   async loadClasses() {

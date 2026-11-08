@@ -2,7 +2,7 @@ import { ISubmodelElement } from '@aas-core-works/aas-core3.1-typescript/types';
 import { SemanticIdHelper } from '@aas/helpers';
 import { CommonModule } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
-import { Component, computed, inject, input } from '@angular/core';
+import { Component, computed, inject, input, ChangeDetectionStrategy } from '@angular/core';
 import { DomSanitizer } from '@angular/platform-browser';
 import { lastValueFrom } from 'rxjs';
 import { ViewerStoreService } from '../viewer-store.service';
@@ -10,6 +10,7 @@ import { ViewerStoreService } from '../viewer-store.service';
 @Component({
   selector: 'aas-single-marking',
   imports: [CommonModule],
+  changeDetection: ChangeDetectionStrategy.Eager,
   templateUrl: './single-marking.component.html',
 })
 export class SingleMarkingComponent {

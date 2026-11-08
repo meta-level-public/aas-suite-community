@@ -2,7 +2,6 @@
 export * from './lib/app.breadcrumb.service';
 export * from './lib/service/access.service';
 export * from './lib/service/active-components.service';
-export * from './lib/service/confirmation.service';
 export * from './lib/service/country.service';
 export * from './lib/service/error-handler.service';
 export * from './lib/service/language.service';
@@ -21,7 +20,6 @@ export * from './lib/contact/contact-form/contact-form.component';
 export * from './lib/contact/model/request-for-offer';
 export * from './lib/create-invited-account/create-invited-account.component';
 export * from './lib/disclaimer/disclaimer.component';
-export * from './lib/public-viewer/public-viewer.component';
 export * from './lib/select-organisation/select-organisation.component';
 
 // Page Components

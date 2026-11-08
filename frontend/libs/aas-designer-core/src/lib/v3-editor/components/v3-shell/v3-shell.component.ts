@@ -3,8 +3,8 @@ import { VerificationError } from '@aas-core-works/aas-core3.1-typescript/verifi
 import { HelpLabelComponent } from '@aas/common-components';
 import { ShellResult } from '@aas/model';
 import { NgClass } from '@angular/common';
-import { Component, input, Input, output } from '@angular/core';
-import { Fieldset } from 'primeng/fieldset';
+import { Component, input, Input, output, ChangeDetectionStrategy } from '@angular/core';
+import { Fieldset } from '@openng/optimus-ui/fieldset';
 import { Info } from '../../../general/model/info-item';
 import { V3TreeItem } from '../../model/v3-tree-item';
 import { EndpointUrlComponent } from '../endpoint-url/endpoint-url.component';
@@ -23,6 +23,7 @@ import { DppSubmodelOption } from '../dpp-metadata/dpp-metadata.component';
 @Component({
   selector: 'aas-v3-shell',
   templateUrl: './v3-shell.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [
     Fieldset,
     NgClass,

@@ -1,4 +1,4 @@
-<div class="flex flex-wrap items-center gap-2 px-4 py-2 border-b border-surface-200 bg-white text-sm">
+<div class="flex flex-wrap items-center gap-2 px-4 py-2 border-b border-surface bg-surface-0 text-sm">
   <i class="pi pi-id-card text-primary" aria-hidden="true"></i>
   <strong>DPP</strong>
   @switch (status()) {
@@ -82,7 +82,7 @@
       <p-inputgroup>
         <p-inputgroup-addon class="font-bold w-56"
           ><i class="pi pi-barcode mr-2" aria-hidden="true"></i>{{ 'UNIQUE_PRODUCT_IDENTIFIER' | translate
-          }}<span class="text-red-500 ml-1">*</span></p-inputgroup-addon
+          }}<span class="aas-required-marker ml-1" aria-hidden="true">*</span></p-inputgroup-addon
         >
         <input pInputText id="dppProductId" class="w-full" name="productId" [(ngModel)]="productId" required />
       </p-inputgroup>
@@ -100,14 +100,14 @@
           [(ngModel)]="granularity"
           appendTo="body"
         >
-          <ng-template #selectedItem let-option>{{ option?.label | translate }}</ng-template>
+          <ng-template #selectedItem let-option>{{ $safeNavigationMigration(option?.label) | translate }}</ng-template>
           <ng-template #item let-option>{{ option.label | translate }}</ng-template>
         </p-select>
       </p-inputgroup>
       <p-inputgroup>
         <p-inputgroup-addon class="font-bold w-56"
           ><i class="pi pi-tag mr-2" aria-hidden="true"></i>{{ 'DPP_SCHEMA_VERSION' | translate
-          }}<span class="text-red-500 ml-1">*</span></p-inputgroup-addon
+          }}<span class="aas-required-marker ml-1" aria-hidden="true">*</span></p-inputgroup-addon
         >
         <input
           pInputText
@@ -121,7 +121,7 @@
       <p-inputgroup>
         <p-inputgroup-addon class="font-bold w-56"
           ><i class="pi pi-flag mr-2" aria-hidden="true"></i>{{ 'DPP_STATUS' | translate
-          }}<span class="text-red-500 ml-1">*</span></p-inputgroup-addon
+          }}<span class="aas-required-marker ml-1" aria-hidden="true">*</span></p-inputgroup-addon
         >
         <p-select
           class="w-full"
@@ -134,14 +134,14 @@
           [required]="true"
           appendTo="body"
         >
-          <ng-template #selectedItem let-option>{{ option?.label | translate }}</ng-template>
+          <ng-template #selectedItem let-option>{{ $safeNavigationMigration(option?.label) | translate }}</ng-template>
           <ng-template #item let-option>{{ option.label | translate }}</ng-template>
         </p-select>
       </p-inputgroup>
       <p-inputgroup>
         <p-inputgroup-addon class="font-bold w-56"
           ><i class="pi pi-building mr-2" aria-hidden="true"></i>{{ 'ECONOMIC_OPERATOR_ID' | translate
-          }}<span class="text-red-500 ml-1">*</span></p-inputgroup-addon
+          }}<span class="aas-required-marker ml-1" aria-hidden="true">*</span></p-inputgroup-addon
         >
         <input
           pInputText

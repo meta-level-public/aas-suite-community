@@ -12,18 +12,21 @@
 
 @if (specificAssetIds != null && specificAssetIds.length == 0) {
   <div class="flex flex-row justify-between">
-    <p-message
-      severity="info"
-      text="{{ 'NO_VALUES_SET_BUT_EMPTY_OR_AT_LEAST_ONE' | translate }}"
-      class="mr-2"
-    ></p-message>
+    <p-message severity="info" class="mr-2">{{ 'NO_VALUES_SET_BUT_EMPTY_OR_AT_LEAST_ONE' | translate }}</p-message>
     <p-button
-      styleClass="p-button-text p-button-outlined p-button-rounded"
+      [ariaLabel]="'ADD' | translate"
+      [text]="true"
+      [outlined]="true"
+      [rounded]="true"
       icon="pi pi-plus"
       (onClick)="addSpecificAssetId()"
     ></p-button>
     <p-button
-      styleClass="p-button-text p-button-outlined p-button-rounded"
+      [ariaLabel]="'DELETE' | translate"
+      severity="danger"
+      [text]="true"
+      [outlined]="true"
+      [rounded]="true"
       icon="pi pi-trash"
       (onClick)="removeSpecificAssetIdBlock()"
     ></p-button>
@@ -75,18 +78,24 @@
           </div>
         </div>
       </div>
-      <div style="width: 36px">
+      <div class="w-[36px]">
         <p-button
+          [ariaLabel]="'DELETE' | translate"
+          severity="danger"
+          [rounded]="true"
+          [text]="true"
           icon="pi pi-trash"
-          styleClass="p-button-danger p-button-rounded p-button-text"
           (onClick)="removeSpecificAssetId(i)"
           [outlined]="true"
         ></p-button>
       </div>
-      <div style="width: 36px">
+      <div class="w-[36px]">
         <p-button
+          [ariaLabel]="'ADD' | translate"
+          size="small"
+          [rounded]="true"
+          [text]="true"
           icon="pi pi-plus"
-          styleClass="p-button-sm p-button-rounded p-button-text"
           (onClick)="addSpecificAssetId()"
           [outlined]="true"
         ></p-button>

@@ -1,13 +1,13 @@
 import { HelpLabelComponent } from '@aas/common-components';
-import { Component, inject, OnChanges, OnInit } from '@angular/core';
+import { Component, inject, OnChanges, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
-import { MenuItem } from 'primeng/api';
-import { InputGroupModule } from 'primeng/inputgroup';
-import { InputGroupAddonModule } from 'primeng/inputgroupaddon';
-import { InputTextModule } from 'primeng/inputtext';
-import { TableModule } from 'primeng/table';
-import { TagModule } from 'primeng/tag';
-import { ToolbarModule } from 'primeng/toolbar';
+import { MenuItem } from '@openng/optimus-ui/api';
+import { InputGroupModule } from '@openng/optimus-ui/inputgroup';
+import { InputGroupAddonModule } from '@openng/optimus-ui/inputgroupaddon';
+import { InputTextModule } from '@openng/optimus-ui/inputtext';
+import { TableModule } from '@openng/optimus-ui/table';
+import { TagModule } from '@openng/optimus-ui/tag';
+import { ToolbarModule } from '@openng/optimus-ui/toolbar';
 import { UserOrganisationUebersicht } from './user-organisation-uebersicht';
 import { UserOrganisationUebersichtService } from './user-organisation-uebersicht.service';
 
@@ -23,6 +23,7 @@ import { UserOrganisationUebersichtService } from './user-organisation-uebersich
     InputGroupAddonModule,
     HelpLabelComponent,
   ],
+  changeDetection: ChangeDetectionStrategy.Eager,
   templateUrl: './user-organisation-list.component.html',
 })
 export class UserOrganisationListComponent implements OnInit, OnChanges {

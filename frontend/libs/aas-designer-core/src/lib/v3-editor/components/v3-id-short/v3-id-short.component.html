@@ -9,11 +9,16 @@
           class="w-full"
           [required]="isRequired"
           nullIfEmpty
+          [pKeyFilter]="idShortRegex"
           (ngModelChange)="onIdShortChange()"
         />
-        <!-- [pKeyFilter]="idShortRegex" -->
         <p-inputgroup-addon>
-          <p-button icon="pi pi-times" severity="secondary" (onClick)="element.content.idShort = null" />
+          <p-button
+            [ariaLabel]="'REMOVE' | translate"
+            icon="pi pi-times"
+            severity="secondary"
+            (onClick)="element.content.idShort = null"
+          />
         </p-inputgroup-addon>
       </p-inputgroup>
       @if (hasErrors(element.content)) {

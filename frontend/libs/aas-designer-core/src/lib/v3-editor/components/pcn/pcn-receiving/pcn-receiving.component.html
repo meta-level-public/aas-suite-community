@@ -6,6 +6,7 @@
     <ng-template #start>
       <div class="flex flex-row gap-2">
         <p-button
+          severity="danger"
           label="{{ 'DELETE' | translate }}"
           icon="pi pi-trash"
           (onClick)="deletePcn()"
@@ -29,10 +30,6 @@
       </div>
     </ng-template>
   </p-toolbar>
-
-  Test-Button vorsehen für Verbindungsversuch?
-  <br />
-  Letzte Updates anzeigen die empfangen wurden
 } @else {
   <p-message severity="info">{{ 'NO_PCN_REGISTRATION' | translate }}</p-message>
   <p-message severity="info">{{ 'REGISTER_PCN_QUESTION' | translate }}</p-message>

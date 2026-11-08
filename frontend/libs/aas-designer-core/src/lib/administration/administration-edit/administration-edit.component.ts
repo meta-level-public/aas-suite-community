@@ -4,19 +4,19 @@ import { AasEmailValidator, CountryCodeComponent } from '@aas/common-components'
 import { AppConfigService, NotificationService, ThemeDefinitionService } from '@aas/common-services';
 import { AutocompleteOffDirective } from '@aas/helpers';
 import { emailRegEx } from '@aas/model';
-import { Component, OnDestroy, OnInit, ViewChild } from '@angular/core';
+import { Component, OnDestroy, OnInit, ViewChild, ChangeDetectionStrategy } from '@angular/core';
 import { FormsModule, NgForm } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
-import { PrimeTemplate, SelectItem } from 'primeng/api';
-import { Button } from 'primeng/button';
-import { Checkbox } from 'primeng/checkbox';
-import { Fieldset } from 'primeng/fieldset';
-import { InputText } from 'primeng/inputtext';
-import { Select } from 'primeng/select';
-import { TableModule } from 'primeng/table';
-import { Toolbar } from 'primeng/toolbar';
-import { Tooltip } from 'primeng/tooltip';
+import { PrimeTemplate, SelectItem } from '@openng/optimus-ui/api';
+import { Button } from '@openng/optimus-ui/button';
+import { Checkbox } from '@openng/optimus-ui/checkbox';
+import { Fieldset } from '@openng/optimus-ui/fieldset';
+import { InputText } from '@openng/optimus-ui/inputtext';
+import { Select } from '@openng/optimus-ui/select';
+import { TableModule } from '@openng/optimus-ui/table';
+import { Toolbar } from '@openng/optimus-ui/toolbar';
+import { Tooltip } from '@openng/optimus-ui/tooltip';
 import { OrganisationUebersichtBenutzerDto } from '../../organisation/model/organisation-uebersicht-benutzer-dto';
 import { OrgaPaymentModelListComponent } from '../../payment/orga-payment-model-list/orga-payment-model-list.component';
 import { AdministratorService } from '../administrator.service';
@@ -25,6 +25,7 @@ import { AdministratorService } from '../administrator.service';
   selector: 'aas-administration-edit',
   templateUrl: './administration-edit.component.html',
   styleUrls: ['../../../host.scss'],
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [
     FormsModule,
     AutocompleteOffDirective,

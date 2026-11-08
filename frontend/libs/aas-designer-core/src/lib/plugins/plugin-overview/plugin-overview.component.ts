@@ -5,7 +5,7 @@ import { ChangeDetectionStrategy, Component, computed, inject, model, OnInit, si
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
-import { SelectModule } from 'primeng/select';
+import { SelectModule } from '@openng/optimus-ui/select';
 import { lastValueFrom } from 'rxjs';
 
 @Component({

@@ -2,53 +2,53 @@ import * as aas from '@aas-core-works/aas-core3.1-typescript';
 import { NotificationService, PortalService } from '@aas/common-services';
 import { FilenameHelper, SemanticIdHelper } from '@aas/helpers';
 import { ShellResult, SupplementalFile } from '@aas/model';
-import { Component, EventEmitter, Input, OnDestroy, OnInit, Output } from '@angular/core';
+import { Component, EventEmitter, Input, OnDestroy, OnInit, Output, ChangeDetectionStrategy } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
-import { PrimeTemplate, TreeNode } from 'primeng/api';
-import { Button } from 'primeng/button';
-import { Divider } from 'primeng/divider';
-import { FileSelectEvent } from 'primeng/fileupload';
-import { Message } from 'primeng/message';
-import { Select } from 'primeng/select';
+import { PrimeTemplate, TreeNode } from '@openng/optimus-ui/api';
+import { Button } from '@openng/optimus-ui/button';
+import { Divider } from '@openng/optimus-ui/divider';
+import { FileSelectEvent } from '@openng/optimus-ui/fileupload';
+import { Message } from '@openng/optimus-ui/message';
+import { Select } from '@openng/optimus-ui/select';
 import { Info } from '../../../general/model/info-item';
 import { SidebarTreeNavComponent } from '../../../general/sidebar-tree-nav/sidebar-tree-nav.component';
 import {
-    BatteryEditorTreeItem,
-    createBatteryEditorEnumOptions,
-    createBatteryEditorTreeKey,
-    findBatteryEditorTreeItemByKey,
-    flattenBatteryEditorTreeItems,
-    formatBatteryEditorLabel,
-    getBatteryEditorChildElements,
-    getBatteryEditorElementDisplayName,
-    getBatteryEditorModelTypeName,
-    getBatteryEditorTreeItemIndexLabel,
-    getFirstBatteryEditorTreeItem,
-    isBatteryEditorBlobElement,
-    isBatteryEditorFileElement,
-    isBatteryEditorMultiLanguagePropertyElement,
-    isBatteryEditorPropertyElement,
-    isBatteryEditorRangeElement,
-    isBatteryEditorReferenceElement,
-    mapBatteryEditorTreeItemsToNodes,
-    resolveBatteryEditorDescriptionFromConceptDescriptions,
-    shouldRenderBatteryEditorUnsupported,
-    stringifyBatteryEditorDebugValue,
+  BatteryEditorTreeItem,
+  createBatteryEditorEnumOptions,
+  createBatteryEditorTreeKey,
+  findBatteryEditorTreeItemByKey,
+  flattenBatteryEditorTreeItems,
+  formatBatteryEditorLabel,
+  getBatteryEditorChildElements,
+  getBatteryEditorElementDisplayName,
+  getBatteryEditorModelTypeName,
+  getBatteryEditorTreeItemIndexLabel,
+  getFirstBatteryEditorTreeItem,
+  isBatteryEditorBlobElement,
+  isBatteryEditorFileElement,
+  isBatteryEditorMultiLanguagePropertyElement,
+  isBatteryEditorPropertyElement,
+  isBatteryEditorRangeElement,
+  isBatteryEditorReferenceElement,
+  mapBatteryEditorTreeItemsToNodes,
+  resolveBatteryEditorDescriptionFromConceptDescriptions,
+  shouldRenderBatteryEditorUnsupported,
+  stringifyBatteryEditorDebugValue,
 } from '../../../generator/battery-editor-field-utils';
 import { BatteryEditorSharedFieldComponent } from '../../../generator/battery-editor-shared-field/battery-editor-shared-field.component';
 import { GeneratorFilePreviewState } from '../../../generator/generator-file-preview.utils';
 import {
-    buildGeneratorFileUploadCardState,
-    getGeneratorDisplayedContentType,
-    getGeneratorDisplayedFileName,
-    getGeneratorStoredFileReference,
-    hasGeneratorFileSelection,
+  buildGeneratorFileUploadCardState,
+  getGeneratorDisplayedContentType,
+  getGeneratorDisplayedFileName,
+  getGeneratorStoredFileReference,
+  hasGeneratorFileSelection,
 } from '../../../generator/generator-file-upload-card-state.utils';
 import {
-    GeneratorFileUploadCardComponent,
-    type GeneratorFileUploadCardState,
+  GeneratorFileUploadCardComponent,
+  type GeneratorFileUploadCardState,
 } from '../../../generator/generator-file-upload-card/generator-file-upload-card.component';
 import { GeneratorPageShellComponent } from '../../../generator/generator-page-shell/generator-page-shell.component';
 import { GeneratorService } from '../../../generator/generator.service';
@@ -106,6 +106,7 @@ const NAMEPLATE_ADDRESS_FIELD_ID_SHORTS = new Set([
   host: {
     class: 'flex flex-col flex-1',
   },
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [
     PrimeTemplate,
     Message,

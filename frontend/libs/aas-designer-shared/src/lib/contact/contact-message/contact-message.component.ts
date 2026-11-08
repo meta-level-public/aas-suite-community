@@ -1,16 +1,17 @@
-import { Component, Input, model, ViewChild } from '@angular/core';
+import { Component, Input, model, ViewChild, ChangeDetectionStrategy } from '@angular/core';
 import { FormsModule, NgForm } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
 import { AasEmailValidator } from '@aas/common-components';
 import { AutocompleteOffDirective } from '@aas/helpers';
 import { emailRegEx } from '@aas/model';
-import { InputText } from 'primeng/inputtext';
-import { Textarea } from 'primeng/textarea';
+import { InputText } from '@openng/optimus-ui/inputtext';
+import { Textarea } from '@openng/optimus-ui/textarea';
 import { RequestData } from '../model/request-data';
 
 @Component({
   selector: 'aas-contact-message',
   templateUrl: './contact-message.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [FormsModule, AutocompleteOffDirective, InputText, Textarea, TranslateModule],
 })
 export class ContactMessageComponent {

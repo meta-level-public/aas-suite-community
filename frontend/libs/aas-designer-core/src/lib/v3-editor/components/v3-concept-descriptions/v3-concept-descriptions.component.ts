@@ -2,12 +2,12 @@ import * as aas from '@aas-core-works/aas-core3.1-typescript';
 import { AasConfirmationService } from '@aas/common-services';
 import { ConceptDescriptionHelper } from '@aas/helpers';
 import { ShellResult } from '@aas/model';
-import { Component, Input } from '@angular/core';
+import { Component, Input, ChangeDetectionStrategy } from '@angular/core';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
-import { MenuItem, PrimeTemplate } from 'primeng/api';
-import { Button } from 'primeng/button';
-import { Menu } from 'primeng/menu';
-import { TableModule } from 'primeng/table';
+import { MenuItem, PrimeTemplate } from '@openng/optimus-ui/api';
+import { Button } from '@openng/optimus-ui/button';
+import { Menu } from '@openng/optimus-ui/menu';
+import { TableModule } from '@openng/optimus-ui/table';
 import { PortalService } from '@aas/common-services';
 import { V3TreeService } from '../../v3-tree/v3-tree.service';
 type ConceptDescription = aas.types.ConceptDescription;
@@ -15,6 +15,7 @@ type ConceptDescription = aas.types.ConceptDescription;
 @Component({
   selector: 'aas-v3-concept-descriptions',
   templateUrl: './v3-concept-descriptions.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [TableModule, PrimeTemplate, Button, Button, Menu, TranslateModule],
 })
 export class V3ConceptDescriptionsComponent {

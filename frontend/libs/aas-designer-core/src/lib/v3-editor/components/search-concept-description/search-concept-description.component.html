@@ -14,10 +14,10 @@
       <th>{{ 'DEFINITION' | translate }}</th>
       <th>{{ 'PREFERRED_NAME' | translate }}</th>
       <th>{{ 'SOURCE_OF_DEFINITION' | translate }}</th>
-      <th scope="col" style="width: 10%; min-width: 3rem"></th>
+      <th scope="col" class="w-[10%] min-w-12"></th>
     </tr>
     <tr>
-      <th scope="col" style="width: 10%; min-width: 3rem"></th>
+      <th scope="col" class="w-[10%] min-w-12"></th>
       <th><p-columnFilter type="text" field="id" matchMode="contains"></p-columnFilter></th>
       <th><p-columnFilter type="text" field="idShort" matchMode="contains"></p-columnFilter></th>
       <th></th>
@@ -38,27 +38,15 @@
   <ng-template #footer let-columns>
     <tr>
       <td [attr.colspan]="8">
-        <div class="flex flex-row gap-2 justify-center">
-          <p-button
-            label="{{ 'FIRST' | translate }}"
-            icon="pi pi-angle-left"
-            (onClick)="loadFirstPage()"
-            [disabled]="firstPage()"
-          ></p-button>
-          <p-select
-            [options]="pageOptions"
-            [(ngModel)]="pageSize"
-            appendTo="body"
-            (ngModelChange)="loadFirstPage()"
-          ></p-select>
-          <p-button
-            label="{{ 'NEXT' | translate }}"
-            icon="pi pi-angle-right"
-            iconPos="right"
-            (onClick)="loadNextPage()"
-            [disabled]="cursor == null"
-          ></p-button>
-        </div>
+        <aas-cursor-paginator
+          [isFirstPage]="firstPage()"
+          [hasNextPage]="cursor != null"
+          [pageOptions]="pageOptions"
+          [(pageSize)]="pageSize"
+          (firstRequested)="loadFirstPage()"
+          (nextRequested)="loadNextPage()"
+          (pageSizeChanged)="loadFirstPage()"
+        ></aas-cursor-paginator>
       </td>
     </tr>
   </ng-template>

@@ -5,7 +5,7 @@ import { ShellResult } from '@aas/model';
 import { inject, Injectable } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
 import { cloneDeep } from 'lodash-es';
-import { DialogService, DynamicDialogRef } from 'primeng/dynamicdialog';
+import { DialogService, DynamicDialogRef } from '@openng/optimus-ui/dynamicdialog';
 import { AssetInterfacesInterfaceAddonComponent } from '../addons/asset-interfaces-interface-addon/asset-interfaces-interface-addon.component';
 import { CapabilityAddonComponent } from '../addons/capability-addon/capability-addon.component';
 import { V3TreeItem } from '../model/v3-tree-item';

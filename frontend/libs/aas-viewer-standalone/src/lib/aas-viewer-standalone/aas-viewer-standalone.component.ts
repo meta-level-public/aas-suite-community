@@ -17,6 +17,7 @@ import {
   signal,
   untracked,
   viewChild,
+  ChangeDetectionStrategy,
 } from '@angular/core';
 import { DomSanitizer } from '@angular/platform-browser';
 
@@ -31,14 +32,14 @@ import { ViewerDescriptor } from '@aas/webapi-client';
 import { AsyncPipe, NgTemplateOutlet } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
-import { Button } from 'primeng/button';
-import { Card } from 'primeng/card';
-import { DialogService, DynamicDialogConfig, DynamicDialogRef } from 'primeng/dynamicdialog';
-import { Image } from 'primeng/image';
-import { ScrollTop } from 'primeng/scrolltop';
-import { SelectButton } from 'primeng/selectbutton';
-import { Tag } from 'primeng/tag';
-import { Tooltip } from 'primeng/tooltip';
+import { Button } from '@openng/optimus-ui/button';
+import { Card } from '@openng/optimus-ui/card';
+import { DialogService, DynamicDialogConfig, DynamicDialogRef } from '@openng/optimus-ui/dynamicdialog';
+import { Image } from '@openng/optimus-ui/image';
+import { ScrollTop } from '@openng/optimus-ui/scrolltop';
+import { SelectButton } from '@openng/optimus-ui/selectbutton';
+import { Tag } from '@openng/optimus-ui/tag';
+import { Tooltip } from '@openng/optimus-ui/tooltip';
 import { lastValueFrom } from 'rxjs';
 import { AasMetadataViewerComponent } from '../aas-metadata-viewer/aas-metadata-viewer.component';
 import { AasModelViewerComponent } from '../aas-model-viewer/aas-model-viewer.component';
@@ -52,6 +53,7 @@ import { ViewerStoreService } from '../viewer-store.service';
   templateUrl: './aas-viewer-standalone.component.html',
   providers: [DialogService],
   host: { class: 'block w-full' },
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [
     Button,
     SelectButton,
@@ -172,8 +174,9 @@ export class AasViewerStandaloneComponent implements OnChanges, OnInit, OnDestro
 
     const instanceOrError = aas.jsonization.submodelFromJsonable(jsonable);
     if (instanceOrError.error != null) {
-      // eslint-disable-next-line no-console
-      console.log('De-serialization failed: ' + `${instanceOrError.error.path}: ` + `${instanceOrError.error.message}`);
+      console.warn(
+        'De-serialization failed: ' + `${instanceOrError.error.path}: ` + `${instanceOrError.error.message}`,
+      );
     }
 
     return instanceOrError.value;

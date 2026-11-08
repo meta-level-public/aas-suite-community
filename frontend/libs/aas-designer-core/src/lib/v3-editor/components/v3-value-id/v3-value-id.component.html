@@ -17,12 +17,18 @@
             <input pInputText [(ngModel)]="valueId.value" class="w-full" vwsV3Undo nullIfEmpty #valueId />
             @if (valueId.value != null && valueId.value !== '' && valueId.value.startsWith('http')) {
               <p-inputgroup-addon>
-                <p-button icon="pi pi-external-link" severity="secondary" (onClick)="openLink(valueId.value)" />
+                <p-button
+                  [ariaLabel]="'OPEN_LINK' | translate"
+                  icon="pi pi-external-link"
+                  severity="secondary"
+                  (onClick)="openLink(valueId.value)"
+                />
               </p-inputgroup-addon>
             }
             @if (valueId.value != null && UrlHelper.isEclassId(valueId.value)) {
               <p-inputgroup-addon>
                 <p-button
+                  [ariaLabel]="'OPEN_LINK' | translate"
                   icon="pi pi-external-link"
                   severity="secondary"
                   (onClick)="UrlHelper.openEclass(valueId.value)"
@@ -32,6 +38,7 @@
             @if (valueId.value != null && UrlHelper.isIecCddId(valueId.value)) {
               <p-inputgroup-addon>
                 <p-button
+                  [ariaLabel]="'OPEN_LINK' | translate"
                   icon="pi pi-external-link"
                   severity="secondary"
                   (onClick)="UrlHelper.openIecCdd(valueId.value)"
@@ -40,17 +47,26 @@
             }
           </p-inputgroup>
           <p-button
+            [ariaLabel]="'DELETE' | translate"
+            severity="danger"
+            [rounded]="true"
+            [text]="true"
             icon="pi pi-trash"
-            styleClass="p-button-danger p-button-rounded p-button-text"
             (onClick)="removeValueId(i)"
           ></p-button>
           <p-button
-            styleClass="p-button-danger p-button-rounded p-button-text"
+            [ariaLabel]="'SEARCH' | translate"
+            severity="secondary"
+            [rounded]="true"
+            [text]="true"
             icon="pi pi-search"
             (onClick)="showEclassSearch = true"
           ></p-button>
           <p-button
-            styleClass="p-button-danger p-button-rounded p-button-text"
+            [ariaLabel]="'ADD' | translate"
+            severity="secondary"
+            [rounded]="true"
+            [text]="true"
             icon="pi pi-plus"
             (onClick)="addValueId()"
           ></p-button>
@@ -76,6 +92,7 @@
             <input pInputText [(ngModel)]="property.content.valueId.referredSemanticId.keys[0].value" class="w-full" />
             <p-inputgroup-addon>
               <p-button
+                [ariaLabel]="'REMOVE' | translate"
                 icon="pi pi-times"
                 severity="secondary"
                 (onClick)="property.content.valueId.referredSemanticId = null"
@@ -83,6 +100,7 @@
             </p-inputgroup-addon>
             <p-inputgroup-addon>
               <p-button
+                [ariaLabel]="'OPEN_LINK' | translate"
                 icon="pi pi-external-link"
                 severity="secondary"
                 (onClick)="openLink(property.content.valueId.referredSemanticId.keys[0].value)"
@@ -165,6 +183,11 @@
     <aas-additional-lookup-sources (closeClicked)="showEclassSearch = false"></aas-additional-lookup-sources>
   }
   <ng-template #footer>
-    <p-button label="{{ 'CLOSE' | translate }}" icon="pi pi-check" (onClick)="showEclassSearch = false" />
+    <p-button
+      severity="secondary"
+      label="{{ 'CLOSE' | translate }}"
+      icon="pi pi-check"
+      (onClick)="showEclassSearch = false"
+    />
   </ng-template>
 </p-dialog>

@@ -1,7 +1,7 @@
 <form #orgaUserForm="ngForm" vwsAutocompleteOff>
   @if (invitation != null) {
     <div class="flex flex-col gap-2">
-      <p-message text="{{ 'USER_INVITATION_EXPL' | translate }}" severity="info"></p-message>
+      <p-message severity="info">{{ 'USER_INVITATION_EXPL' | translate }}</p-message>
       @if (invitation != null) {
         <div class="grid grid-cols-2 gap-4 w-full">
           <div class="theme-form-section">

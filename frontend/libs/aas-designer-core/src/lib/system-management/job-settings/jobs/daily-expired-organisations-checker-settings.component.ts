@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, ChangeDetectionStrategy } from '@angular/core';
 import { JobSettingsFormComponent } from '../job-settings-form.component';
 
 @Component({
@@ -9,6 +9,7 @@ import { JobSettingsFormComponent } from '../job-settings-form.component';
     [maxIntervalMinutes]="10080"
   />`,
   imports: [JobSettingsFormComponent],
+  changeDetection: ChangeDetectionStrategy.Eager,
   host: { class: 'flex flex-col flex-1 min-h-0 w-full' },
 })
 export class DailyExpiredOrganisationsCheckerSettingsComponent {}

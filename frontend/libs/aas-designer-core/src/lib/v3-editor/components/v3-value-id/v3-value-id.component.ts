@@ -1,17 +1,18 @@
 import * as aas from '@aas-core-works/aas-core3.1-typescript';
 
+import { UrlHelper } from '@aas/helpers';
 import { HelpLabelComponent } from '@aas/common-components';
 import { EClassItem } from '@aas/model';
-import { Component, Input, model } from '@angular/core';
+import { Component, Input, model, ChangeDetectionStrategy } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
-import { Button } from 'primeng/button';
-import { Dialog } from 'primeng/dialog';
-import { InputGroup } from 'primeng/inputgroup';
-import { InputGroupAddon } from 'primeng/inputgroupaddon';
-import { InputText } from 'primeng/inputtext';
-import { Ripple } from 'primeng/ripple';
-import { Tab, TabList, Tabs } from 'primeng/tabs';
+import { Button } from '@openng/optimus-ui/button';
+import { Dialog } from '@openng/optimus-ui/dialog';
+import { InputGroup } from '@openng/optimus-ui/inputgroup';
+import { InputGroupAddon } from '@openng/optimus-ui/inputgroupaddon';
+import { InputText } from '@openng/optimus-ui/inputtext';
+import { Ripple } from '@openng/optimus-ui/ripple';
+import { Tab, TabList, Tabs } from '@openng/optimus-ui/tabs';
 import { NullIfEmptyDirective } from '../../../general/directives/null-if-empty.directive';
 import { V3UndoDirective } from '../../../general/directives/v3-undo.directive';
 import { EClassLogoComponent } from '../../../general/eclass-logo/eclass-logo.component';
@@ -26,6 +27,7 @@ import { VecLookupComponent } from '../vec-lookup/vec-lookup.component';
 @Component({
   selector: 'aas-v3-value-id',
   templateUrl: './v3-value-id.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [
     Button,
     InputGroup,
@@ -189,6 +191,6 @@ export class V3ValueIdComponent extends V3ComponentBase {
   }
 
   openLink(link: string) {
-    if (link != null && link !== '') window.open(link, '_blank');
+    UrlHelper.openExternalUrl(link);
   }
 }

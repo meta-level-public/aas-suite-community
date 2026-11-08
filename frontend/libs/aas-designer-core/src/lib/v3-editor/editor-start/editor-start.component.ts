@@ -3,22 +3,23 @@ import { ActiveComponentsService } from '@aas/aas-designer-shared';
 import { buildShellsListRoute, NotificationService, PortalService } from '@aas/common-services';
 import { ShellResult } from '@aas/model';
 import { AasInfrastructureClient, AvailableInfastructure } from '@aas/webapi-client';
-import { Component, inject, OnDestroy, OnInit, ViewChild } from '@angular/core';
+import { Component, inject, OnDestroy, OnInit, ViewChild, ChangeDetectionStrategy } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
-import { PrimeTemplate, TreeNode } from 'primeng/api';
-import { Splitter } from 'primeng/splitter';
+import { PrimeTemplate, TreeNode } from '@openng/optimus-ui/api';
+import { Splitter } from '@openng/optimus-ui/splitter';
 import { lastValueFrom, Subscription } from 'rxjs';
 import { V3TreeItem } from '../model/v3-tree-item';
 import { V3EditorService } from '../v3-editor.service';
 import { V3EditorComponent } from '../v3-editor/v3-editor.component';
 
-import { Skeleton } from 'primeng/skeleton';
+import { Skeleton } from '@openng/optimus-ui/skeleton';
 import { V3TreeComponent } from '../v3-tree/v3-tree.component';
 
 @Component({
   selector: 'aas-editor-start',
   templateUrl: './editor-start.component.html',
   styleUrls: ['../../../host.scss'],
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [Splitter, PrimeTemplate, Skeleton, V3TreeComponent, V3EditorComponent],
 })
 export class EditorStartComponent extends DirtyCheckable implements OnDestroy, OnInit {

@@ -1,13 +1,13 @@
 import * as aas from '@aas-core-works/aas-core3.1-typescript';
-import { Component, EventEmitter, Input, OnChanges, OnInit, Output } from '@angular/core';
+import { Component, EventEmitter, Input, OnChanges, OnInit, Output, ChangeDetectionStrategy } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
-import { PrimeTemplate } from 'primeng/api';
-import { Button } from 'primeng/button';
-import { Dialog } from 'primeng/dialog';
-import { InputText } from 'primeng/inputtext';
-import { Popover } from 'primeng/popover';
-import { TableModule } from 'primeng/table';
+import { PrimeTemplate } from '@openng/optimus-ui/api';
+import { Button } from '@openng/optimus-ui/button';
+import { Dialog } from '@openng/optimus-ui/dialog';
+import { InputText } from '@openng/optimus-ui/inputtext';
+import { Popover } from '@openng/optimus-ui/popover';
+import { TableModule } from '@openng/optimus-ui/table';
 import { ElementInserter } from '../../../tools/element-inserter';
 import { V3TreeService } from '../../../v3-tree/v3-tree.service';
 import { EClassPropertyService } from '../eclass-property.service';
@@ -15,6 +15,7 @@ import { EClassPropertyService } from '../eclass-property.service';
 @Component({
   selector: 'aas-eclass-single-property-generator',
   templateUrl: './eclass-single-property-generator.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [Dialog, FormsModule, InputText, Button, TableModule, PrimeTemplate, Popover, TranslateModule],
 })
 export class EclassSinglePropertyGeneratorComponent implements OnInit, OnChanges {

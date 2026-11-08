@@ -1,5 +1,5 @@
 @if (isBase64Image() == true) {
-  <img [src]="blobBase64Content()" alt="Blob image preview" />
+  <img [src]="blobBase64Content()" [alt]="'IMAGE_PREVIEW' | translate" />
 } @else {
-  <img [src]="blobContentUrl() | safe: 'resourceUrl'" alt="Blob image preview" />
+  <img [src]="blobContentUrl() | safe: 'resourceUrl'" [alt]="'IMAGE_PREVIEW' | translate" />
 }

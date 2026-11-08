@@ -8,12 +8,11 @@
   </div>
 
   <div
-    class="p-6 mb-6 rounded-r-lg shadow-sm"
-    style="background: var(--aas-info-surface); border-left: 4px solid var(--aas-info-icon)"
+    class="p-6 mb-6 rounded-r-lg shadow-sm bg-[var(--aas-info-surface)] [border-left:4px_solid_var(--aas-info-icon)]"
   >
     <div class="flex items-center gap-3">
-      <i class="pi pi-info-circle text-xl" style="color: var(--aas-info-text)"></i>
-      <p class="text-base leading-relaxed" style="color: var(--p-text-color)">
+      <i class="pi pi-info-circle text-xl text-[var(--aas-info-text)]"></i>
+      <p class="text-base leading-relaxed text-color">
         {{ 'USER_ORGANISATIONEN_EXPL' | translate }}
       </p>
     </div>
@@ -26,15 +25,15 @@
           <div class="flex flex-col gap-4">
             <p-inputgroup>
               <p-inputgroup-addon class="font-bold w-72">
-                <i class="pi pi-building mr-2" style="color: var(--aas-info-text)"></i>
+                <i class="pi pi-building mr-2 text-[var(--aas-info-text)]"></i>
                 <lib-help-label tag="ORGANISATION_NAME" [showLabel]="false"></lib-help-label>
                 {{ 'ORGANISATION_NAME' | translate }}
               </p-inputgroup-addon>
-              <input pInputText [value]="orga.orgaName" readonly style="background: var(--aas-surface-subtle)" />
+              <input pInputText [value]="orga.orgaName" readonly class="!bg-[var(--aas-surface-subtle)]" />
             </p-inputgroup>
             <p-inputgroup>
               <p-inputgroup-addon class="font-bold w-72">
-                <i class="pi pi-shield mr-2" style="color: var(--p-primary-700)"></i>
+                <i class="pi pi-shield mr-2 text-[var(--p-primary-700)]"></i>
                 <lib-help-label tag="USER_RIGHTS" [showLabel]="false"></lib-help-label>
                 {{ 'USER_RIGHTS' | translate }}
               </p-inputgroup-addon>
@@ -42,12 +41,12 @@
                 pInputText
                 [value]="orga.benutzerRollen.join(', ')"
                 readonly
-                style="background: var(--aas-surface-subtle)"
+                class="!bg-[var(--aas-surface-subtle)]"
               />
             </p-inputgroup>
             <p-inputgroup>
               <p-inputgroup-addon class="font-bold w-72">
-                <i class="pi pi-check-circle mr-2" style="color: var(--aas-success-text)"></i>
+                <i class="pi pi-check-circle mr-2 text-[var(--aas-success-text)]"></i>
                 <lib-help-label tag="ACTIVE" [showLabel]="false"></lib-help-label>
                 {{ 'ACTIVE' | translate }}
               </p-inputgroup-addon>
@@ -55,7 +54,7 @@
                 pInputText
                 [value]="orga.aktiv ? ('YES' | translate) : ('NO' | translate)"
                 readonly
-                style="background: var(--aas-surface-subtle)"
+                class="!bg-[var(--aas-surface-subtle)]"
               />
             </p-inputgroup>
           </div>
@@ -63,7 +62,7 @@
       }
     </div>
   } @else {
-    <div class="text-center italic py-8" style="color: var(--p-text-muted-color)">
+    <div class="text-center italic py-8 text-muted-color">
       {{ 'NO_DATA_FOUND' | translate }}
     </div>
   }

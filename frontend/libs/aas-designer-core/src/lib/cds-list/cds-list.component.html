@@ -9,7 +9,12 @@
           </p-inputgroup-addon>
           <input pInputText [(ngModel)]="cdId" placeholder="{{ 'CD_ID' | translate }}" (keydown.enter)="findCd()" />
           <p-inputgroup-addon>
-            <p-button icon="pi pi-search" severity="secondary" (onClick)="findCd()" />
+            <p-button
+              [ariaLabel]="'SEARCH' | translate"
+              icon="pi pi-search"
+              severity="secondary"
+              (onClick)="findCd()"
+            />
           </p-inputgroup-addon>
         </p-inputgroup>
         <lib-help-label tag="CD_ID_SEARCH" [showLabel]="false"></lib-help-label>
@@ -23,7 +28,14 @@
         />
         <lib-help-label tag="SOURCE_SELECTION" [showLabel]="false"></lib-help-label>
 
-        <p-button icon="pi pi-refresh" (onClick)="loadFirstPage()" [outlined]="true" [loading]="loading()"></p-button>
+        <p-button
+          [ariaLabel]="'RELOAD' | translate"
+          severity="secondary"
+          icon="pi pi-refresh"
+          (onClick)="loadFirstPage()"
+          [outlined]="true"
+          [loading]="loading()"
+        ></p-button>
         <!-- @if (!PortalService.getCurrentAasInfrastructureSetting()?.isReadonly) {
         <p-button label="{{ 'ADD' | translate }}" icon="pi pi-plus" (onClick)="menu.toggle($event)" styleClass="w-20rem"></p-button>
         <p-tieredMenu
@@ -47,7 +59,6 @@
             [value]="cds()"
             [tableStyle]="{ 'min-width': '50rem' }"
             [loading]="loading()"
-            responsiveLayout="scroll"
             [rows]="10"
             [paginator]="false"
             [rowsPerPageOptions]="[5, 10, 25, 50]"
@@ -100,7 +111,7 @@
                     <!-- <p-tableHeaderCheckbox
                     [ngClass]="{ tableCheckboxTriStateFake: this.selectedCds.length > 0 }"
                   ></p-tableHeaderCheckbox> -->
-                    <!-- <p-button icon="pi pi-ellipsis-v" styleClass="p-button-text p-button-secondary" (onClick)="bulkMenu.toggle($event)" [disabled]="this.selectedShells().length === 0"></p-button> -->
+                    <!-- <p-button [ariaLabel]="'MORE_ACTIONS' | translate" [text]="true" severity="secondary" icon="pi pi-ellipsis-v" (onClick)="bulkMenu.toggle($event)" [disabled]="this.selectedShells().length === 0"></p-button> -->
                   </div>
                   <!-- <p-tieredMenu
                   appendTo="body"
@@ -129,7 +140,7 @@
               </tr>
               <!-- activate filter as soon as basyx supports it -->
               <!-- <tr>
-              <th scope="col" style="width: 3rem"></th>
+              <th scope="col" class="!w-12"></th>
               @for (col of columns; track $index) {
                 @if (col.filterable) {
                   @if (col.field === 'assetKind') {
@@ -164,8 +175,10 @@
                   <div class="flex flex-row items-center">
                     <!-- <p-tableCheckbox [value]="shell"></p-tableCheckbox> -->
                     <p-button
+                      [ariaLabel]="'MORE_ACTIONS' | translate"
+                      [text]="true"
+                      severity="secondary"
                       icon="pi pi-ellipsis-v"
-                      styleClass="p-button-text p-button-secondary"
                       (onClick)="menu.toggle($event)"
                     ></p-button>
                     <p-tieredMenu
@@ -181,23 +194,23 @@
                 @for (col of columns; track $index) {
                   @switch (col.columnTemplate) {
                     @case ('string') {
-                      <td style="white-space: normal !important; word-wrap: break-word">{{ shell[col.field] }}</td>
+                      <td class="!whitespace-normal break-words">{{ shell[col.field] }}</td>
                     }
 
                     @case ('eds') {
-                      <td style="white-space: normal !important; word-wrap: break-word">
+                      <td class="!whitespace-normal break-words">
                         {{ getEdsValue(shell, col.field) }}
                       </td>
                     }
 
                     @case ('edsMlp') {
-                      <td style="white-space: normal !important; word-wrap: break-word">
+                      <td class="!whitespace-normal break-words">
                         {{ getEdsMlpValue(shell, col.field) }}
                       </td>
                     }
 
                     @case ('mlp') {
-                      <td style="white-space: normal !important; word-wrap: break-word">
+                      <td class="!whitespace-normal break-words">
                         {{ getMlpValue(shell[col.field]) }}
                       </td>
                     }
@@ -228,27 +241,15 @@
             <ng-template pTemplate="footer" let-columns>
               <tr>
                 <td [attr.colspan]="8">
-                  <div class="flex flex-row gap-2 justify-center">
-                    <p-button
-                      label="{{ 'FIRST' | translate }}"
-                      icon="pi pi-angle-left"
-                      (onClick)="loadFirstPage()"
-                      [disabled]="firstPage()"
-                    ></p-button>
-                    <p-select
-                      [options]="pageOptions"
-                      [(ngModel)]="pageSize"
-                      appendTo="body"
-                      (ngModelChange)="loadFirstPage()"
-                    ></p-select>
-                    <p-button
-                      label="{{ 'NEXT' | translate }}"
-                      icon="pi pi-angle-right"
-                      iconPos="right"
-                      (onClick)="loadNextPage()"
-                      [disabled]="cursor == null"
-                    ></p-button>
-                  </div>
+                  <aas-cursor-paginator
+                    [isFirstPage]="firstPage()"
+                    [hasNextPage]="cursor != null"
+                    [pageOptions]="pageOptions"
+                    [(pageSize)]="pageSize"
+                    (firstRequested)="loadFirstPage()"
+                    (nextRequested)="loadNextPage()"
+                    (pageSizeChanged)="loadFirstPage()"
+                  ></aas-cursor-paginator>
                 </td>
               </tr>
             </ng-template>

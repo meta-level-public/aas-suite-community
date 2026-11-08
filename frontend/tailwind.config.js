@@ -6,6 +6,6 @@ module.exports = {
   },
   plugins: [],
   corePlugins: {
-    preflight: false, // Disable Tailwind's reset to avoid conflicts with PrimeNG styles
+    preflight: false, // Disable Tailwind's reset to avoid conflicts with Optimus UI styles
   },
 };

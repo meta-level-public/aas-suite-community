@@ -17,12 +17,7 @@
 
     @if (document().filePath) {
       <div
-        class="p-4 rounded-lg text-sm"
-        style="
-          background: var(--aas-surface-subtle);
-          border: 1px solid var(--p-content-border-color);
-          color: var(--p-text-muted-color);
-        "
+        class="p-4 rounded-lg text-sm bg-[var(--aas-surface-subtle)] [border:1px_solid_var(--p-content-border-color)] text-muted-color"
       >
         <span class="font-semibold">{{ 'CURRENT_DOCUMENT' | translate }}:</span>
         {{ document().vdi2770FileFileName || document().filePath }}
@@ -31,7 +26,7 @@
 
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 items-start">
       <div class="flex flex-col gap-4 min-w-0">
-        <h3 class="text-xl font-bold flex items-center gap-2" style="color: var(--p-text-color)">
+        <h3 class="text-xl font-bold flex items-center gap-2 text-color">
           <i class="pi pi-file"></i>
           <lib-help-label tag="DOCUMENT_VERSION" isLabelBold="true" [showLabel]="false"></lib-help-label>
           {{ 'DOCUMENT_VERSION' | translate }}
@@ -42,7 +37,7 @@
             <p-inputgroup-addon class="font-bold text-sm leading-snug w-56 md:w-64">
               <i class="pi pi-flag mr-2"></i>
               {{ 'LANGUAGE' | translate }}
-              <span class="text-red-500 ml-1">*</span>
+              <span class="aas-required-marker ml-1" aria-hidden="true">*</span>
             </p-inputgroup-addon>
             <p-select
               [options]="isoLanguages"
@@ -92,7 +87,7 @@
             <i class="pi pi-tag mr-2"></i>
             <lib-help-label tag="DOCUMENT_TITLE" [showLabel]="false"></lib-help-label>
             {{ 'DOCUMENT_TITLE' | translate }}
-            <span class="text-red-500 ml-1">*</span>
+            <span class="aas-required-marker ml-1" aria-hidden="true">*</span>
           </p-inputgroup-addon>
           <input pInputText id="title" name="title" [(ngModel)]="document().documentVersion[0].title" />
         </p-inputgroup>
@@ -115,7 +110,7 @@
       </div>
 
       <div class="flex flex-col gap-4 min-w-0">
-        <h3 class="text-xl font-bold mt-2 flex items-center gap-2" style="color: var(--p-text-color)">
+        <h3 class="text-xl font-bold mt-2 flex items-center gap-2 text-color">
           <i class="pi pi-id-card"></i>
           <lib-help-label tag="DOCUMENT_ID" isLabelBold="true" [showLabel]="false"></lib-help-label>
           {{ 'DOCUMENT_ID' | translate }}
@@ -126,7 +121,7 @@
             <i class="pi pi-hashtag mr-2"></i>
             <lib-help-label tag="VALUE_ID" [showLabel]="false"></lib-help-label>
             {{ 'VALUE_ID' | translate }}
-            <span class="text-red-500 ml-1">*</span>
+            <span class="aas-required-marker ml-1" aria-hidden="true">*</span>
           </p-inputgroup-addon>
           <input pInputText id="valueId" name="valueId" [(ngModel)]="document().documentId[0].valueId" />
         </p-inputgroup>
@@ -136,7 +131,7 @@
             <i class="pi pi-globe mr-2"></i>
             <lib-help-label tag="DOCUMENT_DOMAIN_ID" [showLabel]="false"></lib-help-label>
             {{ 'DOCUMENT_DOMAIN_ID' | translate }}
-            <span class="text-red-500 ml-1">*</span>
+            <span class="aas-required-marker ml-1" aria-hidden="true">*</span>
           </p-inputgroup-addon>
           <input
             pInputText
@@ -146,7 +141,7 @@
           />
         </p-inputgroup>
 
-        <h3 class="text-xl font-bold mt-2 flex items-center gap-2" style="color: var(--p-text-color)">
+        <h3 class="text-xl font-bold mt-2 flex items-center gap-2 text-color">
           <i class="pi pi-bookmark"></i>
           <lib-help-label tag="DOCUMENT_CLASSIFICATION" isLabelBold="true" [showLabel]="false"></lib-help-label>
           {{ 'DOCUMENT_CLASSIFICATION' | translate }}
@@ -157,7 +152,7 @@
             <i class="pi pi-sitemap mr-2"></i>
             <lib-help-label tag="CLASSIFICATION_SYSTEM" [showLabel]="false"></lib-help-label>
             {{ 'CLASSIFICATION_SYSTEM' | translate }}
-            <span class="text-red-500 ml-1">*</span>
+            <span class="aas-required-marker ml-1" aria-hidden="true">*</span>
           </p-inputgroup-addon>
           <p-select
             id="classificationSystem"
@@ -174,7 +169,7 @@
             <i class="pi pi-tag mr-2"></i>
             <lib-help-label tag="CLASS_NAME" [showLabel]="false"></lib-help-label>
             {{ 'CLASS_NAME' | translate }}
-            <span class="text-red-500 ml-1">*</span>
+            <span class="aas-required-marker ml-1" aria-hidden="true">*</span>
           </p-inputgroup-addon>
           <input
             pInputText
@@ -189,7 +184,7 @@
             <i class="pi pi-hashtag mr-2"></i>
             <lib-help-label tag="CLASS_ID" [showLabel]="false"></lib-help-label>
             {{ 'CLASS_ID' | translate }}
-            <span class="text-red-500 ml-1">*</span>
+            <span class="aas-required-marker ml-1" aria-hidden="true">*</span>
           </p-inputgroup-addon>
           <input pInputText id="classId" name="classId" [(ngModel)]="document().documentClassification[0].classId" />
         </p-inputgroup>
@@ -198,8 +193,8 @@
 
     <div class="flex gap-2 justify-end pt-4 border-t">
       @if (isApplyDisabled()) {
-        <div class="mr-auto flex items-center text-sm" style="color: var(--p-text-muted-color)">
-          <span class="text-red-500 mr-2">*</span>{{ 'REQUIRED_FIELD' | translate }}
+        <div class="mr-auto flex items-center text-sm text-muted-color">
+          <span class="aas-required-marker mr-2" aria-hidden="true">*</span>{{ 'REQUIRED_FIELD' | translate }}
         </div>
       }
       <p-button

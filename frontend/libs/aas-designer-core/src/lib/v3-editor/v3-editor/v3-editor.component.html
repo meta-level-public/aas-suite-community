@@ -1,6 +1,6 @@
 <div class="flex flex-col flex-auto gap-2">
   <div class="flex flex-row justify-between">
-    <div class="flex flex-row" style="max-width: 50%">
+    <div class="flex flex-row max-w-[50%]">
       <div class="w-full">
         @if (showUpdateWarning()) {
           <p-message severity="warn" closable>
@@ -13,6 +13,7 @@
                   (onClick)="showUpdateChanges()"
                 ></p-button>
                 <p-button
+                  severity="danger"
                   icon="pi pi-trash"
                   label="{{ 'RELOAD_AND_DISCARD' | translate }}"
                   (onClick)="discardAndReload()"
@@ -22,7 +23,7 @@
           </p-message>
         }
         <div class="mt-2 ml-2 mr-2 px-3 py-2 rounded-lg flex items-center gap-2">
-          <i class="pi pi-server" style="color: var(--p-primary-color)"></i>
+          <i class="pi pi-server text-primary"></i>
           <span class="font-semibold">{{ 'AAS_INFRASTRUCTURE' | translate }}:</span>
           <span>{{ currentInfrastructure()?.name ?? '-' }}</span>
         </div>
@@ -51,9 +52,9 @@
 
       @if (showExternalSaveAction) {
         <p-button
+          ariaLabel="{{ 'SAVE' | translate }}"
           icon="pi pi-save"
           pTooltip="{{ 'SAVE' | translate }}"
-          severity="success"
           [loading]="externalSaveActionLoading"
           [disabled]="externalSaveActionDisabled"
           (onClick)="requestExternalSaveAction()"
@@ -63,6 +64,7 @@
 
       @if (showInfoAction) {
         <p-button
+          ariaLabel="{{ 'INFO' | translate }}"
           icon="pi pi-info-circle"
           pTooltip="{{ 'INFO' | translate }}"
           severity="secondary"
@@ -85,6 +87,7 @@
         ></p-splitButton>
 
         <p-button
+          ariaLabel="{{ 'DELETE' | translate }}"
           pTooltip="{{ 'DELETE' | translate }}"
           icon="pi pi-trash"
           severity="danger"
@@ -93,6 +96,7 @@
           size="small"
         ></p-button>
         <p-button
+          ariaLabel="{{ 'RESET' | translate }}"
           pTooltip="{{ 'RESET' | translate }}"
           icon="pi pi-times"
           severity="danger"
@@ -102,6 +106,7 @@
         ></p-button>
       }
       <p-button
+        ariaLabel="{{ 'UNDO' | translate }}"
         pTooltip="{{ 'UNDO' | translate }}"
         icon="pi pi-undo"
         appendTo="body"
@@ -110,6 +115,8 @@
         size="small"
       ></p-button>
       <p-button
+        ariaLabel="{{ 'REDO' | translate }}"
+        severity="secondary"
         pTooltip="{{ 'REDO' | translate }}"
         icon="pi pi-refresh"
         appendTo="body"
@@ -118,6 +125,7 @@
         size="small"
       ></p-button>
       <p-button
+        ariaLabel="{{ 'TREE_SELECT_BACKWARD' | translate }}"
         pTooltip="{{ 'TREE_SELECT_BACKWARD' | translate }}"
         icon="pi pi-step-backward"
         appendTo="body"
@@ -126,6 +134,7 @@
         size="small"
       ></p-button>
       <p-button
+        ariaLabel="{{ 'TREE_SELECT_FORWARD' | translate }}"
         pTooltip="{{ 'TREE_SELECT_FORWARD' | translate }}"
         icon="pi pi-step-forward"
         appendTo="body"
@@ -134,6 +143,7 @@
         size="small"
       ></p-button>
       <p-button
+        [ariaLabel]="'MORE_ACTIONS' | translate"
         icon="pi pi-ellipsis-v"
         severity="info"
         (onClick)="initMenuItems(); menu.toggle($event)"
@@ -143,8 +153,8 @@
     </div>
   </div>
   <div class="flex-auto h-0 m-2">
-    <div style="position: relative; height: 100%">
-      <div style="position: absolute; height: 100%; width: 100%" class="overflow-auto">
+    <div class="relative h-full">
+      <div class="overflow-auto absolute h-full w-full">
         @if (capabilityService.isViewerToggleSelection()) {
           <div class="flex flex-row flex-wrap justify-end items-center mb-2 gap-2">
             <p-button
@@ -291,7 +301,7 @@
 
         @if (capabilityService.isCapabilityEditMode()) {
           <div>
-            @switch (selectedElement?.editorType) {
+            @switch ($safeNavigationMigration(selectedElement?.editorType)) {
               @case (EditorTypeOption.AssetAdministrationShells) {
                 <aas-v3-shells [shellParent]="selectedElement" [shellResult]="shellResult"></aas-v3-shells>
               }
@@ -397,7 +407,7 @@
               }
               @case (EditorTypeOption.ConceptDescriptions) {
                 <aas-v3-concept-descriptions
-                  [conceptDescriptions]="selectedElement?.content.conceptDescriptions"
+                  [conceptDescriptions]="$safeNavigationMigration(selectedElement?.content.conceptDescriptions)"
                   [shellResult]="shellResult"
                 ></aas-v3-concept-descriptions>
               }
@@ -431,11 +441,7 @@
               @case (null) {
                 <div>
                   <p-fieldset legend="{{ 'CONTENT' | translate }}">
-                    <p-message
-                      severity="info"
-                      text="{{ 'NOTHING_SELECTED_IN_TREE' | translate }}"
-                      class="mr-2"
-                    ></p-message>
+                    <p-message severity="info" class="mr-2">{{ 'NOTHING_SELECTED_IN_TREE' | translate }}</p-message>
                   </p-fieldset>
                 </div>
               }
@@ -448,7 +454,9 @@
                 </div>
               }
               @default {
-                <div>was anderes {{ selectedElement?.editorType }}</div>
+                <p-message severity="info">{{
+                  'NO_EDITOR_FOR_ELEMENT_TYPE' | translate: { type: selectedElement?.editorType }
+                }}</p-message>
               }
             }
           </div>
@@ -461,14 +469,18 @@
 <aas-aasx-export #exportComponent></aas-aasx-export>
 
 <p-dialog
-  header="Diff Json Struktur (debug only)"
+  header="{{ 'SHOW_CHANGES' | translate }}"
   [(visible)]="validationService.displayDiff"
   [style]="{ width: '95vw' }"
 >
-  <aas-diff-viewer #diffViewer [object2]="shellResult?.v3Shell" [object1]="v3ShellBackup?.v3Shell"></aas-diff-viewer>
+  <aas-diff-viewer
+    #diffViewer
+    [object2]="$safeNavigationMigration(shellResult?.v3Shell)"
+    [object1]="$safeNavigationMigration(v3ShellBackup?.v3Shell)"
+  ></aas-diff-viewer>
 </p-dialog>
 
-<p-dialog header="Update Changes" [(visible)]="showDiffChanges" [style]="{ width: '95vw' }">
+<p-dialog header="{{ 'SHOW_CHANGES' | translate }}" [(visible)]="showDiffChanges" [style]="{ width: '95vw' }">
   <aas-diff-viewer
     #diffViewerChanges
     [object2]="env2()"
@@ -496,34 +508,34 @@
   >
     <ng-template #header>
       <tr>
-        <th scope="col" pSortableColumn="number" style="min-width: 50px"><p-sortIcon field="number" /></th>
+        <th scope="col" pSortableColumn="number" class="min-w-[50px]"><p-sortIcon field="number" /></th>
         <th scope="col" pSortableColumn="messageTranslated">
           {{ 'VALIDATION_ERROR_MESSAGE' | translate }}<p-sortIcon field="messageTranslated" />
         </th>
         @if (validationService.advanced) {
-          <th scope="col" pSortableColumn="path" style="min-width: 200px">
+          <th scope="col" pSortableColumn="path" class="min-w-[200px]">
             {{ 'OBJECT_PATH' | translate }}<p-sortIcon field="path" />
           </th>
         }
         @if (validationService.advanced) {
-          <th scope="col" pSortableColumn="constraint" style="min-width: 200px">
+          <th scope="col" pSortableColumn="constraint" class="min-w-[200px]">
             {{ 'CONSTRAINT' | translate }}<p-sortIcon field="constraint" />
           </th>
         }
-        <th scope="col" style="min-width: 50px"></th>
+        <th scope="col" class="min-w-[50px]"></th>
       </tr>
       <tr>
-        <th scope="col" style="min-width: 50px"></th>
-        <th scope="col" style="min-width: 200px">
+        <th scope="col" class="min-w-[50px]"></th>
+        <th scope="col" class="min-w-[200px]">
           <p-columnFilter type="text" field="messageTranslated" matchMode="contains"></p-columnFilter>
         </th>
         @if (validationService.advanced) {
-          <th scope="col" style="min-width: 200px">
+          <th scope="col" class="min-w-[200px]">
             <p-columnFilter type="text" field="path" matchMode="contains"></p-columnFilter>
           </th>
         }
         @if (validationService.advanced) {
-          <th scope="col" style="min-width: 200px">
+          <th scope="col" class="min-w-[200px]">
             <p-columnFilter field="constraint" matchMode="equals" [showMenu]="false">
               <ng-template #filter let-value let-filter="filterCallback">
                 <p-select
@@ -539,24 +551,24 @@
             </p-columnFilter>
           </th>
         }
-        <th scope="col" style="min-width: 50px"></th>
+        <th scope="col" class="min-w-[50px]"></th>
       </tr>
     </ng-template>
     <ng-template #body let-error let-index="rowIndex">
       <tr>
-        <td style="min-width: 50px">{{ error.number }}</td>
-        <td style="min-width: 200px">{{ error.messageTranslated }}</td>
+        <td class="min-w-[50px]">{{ error.number }}</td>
+        <td class="min-w-[200px]">{{ error.messageTranslated }}</td>
         @if (validationService.advanced) {
-          <td style="min-width: 200px">{{ error.path }}</td>
+          <td class="min-w-[200px]">{{ error.path }}</td>
         }
         @if (validationService.advanced) {
-          <td style="min-width: 200px">
+          <td class="min-w-[200px]">
             @if (error.constraint !== '' && error.constraint != null) {
               <p-tag [value]="error.constraint" severity="secondary" />
             }
           </td>
         }
-        <td style="min-width: 50px">
+        <td class="min-w-[50px]">
           <div class="flex flex-row gap-2">
             <p-button
               label="{{ 'JUMP_TO_ERROR' | translate }}"

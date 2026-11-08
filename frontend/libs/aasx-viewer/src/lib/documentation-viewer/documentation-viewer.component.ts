@@ -1,9 +1,9 @@
 import { Component, Input } from '@angular/core';
 import { SemanticIdHelper } from '@aas/helpers';
 
-import { Panel } from 'primeng/panel';
-import { TableModule } from 'primeng/table';
-import { PrimeTemplate } from 'primeng/api';
+import { Panel } from '@openng/optimus-ui/panel';
+import { TableModule } from '@openng/optimus-ui/table';
+import { PrimeTemplate } from '@openng/optimus-ui/api';
 import { FileViewerComponent } from '../file-viewer/file-viewer.component';
 import { GenericViewerComponent } from '../generic-viewer/generic-viewer.component';
 import { TranslateModule } from '@ngx-translate/core';

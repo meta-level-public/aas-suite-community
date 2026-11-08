@@ -15,8 +15,7 @@
         />
       } @else if (hasPropertyValueList()) {
         <p-select
-          class="w-full"
-          styleClass="w-full"
+          class="w-full w-full"
           [options]="getPropertyValueListOptions()"
           [ngModel]="field.element.value"
           optionLabel="label"
@@ -42,14 +41,14 @@
   @case ('Range') {
     <div class="flex flex-col gap-3">
       @if (getRangeValueTypeLabel(); as valueTypeLabel) {
-        <div class="text-xs uppercase tracking-wide" style="color: var(--p-text-muted-color)">
+        <div class="text-xs uppercase tracking-wide text-muted-color">
           {{ 'TYPE' | translate }}: {{ valueTypeLabel }}
         </div>
       }
 
       <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
         <div>
-          <div class="text-xs uppercase tracking-wide mb-1" style="color: var(--p-text-muted-color)">
+          <div class="text-xs uppercase tracking-wide mb-1 text-muted-color">
             {{ 'MIN' | translate }}
           </div>
           @if (usesDatePickerRangeInput()) {
@@ -73,14 +72,12 @@
             />
           }
           @if (usesStructuredRangeInput() && field.element.min) {
-            <div class="text-xs mt-1" style="color: var(--p-text-muted-color)">
-              {{ 'RAW_DATA' | translate }}: {{ field.element.min }}
-            </div>
+            <div class="text-xs mt-1 text-muted-color">{{ 'RAW_DATA' | translate }}: {{ field.element.min }}</div>
           }
         </div>
 
         <div>
-          <div class="text-xs uppercase tracking-wide mb-1" style="color: var(--p-text-muted-color)">
+          <div class="text-xs uppercase tracking-wide mb-1 text-muted-color">
             {{ 'MAX' | translate }}
           </div>
           @if (usesDatePickerRangeInput()) {
@@ -104,9 +101,7 @@
             />
           }
           @if (usesStructuredRangeInput() && field.element.max) {
-            <div class="text-xs mt-1" style="color: var(--p-text-muted-color)">
-              {{ 'RAW_DATA' | translate }}: {{ field.element.max }}
-            </div>
+            <div class="text-xs mt-1 text-muted-color">{{ 'RAW_DATA' | translate }}: {{ field.element.max }}</div>
           }
         </div>
       </div>
@@ -115,14 +110,12 @@
 
   @case ('ReferenceElement') {
     <div
-      class="p-3 border-round border-1 flex flex-col gap-3"
-      style="border-color: var(--aas-info-border); background: var(--aas-info-surface); color: var(--aas-info-text)"
+      class="p-3 border-round border-1 flex flex-col gap-3 border-[color:var(--aas-info-border)] bg-[var(--aas-info-surface)] text-[var(--aas-info-text)]"
     >
       <div>
         <div class="text-xs uppercase tracking-wide mb-1">{{ 'TYPE' | translate }}</div>
         <p-select
-          class="w-full"
-          styleClass="w-full"
+          class="w-full w-full"
           [options]="referenceTypeOptions"
           [(ngModel)]="field.element.value.type"
           optionLabel="label"
@@ -134,14 +127,19 @@
       <div class="flex flex-col gap-2">
         <div class="flex items-center justify-between gap-2">
           <div class="text-xs uppercase tracking-wide">{{ 'REFERENCE' | translate }}</div>
-          <p-button icon="pi pi-plus" size="small" [text]="true" (onClick)="addReferenceKey()"></p-button>
+          <p-button
+            [ariaLabel]="'ADD' | translate"
+            icon="pi pi-plus"
+            size="small"
+            [text]="true"
+            (onClick)="addReferenceKey()"
+          ></p-button>
         </div>
 
         @for (key of field.element.value.keys; track $index) {
           <div class="grid grid-cols-1 md:grid-cols-[16rem_minmax(0,1fr)_auto] gap-2 items-start">
             <p-select
-              class="w-full"
-              styleClass="w-full"
+              class="w-full w-full"
               [options]="getKeyTypeOptions()"
               [(ngModel)]="key.type"
               optionLabel="label"
@@ -150,6 +148,7 @@
             ></p-select>
             <input pInputText class="w-full" [(ngModel)]="key.value" (ngModelChange)="onValueChanged()" />
             <p-button
+              [ariaLabel]="'DELETE' | translate"
               icon="pi pi-trash"
               size="small"
               severity="danger"
@@ -161,7 +160,7 @@
         }
       </div>
 
-      <div class="text-xs break-all" style="color: var(--p-text-muted-color)">
+      <div class="text-xs break-all text-muted-color">
         {{ getReferenceSummary() ?? ('REFERENCE_ELEMENT.NO_REFERENCES' | translate) }}
       </div>
     </div>
@@ -169,8 +168,7 @@
 
   @case ('Blob') {
     <div
-      class="p-3 border-round border-1 flex flex-col gap-3"
-      style="border-color: var(--aas-info-border); background: var(--aas-info-surface); color: var(--aas-info-text)"
+      class="p-3 border-round border-1 flex flex-col gap-3 border-[color:var(--aas-info-border)] bg-[var(--aas-info-surface)] text-[var(--aas-info-text)]"
     >
       <div class="font-semibold">{{ 'BLOB' | translate }}</div>
 
@@ -184,7 +182,7 @@
         />
       </div>
 
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-3 text-xs" style="color: var(--p-text-muted-color)">
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-3 text-xs text-muted-color">
         <div>
           {{ 'PREVIEW' | translate }}:
           {{ (isTextualBlob() ? 'BATTERY_PASSPORT_BLOB_MODE_TEXT' : 'BATTERY_PASSPORT_BLOB_MODE_BINARY') | translate }}
@@ -193,7 +191,7 @@
       </div>
 
       @if (!isTextualBlob()) {
-        <div class="text-sm" style="color: var(--p-text-muted-color)">
+        <div class="text-sm text-muted-color">
           {{ 'BATTERY_PASSPORT_BLOB_MODE_BINARY_EXPL' | translate }}
         </div>
       }
@@ -215,12 +213,7 @@
 
   @case ('Unsupported') {
     <div
-      class="p-3 border-round border-1 flex flex-col gap-2"
-      style="
-        border-color: var(--aas-warning-border);
-        background: var(--aas-warning-surface);
-        color: var(--aas-warning-text);
-      "
+      class="p-3 border-round border-1 flex flex-col gap-2 border-[color:var(--aas-warning-border)] bg-[var(--aas-warning-surface)] text-[var(--aas-warning-text)]"
     >
       <div class="font-semibold">{{ 'BATTERY_PASSPORT_UNSUPPORTED_FIELD' | translate }}</div>
       <div class="text-sm">{{ 'BATTERY_PASSPORT_UNSUPPORTED_FIELD_EXPL' | translate }}</div>

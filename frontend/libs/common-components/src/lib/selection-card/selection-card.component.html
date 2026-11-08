@@ -16,11 +16,11 @@
     <p class="selection-card__description">{{ description() }}</p>
   </div>
 
+  <!-- The card accent distinguishes the options; the action itself is always the primary button -->
   <p-button
     pRipple
     [label]="buttonLabel()"
     styleClass="p-3 w-full mt-auto"
-    [severity]="severity() === 'warn' ? 'warn' : severity()"
     [disabled]="disabled()"
     [loading]="loading()"
     (onClick)="choose.emit()"

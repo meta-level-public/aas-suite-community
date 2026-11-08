@@ -7,13 +7,14 @@
             <img [src]="appConfigService.config.logoPath" alt="logo" class="h-3rem mb-3 object-contain" />
           }
           <h1 class="welcome-title">AAS Designer</h1>
-          <p class="welcome-subtitle">Willkommen zurück!</p>
+          <p class="welcome-subtitle">{{ 'WELCOME_MESSAGE' | translate }}</p>
         </div>
 
         <div class="form-wrapper">
           @if (activeView() === 'contact') {
             <div class="contact-panel">
               <p-button
+                severity="secondary"
                 [text]="true"
                 icon="pi pi-arrow-left"
                 [label]="'BACK' | translate"

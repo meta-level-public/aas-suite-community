@@ -1,14 +1,14 @@
 import * as aas from '@aas-core-works/aas-core3.1-typescript';
 import { CommonModule } from '@angular/common';
-import { Component, inject } from '@angular/core';
+import { Component, inject, ChangeDetectionStrategy } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
-import { Button } from 'primeng/button';
-import { DynamicDialogConfig, DynamicDialogRef } from 'primeng/dynamicdialog';
-import { InputText } from 'primeng/inputtext';
-import { Message } from 'primeng/message';
-import { Select } from 'primeng/select';
-import { Fieldset } from 'primeng/fieldset';
+import { Button } from '@openng/optimus-ui/button';
+import { DynamicDialogConfig, DynamicDialogRef } from '@openng/optimus-ui/dynamicdialog';
+import { InputText } from '@openng/optimus-ui/inputtext';
+import { Message } from '@openng/optimus-ui/message';
+import { Select } from '@openng/optimus-ui/select';
+import { Fieldset } from '@openng/optimus-ui/fieldset';
 
 type AidInterfaceDialogData = {
   count?: number;
@@ -59,6 +59,7 @@ type AidPropertyDraft = {
   selector: 'aas-asset-interfaces-interface-addon',
   templateUrl: './asset-interfaces-interface-addon.component.html',
   imports: [CommonModule, FormsModule, TranslateModule, Button, InputText, Message, Select, Fieldset],
+  changeDetection: ChangeDetectionStrategy.Eager,
   styles: [
     `
       :host ::ng-deep .capability-fieldset .p-fieldset-legend {

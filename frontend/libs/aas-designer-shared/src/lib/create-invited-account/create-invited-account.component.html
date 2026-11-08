@@ -72,7 +72,7 @@
                       [(ngModel)]="password"
                       [toggleMask]="true"
                       [feedback]="false"
-                      styleClass="w-full"
+                      class="w-full"
                       inputStyleClass="w-full"
                     />
                   </div>
@@ -86,7 +86,7 @@
                       [toggleMask]="true"
                       [feedback]="false"
                       [(ngModel)]="password2"
-                      styleClass="w-full"
+                      class="w-full"
                       inputStyleClass="w-full"
                     />
                     @if (password != password2) {
@@ -164,7 +164,6 @@
                   label="{{ 'CREATE_INVITED_ACCOUNT' | translate }}"
                   [loading]="loading"
                   icon="pi pi-envelope"
-                  styleClass="p-button-primary"
                   (onClick)="send()"
                 ></p-button>
               </div>

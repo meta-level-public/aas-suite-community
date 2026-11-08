@@ -1,10 +1,10 @@
 import { VerificationError } from '@aas-core-works/aas-core3.1-typescript/verification';
 
-import { Component, inject, Input, input, linkedSignal } from '@angular/core';
+import { Component, inject, Input, input, linkedSignal, ChangeDetectionStrategy } from '@angular/core';
 import { TranslateModule } from '@ngx-translate/core';
-import { ButtonModule } from 'primeng/button';
-import { MessageModule } from 'primeng/message';
-import { PanelModule } from 'primeng/panel';
+import { ButtonModule } from '@openng/optimus-ui/button';
+import { MessageModule } from '@openng/optimus-ui/message';
+import { PanelModule } from '@openng/optimus-ui/panel';
 import { V3EditorUiStateStoreService } from '../../v3-editor-ui-state-store.service';
 import { ErrorLineComponent } from '../error-line/error-line.component';
 import { ErrorHandlingAction } from '../v3-component-base';
@@ -13,6 +13,7 @@ import { ErrorHandlingAction } from '../v3-component-base';
   selector: 'aas-error-panel',
 
   imports: [TranslateModule, ButtonModule, PanelModule, MessageModule, ErrorLineComponent],
+  changeDetection: ChangeDetectionStrategy.Eager,
   templateUrl: './error-panel.component.html',
 })
 export class ErrorPanelComponent {

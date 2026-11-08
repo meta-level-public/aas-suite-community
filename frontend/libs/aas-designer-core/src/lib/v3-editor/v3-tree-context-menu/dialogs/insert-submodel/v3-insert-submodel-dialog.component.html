@@ -20,8 +20,8 @@
   >
     <ng-template pTemplate="colgroup">
       <colgroup>
-        <col style="width: 4rem" />
-        <col style="width: 1rem" />
+        <col class="w-16" />
+        <col class="w-4" />
         <col />
       </colgroup>
     </ng-template>
@@ -29,11 +29,14 @@
       <tr>
         <td>
           <p-button
+            [text]="true"
+            [rounded]="true"
+            severity="secondary"
             type="button"
             pRipple
             [pRowToggler]="element"
-            styleClass="p-button-text p-button-rounded p-button-plain"
             [icon]="expanded ? 'pi pi-chevron-down' : 'pi pi-chevron-right'"
+            [ariaLabel]="(expanded ? 'COLLAPSE' : 'EXPAND') | translate"
           ></p-button>
         </td>
         <td></td>
@@ -51,7 +54,7 @@
             size="small"
             stripedRows
             [rowHover]="true"
-            styleClass="submodel-list-table"
+            class="submodel-list-table"
             [tableStyle]="{ 'table-layout': 'fixed', width: '100%' }"
             #submodelTable
           >
@@ -72,9 +75,9 @@
             </ng-template>
             <ng-template pTemplate="colgroup">
               <colgroup>
-                <col style="width: 9rem" />
-                <col style="width: 24rem" />
-                <col style="width: 6rem" />
+                <col class="w-36" />
+                <col class="w-96" />
+                <col class="w-24" />
                 <col />
               </colgroup>
             </ng-template>
@@ -103,11 +106,6 @@
     </ng-template>
   </p-table>
   <ng-template pTemplate="footer">
-    <p-button
-      icon="pi pi-times"
-      (onClick)="onHide()"
-      label="{{ 'CLOSE' | translate }}"
-      styleClass="p-button-secondary"
-    ></p-button>
+    <p-button severity="secondary" icon="pi pi-times" (onClick)="onHide()" label="{{ 'CLOSE' | translate }}"></p-button>
   </ng-template>
 </p-dialog>

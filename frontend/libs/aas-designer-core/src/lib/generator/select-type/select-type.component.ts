@@ -1,7 +1,7 @@
 import { SelectionCardComponent } from '@aas/aas-designer-shared';
 import { PortalService } from '@aas/common-services';
 import { ShellsClient } from '@aas/webapi-client';
-import { Component, inject, OnInit, ViewChild } from '@angular/core';
+import { Component, inject, OnInit, ViewChild, ChangeDetectionStrategy } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
 import {
@@ -9,7 +9,7 @@ import {
   BatteryPassportAssistantService,
   DppCoreAssistant,
 } from 'battery-passport-assistant';
-import { FileUpload } from 'primeng/fileupload';
+import { FileUpload } from '@openng/optimus-ui/fileupload';
 import { lastValueFrom } from 'rxjs';
 import { GeneratorTemplateSource, getGeneratorModeConfig } from '../generator-mode.config';
 import { GeneratorService } from '../generator.service';
@@ -17,6 +17,7 @@ import { GeneratorService } from '../generator.service';
 @Component({
   selector: 'aas-select-type',
   templateUrl: './select-type.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [TranslateModule, BatteryPassportAssistant, DppCoreAssistant, SelectionCardComponent],
 })
 export class SelectTypeComponent implements OnInit {

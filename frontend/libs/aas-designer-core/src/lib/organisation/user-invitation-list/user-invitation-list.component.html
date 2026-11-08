@@ -8,7 +8,6 @@
   <p-table
     #dt
     [value]="invitations"
-    responsiveLayout="scroll"
     [rows]="10"
     [globalFilterFields]="['organisation']"
     [rows]="10"
@@ -22,42 +21,44 @@
   >
     <ng-template #header>
       <tr>
-        <th scope="col" style="width: 4%; min-width: 1rem"></th>
-        <th scope="col" pSortableColumn="name" style="width: 24%; min-width: 10rem">
+        <th scope="col" class="w-[4%] min-w-4"></th>
+        <th scope="col" pSortableColumn="name" class="w-[24%] min-w-40">
           {{ 'LASTNAME' | translate }}<p-sortIcon field="name"></p-sortIcon>
         </th>
-        <th scope="col" pSortableColumn="vorname" style="width: 24%; min-width: 10rem">
+        <th scope="col" pSortableColumn="vorname" class="w-[24%] min-w-40">
           {{ 'FIRSTNAME' | translate }}<p-sortIcon field="vorname"></p-sortIcon>
         </th>
-        <th scope="col" pSortableColumn="email" style="width: 39%; min-width: 10rem">
+        <th scope="col" pSortableColumn="email" class="w-[39%] min-w-40">
           {{ 'EMAIL' | translate }}<p-sortIcon field="email"></p-sortIcon>
         </th>
-        <th scope="col" style="width: 5%; min-width: 6rem">
+        <th scope="col" class="w-[5%] min-w-24">
           {{ 'VALID' | translate }}
         </th>
         <th scope="col">{{ 'USER_RIGHTS' | translate }}</th>
       </tr>
       <tr>
-        <th scope="col" style="width: 4%; min-width: 1rem"></th>
-        <th scope="col" style="width: 24%; min-width: 10rem">
+        <th scope="col" class="w-[4%] min-w-4"></th>
+        <th scope="col" class="w-[24%] min-w-40">
           <p-columnFilter type="text" field="name"></p-columnFilter>
         </th>
-        <th scope="col" style="width: 24%; min-width: 10rem">
+        <th scope="col" class="w-[24%] min-w-40">
           <p-columnFilter type="text" field="vorname"></p-columnFilter>
         </th>
-        <th scope="col" style="width: 39%; min-width: 10rem">
+        <th scope="col" class="w-[39%] min-w-40">
           <p-columnFilter type="text" field="email"></p-columnFilter>
         </th>
-        <th scope="col" style="width: 5%; min-width: 6rem"></th>
-        <th scope="col" style="width: 4%; min-width: 1rem"></th>
+        <th scope="col" class="w-[5%] min-w-24"></th>
+        <th scope="col" class="w-[4%] min-w-4"></th>
       </tr>
     </ng-template>
     <ng-template pTemplate="body" let-invitation>
       <tr>
         <td>
           <p-button
+            [ariaLabel]="'MORE_ACTIONS' | translate"
+            [text]="true"
+            severity="secondary"
             icon="pi pi-ellipsis-v"
-            styleClass="p-button-text p-button-secondary"
             (onClick)="menu.toggle($event)"
           ></p-button>
           <p-menu
@@ -68,13 +69,13 @@
             [model]="menuItems"
           ></p-menu>
         </td>
-        <td style="width: 15%; min-width: 10rem">
+        <td class="w-[15%] min-w-40">
           {{ invitation.name }}
         </td>
-        <td style="width: 15%; min-width: 10rem">
+        <td class="w-[15%] min-w-40">
           {{ invitation.vorname }}
         </td>
-        <td style="width: 15%; min-width: 10rem">
+        <td class="w-[15%] min-w-40">
           {{ invitation.email }}
         </td>
         <td>

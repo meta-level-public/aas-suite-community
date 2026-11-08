@@ -1,23 +1,24 @@
-import { HelpLabelComponent } from '@aas/common-components';
+import { HelpLabelComponent, CursorPaginatorComponent } from '@aas/common-components';
 import { buildSubmodelEditRoute, PortalService } from '@aas/common-services';
 import { AasInfrastructureClient, AvailableInfastructure, SmDto, SubmodelClient } from '@aas/webapi-client';
 import { CommonModule } from '@angular/common';
-import { Component, inject, model, OnInit, signal } from '@angular/core';
+import { Component, inject, model, OnInit, signal, ChangeDetectionStrategy } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
-import { ButtonModule } from 'primeng/button';
-import { InputGroupModule } from 'primeng/inputgroup';
-import { InputGroupAddonModule } from 'primeng/inputgroupaddon';
-import { InputTextModule } from 'primeng/inputtext';
-import { SelectModule } from 'primeng/select';
-import { TableModule } from 'primeng/table';
-import { TagModule } from 'primeng/tag';
+import { ButtonModule } from '@openng/optimus-ui/button';
+import { InputGroupModule } from '@openng/optimus-ui/inputgroup';
+import { InputGroupAddonModule } from '@openng/optimus-ui/inputgroupaddon';
+import { InputTextModule } from '@openng/optimus-ui/inputtext';
+import { SelectModule } from '@openng/optimus-ui/select';
+import { TableModule } from '@openng/optimus-ui/table';
+import { TagModule } from '@openng/optimus-ui/tag';
 import { lastValueFrom } from 'rxjs';
 
 @Component({
   selector: 'aas-submodels-list',
   imports: [
+    CursorPaginatorComponent,
     CommonModule,
     FormsModule,
     TranslateModule,
@@ -31,6 +32,7 @@ import { lastValueFrom } from 'rxjs';
     TagModule,
   ],
   templateUrl: './submodels-list.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrls: ['../../host.scss'],
 })
 export class SubmodelsListComponent implements OnInit {

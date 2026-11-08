@@ -4,15 +4,15 @@ import { QrCodeExportComponent } from '@aas/common-components';
 import { DateProxyPipe } from '@aas/common-pipes';
 import { AasConfirmationService, NotificationService } from '@aas/common-services';
 import { MySharedLink, SharedLinksClient } from '@aas/webapi-client';
-import { Component, inject, OnInit, signal } from '@angular/core';
+import { Component, inject, OnInit, signal, ChangeDetectionStrategy } from '@angular/core';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
-import { MenuItem } from 'primeng/api';
-import { ButtonModule } from 'primeng/button';
-import { DialogModule } from 'primeng/dialog';
-import { MenuModule } from 'primeng/menu';
-import { TableModule } from 'primeng/table';
-import { TagModule } from 'primeng/tag';
-import { ToolbarModule } from 'primeng/toolbar';
+import { MenuItem } from '@openng/optimus-ui/api';
+import { ButtonModule } from '@openng/optimus-ui/button';
+import { DialogModule } from '@openng/optimus-ui/dialog';
+import { MenuModule } from '@openng/optimus-ui/menu';
+import { TableModule } from '@openng/optimus-ui/table';
+import { TagModule } from '@openng/optimus-ui/tag';
+import { ToolbarModule } from '@openng/optimus-ui/toolbar';
 import { lastValueFrom } from 'rxjs';
 import { MySharedLinkService } from './my-shared-link.service';
 
@@ -20,6 +20,7 @@ import { MySharedLinkService } from './my-shared-link.service';
   selector: 'aas-my-shared-links',
   templateUrl: './my-shared-links.component.html',
   styleUrls: ['../../../host.scss'],
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [
     TranslateModule,
     ToolbarModule,

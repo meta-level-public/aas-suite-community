@@ -5,25 +5,25 @@ import { AasConfirmationService } from '@aas/common-services';
 import { FilenameHelper, HandoverSemantics, InstanceHelper, SemanticIdHelper } from '@aas/helpers';
 import { ShellResult, SupplementalFile } from '@aas/model';
 import { NgClass } from '@angular/common';
-import { Component, Input, OnChanges, SimpleChanges } from '@angular/core';
+import { Component, Input, OnChanges, SimpleChanges, ChangeDetectionStrategy } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { DomSanitizer } from '@angular/platform-browser';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
-import { Button } from 'primeng/button';
-import { Checkbox } from 'primeng/checkbox';
-import { DialogService } from 'primeng/dynamicdialog';
-import { Fieldset } from 'primeng/fieldset';
-import { FileSelectEvent } from 'primeng/fileupload';
-import { Message } from 'primeng/message';
-import { Select, SelectChangeEvent } from 'primeng/select';
+import { Button } from '@openng/optimus-ui/button';
+import { Checkbox } from '@openng/optimus-ui/checkbox';
+import { DialogService } from '@openng/optimus-ui/dynamicdialog';
+import { Fieldset } from '@openng/optimus-ui/fieldset';
+import { FileSelectEvent } from '@openng/optimus-ui/fileupload';
+import { Message } from '@openng/optimus-ui/message';
+import { Select, SelectChangeEvent } from '@openng/optimus-ui/select';
 import { v4 as uuid } from 'uuid';
 import { AasSharedDataService } from '../../../asset-administration-shell-tree/services/aas-shared-data.service';
 import { V3UndoDirective } from '../../../general/directives/v3-undo.directive';
 import { Info } from '../../../general/model/info-item';
 import {
-    createDocumentationDocument,
-    getDocumentationDocumentSemanticIdForHost,
-    isDocumentationDocumentCollection,
+  createDocumentationDocument,
+  getDocumentationDocumentSemanticIdForHost,
+  isDocumentationDocumentCollection,
 } from '../../../generator/generator-documentation.builder';
 import { DocumentItem } from '../../../generator/model/document-item';
 import { HandoverdocumentationDocumentAddonComponent } from '../../addons/handoverdocumentation-document-addon/handoverdocumentation-document-addon.component';
@@ -43,6 +43,7 @@ import { V3SemanticDescriptionComponent } from '../v3-semantic-description/v3-se
   selector: 'aas-v3-submodel-element-list-editor',
   templateUrl: './v3-submodel-element-list-editor.component.html',
   styleUrls: ['./v3-submodel-element-list-editor.component.css'],
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [
     Fieldset,
     HelpLabelComponent,

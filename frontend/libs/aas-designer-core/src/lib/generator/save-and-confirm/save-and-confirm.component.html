@@ -1,63 +1,112 @@
 <aas-generator-page-shell [titleKey]="'SUMMARY'" [showActions]="true" [contentCardClass]="'save-confirm-card'">
-  <p generator-shell-intro class="text-lg battery-editor-page-copy mb-0" style="color: var(--p-text-muted-color)">
+  <p generator-shell-intro class="text-lg battery-editor-page-copy mb-0 text-muted-color">
     {{ 'SUMMARY_EXPL' | translate }}
   </p>
 
   <div generator-shell-main>
     @if (dppMetadata; as metadata) {
-      <section class="mb-4 border border-surface-200 p-4">
+      <section class="mb-4 border border-surface p-4">
         <h2 class="mt-0 text-lg">{{ 'DPP_METADATA' | translate }}</h2>
         <div class="grid grid-cols-1 gap-3 md:grid-cols-2">
-          <label class="flex flex-col gap-1"
-            >{{ 'DPP_ID' | translate }}
-            <input class="p-inputtext p-component" [value]="metadata.aasId" disabled />
-          </label>
-          <label class="flex flex-col gap-1"
-            >{{ 'UNIQUE_PRODUCT_IDENTIFIER' | translate }}
-            <input class="p-inputtext p-component" [(ngModel)]="metadata.uniqueProductIdentifier" required />
-          </label>
-          <label class="flex flex-col gap-1"
-            >{{ 'GRANULARITY' | translate }}
-            <select class="p-inputtext p-component" [(ngModel)]="metadata.granularity">
-              <option value="Item">Item</option>
-              <option value="Model">Model</option>
-              <option value="Batch">Batch</option>
-            </select>
-          </label>
-          <label class="flex flex-col gap-1"
-            >{{ 'DPP_SCHEMA_VERSION' | translate }}
-            <input class="p-inputtext p-component" [(ngModel)]="metadata.dppSchemaVersion" required />
-          </label>
-          <label class="flex flex-col gap-1"
-            >{{ 'DPP_STATUS' | translate }}
-            <select class="p-inputtext p-component" [(ngModel)]="metadata.dppStatus">
-              <option value="Draft">{{ 'DPP_STATUS_DRAFT' | translate }}</option>
-              <option value="Active">{{ 'DPP_STATUS_ACTIVE' | translate }}</option>
-              <option value="Suspended">{{ 'DPP_STATUS_SUSPENDED' | translate }}</option>
-              <option value="Withdrawn">{{ 'DPP_STATUS_WITHDRAWN' | translate }}</option>
-            </select>
-          </label>
-          <label class="flex flex-col gap-1"
-            >{{ 'ECONOMIC_OPERATOR_ID' | translate }}
-            <input class="p-inputtext p-component" [(ngModel)]="metadata.economicOperatorId" required />
-          </label>
-          <label class="flex flex-col gap-1"
-            >{{ 'FACILITY_ID' | translate }}
-            <input class="p-inputtext p-component" [(ngModel)]="metadata.facilityId" />
-          </label>
+          <p-inputgroup>
+            <p-inputgroup-addon class="font-bold w-56"
+              ><i class="pi pi-id-card mr-2" aria-hidden="true"></i>{{ 'DPP_ID' | translate }}</p-inputgroup-addon
+            >
+            <input pInputText class="w-full" [value]="metadata.aasId" [readonly]="true" />
+          </p-inputgroup>
+          <p-inputgroup>
+            <p-inputgroup-addon class="font-bold w-56"
+              ><i class="pi pi-barcode mr-2" aria-hidden="true"></i>{{ 'UNIQUE_PRODUCT_IDENTIFIER' | translate
+              }}<span class="aas-required-marker ml-1" aria-hidden="true">*</span></p-inputgroup-addon
+            >
+            <input
+              pInputText
+              class="w-full"
+              name="uniqueProductIdentifier"
+              [(ngModel)]="metadata.uniqueProductIdentifier"
+              required
+            />
+          </p-inputgroup>
+          <p-inputgroup>
+            <p-inputgroup-addon class="font-bold w-56"
+              ><i class="pi pi-th-large mr-2" aria-hidden="true"></i>{{ 'GRANULARITY' | translate }}</p-inputgroup-addon
+            >
+            <p-select
+              class="w-full"
+              name="granularity"
+              [options]="granularityOptions"
+              optionValue="value"
+              optionLabel="label"
+              [(ngModel)]="metadata.granularity"
+              appendTo="body"
+            >
+              <ng-template #selectedItem let-option>{{ option?.label | translate }}</ng-template>
+              <ng-template #item let-option>{{ option.label | translate }}</ng-template>
+            </p-select>
+          </p-inputgroup>
+          <p-inputgroup>
+            <p-inputgroup-addon class="font-bold w-56"
+              ><i class="pi pi-tag mr-2" aria-hidden="true"></i>{{ 'DPP_SCHEMA_VERSION' | translate
+              }}<span class="aas-required-marker ml-1" aria-hidden="true">*</span></p-inputgroup-addon
+            >
+            <input pInputText class="w-full" name="dppSchemaVersion" [(ngModel)]="metadata.dppSchemaVersion" required />
+          </p-inputgroup>
+          <p-inputgroup>
+            <p-inputgroup-addon class="font-bold w-56"
+              ><i class="pi pi-flag mr-2" aria-hidden="true"></i>{{ 'DPP_STATUS' | translate
+              }}<span class="aas-required-marker ml-1" aria-hidden="true">*</span></p-inputgroup-addon
+            >
+            <p-select
+              class="w-full"
+              name="dppStatus"
+              [options]="statusOptions"
+              optionValue="value"
+              optionLabel="label"
+              [(ngModel)]="metadata.dppStatus"
+              appendTo="body"
+            >
+              <ng-template #selectedItem let-option>{{ option?.label | translate }}</ng-template>
+              <ng-template #item let-option>{{ option.label | translate }}</ng-template>
+            </p-select>
+          </p-inputgroup>
+          <p-inputgroup>
+            <p-inputgroup-addon class="font-bold w-56"
+              ><i class="pi pi-building mr-2" aria-hidden="true"></i>{{ 'ECONOMIC_OPERATOR_ID' | translate
+              }}<span class="aas-required-marker ml-1" aria-hidden="true">*</span></p-inputgroup-addon
+            >
+            <input
+              pInputText
+              class="w-full"
+              name="economicOperatorId"
+              [(ngModel)]="metadata.economicOperatorId"
+              required
+            />
+          </p-inputgroup>
+          <p-inputgroup>
+            <p-inputgroup-addon class="font-bold w-56"
+              ><i class="pi pi-map-marker mr-2" aria-hidden="true"></i
+              >{{ 'FACILITY_ID' | translate }}</p-inputgroup-addon
+            >
+            <input pInputText class="w-full" name="facilityId" [(ngModel)]="metadata.facilityId" />
+          </p-inputgroup>
         </div>
-        <fieldset class="mt-4 border border-surface-200 p-3">
+        <fieldset class="mt-4 border border-surface p-3">
           <legend class="font-semibold px-1">{{ 'DPP_SUBMODELS' | translate }}</legend>
           @for (submodel of dppSubmodels; track submodel.id) {
-            <label class="flex items-start gap-2 py-1">
-              <input type="checkbox" class="mt-1" [(ngModel)]="submodel.selected" [disabled]="!submodel.semanticId" />
-              <span class="min-w-0">
+            <div class="flex items-start gap-2 py-1">
+              <p-checkbox
+                [inputId]="'dpp-submodel-' + $index"
+                [binary]="true"
+                [(ngModel)]="submodel.selected"
+                [disabled]="!submodel.semanticId"
+              ></p-checkbox>
+              <label class="min-w-0" [for]="'dpp-submodel-' + $index">
                 <span class="block">{{ submodel.name }}</span>
                 <small class="block text-muted-color break-all">{{
                   submodel.semanticId || ('NO_SEMANTIC_ID' | translate)
                 }}</small>
-              </span>
-            </label>
+              </label>
+            </div>
           }
         </fieldset>
       </section>
@@ -65,14 +114,14 @@
     <p-treeTable [value]="data" class="p-treetable-sm">
       <ng-template #header let-columns>
         <tr>
-          <th scope="col" style="min-width: 15rem; max-width: 15rem">{{ 'ELEMENT' | translate }}</th>
-          <th scope="col" style="width: 80%">{{ 'DATA' | translate }}</th>
+          <th scope="col" class="min-w-60 max-w-60">{{ 'ELEMENT' | translate }}</th>
+          <th scope="col" class="w-[80%]">{{ 'DATA' | translate }}</th>
         </tr>
       </ng-template>
 
       <ng-template pTemplate="body" let-rowNode let-rowData="rowData" let-columns="columns">
         <tr>
-          <td style="min-width: 15rem; max-width: 15rem">
+          <td class="min-w-60 max-w-60">
             <p-treeTableToggler [rowNode]="rowNode"></p-treeTableToggler>
             {{ rowData.label }}
           </td>
@@ -130,6 +179,7 @@
   </div>
 
   <p-button
+    severity="secondary"
     generator-shell-actions
     label="{{ 'BACK' | translate }}"
     (onClick)="prev()"
@@ -178,37 +228,39 @@
     [contentStyle]="{ height: '50vh' }"
   >
     @if (validationErrors().length === 0) {
-      <div class="mb-3 border border-green-200 bg-green-50 p-3 text-green-800">
+      <div
+        class="mb-3 border border-[var(--aas-success-border)] bg-[var(--aas-success-surface)] p-3 text-[var(--aas-success-text)]"
+      >
         {{ 'NO_ERRORS_FOUND' | translate }}
       </div>
     }
     <div class="mb-3 flex items-center justify-end gap-2">
       <label for="save-confirm-validation-advanced">{{ 'ADVANCED' | translate }}</label>
-      <input id="save-confirm-validation-advanced" type="checkbox" [(ngModel)]="advanced" class="h-4 w-4" />
+      <p-checkbox inputId="save-confirm-validation-advanced" [binary]="true" [(ngModel)]="advanced"></p-checkbox>
     </div>
 
     <p-table [value]="validationErrors()" size="small" [stripedRows]="true" [scrollable]="true" scrollHeight="flex">
       <ng-template #header>
         <tr>
-          <th scope="col" style="min-width: 50px">#</th>
+          <th scope="col" class="min-w-[50px]">#</th>
           <th scope="col">{{ 'VALIDATION_ERROR_MESSAGE' | translate }}</th>
           @if (advanced) {
-            <th scope="col" style="min-width: 220px">{{ 'OBJECT_PATH' | translate }}</th>
+            <th scope="col" class="min-w-[220px]">{{ 'OBJECT_PATH' | translate }}</th>
           }
           @if (advanced) {
-            <th scope="col" style="min-width: 160px">{{ 'CONSTRAINT' | translate }}</th>
+            <th scope="col" class="min-w-[160px]">{{ 'CONSTRAINT' | translate }}</th>
           }
         </tr>
       </ng-template>
       <ng-template #body let-error>
         <tr>
-          <td style="min-width: 50px">{{ error.number }}</td>
+          <td class="min-w-[50px]">{{ error.number }}</td>
           <td>{{ error.messageTranslated }}</td>
           @if (advanced) {
-            <td style="min-width: 220px">{{ error.path }}</td>
+            <td class="min-w-[220px]">{{ error.path }}</td>
           }
           @if (advanced) {
-            <td style="min-width: 160px">
+            <td class="min-w-[160px]">
               @if (error.constraint !== '' && error.constraint != null) {
                 <p-tag [value]="error.constraint" severity="secondary" />
               }

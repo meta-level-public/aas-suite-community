@@ -2,7 +2,7 @@ import * as aas from '@aas-core-works/aas-core3.1-typescript';
 
 import { EncodingService } from '@aas/common-services';
 import { ShellResult } from '@aas/model';
-import { Component, computed, inject, input } from '@angular/core';
+import { Component, computed, inject, input, ChangeDetectionStrategy } from '@angular/core';
 import { EditorTypeOption } from '../../model/editor-type-option';
 import { V3TreeItem } from '../../model/v3-tree-item';
 import { V3EditorDataStoreService } from '../../v3-editor-data-store.service';
@@ -13,6 +13,7 @@ import { UrlComponent } from './url.component';
 @Component({
   selector: 'aas-endpoint-url',
   imports: [UrlComponent, CurlComponent],
+  changeDetection: ChangeDetectionStrategy.Eager,
   templateUrl: './endpoint-url.component.html',
 })
 export class EndpointUrlComponent extends V3ComponentBase {

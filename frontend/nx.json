@@ -24,7 +24,7 @@
       "inputs": ["default", "^production"]
     },
     "@nx/eslint:lint": {
-      "inputs": ["default", "{workspaceRoot}/.eslintrc.json"],
+      "inputs": ["default", "{workspaceRoot}/eslint.config.js", "{workspaceRoot}/eslint.config-oss.js"],
       "cache": true
     },
     "@nx/angular:package": {
@@ -63,7 +63,7 @@
       "!{projectRoot}/**/?(*.)+(spec|test).[jt]s?(x)?(.snap)",
       "!{projectRoot}/tsconfig.spec.json",
       "!{projectRoot}/vitest.config.[jt]s",
-      "!{projectRoot}/.eslintrc.json"
+      "!{projectRoot}/eslint.config.?(c|m)js"
     ],
     "sharedGlobals": []
   },

@@ -1,7 +1,7 @@
 import { Component, viewChild } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { provideNoopAnimations } from '@angular/platform-browser/animations';
-import { Menu } from 'primeng/menu';
+import { Menu } from '@openng/optimus-ui/menu';
 import { beforeEach, describe, expect, it } from 'vitest';
 import { patchMenuReopenWhileHiding } from './menu-reopen-fix';
 

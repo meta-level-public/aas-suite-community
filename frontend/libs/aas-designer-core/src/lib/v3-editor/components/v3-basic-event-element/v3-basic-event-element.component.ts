@@ -2,12 +2,12 @@ import * as aas from '@aas-core-works/aas-core3.1-typescript';
 import { HelpLabelComponent } from '@aas/common-components';
 import { ShellResult } from '@aas/model';
 import { NgClass } from '@angular/common';
-import { Component, Input } from '@angular/core';
+import { Component, Input, ChangeDetectionStrategy } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
-import { Fieldset } from 'primeng/fieldset';
-import { InputText } from 'primeng/inputtext';
-import { Select } from 'primeng/select';
+import { Fieldset } from '@openng/optimus-ui/fieldset';
+import { InputText } from '@openng/optimus-ui/inputtext';
+import { Select } from '@openng/optimus-ui/select';
 import { NullIfEmptyDirective } from '../../../general/directives/null-if-empty.directive';
 import { V3TreeItem } from '../../model/v3-tree-item';
 import { V3CategoryComponent } from '../v3-category/v3-category.component';
@@ -22,6 +22,7 @@ import { V3SemanticDescriptionComponent } from '../v3-semantic-description/v3-se
 @Component({
   selector: 'aas-v3-basic-event-element',
   templateUrl: './v3-basic-event-element.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [
     Fieldset,
     HelpLabelComponent,

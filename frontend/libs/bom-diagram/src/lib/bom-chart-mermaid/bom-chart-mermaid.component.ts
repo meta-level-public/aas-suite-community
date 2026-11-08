@@ -25,8 +25,9 @@ import {
   OnDestroy,
   OnInit,
   Output,
-  SimpleChanges,
+  type SimpleChanges,
   ViewChild,
+  ChangeDetectionStrategy,
 } from '@angular/core';
 
 import { Property } from '@aas/model';
@@ -36,9 +37,9 @@ import cytoscape from 'cytoscape';
 import cytoscapeDagre from 'cytoscape-dagre';
 // @ts-expect-error package has no maintained type declarations
 import cytoscapeSvg from 'cytoscape-svg';
-import { ButtonModule } from 'primeng/button';
-import { DialogService, DynamicDialogRef } from 'primeng/dynamicdialog';
-import { TooltipModule } from 'primeng/tooltip';
+import { ButtonModule } from '@openng/optimus-ui/button';
+import { DialogService, DynamicDialogRef } from '@openng/optimus-ui/dynamicdialog';
+import { TooltipModule } from '@openng/optimus-ui/tooltip';
 import { v4 as guid } from 'uuid';
 import { BomEntityDialogComponent } from './bom-entity-dialog/bom-entity-dialog.component';
 import { InitBomAssistantComponent } from './init-bom-assistant/init-bom-assistant.component';
@@ -50,6 +51,7 @@ cytoscape.use(cytoscapeSvg as any);
   selector: 'aas-bom-hierarchy-chart',
   imports: [TranslateModule, ButtonModule, TooltipModule],
   templateUrl: './bom-chart-mermaid.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrls: ['./bom-chart-mermaid.component.scss'],
 })
 export class BomHierarchyChartComponent implements OnChanges, OnInit, AfterViewInit, OnDestroy {
@@ -995,7 +997,7 @@ export class BomHierarchyChartComponent implements OnChanges, OnInit, AfterViewI
 
   createRootEntity(reinitialize = false) {
     this.ref = this.dialogService.open(InitBomAssistantComponent, {
-      header: 'Create BOM',
+      header: this.translate.instant('CREATE_BOM'),
       width: '90vw',
       modal: true,
       closable: true,

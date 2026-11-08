@@ -1,12 +1,12 @@
 import * as aas from '@aas-core-works/aas-core3.1-typescript';
-import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { Component, EventEmitter, Input, Output, ChangeDetectionStrategy } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
-import { Button } from 'primeng/button';
-import { DatePicker } from 'primeng/datepicker';
-import { InputText } from 'primeng/inputtext';
-import { Select } from 'primeng/select';
-import { Textarea } from 'primeng/textarea';
+import { Button } from '@openng/optimus-ui/button';
+import { DatePicker } from '@openng/optimus-ui/datepicker';
+import { InputText } from '@openng/optimus-ui/inputtext';
+import { Select } from '@openng/optimus-ui/select';
+import { Textarea } from '@openng/optimus-ui/textarea';
 import { MultilanguagePropertyComponent } from '../../general/structural-elements/multilanguage-property/multilanguage-property.component';
 import {
   ensureBatteryEditorReferenceValue,
@@ -29,6 +29,7 @@ import {
 @Component({
   selector: 'aas-battery-editor-shared-field',
   templateUrl: './battery-editor-shared-field.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [
     Button,
     DatePicker,

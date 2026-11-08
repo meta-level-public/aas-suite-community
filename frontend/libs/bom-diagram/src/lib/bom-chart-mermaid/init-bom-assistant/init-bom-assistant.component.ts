@@ -1,10 +1,10 @@
-import { Component, computed, inject, model, ModelSignal, OnInit } from '@angular/core';
+import { Component, computed, inject, model, type ModelSignal, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { MarkdownModule, provideMarkdown } from 'ngx-markdown';
-import { ButtonModule } from 'primeng/button';
-import { SelectButtonModule } from 'primeng/selectbutton';
-import { StepsModule } from 'primeng/steps';
+import { ButtonModule } from '@openng/optimus-ui/button';
+import { SelectButtonModule } from '@openng/optimus-ui/selectbutton';
+import { StepsModule } from '@openng/optimus-ui/steps';
 
 import {
   AssetInformation,
@@ -19,9 +19,9 @@ import {
   RelationshipElement,
   Submodel,
 } from '@aas-core-works/aas-core3.1-typescript/types';
-import { AasConfirmationService } from '@aas/common-services';
-import { MenuItem } from 'primeng/api';
-import { DynamicDialogConfig, DynamicDialogRef } from 'primeng/dynamicdialog';
+import { AasConfirmationService, isValidIdShort } from '@aas/common-services';
+import { MenuItem } from '@openng/optimus-ui/api';
+import { DynamicDialogConfig, DynamicDialogRef } from '@openng/optimus-ui/dynamicdialog';
 import { EntityDetailsComponent } from '../entity-details/entity-details.component';
 import {
   cloneSpecificAssetIds,
@@ -46,6 +46,7 @@ import { SelectTypeComponent } from './select-type/select-type.component';
   ],
   templateUrl: './init-bom-assistant.component.html',
   styleUrl: './init-bom-assistant.component.css',
+  changeDetection: ChangeDetectionStrategy.Eager,
   providers: [provideMarkdown()],
 })
 export class InitBomAssistantComponent implements OnInit {
@@ -231,8 +232,8 @@ export class InitBomAssistantComponent implements OnInit {
 
   canFinish() {
     return (
-      !!this.rootEntity.idShort &&
-      !!this.firstChildEntity.idShort &&
+      isValidIdShort(this.rootEntity.idShort) &&
+      isValidIdShort(this.firstChildEntity.idShort) &&
       this.isEntryAssetValid() &&
       this.isEntryAssetTypeValid() &&
       !this.hasArchetypeConflict() &&

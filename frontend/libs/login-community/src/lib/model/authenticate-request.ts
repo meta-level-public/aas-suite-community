@@ -1,5 +1,0 @@
-export interface AuthenticateRequest {
-  username: string;
-  password: string;
-  acceptPrivacy: boolean;
-}

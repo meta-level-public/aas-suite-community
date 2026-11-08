@@ -1,51 +1,51 @@
 import * as aas from '@aas-core-works/aas-core3.1-typescript';
-import { Component, OnDestroy, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
-import { TreeNode } from 'primeng/api';
-import { Button } from 'primeng/button';
-import { FileSelectEvent } from 'primeng/fileupload';
+import { TreeNode } from '@openng/optimus-ui/api';
+import { Button } from '@openng/optimus-ui/button';
+import { FileSelectEvent } from '@openng/optimus-ui/fileupload';
 import { SidebarTreeNavComponent } from '../../general/sidebar-tree-nav/sidebar-tree-nav.component';
 import {
-    BatteryEditorTreeItem,
-    createBatteryEditorEnumOptions,
-    createBatteryEditorTreeKey,
-    findBatteryEditorTreeItemByKey,
-    flattenBatteryEditorTreeItems,
-    getBatteryEditorChildElements,
-    getBatteryEditorElementDisplayName,
-    getBatteryEditorModelTypeName,
-    getBatteryEditorTreeItemIndexLabel,
-    getFirstBatteryEditorTreeItem,
-    isBatteryEditorBlobElement,
-    isBatteryEditorContainerElement,
-    isBatteryEditorFileElement,
-    isBatteryEditorMultiLanguagePropertyElement,
-    isBatteryEditorPropertyElement,
-    isBatteryEditorRangeElement,
-    isBatteryEditorReferenceElement,
-    mapBatteryEditorTreeItemsToNodes,
-    resolveBatteryEditorDescriptionFromConceptDescriptions,
-    shouldRenderBatteryEditorUnsupported,
-    stringifyBatteryEditorDebugValue,
+  BatteryEditorTreeItem,
+  createBatteryEditorEnumOptions,
+  createBatteryEditorTreeKey,
+  findBatteryEditorTreeItemByKey,
+  flattenBatteryEditorTreeItems,
+  getBatteryEditorChildElements,
+  getBatteryEditorElementDisplayName,
+  getBatteryEditorModelTypeName,
+  getBatteryEditorTreeItemIndexLabel,
+  getFirstBatteryEditorTreeItem,
+  isBatteryEditorBlobElement,
+  isBatteryEditorContainerElement,
+  isBatteryEditorFileElement,
+  isBatteryEditorMultiLanguagePropertyElement,
+  isBatteryEditorPropertyElement,
+  isBatteryEditorRangeElement,
+  isBatteryEditorReferenceElement,
+  mapBatteryEditorTreeItemsToNodes,
+  resolveBatteryEditorDescriptionFromConceptDescriptions,
+  shouldRenderBatteryEditorUnsupported,
+  stringifyBatteryEditorDebugValue,
 } from '../battery-editor-field-utils';
 import { BatteryEditorSharedFieldComponent } from '../battery-editor-shared-field/battery-editor-shared-field.component';
 import {
-    classifyBatteryPassportSubmodel,
-    getBatteryPassportAdditionalSubmodels,
-    hasBatteryPassportSubmodel,
+  classifyBatteryPassportSubmodel,
+  getBatteryPassportAdditionalSubmodels,
+  hasBatteryPassportSubmodel,
 } from '../battery-passport-template-registry';
 import { GeneratorFilePreviewState } from '../generator-file-preview.utils';
 import {
-    buildGeneratorFileUploadCardState,
-    getGeneratorDisplayedContentType,
-    getGeneratorDisplayedFileName,
-    getGeneratorStoredFileReference,
-    hasGeneratorFileSelection,
+  buildGeneratorFileUploadCardState,
+  getGeneratorDisplayedContentType,
+  getGeneratorDisplayedFileName,
+  getGeneratorStoredFileReference,
+  hasGeneratorFileSelection,
 } from '../generator-file-upload-card-state.utils';
 import {
-    GeneratorFileUploadCardComponent,
-    type GeneratorFileUploadCardState,
+  GeneratorFileUploadCardComponent,
+  type GeneratorFileUploadCardState,
 } from '../generator-file-upload-card/generator-file-upload-card.component';
 import { GeneratorPageShellComponent } from '../generator-page-shell/generator-page-shell.component';
 import { GeneratorService } from '../generator.service';
@@ -85,6 +85,7 @@ interface BatterySubmodelEditorModel {
   host: {
     class: 'flex flex-col flex-1',
   },
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [
     Button,
     TranslateModule,

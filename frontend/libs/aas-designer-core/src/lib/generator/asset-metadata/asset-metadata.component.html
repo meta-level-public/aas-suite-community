@@ -4,7 +4,7 @@
     [showSidebar]="true"
     [contentCardClass]="'asset-metadata-step-card'"
   >
-    <p generator-shell-intro class="text-lg battery-editor-page-copy mb-0" style="color: var(--p-text-muted-color)">
+    <p generator-shell-intro class="text-lg battery-editor-page-copy mb-0 text-muted-color">
       {{ 'BASIC_DATA_EXPL' | translate }}
     </p>
 
@@ -14,7 +14,7 @@
           <div class="battery-editor-step-index">{{ activeStepIndex + 1 }}</div>
           <div>
             <h2 class="text-2xl font-bold mb-2">{{ currentStep.labelKey | translate }}</h2>
-            <p class="text-sm mb-0" style="color: var(--p-text-muted-color)">
+            <p class="text-sm mb-0 text-muted-color">
               {{ currentStep.descriptionKey | translate }}
             </p>
           </div>
@@ -48,7 +48,7 @@
                 <lib-help-label tag="ASSET_SHELL_ID" for="assetShellId" [showLabel]="false"></lib-help-label>
                 {{ 'ID_SHORT' | translate }}
               </div>
-              <p class="text-sm mb-2" style="color: var(--p-text-muted-color)">
+              <p class="text-sm mb-2 text-muted-color">
                 {{ 'ASSET_SHELL_ID_ASSISTANT_EXPL' | translate }}
               </p>
               <input
@@ -67,12 +67,13 @@
               }
               @if (generatedAssetShellId !== '') {
                 <div class="mt-2 flex flex-col gap-2 md:flex-row md:items-center md:justify-between">
-                  <div class="text-sm" style="color: var(--p-text-muted-color)">
+                  <div class="text-sm text-muted-color">
                     {{ 'ASSET_SHELL_ID_SUGGESTION' | translate: { suggestion: generatedAssetShellId } }}
                   </div>
                   @if (hasAlternativeSuggestion()) {
                     <p-button
-                      styleClass="p-button-text p-button-sm"
+                      [text]="true"
+                      size="small"
                       icon="pi pi-sparkles"
                       label="{{ 'ASSET_SHELL_ID_USE_SUGGESTION' | translate }}"
                       (onClick)="applySuggestedAssetShellId()"
@@ -87,7 +88,7 @@
                 <i class="pi pi-box"></i>
                 {{ 'ASSET_ID' | translate }}
               </div>
-              <p class="text-sm mb-2" style="color: var(--p-text-muted-color)">
+              <p class="text-sm mb-2 text-muted-color">
                 {{ 'ASSET_ID_ASSISTANT_EXPL' | translate }}
               </p>
               <input pInputText class="w-full" [ngModel]="generatedAssetId" [readonly]="true" />
@@ -98,7 +99,7 @@
                 <i class="pi pi-sitemap"></i>
                 {{ 'AAS_ID' | translate }}
               </div>
-              <p class="text-sm mb-2" style="color: var(--p-text-muted-color)">
+              <p class="text-sm mb-2 text-muted-color">
                 {{ 'AAS_ID_ASSISTANT_EXPL' | translate }}
               </p>
               <input pInputText class="w-full" [ngModel]="generatedAssetShellIdentifier" [readonly]="true" />
@@ -128,7 +129,8 @@
                     }}
                   </div>
                   <p-button
-                    styleClass="p-button-warning p-button-sm"
+                    severity="warn"
+                    size="small"
                     icon="pi pi-wrench"
                     label="{{ 'ASSET_SHELL_ID_CORRECT' | translate }}"
                     (onClick)="applyCorrectedAssetShellId()"
@@ -175,6 +177,7 @@
 
     <div class="battery-editor-nav-actions" generator-shell-sidebar-actions>
       <p-button
+        severity="secondary"
         [fluid]="true"
         label="{{ 'BACK' | translate }}"
         (onClick)="prevPage()"

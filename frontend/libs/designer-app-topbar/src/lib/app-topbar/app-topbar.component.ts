@@ -1,4 +1,5 @@
 import { OrgaSettings } from '@aas-designer-model';
+import { HelpEditModeService } from '@aas/common-components';
 import { DateProxyPipe } from '@aas/common-pipes';
 import {
   AccessService,
@@ -10,16 +11,25 @@ import {
 import { NewsService, ShowNewsComponent } from '@aas/news';
 import { NgComponentOutlet } from '@angular/common';
 import { HttpClient, HttpParams } from '@angular/common/http';
-import { ChangeDetectorRef, Component, inject, OnDestroy, OnInit, output, signal } from '@angular/core';
+import {
+  ChangeDetectorRef,
+  Component,
+  inject,
+  OnDestroy,
+  OnInit,
+  output,
+  signal,
+  ChangeDetectionStrategy,
+} from '@angular/core';
 import { Router } from '@angular/router';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
-import { MenuItem } from 'primeng/api';
-import { AvatarModule } from 'primeng/avatar';
-import { ButtonModule } from 'primeng/button';
-import { DialogService } from 'primeng/dynamicdialog';
-import { MenuModule } from 'primeng/menu';
-import { PopoverModule } from 'primeng/popover';
-import { TooltipModule } from 'primeng/tooltip';
+import { MenuItem } from '@openng/optimus-ui/api';
+import { AvatarModule } from '@openng/optimus-ui/avatar';
+import { ButtonModule } from '@openng/optimus-ui/button';
+import { DialogService } from '@openng/optimus-ui/dynamicdialog';
+import { MenuModule } from '@openng/optimus-ui/menu';
+import { PopoverModule } from '@openng/optimus-ui/popover';
+import { TooltipModule } from '@openng/optimus-ui/tooltip';
 import { firstValueFrom, lastValueFrom, Subscription } from 'rxjs';
 import {
   ADDITIONAL_TOPBAR_AFTER_COMPONENTS,
@@ -32,6 +42,7 @@ import { VersionInfo } from './version-info';
   selector: 'lib-app-topbar',
   templateUrl: './app-topbar.component.html',
   imports: [NgComponentOutlet, TranslateModule, ButtonModule, PopoverModule, TooltipModule, AvatarModule, MenuModule],
+  changeDetection: ChangeDetectionStrategy.Eager,
   providers: [DateProxyPipe],
 })
 export class AppTopBarComponent implements OnInit, OnDestroy {
@@ -47,6 +58,7 @@ export class AppTopBarComponent implements OnInit, OnDestroy {
   router = inject(Router);
   datePipe = inject(DateProxyPipe);
   private readonly cdr = inject(ChangeDetectorRef);
+  private readonly helpEditMode = inject(HelpEditModeService);
 
   fontSize: string = 'small';
 
@@ -144,9 +156,6 @@ export class AppTopBarComponent implements OnInit, OnDestroy {
     );
   }
 
-  get orgaInitials() {
-    return PortalService.getCurrentOrgaSettings()?.orgaName?.substring(0, 2).toUpperCase();
-  }
   get orgaLogo() {
     return PortalService.getCurrentOrgaSettings()?.logoBase64;
   }
@@ -304,11 +313,11 @@ export class AppTopBarComponent implements OnInit, OnDestroy {
   }
 
   isEditmode() {
-    return window.sessionStorage.getItem('HELP_EDITMODE_ACTIVE') === 'true';
+    return this.helpEditMode.isActive();
   }
 
   toggleHelpMode() {
-    window.sessionStorage.setItem('HELP_EDITMODE_ACTIVE', this.isEditmode() ? 'false' : 'true');
+    this.helpEditMode.toggle();
   }
 
   private onThemeChanged = () => {

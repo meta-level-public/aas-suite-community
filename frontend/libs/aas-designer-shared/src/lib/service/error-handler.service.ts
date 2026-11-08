@@ -24,7 +24,7 @@ export class ErrorHandlerService implements ErrorHandler {
       if (this.ignoreError(error)) {
         return;
       }
-      if (error.rejection instanceof ApiException) {
+      if (error?.rejection instanceof ApiException) {
         const ex = error.rejection as ApiException;
         if (ex.displayError)
           this.notificationService.showMessage(
@@ -36,7 +36,6 @@ export class ErrorHandlerService implements ErrorHandler {
             ex.additionalInfo,
           );
 
-        // eslint-disable-next-line no-console
         if (isDevMode()) console.error(error);
       } else if (error instanceof ApiException) {
         const ex = error as ApiException;
@@ -50,38 +49,35 @@ export class ErrorHandlerService implements ErrorHandler {
             ex.additionalInfo,
           );
 
-        // eslint-disable-next-line no-console
         if (isDevMode()) console.error(error);
-      } else if (!(error.rejection instanceof HttpErrorResponse)) {
+      } else if (!(error?.rejection instanceof HttpErrorResponse)) {
+        // The stack trace is only useful for developers and must not be shown to users.
+        const details = isDevMode() && error?.stack ? ` - ${error.stack}` : '';
         this.notificationService.showMessage(
-          this.messageFormatter(`${error.message ?? error} - ${error.stack ?? ''}`),
+          this.messageFormatter(`${error?.message ?? error}${details}`),
           this.translate.instant('UNHANDLED_EXCEPTION'),
           'error',
           true,
         );
 
-        // eslint-disable-next-line no-console
         if (isDevMode()) console.error(error);
       } else if (error.error instanceof ErrorEvent) {
         // client-side error
         const errorMessage = `Error: ${error.error.message}`;
         this.notificationService.showMessage(errorMessage, 'CLIENTSIDE_ERROR_HEADLINE', 'error', true);
 
-        // eslint-disable-next-line no-console
         if (isDevMode()) console.error(error);
       } else if (error instanceof TypeError) {
         // client-side error
         const errorMessage = `Error: ${error.message}`;
         this.notificationService.showMessage(errorMessage, 'CLIENTSIDE_ERROR_HEADLINE', 'error', true);
 
-        // eslint-disable-next-line no-console
         if (isDevMode()) console.error(error);
       } else {
         const errorMessage = `Error: ${error.message}`;
         setTimeout(() =>
           this.notificationService.showMessage(errorMessage, 'CLIENTSIDE_ERROR_HEADLINE', 'error', true),
         );
-        // eslint-disable-next-line no-console
         if (isDevMode()) console.error(error);
       }
     });
@@ -91,7 +87,7 @@ export class ErrorHandlerService implements ErrorHandler {
     let ignore = false;
 
     this.errorMessagesToIgnore.forEach((e) => {
-      if (error.message.includes(e) || error.stack?.includes(e)) {
+      if (error?.message?.includes?.(e) || error?.stack?.includes?.(e)) {
         ignore = true;
       }
     });

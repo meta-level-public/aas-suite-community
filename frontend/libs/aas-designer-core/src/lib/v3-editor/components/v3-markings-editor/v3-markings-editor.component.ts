@@ -1,5 +1,16 @@
 import { HttpClient } from '@angular/common/http';
-import { Component, computed, inject, input, Input, InputSignal, model, OnChanges, signal } from '@angular/core';
+import {
+  Component,
+  computed,
+  inject,
+  input,
+  Input,
+  InputSignal,
+  model,
+  OnChanges,
+  signal,
+  ChangeDetectionStrategy,
+} from '@angular/core';
 import { DomSanitizer, SafeUrl } from '@angular/platform-browser';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 
@@ -10,14 +21,14 @@ import { AasConfirmationService, NotificationService } from '@aas/common-service
 import { FilenameHelper, SemanticIdHelper } from '@aas/helpers';
 import { MarkingType, MarkingTypeCatalog, ShellResult, SupplementalFile } from '@aas/model';
 import { FormsModule } from '@angular/forms';
-import { PrimeTemplate } from 'primeng/api';
-import { Button } from 'primeng/button';
-import { Dialog } from 'primeng/dialog';
-import { FileSelectEvent, FileUpload } from 'primeng/fileupload';
-import { InputText } from 'primeng/inputtext';
-import { Select } from 'primeng/select';
-import { TableModule } from 'primeng/table';
-import { Toolbar } from 'primeng/toolbar';
+import { PrimeTemplate } from '@openng/optimus-ui/api';
+import { Button } from '@openng/optimus-ui/button';
+import { Dialog } from '@openng/optimus-ui/dialog';
+import { FileSelectEvent, FileUpload } from '@openng/optimus-ui/fileupload';
+import { InputText } from '@openng/optimus-ui/inputtext';
+import { Select } from '@openng/optimus-ui/select';
+import { TableModule } from '@openng/optimus-ui/table';
+import { Toolbar } from '@openng/optimus-ui/toolbar';
 import { lastValueFrom } from 'rxjs';
 import { GeneratorStateStore } from '../../../generator/generator-state.store';
 import { V3TreeItem } from '../../model/v3-tree-item';
@@ -30,6 +41,7 @@ type ISubmodelElement = aas.types.ISubmodelElement;
 @Component({
   selector: 'aas-v3-markings-editor',
   templateUrl: './v3-markings-editor.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [
     Toolbar,
     Select,

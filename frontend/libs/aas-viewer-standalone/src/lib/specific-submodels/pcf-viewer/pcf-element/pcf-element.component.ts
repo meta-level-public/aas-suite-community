@@ -1,10 +1,10 @@
 import * as aas from '@aas-core-works/aas-core3.1-typescript';
 import { SubmodelElementCollection } from '@aas-core-works/aas-core3.1-typescript/types';
 import { AsyncPipe } from '@angular/common';
-import { Component, computed, inject, input } from '@angular/core';
+import { Component, computed, inject, input, ChangeDetectionStrategy } from '@angular/core';
 import { TranslateModule } from '@ngx-translate/core';
-import { PrimeTemplate } from 'primeng/api';
-import { TableModule } from 'primeng/table';
+import { PrimeTemplate } from '@openng/optimus-ui/api';
+import { TableModule } from '@openng/optimus-ui/table';
 import { ConceptDescriptionService } from '../../../concept-description.service';
 import { ViewerStoreService } from '../../../viewer-store.service';
 import { PcfAddressComponent } from '../pcf-address/pcf-address.component';
@@ -13,6 +13,7 @@ import { PcfHelper } from '../pcf-helper';
 @Component({
   selector: 'aas-pcf-element',
   templateUrl: './pcf-element.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [TableModule, PrimeTemplate, PcfAddressComponent, AsyncPipe, TranslateModule],
 })
 export class PcfElementComponent {

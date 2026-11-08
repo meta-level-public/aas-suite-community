@@ -1,21 +1,42 @@
+import { CursorPaginatorComponent } from '@aas/common-components';
 import * as aas from '@aas-core-works/aas-core3.1-typescript';
 import { ConceptDescription, DataSpecificationIec61360, Reference } from '@aas-core-works/aas-core3.1-typescript/types';
 
 import { ConceptDescriptionClient } from '@aas/webapi-client';
-import { Component, ElementRef, inject, input, model, OnDestroy, OnInit, signal, ViewChild } from '@angular/core';
+import {
+  Component,
+  ElementRef,
+  inject,
+  input,
+  model,
+  OnDestroy,
+  OnInit,
+  signal,
+  ViewChild,
+  ChangeDetectionStrategy,
+} from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
-import { ButtonModule } from 'primeng/button';
-import { DialogService, DynamicDialogConfig, DynamicDialogRef } from 'primeng/dynamicdialog';
-import { InputTextModule } from 'primeng/inputtext';
-import { SelectModule } from 'primeng/select';
-import { TableModule } from 'primeng/table';
+import { ButtonModule } from '@openng/optimus-ui/button';
+import { DialogService, DynamicDialogConfig, DynamicDialogRef } from '@openng/optimus-ui/dynamicdialog';
+import { InputTextModule } from '@openng/optimus-ui/inputtext';
+import { SelectModule } from '@openng/optimus-ui/select';
+import { TableModule } from '@openng/optimus-ui/table';
 import { lastValueFrom } from 'rxjs';
 import { PortalService } from '@aas/common-services';
 
 @Component({
   selector: 'aas-search-concept-description',
-  imports: [FormsModule, TranslateModule, InputTextModule, TableModule, ButtonModule, SelectModule],
+  imports: [
+    CursorPaginatorComponent,
+    FormsModule,
+    TranslateModule,
+    InputTextModule,
+    TableModule,
+    ButtonModule,
+    SelectModule,
+  ],
+  changeDetection: ChangeDetectionStrategy.Eager,
   templateUrl: './search-concept-description.component.html',
 })
 export class SearchConceptDescriptionComponent implements OnInit, OnDestroy {
@@ -152,7 +173,6 @@ export class SearchConceptDescriptionComponent implements OnInit, OnDestroy {
   }
 
   async loadFirstPage() {
-    window.localStorage.setItem('shells-list-footer-state', this.pageSize().toString());
     this.cursor = undefined;
     this.firstPage.set(true);
     await this.loadPaged();

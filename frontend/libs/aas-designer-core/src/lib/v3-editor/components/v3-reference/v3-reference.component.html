@@ -17,8 +17,7 @@
         [(ngModel)]="reference.type"
         optionLabel="label"
         optionValue="value"
-        class="w-full"
-        styleClass="w-full"
+        class="w-full w-full"
         vwsV3Undo
         [disabled]="!referenceTypeEditable"
       ></p-select>
@@ -63,8 +62,7 @@
                   [(ngModel)]="key.type"
                   optionLabel="label"
                   optionValue="value"
-                  styleClass="w-full"
-                  class="vws-concept-description flex w-full"
+                  class="vws-concept-description flex w-full w-full"
                   appendTo="body"
                   vwsV3Undo
                   [disabled]="!typeEditable"
@@ -75,6 +73,7 @@
                 <input pInputText [(ngModel)]="key.value" class="flex-1" nullIfEmpty />
                 @if (key.type === keyTypeEnum.GlobalReference) {
                   <p-button
+                    ariaLabel="{{ 'SELECT_SHELL' | translate }}"
                     icon="pi pi-search"
                     size="small"
                     text="true"
@@ -84,6 +83,7 @@
                   ></p-button>
                 }
                 <p-button
+                  ariaLabel="{{ 'REMOVE' | translate }}"
                   icon="pi pi-trash"
                   size="small"
                   severity="danger"
@@ -145,8 +145,7 @@
                   [(ngModel)]="key.type"
                   optionLabel="label"
                   optionValue="value"
-                  styleClass="w-full"
-                  class="vws-concept-description flex w-full"
+                  class="vws-concept-description flex w-full w-full"
                   appendTo="body"
                   vwsV3Undo
                   [disabled]="!typeEditable"
@@ -156,6 +155,7 @@
                 <lib-help-label class="w-32 mt-2" tag="VALUE"></lib-help-label>
                 <input pInputText [(ngModel)]="key.value" class="flex-1" nullIfEmpty />
                 <p-button
+                  ariaLabel="{{ 'REMOVE' | translate }}"
                   icon="pi pi-trash"
                   size="small"
                   severity="danger"
@@ -187,8 +187,7 @@
           <div class="col-span-12 md:col-span-4">
             <lib-help-label tag="SUBMODEL"></lib-help-label>
             <p-select
-              class="w-full mt-2"
-              styleClass="w-full"
+              class="w-full mt-2 w-full"
               [options]="selectionSubmodelOptions"
               [(ngModel)]="selectionSubmodelFilter"
               optionLabel="label"
@@ -199,8 +198,7 @@
           <div class="col-span-12 md:col-span-4">
             <lib-help-label tag="TYPE"></lib-help-label>
             <p-select
-              class="w-full mt-2"
-              styleClass="w-full"
+              class="w-full mt-2 w-full"
               [options]="selectionTypeOptions"
               [(ngModel)]="selectionTypeFilter"
               optionLabel="label"
@@ -212,6 +210,7 @@
 
         <div class="flex justify-end">
           <p-button
+            severity="secondary"
             label="{{ 'RESET_FILTER' | translate }}"
             icon="pi pi-filter-slash"
             text="true"
@@ -230,12 +229,16 @@
                 (onNodeSelect)="selectCandidate($event)"
               >
                 <ng-template let-node pTemplate="default">
-                  <div class="reference-picker-node" [pTooltip]="node?.data?.candidate?.path" tooltipPosition="right">
+                  <div
+                    class="reference-picker-node"
+                    [pTooltip]="$safeNavigationMigration(node?.data?.candidate?.path)"
+                    tooltipPosition="right"
+                  >
                     <div class="reference-picker-node-main">
                       <div class="reference-picker-node-label">{{ node.label }}</div>
                       <div class="reference-picker-node-path">{{ node?.data?.candidate?.path }}</div>
                     </div>
-                    <span [ngClass]="getTypeBadgeClass(node?.data?.candidate?.type)">
+                    <span [ngClass]="getTypeBadgeClass($safeNavigationMigration(node?.data?.candidate?.type))">
                       {{ node?.data?.candidate?.type }}
                     </span>
                   </div>
@@ -300,6 +303,7 @@
         </div>
         <div class="flex flex-row justify-end gap-2 mt-2">
           <p-button
+            severity="secondary"
             label="{{ 'CANCEL' | translate }}"
             (onClick)="cancelExternalUrlDialog()"
             text="true"
@@ -318,6 +322,7 @@
 
     <div class="flex flex-row w-full justify-start mt-2 mb-2">
       <p-button
+        severity="danger"
         label="{{ 'REMOVE_BLOCK' | translate }}"
         (onClick)="removeReferenceBlock()"
         icon="pi pi-trash"

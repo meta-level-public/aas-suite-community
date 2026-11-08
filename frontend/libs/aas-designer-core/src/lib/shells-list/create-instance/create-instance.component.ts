@@ -1,15 +1,16 @@
 import { CreateInstanceRequest, ShellsClient } from '@aas/webapi-client';
-import { Component, inject, model, signal } from '@angular/core';
+import { Component, inject, model, signal, ChangeDetectionStrategy } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
-import { ButtonModule } from 'primeng/button';
-import { DatePickerModule } from 'primeng/datepicker';
-import { DynamicDialogConfig, DynamicDialogRef } from 'primeng/dynamicdialog';
-import { InputTextModule } from 'primeng/inputtext';
+import { ButtonModule } from '@openng/optimus-ui/button';
+import { DatePickerModule } from '@openng/optimus-ui/datepicker';
+import { DynamicDialogConfig, DynamicDialogRef } from '@openng/optimus-ui/dynamicdialog';
+import { InputTextModule } from '@openng/optimus-ui/inputtext';
 
 @Component({
   selector: 'aas-create-instance',
   imports: [FormsModule, TranslateModule, InputTextModule, ButtonModule, DatePickerModule],
+  changeDetection: ChangeDetectionStrategy.Eager,
   templateUrl: './create-instance.component.html',
 })
 export class CreateInstanceComponent {

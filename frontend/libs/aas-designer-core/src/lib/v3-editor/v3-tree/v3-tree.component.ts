@@ -3,19 +3,20 @@ import { SubmodelTemplate } from '@aas-designer-model';
 import { IdGenerationUtil, InstanceHelper, TagHelper } from '@aas/helpers';
 import { AasMetamodelVersion, PackageMetadata, ShellResult, SupplementalFile } from '@aas/model';
 import {
-    Component,
-    EventEmitter,
-    HostListener,
-    inject,
-    Input,
-    OnChanges,
-    OnInit,
-    Output,
-    signal,
-    SimpleChanges,
-    ViewChild,
+  Component,
+  EventEmitter,
+  HostListener,
+  inject,
+  Input,
+  OnChanges,
+  OnInit,
+  Output,
+  signal,
+  SimpleChanges,
+  ViewChild,
+  ChangeDetectionStrategy,
 } from '@angular/core';
-import { TreeNode } from 'primeng/api';
+import { TreeNode } from '@openng/optimus-ui/api';
 import { v4 as uuid } from 'uuid';
 import { SnippetsCatalogComponent } from '../../catalog/snippets-catalog/snippets-catalog.component';
 import { CMTypeOption } from '../model/cm-type-option';
@@ -35,14 +36,14 @@ import { NgClass } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { isArray } from 'lodash-es';
-import { Button } from 'primeng/button';
-import { Dialog } from 'primeng/dialog';
-import { FileUpload } from 'primeng/fileupload';
-import { InputText } from 'primeng/inputtext';
-import { Message } from 'primeng/message';
-import { Tag } from 'primeng/tag';
-import { Textarea } from 'primeng/textarea';
-import { Tooltip } from 'primeng/tooltip';
+import { Button } from '@openng/optimus-ui/button';
+import { Dialog } from '@openng/optimus-ui/dialog';
+import { FileUpload } from '@openng/optimus-ui/fileupload';
+import { InputText } from '@openng/optimus-ui/inputtext';
+import { Message } from '@openng/optimus-ui/message';
+import { Tag } from '@openng/optimus-ui/tag';
+import { Textarea } from '@openng/optimus-ui/textarea';
+import { Tooltip } from '@openng/optimus-ui/tooltip';
 import { ExtendedSearchComponent } from '../../general/extended-search/extended-search.component';
 import { EclassSinglePropertyGeneratorComponent } from '../components/eclass-property-generator/single/eclass-single-property-generator.component';
 
@@ -56,6 +57,7 @@ type FlatTreeNode = {
   selector: 'aas-v3-tree',
   templateUrl: './v3-tree.component.html',
   styleUrls: ['../../../host.scss'],
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [
     Button,
     Tooltip,
@@ -892,7 +894,7 @@ export class V3TreeComponent implements OnChanges, OnInit {
     nodeData.editorType = EditorTypeOption.SupplementalFile;
     nodeData.parent = null;
     const el: TreeNode<V3TreeItem<any>> = {
-      label: 'New File',
+      label: this.translate.instant('NEW_FILE'),
       data: nodeData,
       key: id,
       expanded: false,
@@ -1426,8 +1428,7 @@ export class V3TreeComponent implements OnChanges, OnInit {
         this.selectedElementChanged.emit((this.treeService.selectedTreeNode as TreeNode<V3TreeItem<any>> | null)?.data);
       } else if (instanceOrErrorPlain.value == null) {
         if (instanceOrErrorPlain.error != null) {
-          // eslint-disable-next-line no-console
-          console.log(
+          console.warn(
             'De-serialization failed: ' +
               `${instanceOrErrorPlain.error.path}: ` +
               `${instanceOrErrorPlain.error.message}`,
@@ -1471,8 +1472,7 @@ export class V3TreeComponent implements OnChanges, OnInit {
         }
       } else if (instanceOrErrorPlain.value == null) {
         if (instanceOrErrorPlain.error != null) {
-          // eslint-disable-next-line no-console
-          console.log(
+          console.warn(
             'De-serialization failed: ' +
               `${instanceOrErrorPlain.error.path}: ` +
               `${instanceOrErrorPlain.error.message}`,
@@ -1498,8 +1498,7 @@ export class V3TreeComponent implements OnChanges, OnInit {
         this.selectedElementChanged.emit((this.treeService.selectedTreeNode as TreeNode<V3TreeItem<any>> | null)?.data);
       } else if (instanceOrErrorPlain.value == null) {
         if (instanceOrErrorPlain.error != null) {
-          // eslint-disable-next-line no-console
-          console.log(
+          console.warn(
             'De-serialization failed: ' +
               `${instanceOrErrorPlain.error.path}: ` +
               `${instanceOrErrorPlain.error.message}`,

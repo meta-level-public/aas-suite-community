@@ -3,9 +3,9 @@ import { HelpLabelComponent } from '@aas/common-components';
 import { ShellResult } from '@aas/model';
 import { NgClass } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
-import { Component, Input, OnChanges } from '@angular/core';
+import { Component, Input, OnChanges, ChangeDetectionStrategy } from '@angular/core';
 import { TranslateModule } from '@ngx-translate/core';
-import { Fieldset } from 'primeng/fieldset';
+import { Fieldset } from '@openng/optimus-ui/fieldset';
 import { Info } from '../../../general/model/info-item';
 import { V3TreeItem } from '../../model/v3-tree-item';
 import { V3TreeService } from '../../v3-tree/v3-tree.service';
@@ -25,6 +25,7 @@ type ValueList = aas.types.ValueList;
 @Component({
   selector: 'aas-v3-property-editor',
   templateUrl: './v3-property-editor.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [
     Fieldset,
     HelpLabelComponent,

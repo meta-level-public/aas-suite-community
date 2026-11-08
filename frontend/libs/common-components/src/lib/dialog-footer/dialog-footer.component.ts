@@ -1,11 +1,12 @@
-import { Component } from '@angular/core';
+import { Component, ChangeDetectionStrategy } from '@angular/core';
 import { TranslateModule } from '@ngx-translate/core';
-import { Button } from 'primeng/button';
-import { DynamicDialogRef } from 'primeng/dynamicdialog';
+import { Button } from '@openng/optimus-ui/button';
+import { DynamicDialogRef } from '@openng/optimus-ui/dynamicdialog';
 
 @Component({
   selector: 'lib-dialog-footer',
   templateUrl: './dialog-footer.component.html',
+  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [TranslateModule, Button],
 })
 export class DialogFooter {

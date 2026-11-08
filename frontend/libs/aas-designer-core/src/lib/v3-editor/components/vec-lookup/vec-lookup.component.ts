@@ -1,18 +1,19 @@
 import { Clipboard } from '@angular/cdk/clipboard';
 
-import { Component, inject, model, output } from '@angular/core';
+import { Component, inject, model, output, ChangeDetectionStrategy } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
 import { NotificationService } from '@aas/common-services';
-import { ButtonModule } from 'primeng/button';
-import { MultiSelectModule } from 'primeng/multiselect';
-import { TableModule } from 'primeng/table';
+import { ButtonModule } from '@openng/optimus-ui/button';
+import { MultiSelectModule } from '@openng/optimus-ui/multiselect';
+import { TableModule } from '@openng/optimus-ui/table';
 import { VecDataService } from './vec-data.service';
 
 @Component({
   selector: 'aas-vec-lookup',
 
   imports: [FormsModule, TranslateModule, TableModule, ButtonModule, MultiSelectModule],
+  changeDetection: ChangeDetectionStrategy.Eager,
   templateUrl: './vec-lookup.component.html',
 })
 export class VecLookupComponent {

@@ -1,13 +1,13 @@
-import { Component, inject, Input, OnChanges, OnDestroy, signal } from '@angular/core';
+import { Component, inject, Input, OnChanges, OnDestroy, signal, ChangeDetectionStrategy } from '@angular/core';
 
 import * as aas from '@aas-core-works/aas-core3.1-typescript';
 import { ConceptDescription, ISubmodelElement } from '@aas-core-works/aas-core3.1-typescript/types';
 import { HelpLabelComponent } from '@aas/common-components';
 import { formatDateLike, SubmodelElementUtil } from '@aas/helpers';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
-import { InputGroup } from 'primeng/inputgroup';
-import { InputGroupAddon } from 'primeng/inputgroupaddon';
-import { InputText } from 'primeng/inputtext';
+import { InputGroup } from '@openng/optimus-ui/inputgroup';
+import { InputGroupAddon } from '@openng/optimus-ui/inputgroupaddon';
+import { InputText } from '@openng/optimus-ui/inputtext';
 import { Subscription } from 'rxjs';
 import { ConceptDescriptionService } from '../concept-description.service';
 import { SemanticDescriptionPopupComponent } from '../semantic-description-popup/semantic-description-popup.component';
@@ -17,6 +17,7 @@ import { ViewerStoreService } from '../viewer-store.service';
   selector: 'aas-range-viewer',
   templateUrl: './range-viewer.component.html',
   styleUrls: ['./range-viewer.component.css'],
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [
     InputGroup,
     InputGroupAddon,

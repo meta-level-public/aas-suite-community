@@ -1,10 +1,10 @@
 import * as aas from '@aas-core-works/aas-core3.1-typescript';
 import { SemanticIdHelper } from '@aas/helpers';
-import { Component, Input, OnChanges, computed, inject, signal } from '@angular/core';
+import { Component, Input, OnChanges, computed, inject, signal, ChangeDetectionStrategy } from '@angular/core';
 import { TranslateModule } from '@ngx-translate/core';
-import { InputGroup } from 'primeng/inputgroup';
-import { InputGroupAddon } from 'primeng/inputgroupaddon';
-import { InputText } from 'primeng/inputtext';
+import { InputGroup } from '@openng/optimus-ui/inputgroup';
+import { InputGroupAddon } from '@openng/optimus-ui/inputgroupaddon';
+import { InputText } from '@openng/optimus-ui/inputtext';
 import { ConceptDescriptionService } from '../../concept-description.service';
 import { ViewerStoreService } from '../../viewer-store.service';
 
@@ -97,6 +97,7 @@ const EMPTY_VIEW_MODEL: MaterialCompositionViewModel = {
   standalone: true,
   templateUrl: './material-composition-viewer.component.html',
   styleUrls: ['./material-composition-viewer.component.css'],
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [TranslateModule, InputGroup, InputGroupAddon, InputText],
 })
 export class MaterialCompositionViewerComponent implements OnChanges {

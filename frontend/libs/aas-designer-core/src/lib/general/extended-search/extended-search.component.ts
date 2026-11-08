@@ -1,11 +1,11 @@
 import { AssetAdministrationShellEnvironment } from '@aas/model';
-import { Component, Input } from '@angular/core';
+import { ChangeDetectionStrategy, Component, Input, OnDestroy } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { PrimeTemplate, SelectItem, TreeNode } from 'primeng/api';
-import { Button } from 'primeng/button';
-import { Dialog } from 'primeng/dialog';
-import { InputText } from 'primeng/inputtext';
-import { Select } from 'primeng/select';
+import { PrimeTemplate, SelectItem, TreeNode } from '@openng/optimus-ui/api';
+import { Button } from '@openng/optimus-ui/button';
+import { Dialog } from '@openng/optimus-ui/dialog';
+import { InputText } from '@openng/optimus-ui/inputtext';
+import { Select } from '@openng/optimus-ui/select';
 import { Subscription } from 'rxjs';
 import { AasSharedDataService } from '../../asset-administration-shell-tree/services/aas-shared-data.service';
 import { V3TreeService } from '../../v3-editor/v3-tree/v3-tree.service';
@@ -17,9 +17,10 @@ import { TranslateModule } from '@ngx-translate/core';
 @Component({
   selector: 'aas-extended-search',
   templateUrl: './extended-search.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [Dialog, Select, FormsModule, PrimeTemplate, InputText, Button, TranslateModule],
 })
-export class ExtendedSearchComponent {
+export class ExtendedSearchComponent implements OnDestroy {
   @Input() visible: boolean = false;
   @Input() treeData: TreeNode[] = [];
   @Input({ required: true }) version: 'v3' | 'v2' = 'v2';
@@ -55,6 +56,10 @@ export class ExtendedSearchComponent {
     const opt = { label: 'EVERYWHERE', value: 'undefined' };
     this.searchOptions.push(opt);
     this.selectedSearchOption = opt;
+  }
+
+  ngOnDestroy(): void {
+    this.subscriptions.forEach((s) => s.unsubscribe());
   }
 
   searchOrFindNext() {

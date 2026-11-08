@@ -4,18 +4,28 @@ import { TagHelper } from '@aas/helpers';
 import { Clipboard } from '@angular/cdk/clipboard';
 import { AsyncPipe } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
-import { Component, computed, EventEmitter, inject, Input, OnChanges, Output, signal } from '@angular/core';
+import {
+  Component,
+  computed,
+  EventEmitter,
+  inject,
+  Input,
+  OnChanges,
+  Output,
+  signal,
+  ChangeDetectionStrategy,
+} from '@angular/core';
 import { DomSanitizer } from '@angular/platform-browser';
 import { TranslateModule } from '@ngx-translate/core';
 import { NgxJsonViewerModule } from 'ngx-json-viewer';
-import { Button } from 'primeng/button';
-import { InputGroup } from 'primeng/inputgroup';
-import { InputGroupAddon } from 'primeng/inputgroupaddon';
-import { InputText } from 'primeng/inputtext';
-import { Ripple } from 'primeng/ripple';
-import { TableModule } from 'primeng/table';
-import { Tab, TabList, TabPanel, TabPanels, Tabs } from 'primeng/tabs';
-import { Tag } from 'primeng/tag';
+import { Button } from '@openng/optimus-ui/button';
+import { InputGroup } from '@openng/optimus-ui/inputgroup';
+import { InputGroupAddon } from '@openng/optimus-ui/inputgroupaddon';
+import { InputText } from '@openng/optimus-ui/inputtext';
+import { Ripple } from '@openng/optimus-ui/ripple';
+import { TableModule } from '@openng/optimus-ui/table';
+import { Tab, TabList, TabPanel, TabPanels, Tabs } from '@openng/optimus-ui/tabs';
+import { Tag } from '@openng/optimus-ui/tag';
 import { lastValueFrom } from 'rxjs';
 import { ViewerStoreService } from '../viewer-store.service';
 import { FramedQrCodeComponent } from './framed-qr-code/framed-qr-code.component';
@@ -23,6 +33,7 @@ import { FramedQrCodeComponent } from './framed-qr-code/framed-qr-code.component
 @Component({
   selector: 'aas-aas-metadata-viewer',
   templateUrl: './aas-metadata-viewer.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [
     TableModule,
     Tag,

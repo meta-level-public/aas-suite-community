@@ -1,11 +1,12 @@
 import { SelectionCardComponent } from '@aas/common-components';
-import { Component, effect, inject, model, output } from '@angular/core';
+import { Component, effect, inject, model, output, ChangeDetectionStrategy } from '@angular/core';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 
 @Component({
   selector: 'aas-select-type',
   imports: [TranslateModule, SelectionCardComponent],
   templateUrl: './select-type.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrls: ['./select-type.component.css'],
 })
 export class SelectTypeComponent {

@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, computed, inject, OnDestroy, signal } from '@angular/core';
+import { Component, computed, inject, OnDestroy, signal, ChangeDetectionStrategy } from '@angular/core';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { Subscription } from 'rxjs';
 
@@ -7,6 +7,7 @@ import { Subscription } from 'rxjs';
   selector: 'app-drag-captcha',
   templateUrl: './drag-captcha.component.html',
   styleUrls: ['./drag-captcha.component.css'],
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [CommonModule, TranslateModule],
 })
 export class DragCaptchaComponent implements OnDestroy {

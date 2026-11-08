@@ -1,12 +1,13 @@
 import * as aas from '@aas-core-works/aas-core3.1-typescript';
 
-import { Component, computed, input } from '@angular/core';
+import { Component, computed, input, ChangeDetectionStrategy } from '@angular/core';
 import { TranslateModule } from '@ngx-translate/core';
 
 @Component({
   selector: 'aas-product-or-sector-specific-pcf-step-viewer',
   templateUrl: './product-or-sector-specific-pcf-step-viewer.component.html',
   styleUrl: './product-or-sector-specific-pcf-step-viewer.component.css',
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [TranslateModule],
 })
 export class ProductOrSectorSpecificPcfStepViewerComponent {

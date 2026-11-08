@@ -1,12 +1,12 @@
 import * as aas from '@aas-core-works/aas-core3.1-typescript';
 
-import { Component, computed, inject, model, signal } from '@angular/core';
+import { Component, computed, inject, model, signal, ChangeDetectionStrategy } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
-import { ButtonModule } from 'primeng/button';
-import { DynamicDialogRef } from 'primeng/dynamicdialog';
-import { InputTextModule } from 'primeng/inputtext';
-import { TableModule } from 'primeng/table';
+import { ButtonModule } from '@openng/optimus-ui/button';
+import { DynamicDialogRef } from '@openng/optimus-ui/dynamicdialog';
+import { InputTextModule } from '@openng/optimus-ui/inputtext';
+import { TableModule } from '@openng/optimus-ui/table';
 import { ViewerStoreService } from '../viewer-store.service';
 import type { SearchHit } from './search.types';
 
@@ -16,6 +16,7 @@ import type { SearchHit } from './search.types';
   selector: 'aas-search-in-aas-dialog',
 
   imports: [FormsModule, InputTextModule, ButtonModule, TableModule, TranslateModule],
+  changeDetection: ChangeDetectionStrategy.Eager,
   templateUrl: './search-in-aas-dialog.component.html',
 })
 export class SearchInAasDialogComponent {

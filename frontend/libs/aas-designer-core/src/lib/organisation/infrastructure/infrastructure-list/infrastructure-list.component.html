@@ -78,11 +78,13 @@
       </div>
       <h3 class="infra-card__title">{{ 'DPP_API' | translate }}</h3>
       <div class="infra-card__body">
-        <div class="rounded-xl border border-emerald-200 bg-emerald-50/70 p-3">
-          <div class="mb-1 flex items-center gap-2 text-xs font-semibold uppercase tracking-wide text-emerald-700">
+        <div class="rounded-xl border border-[var(--aas-success-border)] bg-[var(--aas-success-surface)] p-3">
+          <div
+            class="mb-1 flex items-center gap-2 text-xs font-semibold uppercase tracking-wide text-[var(--aas-success-text)]"
+          >
             <i class="pi pi-globe"></i><span>{{ 'DIRECT' | translate }}</span>
           </div>
-          <div class="break-all font-mono text-sm text-slate-700">{{ settings().dppApiUrl }}</div>
+          <div class="break-all font-mono text-sm text-color">{{ settings().dppApiUrl }}</div>
         </div>
         @if (settings().dppApiVersion) {
           <div>{{ 'VERSION' | translate }} <p-tag [value]="settings().dppApiVersion" severity="info" /></div>
@@ -114,42 +116,46 @@
       </div>
       <h3 class="infra-card__title">{{ 'DISCOVERY' | translate }}</h3>
       <div class="infra-card__body">
-        <div class="rounded-xl border border-slate-200 bg-slate-50/70 p-3">
-          <div class="mb-1 flex items-center gap-2 text-xs font-semibold uppercase tracking-wide text-slate-600">
+        <div class="rounded-xl border border-surface bg-surface-50 p-3">
+          <div class="mb-1 flex items-center gap-2 text-xs font-semibold uppercase tracking-wide text-muted-color">
             <i class="pi pi-shield"></i>
             <span>{{ 'PROXY' | translate }}</span>
             <i
-              class="pi pi-info-circle cursor-help text-slate-400"
+              class="pi pi-info-circle cursor-help text-muted-color"
               [pTooltip]="getProxyTooltip()"
               tooltipPosition="top"
             ></i>
           </div>
-          <div class="break-all font-mono text-sm font-semibold text-slate-800">{{ getProxyUrl('discovery') }}</div>
+          <div class="break-all font-mono text-sm font-semibold text-color">{{ getProxyUrl('discovery') }}</div>
         </div>
-        <div class="rounded-xl border border-emerald-200 bg-emerald-50/70 p-3">
-          <div class="mb-1 flex items-center gap-2 text-xs font-semibold uppercase tracking-wide text-emerald-700">
+        <div class="rounded-xl border border-[var(--aas-success-border)] bg-[var(--aas-success-surface)] p-3">
+          <div
+            class="mb-1 flex items-center gap-2 text-xs font-semibold uppercase tracking-wide text-[var(--aas-success-text)]"
+          >
             <i class="pi pi-globe"></i>
             <span>{{ 'DIRECT' | translate }}</span>
             <i
-              class="pi pi-info-circle cursor-help text-emerald-500"
+              class="pi pi-info-circle cursor-help text-[var(--aas-success-icon)]"
               [pTooltip]="getDirectTooltip()"
               tooltipPosition="top"
             ></i>
           </div>
-          <div class="break-all font-mono text-sm text-slate-700">{{ getDirectUrl('discovery') }}</div>
+          <div class="break-all font-mono text-sm text-color">{{ getDirectUrl('discovery') }}</div>
         </div>
         @if (shouldShowConfiguredUrl('discovery')) {
-          <div class="rounded-xl border border-sky-200 bg-sky-50/70 p-3">
-            <div class="mb-1 flex items-center gap-2 text-xs font-semibold uppercase tracking-wide text-sky-700">
+          <div class="rounded-xl border border-[var(--aas-info-border)] bg-[var(--aas-info-surface)] p-3">
+            <div
+              class="mb-1 flex items-center gap-2 text-xs font-semibold uppercase tracking-wide text-[var(--aas-info-text)]"
+            >
               <i class="pi pi-cog"></i>
               <span>{{ 'CONFIGURED' | translate }}</span>
               <i
-                class="pi pi-info-circle cursor-help text-sky-500"
+                class="pi pi-info-circle cursor-help text-[var(--aas-info-icon)]"
                 [pTooltip]="getConfiguredTooltip()"
                 tooltipPosition="top"
               ></i>
             </div>
-            <div class="break-all font-mono text-sm text-slate-700">{{ getConfiguredUrl('discovery') }}</div>
+            <div class="break-all font-mono text-sm text-color">{{ getConfiguredUrl('discovery') }}</div>
           </div>
         }
         @if (settings().isInternal) {
@@ -175,42 +181,46 @@
       </div>
       <h3 class="infra-card__title">{{ 'AAS_REGISTRY' | translate }}</h3>
       <div class="infra-card__body">
-        <div class="rounded-xl border border-slate-200 bg-slate-50/70 p-3">
-          <div class="mb-1 flex items-center gap-2 text-xs font-semibold uppercase tracking-wide text-slate-600">
+        <div class="rounded-xl border border-surface bg-surface-50 p-3">
+          <div class="mb-1 flex items-center gap-2 text-xs font-semibold uppercase tracking-wide text-muted-color">
             <i class="pi pi-shield"></i>
             <span>{{ 'PROXY' | translate }}</span>
             <i
-              class="pi pi-info-circle cursor-help text-slate-400"
+              class="pi pi-info-circle cursor-help text-muted-color"
               [pTooltip]="getProxyTooltip()"
               tooltipPosition="top"
             ></i>
           </div>
-          <div class="break-all font-mono text-sm font-semibold text-slate-800">{{ getProxyUrl('aasRegistry') }}</div>
+          <div class="break-all font-mono text-sm font-semibold text-color">{{ getProxyUrl('aasRegistry') }}</div>
         </div>
-        <div class="rounded-xl border border-emerald-200 bg-emerald-50/70 p-3">
-          <div class="mb-1 flex items-center gap-2 text-xs font-semibold uppercase tracking-wide text-emerald-700">
+        <div class="rounded-xl border border-[var(--aas-success-border)] bg-[var(--aas-success-surface)] p-3">
+          <div
+            class="mb-1 flex items-center gap-2 text-xs font-semibold uppercase tracking-wide text-[var(--aas-success-text)]"
+          >
             <i class="pi pi-globe"></i>
             <span>{{ 'DIRECT' | translate }}</span>
             <i
-              class="pi pi-info-circle cursor-help text-emerald-500"
+              class="pi pi-info-circle cursor-help text-[var(--aas-success-icon)]"
               [pTooltip]="getDirectTooltip()"
               tooltipPosition="top"
             ></i>
           </div>
-          <div class="break-all font-mono text-sm text-slate-700">{{ getDirectUrl('aasRegistry') }}</div>
+          <div class="break-all font-mono text-sm text-color">{{ getDirectUrl('aasRegistry') }}</div>
         </div>
         @if (shouldShowConfiguredUrl('aasRegistry')) {
-          <div class="rounded-xl border border-sky-200 bg-sky-50/70 p-3">
-            <div class="mb-1 flex items-center gap-2 text-xs font-semibold uppercase tracking-wide text-sky-700">
+          <div class="rounded-xl border border-[var(--aas-info-border)] bg-[var(--aas-info-surface)] p-3">
+            <div
+              class="mb-1 flex items-center gap-2 text-xs font-semibold uppercase tracking-wide text-[var(--aas-info-text)]"
+            >
               <i class="pi pi-cog"></i>
               <span>{{ 'CONFIGURED' | translate }}</span>
               <i
-                class="pi pi-info-circle cursor-help text-sky-500"
+                class="pi pi-info-circle cursor-help text-[var(--aas-info-icon)]"
                 [pTooltip]="getConfiguredTooltip()"
                 tooltipPosition="top"
               ></i>
             </div>
-            <div class="break-all font-mono text-sm text-slate-700">{{ getConfiguredUrl('aasRegistry') }}</div>
+            <div class="break-all font-mono text-sm text-color">{{ getConfiguredUrl('aasRegistry') }}</div>
           </div>
         }
         @if (settings().isInternal) {
@@ -236,42 +246,46 @@
       </div>
       <h3 class="infra-card__title">{{ 'AAS_REPOSITORY' | translate }}</h3>
       <div class="infra-card__body">
-        <div class="rounded-xl border border-slate-200 bg-slate-50/70 p-3">
-          <div class="mb-1 flex items-center gap-2 text-xs font-semibold uppercase tracking-wide text-slate-600">
+        <div class="rounded-xl border border-surface bg-surface-50 p-3">
+          <div class="mb-1 flex items-center gap-2 text-xs font-semibold uppercase tracking-wide text-muted-color">
             <i class="pi pi-shield"></i>
             <span>{{ 'PROXY' | translate }}</span>
             <i
-              class="pi pi-info-circle cursor-help text-slate-400"
+              class="pi pi-info-circle cursor-help text-muted-color"
               [pTooltip]="getProxyTooltip()"
               tooltipPosition="top"
             ></i>
           </div>
-          <div class="break-all font-mono text-sm font-semibold text-slate-800">{{ getProxyUrl('aasRepository') }}</div>
+          <div class="break-all font-mono text-sm font-semibold text-color">{{ getProxyUrl('aasRepository') }}</div>
         </div>
-        <div class="rounded-xl border border-emerald-200 bg-emerald-50/70 p-3">
-          <div class="mb-1 flex items-center gap-2 text-xs font-semibold uppercase tracking-wide text-emerald-700">
+        <div class="rounded-xl border border-[var(--aas-success-border)] bg-[var(--aas-success-surface)] p-3">
+          <div
+            class="mb-1 flex items-center gap-2 text-xs font-semibold uppercase tracking-wide text-[var(--aas-success-text)]"
+          >
             <i class="pi pi-globe"></i>
             <span>{{ 'DIRECT' | translate }}</span>
             <i
-              class="pi pi-info-circle cursor-help text-emerald-500"
+              class="pi pi-info-circle cursor-help text-[var(--aas-success-icon)]"
               [pTooltip]="getDirectTooltip()"
               tooltipPosition="top"
             ></i>
           </div>
-          <div class="break-all font-mono text-sm text-slate-700">{{ getDirectUrl('aasRepository') }}</div>
+          <div class="break-all font-mono text-sm text-color">{{ getDirectUrl('aasRepository') }}</div>
         </div>
         @if (shouldShowConfiguredUrl('aasRepository')) {
-          <div class="rounded-xl border border-sky-200 bg-sky-50/70 p-3">
-            <div class="mb-1 flex items-center gap-2 text-xs font-semibold uppercase tracking-wide text-sky-700">
+          <div class="rounded-xl border border-[var(--aas-info-border)] bg-[var(--aas-info-surface)] p-3">
+            <div
+              class="mb-1 flex items-center gap-2 text-xs font-semibold uppercase tracking-wide text-[var(--aas-info-text)]"
+            >
               <i class="pi pi-cog"></i>
               <span>{{ 'CONFIGURED' | translate }}</span>
               <i
-                class="pi pi-info-circle cursor-help text-sky-500"
+                class="pi pi-info-circle cursor-help text-[var(--aas-info-icon)]"
                 [pTooltip]="getConfiguredTooltip()"
                 tooltipPosition="top"
               ></i>
             </div>
-            <div class="break-all font-mono text-sm text-slate-700">{{ getConfiguredUrl('aasRepository') }}</div>
+            <div class="break-all font-mono text-sm text-color">{{ getConfiguredUrl('aasRepository') }}</div>
           </div>
         }
         @if (settings().isInternal) {
@@ -297,44 +311,48 @@
       </div>
       <h3 class="infra-card__title">{{ 'SM_REGISTRY' | translate }}</h3>
       <div class="infra-card__body">
-        <div class="rounded-xl border border-slate-200 bg-slate-50/70 p-3">
-          <div class="mb-1 flex items-center gap-2 text-xs font-semibold uppercase tracking-wide text-slate-600">
+        <div class="rounded-xl border border-surface bg-surface-50 p-3">
+          <div class="mb-1 flex items-center gap-2 text-xs font-semibold uppercase tracking-wide text-muted-color">
             <i class="pi pi-shield"></i>
             <span>{{ 'PROXY' | translate }}</span>
             <i
-              class="pi pi-info-circle cursor-help text-slate-400"
+              class="pi pi-info-circle cursor-help text-muted-color"
               [pTooltip]="getProxyTooltip()"
               tooltipPosition="top"
             ></i>
           </div>
-          <div class="break-all font-mono text-sm font-semibold text-slate-800">
+          <div class="break-all font-mono text-sm font-semibold text-color">
             {{ getProxyUrl('submodelRegistry') }}
           </div>
         </div>
-        <div class="rounded-xl border border-emerald-200 bg-emerald-50/70 p-3">
-          <div class="mb-1 flex items-center gap-2 text-xs font-semibold uppercase tracking-wide text-emerald-700">
+        <div class="rounded-xl border border-[var(--aas-success-border)] bg-[var(--aas-success-surface)] p-3">
+          <div
+            class="mb-1 flex items-center gap-2 text-xs font-semibold uppercase tracking-wide text-[var(--aas-success-text)]"
+          >
             <i class="pi pi-globe"></i>
             <span>{{ 'DIRECT' | translate }}</span>
             <i
-              class="pi pi-info-circle cursor-help text-emerald-500"
+              class="pi pi-info-circle cursor-help text-[var(--aas-success-icon)]"
               [pTooltip]="getDirectTooltip()"
               tooltipPosition="top"
             ></i>
           </div>
-          <div class="break-all font-mono text-sm text-slate-700">{{ getDirectUrl('submodelRegistry') }}</div>
+          <div class="break-all font-mono text-sm text-color">{{ getDirectUrl('submodelRegistry') }}</div>
         </div>
         @if (shouldShowConfiguredUrl('submodelRegistry')) {
-          <div class="rounded-xl border border-sky-200 bg-sky-50/70 p-3">
-            <div class="mb-1 flex items-center gap-2 text-xs font-semibold uppercase tracking-wide text-sky-700">
+          <div class="rounded-xl border border-[var(--aas-info-border)] bg-[var(--aas-info-surface)] p-3">
+            <div
+              class="mb-1 flex items-center gap-2 text-xs font-semibold uppercase tracking-wide text-[var(--aas-info-text)]"
+            >
               <i class="pi pi-cog"></i>
               <span>{{ 'CONFIGURED' | translate }}</span>
               <i
-                class="pi pi-info-circle cursor-help text-sky-500"
+                class="pi pi-info-circle cursor-help text-[var(--aas-info-icon)]"
                 [pTooltip]="getConfiguredTooltip()"
                 tooltipPosition="top"
               ></i>
             </div>
-            <div class="break-all font-mono text-sm text-slate-700">{{ getConfiguredUrl('submodelRegistry') }}</div>
+            <div class="break-all font-mono text-sm text-color">{{ getConfiguredUrl('submodelRegistry') }}</div>
           </div>
         }
         @if (settings().isInternal) {
@@ -360,44 +378,48 @@
       </div>
       <h3 class="infra-card__title">{{ 'SM_REPOSITORY' | translate }}</h3>
       <div class="infra-card__body">
-        <div class="rounded-xl border border-slate-200 bg-slate-50/70 p-3">
-          <div class="mb-1 flex items-center gap-2 text-xs font-semibold uppercase tracking-wide text-slate-600">
+        <div class="rounded-xl border border-surface bg-surface-50 p-3">
+          <div class="mb-1 flex items-center gap-2 text-xs font-semibold uppercase tracking-wide text-muted-color">
             <i class="pi pi-shield"></i>
             <span>{{ 'PROXY' | translate }}</span>
             <i
-              class="pi pi-info-circle cursor-help text-slate-400"
+              class="pi pi-info-circle cursor-help text-muted-color"
               [pTooltip]="getProxyTooltip()"
               tooltipPosition="top"
             ></i>
           </div>
-          <div class="break-all font-mono text-sm font-semibold text-slate-800">
+          <div class="break-all font-mono text-sm font-semibold text-color">
             {{ getProxyUrl('submodelRepository') }}
           </div>
         </div>
-        <div class="rounded-xl border border-emerald-200 bg-emerald-50/70 p-3">
-          <div class="mb-1 flex items-center gap-2 text-xs font-semibold uppercase tracking-wide text-emerald-700">
+        <div class="rounded-xl border border-[var(--aas-success-border)] bg-[var(--aas-success-surface)] p-3">
+          <div
+            class="mb-1 flex items-center gap-2 text-xs font-semibold uppercase tracking-wide text-[var(--aas-success-text)]"
+          >
             <i class="pi pi-globe"></i>
             <span>{{ 'DIRECT' | translate }}</span>
             <i
-              class="pi pi-info-circle cursor-help text-emerald-500"
+              class="pi pi-info-circle cursor-help text-[var(--aas-success-icon)]"
               [pTooltip]="getDirectTooltip()"
               tooltipPosition="top"
             ></i>
           </div>
-          <div class="break-all font-mono text-sm text-slate-700">{{ getDirectUrl('submodelRepository') }}</div>
+          <div class="break-all font-mono text-sm text-color">{{ getDirectUrl('submodelRepository') }}</div>
         </div>
         @if (shouldShowConfiguredUrl('submodelRepository')) {
-          <div class="rounded-xl border border-sky-200 bg-sky-50/70 p-3">
-            <div class="mb-1 flex items-center gap-2 text-xs font-semibold uppercase tracking-wide text-sky-700">
+          <div class="rounded-xl border border-[var(--aas-info-border)] bg-[var(--aas-info-surface)] p-3">
+            <div
+              class="mb-1 flex items-center gap-2 text-xs font-semibold uppercase tracking-wide text-[var(--aas-info-text)]"
+            >
               <i class="pi pi-cog"></i>
               <span>{{ 'CONFIGURED' | translate }}</span>
               <i
-                class="pi pi-info-circle cursor-help text-sky-500"
+                class="pi pi-info-circle cursor-help text-[var(--aas-info-icon)]"
                 [pTooltip]="getConfiguredTooltip()"
                 tooltipPosition="top"
               ></i>
             </div>
-            <div class="break-all font-mono text-sm text-slate-700">{{ getConfiguredUrl('submodelRepository') }}</div>
+            <div class="break-all font-mono text-sm text-color">{{ getConfiguredUrl('submodelRepository') }}</div>
           </div>
         }
         @if (settings().isInternal) {
@@ -423,46 +445,50 @@
       </div>
       <h3 class="infra-card__title">{{ 'CD_REPOSITORY' | translate }}</h3>
       <div class="infra-card__body">
-        <div class="rounded-xl border border-slate-200 bg-slate-50/70 p-3">
-          <div class="mb-1 flex items-center gap-2 text-xs font-semibold uppercase tracking-wide text-slate-600">
+        <div class="rounded-xl border border-surface bg-surface-50 p-3">
+          <div class="mb-1 flex items-center gap-2 text-xs font-semibold uppercase tracking-wide text-muted-color">
             <i class="pi pi-shield"></i>
             <span>{{ 'PROXY' | translate }}</span>
             <i
-              class="pi pi-info-circle cursor-help text-slate-400"
+              class="pi pi-info-circle cursor-help text-muted-color"
               [pTooltip]="getProxyTooltip()"
               tooltipPosition="top"
             ></i>
           </div>
-          <div class="break-all font-mono text-sm font-semibold text-slate-800">
+          <div class="break-all font-mono text-sm font-semibold text-color">
             {{ getProxyUrl('conceptDescriptionRepository') }}
           </div>
         </div>
-        <div class="rounded-xl border border-emerald-200 bg-emerald-50/70 p-3">
-          <div class="mb-1 flex items-center gap-2 text-xs font-semibold uppercase tracking-wide text-emerald-700">
+        <div class="rounded-xl border border-[var(--aas-success-border)] bg-[var(--aas-success-surface)] p-3">
+          <div
+            class="mb-1 flex items-center gap-2 text-xs font-semibold uppercase tracking-wide text-[var(--aas-success-text)]"
+          >
             <i class="pi pi-globe"></i>
             <span>{{ 'DIRECT' | translate }}</span>
             <i
-              class="pi pi-info-circle cursor-help text-emerald-500"
+              class="pi pi-info-circle cursor-help text-[var(--aas-success-icon)]"
               [pTooltip]="getDirectTooltip()"
               tooltipPosition="top"
             ></i>
           </div>
-          <div class="break-all font-mono text-sm text-slate-700">
+          <div class="break-all font-mono text-sm text-color">
             {{ getDirectUrl('conceptDescriptionRepository') }}
           </div>
         </div>
         @if (shouldShowConfiguredUrl('conceptDescriptionRepository')) {
-          <div class="rounded-xl border border-sky-200 bg-sky-50/70 p-3">
-            <div class="mb-1 flex items-center gap-2 text-xs font-semibold uppercase tracking-wide text-sky-700">
+          <div class="rounded-xl border border-[var(--aas-info-border)] bg-[var(--aas-info-surface)] p-3">
+            <div
+              class="mb-1 flex items-center gap-2 text-xs font-semibold uppercase tracking-wide text-[var(--aas-info-text)]"
+            >
               <i class="pi pi-cog"></i>
               <span>{{ 'CONFIGURED' | translate }}</span>
               <i
-                class="pi pi-info-circle cursor-help text-sky-500"
+                class="pi pi-info-circle cursor-help text-[var(--aas-info-icon)]"
                 [pTooltip]="getConfiguredTooltip()"
                 tooltipPosition="top"
               ></i>
             </div>
-            <div class="break-all font-mono text-sm text-slate-700">
+            <div class="break-all font-mono text-sm text-color">
               {{ getConfiguredUrl('conceptDescriptionRepository') }}
             </div>
           </div>

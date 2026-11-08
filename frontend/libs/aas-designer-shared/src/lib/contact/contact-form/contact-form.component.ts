@@ -1,13 +1,13 @@
 import { Benutzer, Organisation } from '@aas-designer-model';
 import { NotificationService } from '@aas/common-services';
 import { AutocompleteOffDirective } from '@aas/helpers';
-import { Component, effect, input, ViewChild } from '@angular/core';
+import { Component, effect, input, ViewChild, ChangeDetectionStrategy } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
-import { PrimeTemplate } from 'primeng/api';
-import { Button } from 'primeng/button';
-import { Select } from 'primeng/select';
+import { PrimeTemplate } from '@openng/optimus-ui/api';
+import { Button } from '@openng/optimus-ui/button';
+import { Select } from '@openng/optimus-ui/select';
 import { DragCaptchaComponent } from '../captcha/drag-captcha.component';
 import { ContactMessageComponent } from '../contact-message/contact-message.component';
 import { ContactRegisterFormComponent } from '../contact-register-form/contact-register-form.component';
@@ -20,6 +20,7 @@ import { RequestForOffer } from '../model/request-for-offer';
   selector: 'aas-contact-form',
   templateUrl: './contact-form.component.html',
   styleUrls: ['../../host.scss'],
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [
     FormsModule,
     AutocompleteOffDirective,

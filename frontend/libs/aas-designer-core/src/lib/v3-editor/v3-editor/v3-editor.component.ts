@@ -2,23 +2,24 @@ import * as aas from '@aas-core-works/aas-core3.1-typescript';
 import { AasConfirmationService, buildShellsListRoute, NotificationService } from '@aas/common-services';
 import { ShellResult } from '@aas/model';
 import {
-    Component,
-    EventEmitter,
-    inject,
-    Input,
-    model,
-    OnChanges,
-    OnDestroy,
-    OnInit,
-    Output,
-    signal,
-    SimpleChanges,
-    viewChild,
-    ViewChild,
+  Component,
+  EventEmitter,
+  inject,
+  Input,
+  model,
+  OnChanges,
+  OnDestroy,
+  OnInit,
+  Output,
+  signal,
+  SimpleChanges,
+  viewChild,
+  ViewChild,
+  ChangeDetectionStrategy,
 } from '@angular/core';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { cloneDeep } from 'lodash-es';
-import { MenuItem, PrimeTemplate } from 'primeng/api';
+import { MenuItem, PrimeTemplate } from '@openng/optimus-ui/api';
 import { AasxExportComponent } from '../../general/aasx-export/aasx-export.component';
 import { DiffViewerComponent } from '../../general/diff-viewer/diff-viewer.component';
 import { EditorTypeOption } from '../model/editor-type-option';
@@ -28,32 +29,32 @@ import { V3TreeService } from '../v3-tree/v3-tree.service';
 
 import { SseNotificationService } from '@aas/aas-designer-shared';
 import {
-    AasViewerMainComponent,
-    CapabilityDescriptionViewerComponent,
-    PcfStepViewerComponent,
-    PcfViewerV1Component,
-    ProductOrSectorSpecificPcfStepViewerComponent,
-    ProductOrSectorSpecificPcfViewerComponent,
-    SubmodelSpecializedViewerComponent,
+  AasViewerMainComponent,
+  CapabilityDescriptionViewerComponent,
+  PcfStepViewerComponent,
+  PcfViewerV1Component,
+  ProductOrSectorSpecificPcfStepViewerComponent,
+  ProductOrSectorSpecificPcfViewerComponent,
+  SubmodelSpecializedViewerComponent,
 } from '@aas/aas-viewer-standalone';
 import { PortalService } from '@aas/common-services';
 import { AvailableInfastructure, ShellsClient } from '@aas/webapi-client';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { saveAs } from 'file-saver-es';
-import { BadgeDirective } from 'primeng/badge';
-import { Button } from 'primeng/button';
-import { Dialog } from 'primeng/dialog';
-import { DialogService, DynamicDialogRef } from 'primeng/dynamicdialog';
-import { Fieldset } from 'primeng/fieldset';
-import { Menu } from 'primeng/menu';
-import { Message } from 'primeng/message';
-import { Select } from 'primeng/select';
-import { SplitButton } from 'primeng/splitbutton';
-import { TableModule } from 'primeng/table';
-import { Tag } from 'primeng/tag';
-import { ToggleSwitch } from 'primeng/toggleswitch';
-import { Tooltip } from 'primeng/tooltip';
+import { BadgeDirective } from '@openng/optimus-ui/badge';
+import { Button } from '@openng/optimus-ui/button';
+import { Dialog } from '@openng/optimus-ui/dialog';
+import { DialogService, DynamicDialogRef } from '@openng/optimus-ui/dynamicdialog';
+import { Fieldset } from '@openng/optimus-ui/fieldset';
+import { Menu } from '@openng/optimus-ui/menu';
+import { Message } from '@openng/optimus-ui/message';
+import { Select } from '@openng/optimus-ui/select';
+import { SplitButton } from '@openng/optimus-ui/splitbutton';
+import { TableModule } from '@openng/optimus-ui/table';
+import { Tag } from '@openng/optimus-ui/tag';
+import { ToggleSwitch } from '@openng/optimus-ui/toggleswitch';
+import { Tooltip } from '@openng/optimus-ui/tooltip';
 import { lastValueFrom, Subscription } from 'rxjs';
 import { PcnChangeInfo } from '../../pcn/pcn-changes/pcn-change-info';
 import { PcnChangesComponent } from '../../pcn/pcn-changes/pcn-changes.component';
@@ -88,6 +89,7 @@ import { V3EditorValidationService } from './v3-editor-validation.service';
   templateUrl: './v3-editor.component.html',
   styleUrls: ['../../../host.scss'],
   providers: [V3EditorPcfService, V3EditorCapabilityService, V3EditorValidationService],
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [
     Message,
     Button,
@@ -234,8 +236,6 @@ export class V3EditorComponent implements OnInit, OnChanges, OnDestroy {
         const currentInfraId = PortalService.getCurrentAasInfrastructureSetting()?.id;
         if (message.aasIdentifier === aasId && currentInfraId === message.infrastructureId) {
           const content = JSON.parse(message.content).submodel as PcnChangeInfo;
-          // eslint-disable-next-line no-console
-          console.log('PCN_UPDATE_RECEIVED', content);
           this.ref = this.dialogService.open(PcnChangesComponent, {
             width: '50%',
             contentStyle: { overflow: 'auto' },

@@ -10,21 +10,31 @@ import {
   SystemConfigurationDto,
   SystemManagementClient,
 } from '@aas/webapi-client';
-import { Component, computed, ElementRef, inject, OnInit, output, signal, ViewChild } from '@angular/core';
+import {
+  Component,
+  computed,
+  ElementRef,
+  inject,
+  OnInit,
+  output,
+  signal,
+  ViewChild,
+  ChangeDetectionStrategy,
+} from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
-import { ButtonModule } from 'primeng/button';
-import { DialogModule } from 'primeng/dialog';
-import { InputTextModule } from 'primeng/inputtext';
-import { TableModule } from 'primeng/table';
-import { Tab, TabList, Tabs } from 'primeng/tabs';
-import { TagModule } from 'primeng/tag';
-import { TextareaModule } from 'primeng/textarea';
-import { ToolbarModule } from 'primeng/toolbar';
-import { SelectModule } from 'primeng/select';
-import { MultiSelectModule } from 'primeng/multiselect';
+import { ButtonModule } from '@openng/optimus-ui/button';
+import { DialogModule } from '@openng/optimus-ui/dialog';
+import { InputTextModule } from '@openng/optimus-ui/inputtext';
+import { TableModule } from '@openng/optimus-ui/table';
+import { Tab, TabList, Tabs } from '@openng/optimus-ui/tabs';
+import { TagModule } from '@openng/optimus-ui/tag';
+import { TextareaModule } from '@openng/optimus-ui/textarea';
+import { ToolbarModule } from '@openng/optimus-ui/toolbar';
+import { SelectModule } from '@openng/optimus-ui/select';
+import { MultiSelectModule } from '@openng/optimus-ui/multiselect';
 import { lastValueFrom } from 'rxjs';
 import { InfrastrukturRechteComponent } from '../infrastruktur-rechte/infrastruktur-rechte.component';
 import { HasChangesCheckable } from '../my-organisation/has-changes-checkable';
@@ -59,6 +69,7 @@ import { InfrastructureUpdateVersionsComponent } from './infrastructure-update-v
   ],
   templateUrl: './infrastructure.component.html',
   styleUrls: ['../../../host.scss'],
+  changeDetection: ChangeDetectionStrategy.Eager,
   providers: [{ provide: HasChangesCheckable, useExisting: InfrastructureComponent }],
 })
 export class InfrastructureComponent extends HasChangesCheckable implements OnInit {
@@ -467,10 +478,7 @@ export class InfrastructureComponent extends HasChangesCheckable implements OnIn
       idShort?: unknown;
       semanticId?: { keys?: { value?: unknown }[] };
     };
-    if (
-      typeof submodel.idShort === 'string' &&
-      submodel.idShort.trim().toLowerCase() === 'aasdesignerchangelog'
-    ) {
+    if (typeof submodel.idShort === 'string' && submodel.idShort.trim().toLowerCase() === 'aasdesignerchangelog') {
       return null;
     }
     const keys = submodel.semanticId?.keys ?? [];

@@ -3,8 +3,8 @@ import { DateProxyPipe } from '@aas/common-pipes';
 import { ChangeDetectionStrategy, Component, input, output } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
-import { ButtonModule } from 'primeng/button';
-import { EditorModule } from 'primeng/editor';
+import { ButtonModule } from '@openng/optimus-ui/button';
+import { EditorModule } from '@openng/optimus-ui/editor';
 import { LoginEmptyStateComponent } from '../login-empty-state/login-empty-state.component';
 
 @Component({

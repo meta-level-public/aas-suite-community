@@ -1,8 +1,7 @@
 import * as aas from '@aas-core-works/aas-core3.1-typescript';
 import { ConceptDescription, ISubmodelElement } from '@aas-core-works/aas-core3.1-typescript/types';
-import { SubmodelElementUtil } from '@aas/helpers';
-import { Component, inject, Input, OnChanges, OnDestroy, signal } from '@angular/core';
-import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
+import { highlightMatches, SubmodelElementUtil } from '@aas/helpers';
+import { Component, inject, Input, OnChanges, OnDestroy, signal, ChangeDetectionStrategy } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
 import { Subscription } from 'rxjs';
 import { ConceptDescriptionService } from '../concept-description.service';
@@ -13,6 +12,7 @@ import { SemanticDescriptionPopupComponent } from '../semantic-description-popup
 @Component({
   selector: 'aas-multilanguage-property-viewer',
   templateUrl: './multilanguage-property-viewer.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [SemanticDescriptionPopupComponent],
 })
 export class MultilanguagePropertyViewerComponent implements OnChanges, OnDestroy {
@@ -20,7 +20,6 @@ export class MultilanguagePropertyViewerComponent implements OnChanges, OnDestro
   @Input() values: aas.types.LangStringTextType[] = [];
   @Input() compact: boolean = false;
   viewerStore = inject(ViewerStoreService);
-  sanitizer = inject(DomSanitizer);
   conceptDescription: ConceptDescription | undefined | null = null;
   cdService = inject(ConceptDescriptionService);
   semanticId = signal<string>('');
@@ -121,18 +120,11 @@ export class MultilanguagePropertyViewerComponent implements OnChanges, OnDestro
     }
   }
 
-  get highlightedValueHtml(): SafeHtml | null {
+  get highlightedValueHtml(): string | null {
     const q = this.viewerStore.highlightedTextQuery()?.trim();
     if (!q) return null;
     const txt = this.currentLangPropertyValue?.text ?? '';
     if (!txt) return null;
-    try {
-      const escapedQ = q.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-      const re = new RegExp(escapedQ, 'gi');
-      const html = txt.replace(re, (m) => `<mark>${m}</mark>`);
-      return this.sanitizer.bypassSecurityTrustHtml(html);
-    } catch {
-      return null;
-    }
+    return highlightMatches(txt, q);
   }
 }

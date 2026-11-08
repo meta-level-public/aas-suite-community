@@ -1,8 +1,8 @@
 import * as aas from '@aas-core-works/aas-core3.1-typescript';
-import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { Component, EventEmitter, Input, Output, ChangeDetectionStrategy } from '@angular/core';
 import { TranslateModule } from '@ngx-translate/core';
-import { TreeNode } from 'primeng/api';
-import { Button } from 'primeng/button';
+import { TreeNode } from '@openng/optimus-ui/api';
+import { Button } from '@openng/optimus-ui/button';
 import { SidebarTreeNavComponent } from '../../general/sidebar-tree-nav/sidebar-tree-nav.component';
 import { BatteryEditorTreeItem } from '../battery-editor-field-utils';
 import { BatteryEditorSharedFieldComponent } from '../battery-editor-shared-field/battery-editor-shared-field.component';
@@ -16,6 +16,7 @@ import { GeneratorPageShellComponent } from '../generator-page-shell/generator-p
   selector: 'aas-submodel-editor-host',
   templateUrl: './submodel-editor-host.component.html',
   styleUrl: './submodel-editor-host.component.scss',
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [
     Button,
     TranslateModule,

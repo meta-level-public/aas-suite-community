@@ -1,13 +1,22 @@
 import * as aas from '@aas-core-works/aas-core3.1-typescript';
 import { NotificationService } from '@aas/common-services';
 import { Clipboard } from '@angular/cdk/clipboard';
-import { Component, computed, EventEmitter, inject, Input, OnChanges, Output } from '@angular/core';
+import {
+  Component,
+  computed,
+  EventEmitter,
+  inject,
+  Input,
+  OnChanges,
+  Output,
+  ChangeDetectionStrategy,
+} from '@angular/core';
 import { TranslateModule } from '@ngx-translate/core';
 import { NgxJsonViewerModule } from 'ngx-json-viewer';
-import { Button } from 'primeng/button';
-import { Card } from 'primeng/card';
-import { Ripple } from 'primeng/ripple';
-import { Tab, TabList, TabPanel, TabPanels, Tabs } from 'primeng/tabs';
+import { Button } from '@openng/optimus-ui/button';
+import { Card } from '@openng/optimus-ui/card';
+import { Ripple } from '@openng/optimus-ui/ripple';
+import { Tab, TabList, TabPanel, TabPanels, Tabs } from '@openng/optimus-ui/tabs';
 import { GenericViewerComponent } from '../generic-viewer/generic-viewer.component';
 import { SubmodelSpecializedViewerComponent } from '../submodel-specialized-viewer/submodel-specialized-viewer.component';
 import { ViewerStoreService } from '../viewer-store.service';
@@ -15,6 +24,7 @@ import { ViewerStoreService } from '../viewer-store.service';
 @Component({
   selector: 'aas-aas-model-viewer',
   templateUrl: './aas-model-viewer.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [
     SubmodelSpecializedViewerComponent,
     Card,

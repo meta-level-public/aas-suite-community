@@ -12,7 +12,11 @@
         </div>
       </ng-template>
       <div class="flex flex-col gap-2">
-        <aas-v3-id-short [element]="submodelElementCollection" class="w-full" [shellResult]="shellResult"></aas-v3-id-short>
+        <aas-v3-id-short
+          [element]="submodelElementCollection"
+          class="w-full"
+          [shellResult]="shellResult"
+        ></aas-v3-id-short>
         <div class="flex flex-row w-full gap-2">
           <lib-help-label class="w-14rem mt-2" tag="DESCRIPTION"></lib-help-label>
           <aas-v3-lang-string-list
@@ -74,7 +78,7 @@
         <p-table [value]="[' ']" size="small" stripedRows>
           <ng-template pTemplate="body" let-item>
             <tr>
-              <td style="width: 14rem">
+              <td class="w-56">
                 <lib-help-label class="w-14rem" tag="CLASSIFICATION_SYSTEM"></lib-help-label>
               </td>
               <td>
@@ -86,7 +90,7 @@
               </td>
             </tr>
             <tr>
-              <td style="width: 14rem"><lib-help-label class="w-14rem" tag="CLASS_ID"></lib-help-label></td>
+              <td class="w-56"><lib-help-label class="w-14rem" tag="CLASS_ID"></lib-help-label></td>
               <td>
                 @if (classIdElement && classNameElement) {
                   <aas-class-id
@@ -99,10 +103,10 @@
               </td>
             </tr>
             <tr>
-              <td style="width: 14rem"><lib-help-label class="w-14rem" tag="CLASS_NAME"></lib-help-label></td>
+              <td class="w-56"><lib-help-label class="w-14rem" tag="CLASS_NAME"></lib-help-label></td>
               <td>
                 <aas-v3-mlp-current-editor
-                  [items]="classNameElement?.value"
+                  [items]="$safeNavigationMigration(classNameElement?.value)"
                   [itemsParent]="classNameElement"
                 ></aas-v3-mlp-current-editor>
               </td>

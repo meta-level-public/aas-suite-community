@@ -2,19 +2,28 @@ import * as aas from '@aas-core-works/aas-core3.1-typescript';
 
 import { DialogFooter, HelpLabelComponent, UiLabelResolver } from '@aas/common-components';
 import { ShellResult } from '@aas/model';
-import { Component, inject, Input, OnChanges, signal, SimpleChanges, ViewChild } from '@angular/core';
+import {
+  Component,
+  inject,
+  Input,
+  OnChanges,
+  signal,
+  SimpleChanges,
+  ViewChild,
+  ChangeDetectionStrategy,
+} from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
-import { Accordion, AccordionContent, AccordionHeader, AccordionPanel } from 'primeng/accordion';
-import { PrimeTemplate } from 'primeng/api';
-import { Button } from 'primeng/button';
-import { DialogService, DynamicDialogRef } from 'primeng/dynamicdialog';
-import { InputGroup } from 'primeng/inputgroup';
-import { InputGroupAddon } from 'primeng/inputgroupaddon';
-import { InputText } from 'primeng/inputtext';
-import { Message } from 'primeng/message';
-import { Ripple } from 'primeng/ripple';
-import { TableModule } from 'primeng/table';
+import { Accordion, AccordionContent, AccordionHeader, AccordionPanel } from '@openng/optimus-ui/accordion';
+import { PrimeTemplate } from '@openng/optimus-ui/api';
+import { Button } from '@openng/optimus-ui/button';
+import { DialogService, DynamicDialogRef } from '@openng/optimus-ui/dynamicdialog';
+import { InputGroup } from '@openng/optimus-ui/inputgroup';
+import { InputGroupAddon } from '@openng/optimus-ui/inputgroupaddon';
+import { InputText } from '@openng/optimus-ui/inputtext';
+import { Message } from '@openng/optimus-ui/message';
+import { Ripple } from '@openng/optimus-ui/ripple';
+import { TableModule } from '@openng/optimus-ui/table';
 import { v4 as uuid } from 'uuid';
 import { Info } from '../../../general/model/info-item';
 import { V3TreeService } from '../../v3-tree/v3-tree.service';
@@ -31,6 +40,7 @@ type VerificationError = aas.verification.VerificationError;
   selector: 'aas-v3-semantic-description',
   templateUrl: './v3-semantic-description.component.html',
   styleUrls: ['./v3-semantic-description.component.css'],
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [
     Accordion,
     AccordionPanel,

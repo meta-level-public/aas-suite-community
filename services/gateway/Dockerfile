@@ -36,6 +36,7 @@ EXPOSE 8081
 
 RUN rm -rf /var/lib/apt/lists/* \
     && apt-get update -o Acquire::Retries=3 \
+    && apt-get upgrade -y \
     && apt-get install -y --no-install-recommends curl \
     && apt-get clean \
     && mkdir -p /var/lib/vws-gateway/keys \

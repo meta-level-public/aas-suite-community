@@ -1,5 +1,14 @@
 import { NgClass } from '@angular/common';
-import { afterNextRender, Component, DestroyRef, ElementRef, inject, input, signal } from '@angular/core';
+import {
+  afterNextRender,
+  Component,
+  DestroyRef,
+  ElementRef,
+  inject,
+  input,
+  signal,
+  ChangeDetectionStrategy,
+} from '@angular/core';
 import { TranslateModule } from '@ngx-translate/core';
 
 @Component({
@@ -10,6 +19,7 @@ import { TranslateModule } from '@ngx-translate/core';
     class: 'flex flex-col flex-1',
     '[style.--generator-shell-sidebar-max-height]': 'sidebarMaxHeight()',
   },
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [NgClass, TranslateModule],
 })
 export class GeneratorPageShellComponent {

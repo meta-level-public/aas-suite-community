@@ -46,15 +46,15 @@
   <p-table [value]="idsToCheck()" size="small">
     <ng-template #header>
       <tr>
-        <th style="width: 8rem">{{ 'TYPE' | translate }}</th>
-        <th style="width: 25%">{{ 'ID' | translate }}</th>
-        <th style="width: 15%">{{ 'ID_SHORT' | translate }}</th>
+        <th class="w-32">{{ 'TYPE' | translate }}</th>
+        <th class="w-[25%]">{{ 'ID' | translate }}</th>
+        <th class="w-[15%]">{{ 'ID_SHORT' | translate }}</th>
         @if (domain() === 'INPUT') {
-          <th style="width: 10rem">{{ 'DOMAIN' | translate }}</th>
+          <th class="w-40">{{ 'DOMAIN' | translate }}</th>
         }
-        <th style="width: 12rem">{{ 'VERSION_REVISION' | translate }}</th>
-        <th style="width: 20rem">{{ 'NEW_VERSION_REVISON' | translate }}</th>
-        <th style="width: 40%">{{ 'NEW_ID' | translate }}</th>
+        <th class="w-48">{{ 'VERSION_REVISION' | translate }}</th>
+        <th class="w-80">{{ 'NEW_VERSION_REVISON' | translate }}</th>
+        <th class="w-[40%]">{{ 'NEW_ID' | translate }}</th>
       </tr>
     </ng-template>
     <ng-template #body let-idToCheck>
@@ -86,8 +86,7 @@
           <div class="flex flex-row gap-1 items-center">
             @if (idToCheck.isUnique === false) {
               <i
-                class="pi pi-exclamation-triangle text-2xl"
-                style="color: var(--aas-danger-icon)"
+                class="pi pi-exclamation-triangle text-2xl text-[var(--aas-danger-icon)]"
                 pTooltip="{{ 'ID_NOT_UNIQUE' | translate }}"
               ></i>
             }

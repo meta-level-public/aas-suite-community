@@ -7,21 +7,30 @@ import {
   DppPcfEntryDefinition,
   DppPcfEntryType,
 } from 'battery-passport-assistant';
-import { Component, EventEmitter, Input, OnChanges, Output, SimpleChanges } from '@angular/core';
+import {
+  Component,
+  EventEmitter,
+  Input,
+  OnChanges,
+  Output,
+  SimpleChanges,
+  ChangeDetectionStrategy,
+} from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
-import { Button } from 'primeng/button';
-import { InputNumber } from 'primeng/inputnumber';
-import { InputText } from 'primeng/inputtext';
-import { Select } from 'primeng/select';
-import { Steps } from 'primeng/steps';
-import { Textarea } from 'primeng/textarea';
+import { Button } from '@openng/optimus-ui/button';
+import { InputNumber } from '@openng/optimus-ui/inputnumber';
+import { InputText } from '@openng/optimus-ui/inputtext';
+import { Select } from '@openng/optimus-ui/select';
+import { Steps } from '@openng/optimus-ui/steps';
+import { Textarea } from '@openng/optimus-ui/textarea';
 import { MultilanguagePropertyComponent } from '../structural-elements/multilanguage-property/multilanguage-property.component';
 
 @Component({
   selector: 'aas-pcf-entry-assistant',
   templateUrl: './pcf-entry-assistant.component.html',
   styleUrl: './pcf-entry-assistant.component.scss',
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [
     Button,
     TranslateModule,

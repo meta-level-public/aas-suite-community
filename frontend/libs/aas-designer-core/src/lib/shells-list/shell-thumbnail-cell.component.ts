@@ -1,8 +1,8 @@
 import { CommonModule } from '@angular/common';
-import { Component, input, output } from '@angular/core';
+import { Component, input, output, ChangeDetectionStrategy } from '@angular/core';
 import { TranslateModule } from '@ngx-translate/core';
-import { SkeletonModule } from 'primeng/skeleton';
-import { TooltipModule } from 'primeng/tooltip';
+import { SkeletonModule } from '@openng/optimus-ui/skeleton';
+import { TooltipModule } from '@openng/optimus-ui/tooltip';
 
 import { ObserveVisibilityDirective } from './observe-visibility.directive';
 import { ShellListDtoThumbData } from './shell-list-dto-thumb-data';
@@ -54,11 +54,12 @@ import { ShellListDtoThumbData } from './shell-list-dto-thumb-data';
       }
     `,
   ],
+  changeDetection: ChangeDetectionStrategy.Eager,
   template: `
     <div class="thumb-cell" aasObserveVisibility (visible)="thumbnailVisible.emit(shellId())">
       @if (thumb()?.thumbLoaded && !thumb()?.thumbError) {
         <img
-          [src]="thumb()?.fileUrl"
+          [src]="$safeNavigationMigration(thumb()?.fileUrl)"
           class="shell-thumb"
           [alt]="alt()"
           loading="lazy"

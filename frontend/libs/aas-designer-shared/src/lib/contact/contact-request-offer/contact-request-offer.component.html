@@ -304,7 +304,7 @@
         <div class="mb-4">
           @if (portalService.currentLanguage === 'de') {
             <a target="_blank" [href]="appConfigService.config.datenschutzLinkDe"
-              >{{ 'PRIVACY_OPEN' | translate }}<em class="pi pi-external"></em
+              >{{ 'PRIVACY_OPEN' | translate }}<em class="pi pi-external-link"></em
             ></a>
           }
           @if (portalService.currentLanguage !== 'de') {
@@ -318,12 +318,12 @@
         <div class="mb-4">
           @if (portalService.currentLanguage === 'de') {
             <a target="_blank" [href]="appConfigService.config.agbLinkDe"
-              >{{ 'AGB_OPEN' | translate }}<em class="pi pi-external"></em
+              >{{ 'AGB_OPEN' | translate }}<em class="pi pi-external-link"></em
             ></a>
           }
           @if (portalService.currentLanguage !== 'de') {
             <a target="_blank" [href]="appConfigService.config.agbLinkEn"
-              >{{ 'AGB_OPEN' | translate }}<em class="pi pi-external"></em
+              >{{ 'AGB_OPEN' | translate }}<em class="pi pi-external-link"></em
             ></a>
           }
         </div>
@@ -337,7 +337,7 @@
       </div>
     </div>
   }
-  <div style="position: absolute; left: -9999px">
+  <div class="absolute left-[-9999px]">
     <label>
       {{ 'BOT_CHECK_HINT' | translate }}
       <input type="text" name="botField" [(ngModel)]="invisibleFieldValue" autocomplete="off" />

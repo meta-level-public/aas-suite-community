@@ -4,15 +4,25 @@ import { AppConfigService, NotificationService, PortalService } from '@aas/commo
 import { ApiException } from '@aas/jwt-auth';
 import { ImportPackageResult, SingleImportResult } from '@aas/webapi-client';
 import { HttpClient, HttpEventType, HttpHeaders } from '@angular/common/http';
-import { Component, effect, EventEmitter, inject, input, Output, signal, ViewChild } from '@angular/core';
+import {
+  Component,
+  effect,
+  EventEmitter,
+  inject,
+  input,
+  Output,
+  signal,
+  ViewChild,
+  ChangeDetectionStrategy,
+} from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
-import { ButtonModule } from 'primeng/button';
-import { CheckboxModule } from 'primeng/checkbox';
-import { DialogModule } from 'primeng/dialog';
-import { FileSelectEvent, FileUpload, FileUploadModule } from 'primeng/fileupload';
-import { ProgressBarModule } from 'primeng/progressbar';
+import { ButtonModule } from '@openng/optimus-ui/button';
+import { CheckboxModule } from '@openng/optimus-ui/checkbox';
+import { DialogModule } from '@openng/optimus-ui/dialog';
+import { FileSelectEvent, FileUpload, FileUploadModule } from '@openng/optimus-ui/fileupload';
+import { ProgressBarModule } from '@openng/optimus-ui/progressbar';
 import { Subscription } from 'rxjs';
 import { GeneratorService } from '../../generator/generator.service';
 
@@ -29,6 +39,7 @@ import { GeneratorService } from '../../generator/generator.service';
     FileSizePipe,
     SelectionCardComponent,
   ],
+  changeDetection: ChangeDetectionStrategy.Eager,
   templateUrl: './upload-aas-dialog.component.html',
 })
 export class UploadAasDialogComponent {

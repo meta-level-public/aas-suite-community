@@ -1,17 +1,18 @@
 import { SubmodelElementCollection } from '@aas-core-works/aas-core3.1-typescript/types';
-import { Component, Input, OnChanges } from '@angular/core';
+import { Component, Input, OnChanges, ChangeDetectionStrategy } from '@angular/core';
 import { LeafletDirective, LeafletLayersDirective } from '@bluehalo/ngx-leaflet';
 import { TranslateModule } from '@ngx-translate/core';
 import * as L from 'leaflet';
 import * as Leaflet from 'leaflet';
 import { tileLayer } from 'leaflet';
 import { OpenStreetMapProvider } from 'leaflet-geosearch';
-import { PrimeTemplate } from 'primeng/api';
-import { TableModule } from 'primeng/table';
+import { PrimeTemplate } from '@openng/optimus-ui/api';
+import { TableModule } from '@openng/optimus-ui/table';
 import { PcfHelper } from '../pcf-helper';
 @Component({
   selector: 'aas-tcf-address',
   templateUrl: './tcf-address.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [TableModule, PrimeTemplate, LeafletDirective, LeafletLayersDirective, TranslateModule],
 })
 export class TcfAddressComponent implements OnChanges {

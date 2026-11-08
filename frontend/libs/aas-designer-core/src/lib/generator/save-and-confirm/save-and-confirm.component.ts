@@ -2,15 +2,15 @@ import * as aas from '@aas-core-works/aas-core3.1-typescript';
 import { AppConfigService, NotificationService, PortalService } from '@aas/common-services';
 import { IdGenerationUtil } from '@aas/helpers';
 import { HttpClient } from '@angular/common/http';
-import { Component, isDevMode, OnDestroy, OnInit, signal } from '@angular/core';
+import { Component, isDevMode, OnDestroy, OnInit, signal, ChangeDetectionStrategy } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { DomSanitizer } from '@angular/platform-browser';
 import { Router } from '@angular/router';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { DppAssistantService } from 'battery-passport-assistant';
-import { PrimeTemplate, TreeNode } from 'primeng/api';
-import { TableModule } from 'primeng/table';
-import { TreeTableModule } from 'primeng/treetable';
+import { PrimeTemplate, TreeNode } from '@openng/optimus-ui/api';
+import { TableModule } from '@openng/optimus-ui/table';
+import { TreeTableModule } from '@openng/optimus-ui/treetable';
 import { AasDesignerVerificationError } from '../../v3-editor/v3-editor/aas-designer-verification-error';
 import { buildAssetIdentifier, buildAssetShellIdentifier, normalizeAssetShellIdShort } from '../asset-shell-id.utils';
 import { GeneratorFilePreviewState } from '../generator-file-preview.utils';
@@ -18,10 +18,19 @@ import { GeneratorNameplateSource } from '../generator-nameplate.builder';
 import { GeneratorPageShellComponent } from '../generator-page-shell/generator-page-shell.component';
 import { GeneratorDppMetadataInput, GeneratorService } from '../generator.service';
 
-import { Button } from 'primeng/button';
-import { Dialog } from 'primeng/dialog';
-import { Image } from 'primeng/image';
-import { Tag } from 'primeng/tag';
+import { Button } from '@openng/optimus-ui/button';
+import { Dialog } from '@openng/optimus-ui/dialog';
+import { Image } from '@openng/optimus-ui/image';
+import { Tag } from '@openng/optimus-ui/tag';
+import { Checkbox } from '@openng/optimus-ui/checkbox';
+import { InputGroup } from '@openng/optimus-ui/inputgroup';
+import { InputGroupAddon } from '@openng/optimus-ui/inputgroupaddon';
+import { InputText } from '@openng/optimus-ui/inputtext';
+import { Select } from '@openng/optimus-ui/select';
+import {
+  DPP_GRANULARITY_OPTIONS,
+  DPP_STATUS_OPTIONS,
+} from '../../v3-editor/components/dpp-metadata/dpp-metadata-options';
 import { firstValueFrom } from 'rxjs';
 type VerificationError = aas.verification.VerificationError;
 
@@ -39,6 +48,7 @@ interface GeneratorDppSubmodelOption {
   host: {
     class: 'flex flex-col flex-1',
   },
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [
     PrimeTemplate,
     TreeTableModule,
@@ -50,6 +60,11 @@ interface GeneratorDppSubmodelOption {
     FormsModule,
     TranslateModule,
     GeneratorPageShellComponent,
+    InputGroup,
+    InputGroupAddon,
+    InputText,
+    Select,
+    Checkbox,
   ],
 })
 export class SaveAndConfirmComponent implements OnInit, OnDestroy {
@@ -60,6 +75,8 @@ export class SaveAndConfirmComponent implements OnInit, OnDestroy {
   validationErrorCount: number = 0;
   displayValidationResult: boolean = false;
   advanced: boolean = false;
+  readonly granularityOptions = DPP_GRANULARITY_OPTIONS;
+  readonly statusOptions = DPP_STATUS_OPTIONS;
   dppMetadata: GeneratorDppMetadataInput | null = null;
   dppSubmodels: GeneratorDppSubmodelOption[] = [];
   private readonly previewState = new GeneratorFilePreviewState();

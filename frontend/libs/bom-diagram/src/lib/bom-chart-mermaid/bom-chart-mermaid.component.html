@@ -56,7 +56,7 @@
 </div>
 
 @if (isInitialized && isEntryNodeOnly && editable) {
-  <div class="p-3 border-1 border-yellow-300 bg-yellow-50 border-round mt-2 mb-2">
+  <div class="p-3 border-1 border-[var(--aas-warning-border)] bg-[var(--aas-warning-surface)] border-round mt-2 mb-2">
     <div class="font-semibold mb-2">{{ 'BOM_REINITIALIZE_TITLE' | translate }}</div>
     <div class="text-sm mb-3">{{ 'BOM_REINITIALIZE_HINT' | translate }}</div>
     <div class="flex gap-2">

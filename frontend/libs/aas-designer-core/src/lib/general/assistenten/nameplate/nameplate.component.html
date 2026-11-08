@@ -1,9 +1,9 @@
 <aas-generator-page-shell
-  [title]="'Digital Nameplate'"
+  [titleKey]="'DIGITAL_NAMEPLATE'"
   [subtitle]="nameplateSemanticId"
   [showSidebar]="navNodes.length > 0"
 >
-  <p generator-shell-intro class="text-lg battery-editor-page-copy mb-0" style="color: var(--p-text-muted-color)">
+  <p generator-shell-intro class="text-lg battery-editor-page-copy mb-0 text-muted-color">
     {{ 'NAMEPLATE_EXPLANATION' | translate }}
   </p>
 
@@ -36,7 +36,7 @@
           <div>
             <h2 class="text-2xl font-bold mb-2">{{ activeField.label }}</h2>
             @if (activeField.description !== '') {
-              <p class="text-sm mb-0" style="color: var(--p-text-muted-color)">{{ activeField.description }}</p>
+              <p class="text-sm mb-0 text-muted-color">{{ activeField.description }}</p>
             }
           </div>
         </div>
@@ -96,7 +96,7 @@
               <div class="battery-submodel-field-card">
                 <div class="font-bold mb-2">{{ childField.label }}</div>
                 @if (childField.description !== '') {
-                  <div class="text-sm mb-3" style="color: var(--p-text-muted-color)">{{ childField.description }}</div>
+                  <div class="text-sm mb-3 text-muted-color">{{ childField.description }}</div>
                 }
 
                 @if (childField.type === 'MultiLanguageProperty') {
@@ -178,7 +178,13 @@
   </div>
 
   <div class="battery-editor-nav-actions" generator-shell-sidebar-actions>
-    <p-button [fluid]="true" label="{{ 'BACK' | translate }}" (onClick)="prev()" icon="pi pi-angle-left"></p-button>
+    <p-button
+      severity="secondary"
+      [fluid]="true"
+      label="{{ 'BACK' | translate }}"
+      (onClick)="prev()"
+      icon="pi pi-angle-left"
+    ></p-button>
     <p-button
       [fluid]="true"
       [label]="getLabel() | translate"

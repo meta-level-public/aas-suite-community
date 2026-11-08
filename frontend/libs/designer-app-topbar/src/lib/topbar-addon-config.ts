@@ -1,5 +1,5 @@
 import { InjectionToken, Type } from '@angular/core';
-import { MenuItem } from 'primeng/api';
+import { MenuItem } from '@openng/optimus-ui/api';
 
 export interface TopbarMenuContext {
   translate: { instant: (key: string) => string };

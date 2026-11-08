@@ -1,5 +1,6 @@
 import { Injectable, SecurityContext } from '@angular/core';
 import { DomSanitizer } from '@angular/platform-browser';
+import { escapeHtml } from '@aas/helpers';
 
 @Injectable({
   providedIn: 'root',
@@ -222,13 +223,13 @@ export class NgxObjectDiffService {
     let property;
     switch (changed) {
       case 'equal':
-        property = this.stringifyObjectKey(this.escapeHTML(key)) + '<span>: </span>' + this.inspect(diffItem.value);
+        property = this.stringifyObjectKey(escapeHtml(key)) + '<span>: </span>' + this.inspect(diffItem.value);
         break;
 
       case 'removed':
         property =
           '<del class="diff">' +
-          this.stringifyObjectKey(this.escapeHTML(key)) +
+          this.stringifyObjectKey(escapeHtml(key)) +
           '<span>: </span>' +
           this.inspect(diffItem.value) +
           '</del>';
@@ -237,7 +238,7 @@ export class NgxObjectDiffService {
       case 'added':
         property =
           '<ins class="diff">' +
-          this.stringifyObjectKey(this.escapeHTML(key)) +
+          this.stringifyObjectKey(escapeHtml(key)) +
           '<span>: </span>' +
           this.inspect(diffItem.value) +
           '</ins>';
@@ -245,7 +246,7 @@ export class NgxObjectDiffService {
 
       case 'primitive change':
         {
-          const prefix = this.stringifyObjectKey(this.escapeHTML(key)) + '<span>: </span>';
+          const prefix = this.stringifyObjectKey(escapeHtml(key)) + '<span>: </span>';
           property =
             '<del class="diff diff-key">' +
             prefix +
@@ -261,7 +262,7 @@ export class NgxObjectDiffService {
       case 'object change':
         property = shallow
           ? ''
-          : this.stringifyObjectKey(key) +
+          : this.stringifyObjectKey(escapeHtml(key)) +
             '<span>: </span>' +
             (diffOnly ? this.formatChangesToXMLString(diffItem) : this.formatToJsonXMLString(diffItem));
         break;
@@ -307,7 +308,7 @@ export class NgxObjectDiffService {
             for (let i = 0; i < length; i++) {
               const key = keys[i];
               accumulator = this._inspect(
-                accumulator + this.stringifyObjectKey(this.escapeHTML(key)) + '<span>: </span>',
+                accumulator + this.stringifyObjectKey(escapeHtml(key)) + '<span>: </span>',
                 obj[key],
               );
               if (i < length - 1) {
@@ -320,7 +321,7 @@ export class NgxObjectDiffService {
         break;
 
       case 'string':
-        accumulator += JSON.stringify(this.escapeHTML(obj));
+        accumulator += JSON.stringify(escapeHtml(obj));
         break;
 
       case 'undefined':
@@ -328,7 +329,7 @@ export class NgxObjectDiffService {
         break;
 
       default:
-        accumulator += this.escapeHTML(String(obj));
+        accumulator += escapeHtml(String(obj));
         break;
     }
     return accumulator;
@@ -340,14 +341,6 @@ export class NgxObjectDiffService {
    */
   private stringifyObjectKey(key: string): string {
     return /^[a-z0-9_$]*$/i.test(key) ? key : JSON.stringify(key);
-  }
-
-  /**
-   * @param string
-   * @return
-   */
-  private escapeHTML(string: string) {
-    return string.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
   }
 
   /**
