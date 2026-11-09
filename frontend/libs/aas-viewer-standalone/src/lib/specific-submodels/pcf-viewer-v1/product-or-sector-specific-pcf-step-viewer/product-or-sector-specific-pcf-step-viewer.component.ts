@@ -2,13 +2,15 @@ import * as aas from '@aas-core-works/aas-core3.1-typescript';
 
 import { Component, computed, input, ChangeDetectionStrategy } from '@angular/core';
 import { TranslateModule } from '@ngx-translate/core';
+import { semanticIdOf } from '../../../concept-unit.service';
+import { SemanticDescriptionPopupComponent } from '../../../semantic-description-popup/semantic-description-popup.component';
 
 @Component({
   selector: 'aas-product-or-sector-specific-pcf-step-viewer',
   templateUrl: './product-or-sector-specific-pcf-step-viewer.component.html',
   styleUrl: './product-or-sector-specific-pcf-step-viewer.component.css',
   changeDetection: ChangeDetectionStrategy.Eager,
-  imports: [TranslateModule],
+  imports: [TranslateModule, SemanticDescriptionPopupComponent],
 })
 export class ProductOrSectorSpecificPcfStepViewerComponent {
   step = input.required<aas.types.SubmodelElementCollection>();
@@ -47,20 +49,33 @@ export class ProductOrSectorSpecificPcfStepViewerComponent {
       .filter((value) => value !== '');
   }
 
-  private readNestedStringValue(parent: aas.types.SubmodelElementCollection, path: string[]): string {
+  /** Semantic ID of the element at the path, for the concept description help. */
+  fieldSemanticId(...path: string[]): string {
+    return semanticIdOf(this.readNestedElement(this.step(), path));
+  }
+
+  private readNestedElement(
+    parent: aas.types.SubmodelElementCollection,
+    path: string[],
+  ): aas.types.ISubmodelElement | undefined {
     let current: aas.types.ISubmodelElement | undefined = parent;
 
     for (const segment of path) {
       if (!(current instanceof aas.types.SubmodelElementCollection)) {
-        return '';
+        return undefined;
       }
 
       current = this.findChildByIdShort(current, segment);
       if (current == null) {
-        return '';
+        return undefined;
       }
     }
 
+    return current;
+  }
+
+  private readNestedStringValue(parent: aas.types.SubmodelElementCollection, path: string[]): string {
+    const current = this.readNestedElement(parent, path);
     if (current instanceof aas.types.Property) {
       return `${current.value ?? ''}`.trim();
     }

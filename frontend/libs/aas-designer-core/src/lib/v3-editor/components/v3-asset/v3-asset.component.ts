@@ -23,6 +23,7 @@ import { V3ComponentBase } from '../v3-component-base';
 import { V3GlobalAssetIdComponent } from '../v3-global-asset-id/v3-global-asset-id.component';
 import { V3ResourceComponent } from '../v3-resource/v3-resource.component';
 import { V3SpecificAssetIdsComponent } from '../v3-specific-asset-ids/v3-specific-asset-ids.component';
+import { VerificationMessagePipe } from '../../tools/verification-message';
 type VerificationError = aas.verification.VerificationError;
 
 @Component({
@@ -31,6 +32,7 @@ type VerificationError = aas.verification.VerificationError;
   styleUrls: ['../../../../host.scss'],
   changeDetection: ChangeDetectionStrategy.Eager,
   imports: [
+    VerificationMessagePipe,
     Button,
     HelpLabelComponent,
     Select,

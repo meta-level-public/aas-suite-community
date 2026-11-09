@@ -1,291 +1,383 @@
-<div class="nameplate-container">
-  <div class="section-card">
-    <h3 class="section-title"><i class="fa-solid fa-cube"></i> {{ 'SOFTWARE_PRODUCT' | translate }}</h3>
-    <div class="flex flex-col gap-2">
+<div class="viewer-stack">
+  <section class="viewer-hero">
+    <div class="viewer-hero-icon" aria-hidden="true"><i [class]="softwareIcon"></i></div>
+    <div class="viewer-hero-main">
       @if (manufacturerName != '') {
-        <p-inputgroup>
-          <p-inputgroup-addon class="font-bold w-48">
-            <lib-help-label tag="MANUFACTURER" [showLabel]="false"></lib-help-label>
-            {{ 'MANUFACTURER' | translate }}
-          </p-inputgroup-addon>
-          <input pInputText type="text" [value]="manufacturerName" readonly />
-        </p-inputgroup>
+        <div class="viewer-hero-eyebrow">{{ manufacturerName }}</div>
       }
-      @if (manufacturerProductDesignation != '') {
-        <p-inputgroup>
-          <p-inputgroup-addon class="font-bold w-48">
-            <lib-help-label tag="PRODUCT_DESIGNATION" [showLabel]="false"></lib-help-label>
-            {{ 'PRODUCT_DESIGNATION' | translate }}
-          </p-inputgroup-addon>
-          <input pInputText type="text" [value]="manufacturerProductDesignation" readonly />
-        </p-inputgroup>
+      <h2 class="viewer-hero-title">
+        {{ manufacturerProductDesignation != '' ? manufacturerProductDesignation : ('SOFTWARE_PRODUCT' | translate) }}
+      </h2>
+      @if (softwareType != '' || manufacturerProductFamily != '' || manufacturerProductType != '') {
+        <div class="viewer-tags">
+          @if (softwareType != '') {
+            <p-tag [value]="softwareType" severity="info" />
+          }
+          @if (manufacturerProductFamily != '') {
+            <p-tag [value]="manufacturerProductFamily" severity="secondary" />
+          }
+          @if (manufacturerProductType != '') {
+            <p-tag [value]="manufacturerProductType" severity="secondary" />
+          }
+        </div>
       }
       @if (manufacturerProductDescription != '') {
-        <p-inputgroup>
-          <p-inputgroup-addon class="font-bold w-48">
-            <lib-help-label tag="PRODUCT_DESCRIPTION" [showLabel]="false"></lib-help-label>
-            {{ 'PRODUCT_DESCRIPTION' | translate }}
-          </p-inputgroup-addon>
-          <input pInputText type="text" [value]="manufacturerProductDescription" readonly />
-        </p-inputgroup>
-      }
-      @if (manufacturerProductFamily != '') {
-        <p-inputgroup>
-          <p-inputgroup-addon class="font-bold w-48">
-            <lib-help-label tag="PRODUCT_FAMILY" [showLabel]="false"></lib-help-label>
-            {{ 'PRODUCT_FAMILY' | translate }}
-          </p-inputgroup-addon>
-          <input pInputText type="text" [value]="manufacturerProductFamily" readonly />
-        </p-inputgroup>
-      }
-      @if (manufacturerProductType != '') {
-        <p-inputgroup>
-          <p-inputgroup-addon class="font-bold w-48">{{ 'PRODUCT_TYPE' | translate }}</p-inputgroup-addon>
-          <input pInputText type="text" [value]="manufacturerProductType" readonly />
-        </p-inputgroup>
-      }
-      @if (softwareType != '') {
-        <p-inputgroup>
-          <p-inputgroup-addon class="font-bold w-48">{{ 'SOFTWARE_TYPE' | translate }}</p-inputgroup-addon>
-          <input pInputText type="text" [value]="softwareType" readonly />
-        </p-inputgroup>
+        <p class="viewer-hero-text">{{ manufacturerProductDescription }}</p>
       }
       @if (uriOfTheProduct != '') {
-        <p-inputgroup>
-          <p-inputgroup-addon class="font-bold w-48">
-            <lib-help-label tag="URI_OF_PRODUCT" [showLabel]="false"></lib-help-label>
-            {{ 'URI_OF_PRODUCT' | translate }}
-          </p-inputgroup-addon>
-          <input pInputText type="text" [value]="uriOfTheProduct" readonly />
+        <div class="software-hero-uri text-muted-color">
+          <i class="fa-solid fa-link" aria-hidden="true"></i>
+          <span class="sr-only">{{ 'URI_OF_PRODUCT' | translate }}:</span>
           @if (isLink(uriOfTheProduct)) {
-            <p-inputgroup-addon class="w-auto">
-              <a [href]="uriOfTheProduct" target="_blank" rel="noopener noreferrer">
-                <i class="pi pi-external-link"></i>
-              </a>
-            </p-inputgroup-addon>
+            <a [href]="uriOfTheProduct" target="_blank" rel="noopener noreferrer">{{ uriOfTheProduct }}</a>
+          } @else {
+            <span class="viewer-mono">{{ uriOfTheProduct }}</span>
           }
-        </p-inputgroup>
+        </div>
       }
     </div>
-  </div>
+    @if (version != '') {
+      <div class="viewer-hero-aside">
+        <div class="software-version-badge">
+          <span class="software-version-label">{{ 'VERSION' | translate }}</span>
+          <span class="software-version-value">{{ version }}</span>
+          @if (versionName != '') {
+            <span class="software-version-name">{{ versionName }}</span>
+          }
+          @if (releaseDate != '') {
+            <span class="software-version-date text-muted-color">{{ releaseDate }}</span>
+          }
+        </div>
+      </div>
+    }
+  </section>
 
-  @if (
-    version != '' ||
-    versionName != '' ||
-    versionInfo != '' ||
-    releaseDate != '' ||
-    buildDate != '' ||
-    releaseInformation != '' ||
-    releaseNotes != '' ||
-    installationURI != '' ||
-    installationFile != '' ||
-    installerType != '' ||
-    installationChecksum != ''
-  ) {
-    <div class="section-grid-2">
-      @if (
-        version != '' ||
-        versionName != '' ||
-        versionInfo != '' ||
-        releaseDate != '' ||
-        buildDate != '' ||
-        releaseInformation != '' ||
-        releaseNotes != ''
-      ) {
-        <div class="section-card">
-          <h3 class="section-title"><i class="fa-solid fa-code-branch"></i> {{ 'RELEASE' | translate }}</h3>
+  @if (hasReleaseDetails || hasInstallationPackage) {
+    <div class="viewer-grid-2">
+      @if (hasReleaseDetails) {
+        <section class="viewer-card">
+          <h3 class="viewer-card-title"><i class="fa-solid fa-code-branch"></i> {{ 'RELEASE' | translate }}</h3>
           <div class="flex flex-col gap-2">
-            @if (version != '' || versionName != '') {
-              <p-inputgroup>
-                <p-inputgroup-addon class="font-bold min-w-32">
-                  <lib-help-label tag="VERSION" [showLabel]="false"></lib-help-label>
-                  {{ 'VERSION' | translate }}
-                </p-inputgroup-addon>
-                <input pInputText type="text" [value]="version" readonly />
-                <p-inputgroup-addon class="font-bold min-w-40">{{ 'VERSION_NAME' | translate }}</p-inputgroup-addon>
-                <input pInputText type="text" [value]="versionName" readonly />
-              </p-inputgroup>
-            }
             @if (versionInfo != '') {
-              <p-inputgroup>
-                <p-inputgroup-addon class="font-bold w-48">{{ 'VERSION_INFO' | translate }}</p-inputgroup-addon>
-                <input pInputText type="text" [value]="versionInfo" readonly />
-              </p-inputgroup>
+              <div>
+                <div class="viewer-subtitle">
+                  {{ 'VERSION_INFO' | translate }}
+                  <aas-semantic-description-popup [semanticId]="fieldSemanticId('VersionInfo')" [compact]="true" />
+                </div>
+                <div class="viewer-text-block">{{ versionInfo }}</div>
+              </div>
+            }
+            @if (releaseNotes != '') {
+              <div>
+                <div class="viewer-subtitle">
+                  {{ 'RELEASE_NOTES' | translate }}
+                  <aas-semantic-description-popup [semanticId]="fieldSemanticId('ReleaseNotes')" [compact]="true" />
+                </div>
+                <div class="viewer-text-block">{{ releaseNotes }}</div>
+              </div>
             }
             @if (releaseDate != '') {
               <p-inputgroup>
-                <p-inputgroup-addon class="font-bold w-48">{{ 'RELEASE_DATE' | translate }}</p-inputgroup-addon>
+                <p-inputgroup-addon class="viewer-label-addon">
+                  <i class="fa-solid fa-calendar-day mr-2"></i>{{ 'RELEASE_DATE' | translate }}
+                  <aas-semantic-description-popup [semanticId]="fieldSemanticId('ReleaseDate')" [compact]="true" />
+                </p-inputgroup-addon>
                 <input pInputText type="text" [value]="releaseDate" readonly />
+                @if (fieldUnit('ReleaseDate'); as unit) {
+                  <p-inputgroup-addon class="viewer-unit-addon">{{ unit }}</p-inputgroup-addon>
+                }
               </p-inputgroup>
             }
             @if (buildDate != '') {
               <p-inputgroup>
-                <p-inputgroup-addon class="font-bold w-48">{{ 'BUILD_DATE' | translate }}</p-inputgroup-addon>
+                <p-inputgroup-addon class="viewer-label-addon">
+                  <i class="fa-solid fa-hammer mr-2"></i>{{ 'BUILD_DATE' | translate }}
+                  <aas-semantic-description-popup [semanticId]="fieldSemanticId('BuildDate')" [compact]="true" />
+                </p-inputgroup-addon>
                 <input pInputText type="text" [value]="buildDate" readonly />
+                @if (fieldUnit('BuildDate'); as unit) {
+                  <p-inputgroup-addon class="viewer-unit-addon">{{ unit }}</p-inputgroup-addon>
+                }
               </p-inputgroup>
             }
             @if (releaseInformation != '') {
               <p-inputgroup>
-                <p-inputgroup-addon class="font-bold w-48">{{ 'RELEASE_INFO' | translate }}</p-inputgroup-addon>
+                <p-inputgroup-addon class="viewer-label-addon">
+                  <i class="fa-solid fa-circle-info mr-2"></i>{{ 'RELEASE_INFO' | translate }}
+                  <aas-semantic-description-popup
+                    [semanticId]="fieldSemanticId('ReleaseInformation')"
+                    [compact]="true"
+                  />
+                </p-inputgroup-addon>
                 <input pInputText type="text" [value]="releaseInformation" readonly />
-              </p-inputgroup>
-            }
-            @if (releaseNotes != '') {
-              <p-inputgroup>
-                <p-inputgroup-addon class="font-bold w-48">{{ 'RELEASE_NOTES' | translate }}</p-inputgroup-addon>
-                <input pInputText type="text" [value]="releaseNotes" readonly />
+                @if (fieldUnit('ReleaseInformation'); as unit) {
+                  <p-inputgroup-addon class="viewer-unit-addon">{{ unit }}</p-inputgroup-addon>
+                }
               </p-inputgroup>
             }
           </div>
-        </div>
+        </section>
       }
 
-      @if (installationURI != '' || installationFile != '' || installerType != '' || installationChecksum != '') {
-        <div class="section-card">
-          <h3 class="section-title"><i class="fa-solid fa-download"></i> {{ 'INSTALLATION_PACKAGE' | translate }}</h3>
+      @if (hasInstallationPackage) {
+        <section class="viewer-card">
+          <h3 class="viewer-card-title">
+            <i class="fa-solid fa-box-open"></i> {{ 'INSTALLATION_PACKAGE' | translate }}
+          </h3>
           <div class="flex flex-col gap-2">
             @if (installationURI != '') {
               <p-inputgroup>
-                <p-inputgroup-addon class="font-bold w-48">{{ 'INSTALLATION_URI' | translate }}</p-inputgroup-addon>
+                <p-inputgroup-addon class="viewer-label-addon">
+                  <i class="fa-solid fa-link mr-2"></i>{{ 'INSTALLATION_URI' | translate }}
+                  <aas-semantic-description-popup [semanticId]="fieldSemanticId('InstallationURI')" [compact]="true" />
+                </p-inputgroup-addon>
                 <input pInputText type="text" [value]="installationURI" readonly />
+                @if (fieldUnit('InstallationURI'); as unit) {
+                  <p-inputgroup-addon class="viewer-unit-addon">{{ unit }}</p-inputgroup-addon>
+                }
                 @if (isLink(installationURI)) {
-                  <p-inputgroup-addon class="w-auto">
-                    <a [href]="installationURI" target="_blank" rel="noopener noreferrer">
-                      <i class="pi pi-external-link"></i>
-                    </a>
+                  <p-inputgroup-addon>
+                    <a
+                      [href]="installationURI"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      [attr.aria-label]="'INSTALLATION_URI' | translate"
+                      ><i class="pi pi-external-link"></i
+                    ></a>
                   </p-inputgroup-addon>
                 }
               </p-inputgroup>
             }
             @if (installationFile != '') {
               <p-inputgroup>
-                <p-inputgroup-addon class="font-bold w-48">{{ 'INSTALLATION_FILE' | translate }}</p-inputgroup-addon>
+                <p-inputgroup-addon class="viewer-label-addon">
+                  <i class="fa-solid fa-file-zipper mr-2"></i>{{ 'INSTALLATION_FILE' | translate }}
+                  <aas-semantic-description-popup [semanticId]="fieldSemanticId('InstallationFile')" [compact]="true" />
+                </p-inputgroup-addon>
                 <input pInputText type="text" [value]="installationFile" readonly />
+                @if (fieldUnit('InstallationFile'); as unit) {
+                  <p-inputgroup-addon class="viewer-unit-addon">{{ unit }}</p-inputgroup-addon>
+                }
               </p-inputgroup>
             }
             @if (installerType != '') {
               <p-inputgroup>
-                <p-inputgroup-addon class="font-bold w-48">{{ 'INSTALLER_TYPE' | translate }}</p-inputgroup-addon>
+                <p-inputgroup-addon class="viewer-label-addon">
+                  <i class="fa-solid fa-gears mr-2"></i>{{ 'INSTALLER_TYPE' | translate }}
+                  <aas-semantic-description-popup [semanticId]="fieldSemanticId('InstallerType')" [compact]="true" />
+                </p-inputgroup-addon>
                 <input pInputText type="text" [value]="installerType" readonly />
+                @if (fieldUnit('InstallerType'); as unit) {
+                  <p-inputgroup-addon class="viewer-unit-addon">{{ unit }}</p-inputgroup-addon>
+                }
               </p-inputgroup>
             }
             @if (installationChecksum != '') {
               <p-inputgroup>
-                <p-inputgroup-addon class="font-bold w-48">{{ 'CHECKSUM' | translate }}</p-inputgroup-addon>
-                <input pInputText type="text" [value]="installationChecksum" readonly />
+                <p-inputgroup-addon class="viewer-label-addon">
+                  <i class="fa-solid fa-fingerprint mr-2"></i>{{ 'CHECKSUM' | translate }}
+                  <aas-semantic-description-popup
+                    [semanticId]="fieldSemanticId('InstallationChecksum')"
+                    [compact]="true"
+                  />
+                </p-inputgroup-addon>
+                <input pInputText type="text" class="viewer-mono" [value]="installationChecksum" readonly />
+                @if (fieldUnit('InstallationChecksum'); as unit) {
+                  <p-inputgroup-addon class="viewer-unit-addon">{{ unit }}</p-inputgroup-addon>
+                }
               </p-inputgroup>
             }
           </div>
-        </div>
+        </section>
       }
     </div>
   }
 
-  @if (
-    serialNumber != '' ||
-    inventoryTag != '' ||
-    instanceName != '' ||
-    installedVersion != '' ||
-    installationDate != '' ||
-    installationPath != '' ||
-    installationSource != '' ||
-    installedOnArchitecture != '' ||
-    installedOnOS != '' ||
-    installedOnHost != '' ||
-    slaInformation != ''
-  ) {
-    <div class="section-card">
-      <h3 class="section-title"><i class="fa-solid fa-desktop"></i> {{ 'INSTALLED_INSTANCE' | translate }}</h3>
-      <div class="flex flex-col gap-2">
-        @if (serialNumber != '') {
-          <p-inputgroup>
-            <p-inputgroup-addon class="font-bold w-48">
-              <lib-help-label tag="SERIAL_NUMBER" [showLabel]="false"></lib-help-label>
-              {{ 'SERIAL_NUMBER' | translate }}
-            </p-inputgroup-addon>
-            <input pInputText type="text" [value]="serialNumber" readonly />
-          </p-inputgroup>
+  @if (hasInstance) {
+    <section class="viewer-card">
+      <div class="software-instance-header">
+        <h3 class="viewer-card-title software-title-inline">
+          <i class="fa-solid fa-hard-drive"></i> {{ 'INSTALLED_INSTANCE' | translate }}
+          @if (instanceName != '') {
+            <span class="software-instance-name">{{ instanceName }}</span>
+          }
+        </h3>
+        @switch (installedVersionStatus) {
+          @case ('current') {
+            <p-tag severity="success" icon="pi pi-check" [value]="'SOFTWARE_VERSION_CURRENT' | translate" />
+          }
+          @case ('update-available') {
+            <p-tag
+              severity="warn"
+              icon="pi pi-arrow-circle-up"
+              [value]="'SOFTWARE_UPDATE_AVAILABLE' | translate: { version: version }"
+            />
+          }
+          @case ('newer') {
+            <p-tag severity="info" icon="pi pi-info-circle" [value]="'SOFTWARE_VERSION_NEWER' | translate" />
+          }
         }
-        @if (inventoryTag != '') {
-          <p-inputgroup>
-            <p-inputgroup-addon class="font-bold w-48">{{ 'INVENTORY_TAG' | translate }}</p-inputgroup-addon>
-            <input pInputText type="text" [value]="inventoryTag" readonly />
-          </p-inputgroup>
-        }
-        @if (instanceName != '') {
-          <p-inputgroup>
-            <p-inputgroup-addon class="font-bold w-48">{{ 'INSTANCE_NAME' | translate }}</p-inputgroup-addon>
-            <input pInputText type="text" [value]="instanceName" readonly />
-          </p-inputgroup>
-        }
+      </div>
+      <div class="viewer-field-grid">
         @if (installedVersion != '') {
           <p-inputgroup>
-            <p-inputgroup-addon class="font-bold w-48">{{ 'INSTALLED_VERSION' | translate }}</p-inputgroup-addon>
+            <p-inputgroup-addon class="viewer-label-addon">
+              <i class="fa-solid fa-code-commit mr-2"></i>{{ 'INSTALLED_VERSION' | translate }}
+              <aas-semantic-description-popup [semanticId]="fieldSemanticId('InstalledVersion')" [compact]="true" />
+            </p-inputgroup-addon>
             <input pInputText type="text" [value]="installedVersion" readonly />
+            @if (fieldUnit('InstalledVersion'); as unit) {
+              <p-inputgroup-addon class="viewer-unit-addon">{{ unit }}</p-inputgroup-addon>
+            }
           </p-inputgroup>
         }
         @if (installationDate != '') {
           <p-inputgroup>
-            <p-inputgroup-addon class="font-bold w-48">{{ 'INSTALLATION_DATE' | translate }}</p-inputgroup-addon>
+            <p-inputgroup-addon class="viewer-label-addon">
+              <i class="fa-solid fa-calendar-check mr-2"></i>{{ 'INSTALLATION_DATE' | translate }}
+              <aas-semantic-description-popup [semanticId]="fieldSemanticId('InstallationDate')" [compact]="true" />
+            </p-inputgroup-addon>
             <input pInputText type="text" [value]="installationDate" readonly />
+            @if (fieldUnit('InstallationDate'); as unit) {
+              <p-inputgroup-addon class="viewer-unit-addon">{{ unit }}</p-inputgroup-addon>
+            }
           </p-inputgroup>
         }
-        @if (installationPath != '' || installationSource != '') {
+        @if (installedOnArchitecture != '') {
           <p-inputgroup>
-            <p-inputgroup-addon class="font-bold min-w-32">{{ 'PATH' | translate }}</p-inputgroup-addon>
-            <input pInputText type="text" [value]="installationPath" readonly />
-            <p-inputgroup-addon class="font-bold min-w-32">{{ 'SOURCE' | translate }}</p-inputgroup-addon>
-            <input pInputText type="text" [value]="installationSource" readonly />
-          </p-inputgroup>
-        }
-        @if (installedOnArchitecture != '' || installedOnOS != '' || installedOnHost != '') {
-          <p-inputgroup>
-            <p-inputgroup-addon class="font-bold min-w-32">{{ 'ARCHITECTURE' | translate }}</p-inputgroup-addon>
+            <p-inputgroup-addon class="viewer-label-addon">
+              <i class="fa-solid fa-microchip mr-2"></i>{{ 'ARCHITECTURE' | translate }}
+              <aas-semantic-description-popup
+                [semanticId]="fieldSemanticId('InstalledOnArchitecture')"
+                [compact]="true"
+              />
+            </p-inputgroup-addon>
             <input pInputText type="text" [value]="installedOnArchitecture" readonly />
-            <p-inputgroup-addon class="font-bold min-w-24">{{ 'OPERATING_SYSTEM' | translate }}</p-inputgroup-addon>
+            @if (fieldUnit('InstalledOnArchitecture'); as unit) {
+              <p-inputgroup-addon class="viewer-unit-addon">{{ unit }}</p-inputgroup-addon>
+            }
+          </p-inputgroup>
+        }
+        @if (installedOnOS != '') {
+          <p-inputgroup>
+            <p-inputgroup-addon class="viewer-label-addon">
+              <i class="fa-solid fa-desktop mr-2"></i>{{ 'OPERATING_SYSTEM' | translate }}
+              <aas-semantic-description-popup [semanticId]="fieldSemanticId('InstalledOnOS')" [compact]="true" />
+            </p-inputgroup-addon>
             <input pInputText type="text" [value]="installedOnOS" readonly />
-            <p-inputgroup-addon class="font-bold min-w-32">{{ 'HOST' | translate }}</p-inputgroup-addon>
+            @if (fieldUnit('InstalledOnOS'); as unit) {
+              <p-inputgroup-addon class="viewer-unit-addon">{{ unit }}</p-inputgroup-addon>
+            }
+          </p-inputgroup>
+        }
+        @if (installedOnHost != '') {
+          <p-inputgroup>
+            <p-inputgroup-addon class="viewer-label-addon">
+              <i class="fa-solid fa-server mr-2"></i>{{ 'HOST' | translate }}
+              <aas-semantic-description-popup [semanticId]="fieldSemanticId('InstalledOnHost')" [compact]="true" />
+            </p-inputgroup-addon>
             <input pInputText type="text" [value]="installedOnHost" readonly />
+            @if (fieldUnit('InstalledOnHost'); as unit) {
+              <p-inputgroup-addon class="viewer-unit-addon">{{ unit }}</p-inputgroup-addon>
+            }
+          </p-inputgroup>
+        }
+        @if (installationPath != '') {
+          <p-inputgroup>
+            <p-inputgroup-addon class="viewer-label-addon">
+              <i class="fa-solid fa-folder-open mr-2"></i>{{ 'PATH' | translate }}
+              <aas-semantic-description-popup [semanticId]="fieldSemanticId('InstallationPath')" [compact]="true" />
+            </p-inputgroup-addon>
+            <input pInputText type="text" class="viewer-mono" [value]="installationPath" readonly />
+            @if (fieldUnit('InstallationPath'); as unit) {
+              <p-inputgroup-addon class="viewer-unit-addon">{{ unit }}</p-inputgroup-addon>
+            }
+          </p-inputgroup>
+        }
+        @if (installationSource != '') {
+          <p-inputgroup>
+            <p-inputgroup-addon class="viewer-label-addon">
+              <i class="fa-solid fa-download mr-2"></i>{{ 'SOURCE' | translate }}
+              <aas-semantic-description-popup [semanticId]="fieldSemanticId('InstallationSource')" [compact]="true" />
+            </p-inputgroup-addon>
+            <input pInputText type="text" [value]="installationSource" readonly />
+            @if (fieldUnit('InstallationSource'); as unit) {
+              <p-inputgroup-addon class="viewer-unit-addon">{{ unit }}</p-inputgroup-addon>
+            }
+          </p-inputgroup>
+        }
+        @if (serialNumber != '') {
+          <p-inputgroup>
+            <p-inputgroup-addon class="viewer-label-addon">
+              <i class="fa-solid fa-barcode mr-2"></i>{{ 'SERIAL_NUMBER' | translate }}
+              <aas-semantic-description-popup [semanticId]="fieldSemanticId('SerialNumber')" [compact]="true" />
+            </p-inputgroup-addon>
+            <input pInputText type="text" [value]="serialNumber" readonly />
+            @if (fieldUnit('SerialNumber'); as unit) {
+              <p-inputgroup-addon class="viewer-unit-addon">{{ unit }}</p-inputgroup-addon>
+            }
+          </p-inputgroup>
+        }
+        @if (inventoryTag != '') {
+          <p-inputgroup>
+            <p-inputgroup-addon class="viewer-label-addon">
+              <i class="fa-solid fa-tag mr-2"></i>{{ 'INVENTORY_TAG' | translate }}
+              <aas-semantic-description-popup [semanticId]="fieldSemanticId('InventoryTag')" [compact]="true" />
+            </p-inputgroup-addon>
+            <input pInputText type="text" [value]="inventoryTag" readonly />
+            @if (fieldUnit('InventoryTag'); as unit) {
+              <p-inputgroup-addon class="viewer-unit-addon">{{ unit }}</p-inputgroup-addon>
+            }
           </p-inputgroup>
         }
         @if (slaInformation != '') {
           <p-inputgroup>
-            <p-inputgroup-addon class="font-bold w-48">{{ 'SLA_INFORMATION' | translate }}</p-inputgroup-addon>
+            <p-inputgroup-addon class="viewer-label-addon">
+              <i class="fa-solid fa-handshake mr-2"></i>{{ 'SLA_INFORMATION' | translate }}
+              <aas-semantic-description-popup [semanticId]="fieldSemanticId('SLAInformation')" [compact]="true" />
+            </p-inputgroup-addon>
             <input pInputText type="text" [value]="slaInformation" readonly />
+            @if (fieldUnit('SLAInformation'); as unit) {
+              <p-inputgroup-addon class="viewer-unit-addon">{{ unit }}</p-inputgroup-addon>
+            }
           </p-inputgroup>
         }
       </div>
-    </div>
-  }
 
-  @if (installedModules.length > 0 || configurationPaths.length > 0) {
-    <div class="section-grid-2">
       @if (installedModules.length > 0) {
-        <div class="section-card">
-          <h3 class="section-title"><i class="fa-solid fa-puzzle-piece"></i> {{ 'INSTALLED_MODULES' | translate }}</h3>
-          <p-table [value]="installedModules" stripedRows size="small">
-            <ng-template pTemplate="body" let-module>
-              <tr>
-                <td class="font-bold">{{ module }}</td>
-              </tr>
-            </ng-template>
-          </p-table>
+        <div class="software-subsection">
+          <div class="viewer-subtitle">
+            <i class="fa-solid fa-puzzle-piece mr-2"></i>{{ 'INSTALLED_MODULES' | translate }}
+          </div>
+          <div class="viewer-tags">
+            @for (module of installedModules; track $index) {
+              <p-tag [value]="module" severity="secondary" />
+            }
+          </div>
         </div>
       }
 
       @if (configurationPaths.length > 0) {
-        <div class="section-card">
-          <h3 class="section-title"><i class="fa-solid fa-folder-tree"></i> {{ 'CONFIGURATION_PATHS' | translate }}</h3>
+        <div class="software-subsection">
+          <div class="viewer-subtitle">
+            <i class="fa-solid fa-folder-tree mr-2"></i>{{ 'CONFIGURATION_PATHS' | translate }}
+          </div>
           <p-table [value]="configurationPaths" stripedRows size="small">
-            <ng-template pTemplate="header">
+            <ng-template #header>
               <tr>
-                <th>URI</th>
-                <th>{{ 'TYPE' | translate }}</th>
+                <th scope="col">
+                  URI
+                  <aas-semantic-description-popup [semanticId]="configurationColumnSemanticIds.uri" [compact]="true" />
+                </th>
+                <th scope="col">
+                  {{ 'TYPE' | translate }}
+                  <aas-semantic-description-popup [semanticId]="configurationColumnSemanticIds.type" [compact]="true" />
+                </th>
               </tr>
             </ng-template>
-            <ng-template pTemplate="body" let-path>
+            <ng-template #body let-path>
               <tr>
-                <td>
+                <td class="viewer-mono">
                   @if (isLink(path.uri)) {
                     <a [href]="path.uri" target="_blank" rel="noopener noreferrer">{{ path.uri }}</a>
                   } @else {
@@ -298,59 +390,80 @@
           </p-table>
         </div>
       }
-    </div>
+    </section>
   }
 
   @if (
     contactName != '' || contactFirstName != '' || contactCompany != '' || contactEmail != '' || contactTelephone != ''
   ) {
-    <div class="section-grid-12">
-      <div class="span-7">
-        <div class="section-card">
-          <h3 class="section-title"><i class="fa-solid fa-address-card"></i> {{ 'CONTACT' | translate }}</h3>
+    <div class="viewer-grid-2">
+      <div>
+        <div class="viewer-card">
+          <h3 class="viewer-card-title"><i class="fa-solid fa-address-card"></i> {{ 'CONTACT' | translate }}</h3>
           <div class="flex flex-col gap-2">
             @if (contactRole != '') {
               <p-inputgroup>
-                <p-inputgroup-addon class="font-bold w-40">{{ 'Role' | translate }}</p-inputgroup-addon>
+                <p-inputgroup-addon class="viewer-label-addon">
+                  {{ 'Role' | translate }}
+                  <aas-semantic-description-popup
+                    [semanticId]="fieldSemanticId('RoleOfContactPerson')"
+                    [compact]="true"
+                  />
+                </p-inputgroup-addon>
                 <input pInputText type="text" [value]="contactRole" readonly />
+                @if (fieldUnit('RoleOfContactPerson'); as unit) {
+                  <p-inputgroup-addon class="viewer-unit-addon">{{ unit }}</p-inputgroup-addon>
+                }
               </p-inputgroup>
             }
             @if (contactName != '' || contactFirstName != '') {
               <p-inputgroup>
-                <p-inputgroup-addon class="font-bold w-40">{{ 'NAME' | translate }}</p-inputgroup-addon>
+                <p-inputgroup-addon class="viewer-label-addon">{{ 'NAME' | translate }}</p-inputgroup-addon>
                 <input pInputText type="text" [value]="(contactName + ' ' + contactFirstName).trim()" readonly />
               </p-inputgroup>
             }
             @if (contactDepartment != '') {
               <p-inputgroup>
-                <p-inputgroup-addon class="font-bold w-40">
+                <p-inputgroup-addon class="viewer-label-addon">
                   <lib-help-label tag="DEPARTMENT" [showLabel]="false"></lib-help-label>
                   {{ 'DEPARTMENT' | translate }}
+                  <aas-semantic-description-popup [semanticId]="fieldSemanticId('Department')" [compact]="true" />
                 </p-inputgroup-addon>
                 <input pInputText type="text" [value]="contactDepartment" readonly />
+                @if (fieldUnit('Department'); as unit) {
+                  <p-inputgroup-addon class="viewer-unit-addon">{{ unit }}</p-inputgroup-addon>
+                }
               </p-inputgroup>
             }
             @if (contactCompany != '') {
               <p-inputgroup>
-                <p-inputgroup-addon class="font-bold w-40">
+                <p-inputgroup-addon class="viewer-label-addon">
                   <lib-help-label tag="COMPANY" [showLabel]="false"></lib-help-label>
                   {{ 'COMPANY' | translate }}
+                  <aas-semantic-description-popup [semanticId]="fieldSemanticId('Company')" [compact]="true" />
                 </p-inputgroup-addon>
                 <input pInputText type="text" [value]="contactCompany" readonly />
+                @if (fieldUnit('Company'); as unit) {
+                  <p-inputgroup-addon class="viewer-unit-addon">{{ unit }}</p-inputgroup-addon>
+                }
               </p-inputgroup>
             }
             @if (contactStreet != '') {
               <p-inputgroup>
-                <p-inputgroup-addon class="font-bold w-40">
+                <p-inputgroup-addon class="viewer-label-addon">
                   <lib-help-label tag="STREET" [showLabel]="false"></lib-help-label>
                   {{ 'STREET' | translate }}
+                  <aas-semantic-description-popup [semanticId]="fieldSemanticId('Street')" [compact]="true" />
                 </p-inputgroup-addon>
                 <input pInputText type="text" [value]="contactStreet" readonly />
+                @if (fieldUnit('Street'); as unit) {
+                  <p-inputgroup-addon class="viewer-unit-addon">{{ unit }}</p-inputgroup-addon>
+                }
               </p-inputgroup>
             }
             @if (contactCountryCode != '' || contactZip != '' || contactCity != '') {
               <p-inputgroup>
-                <p-inputgroup-addon class="font-bold w-40">
+                <p-inputgroup-addon class="viewer-label-addon">
                   <lib-help-label tag="CITY_TOWN" [showLabel]="false"></lib-help-label>
                   {{ 'CITY_TOWN' | translate }}
                 </p-inputgroup-addon>
@@ -364,66 +477,112 @@
             }
             @if (contactState != '') {
               <p-inputgroup>
-                <p-inputgroup-addon class="font-bold w-40">{{ 'STATE_COUNTY' | translate }}</p-inputgroup-addon>
+                <p-inputgroup-addon class="viewer-label-addon">
+                  {{ 'STATE_COUNTY' | translate }}
+                  <aas-semantic-description-popup [semanticId]="fieldSemanticId('StateCounty')" [compact]="true" />
+                </p-inputgroup-addon>
                 <input pInputText type="text" [value]="contactState" readonly />
+                @if (fieldUnit('StateCounty'); as unit) {
+                  <p-inputgroup-addon class="viewer-unit-addon">{{ unit }}</p-inputgroup-addon>
+                }
               </p-inputgroup>
             }
             @if (contactEmail != '') {
               <p-inputgroup>
-                <p-inputgroup-addon class="font-bold w-40">
+                <p-inputgroup-addon class="viewer-label-addon">
                   <lib-help-label tag="EMAIL" [showLabel]="false"></lib-help-label>
                   {{ 'EMAIL' | translate }}
+                  <aas-semantic-description-popup [semanticId]="fieldSemanticId('EmailAddress')" [compact]="true" />
                 </p-inputgroup-addon>
                 <input pInputText type="text" [value]="contactEmail" readonly />
+                @if (fieldUnit('EmailAddress'); as unit) {
+                  <p-inputgroup-addon class="viewer-unit-addon">{{ unit }}</p-inputgroup-addon>
+                }
               </p-inputgroup>
             }
             @if (contactTelephone != '') {
               <p-inputgroup>
-                <p-inputgroup-addon class="font-bold w-40">
+                <p-inputgroup-addon class="viewer-label-addon">
                   <lib-help-label tag="PHONE" [showLabel]="false"></lib-help-label>
                   {{ 'PHONE' | translate }}
+                  <aas-semantic-description-popup [semanticId]="fieldSemanticId('TelephoneNumber')" [compact]="true" />
                 </p-inputgroup-addon>
                 <input pInputText type="text" [value]="contactTelephone" readonly />
+                @if (fieldUnit('TelephoneNumber'); as unit) {
+                  <p-inputgroup-addon class="viewer-unit-addon">{{ unit }}</p-inputgroup-addon>
+                }
               </p-inputgroup>
             }
             @if (contactFax != '') {
               <p-inputgroup>
-                <p-inputgroup-addon class="font-bold w-40">
+                <p-inputgroup-addon class="viewer-label-addon">
                   <lib-help-label tag="FAX" [showLabel]="false"></lib-help-label>
                   {{ 'FAX' | translate }}
+                  <aas-semantic-description-popup [semanticId]="fieldSemanticId('FaxNumber')" [compact]="true" />
                 </p-inputgroup-addon>
                 <input pInputText type="text" [value]="contactFax" readonly />
+                @if (fieldUnit('FaxNumber'); as unit) {
+                  <p-inputgroup-addon class="viewer-unit-addon">{{ unit }}</p-inputgroup-addon>
+                }
               </p-inputgroup>
             }
             @if (contactLanguage != '' || contactTimeZone != '') {
               <p-inputgroup>
-                <p-inputgroup-addon class="font-bold min-w-40">
+                <p-inputgroup-addon class="viewer-label-addon">
                   <lib-help-label tag="LANGUAGE" [showLabel]="false"></lib-help-label>
                   {{ 'LANGUAGE' | translate }}
+                  <aas-semantic-description-popup [semanticId]="fieldSemanticId('Language')" [compact]="true" />
                 </p-inputgroup-addon>
                 <input pInputText type="text" [value]="contactLanguage" readonly />
-                <p-inputgroup-addon class="font-bold min-w-32">{{ 'TIME_ZONE' | translate }}</p-inputgroup-addon>
+                @if (fieldUnit('Language'); as unit) {
+                  <p-inputgroup-addon class="viewer-unit-addon">{{ unit }}</p-inputgroup-addon>
+                }
+                <p-inputgroup-addon class="viewer-label-addon">
+                  {{ 'TIME_ZONE' | translate }}
+                  <aas-semantic-description-popup [semanticId]="fieldSemanticId('TimeZone')" [compact]="true" />
+                </p-inputgroup-addon>
                 <input pInputText type="text" [value]="contactTimeZone" readonly />
+                @if (fieldUnit('TimeZone'); as unit) {
+                  <p-inputgroup-addon class="viewer-unit-addon">{{ unit }}</p-inputgroup-addon>
+                }
               </p-inputgroup>
             }
             @if (contactLink != '') {
               <p-inputgroup>
-                <p-inputgroup-addon class="font-bold w-40">{{ 'LINK' | translate }}</p-inputgroup-addon>
+                <p-inputgroup-addon class="viewer-label-addon">
+                  {{ 'LINK' | translate }}
+                  <aas-semantic-description-popup
+                    [semanticId]="fieldSemanticId('AddressOfAdditionalLink')"
+                    [compact]="true"
+                  />
+                </p-inputgroup-addon>
                 <input pInputText type="text" [value]="contactLink" readonly />
+                @if (fieldUnit('AddressOfAdditionalLink'); as unit) {
+                  <p-inputgroup-addon class="viewer-unit-addon">{{ unit }}</p-inputgroup-addon>
+                }
               </p-inputgroup>
             }
             @if (contactFurtherDetails != '') {
               <p-inputgroup>
-                <p-inputgroup-addon class="font-bold w-40">{{ 'DETAILS' | translate }}</p-inputgroup-addon>
+                <p-inputgroup-addon class="viewer-label-addon">
+                  {{ 'DETAILS' | translate }}
+                  <aas-semantic-description-popup
+                    [semanticId]="fieldSemanticId('FurtherDetailsOfContact')"
+                    [compact]="true"
+                  />
+                </p-inputgroup-addon>
                 <input pInputText type="text" [value]="contactFurtherDetails" readonly />
+                @if (fieldUnit('FurtherDetailsOfContact'); as unit) {
+                  <p-inputgroup-addon class="viewer-unit-addon">{{ unit }}</p-inputgroup-addon>
+                }
               </p-inputgroup>
             }
           </div>
         </div>
       </div>
-      <div class="span-5">
-        <div class="section-card">
-          <h3 class="section-title"><i class="fa-solid fa-map-location-dot"></i> {{ 'MAP' | translate }}</h3>
+      <div>
+        <div class="viewer-card">
+          <h3 class="viewer-card-title"><i class="fa-solid fa-map-location-dot"></i> {{ 'MAP' | translate }}</h3>
           <aas-contact-information-map
             [contactInformation]="mapContact"
             [showLayer]="showContactMap"

@@ -3,7 +3,7 @@ import { ISubmodelElement } from '@aas-core-works/aas-core3.1-typescript/types';
 import { HelpLabelComponent } from '@aas/common-components';
 import { DateProxyPipe } from '@aas/common-pipes';
 import { ElementFinder, SemanticIdHelper } from '@aas/helpers';
-import { AsyncPipe, NgComponentOutlet } from '@angular/common';
+import { AsyncPipe, NgComponentOutlet, NgTemplateOutlet } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
 import { Component, computed, inject, Input, OnChanges, signal, Type, ChangeDetectionStrategy } from '@angular/core';
 import { DomSanitizer, SafeUrl } from '@angular/platform-browser';
@@ -11,10 +11,13 @@ import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { InputGroup } from '@openng/optimus-ui/inputgroup';
 import { InputGroupAddon } from '@openng/optimus-ui/inputgroupaddon';
 import { InputText } from '@openng/optimus-ui/inputtext';
-import { lastValueFrom } from 'rxjs';
+import { Tag } from '@openng/optimus-ui/tag';
 import { AasViewerService } from '../../aas-viewer.service';
+import { semanticIdOf } from '../../concept-unit.service';
 import { MarkingsViewerPlainComponent } from '../../markings-viewer-plain/markings-viewer-plain.component';
+import { SemanticDescriptionPopupComponent } from '../../semantic-description-popup/semantic-description-popup.component';
 import { ViewerStoreService } from '../../viewer-store.service';
+import { loadViewerAttachmentUrl } from '../viewer-attachment';
 
 @Component({
   selector: 'aas-nameplate-viewer',
@@ -25,12 +28,15 @@ import { ViewerStoreService } from '../../viewer-store.service';
     MarkingsViewerPlainComponent,
     AsyncPipe,
     NgComponentOutlet,
+    NgTemplateOutlet,
     TranslateModule,
     DateProxyPipe,
     InputGroup,
     InputGroupAddon,
     InputText,
     HelpLabelComponent,
+    SemanticDescriptionPopupComponent,
+    Tag,
   ],
 })
 export class NameplateViewerComponent implements OnChanges {
@@ -120,42 +126,15 @@ export class NameplateViewerComponent implements OnChanges {
   }
 
   manufacturerImage = computed(async () => {
-    const idShortPath = this.companyLogoPath;
-    const loadedImage = this.viewerStore
-      .currentlyloadedFiles()
-      .find((f) => f.submodelId === this.viewerStore.currentSubmodelId() && f.idShortPath === idShortPath);
-    if (loadedImage?.blob != null) {
-      return this.sanitizer.bypassSecurityTrustUrl(URL.createObjectURL(loadedImage.blob));
-    } else {
-      if (this.companyLogoPath != null) {
-        if (this.companyLogoPath.startsWith('http')) {
-          return this.companyLogoPath;
-        } else {
-          try {
-            const url =
-              this.viewerStore.currentSmUrl() + `/submodel-elements/${encodeURIComponent(idShortPath)}/attachment`;
-            const thumb = await lastValueFrom(
-              this.http.get<Blob>(url, {
-                responseType: 'blob' as 'json',
-                headers: this.viewerStore.headers(),
-              }),
-            );
-
-            this.viewerStore.addFileToCurrentlyLoadedFiles({
-              submodelId: this.viewerStore.currentSubmodelId(),
-              idShortPath: idShortPath,
-              path: this.companyLogoValue ?? 'thumbnail',
-              blob: thumb,
-            });
-
-            return this.sanitizer.bypassSecurityTrustResourceUrl(URL.createObjectURL(thumb));
-          } catch {
-            return null;
-          }
-        }
-      }
-      return null;
-    }
+    // Reading the signal keeps the computed in sync with the submodel switch
+    this.viewerStore.currentSubmodelId();
+    return loadViewerAttachmentUrl(
+      this.http,
+      this.sanitizer,
+      this.viewerStore,
+      this.companyLogoPath,
+      this.companyLogoValue ?? '',
+    );
   });
 
   get companyLogoPath() {
@@ -476,6 +455,16 @@ export class NameplateViewerComponent implements OnChanges {
     return this.getMarkingFile(marking)?.idShort ?? '';
   }
 
+  /** Semantic ID of a nameplate field (path of idShorts from the top level) for the "?" to its concept description. */
+  fieldSemanticId(...path: string[]) {
+    return semanticIdAt(this.nameplate?.submodelElements ?? [], path);
+  }
+
+  /** Same as fieldSemanticId, starting at the contact or address information. */
+  addressFieldSemanticId(...path: string[]) {
+    return semanticIdAt(this.addressElement()?.value ?? [], path);
+  }
+
   hasSemanticId(sme: aas.types.ISubmodelElement, semanticId: string) {
     return sme.semanticId?.keys.find((k) => k.value.trim() === semanticId) != null;
   }
@@ -483,4 +472,16 @@ export class NameplateViewerComponent implements OnChanges {
   isInstance = computed(() => {
     return this.viewerStore.aas()?.assetInformation.assetKind === aas.types.AssetKind.Instance;
   });
+}
+
+function semanticIdAt(elements: aas.types.ISubmodelElement[], path: string[]) {
+  let element: aas.types.ISubmodelElement | undefined;
+  for (const idShort of path) {
+    element = elements.find((candidate) => candidate.idShort === idShort);
+    elements =
+      element instanceof aas.types.SubmodelElementCollection || element instanceof aas.types.SubmodelElementList
+        ? (element.value ?? [])
+        : [];
+  }
+  return semanticIdOf(element);
 }

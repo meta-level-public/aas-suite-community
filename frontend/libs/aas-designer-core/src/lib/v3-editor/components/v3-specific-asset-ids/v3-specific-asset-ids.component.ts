@@ -13,13 +13,24 @@ import { NullIfEmptyDirective } from '../../../general/directives/null-if-empty.
 import { Info } from '../../../general/model/info-item';
 import { PortalService } from '@aas/common-services';
 import { V3TreeService } from '../../v3-tree/v3-tree.service';
+import { VerificationMessagePipe } from '../../tools/verification-message';
 type SpecificAssetId = aas.types.SpecificAssetId;
 
 @Component({
   selector: 'aas-v3-specific-asset-ids',
   templateUrl: './v3-specific-asset-ids.component.html',
   changeDetection: ChangeDetectionStrategy.Eager,
-  imports: [Button, Message, Button, HelpLabelComponent, FormsModule, InputText, NullIfEmptyDirective, TranslateModule],
+  imports: [
+    VerificationMessagePipe,
+    Button,
+    Message,
+    Button,
+    HelpLabelComponent,
+    FormsModule,
+    InputText,
+    NullIfEmptyDirective,
+    TranslateModule,
+  ],
 })
 export class V3SpecificAssetIdsComponent {
   @Input({ required: true }) specificAssetIds: SpecificAssetId[] | undefined | null;

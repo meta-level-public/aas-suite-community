@@ -28,27 +28,63 @@
 
   <div class="detail-grid">
     <div class="detail-card">
-      <span class="detail-label">{{ 'DPP_PCF_FIELD_RULE_OPERATOR' | translate }}</span>
+      <span class="detail-label">
+        {{ 'DPP_PCF_FIELD_RULE_OPERATOR' | translate }}
+        <aas-semantic-description-popup
+          [semanticId]="fieldSemanticId('ProductOrSectorSpecificRule', 'PcfRuleOperator')"
+          [compact]="true"
+        />
+      </span>
       <span class="detail-value">{{ ruleOperator() || ('COMMON.NOT_AVAILABLE' | translate) }}</span>
     </div>
     <div class="detail-card">
-      <span class="detail-label">{{ 'DPP_PCF_FIELD_RULE_NAME' | translate }}</span>
+      <span class="detail-label">
+        {{ 'DPP_PCF_FIELD_RULE_NAME' | translate }}
+        <aas-semantic-description-popup
+          [semanticId]="fieldSemanticId('ProductOrSectorSpecificRule', 'PcfRuleName')"
+          [compact]="true"
+        />
+      </span>
       <span class="detail-value">{{ ruleName() || ('COMMON.NOT_AVAILABLE' | translate) }}</span>
     </div>
     <div class="detail-card">
-      <span class="detail-label">{{ 'DPP_PCF_FIELD_RULE_VERSION' | translate }}</span>
+      <span class="detail-label">
+        {{ 'DPP_PCF_FIELD_RULE_VERSION' | translate }}
+        <aas-semantic-description-popup
+          [semanticId]="fieldSemanticId('ProductOrSectorSpecificRule', 'PcfRuleVersion')"
+          [compact]="true"
+        />
+      </span>
       <span class="detail-value">{{ ruleVersion() || ('COMMON.NOT_AVAILABLE' | translate) }}</span>
     </div>
     <div class="detail-card">
-      <span class="detail-label">{{ 'DPP_PCF_FIELD_RULE_ONLINE_REFERENCE' | translate }}</span>
+      <span class="detail-label">
+        {{ 'DPP_PCF_FIELD_RULE_ONLINE_REFERENCE' | translate }}
+        <aas-semantic-description-popup
+          [semanticId]="fieldSemanticId('ProductOrSectorSpecificRule', 'PcfRuleOnlineReference')"
+          [compact]="true"
+        />
+      </span>
       <span class="detail-value wrap">{{ ruleOnlineReference() || ('COMMON.NOT_AVAILABLE' | translate) }}</span>
     </div>
     <div class="detail-card">
-      <span class="detail-label">{{ 'DPP_PCF_FIELD_API_ENDPOINT' | translate }}</span>
+      <span class="detail-label">
+        {{ 'DPP_PCF_FIELD_API_ENDPOINT' | translate }}
+        <aas-semantic-description-popup
+          [semanticId]="fieldSemanticId('ExternalPcfApi', 'PcfApiEndpoint')"
+          [compact]="true"
+        />
+      </span>
       <span class="detail-value wrap">{{ apiEndpoint() || ('COMMON.NOT_AVAILABLE' | translate) }}</span>
     </div>
     <div class="detail-card">
-      <span class="detail-label">{{ 'DPP_PCF_FIELD_API_QUERY' | translate }}</span>
+      <span class="detail-label">
+        {{ 'DPP_PCF_FIELD_API_QUERY' | translate }}
+        <aas-semantic-description-popup
+          [semanticId]="fieldSemanticId('ExternalPcfApi', 'PcfApiQuery')"
+          [compact]="true"
+        />
+      </span>
       <span class="detail-value wrap">{{ apiQuery() || ('COMMON.NOT_AVAILABLE' | translate) }}</span>
     </div>
   </div>

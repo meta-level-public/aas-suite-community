@@ -1,4 +1,5 @@
 import * as aas from '@aas-core-works/aas-core3.1-typescript';
+import { semanticIdOf } from '../../concept-unit.service';
 
 // Reads an Asset Interfaces Description (IDTA 02017, versions 1.0 and 1.2) into a
 // user oriented structure. Elements are matched by semanticId and, as fallback, by idShort.
@@ -49,7 +50,11 @@ export interface AidInterface {
   idShort: string;
   title: string;
   baseUrl: string;
+  /** Semantic ID of the base URL element, for the concept description help */
+  baseUrlSemanticId: string;
   contentType: string;
+  /** Semantic ID of the content type element, for the concept description help */
+  contentTypeSemanticId: string;
   protocol: string;
   securitySchemes: AidSecurityScheme[];
   dataPoints: AidDataPoint[];
@@ -103,13 +108,17 @@ export function countForms(dataPoints: AidDataPoint[]): number {
 function parseInterface(entry: Collection): AidInterface {
   const endpointMetadata = findCollection(entry.value, SEM.endpointMetadata, 'EndpointMetadata');
   const interactionMetadata = findCollection(entry.value, SEM.interactionMetadata, 'InteractionMetadata');
-  const baseUrl = findValue(endpointMetadata?.value, SEM.baseUri, 'base', 'baseURI');
+  const baseUrlElement = findProperty(endpointMetadata?.value, SEM.baseUri, 'base', 'baseURI');
+  const baseUrl = valueOf(baseUrlElement);
+  const contentTypeElement = findProperty(endpointMetadata?.value, SEM.contentType, 'contentType');
 
   return {
     idShort: entry.idShort ?? '',
     title: findValue(entry.value, SEM.title, 'title'),
     baseUrl,
-    contentType: findValue(endpointMetadata?.value, SEM.contentType, 'contentType'),
+    baseUrlSemanticId: semanticIdOf(baseUrlElement),
+    contentType: valueOf(contentTypeElement),
+    contentTypeSemanticId: semanticIdOf(contentTypeElement),
     protocol: detectProtocol(baseUrl, entry),
     securitySchemes: parseSecuritySchemes(endpointMetadata),
     dataPoints: parseInteractions(interactionMetadata, baseUrl),
@@ -290,8 +299,20 @@ function findCollection(elements: Element[] | null | undefined, semanticId: stri
   return found instanceof aas.types.SubmodelElementCollection ? found : undefined;
 }
 
-function findValue(elements: Element[] | null | undefined, semanticId: string, ...idShorts: string[]): string {
+function findProperty(
+  elements: Element[] | null | undefined,
+  semanticId: string,
+  ...idShorts: string[]
+): aas.types.Property | undefined {
   const properties = (elements ?? []).filter((el): el is aas.types.Property => el instanceof aas.types.Property);
   const found = findElement(properties, semanticId, ...idShorts);
-  return found instanceof aas.types.Property ? `${found.value ?? ''}`.trim() : '';
+  return found instanceof aas.types.Property ? found : undefined;
+}
+
+function findValue(elements: Element[] | null | undefined, semanticId: string, ...idShorts: string[]): string {
+  return valueOf(findProperty(elements, semanticId, ...idShorts));
+}
+
+function valueOf(property: aas.types.Property | undefined): string {
+  return `${property?.value ?? ''}`.trim();
 }

@@ -18,17 +18,33 @@ function property(idShort: string, semanticId: string, value: string, valueType 
   return element;
 }
 
-function conceptDescription(id: string, unit: string, symbol = '') {
+function conceptDescription(id: string, unit: string | null, symbol: string | null = null) {
   const cd = new aas.types.ConceptDescription(id);
   cd.embeddedDataSpecifications = [
-    {
-      dataSpecificationContent: {
+    new aas.types.EmbeddedDataSpecification(
+      new aas.types.Reference(aas.types.ReferenceTypes.ExternalReference, [
+        new aas.types.Key(
+          aas.types.KeyTypes.GlobalReference,
+          'https://admin-shell.io/DataSpecificationTemplates/DataSpecificationIEC61360/3/0',
+        ),
+      ]),
+      new aas.types.DataSpecificationIec61360(
+        [new aas.types.LangStringPreferredNameTypeIec61360('en', id)],
+        null,
         unit,
+        null,
+        null,
         symbol,
-      },
-    } as never,
+      ),
+    ),
   ];
   return cd;
+}
+
+const MC = 'urn:samm:io.admin-shell.idta.batterypass.material_composition:1.0.0#';
+
+function field(name: string) {
+  return { semanticId: `${MC}${name}`, unit: '' };
 }
 
 function collection(idShort: string, semanticId: string, value: aas.types.ISubmodelElement[]) {
@@ -261,11 +277,7 @@ describe('MaterialCompositionViewerComponent', () => {
           useValue: {
             loadCD: async (id: string) => {
               if (id.endsWith('#batteryMaterialMass')) {
-                return conceptDescription(id, '', 'kg');
-              }
-
-              if (id.endsWith('#hazardousSubstanceConcentration')) {
-                return conceptDescription(id, '%');
+                return conceptDescription(id, null, 'kg');
               }
 
               return undefined;
@@ -290,6 +302,7 @@ describe('MaterialCompositionViewerComponent', () => {
     expect(component.chemistry()).toEqual({
       shortName: 'NMC811/Graphite',
       clearName: 'Nickel manganese cobalt cathode with graphite anode',
+      fields: { shortName: field('shortName'), clearName: field('clearName') },
     });
     expect(component.materials()).toEqual([
       {
@@ -299,6 +312,12 @@ describe('MaterialCompositionViewerComponent', () => {
         materialIdentifier: '182442-95-1',
         mass: '2.45',
         isCriticalRawMaterial: true,
+        fields: {
+          materialName: field('batteryMaterialName'),
+          materialIdentifier: field('batteryMaterialIdentifier'),
+          mass: field('batteryMaterialMass'),
+          isCriticalRawMaterial: field('isCriticalRawMaterial'),
+        },
       },
       {
         locationName: 'Electrolyte',
@@ -307,6 +326,12 @@ describe('MaterialCompositionViewerComponent', () => {
         materialIdentifier: '616-38-6',
         mass: '0.62',
         isCriticalRawMaterial: false,
+        fields: {
+          materialName: field('batteryMaterialName'),
+          materialIdentifier: field('batteryMaterialIdentifier'),
+          mass: field('batteryMaterialMass'),
+          isCriticalRawMaterial: field('isCriticalRawMaterial'),
+        },
       },
     ]);
     expect(component.criticalRawMaterialCount()).toBe(1);
@@ -320,13 +345,55 @@ describe('MaterialCompositionViewerComponent', () => {
         hazardousSubstanceConcentration: '0.14',
         hazardousSubstanceIdentifier: '21324-40-3',
         impacts: ['Harmful if swallowed', 'Causes serious eye irritation'],
+        fields: {
+          hazardousSubstanceClass: field('hazardousSubstanceClass'),
+          hazardousSubstanceName: field('hazardousSubstanceName'),
+          hazardousSubstanceConcentration: field('hazardousSubstanceConcentration'),
+          hazardousSubstanceIdentifier: field('hazardousSubstanceIdentifier'),
+        },
       },
     ]);
-    expect(component.massUnit()).toBe('');
-    expect(component.massSymbol()).toBe('kg');
-    expect(component.concentrationUnit()).toBe('%');
-    expect(component.concentrationSymbol()).toBe('');
-    expect(component.formatMass('2.45')).toBe('2.45 kg');
-    expect(component.formatConcentration('0.14')).toBe('0.14 %');
+  });
+
+  it('shows the unit from the concept description and falls back to percent for concentrations', async () => {
+    const material = component.materials()[0];
+    // The unit of the concept description arrives asynchronously
+    component.fieldUnit(material.fields.mass);
+    await new Promise((resolve) => setTimeout(resolve));
+
+    expect(component.formatMass(material)).toBe('2.45');
+    expect(component.fieldUnit(material.fields.mass)).toBe('kg');
+    expect(component.concentrationUnit(component.hazardousSubstances()[0])).toBe('%');
+  });
+
+  it('shows the battery chemistry as hero and no separate chemistry card', () => {
+    const element = fixture.nativeElement as HTMLElement;
+    const hero = element.querySelector('.viewer-hero');
+
+    expect(hero?.classList.length).toBe(1);
+    expect(hero?.querySelector('.viewer-hero-eyebrow')?.textContent).toContain('MATERIAL_COMPOSITION_CHEMISTRY');
+    expect(hero?.querySelector('.viewer-hero-eyebrow aas-semantic-description-popup')).not.toBeNull();
+    expect(hero?.querySelector('.viewer-hero-title')?.textContent?.trim()).toBe('NMC811/Graphite');
+    expect(hero?.querySelector('.viewer-hero-text')?.textContent).toContain(
+      'Nickel manganese cobalt cathode with graphite anode',
+    );
+    expect(hero?.querySelector('.viewer-hero-aside p-tag')?.textContent).toContain(
+      'MATERIAL_COMPOSITION_HAZARDOUS_SUBSTANCE_COUNT_ONE',
+    );
+    const cardTitles = Array.from(element.querySelectorAll('.viewer-card-title')).map((title) => title.textContent);
+    expect(cardTitles.some((title) => title?.includes('MATERIAL_COMPOSITION_CHEMISTRY'))).toBe(false);
+  });
+
+  it('uses the submodel title as hero title without battery chemistry', async () => {
+    const submodel = createMaterialCompositionSubmodel();
+    submodel.submodelElements = (submodel.submodelElements ?? []).filter((el) => el.idShort !== 'BatteryChemistry');
+    fixture.componentRef.setInput('submodel', submodel);
+    fixture.detectChanges();
+
+    const hero = (fixture.nativeElement as HTMLElement).querySelector('.viewer-hero');
+    expect(hero?.querySelector('.viewer-hero-eyebrow')).toBeNull();
+    expect(hero?.querySelector('.viewer-hero-title')?.textContent?.trim()).toBe(
+      'BATTERY_PASSPORT_MATERIAL_COMPOSITION',
+    );
   });
 });

@@ -1,30 +1,32 @@
-<div class="changelog-container">
-  <div class="section-card">
-    <h3 class="section-title"><i class="fa-solid fa-clock-rotate-left"></i> {{ 'CHANGELOG_OVERVIEW' | translate }}</h3>
-    <div class="summary-grid">
+<div class="viewer-stack">
+  <section class="viewer-card">
+    <h3 class="viewer-card-title">
+      <i class="fa-solid fa-clock-rotate-left"></i> {{ 'CHANGELOG_OVERVIEW' | translate }}
+    </h3>
+    <div class="viewer-field-grid">
       <p-inputgroup>
-        <p-inputgroup-addon class="font-bold min-w-40">{{ 'CHANGELOG_ENTRIES' | translate }}</p-inputgroup-addon>
+        <p-inputgroup-addon class="viewer-label-addon">{{ 'CHANGELOG_ENTRIES' | translate }}</p-inputgroup-addon>
         <input pInputText type="text" [value]="entries.length" readonly />
       </p-inputgroup>
       <p-inputgroup>
-        <p-inputgroup-addon class="font-bold min-w-40">{{ 'CHANGELOG_LATEST_USER' | translate }}</p-inputgroup-addon>
+        <p-inputgroup-addon class="viewer-label-addon">{{ 'CHANGELOG_LATEST_USER' | translate }}</p-inputgroup-addon>
         <input pInputText type="text" [value]="latestEntry?.user ?? '-'" readonly />
       </p-inputgroup>
       <p-inputgroup>
-        <p-inputgroup-addon class="font-bold min-w-40">{{ 'CHANGELOG_LATEST_ACTION' | translate }}</p-inputgroup-addon>
+        <p-inputgroup-addon class="viewer-label-addon">{{ 'CHANGELOG_LATEST_ACTION' | translate }}</p-inputgroup-addon>
         <input pInputText type="text" [value]="latestEntry?.action ?? '-'" readonly />
       </p-inputgroup>
       <p-inputgroup>
-        <p-inputgroup-addon class="font-bold min-w-40">{{ 'CHANGELOG_LATEST_DATE' | translate }}</p-inputgroup-addon>
+        <p-inputgroup-addon class="viewer-label-addon">{{ 'CHANGELOG_LATEST_DATE' | translate }}</p-inputgroup-addon>
         <input pInputText type="text" [value]="latestEntry?.dateDisplay ?? '-'" readonly />
       </p-inputgroup>
     </div>
-  </div>
+  </section>
 
-  <div class="section-card">
-    <h3 class="section-title"><i class="fa-solid fa-timeline"></i> {{ 'CHANGELOG_TIMELINE' | translate }}</h3>
+  <section class="viewer-card">
+    <h3 class="viewer-card-title"><i class="fa-solid fa-timeline"></i> {{ 'CHANGELOG_TIMELINE' | translate }}</h3>
     @if (entries.length === 0) {
-      <div class="text-color-secondary">{{ 'CHANGELOG_NO_ENTRIES' | translate }}</div>
+      <div class="viewer-empty">{{ 'CHANGELOG_NO_ENTRIES' | translate }}</div>
     } @else {
       <div class="timeline-wrap">
         @for (entry of entries; track entry.idShort + entry.dateRaw + $index; let i = $index; let isLast = $last) {
@@ -54,7 +56,7 @@
                 @if (entry.comment !== '-') {
                   {{ entry.comment }}
                 } @else {
-                  <span class="text-color-secondary">{{ 'NO_COMMENT' | translate }}</span>
+                  <span class="text-muted-color">{{ 'NO_COMMENT' | translate }}</span>
                 }
               </div>
 
@@ -64,5 +66,5 @@
         }
       </div>
     }
-  </div>
+  </section>
 </div>

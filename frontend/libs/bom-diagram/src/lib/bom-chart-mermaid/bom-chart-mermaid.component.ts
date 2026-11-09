@@ -39,6 +39,14 @@ import { TooltipModule } from '@openng/optimus-ui/tooltip';
 import { v4 as guid } from 'uuid';
 import { BomEntityDialogComponent } from './bom-entity-dialog/bom-entity-dialog.component';
 import { InitBomAssistantComponent } from './init-bom-assistant/init-bom-assistant.component';
+import { chooseBomOrientation } from './utils/bom-orientation.util';
+import { entityHasLinkedAsset } from './utils/entity-asset-reference.util';
+
+/** Below this zoom the node labels are hard to read; the diagram then grows in height instead. */
+const READABLE_MIN_ZOOM = 0.75;
+const MAX_CHART_HEIGHT_PX = 1600;
+const LINKED_ASSET_MARKER = ' \u2197';
+const ZOOM_STEP = 1.25;
 
 // cytoscape (+ plugins, ~700 kB) is loaded on first render so the editor chunk does not carry it
 let cytoscapeLoader: Promise<typeof cytoscape> | undefined;
@@ -108,8 +116,12 @@ export class BomHierarchyChartComponent implements OnChanges, OnInit, AfterViewI
   }[] = [];
 
   orientation: 'LR' | 'TB' = 'LR';
+  /** Once the user switched the orientation, it is no longer chosen from the shape of the tree. */
+  private orientationChosenByUser = false;
+  maximized = false;
   theme: 'forest' | 'base' | 'neutral' = 'forest';
   private rootId: string | null = null;
+  hasLinkedNodes = false;
   private childrenMap: Record<string, string[]> = {};
 
   chartVisible = false;
@@ -193,10 +205,20 @@ export class BomHierarchyChartComponent implements OnChanges, OnInit, AfterViewI
     if (!container) return;
 
     this.destroyGraph();
+    // fitAllNodes may have grown the container for the previous graph
+    container.style.height = '';
 
     const elements = this.buildCytoscapeElements();
+    if (!this.orientationChosenByUser) {
+      this.orientation = chooseBomOrientation(this.rootId, this.childrenMap);
+    }
+    // Set here and not as a getter: renderChart() also runs during ngAfterViewInit
+    this.hasLinkedNodes = elements.some((element) => element.classes?.includes('linked') === true);
     const { rootBg, rootBorder, rootText, internalBg, internalBorder, internalText, leafBg, leafBorder, leafText } =
       this.getThemePalette();
+    // Same token as the legend; cytoscape draws on a canvas and needs the resolved value
+    const linkedBorder =
+      getComputedStyle(document.documentElement).getPropertyValue('--p-blue-600').trim() || '#2563eb';
 
     this.cy = cytoscape({
       container,
@@ -242,6 +264,14 @@ export class BomHierarchyChartComponent implements OnChanges, OnInit, AfterViewI
             'border-color': leafBorder,
             'border-width': 1,
             color: leafText,
+          },
+        },
+        {
+          selector: 'node.linked',
+          style: {
+            'border-width': 3,
+            'border-style': 'double',
+            'border-color': linkedBorder,
           },
         },
         {
@@ -326,13 +356,29 @@ export class BomHierarchyChartComponent implements OnChanges, OnInit, AfterViewI
       this.updateSelectionAnchor();
     });
 
-    this.cy.fit(undefined, 20);
-    const readableMinZoom = 0.75;
-    if (this.cy.zoom() < readableMinZoom) {
-      this.cy.zoom(readableMinZoom);
-      this.cy.center();
-    }
+    this.fitAllNodes(container);
     this.cdRef.markForCheck();
+  }
+
+  /**
+   * Shows every node. If fitting would make the labels unreadable, the container grows in height first (up to a
+   * limit); zooming in instead would push nodes out of view.
+   */
+  private fitAllNodes(container: HTMLElement) {
+    if (!this.cy) return;
+
+    this.cy.fit(undefined, 20);
+    if (this.maximized || this.cy.zoom() >= READABLE_MIN_ZOOM) return;
+
+    // Growing in height only helps up to the zoom the width allows
+    const graph = this.cy.elements().boundingBox();
+    const targetZoom = Math.min(READABLE_MIN_ZOOM, (container.clientWidth - 40) / graph.w);
+    const neededHeight = Math.ceil(graph.h * targetZoom) + 40;
+    if (neededHeight > container.clientHeight) {
+      container.style.height = `${Math.min(neededHeight, MAX_CHART_HEIGHT_PX)}px`;
+      this.cy.resize();
+      this.cy.fit(undefined, 20);
+    }
   }
 
   private buildCytoscapeElements(): cytoscape.ElementDefinition[] {
@@ -343,13 +389,15 @@ export class BomHierarchyChartComponent implements OnChanges, OnInit, AfterViewI
       const isRoot = item.id === this.rootId;
       const isLeaf = !parentIds.has(item.id);
       const cssClass = isRoot ? 'root' : isLeaf ? 'leaf' : 'internal';
+      // The root node is the asset of this AAS itself; only children link to other assets
+      const isLinked = !isRoot && entityHasLinkedAsset(item.entity);
       elements.push({
         data: {
           id: item.id,
           itemId: item.id,
-          label: `${item.entity.idShort ?? 'No idShort'}${this.getBulkCountLabel(item.entity)}`,
+          label: `${item.entity.idShort ?? 'No idShort'}${this.getBulkCountLabel(item.entity)}${isLinked ? LINKED_ASSET_MARKER : ''}`,
         },
-        classes: cssClass,
+        classes: isLinked ? `${cssClass} linked` : cssClass,
       });
 
       if (item.parentEntity && item.relationship) {
@@ -499,12 +547,22 @@ export class BomHierarchyChartComponent implements OnChanges, OnInit, AfterViewI
     this.openEntityDialog(this.selectedItemId, 'add-child');
   }
 
+  openSelectedLinkedAas() {
+    if (!this.selectedItemId || !this.selectedItemHasLinkedAsset) return;
+    this.openEntityDialog(this.selectedItemId, 'aas-search');
+  }
+
+  get selectedItemHasLinkedAsset() {
+    const item = this.selectedItem;
+    return item != null && item.id !== this.rootId && entityHasLinkedAsset(item.entity);
+  }
+
   openSelectedRemove() {
     if (!this.selectedItemId || !this.canRemoveSelectedItem) return;
     this.openEntityDialog(this.selectedItemId, 'remove');
   }
 
-  private openEntityDialog(itemId: string, initialMode: 'details' | 'add-child' | 'remove' | undefined) {
+  private openEntityDialog(itemId: string, initialMode: 'details' | 'add-child' | 'remove' | 'aas-search' | undefined) {
     const graphItem = this.graphItems.find((item) => item.id === itemId);
     if (!graphItem) return;
     const refreshEmitter = new EventEmitter();
@@ -1044,7 +1102,51 @@ export class BomHierarchyChartComponent implements OnChanges, OnInit, AfterViewI
 
   toggleOrientation() {
     this.orientation = this.orientation === 'LR' ? 'TB' : 'LR';
+    this.orientationChosenByUser = true;
     this.renderChart();
+  }
+
+  zoomIn() {
+    this.zoomBy(ZOOM_STEP);
+  }
+
+  zoomOut() {
+    this.zoomBy(1 / ZOOM_STEP);
+  }
+
+  showAllNodes() {
+    this.cy?.fit(undefined, 20);
+  }
+
+  /** Shows the diagram over the whole window; dialogs still open above it. */
+  toggleMaximized() {
+    this.maximized = !this.maximized;
+    this.cdRef.markForCheck();
+    // Re-fit once the container has its new size
+    requestAnimationFrame(() => {
+      const container = this.chartContainer?.nativeElement;
+      if (!this.cy || !container) return;
+      container.style.height = '';
+      this.cy.resize();
+      this.fitAllNodes(container);
+      this.updateSelectionAnchor();
+    });
+  }
+
+  @HostListener('document:keydown.escape')
+  exitMaximized() {
+    // Escape first closes an open dialog (entity details, viewer), only then the maximized diagram
+    if (this.maximized && document.querySelector('.p-dialog-mask') == null) {
+      this.toggleMaximized();
+    }
+  }
+
+  private zoomBy(factor: number) {
+    if (!this.cy) return;
+    this.cy.zoom({
+      level: this.cy.zoom() * factor,
+      renderedPosition: { x: this.cy.width() / 2, y: this.cy.height() / 2 },
+    });
   }
 
   cycleTheme() {

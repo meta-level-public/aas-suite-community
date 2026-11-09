@@ -92,6 +92,44 @@ function smc(
   );
 }
 
+function prop(idShort: string, value: string, semanticId?: string): aas.types.Property {
+  const element = new aas.types.Property(aas.types.DataTypeDefXsd.String, null, null, idShort);
+  element.value = value;
+  if (semanticId) element.semanticId = semanticRef(semanticId);
+  return element;
+}
+
+function semMlp(idShort: string, semanticId: string, texts: Record<string, string>): aas.types.MultiLanguageProperty {
+  const element = _mlp(idShort, '');
+  element.value = Object.entries(texts).map(([lang, text]) => new aas.types.LangStringTextType(lang, text));
+  element.semanticId = semanticRef(semanticId);
+  return element;
+}
+
+function smList(
+  idShort: string,
+  semanticId: string,
+  typeValueListElement: aas.types.AasSubmodelElements,
+  value: aas.types.ISubmodelElement[],
+): aas.types.SubmodelElementList {
+  const element = new aas.types.SubmodelElementList(typeValueListElement, null, null, idShort);
+  element.semanticId = semanticRef(semanticId);
+  element.value = value;
+  return element;
+}
+
+function classification(className: Record<string, string>, system: string, semanticId?: string) {
+  return smc(
+    'DocumentClassification',
+    [
+      prop('ClassId', '02-01', '0173-1#02-ABH996#001'),
+      semMlp('ClassName', '0173-1#02-AAO102#003', className),
+      prop('ClassificationSystem', system, '0173-1#02-ABH997#001'),
+    ],
+    semanticId,
+  );
+}
+
 describe('HandoverDocumentationService', () => {
   let service: HandoverDocumentationService;
 
@@ -420,5 +458,88 @@ describe('HandoverDocumentationService', () => {
     expect(groups[0].previewOriginalValue).toBe('internal/path/doc-preview.tiff');
     expect(service.deriveMimeFromName('doc-preview.tiff', 'image')).toBe('image/tiff');
     expect(service.deriveMimeFromName('doc-preview.tif', 'image')).toBe('image/tiff');
+  });
+
+  it('extracts V2 classifications in the current language', () => {
+    const classes = smList(
+      'DocumentClassifications',
+      '0173-1#02-ABI502#003',
+      aas.types.AasSubmodelElements.SubmodelElementCollection,
+      [classification({ en: 'Technical specification', de: 'Technische Spezifikation' }, 'VDI2770:2018')],
+    );
+    const doc = smc('Doc', [classes], HandoverSemantics.DOCUMENT_V2);
+
+    expect(service.extractClassifications(doc, HandoverStructureMode.V2, 'de')).toEqual([
+      {
+        collectionIdShort: 'DocumentClassification',
+        classId: '02-01',
+        className: 'Technische Spezifikation',
+        classificationSystem: 'VDI2770:2018',
+      },
+    ]);
+  });
+
+  it('summarizes V2 documents with VDI 2770 classes and languages', () => {
+    const versionList = (languages: string[]) =>
+      smList(
+        'DocumentVersions',
+        HandoverSemantics.VERSION_LIST_V2,
+        aas.types.AasSubmodelElements.SubmodelElementCollection,
+        [
+          smc('Version', [
+            smList(
+              'Languages',
+              '0173-1#02-AAN468#008',
+              aas.types.AasSubmodelElements.Property,
+              languages.map((language) => prop('Language', language)),
+            ),
+          ]),
+        ],
+      );
+    const classList = (...entries: aas.types.SubmodelElementCollection[]) =>
+      smList(
+        'DocumentClassifications',
+        '0173-1#02-ABI502#003',
+        aas.types.AasSubmodelElements.SubmodelElementCollection,
+        entries,
+      );
+    const docA = smc(
+      'DocA',
+      [
+        classList(classification({ en: 'Operation' }, 'VDI2770:2018'), classification({ en: 'Manual' }, 'IEC61355')),
+        versionList(['de', 'en']),
+      ],
+      HandoverSemantics.DOCUMENT_V2,
+    );
+    const docB = smc(
+      'DocB',
+      [
+        classList(
+          classification({ en: 'Certificate' }, 'VDI 2770'),
+          classification({ en: 'Operation' }, 'VDI2770:2018'),
+        ),
+        versionList(['en']),
+      ],
+      HandoverSemantics.DOCUMENT_V2,
+    );
+
+    expect(service.summarize([docA, docB], 'en')).toEqual({
+      documentCount: 2,
+      classNames: ['Operation', 'Certificate'],
+      languages: ['DE', 'EN'],
+    });
+  });
+
+  it('summarizes V1 documents and falls back to other classification systems', () => {
+    const doc = smc(
+      'Document01',
+      [
+        classification({ en: 'Drawing' }, 'Custom', '0173-1#02-ABI502#001/0173-1#01-AHF581#001'),
+        smc('DocumentVersion01', [prop('Language01', 'fr', '0173-1#02-AAN468#006'), prop('Title', 'Plan')]),
+      ],
+      HandoverSemantics.DOCUMENT_V1_A,
+    );
+
+    expect(service.summarize([doc], 'en')).toEqual({ documentCount: 1, classNames: ['Drawing'], languages: ['FR'] });
   });
 });

@@ -18,7 +18,13 @@ import { ViewerStoreService } from '../../viewer-store.service';
 import { DocumentClassificationsComponent } from './document-classifications/document-classifications.component';
 import { DocumentIdentificationComponent } from './document-identification/document-identification.component';
 import { DocumentVersionsComponent } from './document-versions/document-versions.component';
-import { HandoverDocumentationService, HandoverFileGroup, isHtmlFile } from './handover-documentation.service';
+import { HandoverDocumentationHeroComponent } from './handover-documentation-hero/handover-documentation-hero.component';
+import {
+  HandoverDocumentationService,
+  HandoverDocumentationSummary,
+  HandoverFileGroup,
+  isHtmlFile,
+} from './handover-documentation.service';
 import { HandoverStructureMode } from './structure-mode';
 import { ExpandedStateDirective } from '../../expanded-state/expanded-state.directive';
 
@@ -39,6 +45,7 @@ import { ExpandedStateDirective } from '../../expanded-state/expanded-state.dire
     DocumentIdentificationComponent,
     DocumentClassificationsComponent,
     DocumentVersionsComponent,
+    HandoverDocumentationHeroComponent,
     Dialog,
     NgClass,
     MarkdownComponent,
@@ -62,6 +69,9 @@ export class HandoverDocumentationViewerV2Component implements OnChanges, OnDest
   private subscriptions: Subscription[] = [];
 
   fileGroups: HandoverFileGroup[] = [];
+
+  /** Overview for the hero: number of documents, classes and languages */
+  summary = signal<HandoverDocumentationSummary>({ documentCount: 0, classNames: [], languages: [] });
 
   get totalFileCount(): number {
     return this.fileGroups.reduce((s, g) => s + g.files.length, 0);
@@ -97,6 +107,7 @@ export class HandoverDocumentationViewerV2Component implements OnChanges, OnDest
     this.subscriptions.push(
       this.translate.onLangChange.subscribe((e) => {
         this.currentLang.set(e.lang);
+        this.updateSummary();
         this.buildFileGroups();
       }),
     );
@@ -123,7 +134,12 @@ export class HandoverDocumentationViewerV2Component implements OnChanges, OnDest
     const { mode, documents } = this.handoverSvc.analyze(this.documentation);
     this.structureMode.set(mode);
     this.documents = documents;
+    this.updateSummary();
     await this.buildFileGroups();
+  }
+
+  private updateSummary() {
+    this.summary.set(this.handoverSvc.summarize(this.documents, this.currentLang()));
   }
 
   private async buildFileGroups() {

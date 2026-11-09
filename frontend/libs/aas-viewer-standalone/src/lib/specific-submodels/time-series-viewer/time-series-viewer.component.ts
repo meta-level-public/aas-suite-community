@@ -30,7 +30,6 @@ import { HelpLabelComponent } from '@aas/common-components';
 import { FormsModule } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
 import { Button } from '@openng/optimus-ui/button';
-import { Card } from '@openng/optimus-ui/card';
 import { UIChart } from '@openng/optimus-ui/chart';
 import { DatePicker } from '@openng/optimus-ui/datepicker';
 import { InputGroup } from '@openng/optimus-ui/inputgroup';
@@ -66,7 +65,6 @@ type ViewerSelectionSnapshot = {
   templateUrl: './time-series-viewer.component.html',
   changeDetection: ChangeDetectionStrategy.Eager,
   imports: [
-    Card,
     HelpLabelComponent,
     ToggleSwitch,
     FormsModule,

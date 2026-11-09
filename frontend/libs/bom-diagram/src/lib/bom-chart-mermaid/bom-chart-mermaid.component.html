@@ -71,7 +71,49 @@
 }
 
 @if (chartVisible === true) {
-  <div class="chart-wrapper">
+  @if (hasLinkedNodes) {
+    <div class="chart-legend text-muted-color">
+      <span class="chart-legend-marker" aria-hidden="true">&#8599;</span>
+      {{ 'BOM_LINKED_AAS_LEGEND' | translate }}
+    </div>
+  }
+  <div class="chart-wrapper" [class.chart-wrapper-maximized]="maximized">
+    <div class="chart-controls">
+      <div class="chart-controls-group">
+        <p-button
+          icon="pi pi-search-plus"
+          styleClass="p-button-sm p-button-secondary p-button-outlined"
+          [ariaLabel]="'BOM_ZOOM_IN' | translate"
+          pTooltip="{{ 'BOM_ZOOM_IN' | translate }}"
+          tooltipPosition="left"
+          (onClick)="zoomIn()"
+        ></p-button>
+        <p-button
+          icon="pi pi-search-minus"
+          styleClass="p-button-sm p-button-secondary p-button-outlined"
+          [ariaLabel]="'BOM_ZOOM_OUT' | translate"
+          pTooltip="{{ 'BOM_ZOOM_OUT' | translate }}"
+          tooltipPosition="left"
+          (onClick)="zoomOut()"
+        ></p-button>
+        <p-button
+          icon="pi pi-expand"
+          styleClass="p-button-sm p-button-secondary p-button-outlined"
+          [ariaLabel]="'BOM_SHOW_ALL_NODES' | translate"
+          pTooltip="{{ 'BOM_SHOW_ALL_NODES' | translate }}"
+          tooltipPosition="left"
+          (onClick)="showAllNodes()"
+        ></p-button>
+        <p-button
+          [icon]="maximized ? 'pi pi-window-minimize' : 'pi pi-window-maximize'"
+          styleClass="p-button-sm p-button-secondary p-button-outlined"
+          [ariaLabel]="(maximized ? 'BOM_EXIT_MAXIMIZED' : 'BOM_MAXIMIZE') | translate"
+          pTooltip="{{ (maximized ? 'BOM_EXIT_MAXIMIZED' : 'BOM_MAXIMIZE') | translate }}"
+          tooltipPosition="left"
+          (onClick)="toggleMaximized()"
+        ></p-button>
+      </div>
+    </div>
     <div #chartContainer class="cy-container"></div>
 
     @if (editable && selectedItem && selectedItemReparentHandleAnchor) {
@@ -102,6 +144,14 @@
             styleClass="p-button-sm"
             (onClick)="openSelectedDetails()"
           ></p-button>
+          @if (selectedItemHasLinkedAsset) {
+            <p-button
+              icon="pi pi-external-link"
+              label="{{ 'BOM_OPEN_LINKED_AAS' | translate }}"
+              styleClass="p-button-sm p-button-outlined"
+              (onClick)="openSelectedLinkedAas()"
+            ></p-button>
+          }
           @if (editable) {
             <p-button
               icon="pi pi-plus"

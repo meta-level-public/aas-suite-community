@@ -16,12 +16,14 @@ import { V3IdShortComponent } from '../v3-id-short/v3-id-short.component';
 import { V3IdComponent } from '../v3-id/v3-id.component';
 import { V3LangStringListComponent } from '../v3-lang-string-list/v3-lang-string-list.component';
 import { V3ReferenceComponent } from '../v3-reference/v3-reference.component';
+import { VerificationMessagePipe } from '../../tools/verification-message';
 
 @Component({
   selector: 'aas-v3-concept-description',
   templateUrl: './v3-concept-description.component.html',
   changeDetection: ChangeDetectionStrategy.Eager,
   imports: [
+    VerificationMessagePipe,
     Fieldset,
     HelpLabelComponent,
     V3IdComponent,

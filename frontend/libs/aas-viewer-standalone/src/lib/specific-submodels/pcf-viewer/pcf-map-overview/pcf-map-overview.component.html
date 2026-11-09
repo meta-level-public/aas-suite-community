@@ -1,5 +1,5 @@
 @if (layers.length === 0) {
-  <div>{{ 'PCF_NO_GEO_INFORMATION' | translate }}</div>
+  <div class="viewer-empty mb-3">{{ 'PCF_NO_GEO_INFORMATION' | translate }}</div>
 }
 <div class="flex flex-row justify-between gap-5">
   <div class="flex flex-row items-center gap-3">
@@ -15,4 +15,4 @@
     <img src="assets/map-images/marker-icon-tcf-takeover.png" />
   </div>
 </div>
-<div style="height: 500px" leaflet [leafletOptions]="options" class="mt-3" [leafletLayers]="layers"></div>
+<div leaflet [leafletOptions]="options" class="mt-3 h-[500px]" [leafletLayers]="layers"></div>

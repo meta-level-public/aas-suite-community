@@ -21,9 +21,10 @@
           />
         </p-inputgroup-addon>
       </p-inputgroup>
-      @if (hasErrors(element.content)) {
+      @let idShortErrors = getError(element.content);
+      @if (idShortErrors.length > 0) {
         <div class="text-error">
-          {{ 'errorMessages.' + getError(element.content)[0].message | translate }}
+          {{ idShortErrors[0].message | verificationMessage }}
         </div>
       }
     </div>

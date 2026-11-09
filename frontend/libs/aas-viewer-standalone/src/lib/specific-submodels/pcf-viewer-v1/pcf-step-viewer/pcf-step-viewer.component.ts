@@ -2,19 +2,23 @@ import * as aas from '@aas-core-works/aas-core3.1-typescript';
 
 import { DateProxyPipe } from '@aas/common-pipes';
 import { SubmodelElementCollection } from '@aas/model';
-import { Component, computed, input, ChangeDetectionStrategy } from '@angular/core';
-import { TranslateModule } from '@ngx-translate/core';
-import { AddressMapComponent } from '../address-map/address-map.component';
+import { Component, computed, inject, input, ChangeDetectionStrategy } from '@angular/core';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
+import { ConceptUnitService, semanticIdOf, viewerFieldOf } from '../../../concept-unit.service';
+import { SemanticDescriptionPopupComponent } from '../../../semantic-description-popup/semantic-description-popup.component';
 
 @Component({
   selector: 'aas-pcf-step-viewer',
   templateUrl: './pcf-step-viewer.component.html',
   styleUrls: ['./pcf-step-viewer.component.css'],
   changeDetection: ChangeDetectionStrategy.Eager,
-  imports: [TranslateModule, DateProxyPipe, AddressMapComponent],
+  imports: [TranslateModule, DateProxyPipe, SemanticDescriptionPopupComponent],
 })
 export class PcfStepViewerComponent {
   step = input.required<aas.types.SubmodelElementCollection>();
+
+  private readonly units = inject(ConceptUnitService);
+  private readonly translate = inject(TranslateService);
 
   // Semantic IDs for the PCF properties
   private readonly PCF_CALCULATION_METHODS_ID = 'https://admin-shell.io/idta/CarbonFootprint/PcfCalculationMethods/1/0';
@@ -49,8 +53,6 @@ export class PcfStepViewerComponent {
     return this.findElementBySemanticId(this.LIFE_CYCLE_PHASES_ID) as SubmodelElementCollection | null;
   });
 
-  stepList = computed(() => [this.step()]);
-
   // Computed signal for the individual lifecycle phase values
   lifeCyclePhasesValues = computed(() => {
     const lifeCycleElement = this.lifeCyclePhases();
@@ -80,15 +82,49 @@ export class PcfStepViewerComponent {
     return new Date(dateValue);
   });
 
-  co2Unit = computed(() => {
-    const pcfCo2eq = this.pcfCO2eq();
-    if (pcfCo2eq?.embeddedDataSpecifications) {
-      for (const dataSpec of pcfCo2eq.embeddedDataSpecifications) {
-        if (dataSpec.dataSpecificationContent && 'unit' in dataSpec.dataSpecificationContent) {
-          return (dataSpec.dataSpecificationContent as any).unit;
-        }
-      }
-    }
-    return 'kg CO₂-eq';
+  co2Value = computed(() => elementText(this.pcfCO2eq()));
+
+  referenceUnit = computed(() => elementText(this.referenceImpactUnitForCalculation()));
+
+  /** Names of the calculation methods (a list of properties, older models: a single property). */
+  calculationMethods = computed(() => {
+    const methods = this.pcfCalculationMethods() as aas.types.ISubmodelElement | null | undefined;
+    const entries =
+      methods instanceof aas.types.SubmodelElementList || methods instanceof aas.types.SubmodelElementCollection
+        ? (methods.value ?? [])
+        : methods != null
+          ? [methods]
+          : [];
+    return entries
+      .map((entry) => elementText(entry))
+      .filter((text) => text !== '')
+      .join(', ');
   });
+
+  explanation = computed(() => elementText(this.explanatoryStatement(), this.translate.currentLang));
+
+  /** Unit of the CO2 equivalent: element, then concept description, then the unit given by the specification. */
+  co2Unit = computed(() => {
+    return this.units.fieldUnit(viewerFieldOf(this.pcfCO2eq()), 'kg CO₂-eq');
+  });
+
+  /** Semantic ID of a displayed element, for the concept description help. */
+  readonly semanticIdOf = semanticIdOf;
+}
+
+/** Readable value of a property, multi-language property or file (file name only). */
+function elementText(element: aas.types.ISubmodelElement | null | undefined, language = 'en'): string {
+  if (element instanceof aas.types.Property) return (element.value ?? '').trim();
+  if (element instanceof aas.types.MultiLanguageProperty) {
+    const texts = element.value ?? [];
+    return (
+      (
+        texts.find((text) => text.language.startsWith(language || 'en')) ??
+        texts.find((text) => text.language.startsWith('en')) ??
+        texts[0]
+      )?.text.trim() ?? ''
+    );
+  }
+  if (element instanceof aas.types.File) return (element.value ?? '').split('/').pop()?.trim() ?? '';
+  return '';
 }

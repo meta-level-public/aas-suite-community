@@ -1,27 +1,54 @@
+@let fields = this.fields;
 <div class="flex flex-col gap-2">
-  <p-table [value]="[' ']" size="small" stripedRows>
-    <ng-template pTemplate="body">
+  <table class="viewer-spec-table">
+    <tbody>
       <tr>
-        <td style="width: 50%">{{ 'TCF_CALCULATION_METHOD' | translate }}</td>
-        <td class="font-bold">{{ calculationMethod }}</td>
+        <th scope="row">
+          {{ 'TCF_CALCULATION_METHOD' | translate }}
+          <aas-semantic-description-popup [semanticId]="fields.calculationMethod.semanticId" [compact]="true" />
+        </th>
+        <td>{{ calculationMethod }}</td>
       </tr>
       <tr>
-        <td style="width: 50%">{{ 'TCFCO2_EQ' | translate }}</td>
-        <td class="font-bold">{{ tcfCo2Eq }} kg</td>
+        <th scope="row">
+          {{ 'TCFCO2_EQ' | translate }}
+          <aas-semantic-description-popup [semanticId]="fields.co2Eq.semanticId" [compact]="true" />
+        </th>
+        <td>
+          {{ tcfCo2Eq }}<span class="viewer-unit">{{ tcfCo2EqUnit }}</span>
+        </td>
       </tr>
       <tr>
-        <td style="width: 50%">{{ 'TCF_REFERENCE_VALUE_FOR_CALCULATION' | translate }}</td>
-        <td class="font-bold">{{ tcfReferenceValueForCalculation }}</td>
+        <th scope="row">
+          {{ 'TCF_REFERENCE_VALUE_FOR_CALCULATION' | translate }}
+          <aas-semantic-description-popup
+            [semanticId]="fields.referenceValueForCalculation.semanticId"
+            [compact]="true"
+          />
+        </th>
+        <td>{{ tcfReferenceValueForCalculation }}</td>
       </tr>
       <tr>
-        <td style="width: 50%">{{ 'TCF_QUANTITY_OF_MEASURE_FOR_CALCULATION' | translate }}</td>
-        <td class="font-bold">{{ tcfQuantityOfMeasureForCalculation }}</td>
+        <th scope="row">
+          {{ 'TCF_QUANTITY_OF_MEASURE_FOR_CALCULATION' | translate }}
+          <aas-semantic-description-popup
+            [semanticId]="fields.quantityOfMeasureForCalculation.semanticId"
+            [compact]="true"
+          />
+        </th>
+        <td>{{ tcfQuantityOfMeasureForCalculation }}</td>
       </tr>
       <tr>
-        <td style="width: 50%">{{ 'TCF_PROCESSES_FOR_GREENHOUSE_GAS_EMISSION_IN_A_TRANSPORT_SERVICE' | translate }}</td>
-        <td class="font-bold">{{ tcfProcessesForGreenhouseGasEmissionInATransportService }}</td>
+        <th scope="row">
+          {{ 'TCF_PROCESSES_FOR_GREENHOUSE_GAS_EMISSION_IN_A_TRANSPORT_SERVICE' | translate }}
+          <aas-semantic-description-popup
+            [semanticId]="fields.processesForGreenhouseGasEmission.semanticId"
+            [compact]="true"
+          />
+        </th>
+        <td>{{ tcfProcessesForGreenhouseGasEmissionInATransportService }}</td>
       </tr>
-    </ng-template>
-  </p-table>
+    </tbody>
+  </table>
   <aas-tcf-address [handoverAddress]="tcfHandoverAddress" [takeoverAddress]="tcfTakeoverAddress"></aas-tcf-address>
 </div>

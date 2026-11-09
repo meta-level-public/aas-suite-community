@@ -13,12 +13,14 @@ import { SelectModule } from '@openng/optimus-ui/select';
 import { TextareaModule } from '@openng/optimus-ui/textarea';
 import { V3UndoDirective } from '../../../general/directives/v3-undo.directive';
 import { V3TreeService } from '../../v3-tree/v3-tree.service';
+import { VerificationMessagePipe } from '../../tools/verification-message';
 @Component({
   selector: 'aas-v3-lang-string-list',
   templateUrl: './v3-lang-string-list.component.html',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.Eager,
   imports: [
+    VerificationMessagePipe,
     CommonModule,
     FormsModule,
     TranslateModule,

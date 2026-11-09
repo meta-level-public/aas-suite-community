@@ -2,12 +2,10 @@
   <div class="flex flex-row gap-2 items-center">
     @if (showPath() === true && errorEntry.error.path.toString() !== '') {
       <p-message severity="error" class="w-full"
-        >{{ errorEntry.error.path }}: {{ 'errorMessages.' + errorEntry.error.message | translate }}</p-message
+        >{{ errorEntry.error.path }}: {{ errorEntry.error.message | verificationMessage }}</p-message
       >
     } @else {
-      <p-message severity="error" class="w-full">{{
-        'errorMessages.' + errorEntry.error.message | translate
-      }}</p-message>
+      <p-message severity="error" class="w-full">{{ errorEntry.error.message | verificationMessage }}</p-message>
     }
     @if (errorEntry.action === ErrorHandlingAction.SET_NULL) {
       <p-button

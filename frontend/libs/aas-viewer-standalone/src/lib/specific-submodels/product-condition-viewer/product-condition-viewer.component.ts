@@ -1,11 +1,14 @@
 import * as aas from '@aas-core-works/aas-core3.1-typescript';
+import { DateProxyPipe } from '@aas/common-pipes';
 import { SemanticIdHelper } from '@aas/helpers';
-import { Component, Input, OnChanges, computed, signal, ChangeDetectionStrategy } from '@angular/core';
+import { Component, Input, OnChanges, computed, inject, signal, ChangeDetectionStrategy } from '@angular/core';
 import { TranslateModule } from '@ngx-translate/core';
 import { InputGroup } from '@openng/optimus-ui/inputgroup';
 import { InputGroupAddon } from '@openng/optimus-ui/inputgroupaddon';
 import { InputText } from '@openng/optimus-ui/inputtext';
+import { ConceptUnitService, EMPTY_VIEWER_FIELD, ViewerField, viewerFieldOf } from '../../concept-unit.service';
 import { GenericViewerComponent } from '../../generic-viewer/generic-viewer.component';
+import { SemanticDescriptionPopupComponent } from '../../semantic-description-popup/semantic-description-popup.component';
 
 const SEMANTICS = {
   remainingCapacity: 'urn:samm:io.admin-shell.idta.batterypass.product_condition:1.0.0#remainingCapacity',
@@ -55,11 +58,18 @@ const SEMANTICS = {
   lastUpdate: 'urn:samm:io.admin-shell.idta.batterypass.product_condition:1.0.0#lastUpdate',
 } as const;
 
+/** Value of one element together with its semantic ID and unit. */
+interface ProductConditionValue {
+  value: string;
+  field: ViewerField;
+}
+
 interface ProductConditionMetric {
   label: string;
   value: string;
   lastUpdate: string;
   idShortPath: string;
+  fields: Record<'value' | 'lastUpdate', ViewerField>;
 }
 
 interface ProductConditionPowerCapabilityEntry {
@@ -68,22 +78,25 @@ interface ProductConditionPowerCapabilityEntry {
   powerCapabilityAt: string;
   rpcLastUpdated: string;
   idShortPath: string;
+  fields: Record<'atSoC' | 'powerCapabilityAt' | 'rpcLastUpdated', ViewerField>;
 }
 
 interface ProductConditionNegativeEvent {
   value: string;
   lastUpdate: string;
   idShortPath: string;
+  fields: Record<'value' | 'lastUpdate', ViewerField>;
 }
 
 interface ProductConditionViewModel {
   healthMetrics: ProductConditionMetric[];
+  healthKeyMetric: ProductConditionMetric | null;
   throughputMetrics: ProductConditionMetric[];
   selfDischargeMetrics: ProductConditionMetric[];
   powerCapabilityEntries: ProductConditionPowerCapabilityEntry[];
-  powerCapabilityLastUpdate: string;
+  powerCapabilityLastUpdate: ProductConditionValue;
   temperatureMetrics: ProductConditionMetric[];
-  temperatureLastUpdate: string;
+  temperatureLastUpdate: ProductConditionValue;
   accidentDocumentIdentifiers: string[];
   negativeEvents: ProductConditionNegativeEvent[];
   additionalDetails: aas.types.ISubmodelElement[];
@@ -91,12 +104,13 @@ interface ProductConditionViewModel {
 
 const EMPTY_VIEW_MODEL: ProductConditionViewModel = {
   healthMetrics: [],
+  healthKeyMetric: null,
   throughputMetrics: [],
   selfDischargeMetrics: [],
   powerCapabilityEntries: [],
-  powerCapabilityLastUpdate: '',
+  powerCapabilityLastUpdate: { value: '', field: EMPTY_VIEWER_FIELD },
   temperatureMetrics: [],
-  temperatureLastUpdate: '',
+  temperatureLastUpdate: { value: '', field: EMPTY_VIEWER_FIELD },
   accidentDocumentIdentifiers: [],
   negativeEvents: [],
   additionalDetails: [],
@@ -107,21 +121,38 @@ const EMPTY_VIEW_MODEL: ProductConditionViewModel = {
   templateUrl: './product-condition-viewer.component.html',
   styleUrls: ['./product-condition-viewer.component.css'],
   changeDetection: ChangeDetectionStrategy.Eager,
-  imports: [TranslateModule, InputGroup, InputGroupAddon, InputText, GenericViewerComponent],
+  imports: [
+    TranslateModule,
+    DateProxyPipe,
+    InputGroup,
+    InputGroupAddon,
+    InputText,
+    GenericViewerComponent,
+    SemanticDescriptionPopupComponent,
+  ],
 })
 export class ProductConditionViewerComponent implements OnChanges {
   @Input({ required: true }) submodel: aas.types.Submodel | undefined;
   @Input() currentLanguage = 'de';
 
+  private readonly units = inject(ConceptUnitService);
   private readonly model = signal<ProductConditionViewModel>(EMPTY_VIEW_MODEL);
 
   readonly healthMetrics = computed(() => this.model().healthMetrics);
+  /** Key figure of the hero: the state of health (state of certified energy, remaining capacity or energy). */
+  readonly healthKeyMetric = computed(() => this.model().healthKeyMetric);
+  /** Health metrics of the card below the hero, without the key figure. */
+  readonly otherHealthMetrics = computed(() =>
+    this.model().healthMetrics.filter((metric) => metric !== this.model().healthKeyMetric),
+  );
   readonly throughputMetrics = computed(() => this.model().throughputMetrics);
   readonly selfDischargeMetrics = computed(() => this.model().selfDischargeMetrics);
   readonly powerCapabilityEntries = computed(() => this.model().powerCapabilityEntries);
-  readonly powerCapabilityLastUpdate = computed(() => this.model().powerCapabilityLastUpdate);
+  readonly powerCapabilityLastUpdate = computed(() => this.model().powerCapabilityLastUpdate.value);
+  readonly powerCapabilityLastUpdateField = computed(() => this.model().powerCapabilityLastUpdate.field);
   readonly temperatureMetrics = computed(() => this.model().temperatureMetrics);
-  readonly temperatureLastUpdate = computed(() => this.model().temperatureLastUpdate);
+  readonly temperatureLastUpdate = computed(() => this.model().temperatureLastUpdate.value);
+  readonly temperatureLastUpdateField = computed(() => this.model().temperatureLastUpdate.field);
   readonly accidentDocumentIdentifiers = computed(() => this.model().accidentDocumentIdentifiers);
   readonly negativeEvents = computed(() => this.model().negativeEvents);
   readonly additionalDetails = computed(() => this.model().additionalDetails);
@@ -132,9 +163,9 @@ export class ProductConditionViewerComponent implements OnChanges {
       current.throughputMetrics.length > 0 ||
       current.selfDischargeMetrics.length > 0 ||
       current.powerCapabilityEntries.length > 0 ||
-      current.powerCapabilityLastUpdate.trim() !== '' ||
+      current.powerCapabilityLastUpdate.value !== '' ||
       current.temperatureMetrics.length > 0 ||
-      current.temperatureLastUpdate.trim() !== '' ||
+      current.temperatureLastUpdate.value !== '' ||
       current.accidentDocumentIdentifiers.length > 0 ||
       current.negativeEvents.length > 0 ||
       current.additionalDetails.length > 0
@@ -143,6 +174,16 @@ export class ProductConditionViewerComponent implements OnChanges {
 
   ngOnChanges(): void {
     this.model.set(this.buildViewModel());
+  }
+
+  /** Unit of a field (element unit, else concept description); reactive, as the unit may load later. */
+  fieldUnit(field: ViewerField): string {
+    return this.units.fieldUnit(field);
+  }
+
+  /** Value with its unit, for texts outside an input group. */
+  withUnit(value: string, field: ViewerField): string {
+    return this.units.withUnit(value, field);
   }
 
   private buildViewModel(): ProductConditionViewModel {
@@ -229,24 +270,32 @@ export class ProductConditionViewerComponent implements OnChanges {
       ['NegativeEvents'],
     );
 
+    const remainingCapacityMetric = this.extractMetricFromCollection(
+      remainingCapacity,
+      [SEMANTICS.remainingCapacityValue],
+      ['RemainingCapacityValue'],
+    );
+    const remainingEnergyMetric = this.extractMetricFromCollection(
+      remainingEnergy,
+      [SEMANTICS.remainingEnergyValue],
+      ['RemainingEnergyValue'],
+    );
+    const stateOfCertifiedEnergyMetric = this.extractMetricFromCollection(
+      stateOfCertifiedEnergy,
+      [SEMANTICS.stateOfCertifiedEnergyValue],
+      ['StateOfCertifiedEnergyValue'],
+    );
+
     return {
       healthMetrics: [
-        this.extractMetricFromCollection(
-          remainingCapacity,
-          [SEMANTICS.remainingCapacityValue],
-          ['RemainingCapacityValue'],
-        ),
-        this.extractMetricFromCollection(remainingEnergy, [SEMANTICS.remainingEnergyValue], ['RemainingEnergyValue']),
+        remainingCapacityMetric,
+        remainingEnergyMetric,
         this.extractMetricFromCollection(
           remainingRoundTripEnergyEfficiency,
           [SEMANTICS.remainingRoundTripEnergyEfficiencyValue],
           ['RemainingRoundTripEnergyEfficiencyValue'],
         ),
-        this.extractMetricFromCollection(
-          stateOfCertifiedEnergy,
-          [SEMANTICS.stateOfCertifiedEnergyValue],
-          ['StateOfCertifiedEnergyValue'],
-        ),
+        stateOfCertifiedEnergyMetric,
         this.extractMetricFromCollection(stateOfCharge, [SEMANTICS.stateOfChargeValue], ['StateOfChargeValue']),
         this.extractMetricFromCollection(
           numberOfFullCycles,
@@ -254,6 +303,11 @@ export class ProductConditionViewerComponent implements OnChanges {
           ['NumberOfFullCyclesValue'],
         ),
       ].filter((metric): metric is ProductConditionMetric => metric != null),
+      // State of health of the battery: the state of certified energy, else the remaining capacity or energy
+      healthKeyMetric:
+        [stateOfCertifiedEnergyMetric, remainingCapacityMetric, remainingEnergyMetric].find(
+          (metric) => metric != null && metric.value !== '',
+        ) ?? null,
       throughputMetrics: [
         this.extractMetricFromCollection(
           capacityThroughput,
@@ -297,18 +351,20 @@ export class ProductConditionViewerComponent implements OnChanges {
       return null;
     }
 
-    const value = this.readText(this.findElement(this.childrenOf(element), valueSemanticIds, valueIdShorts)).trim();
+    const valueElement = this.findElement(this.childrenOf(element), valueSemanticIds, valueIdShorts);
+    const value = this.readText(valueElement).trim();
     const lastUpdate = this.readLastUpdate(element);
 
-    if (value === '' && lastUpdate === '') {
+    if (value === '' && lastUpdate.value === '') {
       return null;
     }
 
     return {
       label: this.labelFor(element),
       value,
-      lastUpdate,
+      lastUpdate: lastUpdate.value,
       idShortPath: element.idShort ?? this.labelFor(element),
+      fields: { value: viewerFieldOf(valueElement), lastUpdate: lastUpdate.field },
     };
   }
 
@@ -356,6 +412,7 @@ export class ProductConditionViewerComponent implements OnChanges {
       value,
       lastUpdate: '',
       idShortPath: this.joinPath(parentPath, property.idShort ?? this.labelFor(property)),
+      fields: { value: viewerFieldOf(property), lastUpdate: viewerFieldOf(undefined) },
     };
   }
 
@@ -371,20 +428,21 @@ export class ProductConditionViewerComponent implements OnChanges {
       )
       .map((entry) => {
         const children = this.childrenOf(entry);
-        const atSoC = this.readText(this.findElement(children, [SEMANTICS.atSoC], ['AtSoC'])).trim();
-        const powerCapabilityAt = this.readText(
-          this.findElement(children, [SEMANTICS.powerCapabilityAt], ['PowerCapabilityAt']),
-        ).trim();
-        const rpcLastUpdated = this.readText(
-          this.findElement(children, [SEMANTICS.rpcLastUpdated], ['RPCLastUpdated']),
-        ).trim();
+        const atSoC = this.findElement(children, [SEMANTICS.atSoC], ['AtSoC']);
+        const powerCapabilityAt = this.findElement(children, [SEMANTICS.powerCapabilityAt], ['PowerCapabilityAt']);
+        const rpcLastUpdated = this.findElement(children, [SEMANTICS.rpcLastUpdated], ['RPCLastUpdated']);
 
         return {
           label: this.labelFor(entry),
-          atSoC,
-          powerCapabilityAt,
-          rpcLastUpdated,
+          atSoC: this.readText(atSoC).trim(),
+          powerCapabilityAt: this.readText(powerCapabilityAt).trim(),
+          rpcLastUpdated: this.readText(rpcLastUpdated).trim(),
           idShortPath: this.joinPath(element?.idShort ?? 'RemainingPowerCapability', entry.idShort ?? 'Entry'),
+          fields: {
+            atSoC: viewerFieldOf(atSoC),
+            powerCapabilityAt: viewerFieldOf(powerCapabilityAt),
+            rpcLastUpdated: viewerFieldOf(rpcLastUpdated),
+          },
         };
       })
       .filter((entry) => entry.atSoC !== '' || entry.powerCapabilityAt !== '' || entry.rpcLastUpdated !== '');
@@ -413,25 +471,25 @@ export class ProductConditionViewerComponent implements OnChanges {
       )
       .map((entry, index) => {
         const children = this.childrenOf(entry);
-        const value = this.readText(
-          this.findElement(children, [SEMANTICS.negativeEventValue], ['NegativeEventValue']),
-        ).trim();
+        const valueElement = this.findElement(children, [SEMANTICS.negativeEventValue], ['NegativeEventValue']);
         const lastUpdate = this.readLastUpdate(entry);
 
         return {
-          value,
-          lastUpdate,
+          value: this.readText(valueElement).trim(),
+          lastUpdate: lastUpdate.value,
           idShortPath: this.joinPath(
             element?.idShort ?? 'NegativeEvents',
             entry.idShort ?? `NegativeEvent${index + 1}`,
           ),
+          fields: { value: viewerFieldOf(valueElement), lastUpdate: lastUpdate.field },
         };
       })
       .filter((entry) => entry.value !== '' || entry.lastUpdate !== '');
   }
 
-  private readLastUpdate(element: aas.types.ISubmodelElement | undefined): string {
-    return this.readText(this.findElement(this.childrenOf(element), [SEMANTICS.lastUpdate], ['LastUpdate'])).trim();
+  private readLastUpdate(element: aas.types.ISubmodelElement | undefined): ProductConditionValue {
+    const lastUpdate = this.findElement(this.childrenOf(element), [SEMANTICS.lastUpdate], ['LastUpdate']);
+    return { value: this.readText(lastUpdate).trim(), field: viewerFieldOf(lastUpdate) };
   }
 
   private findRootElement(

@@ -2,7 +2,6 @@ import * as aas from '@aas-core-works/aas-core3.1-typescript';
 import { SubmodelElementCollection } from '@aas-core-works/aas-core3.1-typescript/types';
 import { Component, Input, OnChanges, effect, inject, signal, ChangeDetectionStrategy } from '@angular/core';
 import { Accordion, AccordionContent, AccordionHeader, AccordionPanel } from '@openng/optimus-ui/accordion';
-import { Card } from '@openng/optimus-ui/card';
 import { Ripple } from '@openng/optimus-ui/ripple';
 import { ViewerStoreService } from '../../viewer-store.service';
 import { PcfElementComponent } from './pcf-element/pcf-element.component';
@@ -18,7 +17,6 @@ import { ExpandedStateDirective } from '../../expanded-state/expanded-state.dire
   changeDetection: ChangeDetectionStrategy.Eager,
   imports: [
     ExpandedStateDirective,
-    Card,
     Accordion,
     AccordionPanel,
     Ripple,

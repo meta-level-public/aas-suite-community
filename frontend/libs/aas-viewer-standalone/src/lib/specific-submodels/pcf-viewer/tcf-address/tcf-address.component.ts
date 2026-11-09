@@ -6,14 +6,13 @@ import * as L from 'leaflet';
 import * as Leaflet from 'leaflet';
 import { tileLayer } from 'leaflet';
 import { OpenStreetMapProvider } from 'leaflet-geosearch';
-import { PrimeTemplate } from '@openng/optimus-ui/api';
-import { TableModule } from '@openng/optimus-ui/table';
+import { SemanticDescriptionPopupComponent } from '../../../semantic-description-popup/semantic-description-popup.component';
 import { PcfHelper } from '../pcf-helper';
 @Component({
   selector: 'aas-tcf-address',
   templateUrl: './tcf-address.component.html',
   changeDetection: ChangeDetectionStrategy.Eager,
-  imports: [TableModule, PrimeTemplate, LeafletDirective, LeafletLayersDirective, TranslateModule],
+  imports: [LeafletDirective, LeafletLayersDirective, TranslateModule, SemanticDescriptionPopupComponent],
 })
 export class TcfAddressComponent implements OnChanges {
   @Input({ required: true }) takeoverAddress: SubmodelElementCollection | undefined | null;
@@ -33,6 +32,10 @@ export class TcfAddressComponent implements OnChanges {
   };
 
   layers: any[] = [];
+
+  countrySemanticId(address: SubmodelElementCollection | undefined | null) {
+    return PcfHelper.field(address, PcfHelper.COUNTRY_CODE).semanticId;
+  }
   showLayer: boolean = false;
 
   async ngOnChanges() {

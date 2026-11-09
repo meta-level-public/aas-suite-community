@@ -4,13 +4,17 @@ import { FilenameHelper, HandoverSemanticGroups, SemanticIdHelper } from '@aas/h
 import { Component, Input, OnChanges, OnDestroy, effect, inject, signal, ChangeDetectionStrategy } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
 import { Accordion, AccordionContent, AccordionHeader, AccordionPanel } from '@openng/optimus-ui/accordion';
-import { Card } from '@openng/optimus-ui/card';
 import { Ripple } from '@openng/optimus-ui/ripple';
 import { Subscription } from 'rxjs';
 import { ViewerStoreService } from '../../viewer-store.service';
 import { HandoverDocumentationDocumentComponent } from './handover-documentation-document/handover-documentation-document.component';
 import { SelectDocumentFile } from './select-document-file';
 import { ExpandedStateDirective } from '../../expanded-state/expanded-state.directive';
+import { HandoverDocumentationHeroComponent } from '../handover-documentation-viewer-v2/handover-documentation-hero/handover-documentation-hero.component';
+import {
+  HandoverDocumentationService,
+  HandoverDocumentationSummary,
+} from '../handover-documentation-viewer-v2/handover-documentation.service';
 
 @Component({
   selector: 'aas-handover-documentation-viewer',
@@ -18,13 +22,13 @@ import { ExpandedStateDirective } from '../../expanded-state/expanded-state.dire
   changeDetection: ChangeDetectionStrategy.Eager,
   imports: [
     ExpandedStateDirective,
-    Card,
     Accordion,
     AccordionPanel,
     Ripple,
     AccordionHeader,
     AccordionContent,
     HandoverDocumentationDocumentComponent,
+    HandoverDocumentationHeroComponent,
   ],
 })
 export class HandoverDocumentationViewerComponent implements OnChanges, OnDestroy {
@@ -39,6 +43,10 @@ export class HandoverDocumentationViewerComponent implements OnChanges, OnDestro
   expandedDocPanels = signal<number[]>([0]);
 
   private viewerStore = inject(ViewerStoreService);
+  private handoverSvc = inject(HandoverDocumentationService);
+
+  /** Overview for the hero: number of documents, classes and languages */
+  summary = signal<HandoverDocumentationSummary>({ documentCount: 0, classNames: [], languages: [] });
 
   specificAssetIds: aas.types.SpecificAssetId[] = [];
   numberOfDocuments: number = 0;
@@ -55,6 +63,7 @@ export class HandoverDocumentationViewerComponent implements OnChanges, OnDestro
     this.subscriptions.push(
       this.translate.onLangChange.subscribe((event) => {
         this.currentLang.set(event.lang);
+        this.updateSummary();
       }),
     );
     this.currentLang.set(this.translate.currentLang);
@@ -84,10 +93,16 @@ export class HandoverDocumentationViewerComponent implements OnChanges, OnDestro
       }
     });
 
+    this.updateSummary();
+
     // Also recompute expansion after documents refresh
     const target = this.viewerStore.highlightedIdShortPath();
     const matchIdx = target ? this.findDocumentIndexForTarget(target) : -1;
     this.expandedDocPanels.set([matchIdx >= 0 ? matchIdx : 0]);
+  }
+
+  private updateSummary() {
+    this.summary.set(this.handoverSvc.summarize(this.documents, this.currentLang()));
   }
 
   private findDocumentIndexForTarget(target: string): number {

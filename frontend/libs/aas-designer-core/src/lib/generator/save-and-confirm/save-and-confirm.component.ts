@@ -1,6 +1,6 @@
 import * as aas from '@aas-core-works/aas-core3.1-typescript';
 import { AppConfigService, NotificationService, PortalService } from '@aas/common-services';
-import { IdGenerationUtil, getAasModelTypeName } from '@aas/helpers';
+import { DPP_GRANULARITY_OPTIONS, DPP_STATUS_OPTIONS, IdGenerationUtil, getAasModelTypeName } from '@aas/helpers';
 import { HttpClient } from '@angular/common/http';
 import { Component, isDevMode, OnDestroy, OnInit, signal, ChangeDetectionStrategy } from '@angular/core';
 import { FormsModule } from '@angular/forms';
@@ -27,11 +27,8 @@ import { InputGroup } from '@openng/optimus-ui/inputgroup';
 import { InputGroupAddon } from '@openng/optimus-ui/inputgroupaddon';
 import { InputText } from '@openng/optimus-ui/inputtext';
 import { Select } from '@openng/optimus-ui/select';
-import {
-  DPP_GRANULARITY_OPTIONS,
-  DPP_STATUS_OPTIONS,
-} from '../../v3-editor/components/dpp-metadata/dpp-metadata-options';
 import { firstValueFrom } from 'rxjs';
+import { translateVerificationMessage } from '../../v3-editor/tools/verification-message';
 type VerificationError = aas.verification.VerificationError;
 
 interface GeneratorDppSubmodelOption {
@@ -642,9 +639,7 @@ export class SaveAndConfirmComponent implements OnInit, OnDestroy {
 
     for (const error of errors) {
       const mappedError = new AasDesignerVerificationError(error);
-      const translated = this.translate.instant('errorMessages.' + error.message);
-
-      mappedError.messageTranslated = translated !== 'errorMessages.' + error.message ? translated : error.message;
+      mappedError.messageTranslated = translateVerificationMessage(this.translate, error.message);
       mappedError.number = number++;
       validationErrors.push(mappedError);
     }

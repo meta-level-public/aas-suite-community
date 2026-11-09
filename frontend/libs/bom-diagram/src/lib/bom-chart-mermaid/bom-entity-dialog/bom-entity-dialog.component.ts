@@ -28,6 +28,7 @@ import { CreateChildEntityComponent } from '../create-child-entity/create-child-
 import { EntityDetailsComponent } from '../entity-details/entity-details.component';
 import {
   entityHasExclusiveAssetReference,
+  entityHasLinkedAsset,
   entityHasRequiredAssetReference,
   specificAssetIdsAreComplete,
 } from '../utils/entity-asset-reference.util';
@@ -111,8 +112,10 @@ export class BomEntityDialogComponent {
     this.editable = this.config.data.editable;
     this.refreshEmitter = this.config.data.refreshEmitter;
     this.assetInformation = this.config.data.assetInformation;
-    const initialMode = this.config.data.initialMode as 'details' | 'add-child' | 'remove' | undefined;
-    if (initialMode === 'add-child' && this.editable && this.canAddChild()) {
+    const initialMode = this.config.data.initialMode as 'details' | 'add-child' | 'remove' | 'aas-search' | undefined;
+    if (initialMode === 'aas-search' && this.isAssetIdSet) {
+      this.mode.set('aas-search');
+    } else if (initialMode === 'add-child' && this.editable && this.canAddChild()) {
       this.mode.set('add-child');
     } else if (initialMode === 'remove' && this.editable && this.canDeleteCurrentEntity()) {
       queueMicrotask(() => this.deleteElement());
@@ -192,14 +195,7 @@ export class BomEntityDialogComponent {
   }
 
   get isAssetIdSet() {
-    if (this.entity?.globalAssetId != null && this.entity.globalAssetId.length > 0) {
-      return true;
-    }
-    if (this.entity?.specificAssetIds != null && this.entity.specificAssetIds.length > 0) {
-      return true;
-    }
-
-    return false;
+    return entityHasLinkedAsset(this.entity);
   }
 
   hasSemanticId(sme: ISubmodelElement | undefined, semanticId: string) {

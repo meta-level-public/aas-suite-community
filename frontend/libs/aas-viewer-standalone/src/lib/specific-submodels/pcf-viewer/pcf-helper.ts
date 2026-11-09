@@ -1,20 +1,31 @@
 import { ISubmodelElement, Property, SubmodelElementCollection } from '@aas-core-works/aas-core3.1-typescript/types';
+import { ViewerField, viewerFieldOf } from '../../concept-unit.service';
 
 export class PcfHelper {
-  static getPcfEmissionFactorElement(pcf: SubmodelElementCollection | undefined) {
-    if (pcf == null) return null;
-    const el = pcf.value?.find((e) => this.hasSemanticId(e, 'FL40-1#02-EmFac1#001'));
-    return (el as Property) ?? null;
+  static readonly PCF_CALCULATION_METHOD = '0173-1#02-ABG854#001';
+  static readonly PCF_CO2_EQ = '0173-1#02-ABG855#001';
+  static readonly PCF_REFERENCE_VALUE_FOR_CALCULATION = '0173-1#02-ABG856#001';
+  static readonly PCF_QUANTITY_OF_MEASURE_FOR_CALCULATION = '0173-1#02-ABG857#001';
+  static readonly PCF_LIFECYCLE_PHASE = '0173-1#02-ABG858#001';
+  static readonly PCF_EMISSION_FACTOR = 'FL40-1#02-EmFac1#001';
+  static readonly PCF_ENERGY_USAGE_CUMULATED = 'FL40-1#02-kwh1#001';
+  static readonly TCF_CALCULATION_METHOD = '0173-1#02-ABG859#001';
+  static readonly TCF_CO2_EQ = ['0173-1#02-ABG860#001', 'FL40-1#02-PCFEq1#001'];
+  static readonly TCF_REFERENCE_VALUE_FOR_CALCULATION = '0173-1#02-ABG861#001';
+  static readonly TCF_QUANTITY_OF_MEASURE_FOR_CALCULATION = '0173-1#02-ABG862#001';
+  static readonly TCF_PROCESSES_FOR_GREENHOUSE_GAS_EMISSION = '0173-1#02-ABG863#001';
+  static readonly COUNTRY_CODE = '0173-1#02-AAO259#005';
+
+  /** First child of the collection with one of the semantic IDs. */
+  static field(collection: SubmodelElementCollection | undefined | null, ...semanticIds: string[]): ViewerField {
+    const el = collection?.value?.find((e) => semanticIds.some((id) => this.hasSemanticId(e, id)));
+    return viewerFieldOf(el);
   }
+
   static getPcfEnergyUsageCumulated(pcf: SubmodelElementCollection | undefined): any {
     if (pcf == null) return null;
     const el = pcf.value?.find((e) => this.hasSemanticId(e, 'FL40-1#02-kwh1#001'));
     return (el as Property)?.value ?? null;
-  }
-  static getPcfEnergyUsageCumulatedElement(pcf: SubmodelElementCollection | undefined) {
-    if (pcf == null) return null;
-    const el = pcf.value?.find((e) => this.hasSemanticId(e, 'FL40-1#02-kwh1#001'));
-    return (el as Property) ?? null;
   }
   static getPcfEmissionFactor(pcf: SubmodelElementCollection | undefined): any {
     if (pcf == null) return null;
@@ -132,12 +143,6 @@ export class PcfHelper {
     if (element == null) return '';
     const el = element.value?.find((e) => this.hasSemanticId(e, '0173-1#02-ABG855#001'));
     return (el as Property)?.value ?? '';
-  }
-
-  static getPcfCo2EqElement(element: SubmodelElementCollection | undefined | null) {
-    if (element == null) return null;
-    const el = element.value?.find((e) => this.hasSemanticId(e, '0173-1#02-ABG855#001'));
-    return (el as Property) ?? null;
   }
 
   static getPcfReferenceValueForCalculation(element: SubmodelElementCollection | undefined | null) {

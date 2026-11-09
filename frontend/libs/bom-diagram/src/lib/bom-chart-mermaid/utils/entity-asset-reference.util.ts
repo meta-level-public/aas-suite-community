@@ -28,6 +28,11 @@ export function specificAssetIdsAreComplete(entity: Entity | undefined) {
   return specificAssetIds.every(isSpecificAssetIdComplete);
 }
 
+/** The entity points to an asset whose AAS can be searched (global asset ID or specific asset IDs). */
+export function entityHasLinkedAsset(entity: Entity | undefined) {
+  return hasText(entity?.globalAssetId) || hasSpecificAssetIds(entity);
+}
+
 export function entityHasRequiredAssetReference(entity: Entity | undefined) {
   if (entity == null || entity.entityType !== EntityType.SelfManagedEntity) {
     return true;

@@ -1,0 +1,502 @@
+/*
+ * Shared building blocks of the formatted submodel viewers (specific-submodels/*).
+ *
+ * One look for all viewers:
+ * - Below the submodel title bar (which carries the primary accent) come plain cards without coloured edges.
+ * - At most one .viewer-hero per viewer as its "face": thematic icon, tinted surface and the key figure or product.
+ *   The tone carries domain meaning (green = sustainability / circularity), never decoration only.
+ * - Card titles: icon in the primary colour, text in the normal text colour.
+ * - Details as Optimus InputGroups with .viewer-label-addon, long lists as .viewer-spec-table.
+ * - Key figures in neutral .viewer-kpi tiles; colour only for a status (success/warning/danger tokens).
+ * - Only theme tokens, so light and dark mode work without extra rules.
+ */
+
+.viewer-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+  width: 100%;
+  min-width: 0;
+}
+
+.viewer-card {
+  min-width: 0;
+  padding: 1rem;
+  border: 1px solid var(--p-content-border-color);
+  border-radius: var(--aas-radius-md);
+  background: var(--p-content-background);
+}
+
+.viewer-card-title {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin: 0 0 0.75rem;
+  font-size: 1rem;
+  font-weight: 600;
+  line-height: 1.3;
+  color: var(--p-text-color);
+}
+
+.viewer-card-title > i,
+.viewer-card-title > .fa-solid,
+.viewer-card-title > .pi {
+  color: var(--p-primary-color);
+}
+
+/* Heading inside a card, e.g. a group of rows or a table */
+.viewer-subtitle {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  margin: 1rem 0 0.4rem;
+  font-size: 0.8rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+  color: var(--p-text-muted-color);
+}
+
+.viewer-subtitle:first-child {
+  margin-top: 0;
+}
+
+/* Heading above a group of cards */
+.viewer-section-title {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin: 0;
+  padding-bottom: 0.4rem;
+  border-bottom: 2px solid var(--p-content-border-color);
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: var(--p-text-color);
+}
+
+.viewer-section-title > i {
+  color: var(--p-primary-color);
+}
+
+.viewer-grid-2 {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1rem;
+  align-items: start;
+}
+
+/* A single card in a two-column grid uses the full width */
+.viewer-grid-2 > :only-child {
+  grid-column: 1 / -1;
+}
+
+.viewer-grid-auto {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(26rem, 1fr));
+  gap: 1rem;
+  align-items: start;
+}
+
+.viewer-grid-full {
+  grid-column: 1 / -1;
+}
+
+/* Cards of different heights fill the columns from top to bottom, without gaps below short cards */
+.viewer-masonry {
+  columns: 26rem;
+  column-gap: 1rem;
+}
+
+.viewer-masonry > * {
+  break-inside: avoid;
+  margin-bottom: 1rem;
+}
+
+.viewer-fields {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.viewer-field-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(22rem, 1fr));
+  gap: 0.5rem 1rem;
+}
+
+/*
+ * Label of an InputGroup; same width everywhere so the values line up. Inside the flex InputGroup it must not shrink
+ * (Optimus sets a small min-width on the addon), and long labels wrap instead of spilling out of the grey field.
+ */
+.viewer-label-addon,
+.p-inputgroup > .viewer-label-addon {
+  flex: 0 0 22rem;
+  width: 22rem;
+  min-width: 22rem;
+  justify-content: flex-start;
+  white-space: normal;
+  overflow-wrap: anywhere;
+  text-align: left;
+  line-height: 1.25;
+  font-weight: 700;
+}
+
+/* Optimus removes the addon padding as soon as it contains a button (help or "?" icon); labels keep their padding */
+.p-inputgroup > .viewer-label-addon.p-inputgroupaddon {
+  padding: var(--p-inputgroup-addon-padding);
+  padding-inline: 0.75rem;
+  overflow: visible;
+}
+
+/* Unit behind the value of an InputGroup field */
+.p-inputgroup > .viewer-unit-addon.p-inputgroupaddon {
+  width: auto;
+  min-width: 0;
+  padding-inline: 0.75rem;
+  color: var(--p-text-muted-color);
+  white-space: nowrap;
+}
+
+/* "?" to the concept description next to a label: small and muted, so it does not compete with the value */
+.viewer-cd-button.p-button {
+  width: auto;
+  height: auto;
+  min-width: 0;
+  margin-left: 0.25rem;
+  padding: 0 0.15rem;
+  vertical-align: middle;
+  color: var(--p-text-muted-color);
+}
+
+.viewer-cd-button.p-button:hover {
+  color: var(--p-primary-color);
+}
+
+.viewer-cd-button .p-button-icon {
+  font-size: 0.8rem;
+}
+
+/*
+ * Hero at the top of a viewer. Tone via .viewer-hero-success/-info/-warning/-danger (status tokens, dark mode
+ * included); without a tone it is neutral with icon and stripe in the primary colour (identity data).
+ */
+.viewer-hero {
+  /* Neutral surface: a tinted primary colour (often red) would read like a warning */
+  --viewer-hero-surface: var(--p-content-background);
+  --viewer-hero-surface-strong: var(--aas-surface-subtle);
+  --viewer-hero-border: var(--p-content-border-color);
+  --viewer-hero-text: var(--p-text-muted-color);
+  --viewer-hero-icon: var(--p-primary-color);
+
+  position: relative;
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  gap: 1.25rem;
+  align-items: center;
+  min-width: 0;
+  padding: 1.5rem;
+  overflow: hidden;
+  border: 1px solid var(--viewer-hero-border);
+  border-radius: var(--aas-radius-md);
+  background: linear-gradient(135deg, var(--viewer-hero-surface-strong) 0%, var(--viewer-hero-surface) 100%);
+}
+
+.viewer-hero::before {
+  content: '';
+  position: absolute;
+  inset: 0 0 auto;
+  height: 4px;
+  background: var(--viewer-hero-icon);
+}
+
+.viewer-hero-success {
+  --viewer-hero-surface: var(--aas-success-surface);
+  --viewer-hero-surface-strong: var(--aas-success-surface-strong);
+  --viewer-hero-border: var(--aas-success-border);
+  --viewer-hero-text: var(--aas-success-text);
+  --viewer-hero-icon: var(--aas-success-icon);
+}
+
+.viewer-hero-info {
+  --viewer-hero-surface: var(--aas-info-surface);
+  --viewer-hero-surface-strong: color-mix(in srgb, var(--aas-info-icon) 18%, var(--p-content-background));
+  --viewer-hero-border: var(--aas-info-border);
+  --viewer-hero-text: var(--aas-info-text);
+  --viewer-hero-icon: var(--aas-info-icon);
+}
+
+.viewer-hero-warning {
+  --viewer-hero-surface: var(--aas-warning-surface);
+  --viewer-hero-surface-strong: color-mix(in srgb, var(--aas-warning-icon) 18%, var(--p-content-background));
+  --viewer-hero-border: var(--aas-warning-border);
+  --viewer-hero-text: var(--aas-warning-text);
+  --viewer-hero-icon: var(--aas-warning-icon);
+}
+
+.viewer-hero-danger {
+  --viewer-hero-surface: var(--aas-danger-surface);
+  --viewer-hero-surface-strong: var(--aas-danger-surface-strong);
+  --viewer-hero-border: var(--aas-danger-border);
+  --viewer-hero-text: var(--aas-danger-text);
+  --viewer-hero-icon: var(--aas-danger-icon);
+}
+
+/* Thematic icon in a circle, e.g. the tree of the carbon footprint */
+.viewer-hero-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 5rem;
+  height: 5rem;
+  flex-shrink: 0;
+  border: 3px solid var(--viewer-hero-icon);
+  border-radius: 50%;
+  background: var(--p-content-background);
+  box-shadow: 0 4px 12px color-mix(in srgb, var(--viewer-hero-icon) 20%, transparent);
+  color: var(--viewer-hero-icon);
+  font-size: 2.25rem;
+}
+
+.viewer-hero-main {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  min-width: 0;
+}
+
+/* Small line above the title or value: manufacturer, "CO2 equivalent", ... */
+.viewer-hero-eyebrow {
+  font-size: 0.85rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--viewer-hero-text);
+}
+
+.viewer-hero-title {
+  margin: 0;
+  font-size: 1.6rem;
+  font-weight: 700;
+  line-height: 1.25;
+  color: var(--p-text-color);
+  overflow-wrap: anywhere;
+}
+
+/* Key figure */
+.viewer-hero-value {
+  margin: 0;
+  font-size: 2.75rem;
+  font-weight: 700;
+  line-height: 1.1;
+  color: var(--viewer-hero-text);
+  overflow-wrap: anywhere;
+}
+
+.viewer-hero-value-missing {
+  font-size: 1.4rem;
+  font-weight: 600;
+  color: var(--p-text-muted-color);
+}
+
+.viewer-hero-unit {
+  margin-left: 0.4rem;
+  font-size: 1.1rem;
+  font-weight: 500;
+  color: var(--p-text-muted-color);
+}
+
+.viewer-hero-text {
+  margin: 0;
+  line-height: 1.5;
+  color: var(--p-text-color);
+}
+
+/* Right column: logo, version badge, ... */
+.viewer-hero-aside {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 0.5rem;
+}
+
+.viewer-hero-logo {
+  max-width: 10rem;
+  max-height: 4rem;
+  object-fit: contain;
+}
+
+/* Key figures */
+.viewer-kpis {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(11rem, 1fr));
+  gap: 0.75rem;
+}
+
+.viewer-kpi {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  min-width: 0;
+  padding: 0.75rem 1rem;
+  border: 1px solid var(--p-content-border-color);
+  border-radius: var(--aas-radius-md);
+  background: var(--aas-surface-subtle);
+}
+
+.viewer-kpi-label {
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+  color: var(--p-text-muted-color);
+}
+
+.viewer-kpi-value {
+  font-size: 1.5rem;
+  font-weight: 700;
+  line-height: 1.2;
+  color: var(--p-text-color);
+  overflow-wrap: anywhere;
+}
+
+.viewer-kpi-unit {
+  margin-left: 0.25rem;
+  font-size: 0.9rem;
+  font-weight: 500;
+  color: var(--p-text-muted-color);
+}
+
+.viewer-kpi-success {
+  border-color: var(--aas-success-border);
+  background: var(--aas-success-surface);
+}
+
+.viewer-kpi-success .viewer-kpi-value {
+  color: var(--aas-success-text);
+}
+
+.viewer-kpi-warning {
+  border-color: var(--aas-warning-border);
+  background: var(--aas-warning-surface);
+}
+
+.viewer-kpi-warning .viewer-kpi-value {
+  color: var(--aas-warning-text);
+}
+
+.viewer-kpi-danger {
+  border-color: var(--aas-danger-border);
+  background: var(--aas-danger-surface);
+}
+
+.viewer-kpi-danger .viewer-kpi-value {
+  color: var(--aas-danger-text);
+}
+
+/* Label/value rows of a data sheet */
+.viewer-spec-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.9rem;
+}
+
+.viewer-spec-table th,
+.viewer-spec-table td {
+  padding: 0.45rem 0.5rem;
+  border-bottom: 1px solid var(--p-content-border-color);
+  text-align: left;
+  vertical-align: top;
+}
+
+.viewer-spec-table tr:last-child th,
+.viewer-spec-table tr:last-child td {
+  border-bottom: none;
+}
+
+.viewer-spec-table th {
+  width: 45%;
+  font-weight: 500;
+  color: var(--p-text-muted-color);
+}
+
+.viewer-spec-table td {
+  font-weight: 600;
+  color: var(--p-text-color);
+  overflow-wrap: anywhere;
+}
+
+.viewer-unit {
+  margin-left: 0.25rem;
+  font-weight: 400;
+  color: var(--p-text-muted-color);
+}
+
+/* Longer free text (descriptions, notes) shown completely */
+.viewer-text-block {
+  padding: 0.6rem 0.75rem;
+  border: 1px solid var(--p-content-border-color);
+  border-radius: var(--aas-radius-xs);
+  background: var(--aas-surface-subtle);
+  white-space: pre-line;
+  line-height: 1.5;
+  color: var(--p-text-color);
+}
+
+.viewer-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+}
+
+.viewer-mono {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 0.85rem;
+}
+
+.viewer-empty {
+  padding: 1rem;
+  border: 1px dashed var(--p-content-border-color);
+  border-radius: var(--aas-radius-md);
+  text-align: center;
+  color: var(--p-text-muted-color);
+}
+
+@media (max-width: 1024px) {
+  .viewer-hero {
+    grid-template-columns: auto minmax(0, 1fr);
+  }
+
+  .viewer-hero-aside {
+    grid-column: 1 / -1;
+    align-items: flex-start;
+  }
+
+  .viewer-grid-2,
+  .viewer-grid-auto {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .viewer-label-addon,
+  .p-inputgroup > .viewer-label-addon {
+    flex-basis: 15rem;
+    width: 15rem;
+    min-width: 15rem;
+  }
+}
+
+@media (max-width: 576px) {
+  .viewer-hero {
+    grid-template-columns: minmax(0, 1fr);
+    padding: 1.25rem 1rem;
+  }
+
+  .viewer-hero-icon {
+    width: 3.5rem;
+    height: 3.5rem;
+    font-size: 1.6rem;
+  }
+
+  .viewer-hero-value {
+    font-size: 2rem;
+  }
+}

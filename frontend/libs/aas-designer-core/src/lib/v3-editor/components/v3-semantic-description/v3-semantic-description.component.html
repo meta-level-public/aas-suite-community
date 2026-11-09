@@ -58,7 +58,7 @@
                     <aas-v3-lang-string-display
                       [langStrings]="
                         $any($safeNavigationMigration(cd()?.embeddedDataSpecifications?.[0]?.dataSpecificationContent))
-                          .definition
+                          ?.definition
                       "
                       [langStringParent]="
                         $any($safeNavigationMigration(cd()?.embeddedDataSpecifications?.[0]?.dataSpecificationContent))

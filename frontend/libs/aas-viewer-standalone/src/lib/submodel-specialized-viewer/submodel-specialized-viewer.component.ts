@@ -1,7 +1,7 @@
 import * as aas from '@aas-core-works/aas-core3.1-typescript';
 import { AssetInformation } from '@aas-core-works/aas-core3.1-typescript/types';
 import { AsyncPipe, NgComponentOutlet } from '@angular/common';
-import { Component, EventEmitter, Input, Output, Type, ChangeDetectionStrategy } from '@angular/core';
+import { Component, EventEmitter, Input, OnChanges, Output, Type, ChangeDetectionStrategy } from '@angular/core';
 import { SubmodelHeroHeaderComponent } from '../shared/submodel-hero-header/submodel-hero-header.component';
 import { AasDesignerChangelogViewerComponent } from '../specific-submodels/aas-designer-changelog-viewer/aas-designer-changelog-viewer.component';
 import { ArticleInformationViewerComponent } from '../specific-submodels/article-information-viewer/article-information-viewer.component';
@@ -11,6 +11,7 @@ import { BomViewerComponent } from '../specific-submodels/bom-viewer/bom-viewer.
 import { CapabilityDescriptionViewerComponent } from '../specific-submodels/capability-description-viewer/capability-description-viewer.component';
 import { CircularityViewerComponent } from '../specific-submodels/circularity-viewer/circularity-viewer.component';
 import { ContactInformationViewerComponent } from '../specific-submodels/contact-information-viewer/contact-information-viewer.component';
+import { DppMetadataViewerComponent } from '../specific-submodels/dpp-metadata-viewer/dpp-metadata-viewer.component';
 import { GenericSubmodelViewerComponent } from '../specific-submodels/generic-submodel-viewer/generic-submodel-viewer.component';
 import { HandoverDocumentationViewerV2Component } from '../specific-submodels/handover-documentation-viewer-v2/handover-documentation-viewer-v2.component';
 import { HandoverDocumentationViewerComponent } from '../specific-submodels/handover-documentation-viewer/handover-documentation-viewer.component';
@@ -22,6 +23,8 @@ import { SoftwareNameplateViewerComponent } from '../specific-submodels/software
 import { TechnicaldataViewerComponent } from '../specific-submodels/technicaldata-viewer/technicaldata-viewer.component';
 import { TimeSeriesViewerComponent } from '../specific-submodels/time-series-viewer/time-series-viewer.component';
 import { SpecializedSubmodelViewerType, SubmodelViewerResolver } from '../submodel-viewer-resolver';
+import { submodelHasValues } from './submodel-has-values';
+import { TranslateModule } from '@ngx-translate/core';
 
 @Component({
   selector: 'aas-submodel-specialized-viewer',
@@ -35,8 +38,11 @@ import { SpecializedSubmodelViewerType, SubmodelViewerResolver } from '../submod
       }
     `,
   ],
+  styleUrl: './submodel-specialized-viewer.component.css',
   changeDetection: ChangeDetectionStrategy.Eager,
   imports: [
+    DppMetadataViewerComponent,
+    TranslateModule,
     AsyncPipe,
     NgComponentOutlet,
     SubmodelHeroHeaderComponent,
@@ -60,7 +66,7 @@ import { SpecializedSubmodelViewerType, SubmodelViewerResolver } from '../submod
     GenericSubmodelViewerComponent,
   ],
 })
-export class SubmodelSpecializedViewerComponent {
+export class SubmodelSpecializedViewerComponent implements OnChanges {
   @Input({ required: true }) submodel: aas.types.Submodel | undefined;
   @Input({ required: true }) currentLanguage = 'de';
   @Input() submodelUrl = '';
@@ -74,6 +80,18 @@ export class SubmodelSpecializedViewerComponent {
   @Output() requestBomEditModeInEditor = new EventEmitter<void>();
 
   private materialCompositionViewerLoader?: Promise<Type<unknown>>;
+
+  /** Computed once per submodel instead of walking the whole tree on every change detection run. */
+  hasValues = true;
+
+  ngOnChanges() {
+    this.hasValues = submodelHasValues(this.submodel);
+  }
+
+  /** An empty, editable BOM still needs its viewer: it offers to initialize the structure. */
+  get showEmptyHint() {
+    return !this.hasValues && !(this.viewerType === 'Bom' && this.bomEditable);
+  }
 
   get viewerType(): SpecializedSubmodelViewerType {
     return SubmodelViewerResolver.resolve(this.submodel);
@@ -103,6 +121,7 @@ export class SubmodelSpecializedViewerComponent {
         PCF: 'Product Carbon Footprint',
         PCF_V1: 'Product Carbon Footprint',
         ArticleInformation: 'Article Information',
+        DppMetadata: 'DPP Metadata',
       } as Record<Exclude<SpecializedSubmodelViewerType, 'Generic'>, string>
     )[this.viewerType];
   }
@@ -142,6 +161,7 @@ export class SubmodelSpecializedViewerComponent {
         PCF: 'fa-solid fa-leaf',
         PCF_V1: 'fa-solid fa-leaf',
         ArticleInformation: 'fa-solid fa-newspaper',
+        DppMetadata: 'fa-solid fa-passport',
         Generic: 'fa-solid fa-cube',
       } as Record<SpecializedSubmodelViewerType, string>
     )[this.viewerType];

@@ -1,83 +1,225 @@
-<p-card>
-  <aas-generic-viewer
-    [rowData]="technicalData"
-    [formatted]="true"
-    [idShortPath]="''"
-    [submodelId]="technicalData?.id ?? ''"
-  ></aas-generic-viewer>
-</p-card>
+@let data = sheet();
+<div class="viewer-stack">
+  @if (hasHeader()) {
+    <!-- Product as the face of the data sheet: images (or a neutral icon), manufacturer, designation, logo -->
+    <section class="viewer-hero td-hero" [class.td-hero-with-images]="imageUrls().length > 0">
+      @if (imageUrls().length > 0) {
+        <div class="td-gallery">
+          <div class="td-gallery-main">
+            @if (imageUrls()[selectedImage()]; as url) {
+              <img [src]="url" [alt]="data.images[selectedImage()].note || data.productDesignation" />
+            } @else {
+              <i class="fa-solid fa-image td-gallery-placeholder" aria-hidden="true"></i>
+            }
+          </div>
+          @if (data.images[selectedImage()].note) {
+            <div class="td-gallery-note text-muted-color">{{ data.images[selectedImage()].note }}</div>
+          }
+          @if (imageUrls().length > 1) {
+            <div class="td-gallery-thumbs">
+              @for (url of imageUrls(); track $index) {
+                <button
+                  type="button"
+                  class="td-gallery-thumb"
+                  [class.td-gallery-thumb-active]="$index === selectedImage()"
+                  [attr.aria-label]="data.images[$index].note || ('IMAGE' | translate) + ' ' + ($index + 1)"
+                  (click)="selectedImage.set($index)"
+                >
+                  @if (url) {
+                    <img [src]="url" alt="" />
+                  } @else {
+                    <i class="fa-solid fa-image" aria-hidden="true"></i>
+                  }
+                </button>
+              }
+            </div>
+          }
+        </div>
+      } @else {
+        <div class="viewer-hero-icon" aria-hidden="true"><i class="fa-solid fa-gears"></i></div>
+      }
+      <div class="viewer-hero-main">
+        @if (data.manufacturerName !== '') {
+          <div class="viewer-hero-eyebrow">{{ data.manufacturerName }}</div>
+        }
+        <h2 class="viewer-hero-title">
+          {{ data.productDesignation !== '' ? data.productDesignation : ('TECHNICAL_DATA' | translate) }}
+        </h2>
+        @if (data.classifications.length > 0) {
+          <div class="viewer-tags">
+            @for (classification of data.classifications; track $index) {
+              <p-tag icon="pi pi-sitemap" severity="secondary" [value]="classificationLabel(classification)" />
+            }
+          </div>
+        }
+      </div>
+      @if (logoUrl(); as logo) {
+        <div class="viewer-hero-aside">
+          <img class="viewer-hero-logo" [src]="logo" [alt]="data.manufacturerName" />
+        </div>
+      }
+    </section>
 
-<!--
-  <p-accordion multiple="true">
-    @if (generalInformation.value != null && generalInformation.value.length > 0) {
-      <p-accordion-panel value="0">
-        <p-accordion-header>
-          <div class="flex items-center">
-            <i class="pi pi-book mr-2"></i>
-            <span class="vertical-align-middle">{{ 'GENERAL_INFORMATION' | translate }}</span>
+    @if (data.articleNumber !== '' || data.orderCode !== '' || hasBody(data.general)) {
+      <section class="viewer-card">
+        <h3 class="viewer-card-title">
+          <i class="fa-solid fa-circle-info"></i>{{ 'GENERAL_INFORMATION' | translate }}
+        </h3>
+        @if (data.articleNumber !== '' || data.orderCode !== '') {
+          <div class="viewer-fields td-ordering">
+            @if (data.articleNumber !== '') {
+              <p-inputgroup>
+                <p-inputgroup-addon class="viewer-label-addon">
+                  <i class="fa-solid fa-hashtag mr-2"></i>{{ 'ARTICLE_NUMBER' | translate }}
+                </p-inputgroup-addon>
+                <input pInputText type="text" [value]="data.articleNumber" readonly />
+              </p-inputgroup>
+            }
+            @if (data.orderCode !== '') {
+              <p-inputgroup>
+                <p-inputgroup-addon class="viewer-label-addon">
+                  <i class="fa-solid fa-cart-shopping mr-2"></i>{{ 'ORDER_CODE' | translate }}
+                </p-inputgroup-addon>
+                <input pInputText type="text" [value]="data.orderCode" readonly />
+              </p-inputgroup>
+            }
           </div>
-        </p-accordion-header>
-        <p-accordion-content>
-          <aas-generic-viewer
-            [rowData]="generalInformation"
-            [formatted]="true"
-            [idShortPath]="generalInformation.idShort ?? ''"
-            [submodelId]="technicalData?.id ?? ''"></aas-generic-viewer>
-        </p-accordion-content>
-      </p-accordion-panel>
+        }
+        @if (hasBody(data.general)) {
+          <ng-container
+            [ngTemplateOutlet]="sectionBody"
+            [ngTemplateOutletContext]="{ $implicit: data.general }"
+          ></ng-container>
+        }
+      </section>
     }
+  }
 
-    @if (productClassification.value != null && productClassification.value.length > 0) {
-      <p-accordion-panel value="0">
-        <p-accordion-header>
-          <div class="flex items-center">
-            <i class="pi pi-box mr-2"></i>
-            <span class="vertical-align-middle">{{ 'PRODUCT_CLASSIFICATION' | translate }}</span>
-          </div>
-        </p-accordion-header>
-        <p-accordion-content>
-          <aas-product-classification
-            [productClassification]="productClassification"
-            [currentLang]="currentLang"
-          ></aas-product-classification>
-        </p-accordion-content>
-      </p-accordion-panel>
-    }
+  @for (area of data.areas; track $index) {
+    <section class="td-area">
+      @if (area.title !== '') {
+        <h3 class="viewer-section-title"><i class="fa-solid fa-layer-group"></i>{{ area.title }}</h3>
+      } @else if (area.sections.length > 0) {
+        <h3 class="viewer-section-title">
+          <i class="fa-solid fa-layer-group"></i>{{ 'TECHNICAL_PROPERTIES' | translate }}
+        </h3>
+      }
+      @if (area.rows.length > 0 || area.tables.length > 0 || area.elements.length > 0) {
+        <div class="viewer-card">
+          <ng-container [ngTemplateOutlet]="sectionBody" [ngTemplateOutletContext]="{ $implicit: area }"></ng-container>
+        </div>
+      }
+      <!-- Groups with tables use the full width, the others flow as cards into columns -->
+      @for (run of cardRuns(area.sections); track $index) {
+        <div
+          [class.viewer-masonry]="!run.wide"
+          [class.flex]="run.wide"
+          [class.flex-col]="run.wide"
+          [class.gap-4]="run.wide"
+        >
+          @for (section of run.sections; track $index) {
+            <div class="viewer-card">
+              <h4 class="viewer-card-title">{{ section.title }}</h4>
+              <ng-container
+                [ngTemplateOutlet]="sectionBody"
+                [ngTemplateOutletContext]="{ $implicit: section }"
+              ></ng-container>
+            </div>
+          }
+        </div>
+      }
+    </section>
+  }
 
-    @if (technicalProperties.value != null && technicalProperties.value.length > 0) {
-      <p-accordion-panel value="0">
-        <p-accordion-header>
-          <div class="flex items-center">
-            <i class="pi pi-cog mr-2"></i>
-            <span class="vertical-align-middle">{{ 'TECHNICAL_PROPERTIES' | translate }}</span>
-          </div>
-        </p-accordion-header>
-        <p-accordion-content>
-          <aas-technical-properties
-            [technicalProperties]="technicalProperties"
-            [currentLang]="currentLang"
-            [submodelId]="technicalData?.id ?? ''"
-            [idShortPath]="technicalProperties.idShort ?? ''"
-          >
-          </aas-technical-properties>
-        </p-accordion-content>
-      </p-accordion-panel>
-    }
-    @if (furtherInformation.value != null && furtherInformation.value.length > 0) {
-      <p-accordion-panel value="0">
-        <p-accordion-header>
-          <div class="flex items-center">
-            <i class="pi pi-file mr-2"></i>
-            <span class="vertical-align-middle">{{ 'FURTHER_INFORMATION' | translate }}</span>
-          </div>
-        </p-accordion-header>
-        <p-accordion-content>
-          <aas-further-information
-            [furtherInformation]="furtherInformation"
-            [currentLang]="currentLang"
-          ></aas-further-information>
-        </p-accordion-content>
-      </p-accordion-panel>
-    }
-  </p-accordion>
-</p-card> -->
+  @if (data.furtherInformation.statements.length > 0 || data.furtherInformation.validDate !== '') {
+    <section class="viewer-card">
+      <h3 class="viewer-card-title"><i class="fa-solid fa-circle-info"></i>{{ 'FURTHER_INFORMATION' | translate }}</h3>
+      @for (statement of data.furtherInformation.statements; track $index) {
+        <p class="td-statement">{{ statement }}</p>
+      }
+      @if (data.furtherInformation.validDate !== '') {
+        <p-inputgroup>
+          <p-inputgroup-addon class="viewer-label-addon">
+            <i class="fa-solid fa-calendar-check mr-2"></i>{{ 'VALID_DATE' | translate }}
+          </p-inputgroup-addon>
+          <input pInputText type="text" [value]="data.furtherInformation.validDate" readonly />
+        </p-inputgroup>
+      }
+    </section>
+  }
+</div>
+
+<!-- Rows, same-shape tables and nested sections of one section; nested sections render recursively -->
+<ng-template #sectionBody let-section>
+  @if (section.rows.length > 0) {
+    <table class="viewer-spec-table">
+      <tbody>
+        @for (row of section.rows; track $index) {
+          <tr>
+            <th scope="row">
+              {{ row.label }}
+              <aas-semantic-description-popup [semanticId]="row.semanticId" [compact]="true" />
+            </th>
+            <td>
+              {{ row.value }}
+              <aas-viewer-unit [semanticId]="row.semanticId" [unit]="row.unit" />
+            </td>
+          </tr>
+        }
+      </tbody>
+    </table>
+  }
+  @for (table of section.tables; track $index) {
+    <div class="td-group-table">
+      <div class="viewer-subtitle">{{ table.title }}</div>
+      <p-table [value]="table.rows" stripedRows size="small" [scrollable]="true">
+        <ng-template #header>
+          <tr>
+            <th scope="col"></th>
+            @for (column of table.columns; track column.key) {
+              <th scope="col">
+                {{ column.label }}
+                <aas-viewer-unit [semanticId]="column.semanticId" [unit]="column.unit" [brackets]="true" />
+                <aas-semantic-description-popup [semanticId]="column.semanticId" [compact]="true" />
+              </th>
+            }
+          </tr>
+        </ng-template>
+        <ng-template #body let-row>
+          <tr>
+            <th scope="row" class="td-group-row-label">{{ row.label }}</th>
+            @for (column of table.columns; track column.key) {
+              <td>{{ row.cells[column.key] }}</td>
+            }
+          </tr>
+        </ng-template>
+      </p-table>
+    </div>
+  }
+  @if (section.elements.length > 0) {
+    <div class="td-elements">
+      @for (item of section.elements; track item.idShortPath) {
+        <aas-generic-viewer
+          [rowData]="item.element"
+          [formatted]="true"
+          [idShortPath]="item.idShortPath"
+          [submodelId]="submodelId()"
+          [fallbackLabel]="item.label"
+        ></aas-generic-viewer>
+      }
+    </div>
+  }
+  <!-- Deeper levels as collapsible groups: the nesting depth of a generic submodel is not known in advance -->
+  @for (nested of section.sections; track $index) {
+    <details class="td-nested" [open]="startsOpen(nested)">
+      <summary class="viewer-subtitle td-nested-summary">
+        <i class="fa-solid fa-chevron-right td-nested-chevron" aria-hidden="true"></i>
+        <span>{{ nested.title }}</span>
+        <span class="td-nested-count">{{ size(nested) }}</span>
+      </summary>
+      <div class="td-nested-body">
+        <ng-container [ngTemplateOutlet]="sectionBody" [ngTemplateOutletContext]="{ $implicit: nested }"></ng-container>
+      </div>
+    </details>
+  }
+</ng-template>

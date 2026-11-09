@@ -5,8 +5,9 @@ import { TranslateModule } from '@ngx-translate/core';
 import { InputGroup } from '@openng/optimus-ui/inputgroup';
 import { InputGroupAddon } from '@openng/optimus-ui/inputgroupaddon';
 import { InputText } from '@openng/optimus-ui/inputtext';
-import { ConceptDescriptionService } from '../../concept-description.service';
-import { ViewerStoreService } from '../../viewer-store.service';
+import { Tag } from '@openng/optimus-ui/tag';
+import { ConceptUnitService, EMPTY_VIEWER_FIELD, ViewerField, viewerFieldOf } from '../../concept-unit.service';
+import { SemanticDescriptionPopupComponent } from '../../semantic-description-popup/semantic-description-popup.component';
 
 const SEMANTICS = {
   batteryChemistry: 'urn:samm:io.admin-shell.idta.batterypass.material_composition:1.0.0#batteryChemistry',
@@ -40,6 +41,7 @@ const SEMANTICS = {
 interface MaterialCompositionChemistry {
   shortName: string;
   clearName: string;
+  fields: Record<'shortName' | 'clearName', ViewerField>;
 }
 
 interface MaterialCompositionLocationEntry {
@@ -52,6 +54,7 @@ interface MaterialCompositionMaterial extends MaterialCompositionLocationEntry {
   materialIdentifier: string;
   mass: string;
   isCriticalRawMaterial: boolean;
+  fields: Record<'materialName' | 'materialIdentifier' | 'mass' | 'isCriticalRawMaterial', ViewerField>;
 }
 
 interface MaterialCompositionHazardousSubstance extends MaterialCompositionLocationEntry {
@@ -60,6 +63,13 @@ interface MaterialCompositionHazardousSubstance extends MaterialCompositionLocat
   hazardousSubstanceConcentration: string;
   hazardousSubstanceIdentifier: string;
   impacts: string[];
+  fields: Record<
+    | 'hazardousSubstanceClass'
+    | 'hazardousSubstanceName'
+    | 'hazardousSubstanceConcentration'
+    | 'hazardousSubstanceIdentifier',
+    ViewerField
+  >;
 }
 
 interface MaterialCompositionGroup<T extends MaterialCompositionLocationEntry> {
@@ -76,15 +86,11 @@ interface MaterialCompositionViewModel {
   groupedHazardousSubstances: MaterialCompositionGroup<MaterialCompositionHazardousSubstance>[];
 }
 
-interface MeasurementMetadata {
-  unit: string;
-  symbol: string;
-}
-
 const EMPTY_VIEW_MODEL: MaterialCompositionViewModel = {
   chemistry: {
     shortName: '',
     clearName: '',
+    fields: { shortName: EMPTY_VIEWER_FIELD, clearName: EMPTY_VIEWER_FIELD },
   },
   materials: [],
   groupedMaterials: [],
@@ -98,20 +104,15 @@ const EMPTY_VIEW_MODEL: MaterialCompositionViewModel = {
   templateUrl: './material-composition-viewer.component.html',
   styleUrls: ['./material-composition-viewer.component.css'],
   changeDetection: ChangeDetectionStrategy.Eager,
-  imports: [TranslateModule, InputGroup, InputGroupAddon, InputText],
+  imports: [TranslateModule, InputGroup, InputGroupAddon, InputText, Tag, SemanticDescriptionPopupComponent],
 })
 export class MaterialCompositionViewerComponent implements OnChanges {
   @Input({ required: true }) submodel: aas.types.Submodel | undefined;
   @Input() currentLanguage = 'de';
 
-  private readonly cdService = inject(ConceptDescriptionService);
-  private readonly viewerStore = inject(ViewerStoreService);
+  private readonly units = inject(ConceptUnitService);
 
   private readonly model = signal<MaterialCompositionViewModel>(EMPTY_VIEW_MODEL);
-  readonly massUnit = signal('');
-  readonly massSymbol = signal('');
-  readonly concentrationUnit = signal('');
-  readonly concentrationSymbol = signal('');
 
   readonly chemistry = computed(() => this.model().chemistry);
   readonly materials = computed(() => this.model().materials);
@@ -131,24 +132,26 @@ export class MaterialCompositionViewerComponent implements OnChanges {
     );
   });
 
-  async ngOnChanges(): Promise<void> {
+  ngOnChanges(): void {
     this.model.set(this.buildViewModel());
-    await this.loadMeasurementMetadata();
   }
 
-  formatMass(value: string): string {
-    const formatted = this.formatNumericValue(value);
-    return this.withMeasurementMetadata(formatted === '' ? value : formatted, this.massUnit(), this.massSymbol());
+  formatMass(material: MaterialCompositionMaterial): string {
+    return this.formatNumericValue(material.mass);
   }
 
-  formatConcentration(value: string): string {
-    const formatted = this.formatNumericValue(value);
-    return this.withMeasurementMetadata(
-      formatted === '' ? value : formatted,
-      this.concentrationUnit(),
-      this.concentrationSymbol(),
-      '%',
-    );
+  formatConcentration(substance: MaterialCompositionHazardousSubstance): string {
+    return this.formatNumericValue(substance.hazardousSubstanceConcentration);
+  }
+
+  /** Unit of a field (element unit, else concept description); reactive, as the unit may load later. */
+  fieldUnit(field: ViewerField): string {
+    return this.units.fieldUnit(field);
+  }
+
+  /** Concentrations without a unit at the element or its concept description are percentages. */
+  concentrationUnit(substance: MaterialCompositionHazardousSubstance): string {
+    return this.units.fieldUnit(substance.fields.hazardousSubstanceConcentration, '%');
   }
 
   componentGroupTitle(locationName: string): string {
@@ -183,10 +186,13 @@ export class MaterialCompositionViewerComponent implements OnChanges {
   private extractChemistry(source: aas.types.ISubmodelElement[]): MaterialCompositionChemistry {
     const chemistry = this.findElement(source, [SEMANTICS.batteryChemistry], ['BatteryChemistry']);
     const chemistryChildren = this.childrenOf(chemistry);
+    const shortName = this.findElement(chemistryChildren, [SEMANTICS.shortName], ['ShortName']);
+    const clearName = this.findElement(chemistryChildren, [SEMANTICS.clearName], ['ClearName']);
 
     return {
-      shortName: this.readText(this.findElement(chemistryChildren, [SEMANTICS.shortName], ['ShortName'])).trim(),
-      clearName: this.readText(this.findElement(chemistryChildren, [SEMANTICS.clearName], ['ClearName'])).trim(),
+      shortName: this.readText(shortName).trim(),
+      clearName: this.readText(clearName).trim(),
+      fields: { shortName: viewerFieldOf(shortName), clearName: viewerFieldOf(clearName) },
     };
   }
 
@@ -205,6 +211,18 @@ export class MaterialCompositionViewerComponent implements OnChanges {
         const children = this.childrenOf(entry);
         const location = this.findElement(children, [SEMANTICS.batteryMaterialLocation], ['BatteryMaterialLocation']);
         const locationChildren = this.childrenOf(location);
+        const materialName = this.findElement(children, [SEMANTICS.batteryMaterialName], ['BatteryMaterialName']);
+        const materialIdentifier = this.findElement(
+          children,
+          [SEMANTICS.batteryMaterialIdentifier],
+          ['BatteryMaterialIdentifier'],
+        );
+        const mass = this.findElement(children, [SEMANTICS.batteryMaterialMass], ['BatteryMaterialMass']);
+        const isCriticalRawMaterial = this.findElement(
+          children,
+          [SEMANTICS.isCriticalRawMaterial],
+          ['IsCriticalRawMaterial'],
+        );
 
         return {
           locationName: this.readText(
@@ -213,18 +231,16 @@ export class MaterialCompositionViewerComponent implements OnChanges {
           locationId: this.readText(
             this.findElement(locationChildren, [SEMANTICS.componentId], ['ComponentId']),
           ).trim(),
-          materialName: this.readText(
-            this.findElement(children, [SEMANTICS.batteryMaterialName], ['BatteryMaterialName']),
-          ).trim(),
-          materialIdentifier: this.readText(
-            this.findElement(children, [SEMANTICS.batteryMaterialIdentifier], ['BatteryMaterialIdentifier']),
-          ).trim(),
-          mass: this.readText(
-            this.findElement(children, [SEMANTICS.batteryMaterialMass], ['BatteryMaterialMass']),
-          ).trim(),
-          isCriticalRawMaterial: this.readBoolean(
-            this.findElement(children, [SEMANTICS.isCriticalRawMaterial], ['IsCriticalRawMaterial']),
-          ),
+          materialName: this.readText(materialName).trim(),
+          materialIdentifier: this.readText(materialIdentifier).trim(),
+          mass: this.readText(mass).trim(),
+          isCriticalRawMaterial: this.readBoolean(isCriticalRawMaterial),
+          fields: {
+            materialName: viewerFieldOf(materialName),
+            materialIdentifier: viewerFieldOf(materialIdentifier),
+            mass: viewerFieldOf(mass),
+            isCriticalRawMaterial: viewerFieldOf(isCriticalRawMaterial),
+          },
         };
       })
       .filter(
@@ -257,6 +273,26 @@ export class MaterialCompositionViewerComponent implements OnChanges {
           ['HazardousSubstanceLocation'],
         );
         const locationChildren = this.childrenOf(location);
+        const substanceClass = this.findElement(
+          children,
+          [SEMANTICS.hazardousSubstanceClass],
+          ['HazardousSubstanceClass'],
+        );
+        const substanceName = this.findElement(
+          children,
+          [SEMANTICS.hazardousSubstanceName],
+          ['HazardousSubstanceName'],
+        );
+        const concentration = this.findElement(
+          children,
+          [SEMANTICS.hazardousSubstanceConcentration],
+          ['HazardousSubstanceConcentration'],
+        );
+        const identifier = this.findElement(
+          children,
+          [SEMANTICS.hazardousSubstanceIdentifier],
+          ['HazardousSubstanceIdentifier'],
+        );
 
         return {
           locationName: this.readText(
@@ -265,25 +301,19 @@ export class MaterialCompositionViewerComponent implements OnChanges {
           locationId: this.readText(
             this.findElement(locationChildren, [SEMANTICS.componentId], ['ComponentId']),
           ).trim(),
-          hazardousSubstanceClass: this.readText(
-            this.findElement(children, [SEMANTICS.hazardousSubstanceClass], ['HazardousSubstanceClass']),
-          ).trim(),
-          hazardousSubstanceName: this.readText(
-            this.findElement(children, [SEMANTICS.hazardousSubstanceName], ['HazardousSubstanceName']),
-          ).trim(),
-          hazardousSubstanceConcentration: this.readText(
-            this.findElement(
-              children,
-              [SEMANTICS.hazardousSubstanceConcentration],
-              ['HazardousSubstanceConcentration'],
-            ),
-          ).trim(),
-          hazardousSubstanceIdentifier: this.readText(
-            this.findElement(children, [SEMANTICS.hazardousSubstanceIdentifier], ['HazardousSubstanceIdentifier']),
-          ).trim(),
+          hazardousSubstanceClass: this.readText(substanceClass).trim(),
+          hazardousSubstanceName: this.readText(substanceName).trim(),
+          hazardousSubstanceConcentration: this.readText(concentration).trim(),
+          hazardousSubstanceIdentifier: this.readText(identifier).trim(),
           impacts: this.extractImpacts(
             this.findElement(children, [SEMANTICS.hazardousSubstanceImpact], ['HazardousSubstanceImpact']),
           ),
+          fields: {
+            hazardousSubstanceClass: viewerFieldOf(substanceClass),
+            hazardousSubstanceName: viewerFieldOf(substanceName),
+            hazardousSubstanceConcentration: viewerFieldOf(concentration),
+            hazardousSubstanceIdentifier: viewerFieldOf(identifier),
+          },
         };
       })
       .filter(
@@ -334,111 +364,12 @@ export class MaterialCompositionViewerComponent implements OnChanges {
     return normalizedValue === 'true' || normalizedValue === '1';
   }
 
-  private async loadMeasurementMetadata(): Promise<void> {
-    const root = this.submodel?.submodelElements ?? [];
-    const massElement = this.findFirstDescendant(root, [SEMANTICS.batteryMaterialMass], ['BatteryMaterialMass']);
-    const concentrationElement = this.findFirstDescendant(
-      root,
-      [SEMANTICS.hazardousSubstanceConcentration],
-      ['HazardousSubstanceConcentration'],
-    );
-
-    const [massMetadata, concentrationMetadata] = await Promise.all([
-      this.resolveMeasurementMetadata(massElement),
-      this.resolveMeasurementMetadata(concentrationElement),
-    ]);
-
-    this.massUnit.set(massMetadata.unit);
-    this.massSymbol.set(massMetadata.symbol);
-    this.concentrationUnit.set(concentrationMetadata.unit);
-    this.concentrationSymbol.set(concentrationMetadata.symbol);
-  }
-
-  private async resolveMeasurementMetadata(
-    element: aas.types.ISubmodelElement | undefined,
-  ): Promise<MeasurementMetadata> {
-    const embeddedMetadata = this.readMeasurementMetadataFromEmbeddedDataSpecifications(element);
-    if (embeddedMetadata.unit !== '' || embeddedMetadata.symbol !== '') {
-      return embeddedMetadata;
-    }
-
-    const semanticId = element?.semanticId?.keys?.[0]?.value?.trim() ?? '';
-    if (semanticId === '') {
-      return {
-        unit: '',
-        symbol: '',
-      };
-    }
-
-    const conceptDescription = await this.cdService.loadCD(
-      semanticId,
-      this.viewerStore.cdUrl(),
-      this.viewerStore.apiKey() ?? '',
-    );
-
-    return this.readMeasurementMetadataFromEmbeddedDataSpecifications(conceptDescription);
-  }
-
-  private readMeasurementMetadataFromEmbeddedDataSpecifications(
-    source: { embeddedDataSpecifications?: unknown[] | null } | undefined,
-  ): MeasurementMetadata {
-    const embeddedDataSpecifications = source?.embeddedDataSpecifications ?? [];
-
-    for (const dataSpecification of embeddedDataSpecifications) {
-      const content = (dataSpecification as { dataSpecificationContent?: { unit?: string; symbol?: string } })
-        .dataSpecificationContent;
-      const unit = content?.unit?.trim() ?? '';
-      const symbol = content?.symbol?.trim() ?? '';
-
-      if (unit !== '' || symbol !== '') {
-        return {
-          unit,
-          symbol,
-        };
-      }
-    }
-
-    return {
-      unit: '',
-      symbol: '',
-    };
-  }
-
-  private findFirstDescendant(
-    source: aas.types.ISubmodelElement[],
-    semanticIds: string[],
-    idShorts: string[],
-  ): aas.types.ISubmodelElement | undefined {
-    for (const element of source) {
-      if (this.matchesElement(element, semanticIds, idShorts)) {
-        return element;
-      }
-
-      const nestedMatch = this.findFirstDescendant(this.childrenOf(element), semanticIds, idShorts);
-      if (nestedMatch) {
-        return nestedMatch;
-      }
-    }
-
-    return undefined;
-  }
-
   private matchesElement(element: aas.types.ISubmodelElement, semanticIds: string[], idShorts: string[]): boolean {
     const normalizedIdShort = `${element.idShort ?? ''}`.toLowerCase();
     return (
       idShorts.some((idShort) => idShort.toLowerCase() === normalizedIdShort) ||
       semanticIds.some((semanticId) => SemanticIdHelper.hasSemanticId(element, semanticId))
     );
-  }
-
-  private withMeasurementMetadata(value: string, unit: string, symbol: string, fallbackUnit = ''): string {
-    const normalizedValue = value.trim();
-    if (normalizedValue === '') {
-      return '';
-    }
-
-    const normalizedUnit = unit.trim() || symbol.trim() || fallbackUnit.trim();
-    return normalizedUnit === '' ? normalizedValue : `${normalizedValue} ${normalizedUnit}`;
   }
 
   private formatNumericValue(value: string): string {
@@ -449,7 +380,7 @@ export class MaterialCompositionViewerComponent implements OnChanges {
 
     const parsedValue = Number(normalizedValue);
     if (Number.isNaN(parsedValue)) {
-      return value;
+      return normalizedValue;
     }
 
     return new Intl.NumberFormat(this.resolveLocale(), {

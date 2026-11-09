@@ -12,6 +12,7 @@ import { Subject } from 'rxjs';
 import { IdValidatorComponent } from '../components/id-validator/id-validator.component';
 import { V3TreeService } from '../v3-tree/v3-tree.service';
 import { AasDesignerVerificationError } from './aas-designer-verification-error';
+import { translateVerificationMessage } from '../tools/verification-message';
 
 type VerificationError = aas.verification.VerificationError;
 
@@ -84,7 +85,7 @@ export class V3EditorValidationService {
         for (const error of errs ?? []) {
           if (!this.shouldIncludeValidationError(error)) continue;
           const myError = new AasDesignerVerificationError(error);
-          myError.messageTranslated = this.translate.instant('errorMessages.' + error.message);
+          myError.messageTranslated = translateVerificationMessage(this.translate, error.message);
           myError.number = number++;
           myError.label = this.getFixErrorLabel(myError);
           myError.allLabel = this.getFixAllErrorsLabel(myError);

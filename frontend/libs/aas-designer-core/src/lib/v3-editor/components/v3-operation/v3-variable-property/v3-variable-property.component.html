@@ -15,7 +15,7 @@
       />
       @if (hasErrors) {
         <div class="text-error">
-          {{ 'errorMessages.' + errors[0].message | translate }}
+          {{ errors[0].message | verificationMessage }}
         </div>
       }
     </div>

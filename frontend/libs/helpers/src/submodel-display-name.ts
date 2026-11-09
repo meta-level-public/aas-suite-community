@@ -7,6 +7,8 @@ const SEMANTIC_ID_TO_I18N_KEY: Record<string, string> = {
   'https://admin-shell.io/idta/softwarenameplate/1/0': 'MARKT_SUBMODEL_SOFTWARE_NAMEPLATE',
   'https://admin-shell.io/zvei/technicaldata/submodel/1/1': 'MARKT_SUBMODEL_TECHNICAL_DATA',
   'https://admin-shell.io/zvei/technicaldata/submodel/1/2': 'MARKT_SUBMODEL_TECHNICAL_DATA',
+  '0173-1#01-ahx837#002': 'MARKT_SUBMODEL_TECHNICAL_DATA',
+  'https://admin-shell.io/idta/digitalbatterypassport/technicaldata/1/0': 'MARKT_SUBMODEL_TECHNICAL_DATA',
   '0173-1#01-ahf578#001': 'MARKT_SUBMODEL_HANDOVER_DOC',
   '0173-1#01-ahf578#002': 'MARKT_SUBMODEL_HANDOVER_DOC',
   '0173-1#01-ahf578#003': 'MARKT_SUBMODEL_HANDOVER_DOC',
@@ -28,7 +30,14 @@ const SEMANTIC_ID_TO_I18N_KEY: Record<string, string> = {
   'https://admin-shell.io/sandbox/idta/articleinformation/0/8': 'MARKT_SUBMODEL_ARTICLE_INFO',
   'https://admin-shell.io/idta/assetinterfacesdescription/1/0/submodel': 'MARKT_SUBMODEL_ASSET_INTERFACES',
   'https://admin-shell.io/idta/assetinterfacesdescription/1/0': 'MARKT_SUBMODEL_ASSET_INTERFACES',
+  'https://admin-shell.io/idta/cds/dppmetadata/1': 'DPP_METADATA',
+  'https://admin-shell.io/idta/submodeltemplate/dppmetadata/1/0': 'DPP_METADATA',
 };
+
+/** Translation key of a known submodel semantic ID, undefined if unknown. */
+export function submodelDisplayNameKey(semanticId: string): string | undefined {
+  return SEMANTIC_ID_TO_I18N_KEY[semanticId.trim().toLowerCase()];
+}
 
 export function semanticIdToDisplayName(semanticId: string, idShort?: string, translate?: TranslateService): string {
   const key = SEMANTIC_ID_TO_I18N_KEY[semanticId.trim().toLowerCase()];

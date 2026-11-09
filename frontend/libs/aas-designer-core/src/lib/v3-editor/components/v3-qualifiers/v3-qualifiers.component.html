@@ -23,7 +23,7 @@
           </div>
           @if (hasTypeErrors(qualifier)) {
             <div class="text-error ml-20">
-              {{ 'errorMessages.' + getTypeError(qualifier)[0].message | translate }}
+              {{ getTypeError(qualifier)[0].message | verificationMessage }}
             </div>
           }
         </div>
@@ -64,7 +64,7 @@
           </div>
           @if (hasValueErrors(qualifier)) {
             <div class="text-error ml-16">
-              {{ 'errorMessages.' + getValueError(qualifier)[0].message | translate }}
+              {{ getValueError(qualifier)[0].message | verificationMessage }}
             </div>
           }
         </div>

@@ -37,6 +37,25 @@
   margin: 0 0.25rem;
 }
 
+.chart-legend {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  margin: 0.5rem 0;
+  font-size: 0.85rem;
+}
+
+.chart-legend-marker {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.4rem;
+  height: 1.4rem;
+  border: 3px double var(--p-blue-600);
+  border-radius: 6px;
+  color: var(--p-text-color);
+}
+
 .chart-wrapper {
   position: relative;
   overflow: auto;
@@ -49,7 +68,50 @@
 
 .cy-container {
   width: 100%;
-  min-height: 520px;
+  /* Fixed height (grown inline by fitAllNodes if needed): cytoscape sizes its inner canvas in px, which would
+     otherwise keep stretching an auto-height container after leaving the maximized view */
+  height: 520px;
+  overflow: hidden;
+}
+
+/* Stays at the top while scrolling through a tall diagram, without taking up space */
+.chart-controls {
+  position: sticky;
+  top: 0.5rem;
+  z-index: 3;
+  height: 0;
+  display: flex;
+  justify-content: flex-end;
+  /* Without this the group is stretched to the 0 px height of the bar and the buttons overflow its frame */
+  align-items: flex-start;
+}
+
+.chart-controls-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  padding: 0.3rem;
+  border: 1px solid var(--p-content-border-color);
+  border-radius: 8px;
+  background: var(--aas-surface-overlay);
+  box-shadow: 0 2px 8px color-mix(in srgb, var(--p-text-color) 12%, transparent);
+}
+
+/* Over the whole window; below the dialogs (Optimus dialogs start at z-index 1100) */
+.chart-wrapper-maximized {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  border-radius: 0;
+  background: var(--p-content-background);
+  display: flex;
+  flex-direction: column;
+}
+
+.chart-wrapper-maximized .cy-container {
+  flex: 1;
+  height: auto;
+  min-height: 0;
 }
 
 .reparent-handle {

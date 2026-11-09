@@ -12,12 +12,14 @@ import { NullIfEmptyDirective } from '../../../general/directives/null-if-empty.
 import { V3TreeService } from '../../v3-tree/v3-tree.service';
 import { ErrorPanelComponent } from '../error-panel/error-panel.component';
 import { ErrorHandlingAction, V3ComponentBase } from '../v3-component-base';
+import { VerificationMessagePipe } from '../../tools/verification-message';
 type VerificationError = aas.verification.VerificationError;
 @Component({
   selector: 'aas-v3-administration',
   templateUrl: './v3-administration.component.html',
   changeDetection: ChangeDetectionStrategy.Eager,
   imports: [
+    VerificationMessagePipe,
     Button,
     HelpLabelComponent,
     InputGroup,

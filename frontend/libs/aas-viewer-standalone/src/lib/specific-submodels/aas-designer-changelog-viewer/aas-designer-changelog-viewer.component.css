@@ -1,34 +1,4 @@
-.changelog-container {
-  display: flex;
-  flex-direction: column;
-  gap: 1rem;
-  width: 100%;
-}
-
-.section-card {
-  padding: 1rem;
-  border: 1px solid var(--p-content-border-color);
-  background: var(--p-content-background);
-  border-radius: var(--p-border-radius);
-}
-
-.section-title {
-  margin: 0 0 0.75rem;
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  font-size: 1.05rem;
-}
-
-.section-title i {
-  color: var(--p-primary-color);
-}
-
-.summary-grid {
-  display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: 0.5rem;
-}
+/* Cards, titles and fields come from the shared viewer building blocks (styles/viewer-ui.css) */
 
 .timeline-wrap {
   display: flex;
@@ -49,68 +19,57 @@
   min-height: 100%;
 }
 
+/* Marker colour shows the kind of change (status tokens), neutral otherwise */
 .timeline-dot {
-  border-radius: 50%;
-  background: var(--p-primary-color);
-  box-shadow: 0 0 0 3px color-mix(in srgb, var(--p-primary-color) 18%, transparent);
-  margin-top: 0.35rem;
-  width: 1.2rem;
-  height: 1.2rem;
+  --timeline-dot-color: var(--p-primary-color);
   display: flex;
   align-items: center;
   justify-content: center;
+  width: 1.2rem;
+  height: 1.2rem;
+  margin-top: 0.35rem;
+  border: 2px solid var(--timeline-dot-color);
+  border-radius: 50%;
+  background: var(--p-content-background);
 }
 
 .timeline-dot-icon {
-  font-size: 0.58rem;
-  color: var(--p-surface-0);
+  font-size: 0.55rem;
+  color: var(--timeline-dot-color);
 }
 
 .timeline-dot.dot-create {
-  background: var(--p-green-600);
-  box-shadow: 0 0 0 3px color-mix(in srgb, var(--p-green-600) 22%, transparent);
+  --timeline-dot-color: var(--aas-success-icon);
 }
 
 .timeline-dot.dot-update {
-  background: var(--p-blue-500);
-  box-shadow: 0 0 0 3px color-mix(in srgb, var(--p-blue-500) 22%, transparent);
+  --timeline-dot-color: var(--aas-info-icon);
 }
 
 .timeline-dot.dot-delete {
-  background: var(--p-red-500);
-  box-shadow: 0 0 0 3px color-mix(in srgb, var(--p-red-500) 22%, transparent);
+  --timeline-dot-color: var(--aas-danger-icon);
 }
 
 .timeline-dot.dot-warn {
-  background: var(--p-orange-500);
-  box-shadow: 0 0 0 3px color-mix(in srgb, var(--p-orange-500) 22%, transparent);
+  --timeline-dot-color: var(--aas-warning-icon);
 }
 
 .timeline-dot.dot-default {
-  background: var(--p-surface-500);
-  box-shadow: 0 0 0 3px color-mix(in srgb, var(--p-surface-500) 22%, transparent);
+  --timeline-dot-color: var(--p-text-muted-color);
 }
 
 .timeline-line {
   flex: 1;
   width: 2px;
   margin-top: 0.35rem;
-  background: color-mix(in srgb, var(--p-primary-color) 30%, var(--p-content-border-color));
+  background: var(--p-content-border-color);
 }
 
 .timeline-card {
-  border: 1px solid var(--p-content-border-color);
-  background: var(--p-surface-0);
-  border-radius: var(--aas-radius-sm);
   padding: 0.75rem;
-  transition:
-    border-color 0.2s ease,
-    box-shadow 0.2s ease;
-}
-
-.timeline-card:hover {
-  border-color: color-mix(in srgb, var(--p-primary-color) 45%, var(--p-content-border-color));
-  box-shadow: 0 4px 12px color-mix(in srgb, var(--p-primary-900) 8%, transparent);
+  border: 1px solid var(--p-content-border-color);
+  border-radius: var(--aas-radius-sm);
+  background: var(--p-content-background);
 }
 
 .timeline-card-head {
@@ -152,17 +111,7 @@
   color: var(--p-text-muted-color);
 }
 
-@media (max-width: 1200px) {
-  .summary-grid {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-}
-
 @media (max-width: 768px) {
-  .summary-grid {
-    grid-template-columns: 1fr;
-  }
-
   .timeline-card-head {
     flex-direction: column;
     align-items: flex-start;

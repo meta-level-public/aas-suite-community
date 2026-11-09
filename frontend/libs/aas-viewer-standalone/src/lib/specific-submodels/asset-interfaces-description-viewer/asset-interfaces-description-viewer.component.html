@@ -1,33 +1,37 @@
 @let summary = this.summary();
-<div class="aid-container">
-  <div class="aid-summary">
-    <div class="aid-stat">
-      <i class="fa-solid fa-plug"></i>
-      <span class="aid-stat-value">{{ summary.interfaces }}</span>
-      <span class="aid-stat-label">{{ 'AID_VIEWER_INTERFACES' | translate }}</span>
+<div class="viewer-stack">
+  <div class="viewer-kpis">
+    <div class="viewer-kpi">
+      <span class="viewer-kpi-label"
+        ><i class="fa-solid fa-plug mr-1"></i>{{ 'AID_VIEWER_INTERFACES' | translate }}</span
+      >
+      <span class="viewer-kpi-value">{{ summary.interfaces }}</span>
     </div>
-    <div class="aid-stat">
-      <i class="fa-solid fa-list-ul"></i>
-      <span class="aid-stat-value">{{ summary.dataPoints }}</span>
-      <span class="aid-stat-label">{{ 'AID_VIEWER_DATA_POINTS' | translate }}</span>
+    <div class="viewer-kpi">
+      <span class="viewer-kpi-label"
+        ><i class="fa-solid fa-list-ul mr-1"></i>{{ 'AID_VIEWER_DATA_POINTS' | translate }}</span
+      >
+      <span class="viewer-kpi-value">{{ summary.dataPoints }}</span>
     </div>
-    <div class="aid-stat">
-      <i class="fa-solid fa-link"></i>
-      <span class="aid-stat-value">{{ summary.endpoints }}</span>
-      <span class="aid-stat-label">{{ 'AID_VIEWER_ENDPOINTS' | translate }}</span>
+    <div class="viewer-kpi">
+      <span class="viewer-kpi-label"
+        ><i class="fa-solid fa-link mr-1"></i>{{ 'AID_VIEWER_ENDPOINTS' | translate }}</span
+      >
+      <span class="viewer-kpi-value">{{ summary.endpoints }}</span>
     </div>
-    <div class="aid-stat">
-      <i class="fa-solid fa-shield-halved"></i>
-      <span class="aid-stat-value">{{ summary.securitySchemes }}</span>
-      <span class="aid-stat-label">{{ 'AID_VIEWER_SECURITY_DEFINITIONS' | translate }}</span>
+    <div class="viewer-kpi">
+      <span class="viewer-kpi-label"
+        ><i class="fa-solid fa-shield-halved mr-1"></i>{{ 'AID_VIEWER_SECURITY_DEFINITIONS' | translate }}</span
+      >
+      <span class="viewer-kpi-value">{{ summary.securitySchemes }}</span>
     </div>
   </div>
 
   @for (item of interfaces(); track item.idShort) {
-    <section class="section-card">
+    <section class="viewer-card aid-interface">
       <div class="aid-interface-header">
         <div class="flex flex-col min-w-0">
-          <h3 class="section-title">
+          <h3 class="viewer-card-title aid-title-inline">
             <i class="fa-solid fa-plug-circle-bolt"></i>
             {{ item.title || item.idShort }}
           </h3>
@@ -54,10 +58,11 @@
         </div>
       </div>
 
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-2 mb-4">
+      <div class="viewer-field-grid mb-4">
         <p-inputgroup>
-          <p-inputgroup-addon class="font-bold w-48">
+          <p-inputgroup-addon class="viewer-label-addon">
             <i class="fa-solid fa-globe mr-2"></i>{{ 'AID_VIEWER_BASE_URL' | translate }}
+            <aas-semantic-description-popup [semanticId]="item.baseUrlSemanticId" [compact]="true" />
           </p-inputgroup-addon>
           <input pInputText type="text" [value]="item.baseUrl || '-'" readonly />
           @if (item.baseUrl) {
@@ -86,8 +91,9 @@
           }
         </p-inputgroup>
         <p-inputgroup>
-          <p-inputgroup-addon class="font-bold w-48">
+          <p-inputgroup-addon class="viewer-label-addon">
             <i class="fa-solid fa-file-code mr-2"></i>{{ 'AID_VIEWER_CONTENT_TYPE' | translate }}
+            <aas-semantic-description-popup [semanticId]="item.contentTypeSemanticId" [compact]="true" />
           </p-inputgroup-addon>
           <input pInputText type="text" [value]="item.contentType || '-'" readonly />
         </p-inputgroup>
@@ -251,7 +257,7 @@
       </p-panel>
     </section>
   } @empty {
-    <div class="section-card aid-muted">{{ 'AID_VIEWER_EMPTY' | translate }}</div>
+    <div class="viewer-empty">{{ 'AID_VIEWER_EMPTY' | translate }}</div>
   }
 </div>
 

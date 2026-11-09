@@ -68,7 +68,7 @@
         </p-select>
         @if (hasLangErrors(entry)) {
           <div class="text-error">
-            {{ 'errorMessages.' + getLangError(entry)[0].message | translate }}
+            {{ getLangError(entry)[0].message | verificationMessage }}
           </div>
         }
       </div>
@@ -97,16 +97,16 @@
         @if (hasTextErrors(entry)) {
           <div class="text-error">
             @for (errorEntry of getTextError(entry); track $index) {
-              {{ 'errorMessages.' + errorEntry.message | translate }}
+              {{ errorEntry.message | verificationMessage }}
             }
             <!-- @if (getTextError(entry)[0].message === 'The value must not be empty.') {
             @if ((langStrings != null && langStrings.length > 1) || deleteAllowed) {
-              {{ 'errorMessages.' + getTextError(entry)[0].message | translate }}
+              {{ getTextError(entry)[0].message | verificationMessage }}
             } @else {
               {{ 'errorMessages.VALUE_MUST_NOT_BE_EMPTY' | translate }}
             }
           } @else {
-            {{ 'errorMessages.' + getTextError(entry)[0].message | translate }}
+            {{ getTextError(entry)[0].message | verificationMessage }}
             } -->
           </div>
         }

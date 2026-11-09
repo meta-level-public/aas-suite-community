@@ -26,7 +26,7 @@
         </p-inputgroup>
         @if (hasContentErrors(valuePair)) {
           <div class="text-error">
-            {{ 'errorMessages.' + getContentError(valuePair)[0].message | translate }}
+            {{ getContentError(valuePair)[0].message | verificationMessage }}
           </div>
         }
       </div>

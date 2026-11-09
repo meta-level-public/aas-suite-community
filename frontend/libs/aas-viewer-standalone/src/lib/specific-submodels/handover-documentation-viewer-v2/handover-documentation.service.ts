@@ -1,6 +1,12 @@
 import * as aas from '@aas-core-works/aas-core3.1-typescript';
 import { EncodingService } from '@aas/common-services';
-import { FilenameHelper, HandoverSemanticGroups, HandoverSemantics, SemanticIdHelper } from '@aas/helpers';
+import {
+  AasExtractHelper,
+  FilenameHelper,
+  HandoverSemanticGroups,
+  HandoverSemantics,
+  SemanticIdHelper,
+} from '@aas/helpers';
 import { HttpClient } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
 import { DomSanitizer, SafeHtml, SafeResourceUrl } from '@angular/platform-browser';
@@ -42,6 +48,36 @@ export interface HandoverFileGroup {
   }>;
 }
 
+/** One classification of a document, e.g. a VDI 2770 class */
+export interface HandoverClassificationEntry {
+  collectionIdShort?: string;
+  classId?: string;
+  className?: string;
+  classificationSystem?: string;
+}
+
+/** Compact overview of a handover documentation, shown in the viewer hero */
+export interface HandoverDocumentationSummary {
+  documentCount: number;
+  /** Distinct class names, VDI 2770 classes preferred */
+  classNames: string[];
+  /** Distinct document languages as upper case codes */
+  languages: string[];
+}
+
+const CLASSIFICATION_SEMANTICS = {
+  // Prefix match also covers the variant with suffix *01
+  V1_CONTAINER: '0173-1#02-ABI502#001/0173-1#01-AHF581#001',
+  V2_CONTAINER: '0173-1#02-ABI502#003',
+  CLASS_ID: ['0173-1#02-ABH994#003', '0173-1#02-ABH996#001'],
+  CLASS_NAME: ['0173-1#02-AAO099#004', '0173-1#02-AAO102#003'],
+  CLASS_SYSTEM: ['0173-1#02-ABH997#001', '0173-1#02-ABH997#003'],
+} as const;
+
+/** Language of a document version (V1: Property per language, V2: list of languages) */
+const LANGUAGE_SEMANTIC = '0173-1#02-AAN468';
+const VDI2770_SYSTEM = /vdi\s*2770/i;
+
 @Injectable({ providedIn: 'root' })
 export class HandoverDocumentationService {
   private http = inject(HttpClient);
@@ -80,6 +116,53 @@ export class HandoverDocumentationService {
       }
     }
     return { mode, documents };
+  }
+
+  /** Classifications of a document; V1 uses collections, V2 a list of collections */
+  extractClassifications(
+    doc: aas.types.SubmodelElementCollection | undefined,
+    mode: HandoverStructureMode,
+    currentLang: string,
+  ): HandoverClassificationEntry[] {
+    if (!doc) return [];
+    const collections =
+      mode === HandoverStructureMode.V2
+        ? (AasExtractHelper.findList(doc, CLASSIFICATION_SEMANTICS.V2_CONTAINER)?.value ?? []).filter(
+            (entry): entry is aas.types.SubmodelElementCollection =>
+              entry instanceof aas.types.SubmodelElementCollection,
+          )
+        : (AasExtractHelper.findCollections(doc, CLASSIFICATION_SEMANTICS.V1_CONTAINER) ?? []);
+    return collections.map((col) => ({
+      collectionIdShort: col.idShort ?? undefined,
+      classId: AasExtractHelper.findProperty(col, [...CLASSIFICATION_SEMANTICS.CLASS_ID]),
+      className:
+        AasExtractHelper.findFirstMLP(col, [...CLASSIFICATION_SEMANTICS.CLASS_NAME], currentLang) ??
+        AasExtractHelper.findProperty(col, [...CLASSIFICATION_SEMANTICS.CLASS_NAME]),
+      classificationSystem: AasExtractHelper.findProperty(col, [...CLASSIFICATION_SEMANTICS.CLASS_SYSTEM]),
+    }));
+  }
+
+  /** Number of documents, their classes and languages for the overview; works for V1 and V2 documents */
+  summarize(documents: aas.types.SubmodelElementCollection[], currentLang: string): HandoverDocumentationSummary {
+    const classNames = new Set<string>();
+    const languages = new Set<string>();
+    for (const doc of documents) {
+      const versionList = this.findDocumentVersionList(doc);
+      const mode =
+        versionList || AasExtractHelper.findList(doc, CLASSIFICATION_SEMANTICS.V2_CONTAINER)
+          ? HandoverStructureMode.V2
+          : HandoverStructureMode.V1;
+      const classifications = this.extractClassifications(doc, mode, currentLang);
+      const vdi2770 = classifications.filter((c) => VDI2770_SYSTEM.test(c.classificationSystem ?? ''));
+      for (const c of vdi2770.length > 0 ? vdi2770 : classifications) {
+        const name = c.className?.trim() || c.classId?.trim();
+        if (name) classNames.add(name);
+      }
+      for (const version of this.findVersionCollections(doc, versionList)) {
+        for (const language of this.extractLanguages(version)) languages.add(language);
+      }
+    }
+    return { documentCount: documents.length, classNames: [...classNames], languages: [...languages] };
   }
 
   async buildFileGroups(
@@ -491,6 +574,36 @@ export class HandoverDocumentationService {
         v instanceof aas.types.SubmodelElementList &&
         SemanticIdHelper.hasSemanticId(v, HandoverSemantics.VERSION_LIST_V2),
     );
+  }
+
+  private findVersionCollections(
+    doc: aas.types.SubmodelElementCollection,
+    versionList = this.findDocumentVersionList(doc),
+  ): aas.types.SubmodelElementCollection[] {
+    if (versionList) {
+      return (versionList.value ?? []).filter(
+        (v): v is aas.types.SubmodelElementCollection => v instanceof aas.types.SubmodelElementCollection,
+      );
+    }
+    return (doc.value ?? []).filter(
+      (v): v is aas.types.SubmodelElementCollection =>
+        v instanceof aas.types.SubmodelElementCollection &&
+        (HandoverSemanticGroups.LEGACY_VERSION_SINGLE.some((s) => SemanticIdHelper.hasSemanticId(v, s)) ||
+          /^documentversion/i.test(v.idShort ?? '')),
+    );
+  }
+
+  private extractLanguages(version: aas.types.SubmodelElementCollection): string[] {
+    const languages: string[] = [];
+    for (const el of version.value ?? []) {
+      if (!SemanticIdHelper.hasSemanticId(el, LANGUAGE_SEMANTIC) && !/^language/i.test(el.idShort ?? '')) continue;
+      const candidates = el instanceof aas.types.SubmodelElementList ? (el.value ?? []) : [el];
+      for (const candidate of candidates) {
+        const value = candidate instanceof aas.types.Property ? candidate.value?.trim() : undefined;
+        if (value) languages.push(value.toUpperCase());
+      }
+    }
+    return languages;
   }
 
   private findLegacyVersionCollection(

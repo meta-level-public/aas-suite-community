@@ -19,6 +19,7 @@ import { V3TreeService } from '../../../v3-tree/v3-tree.service';
 import { V3ComponentBase } from '../../v3-component-base';
 import { ClassIdComponent } from '../class-id/class-id.component';
 import { ClassificationSystemComponent } from '../classification-system/classification-system.component';
+import { VerificationMessagePipe } from '../../../tools/verification-message';
 
 @Component({
   selector: 'aas-property-value-editor',
@@ -26,6 +27,7 @@ import { ClassificationSystemComponent } from '../classification-system/classifi
   styleUrls: ['./property-value-editor.component.css'],
   changeDetection: ChangeDetectionStrategy.Eager,
   imports: [
+    VerificationMessagePipe,
     DatePicker,
     FormsModule,
     HelpLabelComponent,

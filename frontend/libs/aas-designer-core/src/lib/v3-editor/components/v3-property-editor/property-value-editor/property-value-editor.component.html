@@ -74,7 +74,7 @@
     </div>
     @if (hasValueErrors) {
       <div class="text-error">
-        {{ 'errorMessages.' + valueError[0].message | translate }}
+        {{ valueError[0].message | verificationMessage }}
       </div>
     }
   }
@@ -123,7 +123,7 @@
     </p-select>
     @if (hasValueErrors) {
       <div class="text-error">
-        {{ 'errorMessages.' + valueError[0].message | translate }}
+        {{ valueError[0].message | verificationMessage }}
       </div>
       @if (valueError[0].message === 'Value must be consistent with the value type.') {
         <div class="text-error">

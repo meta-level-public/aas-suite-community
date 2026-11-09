@@ -1,64 +1,12 @@
-.aid-container {
-  display: flex;
-  flex-direction: column;
-  gap: 1rem;
-  width: 100%;
-}
+/* Cards, titles, key figures and fields come from the shared viewer building blocks (styles/viewer-ui.css) */
 
-.section-card {
+.aid-interface {
   /* The data point table adapts to the width of the card, not of the window */
   container-type: inline-size;
-  padding: 1rem;
-  border: 1px solid var(--p-content-border-color);
-  background: var(--p-content-background);
-  border-radius: var(--p-border-radius);
 }
 
-.section-title {
-  margin: 0;
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  font-size: 1.05rem;
-}
-
-.section-title i {
-  color: var(--p-primary-color);
-}
-
-.aid-summary {
-  display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: 0.5rem;
-}
-
-.aid-stat {
-  display: grid;
-  grid-template-columns: auto 1fr;
-  grid-template-rows: auto auto;
-  column-gap: 0.75rem;
-  align-items: center;
-  padding: 0.75rem 1rem;
-  border: 1px solid var(--p-content-border-color);
-  background: var(--p-content-background);
-  border-radius: var(--p-border-radius);
-}
-
-.aid-stat i {
-  grid-row: span 2;
-  font-size: 1.25rem;
-  color: var(--p-primary-color);
-}
-
-.aid-stat-value {
-  font-size: 1.35rem;
-  font-weight: 700;
-  line-height: 1.1;
-}
-
-.aid-stat-label {
-  font-size: var(--aas-text-xs);
-  color: var(--p-text-muted-color);
+.aid-title-inline {
+  margin-bottom: 0;
 }
 
 .aid-interface-header {
@@ -100,12 +48,6 @@
   width: 2.25rem;
   height: 2.25rem;
   color: var(--p-primary-color);
-}
-
-@media (max-width: 960px) {
-  .aid-summary {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
 }
 
 /* Values of the detail columns below the name, only used on narrow widths */

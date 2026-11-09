@@ -187,7 +187,8 @@ describe('V3EditorValidationService', () => {
       expect(notificationService.showMessageAlways).not.toHaveBeenCalled();
 
       const descriptionError = firstError(MSG_DESCRIPTION);
-      expect(descriptionError.messageTranslated).toBe(`errorMessages.${MSG_DESCRIPTION}`);
+      // Without a translation the original aas-core message is shown, not the raw translation key
+      expect(descriptionError.messageTranslated).toBe(MSG_DESCRIPTION);
       expect(descriptionError.label).toBe('SET_NULL');
       expect(descriptionError.allLabel).toBe('SET_NULL_ALL');
 

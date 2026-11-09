@@ -1,183 +1,273 @@
-<div class="product-condition-container">
+<div class="viewer-stack">
   @if (hasContent()) {
-    @if (healthMetrics().length > 0) {
-      <div class="section-card">
-        <h3 class="section-title">
+    <!-- Pulse and info tone stand for the measured condition; key figure is the state of health -->
+    <section class="viewer-hero viewer-hero-info">
+      <div class="viewer-hero-icon" aria-hidden="true"><i class="fa-solid fa-heart-pulse"></i></div>
+      <div class="viewer-hero-main">
+        @if (healthKeyMetric(); as metric) {
+          <div class="viewer-hero-eyebrow">
+            {{ metric.label }}
+            <aas-semantic-description-popup [semanticId]="metric.fields.value.semanticId" [compact]="true" />
+          </div>
+          <p class="viewer-hero-value">
+            {{ metric.value }}
+            @if (fieldUnit(metric.fields.value); as unit) {
+              <span class="viewer-hero-unit">{{ unit }}</span>
+            }
+          </p>
+          @if (metric.lastUpdate) {
+            <p class="viewer-hero-text text-muted-color">
+              {{ 'PRODUCT_CONDITION_LAST_UPDATE' | translate }}
+              <aas-semantic-description-popup [semanticId]="metric.fields.lastUpdate.semanticId" [compact]="true" />:
+              {{ (metric.lastUpdate | vwsDate: 'SHORT_DATE_TIME') ?? metric.lastUpdate }}
+            </p>
+          }
+        } @else {
+          <h2 class="viewer-hero-title">{{ 'PRODUCT_CONDITION_OVERVIEW' | translate }}</h2>
+        }
+      </div>
+    </section>
+
+    @if (otherHealthMetrics().length > 0) {
+      <section class="viewer-card">
+        <h3 class="viewer-card-title">
           <i class="fa-solid fa-heart-pulse"></i>
           {{ 'PRODUCT_CONDITION_HEALTH_METRICS' | translate }}
         </h3>
 
-        <div class="metric-grid">
-          @for (metric of healthMetrics(); track metric.idShortPath) {
+        <div class="viewer-grid-2">
+          @for (metric of otherHealthMetrics(); track metric.idShortPath) {
             <div class="metric-card">
               <div class="metric-label">{{ metric.label }}</div>
               <p-inputgroup>
-                <p-inputgroup-addon class="font-bold metric-addon">
+                <p-inputgroup-addon class="viewer-label-addon">
                   {{ 'PRODUCT_CONDITION_VALUE' | translate }}
+                  <aas-semantic-description-popup [semanticId]="metric.fields.value.semanticId" [compact]="true" />
                 </p-inputgroup-addon>
                 <input pInputText type="text" [value]="metric.value" readonly />
+                @if (fieldUnit(metric.fields.value); as unit) {
+                  <p-inputgroup-addon class="viewer-unit-addon">{{ unit }}</p-inputgroup-addon>
+                }
               </p-inputgroup>
               @if (metric.lastUpdate) {
                 <p-inputgroup>
-                  <p-inputgroup-addon class="font-bold metric-addon">
+                  <p-inputgroup-addon class="viewer-label-addon">
                     {{ 'PRODUCT_CONDITION_LAST_UPDATE' | translate }}
+                    <aas-semantic-description-popup
+                      [semanticId]="metric.fields.lastUpdate.semanticId"
+                      [compact]="true"
+                    />
                   </p-inputgroup-addon>
                   <input pInputText type="text" [value]="metric.lastUpdate" readonly />
+                  @if (fieldUnit(metric.fields.lastUpdate); as unit) {
+                    <p-inputgroup-addon class="viewer-unit-addon">{{ unit }}</p-inputgroup-addon>
+                  }
                 </p-inputgroup>
               }
             </div>
           }
         </div>
-      </div>
+      </section>
     }
 
     @if (throughputMetrics().length > 0 || selfDischargeMetrics().length > 0) {
-      <div class="section-grid-2">
+      <div class="viewer-grid-2">
         @if (throughputMetrics().length > 0) {
-          <div class="section-card">
-            <h3 class="section-title">
+          <section class="viewer-card">
+            <h3 class="viewer-card-title">
               <i class="fa-solid fa-gauge-high"></i>
               {{ 'PRODUCT_CONDITION_THROUGHPUT' | translate }}
             </h3>
 
-            <div class="metric-stack">
+            <div class="viewer-fields">
               @for (metric of throughputMetrics(); track metric.idShortPath) {
-                <div class="metric-card compact-card">
+                <div class="metric-card">
                   <div class="metric-label">{{ metric.label }}</div>
                   <p-inputgroup>
-                    <p-inputgroup-addon class="font-bold metric-addon">
+                    <p-inputgroup-addon class="viewer-label-addon">
                       {{ 'PRODUCT_CONDITION_VALUE' | translate }}
+                      <aas-semantic-description-popup [semanticId]="metric.fields.value.semanticId" [compact]="true" />
                     </p-inputgroup-addon>
                     <input pInputText type="text" [value]="metric.value" readonly />
+                    @if (fieldUnit(metric.fields.value); as unit) {
+                      <p-inputgroup-addon class="viewer-unit-addon">{{ unit }}</p-inputgroup-addon>
+                    }
                   </p-inputgroup>
                   @if (metric.lastUpdate) {
                     <p-inputgroup>
-                      <p-inputgroup-addon class="font-bold metric-addon">
+                      <p-inputgroup-addon class="viewer-label-addon">
                         {{ 'PRODUCT_CONDITION_LAST_UPDATE' | translate }}
+                        <aas-semantic-description-popup
+                          [semanticId]="metric.fields.lastUpdate.semanticId"
+                          [compact]="true"
+                        />
                       </p-inputgroup-addon>
                       <input pInputText type="text" [value]="metric.lastUpdate" readonly />
+                      @if (fieldUnit(metric.fields.lastUpdate); as unit) {
+                        <p-inputgroup-addon class="viewer-unit-addon">{{ unit }}</p-inputgroup-addon>
+                      }
                     </p-inputgroup>
                   }
                 </div>
               }
             </div>
-          </div>
+          </section>
         }
 
         @if (selfDischargeMetrics().length > 0) {
-          <div class="section-card">
-            <h3 class="section-title">
+          <section class="viewer-card">
+            <h3 class="viewer-card-title">
               <i class="fa-solid fa-battery-half"></i>
               {{ 'PRODUCT_CONDITION_SELF_DISCHARGE' | translate }}
             </h3>
 
-            <div class="metric-stack">
+            <div class="viewer-fields">
               @for (metric of selfDischargeMetrics(); track metric.idShortPath) {
-                <div class="metric-card compact-card">
+                <div class="metric-card">
                   <div class="metric-label">{{ metric.label }}</div>
                   <p-inputgroup>
-                    <p-inputgroup-addon class="font-bold metric-addon">
+                    <p-inputgroup-addon class="viewer-label-addon">
                       {{ 'PRODUCT_CONDITION_VALUE' | translate }}
+                      <aas-semantic-description-popup [semanticId]="metric.fields.value.semanticId" [compact]="true" />
                     </p-inputgroup-addon>
                     <input pInputText type="text" [value]="metric.value" readonly />
+                    @if (fieldUnit(metric.fields.value); as unit) {
+                      <p-inputgroup-addon class="viewer-unit-addon">{{ unit }}</p-inputgroup-addon>
+                    }
                   </p-inputgroup>
                   @if (metric.lastUpdate) {
                     <p-inputgroup>
-                      <p-inputgroup-addon class="font-bold metric-addon">
+                      <p-inputgroup-addon class="viewer-label-addon">
                         {{ 'PRODUCT_CONDITION_LAST_UPDATE' | translate }}
+                        <aas-semantic-description-popup
+                          [semanticId]="metric.fields.lastUpdate.semanticId"
+                          [compact]="true"
+                        />
                       </p-inputgroup-addon>
                       <input pInputText type="text" [value]="metric.lastUpdate" readonly />
+                      @if (fieldUnit(metric.fields.lastUpdate); as unit) {
+                        <p-inputgroup-addon class="viewer-unit-addon">{{ unit }}</p-inputgroup-addon>
+                      }
                     </p-inputgroup>
                   }
                 </div>
               }
             </div>
-          </div>
+          </section>
         }
       </div>
     }
 
     @if (powerCapabilityEntries().length > 0 || powerCapabilityLastUpdate()) {
-      <div class="section-card">
-        <h3 class="section-title">
+      <section class="viewer-card">
+        <h3 class="viewer-card-title">
           <i class="fa-solid fa-bolt"></i>
           {{ 'PRODUCT_CONDITION_POWER_CAPABILITY' | translate }}
         </h3>
 
         @if (powerCapabilityLastUpdate()) {
           <div class="section-meta">
-            {{ 'PRODUCT_CONDITION_LAST_UPDATE' | translate }}: {{ powerCapabilityLastUpdate() }}
+            {{ 'PRODUCT_CONDITION_LAST_UPDATE' | translate }}
+            <aas-semantic-description-popup
+              [semanticId]="powerCapabilityLastUpdateField().semanticId"
+              [compact]="true"
+            />:
+            {{ withUnit(powerCapabilityLastUpdate(), powerCapabilityLastUpdateField()) }}
           </div>
         }
 
-        <div class="power-grid">
+        <div class="viewer-grid-2">
           @for (entry of powerCapabilityEntries(); track entry.idShortPath) {
-            <div class="detail-card">
+            <div class="metric-card">
               <div class="metric-label">{{ entry.label }}</div>
               @if (entry.atSoC) {
                 <p-inputgroup>
-                  <p-inputgroup-addon class="font-bold metric-addon">{{
-                    'PRODUCT_CONDITION_AT_SOC' | translate
-                  }}</p-inputgroup-addon>
+                  <p-inputgroup-addon class="viewer-label-addon">
+                    {{ 'PRODUCT_CONDITION_AT_SOC' | translate }}
+                    <aas-semantic-description-popup [semanticId]="entry.fields.atSoC.semanticId" [compact]="true" />
+                  </p-inputgroup-addon>
                   <input pInputText type="text" [value]="entry.atSoC" readonly />
+                  @if (fieldUnit(entry.fields.atSoC); as unit) {
+                    <p-inputgroup-addon class="viewer-unit-addon">{{ unit }}</p-inputgroup-addon>
+                  }
                 </p-inputgroup>
               }
               @if (entry.powerCapabilityAt) {
                 <p-inputgroup>
-                  <p-inputgroup-addon class="font-bold metric-addon">{{
-                    'PRODUCT_CONDITION_POWER_CAPABILITY_VALUE' | translate
-                  }}</p-inputgroup-addon>
+                  <p-inputgroup-addon class="viewer-label-addon">
+                    {{ 'PRODUCT_CONDITION_POWER_CAPABILITY_VALUE' | translate }}
+                    <aas-semantic-description-popup
+                      [semanticId]="entry.fields.powerCapabilityAt.semanticId"
+                      [compact]="true"
+                    />
+                  </p-inputgroup-addon>
                   <input pInputText type="text" [value]="entry.powerCapabilityAt" readonly />
+                  @if (fieldUnit(entry.fields.powerCapabilityAt); as unit) {
+                    <p-inputgroup-addon class="viewer-unit-addon">{{ unit }}</p-inputgroup-addon>
+                  }
                 </p-inputgroup>
               }
               @if (entry.rpcLastUpdated) {
                 <p-inputgroup>
-                  <p-inputgroup-addon class="font-bold metric-addon">{{
-                    'PRODUCT_CONDITION_RPC_UPDATED' | translate
-                  }}</p-inputgroup-addon>
+                  <p-inputgroup-addon class="viewer-label-addon">
+                    {{ 'PRODUCT_CONDITION_RPC_UPDATED' | translate }}
+                    <aas-semantic-description-popup
+                      [semanticId]="entry.fields.rpcLastUpdated.semanticId"
+                      [compact]="true"
+                    />
+                  </p-inputgroup-addon>
                   <input pInputText type="text" [value]="entry.rpcLastUpdated" readonly />
+                  @if (fieldUnit(entry.fields.rpcLastUpdated); as unit) {
+                    <p-inputgroup-addon class="viewer-unit-addon">{{ unit }}</p-inputgroup-addon>
+                  }
                 </p-inputgroup>
               }
             </div>
           }
         </div>
-      </div>
+      </section>
     }
 
     @if (temperatureMetrics().length > 0) {
-      <div class="section-card">
-        <h3 class="section-title">
+      <section class="viewer-card">
+        <h3 class="viewer-card-title">
           <i class="fa-solid fa-temperature-three-quarters"></i>
           {{ 'PRODUCT_CONDITION_TEMPERATURE_INFORMATION' | translate }}
         </h3>
 
         @if (temperatureLastUpdate()) {
           <div class="section-meta">
-            {{ 'PRODUCT_CONDITION_LAST_UPDATE' | translate }}: {{ temperatureLastUpdate() }}
+            {{ 'PRODUCT_CONDITION_LAST_UPDATE' | translate }}
+            <aas-semantic-description-popup [semanticId]="temperatureLastUpdateField().semanticId" [compact]="true" />:
+            {{ withUnit(temperatureLastUpdate(), temperatureLastUpdateField()) }}
           </div>
         }
 
-        <div class="metric-grid compact-grid">
+        <div class="viewer-grid-2">
           @for (metric of temperatureMetrics(); track metric.idShortPath) {
-            <div class="metric-card compact-card">
+            <div class="metric-card">
               <div class="metric-label">{{ metric.label }}</div>
               <p-inputgroup>
-                <p-inputgroup-addon class="font-bold metric-addon">
+                <p-inputgroup-addon class="viewer-label-addon">
                   {{ 'PRODUCT_CONDITION_VALUE' | translate }}
+                  <aas-semantic-description-popup [semanticId]="metric.fields.value.semanticId" [compact]="true" />
                 </p-inputgroup-addon>
                 <input pInputText type="text" [value]="metric.value" readonly />
+                @if (fieldUnit(metric.fields.value); as unit) {
+                  <p-inputgroup-addon class="viewer-unit-addon">{{ unit }}</p-inputgroup-addon>
+                }
               </p-inputgroup>
             </div>
           }
         </div>
-      </div>
+      </section>
     }
 
     @if (accidentDocumentIdentifiers().length > 0 || negativeEvents().length > 0) {
-      <div class="section-grid-2">
+      <div class="viewer-grid-2">
         @if (accidentDocumentIdentifiers().length > 0) {
-          <div class="section-card">
-            <h3 class="section-title">
+          <section class="viewer-card">
+            <h3 class="viewer-card-title">
               <i class="fa-solid fa-file-shield"></i>
               {{ 'PRODUCT_CONDITION_DOCUMENT_IDENTIFIERS' | translate }}
             </h3>
@@ -187,51 +277,62 @@
                 <li>{{ identifier }}</li>
               }
             </ul>
-          </div>
+          </section>
         }
 
         @if (negativeEvents().length > 0) {
-          <div class="section-card">
-            <h3 class="section-title">
+          <section class="viewer-card">
+            <h3 class="viewer-card-title">
               <i class="fa-solid fa-triangle-exclamation"></i>
               {{ 'PRODUCT_CONDITION_NEGATIVE_EVENTS' | translate }}
             </h3>
 
-            <div class="metric-stack">
+            <div class="viewer-fields">
               @for (event of negativeEvents(); track event.idShortPath) {
-                <div class="detail-card">
+                <div class="metric-card">
                   @if (event.value) {
                     <p-inputgroup>
-                      <p-inputgroup-addon class="font-bold metric-addon">{{
-                        'PRODUCT_CONDITION_EVENT' | translate
-                      }}</p-inputgroup-addon>
+                      <p-inputgroup-addon class="viewer-label-addon">
+                        {{ 'PRODUCT_CONDITION_EVENT' | translate }}
+                        <aas-semantic-description-popup [semanticId]="event.fields.value.semanticId" [compact]="true" />
+                      </p-inputgroup-addon>
                       <input pInputText type="text" [value]="event.value" readonly />
+                      @if (fieldUnit(event.fields.value); as unit) {
+                        <p-inputgroup-addon class="viewer-unit-addon">{{ unit }}</p-inputgroup-addon>
+                      }
                     </p-inputgroup>
                   }
                   @if (event.lastUpdate) {
                     <p-inputgroup>
-                      <p-inputgroup-addon class="font-bold metric-addon">
+                      <p-inputgroup-addon class="viewer-label-addon">
                         {{ 'PRODUCT_CONDITION_LAST_UPDATE' | translate }}
+                        <aas-semantic-description-popup
+                          [semanticId]="event.fields.lastUpdate.semanticId"
+                          [compact]="true"
+                        />
                       </p-inputgroup-addon>
                       <input pInputText type="text" [value]="event.lastUpdate" readonly />
+                      @if (fieldUnit(event.fields.lastUpdate); as unit) {
+                        <p-inputgroup-addon class="viewer-unit-addon">{{ unit }}</p-inputgroup-addon>
+                      }
                     </p-inputgroup>
                   }
                 </div>
               }
             </div>
-          </div>
+          </section>
         }
       </div>
     }
 
     @if (additionalDetails().length > 0) {
-      <div class="section-card">
-        <h3 class="section-title">
+      <section class="viewer-card">
+        <h3 class="viewer-card-title">
           <i class="fa-solid fa-ellipsis"></i>
           {{ 'PRODUCT_CONDITION_ADDITIONAL_DETAILS' | translate }}
         </h3>
 
-        <div class="metric-stack">
+        <div class="viewer-fields">
           @for (detail of additionalDetails(); track detail.idShort ?? $index) {
             <aas-generic-viewer
               [rowData]="detail"
@@ -240,15 +341,15 @@
             ></aas-generic-viewer>
           }
         </div>
-      </div>
+      </section>
     }
   } @else {
-    <div class="section-card">
-      <h3 class="section-title">
+    <section class="viewer-card">
+      <h3 class="viewer-card-title">
         <i class="fa-solid fa-circle-info"></i>
         {{ 'PRODUCT_CONDITION_OVERVIEW' | translate }}
       </h3>
-      <p class="empty-state">{{ 'PRODUCT_CONDITION_NO_DATA' | translate }}</p>
-    </div>
+      <p class="viewer-empty m-0">{{ 'PRODUCT_CONDITION_NO_DATA' | translate }}</p>
+    </section>
   }
 </div>

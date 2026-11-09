@@ -1,5 +1,19 @@
 @if (semanticId() !== '') {
-  <p-button icon="pi pi-question-circle" text="true" (onClick)="toggleOverlay(op, $event)"></p-button>
+  @if (compact()) {
+    @if (available()) {
+      <p-button
+        icon="pi pi-question-circle"
+        text="true"
+        size="small"
+        severity="secondary"
+        styleClass="viewer-cd-button"
+        [ariaLabel]="'CONCEPT_DESCRIPTION' | translate"
+        (onClick)="toggleOverlay(op, $event)"
+      ></p-button>
+    }
+  } @else {
+    <p-button icon="pi pi-question-circle" text="true" (onClick)="toggleOverlay(op, $event)"></p-button>
+  }
 }
 
 <!-- Inline style instead of Tailwind arbitrary values: jsdom cannot match the escaped class names in tests -->

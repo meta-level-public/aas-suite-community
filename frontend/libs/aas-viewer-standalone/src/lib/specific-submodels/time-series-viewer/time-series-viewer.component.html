@@ -1,9 +1,9 @@
-<p-card>
-  <div class="flex flex-col gap-2">
+<div class="viewer-stack">
+  <section class="viewer-card">
     <div class="flex flex-col 2xl:flex-row gap-4 items-start">
       <div class="w-full 2xl:w-1/2 flex flex-col gap-2 min-w-0">
         <div class="flex flex-row gap-2 items-center">
-          <lib-help-label tag="CHART_AUTO_REFRESH" class="w-16rem"></lib-help-label>
+          <lib-help-label tag="CHART_AUTO_REFRESH" class="w-52 shrink-0"></lib-help-label>
           <div class="flex flex-row gap-2 items-center">
             <p-toggleswitch
               class="shrink-0"
@@ -26,7 +26,7 @@
         </div>
         @if (hasLinkedSegmentApi) {
           <div class="flex flex-row w-full gap-2 items-center">
-            <lib-help-label tag="SEGMENT" class="w-16rem"></lib-help-label>
+            <lib-help-label tag="SEGMENT" class="w-52 shrink-0"></lib-help-label>
             <p-select
               [options]="segmentUrls"
               [(ngModel)]="selectedSegmentUrl"
@@ -37,7 +37,7 @@
           </div>
           <div class="flex flex-col sm:flex-row w-full gap-2 items-center">
             <div class="flex flex-row w-full sm:w-1/2 min-w-0 gap-2 items-center">
-              <lib-help-label tag="TIME_POINT" class="w-16rem"></lib-help-label>
+              <lib-help-label tag="TIME_POINT" class="w-52 shrink-0"></lib-help-label>
               <p-select
                 [options]="dataPoints"
                 [(ngModel)]="selectedTimePoint"
@@ -48,7 +48,7 @@
               ></p-select>
             </div>
             <div class="flex flex-row w-full sm:w-1/2 min-w-0 gap-2 items-center">
-              <lib-help-label tag="DATA_POINT" class="w-16rem"></lib-help-label>
+              <lib-help-label tag="DATA_POINT" class="w-52 shrink-0"></lib-help-label>
               <p-multiSelect
                 [options]="filteredDataPoints"
                 [(ngModel)]="selectedDataPoints"
@@ -60,18 +60,18 @@
           </div>
           <div class="flex flex-col sm:flex-row w-full gap-2">
             <div class="flex flex-row w-full sm:w-1/2 min-w-0 gap-2 items-center">
-              <lib-help-label tag="API_TOKEN" class="w-16rem"></lib-help-label>
+              <lib-help-label tag="API_TOKEN" class="w-52 shrink-0"></lib-help-label>
               <input pInputText [(ngModel)]="token" class="w-full min-w-0" />
             </div>
             <div class="flex flex-row w-full sm:w-1/2 min-w-0 gap-2 items-center">
-              <lib-help-label tag="HTTP_METHOD" class="w-16rem"></lib-help-label>
+              <lib-help-label tag="HTTP_METHOD" class="w-52 shrink-0"></lib-help-label>
               <p-select [options]="['HTTP-GET', 'HTTP-POST']" [(ngModel)]="method" class="w-full min-w-0"></p-select>
             </div>
           </div>
         }
         @if (hasInternalSegmentData) {
           <div class="flex flex-row w-full gap-2 items-center">
-            <lib-help-label tag="SEGMENT" class="w-16rem"></lib-help-label>
+            <lib-help-label tag="SEGMENT" class="w-52 shrink-0"></lib-help-label>
             <p-select
               [options]="internalSegments"
               [(ngModel)]="selectedInternalSegment"
@@ -81,7 +81,7 @@
             ></p-select>
           </div>
           <div class="flex flex-row w-full gap-2 items-center">
-            <lib-help-label tag="TIME_POINT" class="w-16rem"></lib-help-label>
+            <lib-help-label tag="TIME_POINT" class="w-52 shrink-0"></lib-help-label>
             <p-select
               [options]="dataPoints"
               [(ngModel)]="selectedTimePoint"
@@ -92,7 +92,7 @@
             ></p-select>
           </div>
           <div class="flex flex-row w-full gap-2 items-center">
-            <lib-help-label tag="DATA_POINT" class="w-16rem"></lib-help-label>
+            <lib-help-label tag="DATA_POINT" class="w-52 shrink-0"></lib-help-label>
             <p-multiSelect
               [options]="filteredDataPoints"
               [(ngModel)]="selectedDataPoints"
@@ -104,7 +104,7 @@
         }
         @if (hasExternalSegmentData) {
           <div class="flex flex-row w-full gap-2 items-center">
-            <lib-help-label tag="SEGMENT" class="w-16rem"></lib-help-label>
+            <lib-help-label tag="SEGMENT" class="w-52 shrink-0"></lib-help-label>
             <p-select
               [options]="externalSegments"
               [(ngModel)]="selectedExternalSegment"
@@ -115,7 +115,7 @@
           </div>
           <div class="flex flex-row w-full gap-2 items-center">
             <div class="flex flex-row w-full gap-2 items-center">
-              <lib-help-label tag="TIME_POINT" class="w-16rem"></lib-help-label>
+              <lib-help-label tag="TIME_POINT" class="w-52 shrink-0"></lib-help-label>
               <p-select
                 [options]="dataPoints"
                 [(ngModel)]="selectedTimePoint"
@@ -126,7 +126,7 @@
               ></p-select>
             </div>
             <div class="flex flex-row w-full gap-2 items-center">
-              <lib-help-label tag="DATA_POINT" class="w-16rem"></lib-help-label>
+              <lib-help-label tag="DATA_POINT" class="w-52 shrink-0"></lib-help-label>
               <p-multiSelect
                 [options]="filteredDataPoints"
                 [(ngModel)]="selectedDataPoints"
@@ -166,7 +166,7 @@
           }
         </div>
         <div class="flex flex-row gap-2 items-center">
-          <lib-help-label tag="CHART_TYPE" class="w-16rem"></lib-help-label>
+          <lib-help-label tag="CHART_TYPE" class="w-52 shrink-0"></lib-help-label>
           <p-select
             [options]="['line', 'doughnut', 'pie', 'polarArea', 'radar', 'bar', 'scatter', 'bubble']"
             [(ngModel)]="chartType"
@@ -175,7 +175,7 @@
           ></p-select>
         </div>
         <div class="flex flex-row gap-2 items-center">
-          <lib-help-label tag="FROM" class="w-16rem"></lib-help-label>
+          <lib-help-label tag="FROM" class="w-52 shrink-0"></lib-help-label>
           <p-datepicker
             [(ngModel)]="startDate"
             [showTime]="true"
@@ -189,7 +189,7 @@
           ></p-datepicker>
         </div>
         <div class="flex flex-row gap-2 items-center">
-          <lib-help-label tag="TO" class="w-16rem"></lib-help-label>
+          <lib-help-label tag="TO" class="w-52 shrink-0"></lib-help-label>
           <p-datepicker
             [(ngModel)]="endDate"
             [showTime]="true"
@@ -212,12 +212,12 @@
       </div>
     </div>
     @if (hasLoadingError()) {
-      <div class="w-full">
+      <div class="w-full mt-2">
         <p-message text="{{ 'ERROR_LOADING_DATA' | translate }}" severity="info"></p-message>
       </div>
     }
-    <div class="w-full">
-      <p-chart [type]="chartType" [data]="chartData" [options]="chartOptions"></p-chart>
-    </div>
-  </div>
-</p-card>
+  </section>
+  <section class="viewer-card">
+    <p-chart [type]="chartType" [data]="chartData" [options]="chartOptions"></p-chart>
+  </section>
+</div>

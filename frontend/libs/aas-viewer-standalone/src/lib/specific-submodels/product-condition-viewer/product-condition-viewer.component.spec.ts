@@ -6,6 +6,12 @@ import { ViewerStoreService } from '../../viewer-store.service';
 import { ProductConditionViewerComponent } from './product-condition-viewer.component';
 import { createProductConditionExampleSubmodel } from './product-condition-viewer.fixture';
 
+const PC = 'urn:samm:io.admin-shell.idta.batterypass.product_condition:1.0.0#';
+
+function field(name: string) {
+  return { semanticId: `${PC}${name}`, unit: '' };
+}
+
 describe('ProductConditionViewerComponent', () => {
   let component: ProductConditionViewerComponent;
   let fixture: ComponentFixture<ProductConditionViewerComponent>;
@@ -51,6 +57,12 @@ describe('ProductConditionViewerComponent', () => {
       'number of full cycles',
     ]);
     expect(component.healthMetrics()[0]?.value).toBe('84.7');
+    expect(component.healthMetrics()[0]?.fields).toEqual({
+      value: field('remainingCapacityValue'),
+      lastUpdate: field('lastUpdate'),
+    });
+    expect(component.temperatureMetrics()[0]?.fields.value).toEqual(field('timeExtremeHighTemp'));
+    expect(component.powerCapabilityLastUpdateField()).toEqual(field('lastUpdate'));
     expect(component.throughputMetrics().map((metric) => metric.value)).toEqual(['1285.5', '2150.8']);
     expect(component.selfDischargeMetrics().map((metric) => metric.value)).toEqual(['1.8', '4.2']);
     expect(component.powerCapabilityEntries()).toEqual([
@@ -60,6 +72,11 @@ describe('ProductConditionViewerComponent', () => {
         powerCapabilityAt: '125000',
         rpcLastUpdated: '2026-03-18T10:30:00Z',
         idShortPath: 'RemainingPowerCapability.RemainingPowerCapabilityDynamicAt',
+        fields: {
+          atSoC: field('atSoC'),
+          powerCapabilityAt: field('powerCapabilityAt'),
+          rpcLastUpdated: field('rPCLastUpdated'),
+        },
       },
     ]);
     expect(component.powerCapabilityLastUpdate()).toBe('2026-03-18T10:31:00Z');
@@ -76,8 +93,26 @@ describe('ProductConditionViewerComponent', () => {
         value: 'Thermal shutdown during fast charge',
         lastUpdate: '2026-03-18T11:00:00Z',
         idShortPath: 'NegativeEvents.NegativeEvent',
+        fields: { value: field('negativeEventValue'), lastUpdate: field('lastUpdate') },
       },
     ]);
     expect(component.additionalDetails().map((detail) => detail.idShort)).toEqual(['ServiceNote']);
+  });
+
+  it('shows the unit stored at the element as its own addon', () => {
+    expect(component.fieldUnit({ ...field('remainingCapacityValue'), unit: 'Ah' })).toBe('Ah');
+    expect(component.fieldUnit(field('remainingCapacityValue'))).toBe('');
+  });
+
+  it('shows the state of health as key figure in the hero and not again in the health card', () => {
+    const element = fixture.nativeElement as HTMLElement;
+
+    expect(component.healthKeyMetric()?.label).toBe('state of certified energy');
+    const hero = element.querySelector('.viewer-hero-info');
+    expect(hero?.querySelector('.viewer-hero-eyebrow')?.textContent).toContain('state of certified energy');
+    expect(hero?.querySelector('.viewer-hero-value')?.textContent?.trim()).toBe(component.healthKeyMetric()?.value);
+    expect(hero?.querySelector('.viewer-hero-text')?.textContent).toContain('PRODUCT_CONDITION_LAST_UPDATE');
+    expect(component.otherHealthMetrics().map((metric) => metric.label)).not.toContain('state of certified energy');
+    expect(element.querySelectorAll('.metric-label')[0]?.textContent).toContain('remaining capacity');
   });
 });

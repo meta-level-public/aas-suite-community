@@ -25,7 +25,8 @@ import { DesignerShellNavigationService } from '../designer-shell-navigation.ser
   imports: [Button, Tooltip, AasViewerStandaloneComponent, AasxExportComponent, TranslateModule],
 })
 export class V3ViewerComponent implements OnInit, OnDestroy {
-  loading: boolean = false;
+  /** True until the infrastructure is checked and the viewer descriptor is loaded; there is nothing else to show. */
+  loading = signal(true);
   // shellResult: ShellResult | undefined;
   displayProgressDialog: boolean = false;
   preparing: boolean = false;
@@ -70,6 +71,7 @@ export class V3ViewerComponent implements OnInit, OnDestroy {
     const canUseRequestedInfrastructure = await this.applyInfrastructureFromRoute();
     this.infrastructureReady.set(canUseRequestedInfrastructure);
     if (!canUseRequestedInfrastructure) {
+      this.loading.set(false);
       return;
     }
 
@@ -103,14 +105,14 @@ export class V3ViewerComponent implements OnInit, OnDestroy {
 
   private async loadDescriptor() {
     try {
-      this.loading = true;
+      this.loading.set(true);
 
       const descriptor = await lastValueFrom(this.viewerClient.aasViewer_GetViewerDescriptor(this.aasId));
       this.descriptor.set(descriptor);
 
       this.aasSharedDataService.copyPasteClipboardItem = null;
     } finally {
-      this.loading = false;
+      this.loading.set(false);
     }
   }
 

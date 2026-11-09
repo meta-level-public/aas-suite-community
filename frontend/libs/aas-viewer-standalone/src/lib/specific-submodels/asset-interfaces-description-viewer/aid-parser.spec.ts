@@ -90,7 +90,9 @@ describe('parseAssetInterfaces', () => {
       idShort: 'HttpStatus',
       title: 'SmartRast status',
       baseUrl: 'http://192.168.42.195/',
+      baseUrlSemanticId: `${WOT}td#baseURI`,
       contentType: 'application/json',
+      contentTypeSemanticId: `${WOT}hypermedia#forContentType`,
       protocol: 'HTTP',
     });
     expect(httpInterface.securitySchemes).toEqual([
