@@ -1,82 +1,116 @@
-<div class="article-info-container">
-  @if (identifyingOrderNumber || productDescription || productGroup || unitOfContent || weight || grossWeight) {
-    <div class="section-grid-2">
-      @if (identifyingOrderNumber || productDescription || productGroup) {
-        <div class="section-card">
-          <h3 class="section-title">
+<div class="viewer-stack">
+  @if (
+    textOf(identifyingOrderNumber) ||
+    textOf(productDescription) ||
+    textOf(productGroup) ||
+    textOf(unitOfContent) ||
+    textOf(weight) ||
+    textOf(grossWeight)
+  ) {
+    <div class="viewer-grid-2">
+      @if (textOf(identifyingOrderNumber) || textOf(productDescription) || textOf(productGroup)) {
+        <div class="viewer-card">
+          <h3 class="viewer-card-title">
             <i class="fa-solid fa-box"></i>
             {{ 'ARTICLE_INFORMATION' | translate }}
           </h3>
-          <div class="flex flex-col gap-2">
-            @if (identifyingOrderNumber) {
+          <div class="viewer-fields">
+            @if (textOf(identifyingOrderNumber)) {
               <p-inputgroup>
-                <p-inputgroup-addon class="font-bold article-label-addon">
+                <p-inputgroup-addon class="viewer-label-addon">
                   <i class="fa-solid fa-hashtag mr-2"></i>
                   <lib-help-label tag="IDENTIFYING_ORDER_NUMBER" [showLabel]="false"></lib-help-label>
                   {{ 'IDENTIFYING_ORDER_NUMBER' | translate }}
+                  <aas-semantic-description-popup
+                    [semanticId]="semanticIdOf(identifyingOrderNumber)"
+                    [compact]="true"
+                  />
                 </p-inputgroup-addon>
-                <input pInputText type="text" [value]="identifyingOrderNumber" readonly />
+                <input pInputText type="text" [value]="textOf(identifyingOrderNumber)" readonly />
+                @if (unitOf(identifyingOrderNumber); as unit) {
+                  <p-inputgroup-addon class="viewer-unit-addon">{{ unit }}</p-inputgroup-addon>
+                }
               </p-inputgroup>
             }
-            @if (productDescription) {
+            @if (textOf(productDescription)) {
               <p-inputgroup>
-                <p-inputgroup-addon class="font-bold article-label-addon">
+                <p-inputgroup-addon class="viewer-label-addon">
                   <i class="fa-solid fa-align-left mr-2"></i>
                   <lib-help-label tag="PRODUCT_DESCRIPTION" [showLabel]="false"></lib-help-label>
                   {{ 'PRODUCT_DESCRIPTION' | translate }}
+                  <aas-semantic-description-popup [semanticId]="semanticIdOf(productDescription)" [compact]="true" />
                 </p-inputgroup-addon>
-                <input pInputText type="text" [value]="productDescription" readonly />
+                <input pInputText type="text" [value]="textOf(productDescription)" readonly />
+                @if (unitOf(productDescription); as unit) {
+                  <p-inputgroup-addon class="viewer-unit-addon">{{ unit }}</p-inputgroup-addon>
+                }
               </p-inputgroup>
             }
-            @if (productGroup) {
+            @if (textOf(productGroup)) {
               <p-inputgroup>
-                <p-inputgroup-addon class="font-bold article-label-addon">
+                <p-inputgroup-addon class="viewer-label-addon">
                   <i class="fa-solid fa-layer-group mr-2"></i>
                   <lib-help-label tag="PRODUCT_GROUP" [showLabel]="false"></lib-help-label>
                   {{ 'PRODUCT_GROUP' | translate }}
+                  <aas-semantic-description-popup [semanticId]="semanticIdOf(productGroup)" [compact]="true" />
                 </p-inputgroup-addon>
-                <input pInputText type="text" [value]="productGroup" readonly />
+                <input pInputText type="text" [value]="textOf(productGroup)" readonly />
+                @if (unitOf(productGroup); as unit) {
+                  <p-inputgroup-addon class="viewer-unit-addon">{{ unit }}</p-inputgroup-addon>
+                }
               </p-inputgroup>
             }
           </div>
         </div>
       }
 
-      @if (unitOfContent || weight || grossWeight) {
-        <div class="section-card">
-          <h3 class="section-title">
+      @if (textOf(unitOfContent) || textOf(weight) || textOf(grossWeight)) {
+        <div class="viewer-card">
+          <h3 class="viewer-card-title">
             <i class="fa-solid fa-scale-balanced"></i>
             {{ 'TECHNICAL_DATA' | translate }}
           </h3>
-          <div class="flex flex-col gap-2">
-            @if (unitOfContent) {
+          <div class="viewer-fields">
+            @if (textOf(unitOfContent)) {
               <p-inputgroup>
-                <p-inputgroup-addon class="font-bold article-label-addon">
+                <p-inputgroup-addon class="viewer-label-addon">
                   <i class="fa-solid fa-box-open mr-2"></i>
                   <lib-help-label tag="UNIT_OF_CONTENT" [showLabel]="false"></lib-help-label>
                   {{ 'UNIT_OF_CONTENT' | translate }}
+                  <aas-semantic-description-popup [semanticId]="semanticIdOf(unitOfContent)" [compact]="true" />
                 </p-inputgroup-addon>
-                <input pInputText type="text" [value]="unitOfContent" readonly />
+                <input pInputText type="text" [value]="textOf(unitOfContent)" readonly />
+                @if (unitOf(unitOfContent); as unit) {
+                  <p-inputgroup-addon class="viewer-unit-addon">{{ unit }}</p-inputgroup-addon>
+                }
               </p-inputgroup>
             }
-            @if (weight) {
+            @if (textOf(weight)) {
               <p-inputgroup>
-                <p-inputgroup-addon class="font-bold article-label-addon">
+                <p-inputgroup-addon class="viewer-label-addon">
                   <i class="fa-solid fa-weight-hanging mr-2"></i>
                   <lib-help-label tag="WEIGHT" [showLabel]="false"></lib-help-label>
                   {{ 'WEIGHT' | translate }}
+                  <aas-semantic-description-popup [semanticId]="semanticIdOf(weight)" [compact]="true" />
                 </p-inputgroup-addon>
-                <input pInputText type="text" [value]="weight" readonly />
+                <input pInputText type="text" [value]="textOf(weight)" readonly />
+                @if (unitOf(weight); as unit) {
+                  <p-inputgroup-addon class="viewer-unit-addon">{{ unit }}</p-inputgroup-addon>
+                }
               </p-inputgroup>
             }
-            @if (grossWeight) {
+            @if (textOf(grossWeight)) {
               <p-inputgroup>
-                <p-inputgroup-addon class="font-bold article-label-addon">
+                <p-inputgroup-addon class="viewer-label-addon">
                   <i class="fa-solid fa-weight-scale mr-2"></i>
                   <lib-help-label tag="GROSS_WEIGHT" [showLabel]="false"></lib-help-label>
                   {{ 'GROSS_WEIGHT' | translate }}
+                  <aas-semantic-description-popup [semanticId]="semanticIdOf(grossWeight)" [compact]="true" />
                 </p-inputgroup-addon>
-                <input pInputText type="text" [value]="grossWeight" readonly />
+                <input pInputText type="text" [value]="textOf(grossWeight)" readonly />
+                @if (unitOf(grossWeight); as unit) {
+                  <p-inputgroup-addon class="viewer-unit-addon">{{ unit }}</p-inputgroup-addon>
+                }
               </p-inputgroup>
             }
           </div>

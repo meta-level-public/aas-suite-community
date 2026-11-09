@@ -6,6 +6,7 @@ import {
   Component,
   computed,
   DestroyRef,
+  effect,
   inject,
   input,
   signal,
@@ -41,6 +42,8 @@ let openPopover: Popover | null = null;
 })
 export class SemanticDescriptionPopupComponent {
   semanticId = input.required<string>();
+  /** Small, muted icon next to a label in the formatted viewers instead of the regular button. */
+  compact = input(false);
 
   cdService = inject(ConceptDescriptionService);
   translate = inject(TranslateService);
@@ -55,7 +58,23 @@ export class SemanticDescriptionPopupComponent {
   // onShow is emitted last when opening, so fall back to the current container if opening was interrupted.
   private overlayElement: HTMLElement | null = null;
 
+  /** Compact mode only shows the "?" if a concept description exists (it is cached, so opening is instant). */
+  available = signal(false);
+  private availabilityRun = 0;
+
   constructor() {
+    effect(() => {
+      const id = this.semanticId();
+      const cdUrl = this.viewerStore.cdUrl();
+      if (!this.compact()) return;
+      const run = ++this.availabilityRun;
+      this.available.set(false);
+      if (id == null || id === '' || cdUrl === '') return;
+      void this.cdService.loadCD(id, cdUrl, this.viewerStore.apiKey() ?? '').then((cd) => {
+        if (run === this.availabilityRun) this.available.set(cd != null);
+      });
+    });
+
     inject(DestroyRef).onDestroy(() => {
       const popover = this.popover();
       if (openPopover === popover) openPopover = null;

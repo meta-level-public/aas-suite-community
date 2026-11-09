@@ -1,0 +1,19 @@
+.submodel-empty-hint {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 1.25rem 1.5rem;
+  border: 1px dashed var(--p-content-border-color);
+  border-radius: var(--aas-radius-md);
+  background: var(--aas-surface-subtle);
+  color: var(--p-text-color);
+}
+
+.submodel-empty-hint > i {
+  font-size: 1.75rem;
+  color: var(--p-text-muted-color);
+}
+
+.submodel-empty-hint-title {
+  font-weight: 600;
+}

@@ -24,12 +24,14 @@ import { V3IdShortComponent } from '../v3-id-short/v3-id-short.component';
 import { V3LangStringListComponent } from '../v3-lang-string-list/v3-lang-string-list.component';
 import { V3QualifiersComponent } from '../v3-qualifiers/v3-qualifiers.component';
 import { V3SemanticDescriptionComponent } from '../v3-semantic-description/v3-semantic-description.component';
+import { VerificationMessagePipe } from '../../tools/verification-message';
 
 @Component({
   selector: 'aas-v3-range-element',
   templateUrl: './v3-range-element.component.html',
   changeDetection: ChangeDetectionStrategy.Eager,
   imports: [
+    VerificationMessagePipe,
     Fieldset,
     HelpLabelComponent,
     V3IdShortComponent,

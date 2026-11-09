@@ -36,11 +36,18 @@
   <div class="flex-auto min-h-0 relative">
     <!-- No top padding: the sticky viewer toolbar would otherwise stop below it and content would show above it -->
     <div class="absolute inset-0 overflow-auto viewer-content-area rounded-lg p-2 md:p-4 pt-0 md:pt-0">
-      <aas-aas-viewer-standalone
-        [currentLanguage]="languageService.userLanguage"
-        [viewerDescriptor]="descriptor()"
-        [shellNavigator]="shellNavigator"
-      ></aas-aas-viewer-standalone>
+      @if (loading()) {
+        <div class="w-full flex flex-col justify-center items-center gap-3 viewer-loading" role="status">
+          <div class="aas-loading-spinner"></div>
+          <span class="text-muted-color">{{ 'LOADING_AAS' | translate }}</span>
+        </div>
+      } @else {
+        <aas-aas-viewer-standalone
+          [currentLanguage]="languageService.userLanguage"
+          [viewerDescriptor]="descriptor()"
+          [shellNavigator]="shellNavigator"
+        ></aas-aas-viewer-standalone>
+      }
     </div>
   </div>
   <aas-aasx-export #exportComponent></aas-aasx-export>

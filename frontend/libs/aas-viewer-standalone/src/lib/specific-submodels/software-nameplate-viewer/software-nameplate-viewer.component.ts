@@ -2,15 +2,18 @@ import * as aas from '@aas-core-works/aas-core3.1-typescript';
 import { ISubmodelElement } from '@aas-core-works/aas-core3.1-typescript/types';
 import { HelpLabelComponent } from '@aas/common-components';
 import { SemanticIdHelper } from '@aas/helpers';
-import { Component, Input, OnChanges, ChangeDetectionStrategy } from '@angular/core';
+import { Component, inject, Input, OnChanges, ChangeDetectionStrategy } from '@angular/core';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
-import { PrimeTemplate } from '@openng/optimus-ui/api';
 import { InputGroup } from '@openng/optimus-ui/inputgroup';
 import { InputGroupAddon } from '@openng/optimus-ui/inputgroupaddon';
 import { InputText } from '@openng/optimus-ui/inputtext';
 import { TableModule } from '@openng/optimus-ui/table';
+import { Tag } from '@openng/optimus-ui/tag';
+import { ConceptUnitService, inlineUnitOf, semanticIdOf } from '../../concept-unit.service';
+import { SemanticDescriptionPopupComponent } from '../../semantic-description-popup/semantic-description-popup.component';
 import { ContactInformation } from '../contact-information-viewer/contact-information';
 import { ContactInformationMap } from '../contact-information-viewer/contact-information-map.component';
+import { getInstalledVersionStatus, InstalledVersionStatus } from './software-version.util';
 
 type ConfigurationPathRow = { uri: string; type: string };
 
@@ -24,10 +27,11 @@ type ConfigurationPathRow = { uri: string; type: string };
     InputGroupAddon,
     InputText,
     TableModule,
-    PrimeTemplate,
     ContactInformationMap,
+    Tag,
     TranslateModule,
     HelpLabelComponent,
+    SemanticDescriptionPopupComponent,
   ],
 })
 export class SoftwareNameplateViewerComponent implements OnChanges {
@@ -104,6 +108,55 @@ export class SoftwareNameplateViewerComponent implements OnChanges {
     ipcom: '',
   };
   showContactMap = false;
+  /** Semantic IDs of the configuration path columns, taken from the first entry. */
+  configurationColumnSemanticIds = { uri: '', type: '' };
+
+  /** Elements behind the single-value fields by idShort (semantic ID for the "?" and the unit). */
+  private readonly fieldElements = new Map<string, ISubmodelElement>();
+  private readonly units = inject(ConceptUnitService);
+
+  /** Icon for the header, derived from the free-text software type. */
+  get softwareIcon() {
+    const type = this.softwareType.toLowerCase();
+    if (type.includes('firmware')) return 'fa-solid fa-microchip';
+    if (type.includes('operating') || type.includes('betriebssystem')) return 'fa-solid fa-desktop';
+    if (type.includes('librar') || type.includes('bibliothek') || type.includes('module')) return 'fa-solid fa-cubes';
+    if (type.includes('service') || type.includes('server') || type.includes('dienst')) return 'fa-solid fa-server';
+    if (type.includes('app')) return 'fa-solid fa-window-restore';
+    return 'fa-solid fa-code';
+  }
+
+  get installedVersionStatus(): InstalledVersionStatus | null {
+    return getInstalledVersionStatus(this.installedVersion, this.version);
+  }
+
+  get hasReleaseDetails() {
+    return [this.versionInfo, this.releaseDate, this.buildDate, this.releaseNotes, this.releaseInformation].some(
+      (value) => value !== '',
+    );
+  }
+
+  get hasInstallationPackage() {
+    return [this.installationURI, this.installationFile, this.installerType, this.installationChecksum].some(
+      (value) => value !== '',
+    );
+  }
+
+  get hasInstance() {
+    return [
+      this.instanceName,
+      this.installedVersion,
+      this.installationDate,
+      this.installationPath,
+      this.installationSource,
+      this.installedOnArchitecture,
+      this.installedOnOS,
+      this.installedOnHost,
+      this.serialNumber,
+      this.inventoryTag,
+      this.slaInformation,
+    ].some((value) => value !== '');
+  }
 
   constructor(private translate: TranslateService) {
     translate.onLangChange.subscribe((lang: any) => {
@@ -116,7 +169,19 @@ export class SoftwareNameplateViewerComponent implements OnChanges {
     this.rebuildView();
   }
 
+  /** Semantic ID of a field (by idShort) for the "?" to its concept description. */
+  fieldSemanticId(idShort: string): string {
+    return semanticIdOf(this.fieldElements.get(idShort));
+  }
+
+  /** Unit of a field (at the element or from its concept description). */
+  fieldUnit(idShort: string): string {
+    const element = this.fieldElements.get(idShort);
+    return this.units.unit(semanticIdOf(element), inlineUnitOf(element));
+  }
+
   private rebuildView() {
+    this.fieldElements.clear();
     const typeSection = this.findCollection(
       this.submodel?.submodelElements ?? [],
       'SoftwareNameplateType',
@@ -197,24 +262,27 @@ export class SoftwareNameplateViewerComponent implements OnChanges {
       'https://admin-shell.io/idta/SoftwareNameplate/1/0/SoftwareNameplate/SoftwareNameplateInstance/ConfigurationPaths',
     );
     this.configurationPaths = [];
+    this.configurationColumnSemanticIds = { uri: '', type: '' };
     for (const entry of configurationPathsSection?.value ?? []) {
       if (!(entry instanceof aas.types.SubmodelElementCollection)) {
         continue;
       }
-      const configurationUri = this.getText(
-        this.findElementByIdShortOrSemantic(
-          entry.value ?? [],
-          'ConfigurationURI',
-          'https://admin-shell.io/idta/SoftwareNameplate/1/0/SoftwareNameplate/SoftwareNameplateInstance/ConfigurationPath',
-        ),
+      const uriElement = this.findElementByIdShortOrSemantic(
+        entry.value ?? [],
+        'ConfigurationURI',
+        'https://admin-shell.io/idta/SoftwareNameplate/1/0/SoftwareNameplate/SoftwareNameplateInstance/ConfigurationPath',
       );
-      const configurationType = this.getText(
-        this.findElementByIdShortOrSemantic(
-          entry.value ?? [],
-          'ConfigurationType',
-          'https://admin-shell.io/idta/SoftwareNameplate/1/0/SoftwareNameplate/SoftwareNameplateInstance/ConfigurationType',
-        ),
+      const typeElement = this.findElementByIdShortOrSemantic(
+        entry.value ?? [],
+        'ConfigurationType',
+        'https://admin-shell.io/idta/SoftwareNameplate/1/0/SoftwareNameplate/SoftwareNameplateInstance/ConfigurationType',
       );
+      this.configurationColumnSemanticIds = {
+        uri: this.configurationColumnSemanticIds.uri || semanticIdOf(uriElement),
+        type: this.configurationColumnSemanticIds.type || semanticIdOf(typeElement),
+      };
+      const configurationUri = this.getText(uriElement);
+      const configurationType = this.getText(typeElement);
       if (configurationUri || configurationType) {
         this.configurationPaths.push({ uri: configurationUri, type: configurationType });
       }
@@ -241,7 +309,11 @@ export class SoftwareNameplateViewerComponent implements OnChanges {
   }
 
   private readValue(section: aas.types.SubmodelElementCollection | undefined, idShort: string): string {
-    return this.getText(this.findElementByIdShortOrSemantic(section?.value ?? [], idShort, ''));
+    const element = this.findElementByIdShortOrSemantic(section?.value ?? [], idShort, '');
+    if (element != null) {
+      this.fieldElements.set(idShort, element);
+    }
+    return this.getText(element);
   }
 
   private findCollection(

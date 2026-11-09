@@ -1,20 +1,20 @@
+/* Cards and fields come from the shared viewer building blocks (styles/viewer-ui.css) */
+
 :host {
   display: block;
   width: 100%;
 }
 
-.contact-info-container {
-  width: 100%;
+/* Accordion header: name, then department and company */
+.contact-header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.25rem 0.75rem;
+  min-width: 0;
 }
 
-.contact-info-card {
-  width: 100%;
-  border: 1px solid var(--p-content-border-color);
-  background: var(--p-content-background);
-  border-radius: var(--aas-radius-md);
-  padding: 1rem;
-}
-
+/* Contact fields next to the map of the address */
 .contact-content-grid {
   display: grid;
   grid-template-columns: minmax(0, 2fr) minmax(320px, 1fr);
@@ -22,34 +22,15 @@
   align-items: start;
 }
 
-.contact-fields {
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
-}
-
-.contact-label-addon {
-  width: 16rem;
-  min-width: 16rem;
-  white-space: nowrap;
-}
-
 .contact-map-shell {
+  padding: 0.5rem;
   border: 1px solid var(--p-content-border-color);
   border-radius: var(--aas-radius-sm);
   background: var(--p-content-background);
-  padding: 0.5rem;
 }
 
 @media (max-width: 1200px) {
   .contact-content-grid {
-    grid-template-columns: 1fr;
-  }
-}
-
-@media (max-width: 768px) {
-  .contact-label-addon {
-    width: 13rem;
-    min-width: 13rem;
+    grid-template-columns: minmax(0, 1fr);
   }
 }

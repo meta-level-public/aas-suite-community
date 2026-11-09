@@ -43,7 +43,7 @@
             <input pInputText [(ngModel)]="specificAssetId.name" class="w-full" nullIfEmpty />
             @if (hasNameErrors(specificAssetId)) {
               <div class="text-error">
-                {{ 'errorMessages.' + getNameError(specificAssetId)[0].message | translate }}
+                {{ getNameError(specificAssetId)[0].message | verificationMessage }}
               </div>
             }
           </div>
@@ -72,7 +72,7 @@
             </div>
             @if (hasValueErrors(specificAssetId)) {
               <div class="text-error">
-                {{ 'errorMessages.' + getValueError(specificAssetId)[0].message | translate }}
+                {{ getValueError(specificAssetId)[0].message | verificationMessage }}
               </div>
             }
           </div>

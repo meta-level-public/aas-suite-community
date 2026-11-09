@@ -84,13 +84,7 @@ export class AasResultListComponent implements OnChanges {
       this.loading.set(true);
       this.aasResults.set([]);
       if (this.globalAssetId && this.selectedSource != null) {
-        let url = '';
-        if (this.selectedSource?.url === 'custom') {
-          url = this.selectedCustomSource;
-        } else {
-          const proxyUrl = this.configService.config.aasProxyApiPath;
-          url = UrlHelper.appendSlash(proxyUrl) + this.selectedSource?.id + '/aas-repo';
-        }
+        const url = this.getRepositoryUrls().aasRepositoryUrl;
         if (url === '') {
           this.loading.set(false);
           return;
@@ -129,36 +123,47 @@ export class AasResultListComponent implements OnChanges {
     }
   }
 
-  createViewerDescriptor(result: any, url: string) {
-    // viewer Descriptor erzeugen
+  /**
+   * AAS and submodel repository of the selected source. Configured infrastructures go through the AAS proxy, where
+   * shells and submodels can live in separate repositories (e.g. BaSyx Go); a custom URL is a complete AAS
+   * environment that serves both.
+   */
+  getRepositoryUrls(): { aasRepositoryUrl: string; submodelRepositoryUrl: string } {
+    if (this.selectedSource?.url === 'custom') {
+      return { aasRepositoryUrl: this.selectedCustomSource, submodelRepositoryUrl: this.selectedCustomSource };
+    }
+
+    if (this.selectedSource == null) {
+      return { aasRepositoryUrl: '', submodelRepositoryUrl: '' };
+    }
+
+    const infrastructureUrl =
+      UrlHelper.appendSlash(this.configService.config.aasProxyApiPath) + this.selectedSource.id + '/';
+    return {
+      aasRepositoryUrl: infrastructureUrl + 'aas-repo',
+      submodelRepositoryUrl: infrastructureUrl + 'sm-repo',
+    };
+  }
+
+  createViewerDescriptor(result: any, aasRepositoryUrl: string, submodelRepositoryUrl: string) {
     const viewerDescriptor = new ViewerDescriptor();
 
     viewerDescriptor.aasId = result.id;
-
-    viewerDescriptor.aasEndpoint = UrlHelper.appendSlash(url) + 'shells/' + EncodingService.base64urlEncode(result.id);
-
-    // viewerDescriptor.cdEndpoint = UrlHelper.appendSlash(this.configService.config.apiPath);
-    const smEndpoints: string[] = [];
-    // TODO: hier noch die Submodel Endpoints rein
-    result.submodels?.forEach((sm: any) => {
-      smEndpoints.push(
-        UrlHelper.appendSlash(url) + 'submodels/' + EncodingService.base64urlEncode(sm.keys?.[0].value ?? ''),
-      );
-    });
-    viewerDescriptor.submodelEndpoints = smEndpoints;
+    viewerDescriptor.aasEndpoint =
+      UrlHelper.appendSlash(aasRepositoryUrl) + 'shells/' + EncodingService.base64urlEncode(result.id);
+    viewerDescriptor.submodelEndpoints = (result.submodels ?? []).map(
+      (sm: any) =>
+        UrlHelper.appendSlash(submodelRepositoryUrl) +
+        'submodels/' +
+        EncodingService.base64urlEncode(sm.keys?.[0].value ?? ''),
+    );
 
     return viewerDescriptor;
   }
 
   async openViewer(result: any) {
-    let url = '';
-    if (this.selectedSource?.url === 'custom') {
-      url = this.selectedCustomSource;
-    } else {
-      const proxyUrl = this.configService.config.aasProxyApiPath;
-      url = UrlHelper.appendSlash(proxyUrl) + this.selectedSource?.id + '/aas-repo';
-    }
-    const descriptor = this.createViewerDescriptor(result, url);
+    const { aasRepositoryUrl, submodelRepositoryUrl } = this.getRepositoryUrls();
+    const descriptor = this.createViewerDescriptor(result, aasRepositoryUrl, submodelRepositoryUrl);
     window.dispatchEvent(
       new CustomEvent('openViewer', {
         detail: {

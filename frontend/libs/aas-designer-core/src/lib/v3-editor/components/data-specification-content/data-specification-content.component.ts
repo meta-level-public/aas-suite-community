@@ -27,6 +27,7 @@ import { SiDatatypeLookupComponent } from '../si-datatype-lookup/si-datatype-loo
 import { V3ComponentBase } from '../v3-component-base';
 import { V3LangStringListComponent } from '../v3-lang-string-list/v3-lang-string-list.component';
 import { V3ValueListComponent } from '../v3-value-list/v3-value-list.component';
+import { VerificationMessagePipe } from '../../tools/verification-message';
 type VerificationError = aas.verification.VerificationError;
 
 @Component({
@@ -35,6 +36,7 @@ type VerificationError = aas.verification.VerificationError;
   styleUrls: ['../../../../host.scss'],
   changeDetection: ChangeDetectionStrategy.Eager,
   imports: [
+    VerificationMessagePipe,
     HelpLabelComponent,
     V3LangStringListComponent,
     InputGroup,

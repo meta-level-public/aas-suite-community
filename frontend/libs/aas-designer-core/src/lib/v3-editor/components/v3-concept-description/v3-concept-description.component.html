@@ -97,7 +97,7 @@
       }
 
       @for (error of caseOfErrors; track error) {
-        <p-message severity="error" class="w-full">{{ 'errorMessages.' + error.message | translate }}</p-message>
+        <p-message severity="error" class="w-full">{{ error.message | verificationMessage }}</p-message>
       }
     </p-fieldset>
     <p-fieldset

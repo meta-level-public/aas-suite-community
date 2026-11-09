@@ -186,7 +186,7 @@
         @if (hasErrors(dataSpecificationContent, 'symbol')) {
           <div class="text-error">
             @for (errorEntry of getErrors(dataSpecificationContent, 'symbol'); track $index) {
-              {{ 'errorMessages.' + errorEntry.message | translate }}
+              {{ errorEntry.message | verificationMessage }}
             }
           </div>
         }
@@ -208,7 +208,7 @@
         @if (hasErrors(dataSpecificationContent, 'dataType')) {
           <div class="text-error">
             @for (errorEntry of getErrors(dataSpecificationContent, 'dataType'); track $index) {
-              {{ 'errorMessages.' + errorEntry.message | translate }}
+              {{ errorEntry.message | verificationMessage }}
             }
           </div>
         }
@@ -232,7 +232,7 @@
           @if (hasErrors(dataSpecificationContent, 'valueFormat')) {
             <div class="text-error">
               @for (errorEntry of getErrors(dataSpecificationContent, 'valueFormat'); track $index) {
-                {{ 'errorMessages.' + errorEntry.message | translate }}
+                {{ errorEntry.message | verificationMessage }}
               }
             </div>
           }
@@ -249,7 +249,7 @@
         ></aas-v3-value-list>
         @if (hasValueListErrors(dataSpecificationContent)) {
           <div class="text-error">
-            {{ 'errorMessages.' + getValueListError(dataSpecificationContent)[0].message | translate }}
+            {{ getValueListError(dataSpecificationContent)[0].message | verificationMessage }}
           </div>
         }
       </div>
@@ -270,7 +270,7 @@
         </p-inputgroup>
         @if (hasValueErrors(dataSpecificationContent)) {
           <div class="text-error">
-            {{ 'errorMessages.' + getValueError(dataSpecificationContent)[0].message | translate }}
+            {{ getValueError(dataSpecificationContent)[0].message | verificationMessage }}
           </div>
         }
       </div>

@@ -2,12 +2,14 @@ import * as aas from '@aas-core-works/aas-core3.1-typescript';
 import { DateProxyPipe } from '@aas/common-pipes';
 import { SemanticIdHelper } from '@aas/helpers';
 import { AsyncPipe, NgComponentOutlet } from '@angular/common';
-import { Component, computed, Input, OnChanges, signal, Type, ChangeDetectionStrategy } from '@angular/core';
+import { Component, computed, inject, Input, OnChanges, signal, Type, ChangeDetectionStrategy } from '@angular/core';
 import { TranslateModule } from '@ngx-translate/core';
 import { InputGroup } from '@openng/optimus-ui/inputgroup';
 import { InputGroupAddon } from '@openng/optimus-ui/inputgroupaddon';
 import { InputText } from '@openng/optimus-ui/inputtext';
+import { ConceptUnitService, inlineUnitOf, semanticIdOf } from '../../concept-unit.service';
 import { MarkingsViewerPlainComponent } from '../../markings-viewer-plain/markings-viewer-plain.component';
+import { SemanticDescriptionPopupComponent } from '../../semantic-description-popup/semantic-description-popup.component';
 import { ViewerStoreService } from '../../viewer-store.service';
 
 const ADDRESS_INFORMATION_SEMANTIC_ID =
@@ -70,6 +72,7 @@ const DOCUMENT_IDENTIFIER_SEMANTIC_IDS = [
     InputGroup,
     InputGroupAddon,
     InputText,
+    SemanticDescriptionPopupComponent,
   ],
 })
 export class BatteryNameplateViewerComponent implements OnChanges {
@@ -81,7 +84,17 @@ export class BatteryNameplateViewerComponent implements OnChanges {
   readonly indexed = signal(false);
   private nameplateMapComponentLoader?: Promise<Type<unknown>>;
 
+  private readonly units = inject(ConceptUnitService);
+
   constructor(private viewerStore: ViewerStoreService) {}
+
+  /** Semantic ID of a field element for the "?" to its concept description. */
+  readonly semanticIdOf = semanticIdOf;
+
+  /** Unit of a field element (at the element or from its concept description). */
+  unitOf(element: aas.types.ISubmodelElement | null | undefined): string {
+    return this.units.unit(semanticIdOf(element), inlineUnitOf(element));
+  }
 
   ngOnChanges(): void {
     this.loadMarkings();
@@ -100,36 +113,75 @@ export class BatteryNameplateViewerComponent implements OnChanges {
     city: this.city(),
   }));
 
-  readonly manufacturerName = computed(() => this.readText(this.rootElements(), MANUFACTURER_NAME_SEMANTIC_IDS));
-  readonly manufacturerIdentifier = computed(() =>
-    this.readText(this.rootElements(), MANUFACTURER_IDENTIFIER_SEMANTIC_IDS),
-  );
-  readonly serialNumber = computed(() => this.readText(this.rootElements(), SERIAL_NUMBER_SEMANTIC_IDS));
-  readonly uriOfProduct = computed(() => this.readText(this.rootElements(), URI_OF_PRODUCT_SEMANTIC_IDS));
-  readonly uniqueFacilityIdentifier = computed(() =>
-    this.readText(this.rootElements(), UNIQUE_FACILITY_IDENTIFIER_SEMANTIC_IDS),
-  );
-  readonly operatorIdentifier = computed(() => this.readText(this.rootElements(), OPERATOR_IDENTIFIER_SEMANTIC_IDS));
-  readonly lifeCycleStage = computed(() => this.readText(this.rootElements(), LIFE_CYCLE_STAGE_SEMANTIC_IDS));
-  readonly dateOfManufacture = computed(() => this.readDate(this.rootElements(), DATE_OF_MANUFACTURE_SEMANTIC_IDS));
+  /** Submodel elements behind the single-value fields (semantic ID for the "?" and the unit). */
+  readonly fieldElements = computed(() => {
+    const root = this.rootElements();
+    const contact = this.contactInformationElements();
+    return {
+      manufacturerName: this.findElement(root, MANUFACTURER_NAME_SEMANTIC_IDS),
+      manufacturerIdentifier: this.findElement(root, MANUFACTURER_IDENTIFIER_SEMANTIC_IDS),
+      serialNumber: this.findElement(root, SERIAL_NUMBER_SEMANTIC_IDS),
+      uriOfProduct: this.findElement(root, URI_OF_PRODUCT_SEMANTIC_IDS),
+      uniqueFacilityIdentifier: this.findElement(root, UNIQUE_FACILITY_IDENTIFIER_SEMANTIC_IDS),
+      operatorIdentifier: this.findElement(root, OPERATOR_IDENTIFIER_SEMANTIC_IDS),
+      lifeCycleStage: this.findElement(root, LIFE_CYCLE_STAGE_SEMANTIC_IDS),
+      dateOfManufacture: this.findElement(root, DATE_OF_MANUFACTURE_SEMANTIC_IDS),
+      dateOfPuttingIntoService: this.findElement(root, DATE_OF_PUTTING_INTO_SERVICE_SEMANTIC_IDS),
+      company: this.findElement(contact, COMPANY_SEMANTIC_IDS),
+      street: this.findElement(contact, STREET_SEMANTIC_IDS),
+      zip: this.findElement(contact, ZIP_SEMANTIC_IDS),
+      city: this.findElement(contact, CITY_SEMANTIC_IDS),
+      countryCode: this.findElement(contact, COUNTRY_CODE_SEMANTIC_IDS),
+      phone: this.nestedElement(PHONE_SEMANTIC_ID, TELEPHONE_NUMBER_SEMANTIC_IDS),
+      email: this.nestedElement(EMAIL_SEMANTIC_ID, EMAIL_ADDRESS_SEMANTIC_IDS),
+      web: this.nestedElement(IP_COMMUNICATION_SEMANTIC_ID, [ADDRESS_LINK_SEMANTIC_ID]),
+      euDeclarationOfConformity: this.findElement(root, EU_DECLARATION_OF_CONFORMITY_SEMANTIC_IDS),
+      resultsOfTestReports: this.findElement(root, RESULTS_OF_TEST_REPORTS_SEMANTIC_IDS),
+    };
+  });
+
+  readonly manufacturerName = computed(() => this.elementText(this.fieldElements().manufacturerName));
+  readonly manufacturerIdentifier = computed(() => this.elementText(this.fieldElements().manufacturerIdentifier));
+  readonly serialNumber = computed(() => this.elementText(this.fieldElements().serialNumber));
+  readonly uriOfProduct = computed(() => this.elementText(this.fieldElements().uriOfProduct));
+  readonly uniqueFacilityIdentifier = computed(() => this.elementText(this.fieldElements().uniqueFacilityIdentifier));
+  readonly operatorIdentifier = computed(() => this.elementText(this.fieldElements().operatorIdentifier));
+  readonly lifeCycleStage = computed(() => this.elementText(this.fieldElements().lifeCycleStage));
+  readonly dateOfManufacture = computed(() => this.toDate(this.elementText(this.fieldElements().dateOfManufacture)));
   readonly dateOfPuttingIntoService = computed(() =>
-    this.readDate(this.rootElements(), DATE_OF_PUTTING_INTO_SERVICE_SEMANTIC_IDS),
+    this.toDate(this.elementText(this.fieldElements().dateOfPuttingIntoService)),
   );
-  readonly company = computed(
-    () => this.readText(this.contactInformationElements(), COMPANY_SEMANTIC_IDS) || this.manufacturerName(),
+  /** Element behind the company name; falls back to the manufacturer name like the displayed value. */
+  readonly companyElement = computed(() =>
+    this.elementText(this.fieldElements().company) !== ''
+      ? this.fieldElements().company
+      : this.fieldElements().manufacturerName,
   );
-  readonly street = computed(() => this.readText(this.contactInformationElements(), STREET_SEMANTIC_IDS));
-  readonly zip = computed(() => this.readText(this.contactInformationElements(), ZIP_SEMANTIC_IDS));
-  readonly city = computed(() => this.readText(this.contactInformationElements(), CITY_SEMANTIC_IDS));
-  readonly countryCode = computed(() => this.readText(this.contactInformationElements(), COUNTRY_CODE_SEMANTIC_IDS));
-  readonly phone = computed(() => this.readNestedText(PHONE_SEMANTIC_ID, TELEPHONE_NUMBER_SEMANTIC_IDS));
-  readonly email = computed(() => this.readNestedText(EMAIL_SEMANTIC_ID, EMAIL_ADDRESS_SEMANTIC_IDS));
-  readonly web = computed(() => this.readNestedText(IP_COMMUNICATION_SEMANTIC_ID, ADDRESS_LINK_SEMANTIC_ID));
+  readonly company = computed(() => this.elementText(this.companyElement()));
+  readonly street = computed(() => this.elementText(this.fieldElements().street));
+  readonly zip = computed(() => this.elementText(this.fieldElements().zip));
+  readonly city = computed(() => this.elementText(this.fieldElements().city));
+  readonly countryCode = computed(() => this.elementText(this.fieldElements().countryCode));
+  readonly phone = computed(() => this.elementText(this.fieldElements().phone));
+  readonly email = computed(() => this.elementText(this.fieldElements().email));
+  readonly web = computed(() => this.elementText(this.fieldElements().web));
   readonly euDeclarationOfConformity = computed(() =>
-    this.readDocumentIdentifiers(this.rootElements(), EU_DECLARATION_OF_CONFORMITY_SEMANTIC_IDS).join(', '),
+    this.readDocumentIdentifiers(this.fieldElements().euDeclarationOfConformity).join(', '),
   );
   readonly resultsOfTestReports = computed(() =>
-    this.readDocumentIdentifiers(this.rootElements(), RESULTS_OF_TEST_REPORTS_SEMANTIC_IDS).join(', '),
+    this.readDocumentIdentifiers(this.fieldElements().resultsOfTestReports).join(', '),
+  );
+  /** Whether the identification card has anything to show besides the manufacturer, which is in the hero. */
+  readonly hasIdentificationFields = computed(
+    () =>
+      this.manufacturerIdentifier() !== '' ||
+      this.serialNumber() !== '' ||
+      this.operatorIdentifier() !== '' ||
+      this.uniqueFacilityIdentifier() !== '' ||
+      this.lifeCycleStage() !== '' ||
+      this.dateOfManufacture() != null ||
+      this.dateOfPuttingIntoService() != null ||
+      this.uriOfProduct() !== '',
   );
   readonly isInstance = computed(() => {
     return this.viewerStore.aas()?.assetInformation.assetKind === aas.types.AssetKind.Instance;
@@ -174,21 +226,12 @@ export class BatteryNameplateViewerComponent implements OnChanges {
     }
   }
 
-  private readText(
-    source: aas.types.ISubmodelElement[],
-    semanticIds: string | string[],
-    idShorts: string[] = [],
-  ): string {
-    return this.elementText(this.findElement(source, this.toArray(semanticIds), idShorts));
-  }
-
-  private readNestedText(parentSemanticId: string, childSemanticIds: string | string[]): string {
+  private nestedElement(parentSemanticId: string, childSemanticIds: string[]): aas.types.ISubmodelElement | undefined {
     const parent = this.findElement(this.contactInformationElements(), [parentSemanticId]);
-    return this.readText(this.collectionChildren(parent), childSemanticIds);
+    return this.findElement(this.collectionChildren(parent), childSemanticIds);
   }
 
-  private readDate(source: aas.types.ISubmodelElement[], semanticIds: string[]): Date | null {
-    const value = this.readText(source, semanticIds);
+  private toDate(value: string): Date | null {
     if (value.trim() === '') {
       return null;
     }
@@ -197,8 +240,7 @@ export class BatteryNameplateViewerComponent implements OnChanges {
     return Number.isNaN(parsed.getTime()) ? null : parsed;
   }
 
-  private readDocumentIdentifiers(source: aas.types.ISubmodelElement[], semanticIds: string[]): string[] {
-    const listElement = this.findElement(source, semanticIds);
+  private readDocumentIdentifiers(listElement: aas.types.ISubmodelElement | undefined): string[] {
     const items = listElement instanceof aas.types.SubmodelElementList ? (listElement.value ?? []) : [];
 
     return items
@@ -248,9 +290,5 @@ export class BatteryNameplateViewerComponent implements OnChanges {
         semanticIds.some((semanticId) => SemanticIdHelper.hasSemanticId(element, semanticId))
       );
     });
-  }
-
-  private toArray(value: string | string[]): string[] {
-    return Array.isArray(value) ? value : [value];
   }
 }

@@ -125,8 +125,16 @@
     </div>
     @let currentSm = viewerStore.currentSubmodel();
     @if (viewerStore.isLoadingAas() || (viewerStore.isLoadingSubmodels() && !currentSm)) {
-      <div class="w-full flex justify-center items-center viewer-loading">
+      @let progress = viewerStore.submodelLoadProgress();
+      <div class="w-full flex flex-col justify-center items-center gap-3 viewer-loading" role="status">
         <div class="aas-loading-spinner"></div>
+        <span class="text-muted-color">
+          @if (viewerStore.isLoadingAas()) {
+            {{ 'LOADING_AAS' | translate }}
+          } @else {
+            {{ 'LOADING_SUBMODELS' | translate: { done: progress.done, total: progress.total } }}
+          }
+        </span>
       </div>
     } @else if (viewSubmodels() && currentSm) {
       <aas-aas-model-viewer

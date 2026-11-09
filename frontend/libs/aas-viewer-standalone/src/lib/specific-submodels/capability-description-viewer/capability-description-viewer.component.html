@@ -7,44 +7,40 @@
 }
 
 @if (loading) {
-  <div class="capability-container">
-    <div class="section-card">
-      <h3 class="section-title"><i class="fa-solid fa-hourglass-half"></i> {{ 'LOADING' | translate }}...</h3>
+  <div class="viewer-stack">
+    <div class="viewer-card">
+      <h3 class="viewer-card-title"><i class="fa-solid fa-hourglass-half"></i> {{ 'LOADING' | translate }}...</h3>
     </div>
   </div>
 } @else {
-  <div class="capability-container">
-    <div class="section-card">
-      <h3 class="section-title"><i class="fa-solid fa-chart-simple"></i> {{ 'CAPABILITY_OVERVIEW' | translate }}</h3>
-      <div class="summary-grid">
-        <p-inputgroup>
-          <p-inputgroup-addon class="font-bold min-w-40">{{ 'CAPABILITIES' | translate }}</p-inputgroup-addon>
-          <input pInputText type="text" [value]="capabilities.length" readonly />
-        </p-inputgroup>
-        <p-inputgroup>
-          <p-inputgroup-addon class="font-bold min-w-40">{{
-            'CAPABILITY_ROLE_OFFERED' | translate
-          }}</p-inputgroup-addon>
-          <input pInputText type="text" [value]="offeredCount" readonly />
-        </p-inputgroup>
-        <p-inputgroup>
-          <p-inputgroup-addon class="font-bold min-w-40">{{
-            'CAPABILITY_ROLE_REQUIRED' | translate
-          }}</p-inputgroup-addon>
-          <input pInputText type="text" [value]="requiredCount" readonly />
-        </p-inputgroup>
-        <p-inputgroup>
-          <p-inputgroup-addon class="font-bold min-w-40">{{
-            'CAPABILITY_PROPERTY_SETS' | translate
-          }}</p-inputgroup-addon>
-          <input pInputText type="text" [value]="totalPropertySetCount" readonly />
-        </p-inputgroup>
+  <div class="viewer-stack">
+    <div class="viewer-card">
+      <h3 class="viewer-card-title">
+        <i class="fa-solid fa-chart-simple"></i> {{ 'CAPABILITY_OVERVIEW' | translate }}
+      </h3>
+      <div class="viewer-kpis">
+        <div class="viewer-kpi">
+          <span class="viewer-kpi-label">{{ 'CAPABILITIES' | translate }}</span>
+          <span class="viewer-kpi-value">{{ capabilities.length }}</span>
+        </div>
+        <div class="viewer-kpi">
+          <span class="viewer-kpi-label">{{ 'CAPABILITY_ROLE_OFFERED' | translate }}</span>
+          <span class="viewer-kpi-value">{{ offeredCount }}</span>
+        </div>
+        <div class="viewer-kpi">
+          <span class="viewer-kpi-label">{{ 'CAPABILITY_ROLE_REQUIRED' | translate }}</span>
+          <span class="viewer-kpi-value">{{ requiredCount }}</span>
+        </div>
+        <div class="viewer-kpi">
+          <span class="viewer-kpi-label">{{ 'CAPABILITY_PROPERTY_SETS' | translate }}</span>
+          <span class="viewer-kpi-value">{{ totalPropertySetCount }}</span>
+        </div>
       </div>
     </div>
 
     @if (capabilities.length > 0) {
-      <div class="section-card">
-        <h3 class="section-title"><i class="fa-solid fa-list-check"></i> {{ 'CAPABILITIES' | translate }}</h3>
+      <div class="viewer-card">
+        <h3 class="viewer-card-title"><i class="fa-solid fa-list-check"></i> {{ 'CAPABILITIES' | translate }}</h3>
 
         <p-accordion [multiple]="true" aasExpandedState="capabilities">
           @for (capability of capabilities; track capability.id + '-' + i; let i = $index) {
@@ -66,35 +62,36 @@
                 </div>
               </p-accordion-header>
               <p-accordion-content>
-                <div class="flex flex-col gap-2">
+                <div class="viewer-fields">
                   @if (capability.comment != '') {
                     <p-inputgroup>
-                      <p-inputgroup-addon class="min-w-48 font-bold">
+                      <p-inputgroup-addon class="viewer-label-addon">
                         <lib-help-label tag="COMMENT" [showLabel]="false"></lib-help-label>
                         {{ 'COMMENT' | translate }}
+                        <aas-semantic-description-popup [semanticId]="capability.commentSemanticId" [compact]="true" />
                       </p-inputgroup-addon>
                       <input pInputText type="text" [value]="capability.comment" readonly />
                     </p-inputgroup>
                   }
 
-                  <div class="detail-grid">
-                    <div class="mini-card">
-                      <h4 class="mini-title">{{ 'CAPABILITY_RELATIONS' | translate }}</h4>
-                      <div class="flex flex-col gap-2">
+                  <div class="viewer-grid-2">
+                    <div class="capability-panel">
+                      <h4 class="viewer-subtitle">{{ 'CAPABILITY_RELATIONS' | translate }}</h4>
+                      <div class="viewer-fields">
                         <p-inputgroup>
-                          <p-inputgroup-addon class="min-w-48 font-bold">{{
+                          <p-inputgroup-addon class="viewer-label-addon">{{
                             'CAPABILITY_RELATION_REALIZED_BY' | translate
                           }}</p-inputgroup-addon>
                           <input pInputText type="text" [value]="capability.realizedByCount" readonly />
                         </p-inputgroup>
                         <p-inputgroup>
-                          <p-inputgroup-addon class="min-w-48 font-bold">{{
+                          <p-inputgroup-addon class="viewer-label-addon">{{
                             'CAPABILITY_RELATION_COMPOSED_OF' | translate
                           }}</p-inputgroup-addon>
                           <input pInputText type="text" [value]="capability.composedOfCount" readonly />
                         </p-inputgroup>
                         <p-inputgroup>
-                          <p-inputgroup-addon class="min-w-48 font-bold">{{
+                          <p-inputgroup-addon class="viewer-label-addon">{{
                             'CAPABILITY_RELATION_GENERALIZED_BY' | translate
                           }}</p-inputgroup-addon>
                           <input pInputText type="text" [value]="capability.generalizedByCount" readonly />
@@ -102,10 +99,10 @@
                       </div>
                     </div>
 
-                    <div class="mini-card">
-                      <h4 class="mini-title">{{ 'CONSTRAINTS' | translate }}</h4>
+                    <div class="capability-panel">
+                      <h4 class="viewer-subtitle">{{ 'CONSTRAINTS' | translate }}</h4>
                       <p-inputgroup>
-                        <p-inputgroup-addon class="min-w-48 font-bold">
+                        <p-inputgroup-addon class="viewer-label-addon">
                           <lib-help-label tag="CONSTRAINT" [showLabel]="false"></lib-help-label>
                           {{ 'CONSTRAINT' | translate }}
                         </p-inputgroup-addon>
@@ -115,8 +112,8 @@
                   </div>
 
                   @if (capability.propertySets.length > 0) {
-                    <div class="mini-card">
-                      <h4 class="mini-title">{{ 'CAPABILITY_PROPERTY_SETS' | translate }}</h4>
+                    <div class="capability-panel">
+                      <h4 class="viewer-subtitle">{{ 'CAPABILITY_PROPERTY_SETS' | translate }}</h4>
                       <p-table [value]="capability.propertySets" stripedRows size="small">
                         <ng-template pTemplate="header">
                           <tr>
@@ -182,8 +179,8 @@
         </p-accordion>
       </div>
     } @else {
-      <div class="section-card">
-        <h3 class="section-title"><i class="fa-solid fa-circle-info"></i> {{ 'HINT' | translate }}</h3>
+      <div class="viewer-card">
+        <h3 class="viewer-card-title"><i class="fa-solid fa-circle-info"></i> {{ 'HINT' | translate }}</h3>
         <div>{{ 'CAPABILITY_NO_CONTAINERS_FOUND' | translate }}</div>
       </div>
     }

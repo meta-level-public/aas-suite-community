@@ -20,7 +20,9 @@ import { InputText } from '@openng/optimus-ui/inputtext';
 import { Button } from '@openng/optimus-ui/button';
 import { TableModule } from '@openng/optimus-ui/table';
 import { Tag } from '@openng/optimus-ui/tag';
+import { semanticIdOf } from '../../concept-unit.service';
 import { GenericViewerComponent } from '../../generic-viewer/generic-viewer.component';
+import { SemanticDescriptionPopupComponent } from '../../semantic-description-popup/semantic-description-popup.component';
 import { SubmodelHeroHeaderComponent } from '../../shared/submodel-hero-header/submodel-hero-header.component';
 import { ViewerStoreService } from '../../viewer-store.service';
 import { ExpandedStateDirective } from '../../expanded-state/expanded-state.directive';
@@ -45,6 +47,8 @@ type CapabilityCard = {
   roleOffered: boolean;
   roleNotAssigned: boolean;
   comment: string;
+  /** Semantic ID of the capability comment, for the concept description help */
+  commentSemanticId: string;
   propertySets: CapabilityPropertySummary[];
   realizedByCount: number;
   composedOfCount: number;
@@ -83,6 +87,7 @@ type CapabilitySetGroup = {
     SubmodelHeroHeaderComponent,
     TranslateModule,
     HelpLabelComponent,
+    SemanticDescriptionPopupComponent,
   ],
 })
 export class CapabilityDescriptionViewerComponent implements OnChanges, OnDestroy {
@@ -261,13 +266,12 @@ export class CapabilityDescriptionViewerComponent implements OnChanges, OnDestro
       'Capability',
       'https://admin-shell.io/idta/CapabilityDescription/Capability/1/0',
     );
-    const capabilityComment = this.getText(
-      this.findElement(
-        container.value ?? [],
-        'CapabilityComment',
-        'https://admin-shell.io/idta/CapabilityDescription/CapabilityComment/1/0',
-      ),
+    const capabilityCommentEl = this.findElement(
+      container.value ?? [],
+      'CapabilityComment',
+      'https://admin-shell.io/idta/CapabilityDescription/CapabilityComment/1/0',
     );
+    const capabilityComment = this.getText(capabilityCommentEl);
 
     const propertySet = this.findCollection(
       container.value ?? [],
@@ -337,6 +341,7 @@ export class CapabilityDescriptionViewerComponent implements OnChanges, OnDestro
       roleOffered,
       roleNotAssigned,
       comment: capabilityComment,
+      commentSemanticId: semanticIdOf(capabilityCommentEl),
       propertySets,
       realizedByCount: relationElements.filter((r) => (r.idShort ?? '').toLowerCase().includes('realized')).length,
       composedOfCount: relationElements.filter((r) => (r.idShort ?? '').toLowerCase().includes('composed')).length,

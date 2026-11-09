@@ -19,6 +19,7 @@ export type SpecializedSubmodelViewerType =
   | 'PCF'
   | 'PCF_V1'
   | 'ArticleInformation'
+  | 'DppMetadata'
   | 'Generic';
 
 export class SubmodelViewerResolver {
@@ -57,8 +58,11 @@ export class SubmodelViewerResolver {
         return 'HandoverDocumentation_V2';
       case '0173-1#01-ahf578#002':
         return 'HandoverDocumentation';
+      // Technical Data 1.x by IRI, 2.0 by the ECLASS IRDI of the submodel
       case 'https://admin-shell.io/zvei/technicaldata/submodel/1/1':
       case 'https://admin-shell.io/zvei/technicaldata/submodel/1/2':
+      case '0173-1#01-ahx837#002':
+      case 'https://admin-shell.io/idta/digitalbatterypassport/technicaldata/1/0':
         return 'TechnicalData';
       case 'https://admin-shell.io/idta/hierarchicalstructures/1/0/submodel':
       case 'https://admin-shell.io/idta/hierarchicalstructures/1/1/submodel':
@@ -78,6 +82,10 @@ export class SubmodelViewerResolver {
         return 'ArticleInformation';
       case 'https://admin-shell.io/zvei/nameplate/1/0/contactinformations':
         return 'ContactInformation';
+      // IDTA DPP metadata 1.0: the submodel carries the CDS ID, the template its own ID
+      case 'https://admin-shell.io/idta/cds/dppmetadata/1':
+      case 'https://admin-shell.io/idta/submodeltemplate/dppmetadata/1/0':
+        return 'DppMetadata';
       default:
         return 'Generic';
     }

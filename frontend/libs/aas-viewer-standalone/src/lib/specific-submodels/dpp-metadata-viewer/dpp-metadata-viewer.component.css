@@ -1,0 +1,5 @@
+/* Hero, cards and fields come from the shared viewer building blocks (styles/viewer-ui.css) */
+
+.viewer-spec-table .dpp-specification-id {
+  font-weight: 400;
+}

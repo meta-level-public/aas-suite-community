@@ -12,6 +12,7 @@ import { SemanticDescriptionPopupComponent } from '../semantic-description-popup
 @Component({
   selector: 'aas-multilanguage-property-viewer',
   templateUrl: './multilanguage-property-viewer.component.html',
+  styleUrl: './multilanguage-property-viewer.component.css',
   changeDetection: ChangeDetectionStrategy.Eager,
   imports: [SemanticDescriptionPopupComponent],
 })

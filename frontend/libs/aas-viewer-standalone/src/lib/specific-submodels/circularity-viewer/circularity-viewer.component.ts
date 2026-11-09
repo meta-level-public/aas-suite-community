@@ -1,11 +1,14 @@
 import * as aas from '@aas-core-works/aas-core3.1-typescript';
 import { SemanticIdHelper } from '@aas/helpers';
-import { Component, Input, OnChanges, computed, signal, ChangeDetectionStrategy } from '@angular/core';
+import { Component, Input, OnChanges, computed, inject, signal, ChangeDetectionStrategy } from '@angular/core';
 import { TranslateModule } from '@ngx-translate/core';
 import { InputGroup } from '@openng/optimus-ui/inputgroup';
 import { InputGroupAddon } from '@openng/optimus-ui/inputgroupaddon';
 import { InputText } from '@openng/optimus-ui/inputtext';
+import { ConceptUnitService, EMPTY_VIEWER_FIELD, ViewerField, viewerFieldOf } from '../../concept-unit.service';
 import { GenericViewerComponent } from '../../generic-viewer/generic-viewer.component';
+import { SemanticDescriptionPopupComponent } from '../../semantic-description-popup/semantic-description-popup.component';
+import { ViewerUnitComponent } from '../../viewer-unit/viewer-unit.component';
 
 const SEMANTICS = {
   dismantlingAndRemovalInformation:
@@ -56,11 +59,13 @@ interface CircularityRecycledContentEntry {
   recycledMaterial: string;
   preConsumerShare: string;
   postConsumerShare: string;
+  fields: Record<'recycledMaterial' | 'preConsumerShare' | 'postConsumerShare', ViewerField>;
 }
 
 interface CircularityComponentPart {
   partName: string;
   partNumber: string;
+  fields: Record<'partName' | 'partNumber', ViewerField>;
 }
 
 interface CircularitySupplier {
@@ -69,6 +74,7 @@ interface CircularitySupplier {
   email: string;
   web: string;
   components: CircularityComponentPart[];
+  fields: Record<'name' | 'email' | 'web', ViewerField>;
 }
 
 interface CircularityViewModel {
@@ -76,6 +82,7 @@ interface CircularityViewModel {
   endOfLifeSections: CircularitySection[];
   recycledContentEntries: CircularityRecycledContentEntry[];
   renewableContent: string;
+  renewableContentField: ViewerField;
   safetyInstructionDocuments: CircularityDocumentItem[];
   extinguishingAgents: string[];
   sparePartSuppliers: CircularitySupplier[];
@@ -86,6 +93,7 @@ const EMPTY_VIEW_MODEL: CircularityViewModel = {
   endOfLifeSections: [],
   recycledContentEntries: [],
   renewableContent: '',
+  renewableContentField: EMPTY_VIEWER_FIELD,
   safetyInstructionDocuments: [],
   extinguishingAgents: [],
   sparePartSuppliers: [],
@@ -96,18 +104,28 @@ const EMPTY_VIEW_MODEL: CircularityViewModel = {
   templateUrl: './circularity-viewer.component.html',
   styleUrls: ['./circularity-viewer.component.css'],
   changeDetection: ChangeDetectionStrategy.Eager,
-  imports: [InputGroup, InputGroupAddon, InputText, TranslateModule, GenericViewerComponent],
+  imports: [
+    InputGroup,
+    InputGroupAddon,
+    InputText,
+    TranslateModule,
+    GenericViewerComponent,
+    SemanticDescriptionPopupComponent,
+    ViewerUnitComponent,
+  ],
 })
 export class CircularityViewerComponent implements OnChanges {
   @Input({ required: true }) submodel: aas.types.Submodel | undefined;
   @Input() currentLanguage = 'de';
 
+  private readonly units = inject(ConceptUnitService);
   private readonly model = signal<CircularityViewModel>(EMPTY_VIEW_MODEL);
 
   readonly dismantlingDocuments = computed(() => this.model().dismantlingDocuments);
   readonly endOfLifeSections = computed(() => this.model().endOfLifeSections);
   readonly recycledContentEntries = computed(() => this.model().recycledContentEntries);
   readonly renewableContent = computed(() => this.model().renewableContent);
+  readonly renewableContentField = computed(() => this.model().renewableContentField);
   readonly safetyInstructionDocuments = computed(() => this.model().safetyInstructionDocuments);
   readonly extinguishingAgents = computed(() => this.model().extinguishingAgents);
   readonly sparePartSuppliers = computed(() => this.model().sparePartSuppliers);
@@ -128,10 +146,16 @@ export class CircularityViewerComponent implements OnChanges {
     this.model.set(this.buildViewModel());
   }
 
+  /** Unit of a field (element unit, else concept description); reactive, as the unit may load later. */
+  fieldUnit(field: ViewerField): string {
+    return this.units.fieldUnit(field);
+  }
+
   private buildViewModel(): CircularityViewModel {
     const root = this.submodel?.submodelElements ?? [];
     const endOfLifeInformation = this.findElement(root, [SEMANTICS.endOfLifeInformation], ['EndOfLifeInformation']);
     const safetyMeasures = this.findElement(root, [SEMANTICS.safetyMeasures], ['SafetyMeasures']);
+    const renewableContent = this.findElement(root, [SEMANTICS.renewableContent], ['RenewableContent']);
 
     return {
       dismantlingDocuments: this.extractDocumentList(
@@ -168,9 +192,8 @@ export class CircularityViewerComponent implements OnChanges {
       recycledContentEntries: this.extractRecycledContentEntries(
         this.findElement(root, [SEMANTICS.recycledContent], ['RecycledContentInformation']),
       ),
-      renewableContent: this.readText(
-        this.findElement(root, [SEMANTICS.renewableContent], ['RenewableContent']),
-      ).trim(),
+      renewableContent: this.readText(renewableContent).trim(),
+      renewableContentField: viewerFieldOf(renewableContent),
       safetyInstructionDocuments: this.extractDocumentList(
         this.childrenOf(safetyMeasures),
         [SEMANTICS.safetyInstructions],
@@ -198,17 +221,23 @@ export class CircularityViewerComponent implements OnChanges {
       .filter(
         (item): item is aas.types.SubmodelElementCollection => item instanceof aas.types.SubmodelElementCollection,
       )
-      .map((entry) => ({
-        recycledMaterial: this.readText(
-          this.findElement(this.childrenOf(entry), [SEMANTICS.recycledMaterial], ['RecycledMaterial']),
-        ).trim(),
-        preConsumerShare: this.readText(
-          this.findElement(this.childrenOf(entry), [SEMANTICS.preConsumerShare], ['PreConsumerShare']),
-        ).trim(),
-        postConsumerShare: this.readText(
-          this.findElement(this.childrenOf(entry), [SEMANTICS.postConsumerShare], ['PostConsumerShare']),
-        ).trim(),
-      }))
+      .map((entry) => {
+        const children = this.childrenOf(entry);
+        const recycledMaterial = this.findElement(children, [SEMANTICS.recycledMaterial], ['RecycledMaterial']);
+        const preConsumerShare = this.findElement(children, [SEMANTICS.preConsumerShare], ['PreConsumerShare']);
+        const postConsumerShare = this.findElement(children, [SEMANTICS.postConsumerShare], ['PostConsumerShare']);
+
+        return {
+          recycledMaterial: this.readText(recycledMaterial).trim(),
+          preConsumerShare: this.readText(preConsumerShare).trim(),
+          postConsumerShare: this.readText(postConsumerShare).trim(),
+          fields: {
+            recycledMaterial: viewerFieldOf(recycledMaterial),
+            preConsumerShare: viewerFieldOf(preConsumerShare),
+            postConsumerShare: viewerFieldOf(postConsumerShare),
+          },
+        };
+      })
       .filter(
         (entry) => entry.recycledMaterial !== '' || entry.preConsumerShare !== '' || entry.postConsumerShare !== '',
       );
@@ -235,19 +264,17 @@ export class CircularityViewerComponent implements OnChanges {
           ['EmailAddressOfSupplier'],
         );
         const componentsList = this.findElement(this.childrenOf(supplier), [SEMANTICS.components], ['Components']);
+        const name = this.findElement(this.childrenOf(supplier), [SEMANTICS.company], ['NameOfSupplier']);
+        const email = this.findElement(this.childrenOf(emailCollection), [SEMANTICS.emailAddress], ['EmailAddress']);
+        const web = this.findElement(this.childrenOf(supplier), [SEMANTICS.supplierWebAddress], ['SupplierWebAddress']);
 
         return {
-          name: this.readText(
-            this.findElement(this.childrenOf(supplier), [SEMANTICS.company], ['NameOfSupplier']),
-          ).trim(),
+          name: this.readText(name).trim(),
           address: this.formatAddress(addressCollection),
-          email: this.readText(
-            this.findElement(this.childrenOf(emailCollection), [SEMANTICS.emailAddress], ['EmailAddress']),
-          ).trim(),
-          web: this.readText(
-            this.findElement(this.childrenOf(supplier), [SEMANTICS.supplierWebAddress], ['SupplierWebAddress']),
-          ).trim(),
+          email: this.readText(email).trim(),
+          web: this.readText(web).trim(),
           components: this.extractComponents(componentsList),
+          fields: { name: viewerFieldOf(name), email: viewerFieldOf(email), web: viewerFieldOf(web) },
         };
       })
       .filter(
@@ -269,14 +296,16 @@ export class CircularityViewerComponent implements OnChanges {
       .filter(
         (item): item is aas.types.SubmodelElementCollection => item instanceof aas.types.SubmodelElementCollection,
       )
-      .map((component) => ({
-        partName: this.readText(
-          this.findElement(this.childrenOf(component), [SEMANTICS.partName], ['PartName']),
-        ).trim(),
-        partNumber: this.readText(
-          this.findElement(this.childrenOf(component), [SEMANTICS.partNumber], ['PartNumber']),
-        ).trim(),
-      }))
+      .map((component) => {
+        const partName = this.findElement(this.childrenOf(component), [SEMANTICS.partName], ['PartName']);
+        const partNumber = this.findElement(this.childrenOf(component), [SEMANTICS.partNumber], ['PartNumber']);
+
+        return {
+          partName: this.readText(partName).trim(),
+          partNumber: this.readText(partNumber).trim(),
+          fields: { partName: viewerFieldOf(partName), partNumber: viewerFieldOf(partNumber) },
+        };
+      })
       .filter((component) => component.partName !== '' || component.partNumber !== '');
   }
 

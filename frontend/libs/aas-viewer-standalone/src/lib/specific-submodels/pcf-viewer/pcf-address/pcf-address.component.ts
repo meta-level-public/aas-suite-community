@@ -6,14 +6,12 @@ import * as L from 'leaflet';
 import * as Leaflet from 'leaflet';
 import { tileLayer } from 'leaflet';
 import { OpenStreetMapProvider } from 'leaflet-geosearch';
-import { PrimeTemplate } from '@openng/optimus-ui/api';
-import { TableModule } from '@openng/optimus-ui/table';
 import { PcfHelper } from '../pcf-helper';
 @Component({
   selector: 'aas-pcf-address',
   templateUrl: './pcf-address.component.html',
   changeDetection: ChangeDetectionStrategy.Eager,
-  imports: [TableModule, PrimeTemplate, LeafletDirective, LeafletLayerDirective, TranslateModule],
+  imports: [LeafletDirective, LeafletLayerDirective, TranslateModule],
 })
 export class PcfAddressComponent implements OnChanges {
   @Input({ required: true }) pcfAddress: SubmodelElementCollection | undefined | null;

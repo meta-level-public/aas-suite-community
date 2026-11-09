@@ -14,7 +14,7 @@ import { Select } from '@openng/optimus-ui/select';
 import { Tooltip } from '@openng/optimus-ui/tooltip';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { firstValueFrom } from 'rxjs';
-import { DPP_GRANULARITY_OPTIONS, DPP_STATUS_OPTIONS, DppStatus } from './dpp-metadata-options';
+import { DPP_GRANULARITY_OPTIONS, DPP_STATUS_OPTIONS, DppStatus } from '@aas/helpers';
 
 export interface DppSubmodelOption {
   id: string;

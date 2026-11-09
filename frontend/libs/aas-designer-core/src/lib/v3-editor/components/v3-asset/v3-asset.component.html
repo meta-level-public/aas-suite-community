@@ -67,7 +67,7 @@
         <aas-v3-global-asset-id [content]="asset" class="w-full"></aas-v3-global-asset-id>
         @if (hasValueErrors()) {
           <div class="text-error">
-            {{ 'errorMessages.' + getValueError()[0].message | translate }}
+            {{ getValueError()[0].message | verificationMessage }}
           </div>
         }
       </div>
@@ -82,7 +82,7 @@
         ></aas-v3-specific-asset-ids>
         @if (hasValueErrors()) {
           <div class="text-error">
-            {{ 'errorMessages.' + getValueError()[0].message | translate }}
+            {{ getValueError()[0].message | verificationMessage }}
           </div>
         }
       </div>

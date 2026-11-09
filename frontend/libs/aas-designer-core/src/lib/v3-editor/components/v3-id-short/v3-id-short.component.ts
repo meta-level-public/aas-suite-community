@@ -16,11 +16,13 @@ import { Info } from '../../../general/model/info-item';
 import { V3TreeItem } from '../../model/v3-tree-item';
 import { V3TreeService } from '../../v3-tree/v3-tree.service';
 import { V3ComponentBase } from '../v3-component-base';
+import { VerificationMessagePipe } from '../../tools/verification-message';
 @Component({
   selector: 'aas-v3-id-short',
   templateUrl: './v3-id-short.component.html',
   changeDetection: ChangeDetectionStrategy.Eager,
   imports: [
+    VerificationMessagePipe,
     HelpLabelComponent,
     InputGroup,
     FormsModule,
@@ -52,19 +54,18 @@ export class V3IdShortComponent extends V3ComponentBase {
     return required;
   }
 
-  getError(entry: any) {
-    const errors = [];
-    for (const error of aas.verification.verify(entry)) {
-      errors.push(error);
+  /**
+   * Errors on the idShort of this element only. Not recursive: on a submodel or collection a recursive check would
+   * verify the whole subtree on every change detection run, and the children's errors are filtered out anyway.
+   */
+  getError(entry: aas.types.Class | null | undefined) {
+    if (entry == null) {
+      return [];
     }
-    return errors.filter((e) => (e.path.segments[0] as any)?.name === 'idShort');
-  }
-  hasErrors(entry: any) {
-    const errors = [];
-    for (const error of aas.verification.verify(entry)) {
-      errors.push(error);
-    }
-    return errors.filter((e) => (e.path.segments[0] as any)?.name === 'idShort')?.length > 0;
+
+    return Array.from(aas.verification.verify(entry, false)).filter(
+      (e) => (e.path.segments[0] as { name?: string } | undefined)?.name === 'idShort',
+    );
   }
 
   onIdShortChange() {

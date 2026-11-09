@@ -13,6 +13,7 @@ import { UndoDirective } from '../../../../general/directives/undo.directive';
 import { V3UndoDirective } from '../../../../general/directives/v3-undo.directive';
 import { Info } from '../../../../general/model/info-item';
 import { V3ComponentBase } from '../../v3-component-base';
+import { VerificationMessagePipe } from '../../../tools/verification-message';
 type OperationVariable = aas.types.OperationVariable;
 
 @Component({
@@ -20,6 +21,7 @@ type OperationVariable = aas.types.OperationVariable;
   templateUrl: './v3-variable-property.component.html',
   changeDetection: ChangeDetectionStrategy.Eager,
   imports: [
+    VerificationMessagePipe,
     HelpLabelComponent,
     FormsModule,
     InputText,

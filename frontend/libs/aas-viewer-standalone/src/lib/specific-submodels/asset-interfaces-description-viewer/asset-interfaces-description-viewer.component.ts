@@ -16,6 +16,7 @@ import { TableModule } from '@openng/optimus-ui/table';
 import { Tag } from '@openng/optimus-ui/tag';
 import { Tooltip } from '@openng/optimus-ui/tooltip';
 import { TreeTable, TreeTableModule } from '@openng/optimus-ui/treetable';
+import { SemanticDescriptionPopupComponent } from '../../semantic-description-popup/semantic-description-popup.component';
 import {
   AidDataPoint,
   AidInterface,
@@ -49,6 +50,7 @@ type InterfaceView = AidInterface & {
     Tooltip,
     TranslateModule,
     TreeTableModule,
+    SemanticDescriptionPopupComponent,
   ],
 })
 export class AssetInterfacesDescriptionViewerComponent {

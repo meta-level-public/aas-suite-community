@@ -47,6 +47,7 @@ import { SearchInAasDialogComponent } from '../search/search-in-aas-dialog.compo
 import { ShellNavigator } from '../shell-navigation';
 import { ViewerNavigationComponent } from '../viewer-navigation/viewer-navigation.component';
 import { ViewerStoreService } from '../viewer-store.service';
+import { claimOpenViewerEvent } from '../aas-viewer-dialog.config';
 
 @Component({
   selector: 'aas-aas-viewer-standalone',
@@ -290,16 +291,7 @@ export class AasViewerStandaloneComponent implements OnChanges, OnInit, OnDestro
 
   @HostListener('window:openViewer', ['$event'])
   openViewer(event: Event) {
-    this.ref = this.dialogService.open(AasViewerStandaloneComponent, {
-      header: 'AAS Viewer',
-      width: '70%',
-      contentStyle: { overflow: 'auto' },
-      baseZIndex: 10000,
-      maximizable: true,
-      data: {
-        viewerDescriptor: (event as CustomEvent).detail.viewerDescriptor,
-      },
-    });
+    this.ref = this.dialogService.open(AasViewerStandaloneComponent, claimOpenViewerEvent(event));
   }
 
   // Submodels arrive one after another. Until the user picks one, the Nameplate is preferred as

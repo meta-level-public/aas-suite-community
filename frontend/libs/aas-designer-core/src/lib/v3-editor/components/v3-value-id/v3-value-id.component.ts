@@ -23,12 +23,14 @@ import { V3TreeService } from '../../v3-tree/v3-tree.service';
 import { AdditionalLookupSourcesComponent } from '../additional-lookup-sources/additional-lookup-sources.component';
 import { V3ComponentBase } from '../v3-component-base';
 import { VecLookupComponent } from '../vec-lookup/vec-lookup.component';
+import { VerificationMessagePipe } from '../../tools/verification-message';
 
 @Component({
   selector: 'aas-v3-value-id',
   templateUrl: './v3-value-id.component.html',
   changeDetection: ChangeDetectionStrategy.Eager,
   imports: [
+    VerificationMessagePipe,
     Button,
     InputGroup,
     FormsModule,

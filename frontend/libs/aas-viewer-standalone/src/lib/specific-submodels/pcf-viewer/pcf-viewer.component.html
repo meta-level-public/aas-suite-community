@@ -1,5 +1,6 @@
-<div class="flex flex-col gap-2">
-  <p-card [header]="'PCF_VIEWER.TITLE' | translate" class="mt-2">
+<div class="viewer-stack">
+  <section class="viewer-card">
+    <h3 class="viewer-card-title"><i class="fa-solid fa-leaf"></i>{{ 'PCF_VIEWER.TITLE' | translate }}</h3>
     <p-accordion [multiple]="true" class="w-full" [value]="expandedPcfPanels()" aasExpandedState="pcf">
       @for (pcf of pcfList; track pcf) {
         <p-accordion-panel [value]="pcf.idShort ?? 0">
@@ -49,13 +50,14 @@
       }
     </p-accordion>
     @if (pcfList.length === 0 && groupedTcfLists.length === 0) {
-      <div class="flex justify-start">
+      <div class="viewer-empty">
         {{ 'NO_PCF_ENTRIES' | translate }}
       </div>
     }
-  </p-card>
+  </section>
 
-  <p-card [header]="'TRANSPORT_CARBON_FOOTPRINT' | translate">
+  <section class="viewer-card">
+    <h3 class="viewer-card-title"><i class="fa-solid fa-truck"></i>{{ 'TRANSPORT_CARBON_FOOTPRINT' | translate }}</h3>
     <p-accordion [multiple]="true" class="w-full" [value]="expandedTcfPanels()" aasExpandedState="tcf">
       @for (tcf of tcfList; track $index) {
         <p-accordion-panel [value]="tcf.idShort ?? 0">
@@ -72,13 +74,14 @@
       }
     </p-accordion>
     @if (tcfList.length === 0 && groupedTcfLists.length === 0) {
-      <div class="flex justify-start">
+      <div class="viewer-empty">
         {{ 'NO_TCF_ENTRIES' | translate }}
       </div>
     }
-  </p-card>
+  </section>
 
-  <p-card [header]="'MAP' | translate">
+  <section class="viewer-card">
+    <h3 class="viewer-card-title"><i class="pi pi-map"></i>{{ 'MAP' | translate }}</h3>
     <aas-pcf-map-overview [pcfList]="pcfList" [tcfList]="tcfList"></aas-pcf-map-overview>
-  </p-card>
+  </section>
 </div>

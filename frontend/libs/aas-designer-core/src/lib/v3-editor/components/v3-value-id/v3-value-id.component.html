@@ -73,7 +73,7 @@
         </div>
         @if (hasValueIdErrors(i)) {
           <div class="text-error">
-            {{ 'errorMessages.' + valueIdError(i)[0].message | translate }}
+            {{ valueIdError(i)[0].message | verificationMessage }}
           </div>
         }
       </div>
@@ -111,7 +111,7 @@
           @if (hasValueIdRefErrors()) {
             @for (valueIdRefError of valueIdRefErrors(); track $index) {
               <div class="text-error">
-                {{ 'errorMessages.' + valueIdRefError.message | translate }}
+                {{ valueIdRefError.message | verificationMessage }}
               </div>
             }
           }

@@ -1,10 +1,31 @@
-<div class="circularity-container">
+<div class="viewer-stack">
   @if (hasContent()) {
+    <!-- Recycling symbol and green tone stand for circularity; key figure is the renewable content share -->
+    <section class="viewer-hero viewer-hero-success">
+      <div class="viewer-hero-icon" aria-hidden="true"><i class="fa-solid fa-recycle"></i></div>
+      <div class="viewer-hero-main">
+        @if (renewableContent()) {
+          <div class="viewer-hero-eyebrow">
+            {{ 'CIRCULARITY_RENEWABLE_CONTENT' | translate }}
+            <aas-semantic-description-popup [semanticId]="renewableContentField().semanticId" [compact]="true" />
+          </div>
+          <p class="viewer-hero-value">
+            {{ renewableContent() }}
+            @if (fieldUnit(renewableContentField()); as unit) {
+              <span class="viewer-hero-unit">{{ unit }}</span>
+            }
+          </p>
+        } @else {
+          <h2 class="viewer-hero-title">{{ 'CIRCULARITY_OVERVIEW' | translate }}</h2>
+        }
+      </div>
+    </section>
+
     @if (dismantlingDocuments().length > 0 || endOfLifeSections().length > 0) {
-      <div class="section-grid-2">
+      <div class="viewer-grid-2">
         @if (dismantlingDocuments().length > 0) {
-          <div class="section-card">
-            <h3 class="section-title">
+          <section class="viewer-card">
+            <h3 class="viewer-card-title">
               <i class="fa-solid fa-screwdriver-wrench"></i>
               {{ 'CIRCULARITY_DISMANTLING_AND_REMOVAL' | translate }}
             </h3>
@@ -22,21 +43,21 @@
                 }
               }
             </div>
-          </div>
+          </section>
         }
 
         @if (endOfLifeSections().length > 0) {
-          <div class="section-card">
-            <h3 class="section-title">
+          <section class="viewer-card">
+            <h3 class="viewer-card-title">
               <i class="fa-solid fa-recycle"></i>
               {{ 'CIRCULARITY_END_OF_LIFE_INFORMATION' | translate }}
             </h3>
 
             <div class="stacked-sections">
               @for (section of endOfLifeSections(); track section.titleKey) {
-                <div class="subsection-block">
-                  <h4 class="subsection-title">{{ section.titleKey | translate }}</h4>
-                  <div class="stacked-sections compact-stack">
+                <div>
+                  <h4 class="viewer-subtitle">{{ section.titleKey | translate }}</h4>
+                  <div class="viewer-fields">
                     @for (item of section.items; track $index) {
                       @if (item.element) {
                         <aas-generic-viewer
@@ -52,87 +73,87 @@
                 </div>
               }
             </div>
-          </div>
+          </section>
         }
       </div>
     }
 
-    @if (recycledContentEntries().length > 0 || renewableContent()) {
-      <div class="section-grid-2">
-        @if (recycledContentEntries().length > 0) {
-          <div class="section-card">
-            <h3 class="section-title">
-              <i class="fa-solid fa-arrows-spin"></i>
-              {{ 'CIRCULARITY_RECYCLED_CONTENT' | translate }}
-            </h3>
+    @if (recycledContentEntries().length > 0) {
+      <section class="viewer-card">
+        <h3 class="viewer-card-title">
+          <i class="fa-solid fa-arrows-spin"></i>
+          {{ 'CIRCULARITY_RECYCLED_CONTENT' | translate }}
+        </h3>
 
-            <div class="stacked-sections">
-              @for (entry of recycledContentEntries(); track $index) {
-                <div class="detail-card">
-                  @if (entry.recycledMaterial) {
-                    <p-inputgroup>
-                      <p-inputgroup-addon class="font-bold circularity-label-addon">
-                        <i class="fa-solid fa-cubes mr-2"></i>
-                        {{ 'CIRCULARITY_RECYCLED_MATERIAL' | translate }}
-                      </p-inputgroup-addon>
-                      <input pInputText type="text" [value]="entry.recycledMaterial" readonly />
-                    </p-inputgroup>
+        <div class="viewer-grid-2">
+          @for (entry of recycledContentEntries(); track $index) {
+            <div class="circularity-entry viewer-fields">
+              @if (entry.recycledMaterial) {
+                <p-inputgroup>
+                  <p-inputgroup-addon class="viewer-label-addon">
+                    <i class="fa-solid fa-cubes mr-2"></i>
+                    {{ 'CIRCULARITY_RECYCLED_MATERIAL' | translate }}
+                    <aas-semantic-description-popup
+                      [semanticId]="entry.fields.recycledMaterial.semanticId"
+                      [compact]="true"
+                    />
+                  </p-inputgroup-addon>
+                  <input pInputText type="text" [value]="entry.recycledMaterial" readonly />
+                  @if (fieldUnit(entry.fields.recycledMaterial); as unit) {
+                    <p-inputgroup-addon class="viewer-unit-addon">{{ unit }}</p-inputgroup-addon>
                   }
-                  @if (entry.preConsumerShare) {
-                    <p-inputgroup>
-                      <p-inputgroup-addon class="font-bold circularity-label-addon">
-                        <i class="fa-solid fa-industry mr-2"></i>
-                        {{ 'CIRCULARITY_PRE_CONSUMER_SHARE' | translate }}
-                      </p-inputgroup-addon>
-                      <input pInputText type="text" [value]="entry.preConsumerShare" readonly />
-                    </p-inputgroup>
+                </p-inputgroup>
+              }
+              @if (entry.preConsumerShare) {
+                <p-inputgroup>
+                  <p-inputgroup-addon class="viewer-label-addon">
+                    <i class="fa-solid fa-industry mr-2"></i>
+                    {{ 'CIRCULARITY_PRE_CONSUMER_SHARE' | translate }}
+                    <aas-semantic-description-popup
+                      [semanticId]="entry.fields.preConsumerShare.semanticId"
+                      [compact]="true"
+                    />
+                  </p-inputgroup-addon>
+                  <input pInputText type="text" [value]="entry.preConsumerShare" readonly />
+                  @if (fieldUnit(entry.fields.preConsumerShare); as unit) {
+                    <p-inputgroup-addon class="viewer-unit-addon">{{ unit }}</p-inputgroup-addon>
                   }
-                  @if (entry.postConsumerShare) {
-                    <p-inputgroup>
-                      <p-inputgroup-addon class="font-bold circularity-label-addon">
-                        <i class="fa-solid fa-box-open mr-2"></i>
-                        {{ 'CIRCULARITY_POST_CONSUMER_SHARE' | translate }}
-                      </p-inputgroup-addon>
-                      <input pInputText type="text" [value]="entry.postConsumerShare" readonly />
-                    </p-inputgroup>
+                </p-inputgroup>
+              }
+              @if (entry.postConsumerShare) {
+                <p-inputgroup>
+                  <p-inputgroup-addon class="viewer-label-addon">
+                    <i class="fa-solid fa-box-open mr-2"></i>
+                    {{ 'CIRCULARITY_POST_CONSUMER_SHARE' | translate }}
+                    <aas-semantic-description-popup
+                      [semanticId]="entry.fields.postConsumerShare.semanticId"
+                      [compact]="true"
+                    />
+                  </p-inputgroup-addon>
+                  <input pInputText type="text" [value]="entry.postConsumerShare" readonly />
+                  @if (fieldUnit(entry.fields.postConsumerShare); as unit) {
+                    <p-inputgroup-addon class="viewer-unit-addon">{{ unit }}</p-inputgroup-addon>
                   }
-                </div>
+                </p-inputgroup>
               }
             </div>
-          </div>
-        }
-
-        @if (renewableContent()) {
-          <div class="section-card">
-            <h3 class="section-title">
-              <i class="fa-solid fa-seedling"></i>
-              {{ 'CIRCULARITY_RENEWABLE_CONTENT' | translate }}
-            </h3>
-
-            <p-inputgroup>
-              <p-inputgroup-addon class="font-bold circularity-label-addon">
-                <i class="fa-solid fa-percent mr-2"></i>
-                {{ 'CIRCULARITY_SHARE' | translate }}
-              </p-inputgroup-addon>
-              <input pInputText type="text" [value]="renewableContent()" readonly />
-            </p-inputgroup>
-          </div>
-        }
-      </div>
+          }
+        </div>
+      </section>
     }
 
     @if (safetyInstructionDocuments().length > 0 || extinguishingAgents().length > 0) {
-      <div class="section-card">
-        <h3 class="section-title">
+      <section class="viewer-card">
+        <h3 class="viewer-card-title">
           <i class="fa-solid fa-shield-halved"></i>
           {{ 'CIRCULARITY_SAFETY_MEASURES' | translate }}
         </h3>
 
-        <div class="section-grid-2">
+        <div class="viewer-grid-2">
           @if (safetyInstructionDocuments().length > 0) {
-            <div class="subsection-block">
-              <h4 class="subsection-title">{{ 'CIRCULARITY_SAFETY_INSTRUCTIONS' | translate }}</h4>
-              <div class="stacked-sections compact-stack">
+            <div>
+              <h4 class="viewer-subtitle">{{ 'CIRCULARITY_SAFETY_INSTRUCTIONS' | translate }}</h4>
+              <div class="viewer-fields">
                 @for (item of safetyInstructionDocuments(); track $index) {
                   @if (item.element) {
                     <aas-generic-viewer
@@ -149,9 +170,9 @@
           }
 
           @if (extinguishingAgents().length > 0) {
-            <div class="subsection-block">
-              <h4 class="subsection-title">{{ 'CIRCULARITY_EXTINGUISHING_AGENTS' | translate }}</h4>
-              <ul class="section-list compact-list">
+            <div>
+              <h4 class="viewer-subtitle">{{ 'CIRCULARITY_EXTINGUISHING_AGENTS' | translate }}</h4>
+              <ul class="section-list">
                 @for (item of extinguishingAgents(); track item) {
                   <li>{{ item }}</li>
                 }
@@ -159,31 +180,35 @@
             </div>
           }
         </div>
-      </div>
+      </section>
     }
 
     @if (sparePartSuppliers().length > 0) {
-      <div class="section-card">
-        <h3 class="section-title">
+      <section class="viewer-card">
+        <h3 class="viewer-card-title">
           <i class="fa-solid fa-boxes-packing"></i>
           {{ 'CIRCULARITY_SPARE_PART_SOURCES' | translate }}
         </h3>
 
-        <div class="supplier-grid">
+        <div class="viewer-grid-2">
           @for (supplier of sparePartSuppliers(); track $index) {
-            <div class="detail-card supplier-card">
+            <div class="circularity-entry viewer-fields">
               @if (supplier.name) {
                 <p-inputgroup>
-                  <p-inputgroup-addon class="font-bold circularity-label-addon">
+                  <p-inputgroup-addon class="viewer-label-addon">
                     <i class="fa-solid fa-building mr-2"></i>
                     {{ 'CIRCULARITY_SUPPLIER' | translate }}
+                    <aas-semantic-description-popup [semanticId]="supplier.fields.name.semanticId" [compact]="true" />
                   </p-inputgroup-addon>
                   <input pInputText type="text" [value]="supplier.name" readonly />
+                  @if (fieldUnit(supplier.fields.name); as unit) {
+                    <p-inputgroup-addon class="viewer-unit-addon">{{ unit }}</p-inputgroup-addon>
+                  }
                 </p-inputgroup>
               }
               @if (supplier.address) {
                 <p-inputgroup>
-                  <p-inputgroup-addon class="font-bold circularity-label-addon">
+                  <p-inputgroup-addon class="viewer-label-addon">
                     <i class="fa-solid fa-location-dot mr-2"></i>
                     {{ 'ADDRESS' | translate }}
                   </p-inputgroup-addon>
@@ -192,39 +217,71 @@
               }
               @if (supplier.email) {
                 <p-inputgroup>
-                  <p-inputgroup-addon class="font-bold circularity-label-addon">
+                  <p-inputgroup-addon class="viewer-label-addon">
                     <i class="fa-solid fa-envelope mr-2"></i>
                     {{ 'EMAIL' | translate }}
+                    <aas-semantic-description-popup [semanticId]="supplier.fields.email.semanticId" [compact]="true" />
                   </p-inputgroup-addon>
                   <input pInputText type="text" [value]="supplier.email" readonly />
+                  @if (fieldUnit(supplier.fields.email); as unit) {
+                    <p-inputgroup-addon class="viewer-unit-addon">{{ unit }}</p-inputgroup-addon>
+                  }
                 </p-inputgroup>
               }
               @if (supplier.web) {
                 <p-inputgroup>
-                  <p-inputgroup-addon class="font-bold circularity-label-addon">
+                  <p-inputgroup-addon class="viewer-label-addon">
                     <i class="fa-solid fa-globe mr-2"></i>
                     {{ 'WEBSITE' | translate }}
+                    <aas-semantic-description-popup [semanticId]="supplier.fields.web.semanticId" [compact]="true" />
                   </p-inputgroup-addon>
                   <input pInputText type="text" [value]="supplier.web" readonly />
+                  @if (fieldUnit(supplier.fields.web); as unit) {
+                    <p-inputgroup-addon class="viewer-unit-addon">{{ unit }}</p-inputgroup-addon>
+                  }
                 </p-inputgroup>
               }
 
               @if (supplier.components.length > 0) {
-                <div class="subsection-block components-block">
-                  <h4 class="subsection-title">{{ 'CIRCULARITY_AVAILABLE_COMPONENTS' | translate }}</h4>
-                  <div class="stacked-sections components-list">
+                <div class="components-block">
+                  <h4 class="viewer-subtitle">{{ 'CIRCULARITY_AVAILABLE_COMPONENTS' | translate }}</h4>
+                  <div class="viewer-fields">
                     @for (component of supplier.components; track $index) {
                       <div class="component-row">
                         @if (component.partName) {
                           <div class="component-text">
-                            <span class="component-label">{{ 'CIRCULARITY_PART_NAME' | translate }}</span>
-                            <span>{{ component.partName }}</span>
+                            <span class="component-label">
+                              {{ 'CIRCULARITY_PART_NAME' | translate }}
+                              <aas-semantic-description-popup
+                                [semanticId]="component.fields.partName.semanticId"
+                                [compact]="true"
+                              />
+                            </span>
+                            <span>
+                              {{ component.partName }}
+                              <aas-viewer-unit
+                                [semanticId]="component.fields.partName.semanticId"
+                                [unit]="component.fields.partName.unit"
+                              />
+                            </span>
                           </div>
                         }
                         @if (component.partNumber) {
                           <div class="component-text">
-                            <span class="component-label">{{ 'CIRCULARITY_PART_NUMBER' | translate }}</span>
-                            <span>{{ component.partNumber }}</span>
+                            <span class="component-label">
+                              {{ 'CIRCULARITY_PART_NUMBER' | translate }}
+                              <aas-semantic-description-popup
+                                [semanticId]="component.fields.partNumber.semanticId"
+                                [compact]="true"
+                              />
+                            </span>
+                            <span>
+                              {{ component.partNumber }}
+                              <aas-viewer-unit
+                                [semanticId]="component.fields.partNumber.semanticId"
+                                [unit]="component.fields.partNumber.unit"
+                              />
+                            </span>
                           </div>
                         }
                       </div>
@@ -235,15 +292,15 @@
             </div>
           }
         </div>
-      </div>
+      </section>
     }
   } @else {
-    <div class="section-card">
-      <h3 class="section-title">
+    <section class="viewer-card">
+      <h3 class="viewer-card-title">
         <i class="fa-solid fa-circle-info"></i>
         {{ 'CIRCULARITY_OVERVIEW' | translate }}
       </h3>
-      <p class="empty-state">{{ 'CIRCULARITY_EMPTY' | translate }}</p>
-    </div>
+      <p class="viewer-empty m-0">{{ 'CIRCULARITY_EMPTY' | translate }}</p>
+    </section>
   }
 </div>

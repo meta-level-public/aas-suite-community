@@ -1,0 +1,167 @@
+/* Card, titles, tables and grids come from the shared viewer building blocks (styles/viewer-ui.css) */
+
+/* With product images, the gallery takes the place of the hero icon */
+.td-hero-with-images {
+  align-items: start;
+}
+
+.td-hero .td-gallery {
+  width: 16rem;
+}
+
+.td-ordering {
+  margin-bottom: 1rem;
+}
+
+.td-ordering:last-child {
+  margin-bottom: 0;
+}
+
+.td-gallery {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.td-gallery-main {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  aspect-ratio: 4 / 3;
+  border: 1px solid var(--p-content-border-color);
+  border-radius: var(--aas-radius-md);
+  background: var(--aas-surface-subtle);
+  overflow: hidden;
+}
+
+.td-gallery-main img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.td-gallery-placeholder {
+  font-size: 2rem;
+  color: var(--p-text-muted-color);
+}
+
+.td-gallery-note {
+  font-size: 0.8rem;
+}
+
+.td-gallery-thumbs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+}
+
+.td-gallery-thumb {
+  width: 3.25rem;
+  height: 3.25rem;
+  padding: 0.15rem;
+  border: 2px solid var(--p-content-border-color);
+  border-radius: var(--aas-radius-xs);
+  background: var(--p-content-background);
+  cursor: pointer;
+}
+
+.td-gallery-thumb img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.td-gallery-thumb-active {
+  border-color: var(--p-primary-color);
+}
+
+.td-area {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.td-group-table,
+.td-nested {
+  margin-top: 1rem;
+}
+
+.td-group-table:first-child,
+.td-nested:first-child {
+  margin-top: 0;
+}
+
+.td-elements {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  margin-top: 0.75rem;
+}
+
+.td-elements:first-child {
+  margin-top: 0;
+}
+
+/* Collapsible nested group: a level line on the left shows the depth */
+.td-nested-summary {
+  margin: 0;
+  padding: 0.35rem 0.25rem;
+  border-radius: var(--aas-radius-xs);
+  cursor: pointer;
+  list-style: none;
+}
+
+.td-nested-summary::-webkit-details-marker {
+  display: none;
+}
+
+.td-nested-summary:hover {
+  background: var(--aas-surface-subtle);
+}
+
+.td-nested-summary:focus-visible {
+  outline: 2px solid var(--p-primary-color);
+  outline-offset: 1px;
+}
+
+.td-nested-chevron {
+  font-size: 0.7rem;
+  transition: transform 0.15s ease;
+}
+
+.td-nested[open] > .td-nested-summary .td-nested-chevron {
+  transform: rotate(90deg);
+}
+
+.td-nested-count {
+  margin-left: auto;
+  padding: 0 0.45rem;
+  border-radius: 999px;
+  background: var(--aas-surface-subtle);
+  font-size: 0.75rem;
+  font-weight: 500;
+  letter-spacing: 0;
+}
+
+.td-nested-body {
+  margin: 0.4rem 0 0 0.45rem;
+  padding-left: 0.75rem;
+  border-left: 2px solid var(--p-content-border-color);
+}
+
+.td-group-row-label {
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.td-statement {
+  margin: 0 0 0.75rem;
+  line-height: 1.5;
+  white-space: pre-line;
+}
+
+@media (max-width: 576px) {
+  .td-hero .td-gallery {
+    width: 100%;
+  }
+}

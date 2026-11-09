@@ -1,15 +1,17 @@
 @if (documents.length > 0) {
-  <div class="handover-container">
+  <div class="viewer-stack">
+    <aas-handover-documentation-hero [summary]="summary()" />
+
     <!-- File Groups Grid -->
     @if (fileGroups.length === 0) {
-      <div class="empty-state">
-        <i class="pi pi-folder-open empty-icon"></i>
-        <p class="empty-text">{{ 'NO_FILES' | translate }}</p>
+      <div class="viewer-empty">
+        <i class="pi pi-folder-open"></i>
+        {{ 'NO_FILES' | translate }}
       </div>
     } @else {
-      <div class="file-groups-grid">
+      <div class="viewer-grid-auto">
         @for (group of fileGroups; track group.groupId) {
-          <div class="file-group-card">
+          <div class="viewer-card file-group-card">
             <!-- Preview Section -->
             <div class="preview-section">
               @if (group.previewLoading) {
@@ -54,10 +56,10 @@
 
             <!-- Group Header -->
             <div class="group-header">
-              <div class="group-title">
+              <h3 class="viewer-card-title group-title">
                 <i class="pi pi-paperclip"></i>
-                <h3>{{ group.title }}</h3>
-              </div>
+                <span class="group-title-text">{{ group.title }}</span>
+              </h3>
               <div class="group-meta">
                 <span class="file-count"
                   >{{ group.files.length }} {{ (group.files.length === 1 ? 'ITEM' : 'ITEMS') | translate }}</span
@@ -115,12 +117,12 @@
 
     <!-- Documents Section -->
     @if (documents.length > 0) {
-      <div class="documents-section">
-        <h2 class="section-title">
+      <section class="viewer-card">
+        <h3 class="viewer-card-title">
           <i class="pi pi-file"></i>
           {{ 'DOCUMENTS' | translate }}
-        </h2>
-        <p-accordion [multiple]="true" class="modern-accordion" [value]="expandedPanels()" aasExpandedState="documents">
+        </h3>
+        <p-accordion [multiple]="true" [value]="expandedPanels()" aasExpandedState="documents">
           @for (doc of documents; track $index) {
             <p-accordion-panel [value]="$index" [attr.id]="'doc-panel-' + $index">
               <p-accordion-header>
@@ -186,13 +188,13 @@
             </p-accordion-panel>
           }
         </p-accordion>
-      </div>
+      </section>
     }
   </div>
 } @else {
-  <div class="empty-state">
-    <i class="pi pi-inbox empty-icon"></i>
-    <p class="empty-text">{{ 'NO_DOCUMENTS_FOUND' | translate }}</p>
+  <div class="viewer-empty">
+    <i class="pi pi-inbox"></i>
+    {{ 'NO_DOCUMENTS_FOUND' | translate }}
   </div>
 }
 
@@ -227,31 +229,31 @@
         <span class="font-medium text-sm">{{ pd.name }}</span>
       </div>
     </ng-template>
-    <div class="preview-container" style="min-height: 60vh">
+    <div class="preview-container min-h-[60vh]">
       @if (pd.type === 'image') {
-        <img [src]="pd.url" [alt]="pd.name" class="w-full h-full" style="object-fit: contain; max-height: 70vh" />
+        <img [src]="pd.url" [alt]="pd.name" class="w-full h-full object-contain max-h-[70vh]" />
       } @else if (pd.type === 'pdf') {
-        <iframe [src]="pd.safeUrl || pd.url" title="pdf" style="border: 0; width: 100%; height: 70vh"></iframe>
+        <iframe [src]="pd.safeUrl || pd.url" title="pdf" class="preview-pdf-dialog"></iframe>
       } @else if (pd.type === 'html') {
         <!-- sandbox="" keeps scripts, forms and links of the document away from the application -->
         <iframe class="preview-html-dialog" sandbox="" [srcdoc]="pd.htmlContent" [title]="pd.name"></iframe>
       } @else if (pd.type === 'xml') {
-        <div class="w-full" style="max-height: 70vh; overflow: auto">
-          <markdown class="w-full h-full flex flex-col overflow-scroll" style="min-height: 100%">
+        <div class="w-full max-h-[70vh] overflow-auto">
+          <markdown class="w-full h-full min-h-full flex flex-col overflow-scroll">
             ```xml
             {{ pd.xmlContent }}
           </markdown>
         </div>
       } @else if (pd.type === 'json') {
-        <div class="w-full" style="max-height: 70vh; overflow: auto">
-          <markdown class="w-full h-full flex flex-col overflow-scroll" style="min-height: 100%">
+        <div class="w-full max-h-[70vh] overflow-auto">
+          <markdown class="w-full h-full min-h-full flex flex-col overflow-scroll">
             ```json
             {{ pd.jsonContent }}
           </markdown>
         </div>
       } @else if (pd.type === 'csv') {
-        <div class="w-full" style="max-height: 70vh; overflow: auto">
-          <markdown class="w-full h-full flex flex-col overflow-scroll" style="min-height: 100%">
+        <div class="w-full max-h-[70vh] overflow-auto">
+          <markdown class="w-full h-full min-h-full flex flex-col overflow-scroll">
             ```csv
             {{ pd.csvContent }}
           </markdown>

@@ -17,12 +17,14 @@ import { V3UndoDirective } from '../../../general/directives/v3-undo.directive';
 import { V3TreeService } from '../../v3-tree/v3-tree.service';
 import { V3ComponentBase } from '../v3-component-base';
 import { AaspeQualifier, AaspeQualifierEntry } from './aaspe-qualifier-entry';
+import { VerificationMessagePipe } from '../../tools/verification-message';
 
 @Component({
   selector: 'aas-v3-qualifiers',
   templateUrl: './v3-qualifiers.component.html',
   changeDetection: ChangeDetectionStrategy.Eager,
   imports: [
+    VerificationMessagePipe,
     Button,
     TieredMenu,
     HelpLabelComponent,

@@ -135,7 +135,7 @@
             }
             @if (hasMinValueErrors) {
               <div class="text-error">
-                {{ 'errorMessages.' + minValueError[0].message | translate }}
+                {{ minValueError[0].message | verificationMessage }}
               </div>
             }
           </div>
@@ -212,7 +212,7 @@
             }
             @if (hasMaxValueErrors) {
               <div class="text-error">
-                {{ 'errorMessages.' + maxValueError[0].message | translate }}
+                {{ maxValueError[0].message | verificationMessage }}
               </div>
             }
           </div>

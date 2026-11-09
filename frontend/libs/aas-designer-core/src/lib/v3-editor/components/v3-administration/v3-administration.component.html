@@ -103,7 +103,7 @@
         }
         @if (hasTemplateIdErrors()) {
           <div class="text-error">
-            {{ 'errorMessages.' + getTemplateIdErrors()[0].message | translate }}
+            {{ getTemplateIdErrors()[0].message | verificationMessage }}
           </div>
         }
       </div>

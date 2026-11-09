@@ -1,24 +1,17 @@
-<div class="pcf-container">
+<div class="viewer-stack">
   @if (steps().length > 0) {
-    <!-- PCF Steps Grid -->
-    <div class="steps-grid">
-      @for (step of steps(); track $index) {
-        <aas-pcf-step-viewer [step]="step"></aas-pcf-step-viewer>
-      }
-    </div>
+    @for (step of steps(); track $index) {
+      <aas-pcf-step-viewer [step]="step"></aas-pcf-step-viewer>
+    }
 
-    <!-- Address Map Section -->
-    <div class="map-section">
-      <h2 class="section-title">
-        <i class="pi pi-map"></i>
+    <section class="viewer-card">
+      <h3 class="viewer-card-title">
+        <i class="fa-solid fa-map-location-dot pcf-map-icon"></i>
         {{ 'PRODUCTION_LOCATIONS' | translate }}
-      </h2>
-      <aas-address-map [steps]="steps()"></aas-address-map>
-    </div>
+      </h3>
+      <aas-address-map [steps]="steps()" [showHeader]="false"></aas-address-map>
+    </section>
   } @else {
-    <div class="empty-state">
-      <i class="pi pi-inbox empty-icon"></i>
-      <p class="empty-text">{{ 'PCF_VIEWER.NO_STEPS_FOUND' | translate }}</p>
-    </div>
+    <div class="viewer-empty">{{ 'PCF_VIEWER.NO_STEPS_FOUND' | translate }}</div>
   }
 </div>

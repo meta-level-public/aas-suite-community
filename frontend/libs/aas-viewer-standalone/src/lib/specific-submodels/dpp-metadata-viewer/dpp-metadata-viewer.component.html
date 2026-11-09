@@ -1,0 +1,101 @@
+@let view = metadata();
+<div class="viewer-stack">
+  <!-- The status of the passport is the face of the metadata; its tone carries the meaning (active, suspended, ...) -->
+  <section
+    class="viewer-hero"
+    [class.viewer-hero-success]="statusTone() === 'success'"
+    [class.viewer-hero-warning]="statusTone() === 'warning'"
+    [class.viewer-hero-danger]="statusTone() === 'danger'"
+  >
+    <div class="viewer-hero-icon" aria-hidden="true"><i class="fa-solid fa-passport"></i></div>
+    <div class="viewer-hero-main">
+      <div class="viewer-hero-eyebrow">
+        {{ 'DPP_FIELD_DPPSTATUS' | translate }}
+        <aas-semantic-description-popup [semanticId]="view.dppStatus.semanticId" [compact]="true" />
+      </div>
+      @if (view.dppStatus.value !== '') {
+        <p class="viewer-hero-value">{{ statusLabel() | translate }}</p>
+      } @else {
+        <p class="viewer-hero-value viewer-hero-value-missing">{{ 'COMMON.NOT_AVAILABLE' | translate }}</p>
+      }
+      @if (lastUpdate(); as date) {
+        <p class="viewer-hero-text text-muted-color">
+          {{ 'DPP_FIELD_LASTUPDATE' | translate }}: {{ date | vwsDate: 'SHORT_DATE_TIME' }}
+          <aas-semantic-description-popup [semanticId]="view.lastUpdate.semanticId" [compact]="true" />
+        </p>
+      }
+    </div>
+    @if (view.granularity.value !== '' || view.dppSchemaVersion.value !== '') {
+      <div class="viewer-hero-aside">
+        @if (view.granularity.value !== '') {
+          <p-tag icon="fa-solid fa-layer-group" severity="secondary" [value]="granularityLabel() | translate" />
+        }
+        @if (view.dppSchemaVersion.value !== '') {
+          <p-tag icon="fa-solid fa-tag" severity="secondary" [value]="view.dppSchemaVersion.value" />
+        }
+      </div>
+    }
+  </section>
+
+  @if (rows().length > 0) {
+    <section class="viewer-card">
+      <h3 class="viewer-card-title">
+        <i class="fa-solid fa-fingerprint"></i>{{ 'DPP_VIEWER_IDENTIFIERS' | translate }}
+      </h3>
+      <div class="viewer-fields">
+        @for (row of rows(); track row.labelKey) {
+          <p-inputgroup>
+            <p-inputgroup-addon class="viewer-label-addon">
+              <i [class]="'fa-solid mr-2 ' + row.icon"></i>
+              {{ row.labelKey | translate }}
+              <aas-semantic-description-popup [semanticId]="row.field.semanticId" [compact]="true" />
+            </p-inputgroup-addon>
+            <input pInputText type="text" class="viewer-mono" [value]="row.field.value" readonly />
+            @if (isLink(row.field.value)) {
+              <p-inputgroup-addon class="w-auto">
+                <a
+                  [href]="row.field.value"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  class="text-primary"
+                  [attr.aria-label]="'OPEN_LINK' | translate"
+                >
+                  <i class="fa-solid fa-arrow-up-right-from-square"></i>
+                </a>
+              </p-inputgroup-addon>
+            }
+          </p-inputgroup>
+        }
+      </div>
+    </section>
+  }
+
+  @if (view.contentSpecificationIds.length > 0) {
+    <section class="viewer-card">
+      <h3 class="viewer-card-title">
+        <i class="fa-solid fa-list-check"></i>{{ 'DPP_FIELD_CONTENTSPECIFICATIONIDS' | translate }}
+        <aas-semantic-description-popup [semanticId]="view.contentSpecificationsSemanticId" [compact]="true" />
+      </h3>
+      <table class="viewer-spec-table">
+        <tbody>
+          @for (specification of specifications(); track $index) {
+            <tr>
+              <th scope="row">
+                {{ specification.name.key !== '' ? (specification.name.key | translate) : specification.name.text }}
+              </th>
+              <td class="viewer-mono dpp-specification-id">
+                @if (isLink(specification.value)) {
+                  <a [href]="specification.value" target="_blank" rel="noopener noreferrer">{{
+                    specification.value
+                  }}</a>
+                } @else {
+                  {{ specification.value }}
+                }
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </section>
+  }
+</div>

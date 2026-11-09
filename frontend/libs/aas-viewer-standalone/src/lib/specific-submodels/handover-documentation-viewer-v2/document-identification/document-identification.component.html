@@ -2,53 +2,37 @@
   <div class="flex flex-col gap-4">
     @for (ident of identifications(); track $index) {
       @if (identifications().length > 1) {
-        <div class="flex items-center justify-between flex-wrap gap-2 mb-1">
-          <div class="flex items-center gap-2">
-            <i class="pi pi-id-card text-primary"></i>
-            <span class="font-medium"
-              >{{ ident.collectionIdShort || ('IDENTIFICATION' | translate) }} (#{{ $index + 1 }})</span
-            >
-          </div>
+        <div class="viewer-subtitle">
+          <i class="pi pi-id-card"></i>
+          <span>{{ ident.collectionIdShort || ('IDENTIFICATION' | translate) }} (#{{ $index + 1 }})</span>
         </div>
       }
 
-      <div class="flex flex-wrap gap-2 text-sm items-end">
-        <div class="col-span-12 md:col-span-4">
-          <p-inputgroup>
-            <p-inputGroupAddon class="w-12rem font-bold justify-start">{{
-              'DOCUMENT_DOMAIN_ID' | translate
-            }}</p-inputGroupAddon>
-            <input pInputText [value]="ident.domainId || ''" readonly class="w-full" />
-          </p-inputgroup>
-        </div>
-        <div class="col-span-12 md:col-span-4">
-          <p-inputgroup>
-            <p-inputGroupAddon class="w-12rem font-bold justify-start">{{
-              'DOCUMENT_IDENTIFIER' | translate
-            }}</p-inputGroupAddon>
-            <input pInputText [value]="ident.identifier || ''" readonly class="w-full" />
-          </p-inputgroup>
-        </div>
-        <div class="col-span-12 md:col-span-4">
-          <p-inputgroup>
-            <p-inputGroupAddon class="w-12rem font-bold justify-start">{{
-              'DOCUMENT_PRIMARY' | translate
-            }}</p-inputGroupAddon>
-            <input
-              pInputText
-              [value]="
-                (ident.isPrimary === true && ('YES' | translate)) ||
-                (ident.isPrimary === false && ('NO' | translate)) ||
-                ''
-              "
-              readonly
-              class="w-full font-medium"
-            />
-          </p-inputgroup>
-        </div>
+      <div class="viewer-field-grid">
+        <p-inputgroup>
+          <p-inputgroup-addon class="viewer-label-addon">{{ 'DOCUMENT_DOMAIN_ID' | translate }}</p-inputgroup-addon>
+          <input pInputText [value]="ident.domainId || ''" readonly class="w-full" />
+        </p-inputgroup>
+        <p-inputgroup>
+          <p-inputgroup-addon class="viewer-label-addon">{{ 'DOCUMENT_IDENTIFIER' | translate }}</p-inputgroup-addon>
+          <input pInputText [value]="ident.identifier || ''" readonly class="w-full" />
+        </p-inputgroup>
+        <p-inputgroup>
+          <p-inputgroup-addon class="viewer-label-addon">{{ 'DOCUMENT_PRIMARY' | translate }}</p-inputgroup-addon>
+          <input
+            pInputText
+            [value]="
+              (ident.isPrimary === true && ('YES' | translate)) ||
+              (ident.isPrimary === false && ('NO' | translate)) ||
+              ''
+            "
+            readonly
+            class="w-full font-medium"
+          />
+        </p-inputgroup>
       </div>
     }
   </div>
 } @else {
-  <div class="text-500 italic text-sm">{{ 'HANDOVER_NO_IDENTIFICATION_SECTION' | translate }}</div>
+  <div class="text-muted-color italic text-sm">{{ 'HANDOVER_NO_IDENTIFICATION_SECTION' | translate }}</div>
 }

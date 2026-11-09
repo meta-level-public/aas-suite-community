@@ -15,6 +15,26 @@ function submodelWithSemanticId(value: string): aas.types.Submodel {
 }
 
 describe('SubmodelViewerResolver', () => {
+  it('resolves the IDTA DPP metadata to the DPP metadata viewer', () => {
+    expect(
+      SubmodelViewerResolver.resolve(submodelWithSemanticId('https://admin-shell.io/idta/cds/dppMetadata/1')),
+    ).toBe('DppMetadata');
+  });
+
+  it('resolves Technical Data 1.2 and 2.0 to the technical data viewer', () => {
+    expect(
+      SubmodelViewerResolver.resolve(submodelWithSemanticId('https://admin-shell.io/ZVEI/TechnicalData/Submodel/1/2')),
+    ).toBe('TechnicalData');
+    // Technical Data 2.0 (IDTA 02003-2-0) identifies the submodel by its ECLASS IRDI
+    expect(SubmodelViewerResolver.resolve(submodelWithSemanticId('0173-1#01-AHX837#002'))).toBe('TechnicalData');
+    // The battery passport uses the same structure under its own ID
+    expect(
+      SubmodelViewerResolver.resolve(
+        submodelWithSemanticId('https://admin-shell.io/idta/DigitalBatteryPassport/TechnicalData/1/0'),
+      ),
+    ).toBe('TechnicalData');
+  });
+
   it('resolves the battery passport circularity submodel to the dedicated circularity viewer', () => {
     const submodel = submodelWithSemanticId('urn:samm:io.admin-shell.idta.batterypass.circularity:1.0.0#Circularity');
 

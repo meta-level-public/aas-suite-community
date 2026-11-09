@@ -2,85 +2,59 @@
   <div class="flex flex-col gap-4">
     @for (v of versions(); track $index) {
       @if (versions().length > 1) {
-        <div class="flex items-center gap-2">
-          <i class="pi pi-list text-primary"></i>
-          <span class="font-medium">{{ v.title }} (#{{ $index + 1 }})</span>
+        <div class="viewer-subtitle">
+          <i class="pi pi-list"></i>
+          <span>{{ v.title }} (#{{ $index + 1 }})</span>
         </div>
       }
-      <div class="flex flex-wrap gap-2 text-sm items-end">
+      <div class="viewer-field-grid">
         @if (v.versionNumber) {
-          <div class="col-span-12 md:col-span-4">
-            <p-inputgroup>
-              <p-inputGroupAddon class="w-12rem font-bold justify-start">{{
-                'DOCUMENT_VERSION_LABEL' | translate
-              }}</p-inputGroupAddon>
-              <input pInputText [value]="v.versionNumber" readonly />
-            </p-inputgroup>
-          </div>
+          <p-inputgroup>
+            <p-inputgroup-addon class="viewer-label-addon">{{
+              'DOCUMENT_VERSION_LABEL' | translate
+            }}</p-inputgroup-addon>
+            <input pInputText [value]="v.versionNumber" readonly />
+          </p-inputgroup>
         }
         @if (v.status) {
-          <div class="col-span-12 md:col-span-4">
-            <p-inputgroup>
-              <p-inputGroupAddon class="w-12rem font-bold justify-start">{{
-                'DOCUMENT_STATUS' | translate
-              }}</p-inputGroupAddon>
-              <input pInputText [value]="v.status" readonly />
-            </p-inputgroup>
-          </div>
+          <p-inputgroup>
+            <p-inputgroup-addon class="viewer-label-addon">{{ 'DOCUMENT_STATUS' | translate }}</p-inputgroup-addon>
+            <input pInputText [value]="v.status" readonly />
+          </p-inputgroup>
         }
         @if (v.statusDate) {
-          <div class="col-span-12 md:col-span-4">
-            <p-inputgroup>
-              <p-inputGroupAddon class="w-12rem font-bold justify-start">{{
-                'DOCUMENT_STATUS_DATE' | translate
-              }}</p-inputGroupAddon>
-              <input pInputText [value]="v.statusDate | vwsDate: 'SHORT_DATE'" readonly />
-            </p-inputgroup>
-          </div>
+          <p-inputgroup>
+            <p-inputgroup-addon class="viewer-label-addon">{{ 'DOCUMENT_STATUS_DATE' | translate }}</p-inputgroup-addon>
+            <input pInputText [value]="v.statusDate | vwsDate: 'SHORT_DATE'" readonly />
+          </p-inputgroup>
         }
         @if (v.title) {
-          <div class="mb-4 col-12">
-            <p-inputgroup>
-              <p-inputGroupAddon class="w-12rem font-bold justify-start">{{
-                'DOCUMENT_TITLE' | translate
-              }}</p-inputGroupAddon>
-              <input pInputText [value]="v.title" readonly />
-            </p-inputgroup>
-          </div>
+          <p-inputgroup>
+            <p-inputgroup-addon class="viewer-label-addon">{{ 'DOCUMENT_TITLE' | translate }}</p-inputgroup-addon>
+            <input pInputText [value]="v.title" readonly />
+          </p-inputgroup>
         }
         @if (v.subtitle) {
-          <div class="mb-4 col-12">
-            <p-inputgroup>
-              <p-inputGroupAddon class="w-12rem font-bold justify-start">{{
-                'DOCUMENT_SUBTITLE' | translate
-              }}</p-inputGroupAddon>
-              <input pInputText [value]="v.subtitle" readonly />
-            </p-inputgroup>
-          </div>
+          <p-inputgroup>
+            <p-inputgroup-addon class="viewer-label-addon">{{ 'DOCUMENT_SUBTITLE' | translate }}</p-inputgroup-addon>
+            <input pInputText [value]="v.subtitle" readonly />
+          </p-inputgroup>
         }
         @if (v.keywords) {
-          <div class="mb-4 col-12">
-            <p-inputgroup>
-              <p-inputGroupAddon class="w-12rem font-bold justify-start">{{
-                'DOCUMENT_KEYWORDS' | translate
-              }}</p-inputGroupAddon>
-              <input pInputText [value]="v.keywords" readonly />
-            </p-inputgroup>
-          </div>
+          <p-inputgroup>
+            <p-inputgroup-addon class="viewer-label-addon">{{ 'DOCUMENT_KEYWORDS' | translate }}</p-inputgroup-addon>
+            <input pInputText [value]="v.keywords" readonly />
+          </p-inputgroup>
         }
         @if (v.changeDescription) {
-          <div class="mb-4 col-12">
-            <p-inputgroup>
-              <p-inputGroupAddon class="w-12rem font-bold justify-start">{{
-                'DOCUMENT_DESCRIPTION' | translate
-              }}</p-inputGroupAddon>
-              <input pInputText [value]="v.changeDescription" readonly />
-            </p-inputgroup>
-          </div>
+          <p-inputgroup>
+            <p-inputgroup-addon class="viewer-label-addon">{{ 'DOCUMENT_DESCRIPTION' | translate }}</p-inputgroup-addon>
+            <input pInputText [value]="v.changeDescription" readonly />
+          </p-inputgroup>
         }
       </div>
     }
   </div>
 } @else {
-  <div class="text-500 italic text-sm">{{ 'DOCUMENT_NO_VERSIONS' | translate }}</div>
+  <div class="text-muted-color italic text-sm">{{ 'DOCUMENT_NO_VERSIONS' | translate }}</div>
 }

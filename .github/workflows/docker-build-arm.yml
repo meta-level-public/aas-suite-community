@@ -19,7 +19,8 @@ env:
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: "true"
   FAIL_ON_SECURITY_FINDINGS: "false"
   ENABLE_GITHUB_CODE_SCANNING_UPLOAD: "false"
-  SYFT_VERSION: v1.20.0
+  SYFT_VERSION: v1.54.1
+  CYCLONEDX_DOTNET_VERSION: 6.3.1
   TRIVY_VERSION: v0.69.3
 
 jobs:
@@ -131,17 +132,48 @@ jobs:
 
       - name: Generate source SBOM
         shell: bash
+        env:
+          # The lockfiles (pnpm-lock.yaml, go.sum) carry no licenses; syft looks them up in the npm registry and the
+          # Go proxy. Without this, almost every package shows up without a license.
+          SYFT_JAVASCRIPT_SEARCH_REMOTE_LICENSES: 'true'
+          SYFT_GOLANG_SEARCH_REMOTE_LICENSES: 'true'
         run: |
           set -euo pipefail
           OUT_DIR="$RUNNER_TEMP/sbom"
           mkdir -p "$OUT_DIR"
           syft "dir:${GITHUB_WORKSPACE}" -o cyclonedx-json > "$OUT_DIR/source.cyclonedx.json"
+          # Guessed CPEs of npm/NuGet/Go/... packages cause false positives (e.g. npm "sirv" vs. WordPress plugin "Sirv")
+          tools/sbom/strip-ecosystem-cpes.sh "$OUT_DIR/source.cyclonedx.json"
+
+      - name: Set up .NET SDK
+        uses: actions/setup-dotnet@v5
+        with:
+          global-json-file: ./global.json
+
+      # syft finds the NuGet packages but no licenses; CycloneDX .NET reads them from the packages
+      # (licenses given only as URL: via the GitHub API with GITHUB_TOKEN)
+      - name: Generate .NET SBOMs
+        shell: bash
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -euo pipefail
+          OUT_DIR="$RUNNER_TEMP/sbom"
+          dotnet tool install --global CycloneDX --version "$CYCLONEDX_DOTNET_VERSION"
+          for project in \
+            services/aas-designer/AasDesignerApi.Community/AasDesignerApi.Community.csproj \
+            services/gateway/gateway.csproj \
+            services/dpp-gateway/dpp-gateway.csproj; do
+            name="$(basename "$project" .csproj)"
+            dotnet-CycloneDX "$project" --exclude-test-projects --enable-github-licenses \
+              --output-format Json --spec-version 1.6 --output "$OUT_DIR" --filename "dotnet-${name}.cyclonedx.json"
+          done
 
       - name: Upload source SBOM
         uses: actions/upload-artifact@v4
         with:
           name: sbom-source-arm64
-          path: ${{ runner.temp }}/sbom/source.cyclonedx.json
+          path: ${{ runner.temp }}/sbom/*.cyclonedx.json
           if-no-files-found: error
 
   build-frontend:
@@ -435,11 +467,16 @@ jobs:
 
       - name: Generate image SBOM
         shell: bash
+        env:
+          # Go binaries and npm packages in the images: look up the licenses remotely (see source SBOM)
+          SYFT_JAVASCRIPT_SEARCH_REMOTE_LICENSES: 'true'
+          SYFT_GOLANG_SEARCH_REMOTE_LICENSES: 'true'
         run: |
           set -euo pipefail
           OUT_DIR="$RUNNER_TEMP/sbom"
           mkdir -p "$OUT_DIR"
           syft "local/${{ matrix.image.name }}:${{ github.sha }}" -o cyclonedx-json > "$OUT_DIR/${{ matrix.image.name }}.cyclonedx.json"
+          tools/sbom/strip-ecosystem-cpes.sh "$OUT_DIR/${{ matrix.image.name }}.cyclonedx.json"
 
       - name: Generate Trivy SARIF
         shell: bash

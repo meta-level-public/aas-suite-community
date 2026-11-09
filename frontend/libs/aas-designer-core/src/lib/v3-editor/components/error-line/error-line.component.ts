@@ -7,11 +7,12 @@ import { TranslateModule } from '@ngx-translate/core';
 import { ButtonModule } from '@openng/optimus-ui/button';
 import { MessageModule } from '@openng/optimus-ui/message';
 import { ErrorHandlingAction } from '../v3-component-base';
+import { VerificationMessagePipe } from '../../tools/verification-message';
 
 @Component({
   selector: 'aas-error-line',
 
-  imports: [TranslateModule, ButtonModule, MessageModule],
+  imports: [VerificationMessagePipe, TranslateModule, ButtonModule, MessageModule],
   changeDetection: ChangeDetectionStrategy.Eager,
   templateUrl: './error-line.component.html',
 })

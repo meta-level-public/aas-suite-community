@@ -7,6 +7,9 @@ public static class OriginFixUtil
 {
     public static MemoryStream? CheckAndFixPackageOrigin(MemoryStream ms)
     {
+        // Missing content types (e.g. jpg) make supplementary files invisible to System.IO.Packaging
+        ms = PackageContentTypesFixUtil.EnsureContentTypes(ms).Stream;
+
         var packaging = new AasCore.Aas3.Package.Packaging();
 
         using var pkgOrErr = packaging.OpenRead(ms);

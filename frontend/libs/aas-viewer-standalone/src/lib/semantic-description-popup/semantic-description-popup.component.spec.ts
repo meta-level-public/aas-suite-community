@@ -5,6 +5,7 @@ import { TranslateModule } from '@ngx-translate/core';
 import { MessageService } from '@openng/optimus-ui/api';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { ConceptDescriptionService } from '../concept-description.service';
+import { ViewerStoreService } from '../viewer-store.service';
 import { SemanticDescriptionPopupComponent } from './semantic-description-popup.component';
 
 const popoversInBody = () => document.body.querySelectorAll('.p-popover').length;
@@ -109,5 +110,29 @@ describe('SemanticDescriptionPopupComponent', () => {
     fixture.destroy();
 
     expect(popoversInBody()).toBe(0);
+  });
+
+  it('shows the compact icon only when the concept description exists', async () => {
+    const loadCD = TestBed.inject(ConceptDescriptionService).loadCD as ReturnType<typeof vi.fn>;
+    TestBed.inject(ViewerStoreService).viewerDescriptor.set({ cdEndpoint: 'https://repo.example.com' } as never);
+    const compactButtons = (popup: ComponentFixture<SemanticDescriptionPopupComponent>) =>
+      popup.nativeElement.querySelectorAll('.viewer-cd-button').length;
+
+    loadCD.mockResolvedValueOnce(undefined);
+    const missing = TestBed.createComponent(SemanticDescriptionPopupComponent);
+    missing.componentRef.setInput('semanticId', 'urn:test:missing');
+    missing.componentRef.setInput('compact', true);
+    await missing.whenStable();
+    missing.detectChanges();
+    expect(compactButtons(missing)).toBe(0);
+
+    loadCD.mockResolvedValueOnce({ id: 'urn:test:existing' });
+    const existing = TestBed.createComponent(SemanticDescriptionPopupComponent);
+    existing.componentRef.setInput('semanticId', 'urn:test:existing');
+    existing.componentRef.setInput('compact', true);
+    await vi.waitFor(() => {
+      existing.detectChanges();
+      expect(compactButtons(existing)).toBe(1);
+    });
   });
 });

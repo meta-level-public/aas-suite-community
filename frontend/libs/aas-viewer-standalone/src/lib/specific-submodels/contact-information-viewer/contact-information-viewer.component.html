@@ -1,5 +1,32 @@
-<div class="contact-info-container">
-  <div class="contact-info-card">
+<div class="viewer-stack">
+  @if (contactInfos().length > 0) {
+    <section class="viewer-hero">
+      <div class="viewer-hero-icon" aria-hidden="true"><i class="fa-solid fa-address-book"></i></div>
+      <div class="viewer-hero-main">
+        <div class="viewer-hero-eyebrow">{{ 'CONTACT_DATA' | translate }}</div>
+        @if (contactInfos().length === 1) {
+          @let only = contactInfos()[0];
+          <h2 class="viewer-hero-title">{{ contactTitle(only) }}</h2>
+          @if (contactSubtitle(only) !== '') {
+            <p class="viewer-hero-text">{{ contactSubtitle(only) }}</p>
+          }
+        } @else {
+          <p class="viewer-hero-value">
+            {{ contactInfos().length }}<span class="viewer-hero-unit">{{ 'CONTACTS' | translate }}</span>
+          </p>
+          @if (companies().length > 0) {
+            <div class="viewer-tags">
+              @for (company of companies(); track company) {
+                <p-tag icon="fa-solid fa-building" severity="secondary" [value]="company" />
+              }
+            </div>
+          }
+        }
+      </div>
+    </section>
+  }
+
+  <div class="viewer-card">
     <p-accordion
       [multiple]="true"
       (valueChange)="accordionTabValueChange($event)"
@@ -8,24 +35,38 @@
     >
       @for (contact of contactInfos(); track $index) {
         <p-accordion-panel [value]="contact.id">
-          <p-accordion-header>{{ contact.id }}</p-accordion-header>
+          <p-accordion-header>
+            <span class="contact-header">
+              <span class="font-semibold">{{ contactTitle(contact) }}</span>
+              @if (contactSubtitle(contact) !== '') {
+                <span class="text-muted-color">{{ contactSubtitle(contact) }}</span>
+              }
+            </span>
+          </p-accordion-header>
           <p-accordion-content>
             <div class="contact-content-grid">
-              <div class="contact-fields">
+              <div class="viewer-fields">
                 @if (contact.department) {
                   <p-inputgroup>
-                    <p-inputgroup-addon class="font-bold contact-label-addon">
+                    <p-inputgroup-addon class="viewer-label-addon">
                       <i class="fa-solid fa-building-user mr-2"></i>
                       <lib-help-label tag="DEPARTMENT" [showLabel]="false"></lib-help-label>
                       {{ 'DEPARTMENT' | translate }}
+                      <aas-semantic-description-popup
+                        [semanticId]="semanticIdOf(contact.elements.department)"
+                        [compact]="true"
+                      />
                     </p-inputgroup-addon>
                     <input pInputText type="text" [value]="contact.department" readonly />
+                    @if (unitOf(contact.elements.department); as unit) {
+                      <p-inputgroup-addon class="viewer-unit-addon">{{ unit }}</p-inputgroup-addon>
+                    }
                   </p-inputgroup>
                 }
 
                 @if (contact.name != null && contact.name.trim() !== '') {
                   <p-inputgroup>
-                    <p-inputgroup-addon class="font-bold contact-label-addon">
+                    <p-inputgroup-addon class="viewer-label-addon">
                       <i class="fa-solid fa-signature mr-2"></i>
                       <lib-help-label tag="NAME" [showLabel]="false"></lib-help-label>
                       {{ 'NAME' | translate }}
@@ -36,29 +77,43 @@
 
                 @if (contact.company) {
                   <p-inputgroup>
-                    <p-inputgroup-addon class="font-bold contact-label-addon">
+                    <p-inputgroup-addon class="viewer-label-addon">
                       <i class="fa-solid fa-industry mr-2"></i>
                       <lib-help-label tag="COMPANY" [showLabel]="false"></lib-help-label>
                       {{ 'COMPANY' | translate }}
+                      <aas-semantic-description-popup
+                        [semanticId]="semanticIdOf(contact.elements.company)"
+                        [compact]="true"
+                      />
                     </p-inputgroup-addon>
                     <input pInputText type="text" [value]="contact.company" readonly />
+                    @if (unitOf(contact.elements.company); as unit) {
+                      <p-inputgroup-addon class="viewer-unit-addon">{{ unit }}</p-inputgroup-addon>
+                    }
                   </p-inputgroup>
                 }
 
                 @if (contact.street) {
                   <p-inputgroup>
-                    <p-inputgroup-addon class="font-bold contact-label-addon">
+                    <p-inputgroup-addon class="viewer-label-addon">
                       <i class="fa-solid fa-road mr-2"></i>
                       <lib-help-label tag="STREET" [showLabel]="false"></lib-help-label>
                       {{ 'STREET' | translate }}
+                      <aas-semantic-description-popup
+                        [semanticId]="semanticIdOf(contact.elements.street)"
+                        [compact]="true"
+                      />
                     </p-inputgroup-addon>
                     <input pInputText type="text" [value]="contact.street" readonly />
+                    @if (unitOf(contact.elements.street); as unit) {
+                      <p-inputgroup-addon class="viewer-unit-addon">{{ unit }}</p-inputgroup-addon>
+                    }
                   </p-inputgroup>
                 }
 
                 @if (contact.countryCode || contact.zip || contact.city) {
                   <p-inputgroup>
-                    <p-inputgroup-addon class="font-bold contact-label-addon">
+                    <p-inputgroup-addon class="viewer-label-addon">
                       <i class="fa-solid fa-location-pin mr-2"></i>
                       <lib-help-label tag="CITY_TOWN" [showLabel]="false"></lib-help-label>
                       {{ 'CITY_TOWN' | translate }}
@@ -74,12 +129,19 @@
 
                 @if (contact.ipcom) {
                   <p-inputgroup>
-                    <p-inputgroup-addon class="font-bold contact-label-addon">
+                    <p-inputgroup-addon class="viewer-label-addon">
                       <i class="pi pi-external-link mr-2"></i>
                       <lib-help-label tag="URL" [showLabel]="false"></lib-help-label>
                       {{ 'URL' | translate }}
+                      <aas-semantic-description-popup
+                        [semanticId]="semanticIdOf(contact.elements.ipcom)"
+                        [compact]="true"
+                      />
                     </p-inputgroup-addon>
                     <input pInputText type="text" [value]="contact.ipcom" readonly />
+                    @if (unitOf(contact.elements.ipcom); as unit) {
+                      <p-inputgroup-addon class="viewer-unit-addon">{{ unit }}</p-inputgroup-addon>
+                    }
                     <p-inputgroup-addon class="w-auto">
                       <a
                         [href]="contact.ipcom"
@@ -95,45 +157,73 @@
 
                 @if (contact.email) {
                   <p-inputgroup>
-                    <p-inputgroup-addon class="font-bold contact-label-addon">
+                    <p-inputgroup-addon class="viewer-label-addon">
                       <i class="fa-solid fa-at mr-2"></i>
                       <lib-help-label tag="EMAIL" [showLabel]="false"></lib-help-label>
                       {{ 'EMAIL' | translate }}
+                      <aas-semantic-description-popup
+                        [semanticId]="semanticIdOf(contact.elements.email)"
+                        [compact]="true"
+                      />
                     </p-inputgroup-addon>
                     <input pInputText type="text" [value]="contact.email" readonly />
+                    @if (unitOf(contact.elements.email); as unit) {
+                      <p-inputgroup-addon class="viewer-unit-addon">{{ unit }}</p-inputgroup-addon>
+                    }
                   </p-inputgroup>
                 }
 
                 @if (contact.phone) {
                   <p-inputgroup>
-                    <p-inputgroup-addon class="font-bold contact-label-addon">
+                    <p-inputgroup-addon class="viewer-label-addon">
                       <i class="fa-solid fa-phone mr-2"></i>
                       <lib-help-label tag="PHONE" [showLabel]="false"></lib-help-label>
                       {{ 'PHONE' | translate }}
+                      <aas-semantic-description-popup
+                        [semanticId]="semanticIdOf(contact.elements.phone)"
+                        [compact]="true"
+                      />
                     </p-inputgroup-addon>
                     <input pInputText type="text" [value]="contact.phone" readonly />
+                    @if (unitOf(contact.elements.phone); as unit) {
+                      <p-inputgroup-addon class="viewer-unit-addon">{{ unit }}</p-inputgroup-addon>
+                    }
                   </p-inputgroup>
                 }
 
                 @if (contact.fax) {
                   <p-inputgroup>
-                    <p-inputgroup-addon class="font-bold contact-label-addon">
+                    <p-inputgroup-addon class="viewer-label-addon">
                       <i class="fa-solid fa-fax mr-2"></i>
                       <lib-help-label tag="FAX" [showLabel]="false"></lib-help-label>
                       {{ 'FAX' | translate }}
+                      <aas-semantic-description-popup
+                        [semanticId]="semanticIdOf(contact.elements.fax)"
+                        [compact]="true"
+                      />
                     </p-inputgroup-addon>
                     <input pInputText type="text" [value]="contact.fax" readonly />
+                    @if (unitOf(contact.elements.fax); as unit) {
+                      <p-inputgroup-addon class="viewer-unit-addon">{{ unit }}</p-inputgroup-addon>
+                    }
                   </p-inputgroup>
                 }
 
                 @if (contact.language) {
                   <p-inputgroup>
-                    <p-inputgroup-addon class="font-bold contact-label-addon">
+                    <p-inputgroup-addon class="viewer-label-addon">
                       <i class="fa-solid fa-globe mr-2"></i>
                       <lib-help-label tag="LANGUAGE" [showLabel]="false"></lib-help-label>
                       {{ 'LANGUAGE' | translate }}
+                      <aas-semantic-description-popup
+                        [semanticId]="semanticIdOf(contact.elements.language)"
+                        [compact]="true"
+                      />
                     </p-inputgroup-addon>
                     <input pInputText type="text" [value]="contact.language" readonly />
+                    @if (unitOf(contact.elements.language); as unit) {
+                      <p-inputgroup-addon class="viewer-unit-addon">{{ unit }}</p-inputgroup-addon>
+                    }
                   </p-inputgroup>
                 }
               </div>

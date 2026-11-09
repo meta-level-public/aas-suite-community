@@ -11,11 +11,22 @@ import { InputGroup } from '@openng/optimus-ui/inputgroup';
 import { InputGroupAddon } from '@openng/optimus-ui/inputgroupaddon';
 import { InputText } from '@openng/optimus-ui/inputtext';
 import { V3UndoDirective } from '../../../general/directives/v3-undo.directive';
+import { VerificationMessagePipe } from '../../tools/verification-message';
 @Component({
   selector: 'aas-v3-value-list',
   templateUrl: './v3-value-list.component.html',
   changeDetection: ChangeDetectionStrategy.Eager,
-  imports: [Button, InputGroup, FormsModule, InputText, V3UndoDirective, InputGroupAddon, Button, TranslateModule],
+  imports: [
+    VerificationMessagePipe,
+    Button,
+    InputGroup,
+    FormsModule,
+    InputText,
+    V3UndoDirective,
+    InputGroupAddon,
+    Button,
+    TranslateModule,
+  ],
 })
 export class V3ValueListComponent {
   @Input() valueList: aas.types.ValueList | undefined | null;

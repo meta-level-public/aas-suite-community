@@ -1,8 +1,10 @@
 <div class="address-map-container">
-  <button type="button" class="map-header" (click)="toggleOverview()">
-    <span class="map-title">{{ 'ADDRESS_MAP.TITLE' | translate }}</span>
-    <i class="pi" [class.pi-chevron-down]="overviewExpanded()" [class.pi-chevron-right]="!overviewExpanded()"></i>
-  </button>
+  @if (showHeader()) {
+    <button type="button" class="map-header" (click)="toggleOverview()">
+      <span class="map-title">{{ 'ADDRESS_MAP.TITLE' | translate }}</span>
+      <i class="pi" [class.pi-chevron-down]="overviewExpanded()" [class.pi-chevron-right]="!overviewExpanded()"></i>
+    </button>
+  }
 
   @if (overviewExpanded() && addresses().length > 0) {
     <div class="map-content">

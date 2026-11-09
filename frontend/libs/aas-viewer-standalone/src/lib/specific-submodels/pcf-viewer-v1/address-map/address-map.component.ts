@@ -36,6 +36,8 @@ export class AddressMapComponent implements AfterViewInit {
 
   steps = input.required<aas.types.SubmodelElementCollection[]>();
   initiallyExpanded = input(true);
+  /** Without its own collapsible header, e.g. inside a card that already has a title. */
+  showHeader = input(true);
 
   private readonly ADDRESS_INFORMATION_SEMANTIC_ID =
     'https://admin-shell.io/zvei/nameplate/1/0/ContactInformations/AddressInformation';

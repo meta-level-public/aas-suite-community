@@ -1,6 +1,7 @@
 import { Component, HostListener, ChangeDetectionStrategy } from '@angular/core';
 import { DialogService, DynamicDialogRef } from '@openng/optimus-ui/dynamicdialog';
 import { AasViewerStandaloneComponent } from '../aas-viewer-standalone/aas-viewer-standalone.component';
+import { claimOpenViewerEvent } from '../aas-viewer-dialog.config';
 
 @Component({
   selector: 'aas-viewer-main',
@@ -14,16 +15,6 @@ export class AasViewerMainComponent {
 
   @HostListener('window:openViewer', ['$event'])
   openViewer(event: Event) {
-    this.ref = this.dialogService.open(AasViewerStandaloneComponent, {
-      header: 'AAS Viewer',
-      width: '75%',
-      baseZIndex: 10000,
-      maximizable: true,
-      styleClass: 'viewerDialog',
-      data: {
-        viewerDescriptor: (event as CustomEvent).detail.viewerDescriptor,
-      },
-      closable: true,
-    });
+    this.ref = this.dialogService.open(AasViewerStandaloneComponent, claimOpenViewerEvent(event));
   }
 }

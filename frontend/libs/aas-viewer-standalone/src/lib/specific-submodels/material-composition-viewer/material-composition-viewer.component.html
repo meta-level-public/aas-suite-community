@@ -1,64 +1,76 @@
-<div class="material-composition-container">
+<div class="viewer-stack">
   @if (hasContent()) {
-    <div class="stats-grid">
-      <div class="stat-card">
-        <span class="stat-label">{{ 'MATERIAL_COMPOSITION_TOTAL_MATERIALS' | translate }}</span>
-        <span class="stat-value">{{ materials().length }}</span>
+    <!-- Identity of the battery: chemistry short name with its clear name; neutral tone -->
+    <section class="viewer-hero">
+      <div class="viewer-hero-icon" aria-hidden="true"><i class="fa-solid fa-flask"></i></div>
+      <div class="viewer-hero-main">
+        @if (chemistry().shortName || chemistry().clearName) {
+          <div class="viewer-hero-eyebrow">
+            {{ 'MATERIAL_COMPOSITION_CHEMISTRY' | translate }}
+            <aas-semantic-description-popup
+              [semanticId]="
+                chemistry().shortName
+                  ? chemistry().fields.shortName.semanticId
+                  : chemistry().fields.clearName.semanticId
+              "
+              [compact]="true"
+            />
+          </div>
+          <h2 class="viewer-hero-title">{{ chemistry().shortName || chemistry().clearName }}</h2>
+          @if (chemistry().shortName && chemistry().clearName) {
+            <p class="viewer-hero-text">
+              {{ chemistry().clearName }}
+              <aas-semantic-description-popup [semanticId]="chemistry().fields.clearName.semanticId" [compact]="true" />
+            </p>
+          }
+        } @else {
+          <h2 class="viewer-hero-title">{{ 'BATTERY_PASSPORT_MATERIAL_COMPOSITION' | translate }}</h2>
+        }
       </div>
-      <div class="stat-card stat-card-accent">
-        <span class="stat-label">{{ 'MATERIAL_COMPOSITION_TOTAL_CRITICAL_RAW_MATERIALS' | translate }}</span>
-        <span class="stat-value">{{ criticalRawMaterialCount() }}</span>
+      @if (hazardousSubstances().length > 0) {
+        <div class="viewer-hero-aside">
+          <p-tag
+            severity="warn"
+            icon="fa-solid fa-triangle-exclamation"
+            [value]="
+              (hazardousSubstances().length === 1
+                ? 'MATERIAL_COMPOSITION_HAZARDOUS_SUBSTANCE_COUNT_ONE'
+                : 'MATERIAL_COMPOSITION_HAZARDOUS_SUBSTANCE_COUNT'
+              ) | translate: { count: hazardousSubstances().length }
+            "
+          />
+        </div>
+      }
+    </section>
+
+    <div class="viewer-kpis">
+      <div class="viewer-kpi">
+        <span class="viewer-kpi-label">{{ 'MATERIAL_COMPOSITION_TOTAL_MATERIALS' | translate }}</span>
+        <span class="viewer-kpi-value">{{ materials().length }}</span>
       </div>
-      <div class="stat-card stat-card-danger">
-        <span class="stat-label">{{ 'MATERIAL_COMPOSITION_TOTAL_HAZARDOUS_SUBSTANCES' | translate }}</span>
-        <span class="stat-value">{{ hazardousSubstances().length }}</span>
+      <div class="viewer-kpi">
+        <span class="viewer-kpi-label">{{ 'MATERIAL_COMPOSITION_TOTAL_CRITICAL_RAW_MATERIALS' | translate }}</span>
+        <span class="viewer-kpi-value">{{ criticalRawMaterialCount() }}</span>
+      </div>
+      <div class="viewer-kpi" [class.viewer-kpi-danger]="hazardousSubstances().length > 0">
+        <span class="viewer-kpi-label">{{ 'MATERIAL_COMPOSITION_TOTAL_HAZARDOUS_SUBSTANCES' | translate }}</span>
+        <span class="viewer-kpi-value">{{ hazardousSubstances().length }}</span>
       </div>
     </div>
 
-    @if (chemistry().shortName || chemistry().clearName) {
-      <div class="section-card">
-        <h3 class="section-title">
-          <i class="fa-solid fa-atom"></i>
-          {{ 'MATERIAL_COMPOSITION_CHEMISTRY' | translate }}
-        </h3>
-
-        <div class="stacked-sections">
-          @if (chemistry().shortName) {
-            <p-inputgroup>
-              <p-inputgroup-addon class="font-bold material-label-addon">
-                <i class="fa-solid fa-tag mr-2"></i>
-                {{ 'MATERIAL_COMPOSITION_SHORT_NAME' | translate }}
-              </p-inputgroup-addon>
-              <input pInputText type="text" [value]="chemistry().shortName" readonly />
-            </p-inputgroup>
-          }
-
-          @if (chemistry().clearName) {
-            <p-inputgroup>
-              <p-inputgroup-addon class="font-bold material-label-addon">
-                <i class="fa-solid fa-signature mr-2"></i>
-                {{ 'MATERIAL_COMPOSITION_CLEAR_NAME' | translate }}
-              </p-inputgroup-addon>
-              <input pInputText type="text" [value]="chemistry().clearName" readonly />
-            </p-inputgroup>
-          }
-        </div>
-      </div>
-    }
-
     @if (groupedMaterials().length > 0) {
-      <div class="section-card">
-        <h3 class="section-title">
+      <section class="viewer-card">
+        <h3 class="viewer-card-title">
           <i class="fa-solid fa-layer-group"></i>
           {{ 'MATERIAL_COMPOSITION_MATERIALS' | translate }}
         </h3>
 
-        <div class="stacked-sections">
+        <div class="material-groups">
           @for (group of groupedMaterials(); track $index) {
             <div class="location-block">
               <div class="location-heading">
                 <div class="heading-content">
-                  <div class="heading-pill-row">
+                  <div class="viewer-tags">
                     <span class="group-type-pill">{{ 'MATERIAL_COMPOSITION_GROUP_TYPE_MATERIALS' | translate }}</span>
                     @if (group.locationId) {
                       <span class="group-id-pill">{{ group.locationId }}</span>
@@ -74,43 +86,68 @@
                 <span class="count-badge">{{ group.items.length }}</span>
               </div>
 
-              <div class="entry-grid">
+              <div class="viewer-grid-2">
                 @for (material of group.items; track $index) {
-                  <div class="detail-card">
+                  <div class="material-entry viewer-fields">
                     @if (material.materialName) {
                       <p-inputgroup>
-                        <p-inputgroup-addon class="font-bold material-label-addon">
+                        <p-inputgroup-addon class="viewer-label-addon">
                           <i class="fa-solid fa-cubes mr-2"></i>
                           {{ 'MATERIAL_COMPOSITION_MATERIAL_NAME' | translate }}
+                          <aas-semantic-description-popup
+                            [semanticId]="material.fields.materialName.semanticId"
+                            [compact]="true"
+                          />
                         </p-inputgroup-addon>
                         <input pInputText type="text" [value]="material.materialName" readonly />
+                        @if (fieldUnit(material.fields.materialName); as unit) {
+                          <p-inputgroup-addon class="viewer-unit-addon">{{ unit }}</p-inputgroup-addon>
+                        }
                       </p-inputgroup>
                     }
 
                     @if (material.materialIdentifier) {
                       <p-inputgroup>
-                        <p-inputgroup-addon class="font-bold material-label-addon">
+                        <p-inputgroup-addon class="viewer-label-addon">
                           <i class="fa-solid fa-hashtag mr-2"></i>
                           {{ 'MATERIAL_COMPOSITION_CAS_IDENTIFIER' | translate }}
+                          <aas-semantic-description-popup
+                            [semanticId]="material.fields.materialIdentifier.semanticId"
+                            [compact]="true"
+                          />
                         </p-inputgroup-addon>
                         <input pInputText type="text" [value]="material.materialIdentifier" readonly />
+                        @if (fieldUnit(material.fields.materialIdentifier); as unit) {
+                          <p-inputgroup-addon class="viewer-unit-addon">{{ unit }}</p-inputgroup-addon>
+                        }
                       </p-inputgroup>
                     }
 
                     @if (material.mass) {
                       <p-inputgroup>
-                        <p-inputgroup-addon class="font-bold material-label-addon">
+                        <p-inputgroup-addon class="viewer-label-addon">
                           <i class="fa-solid fa-weight-scale mr-2"></i>
                           {{ 'MATERIAL_COMPOSITION_MASS' | translate }}
+                          <aas-semantic-description-popup
+                            [semanticId]="material.fields.mass.semanticId"
+                            [compact]="true"
+                          />
                         </p-inputgroup-addon>
-                        <input pInputText type="text" [value]="formatMass(material.mass)" readonly />
+                        <input pInputText type="text" [value]="formatMass(material)" readonly />
+                        @if (fieldUnit(material.fields.mass); as unit) {
+                          <p-inputgroup-addon class="viewer-unit-addon">{{ unit }}</p-inputgroup-addon>
+                        }
                       </p-inputgroup>
                     }
 
                     <p-inputgroup>
-                      <p-inputgroup-addon class="font-bold material-label-addon">
+                      <p-inputgroup-addon class="viewer-label-addon">
                         <i class="fa-solid fa-triangle-exclamation mr-2"></i>
                         {{ 'MATERIAL_COMPOSITION_CRITICAL_RAW_MATERIAL' | translate }}
+                        <aas-semantic-description-popup
+                          [semanticId]="material.fields.isCriticalRawMaterial.semanticId"
+                          [compact]="true"
+                        />
                       </p-inputgroup-addon>
                       <input
                         pInputText
@@ -129,22 +166,22 @@
             </div>
           }
         </div>
-      </div>
+      </section>
     }
 
     @if (groupedHazardousSubstances().length > 0) {
-      <div class="section-card">
-        <h3 class="section-title">
+      <section class="viewer-card">
+        <h3 class="viewer-card-title">
           <i class="fa-solid fa-shield-virus"></i>
           {{ 'MATERIAL_COMPOSITION_HAZARDOUS_SUBSTANCES' | translate }}
         </h3>
 
-        <div class="stacked-sections">
+        <div class="material-groups">
           @for (group of groupedHazardousSubstances(); track $index) {
             <div class="location-block">
               <div class="location-heading">
                 <div class="heading-content">
-                  <div class="heading-pill-row">
+                  <div class="viewer-tags">
                     <span class="group-type-pill group-type-pill-danger">
                       {{ 'MATERIAL_COMPOSITION_GROUP_TYPE_HAZARDS' | translate }}
                     </span>
@@ -159,60 +196,83 @@
                     {{ 'MATERIAL_COMPOSITION_GROUP_HAZARD_META' | translate }}
                   </p>
                 </div>
-                <span class="count-badge count-badge-danger">{{ group.items.length }}</span>
+                <span class="count-badge">{{ group.items.length }}</span>
               </div>
 
-              <div class="entry-grid">
+              <div class="viewer-grid-2">
                 @for (substance of group.items; track $index) {
-                  <div class="detail-card detail-card-danger">
+                  <div class="material-entry viewer-fields">
                     @if (substance.hazardousSubstanceName) {
                       <p-inputgroup>
-                        <p-inputgroup-addon class="font-bold material-label-addon">
+                        <p-inputgroup-addon class="viewer-label-addon">
                           <i class="fa-solid fa-vial-circle-check mr-2"></i>
                           {{ 'MATERIAL_COMPOSITION_SUBSTANCE_NAME' | translate }}
+                          <aas-semantic-description-popup
+                            [semanticId]="substance.fields.hazardousSubstanceName.semanticId"
+                            [compact]="true"
+                          />
                         </p-inputgroup-addon>
                         <input pInputText type="text" [value]="substance.hazardousSubstanceName" readonly />
+                        @if (fieldUnit(substance.fields.hazardousSubstanceName); as unit) {
+                          <p-inputgroup-addon class="viewer-unit-addon">{{ unit }}</p-inputgroup-addon>
+                        }
                       </p-inputgroup>
                     }
 
                     @if (substance.hazardousSubstanceClass) {
                       <p-inputgroup>
-                        <p-inputgroup-addon class="font-bold material-label-addon">
+                        <p-inputgroup-addon class="viewer-label-addon">
                           <i class="fa-solid fa-list-check mr-2"></i>
                           {{ 'MATERIAL_COMPOSITION_HAZARD_CLASS' | translate }}
+                          <aas-semantic-description-popup
+                            [semanticId]="substance.fields.hazardousSubstanceClass.semanticId"
+                            [compact]="true"
+                          />
                         </p-inputgroup-addon>
                         <input pInputText type="text" [value]="substance.hazardousSubstanceClass" readonly />
+                        @if (fieldUnit(substance.fields.hazardousSubstanceClass); as unit) {
+                          <p-inputgroup-addon class="viewer-unit-addon">{{ unit }}</p-inputgroup-addon>
+                        }
                       </p-inputgroup>
                     }
 
                     @if (substance.hazardousSubstanceConcentration) {
                       <p-inputgroup>
-                        <p-inputgroup-addon class="font-bold material-label-addon">
+                        <p-inputgroup-addon class="viewer-label-addon">
                           <i class="fa-solid fa-percent mr-2"></i>
                           {{ 'MATERIAL_COMPOSITION_CONCENTRATION' | translate }}
+                          <aas-semantic-description-popup
+                            [semanticId]="substance.fields.hazardousSubstanceConcentration.semanticId"
+                            [compact]="true"
+                          />
                         </p-inputgroup-addon>
-                        <input
-                          pInputText
-                          type="text"
-                          [value]="formatConcentration(substance.hazardousSubstanceConcentration)"
-                          readonly
-                        />
+                        <input pInputText type="text" [value]="formatConcentration(substance)" readonly />
+                        @if (concentrationUnit(substance); as unit) {
+                          <p-inputgroup-addon class="viewer-unit-addon">{{ unit }}</p-inputgroup-addon>
+                        }
                       </p-inputgroup>
                     }
 
                     @if (substance.hazardousSubstanceIdentifier) {
                       <p-inputgroup>
-                        <p-inputgroup-addon class="font-bold material-label-addon">
+                        <p-inputgroup-addon class="viewer-label-addon">
                           <i class="fa-solid fa-hashtag mr-2"></i>
                           {{ 'MATERIAL_COMPOSITION_CAS_IDENTIFIER' | translate }}
+                          <aas-semantic-description-popup
+                            [semanticId]="substance.fields.hazardousSubstanceIdentifier.semanticId"
+                            [compact]="true"
+                          />
                         </p-inputgroup-addon>
                         <input pInputText type="text" [value]="substance.hazardousSubstanceIdentifier" readonly />
+                        @if (fieldUnit(substance.fields.hazardousSubstanceIdentifier); as unit) {
+                          <p-inputgroup-addon class="viewer-unit-addon">{{ unit }}</p-inputgroup-addon>
+                        }
                       </p-inputgroup>
                     }
 
                     @if (substance.impacts.length > 0) {
-                      <div class="impacts-block">
-                        <span class="impacts-label">{{ 'MATERIAL_COMPOSITION_IMPACTS' | translate }}</span>
+                      <div>
+                        <span class="viewer-subtitle">{{ 'MATERIAL_COMPOSITION_IMPACTS' | translate }}</span>
                         <ul class="impact-list">
                           @for (impact of substance.impacts; track impact) {
                             <li>{{ impact }}</li>
@@ -226,15 +286,15 @@
             </div>
           }
         </div>
-      </div>
+      </section>
     }
   } @else {
-    <div class="section-card">
-      <h3 class="section-title">
+    <section class="viewer-card">
+      <h3 class="viewer-card-title">
         <i class="fa-solid fa-circle-info"></i>
         {{ 'MATERIAL_COMPOSITION_OVERVIEW' | translate }}
       </h3>
-      <p class="empty-state">{{ 'MATERIAL_COMPOSITION_EMPTY' | translate }}</p>
-    </div>
+      <p class="viewer-empty m-0">{{ 'MATERIAL_COMPOSITION_EMPTY' | translate }}</p>
+    </section>
   }
 </div>

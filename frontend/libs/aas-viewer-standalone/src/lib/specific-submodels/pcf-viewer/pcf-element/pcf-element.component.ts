@@ -1,12 +1,9 @@
-import * as aas from '@aas-core-works/aas-core3.1-typescript';
 import { SubmodelElementCollection } from '@aas-core-works/aas-core3.1-typescript/types';
-import { AsyncPipe } from '@angular/common';
 import { Component, computed, inject, input, ChangeDetectionStrategy } from '@angular/core';
 import { TranslateModule } from '@ngx-translate/core';
-import { PrimeTemplate } from '@openng/optimus-ui/api';
-import { TableModule } from '@openng/optimus-ui/table';
-import { ConceptDescriptionService } from '../../../concept-description.service';
-import { ViewerStoreService } from '../../../viewer-store.service';
+import { ConceptUnitService } from '../../../concept-unit.service';
+import { SemanticDescriptionPopupComponent } from '../../../semantic-description-popup/semantic-description-popup.component';
+import { ViewerUnitComponent } from '../../../viewer-unit/viewer-unit.component';
 import { PcfAddressComponent } from '../pcf-address/pcf-address.component';
 import { PcfHelper } from '../pcf-helper';
 
@@ -14,102 +11,38 @@ import { PcfHelper } from '../pcf-helper';
   selector: 'aas-pcf-element',
   templateUrl: './pcf-element.component.html',
   changeDetection: ChangeDetectionStrategy.Eager,
-  imports: [TableModule, PrimeTemplate, PcfAddressComponent, AsyncPipe, TranslateModule],
+  imports: [PcfAddressComponent, TranslateModule, SemanticDescriptionPopupComponent, ViewerUnitComponent],
 })
 export class PcfElementComponent {
   pcf = input.required<SubmodelElementCollection | undefined>();
-  viewerStore = inject(ViewerStoreService);
 
-  cdService = inject(ConceptDescriptionService);
+  private readonly units = inject(ConceptUnitService);
 
-  calculationMethod = computed(() => {
+  /** Semantic IDs and units of the displayed elements. */
+  fields = computed(() => {
     const pcf = this.pcf();
-    return PcfHelper.getPcfCalculationMethod(pcf);
+    return {
+      calculationMethod: PcfHelper.field(pcf, PcfHelper.PCF_CALCULATION_METHOD),
+      co2Eq: PcfHelper.field(pcf, PcfHelper.PCF_CO2_EQ),
+      referenceValueForCalculation: PcfHelper.field(pcf, PcfHelper.PCF_REFERENCE_VALUE_FOR_CALCULATION),
+      quantityOfMeasureForCalculation: PcfHelper.field(pcf, PcfHelper.PCF_QUANTITY_OF_MEASURE_FOR_CALCULATION),
+      lifecyclePhase: PcfHelper.field(pcf, PcfHelper.PCF_LIFECYCLE_PHASE),
+      emissionFactor: PcfHelper.field(pcf, PcfHelper.PCF_EMISSION_FACTOR),
+      energyUsageCumulated: PcfHelper.field(pcf, PcfHelper.PCF_ENERGY_USAGE_CUMULATED),
+    };
   });
 
-  pcfCo2Eq = computed(() => {
-    const pcf = this.pcf();
-    return PcfHelper.getPcfCo2Eq(pcf);
-  });
-  pcfCo2EqUnit = computed(async () => {
-    const pcf = this.pcf();
-    const co2eqEl = PcfHelper.getPcfCo2EqElement(pcf);
-    if (co2eqEl != null) {
-      const unit = await this.getUnit(co2eqEl);
-      return unit !== '' && unit != null ? unit : 'g';
-    } else return Promise.resolve('g');
-  });
+  calculationMethod = computed(() => PcfHelper.getPcfCalculationMethod(this.pcf()));
+  pcfCo2Eq = computed(() => PcfHelper.getPcfCo2Eq(this.pcf()));
+  pcfReferenceValueForCalculation = computed(() => PcfHelper.getPcfReferenceValueForCalculation(this.pcf()));
+  pcfQuantityOfMeasureForCalculation = computed(() => PcfHelper.getPcfQuantityOfMeasureForCalculation(this.pcf()));
+  pcfLifecyclePhase = computed(() => PcfHelper.getPcfLifecyclePhase(this.pcf()));
+  pcfAddress = computed(() => PcfHelper.getPcfAddress(this.pcf()));
+  pcfEnergyUsageCumulated = computed(() => PcfHelper.getPcfEnergyUsageCumulated(this.pcf()));
+  pcfEmissionFactor = computed(() => PcfHelper.getPcfEmissionFactor(this.pcf()));
 
-  pcfReferenceValueForCalculation = computed(() => {
-    const pcf = this.pcf();
-    return PcfHelper.getPcfReferenceValueForCalculation(pcf);
-  });
+  // The FL40 elements are rarely described by a concept description, so their usual unit is shown as fallback
+  pcfEnergyUsageCumulatedUnit = computed(() => this.units.fieldUnit(this.fields().energyUsageCumulated, 'kWh'));
 
-  pcfQuantityOfMeasureForCalculation = computed(() => {
-    const pcf = this.pcf();
-    return PcfHelper.getPcfQuantityOfMeasureForCalculation(pcf);
-  });
-
-  pcfLifecyclePhase = computed(() => {
-    const pcf = this.pcf();
-    return PcfHelper.getPcfLifecyclePhase(pcf);
-  });
-
-  pcfAddress = computed(() => {
-    const pcf = this.pcf();
-    return PcfHelper.getPcfAddress(pcf);
-  });
-
-  pcfEnergyUsageCumulated = computed(() => {
-    const pcf = this.pcf();
-    return PcfHelper.getPcfEnergyUsageCumulated(pcf);
-  });
-
-  pcfEnergyUsageCumulatedUnit = computed(async () => {
-    const pcf = this.pcf();
-    const energyUsageEl = PcfHelper.getPcfEnergyUsageCumulatedElement(pcf);
-    if (energyUsageEl != null) {
-      const unit = await this.getUnit(energyUsageEl);
-      return unit !== '' && unit != null ? unit : 'kWh';
-    } else return Promise.resolve('kWh');
-  });
-
-  pcfEmissionFactor = computed(() => {
-    const pcf = this.pcf();
-    return PcfHelper.getPcfEmissionFactor(pcf);
-  });
-
-  pcfEmissionFactorUnit = computed(async () => {
-    const pcf = this.pcf();
-    const emissionFactorEl = PcfHelper.getPcfEmissionFactorElement(pcf);
-    if (emissionFactorEl != null) {
-      const unit = await this.getUnit(emissionFactorEl);
-      return unit !== '' && unit != null ? unit : 'g/kWh';
-    } else return Promise.resolve('g/kWh');
-  });
-
-  async getUnit(property: aas.types.Property) {
-    const foundEds = property?.embeddedDataSpecifications?.find(
-      (eds) => (eds.dataSpecificationContent as any).unit != null,
-    );
-    if (foundEds) {
-      return (foundEds?.dataSpecificationContent as any)?.unit ?? '';
-    }
-
-    if (property?.semanticId?.keys[0]?.value) {
-      const semanticId = property.semanticId.keys[0].value;
-      const conceptDescription = await this.cdService.loadCD(
-        semanticId,
-        this.viewerStore.cdUrl(),
-        this.viewerStore.apiKey() ?? '',
-      );
-
-      if (conceptDescription == null) return '';
-
-      const foundContent = conceptDescription?.embeddedDataSpecifications?.[0]?.dataSpecificationContent;
-      if (foundContent != null && foundContent instanceof aas.types.DataSpecificationIec61360) {
-        return foundContent.unit ?? '';
-      }
-    }
-  }
+  pcfEmissionFactorUnit = computed(() => this.units.fieldUnit(this.fields().emissionFactor, 'g/kWh'));
 }

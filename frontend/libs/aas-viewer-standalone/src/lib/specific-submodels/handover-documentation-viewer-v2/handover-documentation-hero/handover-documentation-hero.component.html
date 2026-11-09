@@ -1,0 +1,35 @@
+<!-- Neutral tone: documents describe the product, they carry no status -->
+<section class="viewer-hero">
+  <div class="viewer-hero-icon" aria-hidden="true"><i class="fa-solid fa-book-open"></i></div>
+  <div class="viewer-hero-main">
+    <div class="viewer-hero-eyebrow">{{ 'HANDOVER_DOCUMENTATION' | translate }}</div>
+    <p class="viewer-hero-value">
+      {{ summary().documentCount }}
+      <span class="viewer-hero-unit">{{ (summary().documentCount === 1 ? 'DOCUMENT' : 'DOCUMENTS') | translate }}</span>
+    </p>
+    @if (visibleTags().length > 0) {
+      <div class="viewer-tags">
+        @for (tag of visibleTags(); track tag.kind + tag.label) {
+          @if (tag.kind === 'language') {
+            <p-tag
+              [value]="tag.label"
+              severity="secondary"
+              icon="fa-solid fa-language"
+              [attr.title]="'LANGUAGE' | translate"
+            />
+          } @else {
+            <p-tag
+              [value]="tag.label"
+              severity="secondary"
+              icon="fa-solid fa-tag"
+              [attr.title]="'DOCUMENT_CLASS_NAME' | translate"
+            />
+          }
+        }
+        @if (hiddenTags().length > 0) {
+          <p-tag [value]="'+' + hiddenTags().length" severity="secondary" [attr.title]="hiddenTagLabels()" />
+        }
+      </div>
+    }
+  </div>
+</section>
