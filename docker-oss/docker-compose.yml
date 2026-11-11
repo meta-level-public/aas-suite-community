@@ -162,6 +162,7 @@ services:
     environment:
       - API_URL=http://aas-designer-community:8080
       - GATEWAY_URL=http://gateway:8080
+      - FRONTEND_DOCS_BASE_URL=${DOCS_BASE_URL:-}
     ports:
       - "80:80"
       - "443:443"

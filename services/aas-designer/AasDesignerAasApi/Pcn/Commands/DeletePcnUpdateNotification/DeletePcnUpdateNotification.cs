@@ -29,7 +29,12 @@ public class DeletePcnUpdateNotificationCommandHandler
         CancellationToken cancellationToken
     )
     {
-        var item = _context.PcnNotifications.Where(x => x.Id == request.Id).FirstOrDefault();
+        // only notifications of listeners of the caller's own organisation
+        var item = _context
+            .PcnNotifications.Where(x =>
+                x.Id == request.Id && x.PcnListener.OrganizationId == request.AppUser.OrganisationId
+            )
+            .FirstOrDefault();
         if (item == null)
         {
             throw new Exception($"PcnNotification with ID {request.Id} not found.");

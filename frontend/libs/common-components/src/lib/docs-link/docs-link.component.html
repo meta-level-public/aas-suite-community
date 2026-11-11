@@ -1,0 +1,11 @@
+@if (url(); as docsUrl) {
+  <a
+    [href]="docsUrl"
+    target="_blank"
+    rel="noopener"
+    class="inline-flex items-center gap-1 text-sm text-primary hover:underline"
+  >
+    <i class="pi pi-book" aria-hidden="true"></i>
+    <span>{{ label() | translate }}</span>
+  </a>
+}

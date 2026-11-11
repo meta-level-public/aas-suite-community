@@ -32,9 +32,13 @@ public class SendApplicationTestMailHandler : IRequestHandler<SendApplicationTes
         );
 
         MailSettingsValidation.ValidateForUpdate(normalizedSettings);
+        var stored = await _mailSettingsRuntimeService.GetMailSettingsAsync(cancellationToken);
 
         await _mailSettingsRuntimeService.SendApplicationTestMailAsync(
-            normalizedSettings.Application,
+            MailSettingsSecrets.KeepStoredPassword(
+                normalizedSettings.Application,
+                stored.Application
+            ),
             normalizedTargetEmail,
             cancellationToken
         );

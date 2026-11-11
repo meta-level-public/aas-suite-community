@@ -9,6 +9,8 @@ public static class OriginFixUtil
     {
         // Missing content types (e.g. jpg) make supplementary files invisible to System.IO.Packaging
         ms = PackageContentTypesFixUtil.EnsureContentTypes(ms).Stream;
+        // Relative relationship targets (e.g. Siemens packages) fail with "Part URI must start with a forward slash"
+        ms = PackageRelationshipsFixUtil.EnsureAbsoluteTargets(ms).Stream;
 
         var packaging = new AasCore.Aas3.Package.Packaging();
 

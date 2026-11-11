@@ -21,4 +21,6 @@ export interface AppConfig {
   licensingEnabled?: boolean;
   defaultTheme?: string;
   compareUrls: string;
+  /** Base URL of the user documentation; the runtime variable __AAS_DOCS_BASE_URL takes precedence */
+  docsBaseUrl?: string;
 }

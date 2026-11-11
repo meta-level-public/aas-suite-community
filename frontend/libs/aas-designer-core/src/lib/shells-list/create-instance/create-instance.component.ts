@@ -7,6 +7,21 @@ import { DatePickerModule } from '@openng/optimus-ui/datepicker';
 import { DynamicDialogConfig, DynamicDialogRef } from '@openng/optimus-ui/dynamicdialog';
 import { InputTextModule } from '@openng/optimus-ui/inputtext';
 
+/**
+ * Formats a date as ISO 8601 in local time with the time zone offset (e.g. 2026-11-09T13:26:18+01:00),
+ * so the server writes the calendar date the user picked instead of the UTC date.
+ */
+export function toLocalIsoString(date: Date): string {
+  const pad = (value: number) => String(Math.abs(value)).padStart(2, '0');
+  const offsetMinutes = -date.getTimezoneOffset();
+  const sign = offsetMinutes >= 0 ? '+' : '-';
+  return (
+    `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}` +
+    `T${pad(date.getHours())}:${pad(date.getMinutes())}:${pad(date.getSeconds())}` +
+    `${sign}${pad(Math.trunc(offsetMinutes / 60))}:${pad(offsetMinutes % 60)}`
+  );
+}
+
 @Component({
   selector: 'aas-create-instance',
   imports: [FormsModule, TranslateModule, InputTextModule, ButtonModule, DatePickerModule],
@@ -24,7 +39,7 @@ export class CreateInstanceComponent {
 
   constructor() {
     this.createInstanceItem().aasIdentifier = this.config.data.aasIdentifier;
-    this.createInstanceItem().dateOfManufacture = this.dateValue.toISOString();
+    this.createInstanceItem().dateOfManufacture = toLocalIsoString(this.dateValue);
   }
 
   closeDialog() {
@@ -37,7 +52,7 @@ export class CreateInstanceComponent {
 
   onDateSelect(event: Date | null) {
     if (event != null) {
-      this.createInstanceItem().dateOfManufacture = event.toISOString();
+      this.createInstanceItem().dateOfManufacture = toLocalIsoString(event);
     } else {
       this.createInstanceItem().dateOfManufacture = undefined;
     }

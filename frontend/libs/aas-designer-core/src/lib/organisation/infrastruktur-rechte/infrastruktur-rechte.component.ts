@@ -1,4 +1,5 @@
-import { NotificationService } from '@aas/common-services';
+import { DocsLinkComponent } from '@aas/common-components';
+import { docsTopic, NotificationService } from '@aas/common-services';
 import { BenutzerInfrastrukturRechtDto, InfrastrukturRechteClient, InfraUserRechtDto } from '@aas/webapi-client';
 import { CommonModule } from '@angular/common';
 import { Component, inject, input, OnChanges, output, signal, ChangeDetectionStrategy } from '@angular/core';
@@ -16,6 +17,7 @@ export type InfraRechteMode = 'user' | 'infra';
   templateUrl: './infrastruktur-rechte.component.html',
   changeDetection: ChangeDetectionStrategy.Eager,
   imports: [
+    DocsLinkComponent,
     CommonModule,
     FormsModule,
     TranslateModule,
@@ -26,6 +28,9 @@ export type InfraRechteMode = 'user' | 'infra';
   ],
 })
 export class InfrastrukturRechteComponent implements OnChanges {
+  /** Page of the user documentation linked from this view */
+  readonly docsTopic = docsTopic('designer/rollen-und-rechte#infrastruktur-rechte');
+
   infraRechteClient = inject(InfrastrukturRechteClient);
   notificationService = inject(NotificationService);
 

@@ -79,7 +79,10 @@
 
 <p-dialog #tokens [visible]="addTokenDialogVisible" class="w-20rem" [closable]="false" [style]="{ width: '66vw' }">
   <ng-template #header>
-    <div class="text-xl font-bold">{{ 'ADD_TOKEN' | translate }}</div>
+    <div class="flex flex-wrap items-center gap-4">
+      <div class="text-xl font-bold">{{ 'ADD_TOKEN' | translate }}</div>
+      <lib-docs-link [topic]="docsTopic"></lib-docs-link>
+    </div>
   </ng-template>
   @if (newOrgaToken) {
     <div class="mb-4">

@@ -67,13 +67,13 @@ The wizard creates a ready-to-start stack in a separate directory. More informat
 ## Repository Contents
 
 - [docker-oss/](docker-oss/) contains the Docker Compose artifacts for the Community version.
-- [docs-oss/](docs-oss/) contains the public OSS documentation.
+- [documentation/](documentation/) contains the user manual (Docusaurus), see [documentation/README.md](documentation/README.md).
 - [frontend/](frontend/) contains the frontend parts of the Community version.
 - [services/](services/) contains the backend services and shared components.
 
 ## Documentation
 
-Further documentation can be found under [docs-oss/](docs-oss/).
+Further documentation can be found in the user manual under [documentation/docs/](documentation/docs/).
 
 ## Contributing
 

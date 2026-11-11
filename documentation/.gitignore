@@ -1,0 +1,8 @@
+node_modules
+build
+build-oss
+.docusaurus
+.cache-loader
+.DS_Store
+npm-debug.log*
+scripts/screenshots/.auth/

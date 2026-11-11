@@ -1,5 +1,5 @@
-import { HelpLabelComponent } from '@aas/common-components';
-import { NotificationService } from '@aas/common-services';
+import { DocsLinkComponent, HelpLabelComponent } from '@aas/common-components';
+import { docsTopic, NotificationService } from '@aas/common-services';
 import { LookupEntry } from '@aas/model';
 import { HttpClient } from '@angular/common/http';
 import { Component, inject, model, OnDestroy, signal, ChangeDetectionStrategy } from '@angular/core';
@@ -16,6 +16,7 @@ import { PcnStateStoreService } from '../pcn-state-store.service';
 
 @Component({
   imports: [
+    DocsLinkComponent,
     FormsModule,
     TranslateModule,
     ButtonModule,
@@ -31,6 +32,9 @@ import { PcnStateStoreService } from '../pcn-state-store.service';
   templateUrl: './pcn-sending.component.html',
 })
 export class PcnSendingComponent implements OnDestroy {
+  /** Page of the user documentation linked from this view */
+  readonly docsTopic = docsTopic('designer/pcn#mitteilung-versenden-hersteller');
+
   pcnStateStore = inject(PcnStateStoreService);
   notificationService = inject(NotificationService);
 

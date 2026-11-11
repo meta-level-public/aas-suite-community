@@ -64,6 +64,9 @@
             </p-inputgroup-addon>
             <p-password
               [(ngModel)]="settings.application.senderPassword"
+              [placeholder]="
+                settings.application.hasSenderPassword ? ('MAIL_SETTINGS_PASSWORD_STORED' | translate) : ''
+              "
               [feedback]="false"
               [toggleMask]="true"
               class="w-full"
@@ -231,6 +234,7 @@
             </p-inputgroup-addon>
             <p-password
               [(ngModel)]="settings.keycloak.password"
+              [placeholder]="settings.keycloak.hasPassword ? ('MAIL_SETTINGS_PASSWORD_STORED' | translate) : ''"
               [feedback]="false"
               [toggleMask]="true"
               class="w-full"

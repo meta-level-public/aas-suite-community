@@ -24,9 +24,13 @@ public class UpdateMailSettingsHandler : IRequestHandler<UpdateMailSettingsComma
     )
     {
         MailSettingsValidation.ValidateForUpdate(request.Settings);
-        return await _mailSettingsRuntimeService.UpdateMailSettingsAsync(
+        var stored = await _mailSettingsRuntimeService.GetMailSettingsAsync(cancellationToken);
+        var settings = MailSettingsSecrets.KeepStoredPasswords(
             MailSettingsStore.Normalize(request.Settings),
-            cancellationToken
+            stored
+        );
+        return MailSettingsSecrets.WithoutPasswords(
+            await _mailSettingsRuntimeService.UpdateMailSettingsAsync(settings, cancellationToken)
         );
     }
 }

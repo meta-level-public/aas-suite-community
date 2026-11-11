@@ -47,6 +47,8 @@ public class RegisterPcnListenerCommandHandler : IRequestHandler<RegisterPcnList
             pcnListener.Password = request.PcnRegistrationRequest.Password;
             pcnListener.Username = request.PcnRegistrationRequest.Username;
             pcnListener.InfrastructureId = request.AppUser.CurrentInfrastructureSettings.Id;
+            // the editor reports the reception as active right after registering
+            pcnListener.IsActive = true;
 
             _context.PcnListeners.Add(pcnListener);
             await _context.SaveChangesAsync();

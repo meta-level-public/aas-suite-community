@@ -4,6 +4,8 @@ set -eu
 API_BASE_URL="${FRONTEND_API_BASE_URL:-http://localhost:5196/designer-api}"
 FEEDMAPPING_BASE_URL="${FRONTEND_FEEDMAPPING_BASE_URL:-http://localhost:5196}"
 DESIGNER_BASE_URL="${FRONTEND_DESIGNER_BASE_URL:-$(printf '%s' "${API_BASE_URL}" | sed 's#/designer-api$#/designer#')}"
+# Base URL of the user documentation; empty hides the documentation button
+DOCS_BASE_URL="${FRONTEND_DOCS_BASE_URL:-}"
 ROOT_DIR="/usr/share/caddy"
 if [ -d "/usr/share/caddy/browser" ]; then
   ROOT_DIR="/usr/share/caddy/browser"
@@ -13,6 +15,7 @@ INDEX_FILE="${ROOT_DIR}/index.html"
 cat >"${ROOT_DIR}/runtime-config.js" <<EOF
 window.__AAS_FRONTEND_API_BASE_URL = "${API_BASE_URL}";
 window.__AAS_FRONTEND_FEEDMAPPING_BASE_URL = "${FEEDMAPPING_BASE_URL}";
+window.__AAS_DOCS_BASE_URL = "${DOCS_BASE_URL}";
 window.__AAS_FRONTEND_DESIGNER_BASE_URL = "${DESIGNER_BASE_URL}";
 EOF
 

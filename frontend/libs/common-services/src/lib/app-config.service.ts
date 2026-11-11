@@ -25,7 +25,7 @@ interface LegalLinksConfigValues {
   imprintLink?: string;
 }
 
-function getRuntimeVar(key: string): string | null {
+export function getRuntimeVar(key: string): string | null {
   const runtimeWindow = window as unknown as Record<string, unknown>;
   const value = runtimeWindow[key];
   if (typeof value === 'string' && value.trim() !== '') {
