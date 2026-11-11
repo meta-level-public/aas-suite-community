@@ -17,5 +17,7 @@ export * from './lib/themes/cobalt-theme';
 export * from './lib/themes/evergreen-theme';
 export * from './lib/themes/theme-registry';
 export * from './lib/utils/aas-email-validator';
+export * from './lib/user-docs-button/user-docs-button.component';
+export * from './lib/docs-link/docs-link.component';
 export * from './lib/utils/ui-label-resolver';
 export * from './lib/wait-dialog/wait-dialog.component';

@@ -18,6 +18,9 @@ public class ApplicationMailSettingsDto
     public string SenderAddress { get; set; } = string.Empty;
     public string SenderUsername { get; set; } = string.Empty;
     public string SenderPassword { get; set; } = string.Empty;
+
+    /// <summary>Set in responses instead of returning the password.</summary>
+    public bool HasSenderPassword { get; set; }
     public string NewOrgaNotificationAddress { get; set; } = string.Empty;
     public string SubjectPrefix { get; set; } = string.Empty;
 }
@@ -32,6 +35,9 @@ public class KeycloakMailSettingsDto
     public string ReplyToDisplayName { get; set; } = string.Empty;
     public string User { get; set; } = string.Empty;
     public string Password { get; set; } = string.Empty;
+
+    /// <summary>Set in responses instead of returning the password.</summary>
+    public bool HasPassword { get; set; }
     public bool Auth { get; set; }
     public bool StartTls { get; set; }
     public bool Ssl { get; set; }

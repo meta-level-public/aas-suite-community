@@ -4,6 +4,7 @@ using AasShared.Model.AasApi;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
+using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 
@@ -19,10 +20,15 @@ namespace AasShared.Middleware
     public class InternalApiExceptionFilter : IExceptionFilter
     {
         private readonly ILogger<InternalApiExceptionFilter> _logger;
+        private readonly IHostEnvironment _environment;
 
-        public InternalApiExceptionFilter(ILogger<InternalApiExceptionFilter> logger)
+        public InternalApiExceptionFilter(
+            ILogger<InternalApiExceptionFilter> logger,
+            IHostEnvironment environment
+        )
         {
             _logger = logger;
+            _environment = environment;
         }
 
         public void OnException(ExceptionContext context)
@@ -77,7 +83,10 @@ namespace AasShared.Middleware
             {
                 var errorResult = new ErroResult
                 {
-                    Stacktrace = context.Exception.StackTrace ?? "",
+                    // Stacktraces verraten interne Details und gehen nur in der Entwicklung an den Client.
+                    Stacktrace = _environment.IsDevelopment()
+                        ? context.Exception.StackTrace ?? ""
+                        : string.Empty,
                     Message = context.Exception.Message,
                     ExceptionType = context.Exception.GetType().Name,
                 };

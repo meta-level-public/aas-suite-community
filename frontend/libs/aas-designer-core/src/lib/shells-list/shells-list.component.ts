@@ -1,4 +1,4 @@
-import { NotificationService } from '@aas/common-services';
+import { docsTopic, NotificationService } from '@aas/common-services';
 import { TagHelper } from '@aas/helpers';
 import { Clipboard, ClipboardModule } from '@angular/cdk/clipboard';
 import { CommonModule } from '@angular/common';
@@ -34,7 +34,12 @@ import { TooltipModule } from '@openng/optimus-ui/tooltip';
 import { lastValueFrom } from 'rxjs';
 
 import { ADDITIONAL_SHELL_MENU_ITEMS } from '@aas-designer-model';
-import { HelpLabelComponent, WaitDialogComponent, CursorPaginatorComponent } from '@aas/common-components';
+import {
+  CursorPaginatorComponent,
+  DocsLinkComponent,
+  HelpLabelComponent,
+  WaitDialogComponent,
+} from '@aas/common-components';
 import { AccessService, PortalService } from '@aas/common-services';
 import {
   AasInfrastructureClient,
@@ -71,6 +76,7 @@ import { UploadAasDialogComponent } from './upload-aas-dialog/upload-aas-dialog.
 @Component({
   selector: 'aas-shells-list',
   imports: [
+    DocsLinkComponent,
     CursorPaginatorComponent,
     CommonModule,
     FormsModule,
@@ -101,6 +107,9 @@ import { UploadAasDialogComponent } from './upload-aas-dialog/upload-aas-dialog.
   providers: [ShellsListStore, ShellsListActions],
 })
 export class ShellsListComponent implements OnInit, OnDestroy {
+  /** Page of the user documentation linked from this view */
+  readonly docsTopic = docsTopic('designer/aas-anlegen');
+
   private actions = inject(ShellsListActions);
   private store = inject(ShellsListStore);
   shells = this.store.shells;

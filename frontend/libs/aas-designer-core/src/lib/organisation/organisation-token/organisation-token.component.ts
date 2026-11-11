@@ -1,5 +1,6 @@
+import { DocsLinkComponent } from '@aas/common-components';
 import { DateProxyPipe } from '@aas/common-pipes';
-import { AasConfirmationService, NotificationService } from '@aas/common-services';
+import { AasConfirmationService, docsTopic, NotificationService } from '@aas/common-services';
 import { AasInfrastructureClient, AvailableInfastructure, OrgaTokenDto } from '@aas/webapi-client';
 import { Clipboard } from '@angular/cdk/clipboard';
 import { Component, inject, OnInit, signal, ViewChild, ChangeDetectionStrategy } from '@angular/core';
@@ -24,6 +25,7 @@ import { OrganisationService } from '../organisation.service';
   templateUrl: './organisation-token.component.html',
   changeDetection: ChangeDetectionStrategy.Eager,
   imports: [
+    DocsLinkComponent,
     Button,
     TableModule,
     PrimeTemplate,
@@ -41,6 +43,9 @@ import { OrganisationService } from '../organisation.service';
   ],
 })
 export class OrganisationTokenComponent implements OnInit {
+  /** Page of the user documentation linked from this view */
+  readonly docsTopic = docsTopic('designer/organisation#token');
+
   @ViewChild('adminOrgaEditForm') form!: NgForm;
   menuItems: MenuItem[] = [];
   loading = false;

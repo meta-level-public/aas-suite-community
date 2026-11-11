@@ -9103,6 +9103,9 @@
           "senderPassword": {
             "type": "string"
           },
+          "hasSenderPassword": {
+            "type": "boolean"
+          },
           "newOrgaNotificationAddress": {
             "type": "string"
           },
@@ -9138,6 +9141,9 @@
           },
           "password": {
             "type": "string"
+          },
+          "hasPassword": {
+            "type": "boolean"
           },
           "auth": {
             "type": "boolean"

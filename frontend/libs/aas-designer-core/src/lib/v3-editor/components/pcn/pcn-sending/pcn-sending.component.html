@@ -1,5 +1,8 @@
 <div class="flex flex-col gap-2">
-  <h3>{{ 'MESSAGE_FOR_SENDING' | translate }}</h3>
+  <div class="flex flex-wrap items-center justify-between gap-2">
+    <h3>{{ 'MESSAGE_FOR_SENDING' | translate }}</h3>
+    <lib-docs-link [topic]="docsTopic"></lib-docs-link>
+  </div>
   <div class="flex flex-row gap-2">
     <lib-help-label tag="CHANGE_TYPE" class="w-14rem"></lib-help-label>
     <p-select id="organization" [options]="availableChangeTypes" [(ngModel)]="changeType" class="w-full"></p-select>

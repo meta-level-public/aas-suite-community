@@ -1,11 +1,13 @@
 import { OrgaSettings } from '@aas-designer-model';
-import { HelpEditModeService } from '@aas/common-components';
+import { HelpEditModeService, UserDocsButtonComponent } from '@aas/common-components';
 import { DateProxyPipe } from '@aas/common-pipes';
 import {
   AccessService,
   AppConfigService,
   buildMySpaceRoute,
+  DOCS_CONTEXT,
   PortalService,
+  UserDocsService,
   ViewportService,
 } from '@aas/common-services';
 import { NewsService, ShowNewsComponent } from '@aas/news';
@@ -36,14 +38,24 @@ import {
   ADDITIONAL_TOPBAR_CENTER_COMPONENTS,
   ADDITIONAL_TOPBAR_MENU_ITEMS,
 } from '../topbar-addon-config';
+import { DESIGNER_DOCS_CONTEXT } from '../designer-docs-context';
 import { VersionInfo } from './version-info';
 
 @Component({
   selector: 'lib-app-topbar',
   templateUrl: './app-topbar.component.html',
-  imports: [NgComponentOutlet, TranslateModule, ButtonModule, PopoverModule, TooltipModule, AvatarModule, MenuModule],
+  imports: [
+    NgComponentOutlet,
+    TranslateModule,
+    ButtonModule,
+    PopoverModule,
+    TooltipModule,
+    AvatarModule,
+    MenuModule,
+    UserDocsButtonComponent,
+  ],
   changeDetection: ChangeDetectionStrategy.Eager,
-  providers: [DateProxyPipe],
+  providers: [DateProxyPipe, { provide: DOCS_CONTEXT, useValue: DESIGNER_DOCS_CONTEXT }],
 })
 export class AppTopBarComponent implements OnInit, OnDestroy {
   subscriptions: Subscription[] = [];
@@ -69,6 +81,8 @@ export class AppTopBarComponent implements OnInit, OnDestroy {
   private newsService = inject(NewsService);
   private http = inject(HttpClient);
   appConfigService = inject(AppConfigService);
+  private readonly userDocsService = inject(UserDocsService);
+  private readonly docsContext = inject(DOCS_CONTEXT);
   additionalTopbarMenuItems = inject(ADDITIONAL_TOPBAR_MENU_ITEMS);
   topbarCenterComponents = inject(ADDITIONAL_TOPBAR_CENTER_COMPONENTS);
   topbarAfterComponents = inject(ADDITIONAL_TOPBAR_AFTER_COMPONENTS);
@@ -187,6 +201,15 @@ export class AppTopBarComponent implements OnInit, OnDestroy {
       });
       menuItems.push({
         separator: true,
+      });
+    }
+
+    // Only offered if the installation links a user documentation (see DOCS_BASE_URL)
+    if (this.userDocsService.isAvailable()) {
+      menuItems.push({
+        label: this.translate.instant('USER_DOCUMENTATION'),
+        icon: 'pi pi-fw pi-book',
+        command: () => this.userDocsService.open(this.docsContext.defaultTopic),
       });
     }
 

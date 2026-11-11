@@ -1,0 +1,23 @@
+/* Farben an die AAS Suite angelehnt (Primärfarbe aus dem Standard-Theme) */
+:root {
+  --ifm-color-primary: #2a1261;
+  --ifm-color-primary-dark: #261057;
+  --ifm-color-primary-darker: #230f52;
+  --ifm-color-primary-darkest: #1d0c44;
+  --ifm-color-primary-light: #2e146b;
+  --ifm-color-primary-lighter: #311570;
+  --ifm-color-primary-lightest: #3a197e;
+  --ifm-code-font-size: 95%;
+  --docusaurus-highlighted-code-line-bg: rgba(0, 0, 0, 0.1);
+}
+
+[data-theme='dark'] {
+  --ifm-color-primary: #b9a8f0;
+  --ifm-color-primary-dark: #a28ceb;
+  --ifm-color-primary-darker: #977ee8;
+  --ifm-color-primary-darkest: #7556e0;
+  --ifm-color-primary-light: #d0c4f5;
+  --ifm-color-primary-lighter: #dbd2f8;
+  --ifm-color-primary-lightest: #fdfcff;
+  --docusaurus-highlighted-code-line-bg: rgba(0, 0, 0, 0.3);
+}

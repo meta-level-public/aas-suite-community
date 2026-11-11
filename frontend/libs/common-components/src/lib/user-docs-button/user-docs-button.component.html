@@ -1,0 +1,11 @@
+@if (available) {
+  <p-button
+    icon="pi pi-question-circle"
+    [rounded]="true"
+    class="topbar-button text-0"
+    [pTooltip]="'USER_DOCUMENTATION' | translate"
+    tooltipPosition="bottom"
+    [ariaLabel]="'USER_DOCUMENTATION' | translate"
+    (onClick)="open()"
+  ></p-button>
+}

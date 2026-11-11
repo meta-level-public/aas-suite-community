@@ -11,7 +11,9 @@ export interface ApplicationMailSettingsDto {
   smtpNeedsAuthentication: boolean;
   senderAddress: string;
   senderUsername: string;
+  /** Never filled by the server; empty keeps the stored password. */
   senderPassword: string;
+  hasSenderPassword?: boolean;
   newOrgaNotificationAddress: string;
   subjectPrefix: string;
 }
@@ -24,7 +26,9 @@ export interface KeycloakMailSettingsDto {
   replyTo: string;
   replyToDisplayName: string;
   user: string;
+  /** Never filled by the server; empty keeps the stored password. */
   password: string;
+  hasPassword?: boolean;
   auth: boolean;
   startTls: boolean;
   ssl: boolean;

@@ -1,3 +1,4 @@
+using AasDesignerSystemManagementApi.SystemManagement.MailSettings;
 using AasDesignerSystemManagementApi.SystemManagement.Model;
 using MediatR;
 
@@ -19,6 +20,8 @@ public class GetMailSettingsHandler : IRequestHandler<GetMailSettingsQuery, Mail
         CancellationToken cancellationToken
     )
     {
-        return await _mailSettingsRuntimeService.GetMailSettingsAsync(cancellationToken);
+        return MailSettingsSecrets.WithoutPasswords(
+            await _mailSettingsRuntimeService.GetMailSettingsAsync(cancellationToken)
+        );
     }
 }

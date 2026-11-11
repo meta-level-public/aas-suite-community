@@ -1,8 +1,8 @@
 import { Component, inject, model, signal, ChangeDetectionStrategy } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
-import { HelpLabelComponent } from '@aas/common-components';
-import { NotificationService } from '@aas/common-services';
+import { DocsLinkComponent, HelpLabelComponent } from '@aas/common-components';
+import { docsTopic, NotificationService } from '@aas/common-services';
 import { PcnClient, PcnRegistrationRequest } from '@aas/webapi-client';
 import { ButtonModule } from '@openng/optimus-ui/button';
 import { DynamicDialogConfig, DynamicDialogRef } from '@openng/optimus-ui/dynamicdialog';
@@ -14,6 +14,7 @@ import { lastValueFrom } from 'rxjs';
 @Component({
   selector: 'aas-pcn-register-subscription',
   imports: [
+    DocsLinkComponent,
     TranslateModule,
     FormsModule,
     ButtonModule,
@@ -26,6 +27,9 @@ import { lastValueFrom } from 'rxjs';
   templateUrl: './pcn-register-subscription.component.html',
 })
 export class PcnRegisterSubscriptionComponent {
+  /** Page of the user documentation linked from this view */
+  readonly docsTopic = docsTopic('designer/pcn#mitteilungen-abonnieren-abnehmer');
+
   brokerUrls = model<string[]>([]);
   pcnBrokerUrl = model('');
   pcnBrokerTopic = model('');

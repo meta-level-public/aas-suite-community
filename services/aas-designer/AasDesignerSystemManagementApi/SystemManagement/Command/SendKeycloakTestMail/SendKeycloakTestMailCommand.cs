@@ -32,9 +32,10 @@ public class SendKeycloakTestMailHandler : IRequestHandler<SendKeycloakTestMailC
         );
 
         MailSettingsValidation.ValidateForUpdate(normalizedSettings);
+        var stored = await _mailSettingsRuntimeService.GetMailSettingsAsync(cancellationToken);
 
         await _mailSettingsRuntimeService.SendKeycloakTestMailAsync(
-            normalizedSettings.Keycloak,
+            MailSettingsSecrets.KeepStoredPassword(normalizedSettings.Keycloak, stored.Keycloak),
             normalizedTargetEmail,
             cancellationToken
         );

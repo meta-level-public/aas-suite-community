@@ -10,14 +10,17 @@ namespace AasDesignerAasApi.Pcn
         public string BrokerUrl { get; set; } = string.Empty;
         public string Topic { get; set; } = string.Empty;
         public string Username { get; set; } = string.Empty;
-        public string Password { get; set; } = string.Empty; // should perhaps be stored encoded
+
+        /// <summary>Never filled: the broker password stays on the server.</summary>
+        public string Password { get; set; } = string.Empty;
         public bool IsActive { get; set; }
 
         public class MappingProfile : Profile
         {
             public MappingProfile()
             {
-                CreateMap<PcnListener, PcnInformationDto>();
+                CreateMap<PcnListener, PcnInformationDto>()
+                    .ForMember(dto => dto.Password, options => options.Ignore());
             }
         }
     }
