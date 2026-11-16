@@ -21,9 +21,20 @@
 		Referrer-Policy "strict-origin-when-cross-origin"
 	}
 	
-	# Cache static assets
+	# Cache static assets; runtime-config.js is rewritten on every container start
 	@static {
 		path *.js *.css *.woff *.woff2 *.ttf *.eot *.svg *.png *.jpg *.jpeg *.gif *.ico
+		not path */runtime-config.js
 	}
 	header @static Cache-Control "public, max-age=31536000, immutable"
+
+	# Always revalidate everything else (index.html, version.json, config, runtime-config.js),
+	# so a new image or changed environment variables reach the browser immediately
+	@revalidate {
+		not {
+			path *.js *.css *.woff *.woff2 *.ttf *.eot *.svg *.png *.jpg *.jpeg *.gif *.ico
+			not path */runtime-config.js
+		}
+	}
+	header @revalidate Cache-Control "no-cache"
 }
