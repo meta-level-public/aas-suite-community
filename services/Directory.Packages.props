@@ -7,7 +7,7 @@
     <PackageVersion Include="AasCore.Aas3.Package" Version="1.0.4" />
     <PackageVersion Include="AasCore.Aas3_0" Version="1.0.6" />
     <PackageVersion Include="AasCore.Aas3_1" Version="1.0.0" />
-    <PackageVersion Include="AutoMapper" Version="16.1.1" />
+    <PackageVersion Include="AutoMapper" Version="16.3.0" />
     <PackageVersion Include="CsvHelper" Version="33.0.1" />
     <PackageVersion Include="log4net" Version="3.3.2" />
     <PackageVersion Include="MailKit" Version="4.16.0" />

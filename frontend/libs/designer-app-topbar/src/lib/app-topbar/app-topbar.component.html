@@ -28,15 +28,15 @@
     }
   </div>
 
-  <div class="flex flex-row gap-1 items-center shrink-0">
+  <div class="flex flex-row gap-2 items-center shrink-0">
     <!-- On phones language and organisation are part of the user menu -->
-    <div class="hidden md:flex flex-row gap-1 items-center">
+    <div class="hidden md:flex flex-row gap-2 items-center">
       <p-button
         label="{{ portalService.currentLanguage.toUpperCase() }}"
         icon="pi pi-globe"
         (onClick)="opLang.toggle($event)"
         [rounded]="true"
-        class="topbar-button text-0 mr-2"
+        class="topbar-button text-0"
         iconPos="right"
       ></p-button>
       <p-popover #opLang>

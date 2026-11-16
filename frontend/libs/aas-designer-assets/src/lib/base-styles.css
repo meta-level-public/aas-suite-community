@@ -805,6 +805,25 @@ del.diff span {
   font-size: 1.4rem;
 }
 
+/* All topbar controls share the height of the large user avatar (3rem) */
+.topbar-button > button {
+  height: 3rem;
+  min-width: 3rem;
+  padding-top: 0 !important;
+  padding-bottom: 0 !important;
+}
+
+.topbar-button > button.p-button-icon-only {
+  width: 3rem;
+  height: 3rem;
+  padding: 0 !important;
+}
+
+.topbar-button > button img {
+  max-height: 2rem;
+  width: auto;
+}
+
 .topbar-orga-button > button {
   background-color: rgba(var(--p-topbar-button-background-color), 0.2) !important;
   color: var(--p-button-primary-color) !important;
