@@ -1,6 +1,10 @@
 import * as aas from '@aas-core-works/aas-core3.1-typescript';
 import { PackageMetadata, ShellResult } from '@aas/model';
-import { addElementToContent, removeElementFromContent } from './v3-tree-content-mutations';
+import {
+  addElementToContent,
+  findSubmodelToPasteAsReference,
+  removeElementFromContent,
+} from './v3-tree-content-mutations';
 
 function createShell(id: string) {
   return new aas.types.AssetAdministrationShell(id, new aas.types.AssetInformation(aas.types.AssetKind.Instance));
@@ -45,6 +49,36 @@ describe('v3 tree content mutations', () => {
     expect(copy.id).not.toBe('urn:existing');
     expect(shell.submodels?.[1].keys[0].value).toBe(copy.id);
     expect(shellResult.v3Shell.submodels).toEqual([copy]);
+  });
+
+  it('offers pasting a copied submodel as reference only into shells that do not reference it yet', () => {
+    const submodel = new aas.types.Submodel('urn:sm');
+    const shellResult = new ShellResult();
+    shellResult.v3Shell = new aas.types.Environment(null, [submodel]);
+    const otherShell = createShell('urn:aas:other');
+    const owningShell = createShell('urn:aas');
+    owningShell.submodels = [submodelRef('urn:sm')];
+    const copied = new aas.types.Submodel('urn:sm');
+
+    expect(findSubmodelToPasteAsReference(otherShell, copied, shellResult)).toBe(submodel);
+    expect(findSubmodelToPasteAsReference(owningShell, copied, shellResult)).toBeUndefined();
+    expect(findSubmodelToPasteAsReference(otherShell, new aas.types.Submodel('urn:gone'), shellResult)).toBeUndefined();
+    expect(findSubmodelToPasteAsReference(new aas.types.Submodel('urn:x'), copied, shellResult)).toBeUndefined();
+    expect(findSubmodelToPasteAsReference(otherShell, copied, undefined)).toBeUndefined();
+  });
+
+  it('pastes a submodel as reference without changing its id or duplicating it in the environment', () => {
+    const submodel = new aas.types.Submodel('urn:sm');
+    const shellResult = new ShellResult();
+    shellResult.v3Shell = new aas.types.Environment(null, [submodel]);
+    const shell = createShell('urn:aas:other');
+
+    addElementToContent(shell, findSubmodelToPasteAsReference(shell, submodel, shellResult)!, 'reference', shellResult);
+
+    expect(submodel.id).toBe('urn:sm');
+    expect(shell.submodels?.[0].type).toBe(aas.types.ReferenceTypes.ModelReference);
+    expect(shell.submodels?.[0].keys[0].value).toBe('urn:sm');
+    expect(shellResult.v3Shell.submodels).toEqual([submodel]);
   });
 
   it('copies the submodels of a shell pasted as copy into the environment', () => {

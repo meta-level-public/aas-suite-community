@@ -10,7 +10,7 @@
           (onClick)="save()"
           icon="pi pi-save"
           [loading]="loading"
-          [disabled]="!profileForm.valid || !emailAvailable || !profileForm.dirty"
+          [disabled]="!profileForm.valid || !emailAvailable || (!profileForm.dirty && !profilbildChanged)"
         ></p-button>
       </div>
     </div>
@@ -122,9 +122,12 @@
               [auto]="false"
               chooseLabel="{{ 'CHOOSE_LABEL' | translate }}"
               [customUpload]="true"
+              [showUploadButton]="false"
+              [showCancelButton]="false"
+              accept="image/*"
               (onSelect)="setProfilbild($event)"
-              (onClear)="profile.profilbildBase64 = ''"
-              (onRemove)="profile.profilbildBase64 = ''"
+              (onClear)="discardSelectedProfilbild()"
+              (onRemove)="discardSelectedProfilbild()"
             >
               <ng-template pTemplate="content" let-files>
                 <em>

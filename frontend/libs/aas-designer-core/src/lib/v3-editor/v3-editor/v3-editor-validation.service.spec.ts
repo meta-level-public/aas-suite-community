@@ -8,7 +8,12 @@ import { DialogService } from '@openng/optimus-ui/dynamicdialog';
 import { Subject } from 'rxjs';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { V3TreeService } from '../v3-tree/v3-tree.service';
-import { encodeFilePath, INVALID_PATH_MESSAGE, V3EditorValidationService } from './v3-editor-validation.service';
+import {
+  encodeFilePath,
+  guessAasIdentifiableKeyType,
+  INVALID_PATH_MESSAGE,
+  V3EditorValidationService,
+} from './v3-editor-validation.service';
 
 const T = aas.types;
 
@@ -290,8 +295,14 @@ describe('V3EditorValidationService', () => {
       expect(errorsWithMessage(MSG_AASD_122)).toHaveLength(0);
     });
 
-    it('nulls empty optional strings and replaces empty lang string texts with a blank', async () => {
+    it('nulls empty optional strings and removes language strings with empty text', async () => {
       const { environment, categorized, dataSpecification } = createBrokenEnvironment();
+      const filled = new T.LangStringDefinitionTypeIec61360('de', 'Maximale Betriebstemperatur');
+      dataSpecification.definition = [
+        new T.LangStringDefinitionTypeIec61360('en', ''),
+        filled,
+        new T.LangStringDefinitionTypeIec61360('fr', ''),
+      ];
       service.shellResult = shellResultFor(environment);
       await service.validate();
 
@@ -299,7 +310,7 @@ describe('V3EditorValidationService', () => {
 
       expect(categorized.category).toBeNull();
       expect(dataSpecification.unit).toBeNull();
-      expect(dataSpecification.definition?.[0].text).toBe(' ');
+      expect(dataSpecification.definition).toEqual([filled]);
       expect(errorsWithMessage(MSG_NOT_EMPTY)).toHaveLength(0);
     });
 
@@ -329,15 +340,39 @@ describe('V3EditorValidationService', () => {
       expect(errorsWithMessage(MSG_DESCRIPTION)).toHaveLength(2);
     });
 
-    it('turns an invalid model reference into an external reference', async () => {
+    it('keeps an invalid model reference and corrects the type of its first key', async () => {
       const { environment, modelRef } = createBrokenEnvironment();
+      modelRef.value = new T.Reference(T.ReferenceTypes.ModelReference, [
+        new T.Key(T.KeyTypes.GlobalReference, 'https://example.com/ids/sm/nameplate_4711'),
+        new T.Key(T.KeyTypes.Property, 'SerialNumber'),
+      ]);
       service.shellResult = shellResultFor(environment);
       await service.validate();
 
       service.fixThis(firstError(MSG_AASD_123));
 
-      expect(modelRef.value?.type).toBe(T.ReferenceTypes.ExternalReference);
+      expect(modelRef.value?.type).toBe(T.ReferenceTypes.ModelReference);
+      expect(modelRef.value?.keys[0].type).toBe(T.KeyTypes.Submodel);
+      expect(modelRef.value?.keys[0].value).toBe('https://example.com/ids/sm/nameplate_4711');
       expect(errorsWithMessage(MSG_AASD_123)).toHaveLength(0);
+    });
+
+    it('removes the empty language string of the affected element only', async () => {
+      const { environment, nameplate } = createValidEnvironment();
+      const german = new T.LangStringTextType('de', 'Typenschild');
+      nameplate.description = [new T.LangStringTextType('en', ''), german];
+      environment.assetAdministrationShells![0].description = [new T.LangStringTextType('en', '')];
+      service.shellResult = shellResultFor(environment);
+      await service.validate();
+      const nameplateError = errorsWithMessage(MSG_NOT_EMPTY).find((error) =>
+        error.path.toString().startsWith('.submodels'),
+      );
+
+      service.fixThis(nameplateError!);
+
+      expect(nameplate.description).toEqual([german]);
+      expect(environment.assetAdministrationShells![0].description).toHaveLength(1);
+      expect(errorsWithMessage(MSG_NOT_EMPTY)).toHaveLength(1);
     });
 
     it('nulls an empty category', async () => {
@@ -427,6 +462,45 @@ describe('V3EditorValidationService', () => {
 
       expect(files.map((file) => file.value)).toEqual(['a%20b.pdf', 'C:/docs/%C3%9Cbersicht.pdf']);
       expect(errorsWithMessage(INVALID_PATH_MESSAGE)).toHaveLength(0);
+    });
+  });
+
+  describe('guessAasIdentifiableKeyType', () => {
+    function modelRef(type: aas.types.KeyTypes, value: string) {
+      return new T.Reference(T.ReferenceTypes.ModelReference, [new T.Key(type, value)]);
+    }
+
+    it('uses the type of the identifiable with that id in the environment', () => {
+      const { environment, shell } = createValidEnvironment();
+      environment.conceptDescriptions = [new T.ConceptDescription('urn:cd')];
+
+      expect(guessAasIdentifiableKeyType(modelRef(T.KeyTypes.GlobalReference, shell.id), 'x', environment)).toBe(
+        T.KeyTypes.AssetAdministrationShell,
+      );
+      expect(guessAasIdentifiableKeyType(modelRef(T.KeyTypes.GlobalReference, 'urn:cd'), 'x', environment)).toBe(
+        T.KeyTypes.ConceptDescription,
+      );
+    });
+
+    it('derives the type from where the reference is used and falls back to Identifiable', () => {
+      const { environment } = createValidEnvironment();
+      const ref = modelRef(T.KeyTypes.GlobalReference, 'urn:unknown');
+
+      expect(guessAasIdentifiableKeyType(ref, 'assetAdministrationShells[0].submodels[1]', environment)).toBe(
+        T.KeyTypes.Submodel,
+      );
+      expect(guessAasIdentifiableKeyType(ref, 'assetAdministrationShells[0].derivedFrom', environment)).toBe(
+        T.KeyTypes.AssetAdministrationShell,
+      );
+      expect(guessAasIdentifiableKeyType(ref, 'submodels[0].semanticId', environment)).toBe(
+        T.KeyTypes.ConceptDescription,
+      );
+      expect(guessAasIdentifiableKeyType(ref, 'submodels[0].submodelElements[0].value', environment)).toBe(
+        T.KeyTypes.Identifiable,
+      );
+      expect(
+        guessAasIdentifiableKeyType(modelRef(T.KeyTypes.Property, 'urn:unknown'), 'submodels[0].x', environment),
+      ).toBe(T.KeyTypes.Submodel);
     });
   });
 

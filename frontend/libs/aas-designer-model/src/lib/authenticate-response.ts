@@ -1,5 +1,4 @@
 import { BenutzerEinstellungen } from './benutzer-einstellungen';
-import { HilfeTyp } from './hilfe-typ';
 import { ResultCode } from './result-code';
 
 export class AuthenticateResponse {
@@ -26,10 +25,6 @@ export class AuthenticateResponse {
     Object.assign(resp, dto);
 
     return resp;
-  }
-
-  isHilfeAktiv(typ: HilfeTyp) {
-    return this.einstellungen?.hilfeInaktiv[typ] == null;
   }
 }
 

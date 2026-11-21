@@ -11,7 +11,6 @@ export class V3ComponentBase {
   modelingTypes: { label: string; value: number }[] = [];
   refTypes: { label: string; value: number }[];
   valueTypeOptions: { label: string; value: number }[] = [];
-  qualifierKindOptions: { label: string; value: number | null }[] = [];
   keyTypes: { label: string; value: number }[];
   externalKeyTypes: { label: string; value: number }[];
   modelKeyTypes: { label: string; value: number }[];
@@ -65,13 +64,6 @@ export class V3ComponentBase {
       { label: aas.types.KeyTypes[aas.types.KeyTypes.GlobalReference], value: aas.types.KeyTypes.GlobalReference },
     ];
     this.externalKeyTypes = this.externalKeyTypes.sort((a, b) => a.label.localeCompare(b.label));
-
-    this.qualifierKindOptions = Object.keys(aas.types.QualifierKind)
-      .filter(StringIsNumber)
-      .map((key) => ({ label: aas.types.QualifierKind[key as any], value: +key }));
-
-    this.qualifierKindOptions.push({ label: 'NULL', value: null });
-    this.qualifierKindOptions = this.qualifierKindOptions.sort((a, b) => a.label.localeCompare(b.label));
 
     this.valueTypeOptions = Object.keys(aas.types.DataTypeDefXsd)
       .filter(StringIsNumber)

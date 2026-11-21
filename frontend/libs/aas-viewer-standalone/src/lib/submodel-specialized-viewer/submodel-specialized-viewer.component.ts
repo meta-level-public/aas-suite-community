@@ -1,7 +1,16 @@
 import * as aas from '@aas-core-works/aas-core3.1-typescript';
 import { AssetInformation } from '@aas-core-works/aas-core3.1-typescript/types';
 import { AsyncPipe, NgComponentOutlet } from '@angular/common';
-import { Component, EventEmitter, Input, OnChanges, Output, Type, ChangeDetectionStrategy } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  DoCheck,
+  EventEmitter,
+  Input,
+  OnChanges,
+  Output,
+  Type,
+} from '@angular/core';
 import { SubmodelHeroHeaderComponent } from '../shared/submodel-hero-header/submodel-hero-header.component';
 import { AasDesignerChangelogViewerComponent } from '../specific-submodels/aas-designer-changelog-viewer/aas-designer-changelog-viewer.component';
 import { ArticleInformationViewerComponent } from '../specific-submodels/article-information-viewer/article-information-viewer.component';
@@ -66,7 +75,7 @@ import { TranslateModule } from '@ngx-translate/core';
     GenericSubmodelViewerComponent,
   ],
 })
-export class SubmodelSpecializedViewerComponent implements OnChanges {
+export class SubmodelSpecializedViewerComponent implements OnChanges, DoCheck {
   @Input({ required: true }) submodel: aas.types.Submodel | undefined;
   @Input({ required: true }) currentLanguage = 'de';
   @Input() submodelUrl = '';
@@ -86,6 +95,16 @@ export class SubmodelSpecializedViewerComponent implements OnChanges {
 
   ngOnChanges() {
     this.hasValues = submodelHasValues(this.submodel);
+  }
+
+  /**
+   * An empty submodel can be filled in place (e.g. by AASsi in the editor) without a new input
+   * reference. Only then check again; filled submodels keep their result.
+   */
+  ngDoCheck() {
+    if (!this.hasValues) {
+      this.hasValues = submodelHasValues(this.submodel);
+    }
   }
 
   /** An empty, editable BOM still needs its viewer: it offers to initialize the structure. */

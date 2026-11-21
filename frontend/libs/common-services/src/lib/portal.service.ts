@@ -1,4 +1,4 @@
-import { AuthenticateResponse, OrgaSettings, ResultCode } from '@aas-designer-model';
+import { AuthRoles, AuthenticateResponse, OrgaSettings, ResultCode } from '@aas-designer-model';
 import { AvailableInfastructure } from '@aas/webapi-client';
 import { HttpClient } from '@angular/common/http';
 import { EventEmitter, inject, Injectable } from '@angular/core';
@@ -19,6 +19,11 @@ const POST_LOGIN_REDIRECT_URL_KEY = 'post-login-redirect-url';
 const SKIP_DEACTIVATE_PROMPT_KEY = 'skip-deactivate-prompt-once';
 /** Role of the anonymous user that the public viewer signs in with a shared link */
 const PUBLIC_VIEWER_ROLE = 'VIEWER_NUTZER';
+/**
+ * Marks requests of a window that shows the public viewer. The BFF keeps the anonymous viewer session apart from
+ * a designer login of the same browser and uses it only for marked requests.
+ */
+export const PUBLIC_VIEWER_SESSION_HEADER = 'X-Public-Viewer-Session';
 export const CURRENT_LANGUAGE_KEY = 'aasportal_currentLanguage';
 export const DEFAULT_LANGUAGE = 'en';
 
@@ -76,17 +81,41 @@ export class PortalService {
     if (this.user?.rollen && this.user.rollen.length > 0) {
       rights.push(...this.user.rollen);
     }
+    rights.push(...PortalService.getCurrentInfrastructureRoles());
 
     return rights;
+  }
+
+  /**
+   * Virtual roles of the selected AAS infrastructure. The server derives them per request from the user's rights on
+   * this infrastructure; they never reach the session. The list of available infrastructures carries these rights:
+   * entries without read right are missing, isReadonly reflects the write right.
+   */
+  public static getCurrentInfrastructureRoles(): AuthRoles[] {
+    const infrastructure = PortalService.getCurrentAasInfrastructureSetting();
+    if (infrastructure == null) {
+      return [];
+    }
+
+    const roles = [AuthRoles.SHELLS_READER];
+    if (infrastructure.isReadonly === false) {
+      roles.push(AuthRoles.SHELLS_EDITOR);
+    }
+    if (infrastructure.darfMarktPublizieren === true) {
+      roles.push(AuthRoles.MARKT_PUBLISHER);
+    }
+    return roles;
   }
 
   logout(doRouting: boolean = false, skipDeactivatePrompt: boolean = false): void {
     if (skipDeactivatePrompt) {
       this.markSkipDeactivatePrompt();
     }
+    // Decide before clearing: a public viewer window ends only its own session, not the designer login
+    const headers = this.isPublicViewerSession ? { [PUBLIC_VIEWER_SESSION_HEADER]: '1' } : undefined;
     window.sessionStorage.clear();
     this.loginStateChanged.emit(false);
-    void firstValueFrom(this.http.post<{ logoutUrl?: string }>('/bff/logout', {}))
+    void firstValueFrom(this.http.post<{ logoutUrl?: string }>('/bff/logout', {}, { headers }))
       .then((response) => {
         if (response?.logoutUrl) {
           window.location.assign(response.logoutUrl);

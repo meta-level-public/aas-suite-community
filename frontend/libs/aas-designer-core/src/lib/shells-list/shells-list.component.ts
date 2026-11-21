@@ -64,10 +64,11 @@ import { ShellThumbnailCellComponent } from './shell-thumbnail-cell.component';
 import { ShellsListActions } from './shells-list.actions';
 import {
   Column,
+  readShellsListColumns,
   readShellsListPageSize,
   SHELLS_LIST_COLUMNS,
-  SHELLS_LIST_DEFAULT_COLUMNS,
   SHELLS_LIST_PAGE_OPTIONS,
+  writeShellsListColumns,
   writeShellsListPageSize,
 } from './shells-list.config';
 import { ShellsListStore } from './shells-list.store';
@@ -167,7 +168,7 @@ export class ShellsListComponent implements OnInit, OnDestroy {
     this.loading.set(true);
     try {
       this.availableColumns.set(SHELLS_LIST_COLUMNS);
-      this.selectedColumns.set(SHELLS_LIST_DEFAULT_COLUMNS);
+      this.selectedColumns.set(readShellsListColumns());
       this.pageSize.set(readShellsListPageSize());
       await this.initAvailableRepositories();
       if (!this.isNoShellsListMode()) {
@@ -180,6 +181,7 @@ export class ShellsListComponent implements OnInit, OnDestroy {
   }
 
   fetchDataIfRequired() {
+    writeShellsListColumns(this.selectedColumns());
     void this.store.refreshVisibleColumnData(this.selectedColumnFields());
   }
 
@@ -808,6 +810,7 @@ export class ShellsListComponent implements OnInit, OnDestroy {
   removeSelectedColumn(col: Column) {
     const cols = this.selectedColumns().filter((c) => c.field !== col.field);
     this.selectedColumns.set(cols);
+    writeShellsListColumns(cols);
   }
 
   private selectedColumnFields(): string[] {

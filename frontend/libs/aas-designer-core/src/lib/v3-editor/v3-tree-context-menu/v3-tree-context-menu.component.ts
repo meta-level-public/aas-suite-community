@@ -20,6 +20,7 @@ import { CMTypeOption } from '../model/cm-type-option';
 import { EditorTypeOption } from '../model/editor-type-option';
 import { V3TreeItem } from '../model/v3-tree-item';
 import { ElementInserter } from '../tools/element-inserter';
+import { moveTemplateValuesToExampleValues } from '../tools/template-example-values';
 import { V3EditorService } from '../v3-editor.service';
 import { appendChildTreeNode, V3TreeNode } from '../v3-tree/v3-tree-node';
 import { V3TreeService } from '../v3-tree/v3-tree.service';
@@ -35,6 +36,7 @@ import { V3SaveAsJsonDialogComponent } from './dialogs/save-as-json/v3-save-as-j
 import { V3SaveSnippetDialogComponent } from './dialogs/save-snippet/v3-save-snippet-dialog.component';
 import { buildAddonMenuItems, openAddonEditor } from './v3-addon-editor';
 import { buildContextMenuModel } from './v3-context-menu-model';
+import { ADDITIONAL_V3_TREE_CONTEXT_MENU_ITEMS } from './v3-tree-context-menu-extension';
 import {
   getAllowedSnippetTypes,
   isCopyAllowedFor,
@@ -64,7 +66,12 @@ import {
   removeTemplateQualifiersRecursive,
 } from './v3-submodel-element-utils';
 import { buildTemplateElementItems, TemplateElementLoader } from './v3-template-element-items';
-import { addElementToContent, InsertMode, removeElementFromContent } from './v3-tree-content-mutations';
+import {
+  addElementToContent,
+  findSubmodelToPasteAsReference,
+  InsertMode,
+  removeElementFromContent,
+} from './v3-tree-content-mutations';
 
 type ISubmodelElement = aas.types.ISubmodelElement;
 type Submodel = aas.types.Submodel;
@@ -128,6 +135,7 @@ export class V3TreeContextMenuComponent {
   saveAsJsonData: string = '';
   saveAsJsonFilename: string = '';
   pasteAsReferenceQuestionDialogVisible: boolean = false;
+  pasteQuestionKey = 'PASTE_AS_REFERENCE_QUESTION';
 
   // Signal-model bindings from dialogs (two-way)
   private _saveSnippetConfirmed: boolean | null = null;
@@ -206,6 +214,7 @@ export class V3TreeContextMenuComponent {
   availableElements: AvailableElementItem[] = [];
 
   dialogService = inject(DialogService);
+  private readonly additionalMenuItems = inject(ADDITIONAL_V3_TREE_CONTEXT_MENU_ITEMS);
   ref: DynamicDialogRef | undefined | null;
 
   constructor(
@@ -233,6 +242,10 @@ export class V3TreeContextMenuComponent {
     const optionalItems = await this.getOptionalItems(menu);
     const missingItems = await this.getMissingElements(menu);
     const addonItems = await this.getAddons(menu);
+
+    const extensionItems = this.additionalMenuItems.flatMap((factory) =>
+      factory({ node: this.node, translate: this.instant, hideMenu: () => menu.hide() }),
+    );
 
     this.menuItems = buildContextMenuModel(
       this.instant,
@@ -273,6 +286,9 @@ export class V3TreeContextMenuComponent {
         saveAsJson: () => this.openSaveAsJsonDialog(),
       },
     );
+    if (extensionItems.length > 0) {
+      this.menuItems = [...this.menuItems, { separator: true }, ...extensionItems];
+    }
 
     menu.toggle(event);
   }
@@ -546,7 +562,11 @@ export class V3TreeContextMenuComponent {
   }
 
   private insertTemplate(template: SubmodelResult) {
-    if (this.conceptDescriptionsRootNode != null)
+    if (this.conceptDescriptionsRootNode != null) {
+      // Example data of the template ("Muster AG") must not look like real values
+      template.v3Submodels?.forEach((submodel) =>
+        submodel.submodelElements?.forEach((element) => moveTemplateValuesToExampleValues(element)),
+      );
       ElementInserter.insertSubmodelTemplate(
         this.node as TreeNode,
         template,
@@ -555,6 +575,9 @@ export class V3TreeContextMenuComponent {
         this.shellResult,
         this.portalService.iriPrefix,
       );
+      // The template arrives asynchronously, after createElement has returned: register the step here
+      this.treeService.registerFieldUndoStep();
+    }
   }
 
   async insertContactInformationTemplate() {
@@ -573,6 +596,7 @@ export class V3TreeContextMenuComponent {
     for (const submodel of template.v3Submodels) {
       if (submodel.submodelElements == null) continue;
       const collection = submodel.submodelElements[0] as aas.types.SubmodelElementCollection;
+      moveTemplateValuesToExampleValues(collection);
       node.data.content.value.push(collection);
 
       // tree node for the collection
@@ -615,6 +639,7 @@ export class V3TreeContextMenuComponent {
         this.conceptDescriptionsRootNode.children = [];
       this.conceptDescriptionsRootNode?.children?.push(cdNode);
     }
+    this.treeService.registerFieldUndoStep();
   }
 
   insertCustomSubmodel() {
@@ -860,8 +885,16 @@ export class V3TreeContextMenuComponent {
 
   pasteElement(mode: 'copy' | 'reference' | null = null) {
     if (this.node?.data != null && this.copiedElement != null) {
-      if (this.node.data.content instanceof PackageMetadata && mode == null) {
+      const target = this.node.data.content;
+      const referencedSubmodel = findSubmodelToPasteAsReference(target, this.copiedElement.content, this.shellResult);
+      if (mode == null && (target instanceof PackageMetadata || referencedSubmodel != null)) {
+        this.pasteQuestionKey =
+          referencedSubmodel != null ? 'PASTE_SUBMODEL_AS_REFERENCE_QUESTION' : 'PASTE_AS_REFERENCE_QUESTION';
         this.pasteAsReferenceQuestionDialogVisible = true;
+      } else if (mode === 'reference' && referencedSubmodel != null) {
+        // the shell only gets a reference, the submodel stays the same (same id, no copy)
+        this.insertElement(referencedSubmodel as unknown as ISubmodelElement, EditorTypeOption.Submodel, 'reference');
+        this.treeService.registerFieldUndoStep();
       } else {
         const copy = cloneDeep(this.copiedElement.content);
         copy.idShort = buildPastedIdShort(copy, this.node.data.content);

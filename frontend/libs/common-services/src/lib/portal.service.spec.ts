@@ -6,7 +6,7 @@ import { of } from 'rxjs';
 import { vi } from 'vitest';
 
 import { AppRouteUrls } from './app-routes';
-import { PortalService } from './portal.service';
+import { PUBLIC_VIEWER_SESSION_HEADER, PortalService } from './portal.service';
 
 describe('PortalService redirect handling', () => {
   let service: PortalService;
@@ -94,7 +94,64 @@ describe('PortalService public viewer session', () => {
     service.prepareLogin('/shells-list');
 
     expect(service.loggedIn).toBe(false);
-    expect(post).toHaveBeenCalledWith('/bff/logout', {});
+    // Only the session of the public viewer ends; a designer login of the same browser stays
+    expect(post).toHaveBeenCalledWith('/bff/logout', {}, { headers: { [PUBLIC_VIEWER_SESSION_HEADER]: '1' } });
     expect(service.consumePostLoginRedirectUrl()).toBe('/shells-list');
+  });
+
+  it('ends the designer login without the public viewer mark', () => {
+    signIn(3, ['BENUTZER']);
+
+    service.logout();
+
+    expect(post).toHaveBeenCalledWith('/bff/logout', {}, { headers: undefined });
+  });
+});
+
+describe('PortalService rights of the selected infrastructure', () => {
+  let service: PortalService;
+
+  beforeEach(() => {
+    sessionStorage.clear();
+    localStorage.removeItem('CURRENT_AAS_INFRASTRUCTURE');
+    TestBed.configureTestingModule({
+      providers: [
+        PortalService,
+        { provide: HttpClient, useValue: {} },
+        { provide: Router, useValue: { navigate: vi.fn(), navigateByUrl: vi.fn() } },
+      ],
+    });
+    service = TestBed.inject(PortalService);
+    service.saveUser(AuthenticateResponse.fromDto({ id: 3, rollen: ['BENUTZER'], orgaSettings: [] }));
+  });
+
+  afterEach(() => {
+    sessionStorage.clear();
+    localStorage.removeItem('CURRENT_AAS_INFRASTRUCTURE');
+  });
+
+  function selectInfrastructure(infrastructure: object) {
+    localStorage.setItem('CURRENT_AAS_INFRASTRUCTURE', JSON.stringify(infrastructure));
+  }
+
+  it('has no infrastructure roles without a selected infrastructure', () => {
+    expect(service.getRights()).toEqual(['BENUTZER']);
+  });
+
+  it('grants the market publisher role with the right "Marktplatz veröffentlichen"', () => {
+    selectInfrastructure({ id: 1, isReadonly: false, darfMarktPublizieren: true });
+
+    expect(service.getRights()).toEqual(
+      expect.arrayContaining(['BENUTZER', 'SHELLS_READER', 'SHELLS_EDITOR', 'MARKT_PUBLISHER']),
+    );
+  });
+
+  it('grants only reading on a read-only infrastructure without publishing right', () => {
+    selectInfrastructure({ id: 1, isReadonly: true, darfMarktPublizieren: false });
+
+    const rights = service.getRights();
+    expect(rights).toContain('SHELLS_READER');
+    expect(rights).not.toContain('SHELLS_EDITOR');
+    expect(rights).not.toContain('MARKT_PUBLISHER');
   });
 });

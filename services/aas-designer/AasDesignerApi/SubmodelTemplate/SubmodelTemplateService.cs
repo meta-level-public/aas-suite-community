@@ -695,9 +695,17 @@ namespace AasDesignerApi.SubmodelTemplate
             return await GetRepoSubmodelTemplate(url, null);
         }
 
+        /// <summary>Lädt ein Template aus dem IDTA-Repository samt referenzierter ConceptDescriptions.</summary>
+        /// <param name="url">Adresse des Templates im IDTA-Repository.</param>
+        /// <param name="knownConceptDescriptionIds">Bereits vorhandene ConceptDescriptions, die nicht erneut geladen werden.</param>
+        /// <param name="keepTemplateQualifiers">
+        /// true: Template-Qualifier (z. B. SMT/Cardinality) bleiben erhalten, etwa damit AASsi
+        /// wiederholbare Einträge erkennt. Standard: entfernen, weil das Ergebnis eingefügt wird.
+        /// </param>
         public async Task<SubmodelResult> GetRepoSubmodelTemplate(
             string url,
-            IEnumerable<string>? knownConceptDescriptionIds
+            IEnumerable<string>? knownConceptDescriptionIds,
+            bool keepTemplateQualifiers = false
         )
         {
             SubmodelResult result = new SubmodelResult();
@@ -722,7 +730,10 @@ namespace AasDesignerApi.SubmodelTemplate
                 return result;
 
             var submodel = AasCore.Aas3_1.Jsonization.Deserialize.SubmodelFrom(submodelJsonNode);
-            NormalizeRepoSubmodelForInsertion(submodel);
+            if (!keepTemplateQualifiers)
+            {
+                NormalizeRepoSubmodelForInsertion(submodel);
+            }
 
             var jsonObject = AasJsonization.Serialize.ToJsonObject(submodel);
             result.V3SubmodelsPlain.Add(jsonObject.ToJsonString());

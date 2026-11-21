@@ -189,15 +189,15 @@ export class InfrastructureListComponent extends HasChangesCheckable {
   }
 
   getProxyTooltip(): string {
-    return 'Use this URL if requests should run through the portal proxy with its authentication and context handling.';
+    return 'INFRASTRUCTURE_URL_PROXY_HINT';
   }
 
   getDirectTooltip(): string {
-    return 'Use this URL to talk to the target service directly. For internal infrastructure this points to the container endpoint.';
+    return 'INFRASTRUCTURE_URL_DIRECT_HINT';
   }
 
   getConfiguredTooltip(): string {
-    return 'This is the originally configured service URL stored with the infrastructure.';
+    return 'INFRASTRUCTURE_URL_CONFIGURED_HINT';
   }
 
   discoveryEffect = effect(async () => {

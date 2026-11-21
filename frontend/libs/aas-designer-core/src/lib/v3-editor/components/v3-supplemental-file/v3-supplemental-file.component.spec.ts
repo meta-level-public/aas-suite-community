@@ -175,13 +175,18 @@ describe('V3SupplementalFileComponent', () => {
       supplementalFiles: [supplementalFile],
     } as never;
 
+    // Spy on the component's own save step: the file-saver-es module mock is not reliably shared with the
+    // component when the test files run in parallel (CI), so observe the call where it happens
+    const saveFile = vi
+      .spyOn(component as unknown as { saveFile: (data: Blob, filename: string) => void }, 'saveFile')
+      .mockImplementation(() => undefined);
     component.ngOnChanges();
     await component.downloadFile();
 
     expect(httpGet).toHaveBeenCalledWith(supplementalFile.fileApiUrl, {
       responseType: 'blob' as 'json',
     });
-    expect(saveAs).toHaveBeenCalledWith(downloadedBlob, 'test-file.pdf');
+    expect(saveFile).toHaveBeenCalledWith(downloadedBlob, 'test-file.pdf');
   });
 
   it('collects all file elements referencing the supplemental file', () => {

@@ -4,7 +4,6 @@ export * from './lib/benutzer';
 export * from './lib/benutzer-einstellungen';
 export * from './lib/dirty-checkable';
 export * from './lib/eclass-certificate';
-export * from './lib/hilfe-typ';
 export * from './lib/info-item';
 export * from './lib/menu-action';
 export * from './lib/menu-item-config';

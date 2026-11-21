@@ -98,38 +98,7 @@ export class V3ConceptDescriptionComponent extends V3ComponentBase implements On
         this.dataSpecComponent()?.addDataSpecification();
       }
 
-      const prefDe = item.preferredName['de-DE'];
-      const prefEn = item.preferredName['en-US'];
-
-      const defDe = item.fullItem.definition['de-DE'];
-      const defEn = item.fullItem.definition['en-US'];
-
-      const cd = this.conceptDescription.content;
-      cd.displayName = [];
-      if (prefDe != null) {
-        cd.displayName.push(new aas.types.LangStringTextType('de', prefDe));
-      }
-      if (prefEn != null) {
-        cd.displayName.push(new aas.types.LangStringTextType('en', prefEn));
-      }
-      cd.description = [];
-      if (defDe != null) {
-        cd.description.push(new aas.types.LangStringTextType('de', defDe));
-      }
-      if (defEn != null) {
-        cd.description.push(new aas.types.LangStringTextType('en', defEn));
-      }
-
-      cd.id = item.irdi;
-      cd.idShort = item.benennung ?? item.irdi;
-
-      const dataspec = this.conceptDescription?.content?.embeddedDataSpecifications?.[0];
-      if (dataspec?.dataSpecificationContent != null) {
-        DataspecificationIec61360Helper.applyEclassToSpec(
-          dataspec.dataSpecificationContent as aas.types.DataSpecificationIec61360,
-          item,
-        );
-      }
+      DataspecificationIec61360Helper.applyEclassToConceptDescription(this.conceptDescription.content, item);
     }
   }
 

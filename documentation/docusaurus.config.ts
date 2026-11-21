@@ -30,6 +30,7 @@ const config: Config = {
   markdown: {
     hooks: {
       onBrokenMarkdownLinks: 'throw',
+      onBrokenMarkdownImages: 'throw',
     },
   },
 
@@ -61,6 +62,10 @@ const config: Config = {
     ],
   ],
 
+  // Stichwortverzeichnis aus dem Frontmatter "stichworte" (Seite docs/stichworte.mdx)
+  // Ganzes Handbuch als PDF: Seitenreihenfolge für scripts/pdf.mjs und Vorschau im Entwicklungsserver
+  plugins: ['./plugins/stichworte.ts', './plugins/pdf.ts'],
+
   themes: [
     [
       '@easyops-cn/docusaurus-search-local',
@@ -86,6 +91,8 @@ const config: Config = {
       },
       items: [
         { type: 'docSidebar', sidebarId: 'handbuch', position: 'left', label: 'Handbuch' },
+        // Entsteht nach dem Build (npm run pdf) bzw. im Entwicklungsserver auf Abruf
+        { href: 'pathname:///handbuch.pdf', label: 'Ganzes Handbuch (PDF)', position: 'right' },
       ],
     },
     footer: {

@@ -7,7 +7,7 @@ WIZARD_SECTION_INDEX=0
 STACK_ASSETS_DIR_NAME="stack-assets"
 # Standard-Image-Version der AAS-Suite-Images, die die Wizards vorschlagen.
 # Muss bei jedem Release auf die neue Version gesetzt werden; die CI prüft das beim Tag-Build.
-SUITE_IMAGE_VERSION="1.5.2"
+SUITE_IMAGE_VERSION="1.6.0"
 if [ -n "${NO_COLOR-}" ]; then
   RED=''
   GREEN=''
@@ -964,6 +964,8 @@ append_frontend_service() {
       FRONTEND_API_BASE_URL: \${FRONTEND_API_BASE_URL}
       FRONTEND_FEEDMAPPING_BASE_URL: \${FRONTEND_FEEDMAPPING_BASE_URL}
       FRONTEND_THEME: \${FRONTEND_THEME}
+      # Adresse des Handbuchs für den Button "Handbuch"; leer blendet ihn aus
+      FRONTEND_DOCS_BASE_URL: \${DOCS_BASE_URL-https://docs.aas-suite.de}
     command:
       - /bin/sh
       - -ec
@@ -979,6 +981,7 @@ append_frontend_service() {
         cat >"\$\$RUNTIME_CONFIG_FILE" <<EOF
         window.__AAS_FRONTEND_API_BASE_URL = "\${FRONTEND_API_BASE_URL}";
         window.__AAS_FRONTEND_FEEDMAPPING_BASE_URL = "\${FRONTEND_FEEDMAPPING_BASE_URL}";
+        window.__AAS_DOCS_BASE_URL = "\$\${FRONTEND_DOCS_BASE_URL}";
         EOF
         ESCAPED_API_BASE_URL="\$\$(printf '%s' "\${FRONTEND_API_BASE_URL}" | sed 's/[&|]/\\\\&/g')"
         ESCAPED_API_BASE_URL_WITH_SLASH="\$\$(printf '%s/' "\${FRONTEND_API_BASE_URL}" | sed 's/[&|]/\\\\&/g')"
@@ -1023,7 +1026,8 @@ append_frontend_service() {
         fi
         INDEX_FILE="\$\$ROOT_DIR/index.html"
         if [ -f "\$\$INDEX_FILE" ] && ! grep -q "runtime-config.js" "\$\$INDEX_FILE"; then
-          sed -i 's#<head>#<head><script src="runtime-config.js"></script>#' "\$\$INDEX_FILE"
+          # Nach <base> einfügen, damit der relative Pfad auch bei tiefen Links (z. B. my-space/addresses) stimmt
+          sed -i 's#\(<base href="[^"]*"[^>]*>\)#\1<script src="runtime-config.js"></script>#' "\$\$INDEX_FILE"
         fi
         if [ -n "${designer_base_href}" ] && [ -f "\$\$INDEX_FILE" ]; then
           sed -i "s#<base href=\"/\" />#<base href=\"${designer_base_href}\" />#" "\$\$INDEX_FILE"
@@ -1067,7 +1071,11 @@ append_markt_service() {
     environment:
       ASPNETCORE_ENVIRONMENT: Production
       ASPNETCORE_URLS: http://+:${container_port}
-      ConnectionStrings__DefaultConnection: Host=postgres;Port=5432;Database=\${MARKT_POSTGRES_DB};Username=\${POSTGRES_USER};Password=\${POSTGRES_PASSWORD}
+      # The marketplace works on the designer data model (users, rights, listings) and has no migrations of its own
+      ConnectionStrings__DefaultConnection: Host=postgres;Port=5432;Database=\${POSTGRES_DB};Username=\${POSTGRES_USER};Password=\${POSTGRES_PASSWORD}
+      # Same secret as the designer API: the marketplace validates its tokens and refuses to start without it
+      AppSettings__Secret: \${APP_JWT_SECRET:-wik3RnSNPAPt85PFs9FZSQksdoughzfoafdt879uiaodfnbiezv79si90dpoawlcv}
+      AppSettings__BaseUrl: \${BASE_URL}
     networks:
       - ${network_name}
     depends_on:
@@ -1106,6 +1114,7 @@ append_markt_ui_service() {
       MARKT_AVV_EN: \${MARKT_AVV_EN}
       MARKT_IMPRINT: \${MARKT_IMPRINT}
       MARKT_AAS_SYSTEM_MANAGEMENT_API_PATH: \${MARKT_AAS_SYSTEM_MANAGEMENT_API_PATH}
+      MARKT_DOCS_BASE_URL: \${DOCS_BASE_URL-https://docs.aas-suite.de}
 EOF_COMPOSE
 
   if [ -n "$markt_base_href" ]; then
@@ -1237,7 +1246,6 @@ EOF_COMPOSE
 
   if [ "$include_enterprise_licensing" = "true" ]; then
     cat >> "$compose_file" <<EOF_COMPOSE
-      AppSettings__LicenseFilePath: /run/secrets/licensing/license.json
       AppSettings__LicenseName: \${LICENSE_NAME}
       AppSettings__LicensePublicKeyPath: /run/secrets/licensing/license-public.pem
       AppSettings__PluginsEnabled: \${PLUGINS_ENABLED}
@@ -1264,7 +1272,7 @@ EOF_COMPOSE
   if [ "$include_enterprise_licensing" = "true" ]; then
     cat >> "$compose_file" <<EOF_COMPOSE
     volumes:
-      - \${LICENSE_DIR_PATH}:/run/secrets/licensing
+      - \${LICENSE_DIR_PATH}/license-public.pem:/run/secrets/licensing/license-public.pem:ro
       - \${PLUGINS_DIRECTORY}:/app/plugins:ro
 EOF_COMPOSE
   else
@@ -1327,7 +1335,6 @@ EOF_COMPOSE
 
   if [ "$include_enterprise_licensing" = "true" ]; then
     cat >> "$compose_file" <<EOF_COMPOSE
-      AppSettings__LicenseFilePath: /run/secrets/licensing/license.json
       AppSettings__LicenseName: \${LICENSE_NAME}
       AppSettings__LicensePublicKeyPath: /run/secrets/licensing/license-public.pem
 EOF_COMPOSE
@@ -1341,7 +1348,7 @@ EOF_COMPOSE
   if [ "$include_enterprise_licensing" = "true" ]; then
     cat >> "$compose_file" <<EOF_COMPOSE
     volumes:
-      - \${LICENSE_DIR_PATH}:/run/secrets/licensing
+      - \${LICENSE_DIR_PATH}/license-public.pem:/run/secrets/licensing/license-public.pem:ro
 EOF_COMPOSE
   fi
 

@@ -1,4 +1,3 @@
-import { BenutzerEinstellungen } from '@aas-designer-model';
 import { AppConfigService } from '@aas/common-services';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Injectable } from '@angular/core';
@@ -27,9 +26,5 @@ export class ProfileService {
         params,
       }),
     );
-  }
-
-  async resetHilfe(einstellungen: BenutzerEinstellungen) {
-    lastValueFrom(this.http.patch(`${this.appConfigService.config.apiPath}/Benutzer/UpdateSettings`, einstellungen));
   }
 }

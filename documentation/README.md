@@ -12,7 +12,13 @@ beschreibt die Seite `docs/mitwirken/index.md`.
 | `npm start` | Vorschau mit Live-Reload unter http://localhost:3000 |
 | `npm run build` | Vollständiges Handbuch (Enterprise) nach `build/` |
 | `npm run build:oss` | Handbuch ohne Enterprise-Seiten nach `build-oss/` |
-| `npm run check:topics` | Prüft, dass alle Handbuchseiten existieren, die das Frontend über `docsTopic('...')` verlinkt |
+| `npm run pdf` | Ganzes Handbuch als PDF nach `build/handbuch.pdf` (nach `npm run build`) |
+| `npm run pdf:oss` | Dasselbe für die Community-Edition nach `build-oss/handbuch.pdf` |
+| `npm run check:topics` | Prüft, dass jede Seite und jeder Anker aus `DOCS_TARGETS` (Kontexthilfe im Frontend) im Handbuch existiert |
+| `npm run check:images` | Prüft, dass jedes eingebundene Bild von einer Aufnahme erzeugt wird und keines verwaist ist |
+| `npm run check:quellen` | Prüft, dass jeder Pfad im Frontmatter `quellen` der Kapitel existiert |
+| `npm run screenshots` | Erzeugt alle Bilder auf einer Wegwerf-Umgebung (Docker), siehe `docs/mitwirken/index.md` |
+| `npm run screenshots:oss` | Dasselbe für die Community-Edition, ohne Enterprise-Bilder |
 | `npm run typecheck` | TypeScript-Prüfung der Konfiguration |
 
 Die Suche funktioniert nur im Build (`npm run build && npm run serve`), nicht in `npm start`.

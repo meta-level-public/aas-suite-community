@@ -178,7 +178,9 @@
         name="label"
         class="w-full"
         class="w-full"
-        [options]="['IDTA', 'VDMA', 'OTHER']"
+        [options]="groupOptions()"
+        optionLabel="label"
+        optionValue="value"
         [(ngModel)]="group"
         appendTo="body"
       />
@@ -230,7 +232,9 @@
           name="label"
           class="w-full"
           class="w-full"
-          [options]="['IDTA', 'VDMA', 'OTHER']"
+          [options]="groupOptions()"
+          optionLabel="label"
+          optionValue="value"
           [(ngModel)]="editSmt.group"
           appendTo="body"
         />
@@ -318,7 +322,9 @@
           name="label"
           class="w-full"
           class="w-full"
-          [options]="['IDTA', 'VDMA', 'OTHER']"
+          [options]="groupOptions()"
+          optionLabel="label"
+          optionValue="value"
           [(ngModel)]="group"
           appendTo="body"
         />

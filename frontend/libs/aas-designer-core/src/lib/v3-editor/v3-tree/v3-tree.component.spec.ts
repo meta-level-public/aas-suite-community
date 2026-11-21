@@ -1,5 +1,7 @@
 import { signal } from '@angular/core';
 import { V3TreeComponent } from './v3-tree.component';
+import * as aas from '@aas-core-works/aas-core3.1-typescript';
+import { EditorTypeOption } from '../model/editor-type-option';
 import { V3TreeItem } from '../model/v3-tree-item';
 
 function validate(json: string, importType: 'submodel' | 'element' = 'submodel') {
@@ -102,5 +104,39 @@ describe('V3TreeComponent labels of SubmodelElementList children', () => {
 
   it('keeps the position label when neither idShort nor displayName is set', () => {
     expect(labelFor({}, 3)).toBe('Element 3');
+  });
+});
+
+describe('V3TreeComponent after undo/redo', () => {
+  function cdRoot(environment: aas.types.Environment) {
+    return {
+      label: 'ConceptDescriptions',
+      data: Object.assign(new V3TreeItem<any>(), {
+        content: environment,
+        editorType: EditorTypeOption.ConceptDescriptions,
+      }),
+      children: [],
+    };
+  }
+
+  it('adds new concept descriptions to the restored tree and environment', () => {
+    const oldEnvironment = new aas.types.Environment(null, null, []);
+    const restoredEnvironment = new aas.types.Environment(null, null, []);
+    const oldRoot = cdRoot(oldEnvironment);
+    const restoredRoot = cdRoot(restoredEnvironment);
+    const treeService = { aasTreeData: [oldRoot] };
+    const component = Object.assign(Object.create(V3TreeComponent.prototype), {
+      treeService,
+      shellResult: { v3Shell: oldEnvironment },
+      allConceptDescriptionsNode: oldRoot,
+      selectById: () => undefined,
+    }) as V3TreeComponent;
+
+    component.applyState([restoredRoot] as never, 'id', restoredEnvironment);
+    component.appendConceptDescription(new aas.types.ConceptDescription('0173-1#02-AAZ830#004'));
+
+    expect(restoredEnvironment.conceptDescriptions?.map((cd) => cd.id)).toEqual(['0173-1#02-AAZ830#004']);
+    expect(restoredRoot.children).toHaveLength(1);
+    expect(oldEnvironment.conceptDescriptions).toEqual([]);
   });
 });

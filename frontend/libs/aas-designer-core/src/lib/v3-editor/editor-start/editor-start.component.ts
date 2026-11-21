@@ -1,6 +1,6 @@
 import { DirtyCheckable } from '@aas-designer-model';
 import { ActiveComponentsService } from '@aas/aas-designer-shared';
-import { buildShellsListRoute, NotificationService, PortalService } from '@aas/common-services';
+import { buildForbiddenRoute, buildShellsListRoute, NotificationService, PortalService } from '@aas/common-services';
 import { ShellResult } from '@aas/model';
 import { AasInfrastructureClient, AvailableInfastructure } from '@aas/webapi-client';
 import { Component, inject, OnDestroy, OnInit, ViewChild, ChangeDetectionStrategy } from '@angular/core';
@@ -99,6 +99,12 @@ export class EditorStartComponent extends DirtyCheckable implements OnDestroy, O
     if (!selected) {
       this.notificationService.showMessageAlways('ERROR_LOADING_AAS_INFRASTRUCTURE_ACCESS', 'ERROR', 'error');
       this.router.navigate(buildShellsListRoute());
+      return false;
+    }
+
+    // Editing needs the write right on the infrastructure, for administrators as well (like the backend)
+    if (selected.isReadonly === true) {
+      this.router.navigate(buildForbiddenRoute());
       return false;
     }
 

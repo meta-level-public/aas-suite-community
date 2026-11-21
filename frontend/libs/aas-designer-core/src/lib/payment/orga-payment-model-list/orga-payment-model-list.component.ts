@@ -17,7 +17,7 @@ import { PaymentService } from '../payment.service';
 
 import { OrgaUserSeatStats } from '@aas-designer-model';
 import { DateProxyPipe } from '@aas/common-pipes';
-import { AasConfirmationService } from '@aas/common-services';
+import { AasConfirmationService, AccessService } from '@aas/common-services';
 import { CurrencyPipe, registerLocaleData } from '@angular/common';
 import localeDe from '@angular/common/locales/de';
 import localeDeExtra from '@angular/common/locales/extra/de';
@@ -57,6 +57,7 @@ import { OrganisationStateService } from '../../organisation/organisation-state.
 export class OrgaPaymentModelListComponent implements OnInit, OnChanges {
   orgaStateService = inject(OrganisationStateService);
   systemManagementClient = inject(SystemManagementClient);
+  private readonly accessService = inject(AccessService);
   @Input() orgaId: number = 0;
   @Input() loading: boolean = false;
   @Input() showMenu: boolean = true;
@@ -133,6 +134,11 @@ export class OrgaPaymentModelListComponent implements OnInit, OnChanges {
         this.loading = false;
       }
     }
+  }
+
+  /** Cancelling and changing the end date are allowed for the system administration only (like the backend) */
+  get canShowMenu() {
+    return this.showMenu && this.accessService.isAllowed('SYSTEM_ADMIN');
   }
 
   get hasUnlimitedUsers() {

@@ -25,7 +25,11 @@ public class EClassProxyService
         _eclassConfig = eclassConfig;
     }
 
-    private HttpClient GetHttpClient(long orgaId)
+    /// <summary>
+    /// HTTP-Client mit dem eClass-Zertifikat der Organisation. Thread-sicher und für mehrere
+    /// Anfragen nutzbar; der Aufrufer gibt ihn frei.
+    /// </summary>
+    public HttpClient CreateClient(long orgaId)
     {
         var foundCertificate = _context
             .EclassCertificats.Include(e => e.CertificateBlob)
@@ -59,45 +63,51 @@ public class EClassProxyService
         // query.Add("offset", offset.ToString());
         // query.Add("segmentsOnly", false.ToString());
 
+        using var client = CreateClient(orgaId);
+        return await SendAsync(client, urlPart, query, language);
+    }
+
+    /// <summary>Anfrage an den eClass-Webdienst über einen Client aus <see cref="CreateClient"/>.</summary>
+    public async Task<JObject?> SendAsync(
+        HttpClient client,
+        string urlPart,
+        Dictionary<string, string?> query,
+        string language,
+        CancellationToken cancellationToken = default
+    )
+    {
         var uri = QueryHelpers.AddQueryString($"{_eclassConfig.ApiUrl}{urlPart}", query);
-        using (var requestMessage = new HttpRequestMessage(HttpMethod.Get, uri))
-        using (var client = GetHttpClient(orgaId))
+        using var requestMessage = new HttpRequestMessage(HttpMethod.Get, uri);
+        requestMessage.Headers.Add("Accept-Language", language);
+        requestMessage.Headers.Add("deprecated", "false");
+
+        using var httpResponse = await client.SendAsync(requestMessage, cancellationToken);
+        if (httpResponse.StatusCode == System.Net.HttpStatusCode.OK)
         {
-            requestMessage.Headers.Add("Accept-Language", language);
-            requestMessage.Headers.Add("deprecated", "false");
-
-            using var httpResponse = await client.SendAsync(requestMessage);
-            if (httpResponse.StatusCode == System.Net.HttpStatusCode.OK)
+            var returnValue = await httpResponse.Content.ReadAsStringAsync(cancellationToken);
+            if (returnValue.StartsWith("<"))
             {
-                var returnValue = await httpResponse.Content.ReadAsStringAsync();
-                if (returnValue.StartsWith("<"))
-                {
-                    _logger.LogError(
-                        "Error during EClass Request. "
-                            + await httpResponse.Content.ReadAsStringAsync()
-                    );
-                    throw new AppException("UNKNWON_ECLASS_ERROR");
-                }
-
-                return JObject.Parse(returnValue);
-            }
-
-            if (httpResponse.StatusCode == System.Net.HttpStatusCode.Unauthorized)
-            {
-                throw new AppException("ECLASS_REQUEST_NOT_AUTHORIZED");
-            }
-            if (httpResponse.StatusCode == System.Net.HttpStatusCode.NotFound)
-            {
-                return null;
-            }
-            else
-            {
-                _logger.LogError(
-                    "Error during EClass Request. " + await httpResponse.Content.ReadAsStringAsync()
-                );
+                _logger.LogError("Error during EClass Request. " + returnValue);
                 throw new AppException("UNKNWON_ECLASS_ERROR");
             }
+
+            return JObject.Parse(returnValue);
         }
+
+        if (httpResponse.StatusCode == System.Net.HttpStatusCode.Unauthorized)
+        {
+            throw new AppException("ECLASS_REQUEST_NOT_AUTHORIZED");
+        }
+        if (httpResponse.StatusCode == System.Net.HttpStatusCode.NotFound)
+        {
+            return null;
+        }
+
+        _logger.LogError(
+            "Error during EClass Request. "
+                + await httpResponse.Content.ReadAsStringAsync(cancellationToken)
+        );
+        throw new AppException("UNKNWON_ECLASS_ERROR");
     }
 
     public bool HasEclassCert(long orgaId)

@@ -609,7 +609,6 @@ export class CapabilityAddonComponent {
 
   private createRoleQualifier(role: CapabilityRole): aas.types.Qualifier {
     const qualifier = new aas.types.Qualifier(role, aas.types.DataTypeDefXsd.Boolean);
-    qualifier.kind = aas.types.QualifierKind.ValueQualifier;
     qualifier.value = 'true';
     qualifier.semanticId = this.createExternalRef(
       'https://admin-shell.io/idta/CapabilityDescription/CapabilityRoleQualifier/1/0',

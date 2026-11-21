@@ -1,7 +1,14 @@
 import { TestBed } from '@angular/core/testing';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { AppConfigService } from './app-config.service';
-import { buildDocsUrl, DocsContext, docsTopic, resolveDocsTopic, UserDocsService } from './user-docs.service';
+import {
+  buildDocsUrl,
+  DOCS_DEV_SERVER_URL,
+  DocsContext,
+  docsTopic,
+  resolveDocsTopic,
+  UserDocsService,
+} from './user-docs.service';
 
 const context: DocsContext = {
   defaultTopic: docsTopic('designer'),
@@ -37,8 +44,14 @@ describe('buildDocsUrl', () => {
     expect(buildDocsUrl('https://docs.example.com/', docsTopic('designer/viewer'))).toBe(
       'https://docs.example.com/designer/viewer',
     );
-    expect(buildDocsUrl('https://docs.example.com/handbuch', docsTopic('/markt/'))).toBe(
+    expect(buildDocsUrl('https://docs.example.com/handbuch/', docsTopic('markt'))).toBe(
       'https://docs.example.com/handbuch/markt',
+    );
+  });
+
+  it('appends the heading anchor of a topic', () => {
+    expect(buildDocsUrl('https://docs.example.com', docsTopic('designer/pcn', 'mitteilung-versenden-hersteller'))).toBe(
+      'https://docs.example.com/designer/pcn#mitteilung-versenden-hersteller',
     );
   });
 
@@ -52,10 +65,11 @@ describe('UserDocsService', () => {
   let config: { docsBaseUrl?: string };
   let service: UserDocsService;
 
-  beforeEach(() => {
-    config = {};
+  function createService(devServerUrl: string | null) {
+    TestBed.resetTestingModule();
     TestBed.configureTestingModule({
       providers: [
+        { provide: DOCS_DEV_SERVER_URL, useValue: devServerUrl },
         {
           provide: AppConfigService,
           useValue: {
@@ -66,7 +80,13 @@ describe('UserDocsService', () => {
         },
       ],
     });
-    service = TestBed.inject(UserDocsService);
+    return TestBed.inject(UserDocsService);
+  }
+
+  beforeEach(() => {
+    config = {};
+    // Production build: no local documentation server
+    service = createService(null);
   });
 
   afterEach(() => {
@@ -89,6 +109,14 @@ describe('UserDocsService', () => {
     config.docsBaseUrl = 'https://config.example.com';
     runtimeWindow['__AAS_DOCS_BASE_URL'] = 'https://runtime.example.com';
     expect(service.urlFor(docsTopic('designer'))).toBe('https://runtime.example.com/designer');
+  });
+
+  it('falls back to the local documentation server in development builds', () => {
+    const devService = createService('http://localhost:3000');
+    expect(devService.urlFor(docsTopic('designer/viewer'))).toBe('http://localhost:3000/designer/viewer');
+
+    config.docsBaseUrl = 'https://config.example.com';
+    expect(devService.urlFor(docsTopic('designer'))).toBe('https://config.example.com/designer');
   });
 
   it('opens the page in a new tab', () => {

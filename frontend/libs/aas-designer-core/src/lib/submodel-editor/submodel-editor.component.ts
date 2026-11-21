@@ -1,4 +1,5 @@
 import * as aas from '@aas-core-works/aas-core3.1-typescript';
+import { DirtyCheckable } from '@aas-designer-model';
 import {
   AppConfigService,
   AppRouteSegments,
@@ -17,7 +18,7 @@ import {
 } from '@aas/webapi-client';
 import { CommonModule } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
-import { Component, inject, OnInit, signal, ChangeDetectionStrategy } from '@angular/core';
+import { Component, inject, OnInit, signal, ChangeDetectionStrategy, ViewChild } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
@@ -28,6 +29,7 @@ import { InputGroupModule } from '@openng/optimus-ui/inputgroup';
 import { InputGroupAddonModule } from '@openng/optimus-ui/inputgroupaddon';
 import { InputTextModule } from '@openng/optimus-ui/inputtext';
 import { Splitter } from '@openng/optimus-ui/splitter';
+import { cloneDeep } from 'lodash-es';
 import { lastValueFrom } from 'rxjs';
 import { EditorTypeOption } from '../v3-editor/model/editor-type-option';
 import { V3TreeItem } from '../v3-editor/model/v3-tree-item';
@@ -68,8 +70,10 @@ interface SubmodelInfoSummary {
   changeDetection: ChangeDetectionStrategy.Eager,
   styleUrls: ['../../host.scss'],
 })
-export class SubmodelEditorComponent implements OnInit {
+export class SubmodelEditorComponent extends DirtyCheckable implements OnInit {
   PortalService = PortalService;
+
+  @ViewChild(V3EditorComponent) v3EditorComponent: V3EditorComponent | undefined;
 
   appConfigService = inject(AppConfigService);
   route = inject(ActivatedRoute);
@@ -182,6 +186,18 @@ export class SubmodelEditorComponent implements OnInit {
     void this.loadInfoSummary();
   }
 
+  /** Asks before leaving with unsaved changes, like the AAS editor (DeactivateGuard) */
+  override isDirty() {
+    return this.v3EditorComponent?.hasChanges() ?? false;
+  }
+
+  /** The editor compares against its backup; after saving, the saved state is the new reference */
+  private markAsSaved() {
+    if (this.v3EditorComponent != null) {
+      this.v3EditorComponent.v3ShellBackup = cloneDeep(this.shellResult());
+    }
+  }
+
   async saveSubmodel() {
     const submodel = this.shellResult()?.v3Shell?.submodels?.[0];
     if (!submodel) {
@@ -197,6 +213,7 @@ export class SubmodelEditorComponent implements OnInit {
     try {
       await this.saveConceptDescriptions();
       await lastValueFrom(this.http.post(`${this.appConfigService.config.aasApiPath}/Submodel/SaveSm`, formData));
+      this.markAsSaved();
       this.notificationService.showMessageAlways('SAVED', 'SUCCESS', 'success');
     } catch {
       this.notificationService.showMessageAlways('SAVE_ERROR', 'ERROR', 'error');

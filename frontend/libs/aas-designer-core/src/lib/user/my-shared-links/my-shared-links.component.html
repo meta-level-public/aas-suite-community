@@ -105,7 +105,7 @@
             </td>
             <td class="w-[120px]">
               <p-tag
-                [value]="sharedLink.hasPasswort == true ? 'YES' : ('NO' | translate)"
+                [value]="(sharedLink.hasPasswort == true ? 'YES' : 'NO') | translate"
                 [severity]="sharedLink.hasPasswort == false ? 'success' : 'warn'"
               ></p-tag>
             </td>

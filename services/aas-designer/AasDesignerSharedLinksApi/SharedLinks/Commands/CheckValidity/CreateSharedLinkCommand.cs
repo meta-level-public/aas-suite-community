@@ -48,7 +48,7 @@ public class CheckValidityHandler : IRequestHandler<CheckValidityCommand, Public
             item.CountViews++;
             await _context.SaveChangesAsync(cancellationToken);
 
-            if (item.Ablaufdatum <= DateTime.Now)
+            if (item.IsExpired(DateTime.UtcNow))
             {
                 result.ResultCode = ViewerResultCode.EXPIRED;
             }

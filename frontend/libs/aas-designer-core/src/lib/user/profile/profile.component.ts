@@ -1,8 +1,8 @@
-import { AasConfirmationService, AppConfigService, NotificationService, PortalService } from '@aas/common-services';
+import { AppConfigService, NotificationService, PortalService } from '@aas/common-services';
 import { emailRegEx } from '@aas/model';
 import { Component, OnInit, ViewChild, ChangeDetectionStrategy } from '@angular/core';
-import { FormsModule } from '@angular/forms';
-import { TranslateModule, TranslateService } from '@ngx-translate/core';
+import { FormsModule, NgForm } from '@angular/forms';
+import { TranslateModule } from '@ngx-translate/core';
 import { AvatarModule } from '@openng/optimus-ui/avatar';
 import { ButtonModule } from '@openng/optimus-ui/button';
 import { FieldsetModule } from '@openng/optimus-ui/fieldset';
@@ -41,14 +41,18 @@ export class ProfileComponent implements OnInit {
   emailAvailable: boolean = true;
   emailRegEx = emailRegEx;
 
+  /** Profile image as last saved; a different image enables saving even if the form is pristine */
+  private savedProfilbild = '';
+  /** Image shown before a file was chosen; restored when the chosen file is removed again */
+  private profilbildBeforeSelection: string | null = null;
+
   @ViewChild('uploader') uploader: FileUpload | undefined;
+  @ViewChild('profileForm') profileForm: NgForm | undefined;
 
   constructor(
     private profileService: ProfileService,
     private notificationService: NotificationService,
     private portalService: PortalService,
-    private confirmService: AasConfirmationService,
-    private translate: TranslateService,
     public appConfigService: AppConfigService,
   ) {}
 
@@ -58,9 +62,20 @@ export class ProfileComponent implements OnInit {
     this.profile.email = this.portalService.user?.loginName ?? '';
 
     this.profile.profilbildBase64 = this.portalService.user?.profilbildBase64 ?? '';
+    this.savedProfilbild = this.profile.profilbildBase64;
+  }
+
+  get profilbildChanged() {
+    return (this.profile.profilbildBase64 ?? '') !== this.savedProfilbild;
   }
 
   setProfilbild(event: { files: File[] }) {
+    if (event.files.length === 0) {
+      return;
+    }
+    if (this.profilbildBeforeSelection == null) {
+      this.profilbildBeforeSelection = this.profile.profilbildBase64 ?? '';
+    }
     const reader = new FileReader();
     reader.onload = (e) => {
       this.profile.profilbildBase64 = e?.target?.result?.toString() ?? '';
@@ -85,9 +100,11 @@ export class ProfileComponent implements OnInit {
             resp.profilbildBase64 = this.profile.profilbildBase64;
 
             this.portalService.saveUser(resp);
-
-            this.uploader?.clearInputElement();
           }
+          this.savedProfilbild = this.profile.profilbildBase64 ?? '';
+          this.profilbildBeforeSelection = null;
+          this.uploader?.clear();
+          this.profileForm?.form.markAsPristine();
         } else {
           this.notificationService.showMessageAlways('ERROR_SAVE_PROFILE', 'ERROR', 'error', true);
         }
@@ -97,21 +114,20 @@ export class ProfileComponent implements OnInit {
     }
   }
   deleteProfileImage() {
+    this.profilbildBeforeSelection = null;
+    this.uploader?.clear();
     this.profile.profilbildBase64 = '';
+  }
+
+  /** Removing the chosen file restores the image shown before the selection */
+  discardSelectedProfilbild() {
+    if (this.profilbildBeforeSelection != null) {
+      this.profile.profilbildBase64 = this.profilbildBeforeSelection;
+      this.profilbildBeforeSelection = null;
+    }
   }
 
   async checkEmail() {
     this.emailAvailable = await this.profileService.checkEmail(this.profile.email);
-  }
-
-  async resetHilfe() {
-    if ((await this.confirmService.confirm({ message: this.translate.instant('RESET_HILFE_Q') })) === true) {
-      const user = this.portalService.user;
-      if (user != null && user.einstellungen != null) {
-        user.einstellungen.hilfeInaktiv = {};
-        await this.profileService.resetHilfe(user.einstellungen);
-        this.portalService.saveUser(user);
-      }
-    }
   }
 }

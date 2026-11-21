@@ -6,6 +6,7 @@ import { DialogService } from '@openng/optimus-ui/dynamicdialog';
 import { assert, vi } from 'vitest';
 
 import { NotificationService, PortalService } from '@aas/common-services';
+import { ShellResult } from '@aas/model';
 import { TranslateService } from '@ngx-translate/core';
 import { GeneratorService } from '../../generator/generator.service';
 import { EditorTypeOption } from '../model/editor-type-option';
@@ -13,9 +14,10 @@ import { V3TreeItem } from '../model/v3-tree-item';
 import { V3EditorService } from '../v3-editor.service';
 import { V3TreeService } from '../v3-tree/v3-tree.service';
 import { V3OptionalElementsFinder } from './v3-optional-elements-finder';
+import { ElementInserter } from '../tools/element-inserter';
 import { V3TreeContextMenuComponent } from './v3-tree-context-menu.component';
 
-function createComponent(confirmResult: boolean) {
+function createComponent(confirmResult: boolean, editorService: Partial<V3EditorService> = {}) {
   TestBed.resetTestingModule();
   TestBed.configureTestingModule({
     providers: [
@@ -36,7 +38,7 @@ function createComponent(confirmResult: boolean) {
       new V3TreeContextMenuComponent(
         { instant: vi.fn((key: string) => key) } as unknown as TranslateService,
         { confirm: vi.fn().mockResolvedValue(confirmResult) } as any,
-        {} as V3EditorService,
+        editorService as V3EditorService,
         treeService as unknown as V3TreeService,
         { showMessageAlways: vi.fn() } as unknown as NotificationService,
         { copy: vi.fn() } as unknown as Clipboard,
@@ -237,6 +239,76 @@ describe('V3TreeContextMenuComponent', () => {
     });
   });
 
+  describe('pasting a submodel into a shell', () => {
+    function setup(shellReferencesSubmodel: boolean) {
+      const { component } = createComponent(true);
+      const submodel = new aas.types.Submodel('urn:test:submodel');
+      submodel.idShort = 'Nameplate';
+      const shell = new aas.types.AssetAdministrationShell(
+        'urn:test:aas',
+        new aas.types.AssetInformation(aas.types.AssetKind.Instance),
+      );
+      if (shellReferencesSubmodel) {
+        shell.submodels = [
+          new aas.types.Reference(aas.types.ReferenceTypes.ModelReference, [
+            new aas.types.Key(aas.types.KeyTypes.Submodel, submodel.id),
+          ]),
+        ];
+      }
+      const shellResult = new ShellResult();
+      shellResult.v3Shell = new aas.types.Environment([shell], [submodel]);
+      component.shellResult = shellResult;
+
+      const shellItem = new V3TreeItem<aas.types.AssetAdministrationShell>();
+      shellItem.id = 'shell';
+      shellItem.content = shell;
+      shellItem.editorType = EditorTypeOption.AssetAdministrationShell;
+      component.node = { key: 'shell', data: shellItem, children: [] };
+
+      const copied = new V3TreeItem<any>();
+      copied.content = submodel;
+      copied.editorType = EditorTypeOption.Submodel;
+      component.copiedElement = copied;
+      const insertElement = vi.spyOn(component, 'insertElement').mockImplementation(() => undefined as any);
+      return { component, submodel, insertElement };
+    }
+
+    it('asks whether to paste as reference when the submodel exists in the same environment', () => {
+      const { component, submodel, insertElement } = setup(false);
+
+      component.pasteElement();
+
+      expect(component.pasteAsReferenceQuestionDialogVisible).toBe(true);
+      expect(component.pasteQuestionKey).toBe('PASTE_SUBMODEL_AS_REFERENCE_QUESTION');
+      expect(insertElement).not.toHaveBeenCalled();
+
+      component.acceptedPasteAction = 'reference';
+
+      expect(insertElement).toHaveBeenCalledWith(submodel, EditorTypeOption.Submodel, 'reference');
+      expect(component.pasteAsReferenceQuestionDialogVisible).toBe(false);
+    });
+
+    it('pastes a copy when chosen in the dialog', () => {
+      const { component, submodel, insertElement } = setup(false);
+
+      component.pasteElement();
+      component.acceptedPasteAction = 'copy';
+
+      const pasted = insertElement.mock.calls[0][0] as unknown as aas.types.Submodel;
+      expect(pasted).not.toBe(submodel);
+      expect(insertElement.mock.calls[0][2]).toBe('copy');
+    });
+
+    it('pastes a copy without asking when the shell already references the submodel', () => {
+      const { component, insertElement } = setup(true);
+
+      component.pasteElement();
+
+      expect(component.pasteAsReferenceQuestionDialogVisible).toBe(false);
+      expect(insertElement.mock.calls[0][2]).toBe('copy');
+    });
+  });
+
   it('shows template qualifier removal only for non-template submodels', async () => {
     const stopPropagation = vi.fn();
     const preventDefault = vi.fn();
@@ -341,5 +413,23 @@ describe('V3TreeContextMenuComponent', () => {
     expect(property.qualifiers).toHaveLength(1);
     expect(property.qualifiers?.[0].kind).toBe(aas.types.QualifierKind.TemplateQualifier);
     expect(treeService.registerFieldUndoStep).not.toHaveBeenCalled();
+  });
+
+  it('registers an undo step after a repository template has been inserted', async () => {
+    const template = { v3Submodels: [], v3ConceptDescriptions: [] };
+    const { component, treeService } = createComponent(true, {
+      getRepoSubmodelTemplate: vi.fn().mockResolvedValue(template),
+    });
+    const insert = vi.spyOn(ElementInserter, 'insertSubmodelTemplate').mockImplementation(() => undefined);
+    component.conceptDescriptionsRootNode = {
+      key: 'cds',
+      children: [],
+    } as unknown as typeof component.conceptDescriptionsRootNode;
+
+    await component.insertRepoSubmodelTemplate('https://example.com/template');
+
+    expect(insert).toHaveBeenCalledTimes(1);
+    expect(treeService.registerFieldUndoStep).toHaveBeenCalledTimes(1);
+    insert.mockRestore();
   });
 });

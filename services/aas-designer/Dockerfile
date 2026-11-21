@@ -24,6 +24,7 @@ COPY services/aas-designer/AasDesignerDashboardApi/AasDesignerDashboardApi.cspro
 COPY services/aas-designer/AasDesignerEnterpriseLicensing/AasDesignerEnterpriseLicensing.csproj ./services/aas-designer/AasDesignerEnterpriseLicensing/
 COPY services/aas-designer/AasDesignerEnterpriseLicenseCore/AasDesignerEnterpriseLicenseCore.csproj ./services/aas-designer/AasDesignerEnterpriseLicenseCore/
 COPY services/aas-designer/AasDesignerEnterpriseSystemManagementApi/AasDesignerEnterpriseSystemManagementApi.csproj ./services/aas-designer/AasDesignerEnterpriseSystemManagementApi/
+COPY services/aas-designer/AasDesignerAssistantApi/AasDesignerAssistantApi.csproj ./services/aas-designer/AasDesignerAssistantApi/
 COPY services/aas-designer/AasDesignerHelpApi/AasDesignerHelpApi.csproj ./services/aas-designer/AasDesignerHelpApi/
 COPY services/aas-designer/AasDesignerModel/AasDesignerModel.csproj ./services/aas-designer/AasDesignerModel/
 COPY services/aas-designer/AasDesignerSharedLinksApi/AasDesignerSharedLinksApi.csproj ./services/aas-designer/AasDesignerSharedLinksApi/

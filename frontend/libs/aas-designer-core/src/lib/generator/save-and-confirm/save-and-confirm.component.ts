@@ -27,6 +27,7 @@ import { InputGroup } from '@openng/optimus-ui/inputgroup';
 import { InputGroupAddon } from '@openng/optimus-ui/inputgroupaddon';
 import { InputText } from '@openng/optimus-ui/inputtext';
 import { Select } from '@openng/optimus-ui/select';
+import { Message } from '@openng/optimus-ui/message';
 import { firstValueFrom } from 'rxjs';
 import { translateVerificationMessage } from '../../v3-editor/tools/verification-message';
 type VerificationError = aas.verification.VerificationError;
@@ -62,6 +63,7 @@ interface GeneratorDppSubmodelOption {
     InputText,
     Select,
     Checkbox,
+    Message,
   ],
 })
 export class SaveAndConfirmComponent implements OnInit, OnDestroy {
@@ -76,6 +78,7 @@ export class SaveAndConfirmComponent implements OnInit, OnDestroy {
   readonly statusOptions = DPP_STATUS_OPTIONS;
   dppMetadata: GeneratorDppMetadataInput | null = null;
   dppSubmodels: GeneratorDppSubmodelOption[] = [];
+  hasDppApi = false;
   private readonly previewState = new GeneratorFilePreviewState();
 
   constructor(
@@ -91,6 +94,7 @@ export class SaveAndConfirmComponent implements OnInit, OnDestroy {
   ) {}
 
   async ngOnInit(): Promise<void> {
+    this.hasDppApi = SaveAndConfirmComponent.currentInfrastructureHasDppApi();
     await this.loadSummaryData();
   }
 
@@ -548,6 +552,11 @@ export class SaveAndConfirmComponent implements OnInit, OnDestroy {
     return rootNode;
   }
 
+  /** DPP-Metadaten lassen sich nur auf Infrastrukturen mit DPP-API speichern. */
+  private static currentInfrastructureHasDppApi(): boolean {
+    return !!PortalService.getCurrentAasInfrastructureSetting()?.dppApiUrl?.trim();
+  }
+
   async saveAndContinueV3() {
     try {
       this.loading = true;
@@ -555,8 +564,7 @@ export class SaveAndConfirmComponent implements OnInit, OnDestroy {
       const metadata = this.buildDppMetadataInput();
       const res = await this.generatorService.saveShell(metadata);
       if (metadata != null) {
-        await firstValueFrom(this.http.get('/bff/csrf', { responseType: 'text', withCredentials: true }));
-        await firstValueFrom(this.http.put('/aas-proxy/dpp/metadata', metadata, { withCredentials: true }));
+        await this.saveDppMetadata(metadata);
       }
 
       this.notificationService.showMessageAlways('VWS_SAVED', 'SUCCESS', 'success', false);
@@ -570,6 +578,25 @@ export class SaveAndConfirmComponent implements OnInit, OnDestroy {
       );
     } finally {
       this.loading = false;
+    }
+  }
+
+  /**
+   * Die AAS ist zu diesem Zeitpunkt bereits gespeichert. Fehlt die DPP-API oder scheitert das
+   * Speichern der Metadaten, wird das gemeldet, die AAS bleibt aber erhalten.
+   */
+  private async saveDppMetadata(metadata: GeneratorDppMetadataInput) {
+    this.hasDppApi = SaveAndConfirmComponent.currentInfrastructureHasDppApi();
+    if (!this.hasDppApi) {
+      this.notificationService.showMessageAlways('GENERATOR_DPP_METADATA_NO_DPP_API', 'WARNING', 'warn', true);
+      return;
+    }
+
+    try {
+      await firstValueFrom(this.http.get('/bff/csrf', { responseType: 'text', withCredentials: true }));
+      await firstValueFrom(this.http.put('/aas-proxy/dpp/metadata', metadata, { withCredentials: true }));
+    } catch {
+      this.notificationService.showMessageAlways('GENERATOR_DPP_METADATA_SAVE_FAILED', 'WARNING', 'warn', true);
     }
   }
 

@@ -536,9 +536,8 @@ public class OrganisationService
     {
         var apikeys = _context
             .Apikeys.Include(a => a.AasInfrastructureSettings)
-            .Where(a =>
-                a.OrganisationId == user.OrganisationId && !a.Geloescht && a.BenutzerId == null
-            )
+            // Auch benutzergebundene Schlüssel (QR-Code der ViewerApp) anzeigen, damit sie widerrufbar sind
+            .Where(a => a.OrganisationId == user.OrganisationId && !a.Geloescht)
             .ToList();
 
         var result = new List<OrgaTokenDto>();

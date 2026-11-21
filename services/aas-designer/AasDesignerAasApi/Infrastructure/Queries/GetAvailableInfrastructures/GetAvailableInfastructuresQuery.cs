@@ -83,6 +83,7 @@ public class GetAvailableInfastructuresHandler
                     var recht = userRechte.First(r => r.InfrastrukturId == infra.Id);
                     if (!recht.DarfSchreiben)
                         infra.IsReadonly = true;
+                    infra.DarfMarktPublizieren = recht.DarfMarktPublizieren;
                     return infra;
                 })
                 .ToList();

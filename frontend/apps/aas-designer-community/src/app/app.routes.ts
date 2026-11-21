@@ -79,12 +79,12 @@ export const appRoutes: Routes = [
       {
         path: AppRoutePaths.cdEditWithInfrastructure,
         loadChildren: () => import('@aas/aas-designer-core/cd-edit').then((m) => m.CD_EDIT_ROUTES),
-        canActivate: [() => canActivate([AuthRoles.SHELLS_EDITOR, AuthRoles.ORGA_ADMIN, AuthRoles.SYSTEM_ADMIN])],
+        canActivate: [() => canActivate([AuthRoles.SHELLS_EDITOR])],
       },
       {
         path: AppRoutePaths.cdEdit,
         loadChildren: () => import('@aas/aas-designer-core/cd-edit').then((m) => m.CD_EDIT_ROUTES),
-        canActivate: [() => canActivate([AuthRoles.SHELLS_EDITOR, AuthRoles.ORGA_ADMIN, AuthRoles.SYSTEM_ADMIN])],
+        canActivate: [() => canActivate([AuthRoles.SHELLS_EDITOR])],
       },
       {
         path: AppRouteSegments.submodels,
@@ -103,12 +103,12 @@ export const appRoutes: Routes = [
       {
         path: AppRoutePaths.submodelEditWithInfrastructure,
         loadChildren: () => import('@aas/aas-designer-core/submodel-editor').then((m) => m.SUBMODEL_EDITOR_ROUTES),
-        canActivate: [() => canActivate([AuthRoles.SHELLS_EDITOR, AuthRoles.ORGA_ADMIN, AuthRoles.SYSTEM_ADMIN])],
+        canActivate: [() => canActivate([AuthRoles.SHELLS_EDITOR])],
       },
       {
         path: AppRoutePaths.submodelEdit,
         loadChildren: () => import('@aas/aas-designer-core/submodel-editor').then((m) => m.SUBMODEL_EDITOR_ROUTES),
-        canActivate: [() => canActivate([AuthRoles.SHELLS_EDITOR, AuthRoles.ORGA_ADMIN, AuthRoles.SYSTEM_ADMIN])],
+        canActivate: [() => canActivate([AuthRoles.SHELLS_EDITOR])],
       },
       {
         path: AppRouteSegments.idtaSubmodels,

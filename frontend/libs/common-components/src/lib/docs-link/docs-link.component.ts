@@ -4,7 +4,7 @@ import { TranslateModule } from '@ngx-translate/core';
 
 /**
  * Inline link to a page of the user documentation, e.g. in dialogs or empty states.
- * Pass the page created with docsTopic, optionally with a heading anchor such as designer/pcn#eingehende-mitteilungen.
+ * Pass the target created with docsTopic, e.g. docsTopic('designer/pcn', 'mitteilung-versenden-hersteller').
  * The link is hidden if no documentation is configured for the installation.
  */
 @Component({

@@ -12,14 +12,18 @@ import { HttpClient } from '@angular/common/http';
 import { signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { ActivatedRoute, Router } from '@angular/router';
-import { throwError } from 'rxjs';
+import { of, throwError } from 'rxjs';
+import { ShellResult } from '@aas/model';
+import { DeactivateGuard } from '../guards/deactivate.guard';
 import { V3EditorDataStoreService } from '../v3-editor/v3-editor-data-store.service';
 import { SubmodelEditorComponent } from './submodel-editor.component';
+import { SUBMODEL_EDITOR_ROUTES } from './submodel-editor.routes';
 
 describe('SubmodelEditorComponent supplemental files', () => {
   const router = { navigate: vi.fn().mockResolvedValue(true) };
   const submodelClient: { submodel_GetSmPlain?: ReturnType<typeof vi.fn> } = {};
   const notifications = { showMessageAlways: vi.fn() };
+  const httpClient = { post: vi.fn() };
 
   function createComponent() {
     TestBed.configureTestingModule({
@@ -64,9 +68,7 @@ describe('SubmodelEditorComponent supplemental files', () => {
         },
         {
           provide: HttpClient,
-          useValue: {
-            post: vi.fn(),
-          },
+          useValue: httpClient,
         },
       ],
     });
@@ -196,5 +198,36 @@ describe('SubmodelEditorComponent supplemental files', () => {
     expect(supplementalFiles[0].fileApiUrl).toBe(
       `/aas-proxy/7/sm-repo/submodels/${submodelId}/submodel-elements/TopLevel/attachment`,
     );
+  });
+
+  describe('unsaved changes', () => {
+    it('asks before leaving the submodel editor', () => {
+      expect(SUBMODEL_EDITOR_ROUTES[0].canDeactivate).toContain(DeactivateGuard);
+    });
+
+    it('is dirty while the editor has unsaved changes', () => {
+      const component = createComponent();
+      expect(component.isDirty()).toBe(false);
+
+      component.v3EditorComponent = { hasChanges: () => true } as never;
+
+      expect(component.isDirty()).toBe(true);
+    });
+
+    it('takes the saved submodel as new reference for unsaved changes', async () => {
+      httpClient.post.mockReturnValue(of({}));
+      const component = createComponent();
+      const shellResult = new ShellResult();
+      shellResult.v3Shell = new aas.types.Environment();
+      shellResult.v3Shell.submodels = [new aas.types.Submodel('urn:example:submodel')];
+      component.shellResult.set(shellResult);
+      const editor = { v3ShellBackup: null as ShellResult | null };
+      component.v3EditorComponent = editor as never;
+
+      await component.saveSubmodel();
+
+      expect(editor.v3ShellBackup?.v3Shell?.submodels?.[0].id).toBe('urn:example:submodel');
+      expect(editor.v3ShellBackup).not.toBe(shellResult);
+    });
   });
 });

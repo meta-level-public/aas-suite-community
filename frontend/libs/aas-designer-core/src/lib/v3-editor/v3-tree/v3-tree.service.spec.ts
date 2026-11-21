@@ -133,13 +133,13 @@ describe('V3TreeService', () => {
 
       service.undo();
 
-      expect(treeComponent.applyState).toHaveBeenLastCalledWith(state('initial'), 'prop');
+      expect(treeComponent.applyState).toHaveBeenLastCalledWith(state('initial'), 'prop', undefined);
       expect(service.hasUndoStep()).toBe(false);
       expect(service.hasRedoStep()).toBe(true);
 
       service.redo();
 
-      expect(treeComponent.applyState).toHaveBeenLastCalledWith(state('renamed'), 'prop');
+      expect(treeComponent.applyState).toHaveBeenLastCalledWith(state('renamed'), 'prop', undefined);
       expect(service.hasRedoStep()).toBe(false);
     });
 
@@ -181,6 +181,56 @@ describe('V3TreeService', () => {
       expect(service.undoStack).toHaveLength(1);
       expect(service.undoStack[0].selectedId).toBe('prop');
       expect(service.undoStack[0].state).toEqual([{ key: 'root', label: 'root' }]);
+    });
+
+    it('restores the model that gets saved together with the tree', () => {
+      const { shell, nameplate, contact, phone, shellNode, phoneNode } = createTree();
+      nameplate.submodelElements = [contact];
+      contact.value = [phone];
+      const environment = new T.Environment([shell], [nameplate]);
+      (treeComponent as unknown as { shellResult: { v3Shell: aas.types.Environment } }).shellResult = {
+        v3Shell: environment,
+      };
+      service.aasTreeData = [shellNode];
+      service.selectedTreeNode = phoneNode;
+
+      phone.value = 'old';
+      service.registerFieldUndoStep();
+      phone.value = 'new';
+      service.registerFieldUndoStep();
+
+      service.undo();
+
+      const [tree, selectedId, restoredEnv] = treeComponent.applyState.mock.calls.at(-1)!;
+      expect(selectedId).toBe('prop');
+      const restoredPhone = tree[0].children[0].children[0].children[0].data.content as aas.types.Property;
+      const savedPhone = (restoredEnv as aas.types.Environment).submodels![0]
+        .submodelElements![0] as aas.types.SubmodelElementCollection;
+      expect(restoredPhone.value).toBe('old');
+      // the tree points to the same objects as the model that gets saved
+      expect(savedPhone.value![0]).toBe(restoredPhone);
+    });
+
+    it('does not change the stored history when the restored state is edited', () => {
+      const { shell, nameplate, phone, shellNode, phoneNode } = createTree();
+      (treeComponent as unknown as { shellResult: { v3Shell: aas.types.Environment } }).shellResult = {
+        v3Shell: new T.Environment([shell], [nameplate]),
+      };
+      service.aasTreeData = [shellNode];
+      service.selectedTreeNode = phoneNode;
+      phone.value = 'old';
+      service.registerFieldUndoStep();
+      phone.value = 'new';
+      service.registerFieldUndoStep();
+
+      service.undo();
+      const tree = treeComponent.applyState.mock.calls.at(-1)![0];
+      (tree[0].children[0].children[0].children[0].data.content as aas.types.Property).value = 'edited after undo';
+      service.redo();
+      service.undo();
+
+      const again = treeComponent.applyState.mock.calls.at(-1)![0];
+      expect((again[0].children[0].children[0].children[0].data.content as aas.types.Property).value).toBe('old');
     });
 
     it('clears the history on reset', () => {

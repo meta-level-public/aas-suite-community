@@ -10,6 +10,7 @@ import { TagModule } from '@openng/optimus-ui/tag';
 import { ToolbarModule } from '@openng/optimus-ui/toolbar';
 import { UserOrganisationUebersicht } from './user-organisation-uebersicht';
 import { UserOrganisationUebersichtService } from './user-organisation-uebersicht.service';
+import { RoleLabelPipe } from '../../organisation/role-label/role-label.pipe';
 
 @Component({
   selector: 'aas-user-organisation-list',
@@ -22,6 +23,7 @@ import { UserOrganisationUebersichtService } from './user-organisation-uebersich
     InputGroupModule,
     InputGroupAddonModule,
     HelpLabelComponent,
+    RoleLabelPipe,
   ],
   changeDetection: ChangeDetectionStrategy.Eager,
   templateUrl: './user-organisation-list.component.html',

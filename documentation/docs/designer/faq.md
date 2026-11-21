@@ -1,6 +1,27 @@
 ---
 sidebar_position: 23
 title: Häufige Fragen und Fehler
+description: Antworten auf häufige Fragen und die typischen Ursachen von Meldungen im Designer.
+stichworte:
+  FAQ: ''
+  Fehlermeldungen: ''
+  Funktion gesperrt: funktion-gesperrt-oder-zugriff-nicht-erlaubt
+  Menüpunkt fehlt: der-menüpunkt-organisation-oder-systemverwaltung-fehlt
+  Benutzerplätze: benutzer-hinzufügen-ist-gesperrt
+  idShort: die-idshort-darf-nur-buchstaben-ziffern-_-und---enthalten-
+  Import-Konflikt: mindestens-eine-aas-existiert-bereits
+  Einladung: eine-einladung-ist-nicht-angekommen
+quellen:
+  - frontend/libs/designer-app-menu/src/lib/app-menu/app.menu.component.ts
+  - frontend/libs/aas-designer-shared/src/lib/pages/forbidden/app.forbidden.component.html
+  - frontend/libs/aas-designer-shared/src/lib/pages/login/sso-login-success/sso-login-success.component.html
+  - frontend/libs/aas-designer-core/src/lib/organisation/organisation-user/organisation-user.component.html
+  - frontend/libs/aas-designer-core/src/lib/v3-editor/tools/verification-message.ts
+  - frontend/libs/common-components/src/lib/user-docs-button/user-docs-button.component.html
+  - frontend/apps/aas-designer-enterprise/src/app/dashboard-license.guard.ts
+  - frontend/libs/translations/i18n/de.json
+  - services/aas-designer/AasDesignerApi/Authorization/JwtUtils.cs
+  - services/aas-designer/AasDesignerAasApi/Infrastructure/Queries/GetAvailableInfrastructures/GetAvailableInfastructuresQuery.cs
 ---
 
 # Häufige Fragen und Fehler
@@ -19,14 +40,41 @@ Administration der Organisation.
 
 ### Der Menüpunkt „Organisation“ oder „Systemverwaltung“ fehlt
 
-**Organisation** erscheint nur mit der Rolle `ORGA_ADMIN`,
-**Systemverwaltung** nur mit `SYSTEM_ADMIN`. Wurden die Rollen gerade erst
+**Organisation** erscheint nur mit der Rolle **Organisationsadministration**,
+**Systemverwaltung** nur mit der Rolle **Systemadministration**. Wurden die Rollen gerade erst
 geändert, die Seite neu laden oder sich neu anmelden.
+
+### Der Menüpunkt „Erstellen“ fehlt
+
+**Erstellen** erscheint nur, wenn die gerade gewählte Infrastruktur
+beschreibbar ist. Entweder fehlt das Recht **Schreiben** auf diese
+Infrastruktur, oder sie ist als **Nur-Lesen** eingerichtet. Siehe
+[Infrastruktur-Rechte](./rollen-und-rechte.md#infrastruktur-rechte).
+
+### Der Menüpunkt „Dashboard“ fehlt
+
+Das [Dashboard](./dashboard.md) gibt es nur in der Enterprise-Edition und nur,
+wenn die Lizenz es enthält. Ohne Dashboard beginnt die Arbeit in der Liste
+**Shells**.
+
+### Der Menüpunkt „Plugins“ fehlt
+
+**Plugins** erscheint erst, wenn in der Installation mindestens ein Plugin
+eingerichtet ist, siehe [Plugins](../betrieb/plugins.md).
+
+### „Benutzer hinzufügen“ ist gesperrt
+
+Alle Benutzerplätze der Organisation sind belegt. Wie viele belegt sind, steht
+über der Tabelle unter
+[Organisation › Benutzer](./organisation.md#benutzer). Für weitere Plätze,
+wie der Hinweis am Button sagt, den Support ansprechen.
 
 ### Eine Infrastruktur fehlt in der Auswahl der Liste der Verwaltungsschalen
 
 Entweder fehlt das Leserecht auf diese Infrastruktur, oder sie ist
-deaktiviert. Beides lässt sich unter
+deaktiviert. Das gilt auch für die Administration der Organisation: Wer beim
+Anlegen einer externen Infrastruktur keine Rechte vergibt, sieht sie selbst
+nicht. Beides lässt sich unter
 [Organisation › AAS Infrastruktur](./organisation.md#aas-infrastruktur)
 prüfen.
 
@@ -38,8 +86,8 @@ ist als **Nur-Lesen** eingerichtet. Siehe
 
 ### „Token abgelaufen“
 
-Die Anmeldung ist abgelaufen, z. B. nach längerer Pause. Erneut anmelden.
-Änderungen deshalb regelmäßig speichern.
+Die Meldung erscheint nach einer Anmeldung über Single Sign-on, wenn die
+Anmeldung beim Identitätsanbieter schon abgelaufen war. Erneut anmelden.
 
 ## AAS anlegen und bearbeiten
 
@@ -62,9 +110,10 @@ keine idShort. Das Feld leer lassen.
 
 ### Die Validierung meldet Fehler auf Englisch
 
-Die Prüfung verwendet die Regeln der AAS-Spezifikation, deren Meldungen
-englisch sind. Was die häufigsten bedeuten, steht unter
-[Validierung](./validierung.md).
+Die Prüfung verwendet die Regeln der AAS-Spezifikation. Häufige Meldungen
+zeigt der Designer übersetzt an; für alle anderen erscheint der englische
+Originaltext. Was die häufigsten bedeuten, steht unter
+[Validierung › Häufige Fehler](./validierung.md#häufige-fehler).
 
 ### Im Editor fehlen neue IDTA-Vorlagen
 

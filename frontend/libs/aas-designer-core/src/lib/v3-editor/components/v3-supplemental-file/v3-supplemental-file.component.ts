@@ -98,10 +98,10 @@ export class V3SupplementalFileComponent extends V3ComponentBase implements OnCh
   async downloadFile() {
     if (this.supplementalFile?.fileData != null) {
       const l = (this.supplementalFile.filename as string).split('/');
-      saveAs(this.supplementalFile.fileData, l[l.length - 1]);
+      this.saveFile(this.supplementalFile.fileData, l[l.length - 1]);
     } else if (this.supplementalFile?.isLocal === true && this.supplementalFile.file != null) {
       const l = (this.supplementalFile.filename as string).split('/');
-      saveAs(this.supplementalFile.file, l[l.length - 1]);
+      this.saveFile(this.supplementalFile.file, l[l.length - 1]);
     } else if (this.supplementalFile?.fileApiUrl) {
       try {
         this.loading = true;
@@ -109,7 +109,7 @@ export class V3SupplementalFileComponent extends V3ComponentBase implements OnCh
         if (fileData != null) {
           this.supplementalFile.fileData = fileData;
           const l = this.getFilename().split('/');
-          saveAs(fileData, l[l.length - 1]);
+          this.saveFile(fileData, l[l.length - 1]);
         }
       } finally {
         this.loading = false;
@@ -313,6 +313,11 @@ export class V3SupplementalFileComponent extends V3ComponentBase implements OnCh
     const previewBlob = previewType === 'image' ? await FilenameHelper.buildPreviewImageBlob(typedFile) : typedFile;
 
     this.supplementalFile.fileUrl = this.sanitizer.bypassSecurityTrustResourceUrl(URL.createObjectURL(previewBlob));
+  }
+
+  /** Hands the file to the browser; separate method so tests can observe it independent of module mocking */
+  protected saveFile(data: Blob | File, filename: string) {
+    saveAs(data, filename);
   }
 
   private getFilename(): string {

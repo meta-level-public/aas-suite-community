@@ -1,23 +1,71 @@
-/* Farben an die AAS Suite angelehnt (Primärfarbe aus dem Standard-Theme) */
+/*
+ * Aussehen an den AAS Designer angelehnt (Standard-Theme der AAS Suite):
+ * Primärfarbe aus frontend/libs/common-components/src/lib/themes/aas-suite-theme.ts (primary.500 #e91e63,
+ * für Text auf Weiß die dunklere Stufe 600), Kopfleiste im Blau des Designer-Hintergrunds
+ * (frontend/libs/aas-designer-assets/src/lib/base-styles.css), Schrift Verdana, Radien 6–8 px.
+ */
 :root {
-  --ifm-color-primary: #2a1261;
-  --ifm-color-primary-dark: #261057;
-  --ifm-color-primary-darker: #230f52;
-  --ifm-color-primary-darkest: #1d0c44;
-  --ifm-color-primary-light: #2e146b;
-  --ifm-color-primary-lighter: #311570;
-  --ifm-color-primary-lightest: #3a197e;
+  --ifm-color-primary: #c61a54;
+  --ifm-color-primary-dark: #b2174c;
+  --ifm-color-primary-darker: #a31545;
+  --ifm-color-primary-darkest: #801136;
+  --ifm-color-primary-light: #e91e63;
+  --ifm-color-primary-lighter: #ed4981;
+  --ifm-color-primary-lightest: #f1749e;
+  --ifm-font-family-base: 'Verdana', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+  --ifm-heading-font-weight: 700;
+  --ifm-heading-color: #1e293b;
+  --ifm-global-radius: 6px;
   --ifm-code-font-size: 95%;
+  --ifm-navbar-background-color: #0077b3;
+  --ifm-navbar-link-color: #ffffff;
+  --ifm-navbar-link-hover-color: #ffffff;
   --docusaurus-highlighted-code-line-bg: rgba(0, 0, 0, 0.1);
+  --handbuch-image-border: #cbd5e1;
 }
 
 [data-theme='dark'] {
-  --ifm-color-primary: #b9a8f0;
-  --ifm-color-primary-dark: #a28ceb;
-  --ifm-color-primary-darker: #977ee8;
-  --ifm-color-primary-darkest: #7556e0;
-  --ifm-color-primary-light: #d0c4f5;
-  --ifm-color-primary-lighter: #dbd2f8;
-  --ifm-color-primary-lightest: #fdfcff;
+  --ifm-color-primary: #f1749e;
+  --ifm-color-primary-dark: #ed4981;
+  --ifm-color-primary-darker: #e91e63;
+  --ifm-color-primary-darkest: #c61a54;
+  --ifm-color-primary-light: #f69ebc;
+  --ifm-color-primary-lighter: #fac9da;
+  --ifm-color-primary-lightest: #fef4f7;
+  --ifm-heading-color: #f1f5f9;
+  --ifm-navbar-background-color: #005f8f;
   --docusaurus-highlighted-code-line-bg: rgba(0, 0, 0, 0.3);
+  --handbuch-image-border: #475569;
+}
+
+/* Kopfleiste wie im Designer: blauer Verlauf, weiße Schrift */
+.navbar {
+  background: linear-gradient(135deg, #009cdf 0%, #0077b3 70%, #005f8f 100%);
+}
+
+.navbar__title,
+.navbar .navbar__link,
+.navbar .navbar__toggle {
+  color: #ffffff;
+}
+
+.navbar .navbar__link--active {
+  text-decoration: underline;
+  text-underline-offset: 0.35rem;
+}
+
+.navbar .navbar-sidebar,
+.navbar .navbar-sidebar .menu__link {
+  color: var(--ifm-font-color-base);
+}
+
+/* Screenshots: abgerundet mit dünnem Rahmen */
+.markdown img[src*='/img/'] {
+  border: 1px solid var(--handbuch-image-border);
+  border-radius: 8px;
+}
+
+.markdown img[src$='.svg'] {
+  border: none;
+  border-radius: 0;
 }

@@ -1,6 +1,7 @@
 import * as aas from '@aas-core-works/aas-core3.1-typescript';
 import { CMTypeOption } from '../model/cm-type-option';
 import { EditorTypeOption } from '../model/editor-type-option';
+import { removeTemplateQualifiersOf } from '../tools/template-qualifiers';
 
 type ISubmodelElement = aas.types.ISubmodelElement;
 
@@ -282,21 +283,6 @@ export function clearSubmodelElementValuesRecursive(element: ISubmodelElement): 
 export function removeTemplateQualifiersRecursive(element: ISubmodelElement): number {
   return getChildElements(element).reduce(
     (count, child) => count + removeTemplateQualifiersRecursive(child),
-    removeTemplateQualifiersFromElement(element),
+    removeTemplateQualifiersOf(element),
   );
-}
-
-function removeTemplateQualifiersFromElement(element: ISubmodelElement): number {
-  if (element.qualifiers == null) {
-    return 0;
-  }
-
-  const filteredQualifiers = element.qualifiers.filter(
-    (qualifier) => qualifier.kind !== aas.types.QualifierKind.TemplateQualifier,
-  );
-  const removedQualifierCount = element.qualifiers.length - filteredQualifiers.length;
-
-  element.qualifiers = filteredQualifiers.length > 0 ? filteredQualifiers : null;
-
-  return removedQualifierCount;
 }

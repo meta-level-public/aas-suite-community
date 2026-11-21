@@ -2,7 +2,9 @@ import { SubmodelTemplate } from '@aas-designer-model';
 import { DateProxyPipe } from '@aas/common-pipes';
 import { AasConfirmationService } from '@aas/common-services';
 import { AasMetamodelVersion } from '@aas/model';
-import { Component, OnInit, ViewChild, ChangeDetectionStrategy } from '@angular/core';
+import { Component, OnInit, ViewChild, ChangeDetectionStrategy, inject } from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
+import { map } from 'rxjs';
 import { FormsModule } from '@angular/forms';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { MenuItem, PrimeTemplate } from '@openng/optimus-ui/api';
@@ -59,6 +61,20 @@ export class TemplateListComponent implements OnInit {
 
   @ViewChild('bulkUploader') bulkFileUpload: FileUpload | undefined;
   @ViewChild('uploader') uploader: FileUpload | undefined;
+
+  private readonly translateService = inject(TranslateService);
+
+  /** Gruppen der Vorlagen; „OTHER“ wird übersetzt, IDTA und VDMA sind Eigennamen */
+  readonly groupOptions = toSignal(
+    this.translateService.stream('OTHER').pipe(
+      map((other: string) => [
+        { value: 'IDTA', label: 'IDTA' },
+        { value: 'VDMA', label: 'VDMA' },
+        { value: 'OTHER', label: other },
+      ]),
+    ),
+    { initialValue: [] as { value: string; label: string }[] },
+  );
 
   constructor(
     private submodelTemplateService: SubmodelTemplateService,

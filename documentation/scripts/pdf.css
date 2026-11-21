@@ -1,0 +1,288 @@
+/* Druckstil für das ganze Handbuch als PDF (scripts/pdf.mjs, umgebrochen mit Paged.js). */
+
+@page {
+  size: A4;
+  margin: 22mm 20mm 20mm 20mm;
+  @top-left {
+    content: 'AAS Suite Handbuch';
+    font-size: 8pt;
+    color: #64748b;
+  }
+  @top-right {
+    content: string(kapitel);
+    font-size: 8pt;
+    color: #64748b;
+  }
+  @bottom-center {
+    content: counter(page);
+    font-size: 9pt;
+    color: #64748b;
+  }
+}
+
+@page :first {
+  @top-left {
+    content: none;
+  }
+  @top-right {
+    content: none;
+  }
+  @bottom-center {
+    content: none;
+  }
+}
+
+:root {
+  --primaer: #c61a54;
+  --text: #1e293b;
+  --grau: #64748b;
+  --linie: #cbd5e1;
+}
+
+html {
+  font-family: Verdana, 'DejaVu Sans', sans-serif;
+  font-size: 9.5pt;
+  line-height: 1.45;
+  color: var(--text);
+}
+
+/* Deckblatt */
+.deckblatt {
+  break-after: page;
+  padding-top: 70mm;
+  text-align: left;
+}
+.deckblatt .logo {
+  width: 28mm;
+  margin-bottom: 12mm;
+}
+.deckblatt-titel {
+  font-size: 28pt;
+  margin: 0 0 6mm;
+  color: var(--text);
+  border: none;
+}
+.deckblatt-edition {
+  font-size: 15pt;
+  color: var(--primaer);
+  margin: 0 0 30mm;
+}
+.deckblatt-stand {
+  font-size: 10pt;
+  color: var(--grau);
+}
+
+/* Inhaltsverzeichnis mit Seitenzahlen */
+.inhalt {
+  break-after: page;
+}
+.inhalt ol {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+.inhalt-bereich {
+  font-weight: 700;
+  margin-top: 4mm;
+  break-after: avoid;
+}
+.inhalt-kapitel {
+  margin: 1mm 0;
+}
+.inhalt-kapitel.eingerueckt {
+  padding-left: 6mm;
+}
+.inhalt a {
+  display: flex;
+  color: var(--text);
+  text-decoration: none;
+}
+/* Paged.js kennt leader() nicht: die Seitenzahl steht rechtsbündig, eine gepunktete Linie füllt die Lücke */
+.inhalt a::after {
+  content: target-counter(attr(href), page);
+  flex: 1;
+  text-align: right;
+  background-image: radial-gradient(circle, var(--grau) 0.35pt, transparent 0.45pt);
+  background-size: 1.6mm 1mm;
+  background-repeat: repeat-x;
+  background-position: left bottom 0.9mm;
+  margin-left: 2mm;
+}
+
+/* Kapitel */
+.kapitel {
+  break-before: page;
+}
+.kapitel h1 {
+  string-set: kapitel content(text);
+  font-size: 20pt;
+  margin: 0 0 5mm;
+  padding-bottom: 2mm;
+  border-bottom: 1.5pt solid var(--primaer);
+}
+h2 {
+  font-size: 14pt;
+  margin: 7mm 0 2mm;
+}
+h3 {
+  font-size: 11.5pt;
+  margin: 5mm 0 2mm;
+}
+h4 {
+  font-size: 10pt;
+  margin: 4mm 0 1.5mm;
+}
+h1,
+h2,
+h3,
+h4 {
+  break-after: avoid;
+  color: var(--text);
+}
+p,
+li {
+  orphans: 3;
+  widows: 3;
+}
+a {
+  color: var(--primaer);
+  text-decoration: none;
+}
+/* Verweise auf andere Kapitel zeigen die Seitenzahl */
+.kapitel a.intern::after {
+  content: ' (S. ' target-counter(attr(href), page) ')';
+  color: var(--grau);
+  font-size: 0.9em;
+}
+
+/* Bilder, Tabellen, Hinweisboxen und Code nicht zerteilen */
+img,
+table,
+pre,
+.theme-admonition,
+figure {
+  break-inside: avoid;
+}
+img {
+  max-width: 100%;
+  height: auto;
+}
+.kapitel img {
+  display: block;
+  margin: 3mm 0;
+  border: 0.5pt solid var(--linie);
+  border-radius: 2mm;
+}
+
+table {
+  border-collapse: collapse;
+  width: 100%;
+  margin: 3mm 0;
+  font-size: 8.5pt;
+}
+th,
+td {
+  border: 0.5pt solid var(--linie);
+  padding: 1.2mm 2mm;
+  text-align: left;
+  vertical-align: top;
+}
+th {
+  background: #f1f5f9;
+}
+tr {
+  break-inside: avoid;
+}
+
+code {
+  font-family: 'SF Mono', Menlo, 'DejaVu Sans Mono', monospace;
+  font-size: 0.9em;
+  background: #f1f5f9;
+  padding: 0 0.6mm;
+  border-radius: 0.6mm;
+  overflow-wrap: anywhere;
+}
+pre {
+  background: #f6f8fa;
+  border: 0.5pt solid var(--linie);
+  border-radius: 1.5mm;
+  padding: 2.5mm 3mm;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  font-size: 8pt;
+}
+pre code {
+  background: none;
+  padding: 0;
+}
+/* Kopier-Buttons und sonstige Bedienelemente der Website */
+button,
+.buttonGroup__atx,
+svg.copyButtonIcon_y97N {
+  display: none;
+}
+
+/* Hinweisboxen */
+.theme-admonition {
+  border-left: 1.2mm solid var(--grau);
+  background: #f8fafc;
+  padding: 2.5mm 4mm;
+  margin: 3mm 0;
+  border-radius: 1mm;
+}
+.theme-admonition [class^='admonitionHeading'] {
+  font-weight: 700;
+  text-transform: uppercase;
+  font-size: 8pt;
+  margin-bottom: 1mm;
+}
+.theme-admonition [class^='admonitionHeading'] svg {
+  width: 3.2mm;
+  height: 3.2mm;
+  margin-right: 1.5mm;
+  vertical-align: -0.5mm;
+  fill: currentColor;
+}
+.theme-admonition [class^='admonitionContent'] > :last-child {
+  margin-bottom: 0;
+}
+.theme-admonition-tip {
+  border-color: #16a34a;
+  background: #f0fdf4;
+}
+.theme-admonition-info,
+.theme-admonition-note {
+  border-color: #0284c7;
+  background: #f0f9ff;
+}
+.theme-admonition-warning {
+  border-color: #d97706;
+  background: #fffbeb;
+}
+.theme-admonition-danger {
+  border-color: #dc2626;
+  background: #fef2f2;
+}
+
+/* Stichwortverzeichnis: zweispaltig, mit Seitenzahlen */
+.stichwortverzeichnis [class*='gruppe'] {
+  break-inside: avoid-column;
+}
+.stichwortverzeichnis ul {
+  list-style: none;
+  padding: 0;
+  margin: 0 0 3mm;
+  columns: 2;
+  column-gap: 8mm;
+}
+.stichwortverzeichnis li {
+  font-size: 8.5pt;
+  break-inside: avoid;
+}
+.stichwortverzeichnis h2 {
+  font-size: 12pt;
+  margin: 4mm 0 1.5mm;
+}
+.stichwortverzeichnis a.intern::after {
+  content: ' ' target-counter(attr(href), page);
+}

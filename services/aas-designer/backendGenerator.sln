@@ -33,6 +33,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AasDesignerEnterpriseLicens
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AasDesignerDataMigration", "..\aas-designer-migration\AasDesignerDataMigration\AasDesignerDataMigration.csproj", "{BD26DDE6-3E26-4BF5-84D3-10A95BA67785}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AasDesignerAssistantApi", "AasDesignerAssistantApi\AasDesignerAssistantApi.csproj", "{20E99739-65DD-4866-8F6B-6F9B20F52D9E}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -223,6 +225,18 @@ Global
 		{BD26DDE6-3E26-4BF5-84D3-10A95BA67785}.Release|x64.Build.0 = Release|Any CPU
 		{BD26DDE6-3E26-4BF5-84D3-10A95BA67785}.Release|x86.ActiveCfg = Release|Any CPU
 		{BD26DDE6-3E26-4BF5-84D3-10A95BA67785}.Release|x86.Build.0 = Release|Any CPU
+		{20E99739-65DD-4866-8F6B-6F9B20F52D9E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{20E99739-65DD-4866-8F6B-6F9B20F52D9E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{20E99739-65DD-4866-8F6B-6F9B20F52D9E}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{20E99739-65DD-4866-8F6B-6F9B20F52D9E}.Debug|x64.Build.0 = Debug|Any CPU
+		{20E99739-65DD-4866-8F6B-6F9B20F52D9E}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{20E99739-65DD-4866-8F6B-6F9B20F52D9E}.Debug|x86.Build.0 = Debug|Any CPU
+		{20E99739-65DD-4866-8F6B-6F9B20F52D9E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{20E99739-65DD-4866-8F6B-6F9B20F52D9E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{20E99739-65DD-4866-8F6B-6F9B20F52D9E}.Release|x64.ActiveCfg = Release|Any CPU
+		{20E99739-65DD-4866-8F6B-6F9B20F52D9E}.Release|x64.Build.0 = Release|Any CPU
+		{20E99739-65DD-4866-8F6B-6F9B20F52D9E}.Release|x86.ActiveCfg = Release|Any CPU
+		{20E99739-65DD-4866-8F6B-6F9B20F52D9E}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -3,12 +3,14 @@
   <div class="flex flex-row flex-wrap gap-2 md:gap-4 justify-between items-center w-full px-0 md:px-4">
     <div class="flex flex-wrap gap-2">
       <p-button
+        [ariaLabel]="'SEARCH' | translate"
         icon="pi pi-search"
         (onClick)="openSearch()"
         pTooltip="{{ 'SEARCH' | translate }}"
         styleClass="p-button-sm"
       ></p-button>
       <p-button
+        [ariaLabel]="'RELOAD' | translate"
         icon="pi pi-refresh"
         (onClick)="reloadSubmodel()"
         pTooltip="{{ 'RELOAD' | translate }}"
@@ -16,6 +18,7 @@
       ></p-button>
       @if (viewerStore.highlightedIdShortPath() !== '') {
         <p-button
+          [ariaLabel]="'CLEAR_HIGHLIGHT' | translate"
           icon="pi pi-eraser"
           styleClass="p-button-outlined p-button-sm"
           (onClick)="clearHighlight()"

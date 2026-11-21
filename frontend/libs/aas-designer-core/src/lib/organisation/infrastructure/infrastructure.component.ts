@@ -164,6 +164,18 @@ export class InfrastructureComponent extends HasChangesCheckable implements OnIn
     return this.settings()?.isInternal === true && this.systemConfiguration()?.singleTenantMode === false;
   }
 
+  /**
+   * The upgrade to BaSyx Go starts new containers through the container manager. It is offered only in
+   * multi-tenant operation (not single tenant mode) for internal infrastructures that are not Go yet.
+   */
+  showGoUpgrade(): boolean {
+    return (
+      this.canManageInternalInfrastructure() &&
+      this.settings()?.isGoInfrastructure !== true &&
+      this.accessService.isAllowed('ORGA_ADMIN')
+    );
+  }
+
   startEditing() {
     this.mode.set('edit');
     this.scrollToTop();

@@ -1,4 +1,9 @@
-import { AssetAdministrationShell, ConceptDescription, Submodel } from '@aas-core-works/aas-core3.1-typescript/types';
+import {
+  AssetAdministrationShell,
+  ConceptDescription,
+  Environment,
+  Submodel,
+} from '@aas-core-works/aas-core3.1-typescript/types';
 import { SupplementalFile } from '@aas/model';
 import { inject, Injectable } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
@@ -23,7 +28,11 @@ export class V3TreeService {
   treeComponent: V3TreeComponent | undefined;
   editorComponent: V3EditorComponent | undefined;
 
-  undoStack: { state: TreeNode[]; selectedId: string }[] = [];
+  /**
+   * Undo history. Each step holds tree AND model (the environment that gets saved) from one deep copy,
+   * so that the copied tree nodes reference the copied model objects.
+   */
+  undoStack: { state: TreeNode[]; environment?: Environment | null; selectedId: string }[] = [];
 
   aasDesignerChangelogSmNodeId: string = '';
 
@@ -77,25 +86,27 @@ export class V3TreeService {
   }
 
   registerUndoStep(step: TreeNode[], selectedId: string) {
-    // TODO: check if this is needed
-    // if (
-    //   this.undoStack.length === 0 ||
-    //   JSON.stringify(this.undoStack[this.undoStack.length - 1]) !== JSON.stringify(step)
-    // ) {
     if (selectedId !== '') {
       this.undoStack = this.undoStack.slice(0, this.currentUndoIndex + 1);
-      this.undoStack.push({ state: cloneDeep(step), selectedId });
+      this.undoStack.push({ ...this.snapshot(step), selectedId });
       this.currentUndoIndex = this.undoStack.length - 1;
     }
-    // }
   }
 
   registerFieldUndoStep() {
     this.undoStack = this.undoStack.slice(0, this.currentUndoIndex + 1);
 
     if (this.selectedTreeNode != null)
-      this.undoStack.push({ state: cloneDeep(this.aasTreeData), selectedId: (this.selectedTreeNode as any).data.id });
+      this.undoStack.push({
+        ...this.snapshot(this.aasTreeData),
+        selectedId: (this.selectedTreeNode as any).data.id,
+      });
     this.currentUndoIndex = this.undoStack.length - 1;
+  }
+
+  /** Copies tree and model in one pass, so references between tree nodes and model objects are kept. */
+  private snapshot(state: TreeNode[]): { state: TreeNode[]; environment?: Environment | null } {
+    return cloneDeep({ state, environment: this.treeComponent?.shellResult?.v3Shell });
   }
 
   hasRedoStep() {
@@ -110,13 +121,23 @@ export class V3TreeService {
     this.currentUndoIndex--;
     const el = this.undoStack[this.currentUndoIndex];
     const nextel = this.undoStack[this.currentUndoIndex + 1];
-    this.treeComponent?.applyState(el.state, nextel.selectedId);
+    this.restore(el, nextel.selectedId);
   }
 
   redo() {
     this.currentUndoIndex++;
     const el = this.undoStack[this.currentUndoIndex];
-    this.treeComponent?.applyState(el.state, el.selectedId);
+    this.restore(el, el.selectedId);
+  }
+
+  /** Applies a fresh copy of the step, so that later edits do not change the stored history. */
+  private restore(step: { state: TreeNode[]; environment?: Environment | null }, selectedId: string) {
+    const copy = this.snapshotOf(step);
+    this.treeComponent?.applyState(copy.state, selectedId, copy.environment);
+  }
+
+  private snapshotOf(step: { state: TreeNode[]; environment?: Environment | null }) {
+    return cloneDeep({ state: step.state, environment: step.environment });
   }
 
   resetUndo() {
@@ -190,6 +211,11 @@ export class V3TreeService {
     if (node?.parent == null) return null;
     else return this.getParentAasRecursive(node.parent);
   }
+  /** Concept descriptions of the open environment (e.g. for value lists and units). */
+  getConceptDescriptions(): ConceptDescription[] {
+    return this.treeComponent?.shellResult?.v3Shell?.conceptDescriptions ?? [];
+  }
+
   getCurrentSubmodel() {
     const res = this.getParentSubmodelRecursive(this.selectedTreeNode as TreeNode<V3TreeItem<any>>);
     return res?.data.content as Submodel;

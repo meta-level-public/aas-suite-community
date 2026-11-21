@@ -192,6 +192,9 @@ export class AppMenuComponent implements OnInit {
       if (item.requiredRole && !this.accessService.isAllowed(item.requiredRole as AuthRoles)) {
         continue;
       }
+      if (item.requiredRoles && !item.requiredRoles.some((role) => this.accessService.isAllowed(role))) {
+        continue;
+      }
 
       // Check if writable repo is required
       if (item.requiresWritableRepo && !this.isCurrentRepoWritable) {

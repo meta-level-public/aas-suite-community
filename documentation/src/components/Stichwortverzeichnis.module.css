@@ -1,0 +1,16 @@
+.buchstaben {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.25rem 0.75rem;
+  margin-bottom: 1.5rem;
+  font-weight: 700;
+}
+
+.gruppe ul {
+  list-style: none;
+  padding-left: 0;
+}
+
+.gruppe li {
+  margin-bottom: 0.25rem;
+}

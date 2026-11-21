@@ -85,7 +85,7 @@
           @for (right of invitation.benutzerRollen; track right) {
             <div>
               <div class="mt-1">
-                <p-tag>{{ right }}</p-tag>
+                <p-tag>{{ right | roleLabel }}</p-tag>
               </div>
             </div>
           }

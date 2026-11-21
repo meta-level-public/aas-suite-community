@@ -33,7 +33,7 @@ import { PcnStateStoreService } from '../pcn-state-store.service';
 })
 export class PcnSendingComponent implements OnDestroy {
   /** Page of the user documentation linked from this view */
-  readonly docsTopic = docsTopic('designer/pcn#mitteilung-versenden-hersteller');
+  readonly docsTopic = docsTopic('designer/pcn', 'mitteilung-versenden-hersteller');
 
   pcnStateStore = inject(PcnStateStoreService);
   notificationService = inject(NotificationService);

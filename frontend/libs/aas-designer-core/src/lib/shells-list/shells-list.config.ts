@@ -13,6 +13,7 @@ export interface Column {
 }
 
 const STORAGE_KEY_PAGE_SIZE = 'shells-list-footer-state';
+const STORAGE_KEY_COLUMNS = 'shells-list-columns';
 const DEFAULT_PAGE_SIZE = 10;
 
 export const SHELLS_LIST_PAGE_OPTIONS = [1, 5, 10, 20, 50, 100];
@@ -126,4 +127,26 @@ export function readShellsListPageSize(): number {
 
 export function writeShellsListPageSize(pageSize: number): void {
   window.localStorage.setItem(STORAGE_KEY_PAGE_SIZE, pageSize.toString());
+}
+
+/** Columns chosen in the list, stored like order and width (table state) so they survive a reload */
+export function readShellsListColumns(): Column[] {
+  let fields: unknown;
+  try {
+    fields = JSON.parse(window.localStorage.getItem(STORAGE_KEY_COLUMNS) ?? 'null');
+  } catch {
+    fields = null;
+  }
+  if (!Array.isArray(fields)) {
+    return SHELLS_LIST_DEFAULT_COLUMNS;
+  }
+
+  const columns = fields
+    .map((field) => SHELLS_LIST_COLUMNS.find((column) => column.field === field))
+    .filter((column): column is Column => column != null);
+  return columns.length > 0 ? columns : SHELLS_LIST_DEFAULT_COLUMNS;
+}
+
+export function writeShellsListColumns(columns: Column[]): void {
+  window.localStorage.setItem(STORAGE_KEY_COLUMNS, JSON.stringify(columns.map((column) => column.field)));
 }

@@ -16,6 +16,7 @@ import { TableModule } from '@openng/optimus-ui/table';
 import { TagModule } from '@openng/optimus-ui/tag';
 import { InfrastrukturRechteComponent } from '../../infrastruktur-rechte/infrastruktur-rechte.component';
 import { OrganisationService } from '../../organisation.service';
+import { RoleLabelPipe } from '../../role-label/role-label.pipe';
 
 @Component({
   selector: 'aas-organisation-user-list',
@@ -33,6 +34,7 @@ import { OrganisationService } from '../../organisation.service';
     DialogModule,
     CheckboxModule,
     InfrastrukturRechteComponent,
+    RoleLabelPipe,
   ],
 })
 export class OrganisationUserListComponent implements OnInit {

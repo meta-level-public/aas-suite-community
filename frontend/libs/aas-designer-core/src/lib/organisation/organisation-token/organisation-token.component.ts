@@ -44,7 +44,7 @@ import { OrganisationService } from '../organisation.service';
 })
 export class OrganisationTokenComponent implements OnInit {
   /** Page of the user documentation linked from this view */
-  readonly docsTopic = docsTopic('designer/organisation#token');
+  readonly docsTopic = docsTopic('designer/organisation', 'token');
 
   @ViewChild('adminOrgaEditForm') form!: NgForm;
   menuItems: MenuItem[] = [];

@@ -34,11 +34,13 @@ import { PopoverModule } from '@openng/optimus-ui/popover';
 import { TooltipModule } from '@openng/optimus-ui/tooltip';
 import { firstValueFrom, lastValueFrom, Subscription } from 'rxjs';
 import {
+  ADDITIONAL_TOPBAR_ACTION_COMPONENTS,
   ADDITIONAL_TOPBAR_AFTER_COMPONENTS,
   ADDITIONAL_TOPBAR_CENTER_COMPONENTS,
+  ADDITIONAL_DOCS_CONTEXT_RULES,
   ADDITIONAL_TOPBAR_MENU_ITEMS,
 } from '../topbar-addon-config';
-import { DESIGNER_DOCS_CONTEXT } from '../designer-docs-context';
+import { DESIGNER_DOCS_CONTEXT, withDocsContextRules } from '../designer-docs-context';
 import { VersionInfo } from './version-info';
 
 @Component({
@@ -55,7 +57,13 @@ import { VersionInfo } from './version-info';
     UserDocsButtonComponent,
   ],
   changeDetection: ChangeDetectionStrategy.Eager,
-  providers: [DateProxyPipe, { provide: DOCS_CONTEXT, useValue: DESIGNER_DOCS_CONTEXT }],
+  providers: [
+    DateProxyPipe,
+    {
+      provide: DOCS_CONTEXT,
+      useFactory: () => withDocsContextRules(DESIGNER_DOCS_CONTEXT, inject(ADDITIONAL_DOCS_CONTEXT_RULES)),
+    },
+  ],
 })
 export class AppTopBarComponent implements OnInit, OnDestroy {
   subscriptions: Subscription[] = [];
@@ -86,6 +94,7 @@ export class AppTopBarComponent implements OnInit, OnDestroy {
   additionalTopbarMenuItems = inject(ADDITIONAL_TOPBAR_MENU_ITEMS);
   topbarCenterComponents = inject(ADDITIONAL_TOPBAR_CENTER_COMPONENTS);
   topbarAfterComponents = inject(ADDITIONAL_TOPBAR_AFTER_COMPONENTS);
+  topbarActionComponents = inject(ADDITIONAL_TOPBAR_ACTION_COMPONENTS);
 
   async ngOnInit() {
     const savedFontSize = window.localStorage.getItem('designer-fontSize');
@@ -255,10 +264,14 @@ export class AppTopBarComponent implements OnInit, OnDestroy {
       label: this.translate.instant('VERSION') + ': ' + this.versionInfo.version,
       disabled: true,
     });
-    menuItems.push({
-      label: '' + this.datePipe.transform(this.versionInfo.date, 'L LTS'),
-      disabled: true,
-    });
+    // Builds without a parseable build date (e.g. BUILD_DATE=unknown) show no date entry instead of "null"
+    const buildDate = this.datePipe.transform(this.versionInfo.date, 'L LTS');
+    if (typeof buildDate === 'string' && buildDate !== '') {
+      menuItems.push({
+        label: buildDate,
+        disabled: true,
+      });
+    }
 
     for (const menuFactory of this.additionalTopbarMenuItems) {
       menuItems.push(...menuFactory({ translate: this.translate }));

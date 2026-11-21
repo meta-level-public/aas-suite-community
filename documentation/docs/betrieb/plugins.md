@@ -1,6 +1,24 @@
 ---
 sidebar_position: 5
 title: Plugins
+description: Plugins im Designer installieren, ihren Aufbau mit manifest.json verstehen und die Sicherheitsfolgen beachten.
+stichworte:
+  Plugins: ''
+  Plugin installieren: installieren
+  Plugin-Verzeichnis: installieren
+  manifest.json: aufbau-eines-plugins
+  Backend-Plugin: aufbau-eines-plugins
+  Plugin-Archiv: installieren
+quellen:
+  - services/shared/AasShared/Configuration/AppSettings.cs
+  - services/aas-designer/AasDesignerSystemManagementApi/SystemManagement/Plugins/ZipPluginRegistry.cs
+  - services/aas-designer/AasDesignerSystemManagementApi/SystemManagement/Plugins/BackendPluginLoader.cs
+  - docker-oss/docker-compose.yml
+  - tools/docker-compose-wizard/lib/common.sh
+  - tools/docker-compose-wizard/oss/create-compose-oss.sh
+  - plugins/README.md
+  - plugins/bundle-plugin.mjs
+  - frontend/libs/designer-app-topbar/src/lib/designer-docs-context.ts
 ---
 
 # Plugins
@@ -23,8 +41,15 @@ nur sichtbar, wenn mindestens ein Plugin für den Benutzer freigegeben ist.
    | `AppSettings__PluginMaxArchiveSizeBytes` | Höchstgröße eines Archivs | 50 MB |
    | `AppSettings__PluginMaxEntrySizeBytes` | Höchstgröße einer Datei im Archiv | 25 MB |
 
-   Die Docker-Compose-Vorlagen binden das Verzeichnis `plugins/` neben der
-   Compose-Datei schreibgeschützt als `/app/plugins` ein.
+   In Stacks aus dem Compose-Wizard ist das Verzeichnis `plugins/` neben der
+   `docker-compose.yml` voreingestellt und wird schreibgeschützt als
+   `/app/plugins` eingebunden. Die `.env` steuert das über
+   `PLUGINS_ENABLED` (Standard `true`) und `PLUGINS_DIRECTORY` (Standard
+   `./plugins`). Enthält das Wizard-Paket das DPP-Explorer-Plugin, legt der
+   Wizard es dort bereits ab.
+   Die Compose-Dateien unter `docker-oss/` und `docker-enterprise/` binden
+   stattdessen den Ordner `plugins/` im Wurzelverzeichnis des Repositorys
+   ein.
 2. Das Plugin als ZIP-Datei **direkt** in dieses Verzeichnis legen.
    Unterverzeichnisse werden nicht durchsucht.
 3. Das Designer-Backend neu starten.
@@ -54,8 +79,8 @@ Die Oberfläche läuft im Designer in einem eingebetteten Frame. Ein
 Backend-Teil implementiert `IAasSuiteBackendPlugin` und stellt eigene
 Endpunkte unter `/designer-api/plugin-api/<id>/…` bereit.
 
-Beispiele liegen im Repository unter `plugins/` (`hello-world-demo`,
-`dpp-explorer-plugin`, `twinengine-config-plugin`). Das Skript
+Beispiele liegen im Repository unter `plugins/`, z. B. `hello-world-demo`
+und `dpp-explorer-plugin`. Das Skript
 `node plugins/bundle-plugin.mjs` erzeugt daraus ein installierbares Archiv;
 Details stehen in `plugins/README.md`.
 

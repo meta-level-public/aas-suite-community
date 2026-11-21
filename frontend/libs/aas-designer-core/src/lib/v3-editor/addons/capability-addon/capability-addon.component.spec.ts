@@ -223,6 +223,8 @@ describe('CapabilityAddonComponent', () => {
       expect(capability.qualifiers?.[0].type).toBe('Offered');
       expect(capability.qualifiers?.[0].value).toBe('true');
       expect(capability.qualifiers?.[0].valueId?.keys[0].value).toContain('/CapabilityRoleQualifier/Offered/');
+      // Qualifier/kind is invalidated in the AAS metamodel
+      expect(capability.qualifiers?.[0].kind).toBeNull();
     });
 
     it('adds a comment only from complete language strings', () => {

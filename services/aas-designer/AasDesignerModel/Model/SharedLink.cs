@@ -68,6 +68,13 @@ namespace AasDesignerApi.Model
 
         public SharedLink() { }
 
+        /// <summary>
+        /// Das Ablaufdatum wird als UTC gespeichert (JSON-Eingang mit DateTimeZoneHandling.Utc).
+        /// Der Link ist bis einschließlich dieses Zeitpunkts gültig; ohne Ablaufdatum läuft er nie ab.
+        /// </summary>
+        public bool IsExpired(DateTime utcNow) =>
+            Ablaufdatum.HasValue && Ablaufdatum.Value < utcNow;
+
         public void VerifyDeleteAllowed(AppUser benutzer)
         {
             var allowed = false;

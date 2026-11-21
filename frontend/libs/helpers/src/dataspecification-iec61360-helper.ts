@@ -2,6 +2,57 @@ import * as aas from '@aas-core-works/aas-core3.1-typescript';
 import { EClassItem } from '@aas/model';
 
 export class DataspecificationIec61360Helper {
+  static readonly IEC61360_TEMPLATE_ID =
+    'http://admin-shell.io/DataSpecificationTemplates/DataSpecificationIEC61360/3/0';
+
+  /** New embedded data specification after IEC 61360 with an empty preferred name. */
+  static createEmbeddedDataSpecification() {
+    return new aas.types.EmbeddedDataSpecification(
+      new aas.types.Reference(aas.types.ReferenceTypes.ExternalReference, [
+        new aas.types.Key(aas.types.KeyTypes.GlobalReference, DataspecificationIec61360Helper.IEC61360_TEMPLATE_ID),
+      ]),
+      new aas.types.DataSpecificationIec61360([new aas.types.LangStringTextType('en', '')]),
+    );
+  }
+
+  /**
+   * Fills a concept description from an eClass property: id (IRDI), idShort, display name, description
+   * and the IEC 61360 data specification (added if missing).
+   */
+  static applyEclassToConceptDescription(cd: aas.types.ConceptDescription, eclassItem: EClassItem) {
+    const prefDe = eclassItem.preferredName['de-DE'];
+    const prefEn = eclassItem.preferredName['en-US'];
+    const defDe = eclassItem.fullItem.definition['de-DE'];
+    const defEn = eclassItem.fullItem.definition['en-US'];
+
+    cd.displayName = [];
+    if (prefDe != null) {
+      cd.displayName.push(new aas.types.LangStringNameType('de', prefDe));
+    }
+    if (prefEn != null) {
+      cd.displayName.push(new aas.types.LangStringNameType('en', prefEn));
+    }
+    cd.description = [];
+    if (defDe != null) {
+      cd.description.push(new aas.types.LangStringTextType('de', defDe));
+    }
+    if (defEn != null) {
+      cd.description.push(new aas.types.LangStringTextType('en', defEn));
+    }
+
+    cd.id = eclassItem.irdi;
+    cd.idShort = eclassItem.benennung ?? eclassItem.irdi;
+
+    cd.embeddedDataSpecifications ??= [];
+    if (cd.embeddedDataSpecifications.length === 0) {
+      cd.embeddedDataSpecifications.push(DataspecificationIec61360Helper.createEmbeddedDataSpecification());
+    }
+    const content = cd.embeddedDataSpecifications[0].dataSpecificationContent;
+    if (content instanceof aas.types.DataSpecificationIec61360) {
+      DataspecificationIec61360Helper.applyEclassToSpec(content, eclassItem);
+    }
+  }
+
   static applyEclassToSpec(dataspecItem: aas.types.DataSpecificationIec61360, eclassItem: EClassItem) {
     const prefDe = eclassItem.preferredName['de-DE'];
     const prefEn = eclassItem.preferredName['en-US'];
@@ -30,7 +81,7 @@ export class DataspecificationIec61360Helper {
     } else {
       dataspecItem.unit = null;
     }
-    if (eclassItem.unitId != null) {
+    if (eclassItem.unitId != null && eclassItem.unitId !== '') {
       dataspecItem.unitId = new aas.types.Reference(aas.types.ReferenceTypes.ExternalReference, [
         new aas.types.Key(aas.types.KeyTypes.GlobalReference, eclassItem.unitId),
       ]);
