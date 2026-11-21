@@ -19,6 +19,13 @@ public class AvailableInfastructure
     public string CdRepositoryUrl { get; set; } = string.Empty;
     public string DppApiUrl { get; set; } = string.Empty;
 
+    /// <summary>
+    /// The current user may publish shells of this infrastructure to the marketplace
+    /// (right "Marktplatz veröffentlichen"). The server grants the role MARKT_PUBLISHER only per
+    /// request; the frontend needs this flag for menus and route guards.
+    /// </summary>
+    public bool DarfMarktPublizieren { get; set; } = false;
+
     public class MappingProfile : Profile
     {
         public MappingProfile()

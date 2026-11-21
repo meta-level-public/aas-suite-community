@@ -3,3 +3,6 @@ build
 build-oss
 .docusaurus
 .cache-loader
+scripts/screenshots/.stack
+test-results
+playwright-report

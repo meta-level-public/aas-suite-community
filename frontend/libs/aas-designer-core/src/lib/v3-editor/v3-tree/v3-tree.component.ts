@@ -736,10 +736,30 @@ export class V3TreeComponent implements OnChanges, OnInit {
     }
   }
 
-  applyState(tree: TreeNode[], _selectedId: string) {
+  applyState(tree: TreeNode[], _selectedId: string, environment?: aas.types.Environment | null) {
+    // restore the model that gets saved together with the tree (both come from the same snapshot)
+    if (environment != null && this.shellResult != null) {
+      this.shellResult.v3Shell = environment;
+    }
     this.treeService.aasTreeData = tree;
+    this.refreshRootNodes();
     // trigger an update of the editor with the selected element
     this.selectById(_selectedId);
+  }
+
+  /**
+   * The cached root nodes must point into the current tree after it was replaced (undo/redo); otherwise
+   * new concept descriptions or files end up in the replaced tree and environment and get lost.
+   */
+  private refreshRootNodes() {
+    const roots = this.treeData;
+    const root = (type: EditorTypeOption) => roots.find((n) => n.data?.editorType === type);
+    this.allConceptDescriptionsNode = root(EditorTypeOption.ConceptDescriptions) ?? this.allConceptDescriptionsNode;
+    this.allFilesTreeNode = root(EditorTypeOption.SupplementalFiles) ?? this.allFilesTreeNode;
+    const shell = root(EditorTypeOption.AssetAdministrationShell);
+    if (shell != null) {
+      this.shellNode = shell as TreeNode<V3TreeItem<aas.types.AssetAdministrationShell>>;
+    }
   }
 
   navigateToPath(path: Path) {

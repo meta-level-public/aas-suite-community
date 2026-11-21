@@ -7,6 +7,11 @@
     @if (dppMetadata; as metadata) {
       <section class="mb-4 border border-surface p-4">
         <h2 class="mt-0 text-lg">{{ 'DPP_METADATA' | translate }}</h2>
+        @if (!hasDppApi) {
+          <p-message severity="warn" styleClass="mb-3">{{
+            'GENERATOR_DPP_METADATA_NO_DPP_API_HINT' | translate
+          }}</p-message>
+        }
         <div class="grid grid-cols-1 gap-3 md:grid-cols-2">
           <p-inputgroup>
             <p-inputgroup-addon class="font-bold w-56"

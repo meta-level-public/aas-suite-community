@@ -28,7 +28,7 @@ import { lastValueFrom } from 'rxjs';
 })
 export class PcnRegisterSubscriptionComponent {
   /** Page of the user documentation linked from this view */
-  readonly docsTopic = docsTopic('designer/pcn#mitteilungen-abonnieren-abnehmer');
+  readonly docsTopic = docsTopic('designer/pcn', 'mitteilungen-abonnieren-abnehmer');
 
   brokerUrls = model<string[]>([]);
   pcnBrokerUrl = model('');

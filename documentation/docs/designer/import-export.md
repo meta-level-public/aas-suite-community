@@ -1,6 +1,25 @@
 ---
 sidebar_position: 7
 title: Import und Export
+description: Beschreibt den Export als JSON oder AASX, den Import von AASX- und JSON-Dateien mit Original- oder abgeleitetem Import und das Kopieren in eine andere Infrastruktur.
+stichworte:
+  Export: aas-exportieren
+  AASX exportieren: aas-exportieren
+  Metamodell-Version: aas-exportieren
+  Import: aas-importieren
+  Originalimport: aas-importieren
+  Abgeleiteter Import: aas-importieren
+  AAS überschreiben: wenn-die-aas-schon-existiert
+  Teilimport: fehlerhafte-teilmodelle
+  Importieren in: in-eine-andere-infrastruktur-kopieren
+quellen:
+  - frontend/libs/aas-designer-core/src/lib/shells-list/shells-list.component.ts
+  - frontend/libs/aas-designer-core/src/lib/shells-list/shells-list.actions.ts
+  - frontend/libs/aas-designer-core/src/lib/shells-list/upload-aas-dialog/upload-aas-dialog.component.html
+  - frontend/libs/aas-designer-core/src/lib/shells-list/upload-aas-dialog/upload-aas-dialog.component.ts
+  - frontend/libs/aas-designer-core/src/lib/general/aasx-export/aasx-export.component.html
+  - frontend/libs/aas-designer-core/src/lib/v3-editor/v3-editor/v3-editor.component.ts
+  - frontend/libs/translations/i18n/de.json
 ---
 
 # Import und Export
@@ -31,14 +50,15 @@ steht **Exportieren** mit zwei Einträgen:
 **Herunterladen** erzeugt das Paket. Bei großen AAS mit vielen Dateien kann
 das einen Moment dauern.
 
-Im Editor ist der Export auch über **Weitere Aktionen** (⋮ in der
-Werkzeugleiste) erreichbar.
+Im Editor ist der AASX-Export auch über **Weitere Aktionen** (⋮ in der
+Werkzeugleiste) erreichbar, allerdings nur ohne ungespeicherte Änderungen.
 
 ### Mehrere AAS auf einmal
 
 In der Liste lassen sich AAS über die Kästchen am Zeilenanfang markieren. Das
 Menü im Spaltenkopf bietet dann **Herunterladen** (alle markierten AAS als
-ZIP-Datei) und **Löschen**.
+ZIP-Datei) und **Löschen**. **Löschen** fehlt, wenn die Infrastruktur nur
+gelesen werden darf.
 
 ## AAS importieren
 
@@ -56,8 +76,10 @@ Verwaltungsschalen öffnet den Dialog **Bestehende AAS hochladen**:
    - **Abgeleiteter Import**: die AAS erhält eine neue Kennung, die
      ursprüngliche bleibt als Verweis erhalten. Dieser Modus ist richtig für
      AAS anderer Hersteller, die man nur im eigenen System ergänzen möchte.
-3. **Speichern** startet den Import. Eine einzelne Datei öffnet danach direkt
-   den [Editor](./editor.md).
+3. Bei Bedarf **ggf. bestehende AAS überschreiben** ankreuzen, siehe unten.
+4. **Speichern** startet den Import. Der Button ist erst aktiv, wenn
+   mindestens eine Datei und ein Importmodus gewählt sind. Eine einzelne Datei
+   öffnet danach direkt den [Editor](./editor.md).
 
 ### Wenn die AAS schon existiert
 
@@ -72,10 +94,23 @@ existiert. Zwei Wege:
 
 ### Fehlerhafte Teilmodelle
 
-Enthält eine Datei Teilmodelle, die nicht gelesen werden können, zeigt der
-Designer, welche betroffen sind. **Ohne fehlerhafte Submodelle importieren**
-übernimmt den Rest. Bei mehreren Dateien geschieht das für jede Datei
-einzeln.
+Lehnt das Repository einzelne Teilmodelle einer Datei ab, zeigt der Designer
+eine Übersicht:
+
+- **Zusammenfassung** und **Betroffene Submodelle**: welche Teilmodelle
+  ausgelassen werden, jeweils mit Grund (z. B. ein fehlender englischer
+  Preferred Name in einer eingebetteten Data Specification), und welche
+  weiterhin importiert werden.
+- **Bedeutung**: was Fortfahren und Zurückgehen bewirken.
+- **Technische Details anzeigen** blendet die Antwort des Repositorys ein.
+
+**Ohne fehlerhafte Submodelle importieren** übernimmt den Rest, **Zurück**
+kehrt zum Upload zurück, z. B. um die Quelldatei zu korrigieren.
+
+Bei mehreren Dateien sind die fehlerfreien Dateien bereits importiert. Die
+Übersicht listet nur die betroffenen Dateien; für jede gibt es einen eigenen
+Button **Ohne fehlerhafte Submodelle importieren** und, falls die AAS schon
+existiert, das Kästchen **ggf. bestehende AAS überschreiben**.
 
 Ist die Datei insgesamt nicht lesbar, meldet der Designer „Dieses Paket
 enthält nicht lesbare Daten“ mit einem Hinweis auf die Ursache.

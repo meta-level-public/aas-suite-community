@@ -34,7 +34,8 @@ public static class BffEndpointMappings
             {
                 var session = await sessionService.GetSanitizedSessionAsync(
                     context.Session,
-                    context.RequestAborted
+                    context.RequestAborted,
+                    GatewayBffSessionService.IsPublicViewerRequest(context.Request)
                 );
                 return session == null ? Results.Unauthorized() : Results.Json(session);
             }
@@ -46,7 +47,8 @@ public static class BffEndpointMappings
             {
                 var session = await sessionService.RefreshSessionAsync(
                     context.Session,
-                    context.RequestAborted
+                    context.RequestAborted,
+                    GatewayBffSessionService.IsPublicViewerRequest(context.Request)
                 );
                 return session == null ? Results.Unauthorized() : Results.Json(session);
             }
@@ -60,6 +62,12 @@ public static class BffEndpointMappings
                 Microsoft.Extensions.Options.IOptions<GatewayBackendOptions> options
             ) =>
             {
+                // A public viewer window leaves the designer login of the same browser alone
+                if (GatewayBffSessionService.IsPublicViewerRequest(context.Request))
+                {
+                    return Results.Json(sessionService.ClearPublicViewerSession(context.Session));
+                }
+
                 var externalBasePath = options.Value.ExternalBasePath;
                 var loginPath = options.Value.FrontendLoginPath;
                 var response = await sessionService.RevokeAndClearSessionAsync(
@@ -199,7 +207,7 @@ public static class BffEndpointMappings
 
                 if (!string.IsNullOrWhiteSpace(authResponse.JwtToken))
                 {
-                    await sessionService.SaveAuthenticatedSessionAsync(
+                    await sessionService.SavePublicViewerSessionAsync(
                         context.Session,
                         authResponse,
                         context.RequestAborted

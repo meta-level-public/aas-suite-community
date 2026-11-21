@@ -25,7 +25,7 @@
               }
             </div>
             <div class="mb-4">
-              <label for="email"> {{ 'FIRSTNAME' | translate }}</label>
+              <label for="firstname"> {{ 'FIRSTNAME' | translate }}</label>
               <input
                 pInputText
                 id="firstname"
@@ -77,7 +77,7 @@
                     ></p-checkbox>
                   </div>
                   <div>
-                    <label for="role-{{ $index }}">{{ role }}</label>
+                    <label for="role-{{ $index }}">{{ role | roleLabel }}</label>
                   </div>
                 </div>
               }

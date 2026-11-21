@@ -12179,6 +12179,7 @@ export class AvailableInfastructure implements IAvailableInfastructure {
   smRegistryUrl?: string;
   cdRepositoryUrl?: string;
   dppApiUrl?: string;
+  darfMarktPublizieren?: boolean;
 
   constructor(data?: IAvailableInfastructure) {
     if (data) {
@@ -12203,6 +12204,7 @@ export class AvailableInfastructure implements IAvailableInfastructure {
       this.smRegistryUrl = _data['smRegistryUrl'];
       this.cdRepositoryUrl = _data['cdRepositoryUrl'];
       this.dppApiUrl = _data['dppApiUrl'];
+      this.darfMarktPublizieren = _data['darfMarktPublizieren'];
     }
   }
 
@@ -12228,6 +12230,7 @@ export class AvailableInfastructure implements IAvailableInfastructure {
     data['smRegistryUrl'] = this.smRegistryUrl;
     data['cdRepositoryUrl'] = this.cdRepositoryUrl;
     data['dppApiUrl'] = this.dppApiUrl;
+    data['darfMarktPublizieren'] = this.darfMarktPublizieren;
     return data;
   }
 }
@@ -12246,6 +12249,7 @@ export interface IAvailableInfastructure {
   smRegistryUrl?: string;
   cdRepositoryUrl?: string;
   dppApiUrl?: string;
+  darfMarktPublizieren?: boolean;
 }
 
 export class AasInfrastructureSettingsDto implements IAasInfrastructureSettingsDto {

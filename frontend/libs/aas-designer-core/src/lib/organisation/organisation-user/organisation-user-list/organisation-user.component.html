@@ -94,7 +94,7 @@
           @for (right of benutzer.benutzerRollen; track right) {
             <div>
               <div class="mt-1">
-                <p-tag>{{ right }}</p-tag>
+                <p-tag>{{ right | roleLabel }}</p-tag>
               </div>
             </div>
           }
@@ -137,7 +137,7 @@
             ></p-checkbox>
           </div>
           <label for="role-{{ $index }}" class="cursor-pointer flex flex-col gap-0.5 min-w-0">
-            <span class="font-semibold leading-5">{{ role }}</span>
+            <span class="font-semibold leading-5">{{ role | roleLabel }}</span>
             <span class="text-sm text-muted-color">
               {{ 'ROLE_DESC_' + role | translate }}
             </span>

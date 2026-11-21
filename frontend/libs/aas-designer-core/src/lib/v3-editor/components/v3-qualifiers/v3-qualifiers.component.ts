@@ -11,6 +11,7 @@ import { Button } from '@openng/optimus-ui/button';
 import { InputText } from '@openng/optimus-ui/inputtext';
 import { Select } from '@openng/optimus-ui/select';
 import { TieredMenu } from '@openng/optimus-ui/tieredmenu';
+import { Tooltip } from '@openng/optimus-ui/tooltip';
 import { lastValueFrom } from 'rxjs';
 import { NullIfEmptyDirective } from '../../../general/directives/null-if-empty.directive';
 import { V3UndoDirective } from '../../../general/directives/v3-undo.directive';
@@ -35,6 +36,7 @@ import { VerificationMessagePipe } from '../../tools/verification-message';
     V3UndoDirective,
     Button,
     TranslateModule,
+    Tooltip,
   ],
 })
 export class V3QualifiersComponent extends V3ComponentBase implements OnInit {
@@ -125,9 +127,6 @@ export class V3QualifiersComponent extends V3ComponentBase implements OnInit {
 
     const qualifier = new aas.types.Qualifier(aaspeQualifier.type, DataTypeDefXsd.String);
 
-    if (aaspeQualifier.kind != null) {
-      qualifier.kind = this.getKind(aaspeQualifier.kind);
-    }
     if (aaspeQualifier.value != null) {
       qualifier.value = aaspeQualifier.value;
     }
@@ -167,20 +166,12 @@ export class V3QualifiersComponent extends V3ComponentBase implements OnInit {
     return refType;
   }
 
-  getKind(kindString: string) {
-    let kind: aas.types.QualifierKind = aas.types.QualifierKind.ValueQualifier;
-    switch (kindString) {
-      case 'ValueQualifier':
-        kind = aas.types.QualifierKind.ValueQualifier;
-        break;
-      case 'ConceptQualifier':
-        kind = aas.types.QualifierKind.ConceptQualifier;
-        break;
-      case 'TemplateQualifier':
-        kind = aas.types.QualifierKind.TemplateQualifier;
-        break;
-    }
-    return kind;
+  /**
+   * Qualifier/kind is invalidated in the AAS metamodel (aas-specs-metamodel #451, PR 713): an existing
+   * value of older AAS is only shown, new qualifiers get none.
+   */
+  kindLabel(qualifier: aas.types.Qualifier) {
+    return qualifier.kind == null ? '' : aas.types.QualifierKind[qualifier.kind];
   }
 
   getKeyType(typeString: string) {

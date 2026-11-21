@@ -7,7 +7,7 @@
   [modal]="true"
   appendTo="body"
 >
-  <p>{{ 'PASTE_AS_REFERENCE_QUESTION' | translate }}</p>
+  <p>{{ questionKey() | translate }}</p>
   <ng-template pTemplate="footer">
     <p-button
       (onClick)="acceptedAction.set('reference'); visible.set(false)"

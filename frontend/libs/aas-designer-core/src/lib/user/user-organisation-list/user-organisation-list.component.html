@@ -39,7 +39,7 @@
               </p-inputgroup-addon>
               <input
                 pInputText
-                [value]="orga.benutzerRollen.join(', ')"
+                [value]="orga.benutzerRollen | roleLabel"
                 readonly
                 class="!bg-[var(--aas-surface-subtle)]"
               />

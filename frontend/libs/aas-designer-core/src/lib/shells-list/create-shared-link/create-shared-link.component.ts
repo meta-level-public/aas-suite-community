@@ -9,6 +9,7 @@ import { DynamicDialogConfig, DynamicDialogRef } from '@openng/optimus-ui/dynami
 import { InputTextModule } from '@openng/optimus-ui/inputtext';
 import { PasswordModule } from '@openng/optimus-ui/password';
 import { TextareaModule } from '@openng/optimus-ui/textarea';
+import { endOfSelectedDay } from './shared-link-expiry';
 
 @Component({
   selector: 'aas-create-shared-link',
@@ -41,6 +42,8 @@ export class CreateSharedLinkComponent {
   }
 
   share() {
-    this.ref.close(this.sharedLink());
+    const sharedLink = this.sharedLink();
+    sharedLink.ablaufdatum = endOfSelectedDay(sharedLink.ablaufdatum);
+    this.ref.close(sharedLink);
   }
 }

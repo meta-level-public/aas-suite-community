@@ -109,7 +109,8 @@ namespace AasDesignerApi.Controllers.Internal
         {
             return await _templateService.GetRepoSubmodelTemplate(
                 request?.Url ?? string.Empty,
-                request?.KnownConceptDescriptionIds
+                request?.KnownConceptDescriptionIds,
+                request?.KeepTemplateQualifiers ?? false
             );
         }
 

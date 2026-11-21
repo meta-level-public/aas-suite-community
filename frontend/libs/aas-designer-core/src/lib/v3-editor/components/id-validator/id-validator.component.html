@@ -21,7 +21,16 @@
       <label for="domainSeparator">{{ 'SEPARATOR' | translate }}</label>
     </p-floatlabel>
     <p-floatlabel variant="on">
-      <p-select [(ngModel)]="domain" [options]="['USE_ID_SHORT', 'INPUT']" id="domain"></p-select>
+      <p-select
+        [(ngModel)]="domain"
+        [options]="[
+          { value: 'USE_ID_SHORT', label: 'ID_DOMAIN_USE_ID_SHORT' | translate },
+          { value: 'INPUT', label: 'ID_DOMAIN_INPUT' | translate },
+        ]"
+        optionLabel="label"
+        optionValue="value"
+        id="domain"
+      ></p-select>
       <label for="domain">{{ 'ID_DOMAIN' | translate }}</label>
     </p-floatlabel>
     <p-floatlabel variant="on">

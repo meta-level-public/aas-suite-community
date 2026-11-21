@@ -1,4 +1,4 @@
-import { docsTopic, UserDocsService } from '@aas/common-services';
+import { DocsTopic, docsTopic, UserDocsService } from '@aas/common-services';
 import { TestBed } from '@angular/core/testing';
 import { TranslateModule } from '@ngx-translate/core';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
@@ -15,20 +15,20 @@ describe('DocsLinkComponent', () => {
     });
   });
 
-  function render(topic: string) {
+  function render(topic: DocsTopic) {
     const fixture = TestBed.createComponent(DocsLinkComponent);
-    fixture.componentRef.setInput('topic', docsTopic(topic));
+    fixture.componentRef.setInput('topic', topic);
     fixture.detectChanges();
     return fixture.nativeElement as HTMLElement;
   }
 
   it('links to the documentation page in a new tab', () => {
-    urlFor.mockReturnValue('https://docs.example.com/designer/pcn#eingehende-mitteilungen');
+    urlFor.mockReturnValue('https://docs.example.com/designer/pcn#mitteilung-versenden-hersteller');
 
-    const link = render('designer/pcn#eingehende-mitteilungen').querySelector('a');
+    const link = render(docsTopic('designer/pcn', 'mitteilung-versenden-hersteller')).querySelector('a');
 
-    expect(urlFor).toHaveBeenCalledWith('designer/pcn#eingehende-mitteilungen');
-    expect(link?.getAttribute('href')).toBe('https://docs.example.com/designer/pcn#eingehende-mitteilungen');
+    expect(urlFor).toHaveBeenCalledWith('designer/pcn#mitteilung-versenden-hersteller');
+    expect(link?.getAttribute('href')).toBe('https://docs.example.com/designer/pcn#mitteilung-versenden-hersteller');
     expect(link?.getAttribute('target')).toBe('_blank');
     expect(link?.getAttribute('rel')).toBe('noopener');
   });
@@ -36,6 +36,6 @@ describe('DocsLinkComponent', () => {
   it('is hidden if no documentation is configured', () => {
     urlFor.mockReturnValue(null);
 
-    expect(render('designer/pcn').querySelector('a')).toBeNull();
+    expect(render(docsTopic('designer/pcn')).querySelector('a')).toBeNull();
   });
 });

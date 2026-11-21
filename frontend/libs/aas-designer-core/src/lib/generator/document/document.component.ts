@@ -89,12 +89,8 @@ export class DocumentComponent implements OnInit {
     return 'GENERATOR_HANDOVER_EXPL';
   }
 
+  // Wie in allen anderen Schritten „Weiter“; der Name des folgenden Schritts steht im Stepper
   get nextLabel() {
-    const nextStep = this.generatorService.generatorFlowSteps.find((step) => step.id === 'confirmation');
-    if (nextStep?.labelKey != null && nextStep.labelKey !== '') {
-      return nextStep.labelKey;
-    }
-
     return 'NEXT';
   }
 

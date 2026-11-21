@@ -345,6 +345,10 @@ describe('SaveAndConfirmComponent', () => {
 
   describe('dpp metadata', () => {
     beforeEach(() => {
+      window.localStorage.setItem(
+        'CURRENT_AAS_INFRASTRUCTURE',
+        JSON.stringify({ id: 1, dppApiUrl: 'http://dpp-api.example' }),
+      );
       generatorService.vwsTyp = 'dpp-core';
       shell = createShell({ globalAssetId: 'urn:asset:1', kind: aas.types.AssetKind.Instance });
       generatorService.getAdditionalSubmodelsIncludedInExport.mockReturnValue([
@@ -429,16 +433,42 @@ describe('SaveAndConfirmComponent', () => {
       expect(notificationService.showMessageAlways).toHaveBeenCalledWith('VWS_SAVED', 'SUCCESS', 'success', false);
     });
 
-    it('reports a failing metadata upload as save error', async () => {
+    it('keeps the saved shell and warns when the metadata upload fails', async () => {
       await component.ngOnInit();
       component.dppMetadata!.economicOperatorId = 'ACME';
       http.put.mockReturnValue(throwError(() => new Error('proxy down')));
 
       await component.saveAndContinueV3();
 
-      expect(router.navigate).not.toHaveBeenCalled();
-      expect(notificationService.showMessageAlways).toHaveBeenCalledWith('SAVE_FAILED', 'ERROR', 'error', true);
+      expect(notificationService.showMessageAlways).toHaveBeenCalledWith(
+        'GENERATOR_DPP_METADATA_SAVE_FAILED',
+        'WARNING',
+        'warn',
+        true,
+      );
+      expect(notificationService.showMessageAlways).toHaveBeenCalledWith('VWS_SAVED', 'SUCCESS', 'success', false);
+      expect(router.navigate).toHaveBeenCalledWith(PortalService.buildRepoEditRoute('https://example.com/aas/Pump_1'));
       expect(component.loading).toBe(false);
+    });
+
+    it('saves the shell without metadata and warns when the infrastructure has no DPP-API', async () => {
+      window.localStorage.setItem('CURRENT_AAS_INFRASTRUCTURE', JSON.stringify({ id: 1, dppApiUrl: '' }));
+      await component.ngOnInit();
+      component.dppMetadata!.economicOperatorId = 'ACME';
+
+      await component.saveAndContinueV3();
+
+      expect(component.hasDppApi).toBe(false);
+      expect(generatorService.saveShell).toHaveBeenCalled();
+      expect(http.put).not.toHaveBeenCalled();
+      expect(notificationService.showMessageAlways).toHaveBeenCalledWith(
+        'GENERATOR_DPP_METADATA_NO_DPP_API',
+        'WARNING',
+        'warn',
+        true,
+      );
+      expect(notificationService.showMessageAlways).toHaveBeenCalledWith('VWS_SAVED', 'SUCCESS', 'success', false);
+      expect(router.navigate).toHaveBeenCalled();
     });
   });
 

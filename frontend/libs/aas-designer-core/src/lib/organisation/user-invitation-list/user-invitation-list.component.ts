@@ -10,10 +10,20 @@ import { TableModule } from '@openng/optimus-ui/table';
 import { TagModule } from '@openng/optimus-ui/tag';
 import { ToolbarModule } from '@openng/optimus-ui/toolbar';
 import { OrganisationService } from '../organisation.service';
+import { RoleLabelPipe } from '../role-label/role-label.pipe';
 
 @Component({
   selector: 'aas-user-invitation-list',
-  imports: [TranslateModule, TableModule, ButtonModule, MenuModule, TagModule, FieldsetModule, ToolbarModule],
+  imports: [
+    TranslateModule,
+    TableModule,
+    ButtonModule,
+    MenuModule,
+    TagModule,
+    FieldsetModule,
+    ToolbarModule,
+    RoleLabelPipe,
+  ],
   changeDetection: ChangeDetectionStrategy.Eager,
   templateUrl: './user-invitation-list.component.html',
 })

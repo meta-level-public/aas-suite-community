@@ -1,16 +1,17 @@
-import { inject, Injectable, InjectionToken } from '@angular/core';
+import { inject, Injectable, InjectionToken, isDevMode } from '@angular/core';
 import { AppConfigService, getRuntimeVar } from './app-config.service';
+import { DocsAnchor, DocsPage } from './docs-targets';
 
-/** Path of a page in the user documentation relative to its root, e.g. 'designer/viewer'. */
+/** Page of the user documentation relative to its root, optionally with a heading anchor, e.g. 'designer/pcn#token'. */
 export type DocsTopic = string & { readonly __docsTopic: unique symbol };
 
 /**
- * Marks the path of a page in the user documentation (documentation/docs/).
- * `npm run check:topics` in documentation/ checks that every page referenced this way exists,
- * so always pass the path as a string literal.
+ * Link target in the user documentation (documentation/docs/): a page and optionally a heading anchor on it.
+ * Pages and anchors are listed in DOCS_TARGETS (docs-targets.ts); `npm run check:topics` in documentation/
+ * checks that they exist in the documentation.
  */
-export function docsTopic(path: string): DocsTopic {
-  return path as DocsTopic;
+export function docsTopic<P extends DocsPage>(page: P, anchor?: DocsAnchor<P>): DocsTopic {
+  return (anchor ? `${page}#${anchor}` : page) as DocsTopic;
 }
 
 export interface DocsContextRule {
@@ -32,6 +33,15 @@ export const DOCS_CONTEXT = new InjectionToken<DocsContext>('DOCS_CONTEXT', {
 });
 
 const DOCS_BASE_URL_RUNTIME_KEY = '__AAS_DOCS_BASE_URL';
+
+/**
+ * Documentation used when nothing is configured: in development builds (nx serve) the local Docusaurus server
+ * started with `npm start` in documentation/, in production builds none (the Handbuch button stays hidden).
+ */
+export const DOCS_DEV_SERVER_URL = new InjectionToken<string | null>('DOCS_DEV_SERVER_URL', {
+  providedIn: 'root',
+  factory: () => (isDevMode() ? 'http://localhost:3000' : null),
+});
 
 function trimSlashes(value: string): string {
   return value.replace(/^\/+|\/+$/g, '');
@@ -65,6 +75,7 @@ export function buildDocsUrl(baseUrl: string, topic: DocsTopic): string {
 @Injectable({ providedIn: 'root' })
 export class UserDocsService {
   private readonly appConfigService = inject(AppConfigService);
+  private readonly devServerUrl = inject(DOCS_DEV_SERVER_URL);
 
   /** Configured base URL of the documentation, or null if no documentation is linked */
   get baseUrl(): string | null {
@@ -74,7 +85,7 @@ export class UserDocsService {
     }
 
     const configuredUrl = this.appConfigService.config.docsBaseUrl?.trim() ?? '';
-    return configuredUrl !== '' ? configuredUrl : null;
+    return configuredUrl !== '' ? configuredUrl : this.devServerUrl;
   }
 
   isAvailable(): boolean {

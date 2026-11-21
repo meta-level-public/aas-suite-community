@@ -10,6 +10,8 @@ export interface MenuItemConfig {
   insertAfter?: string;
   insertAtStart?: boolean;
   requiredRole?: string;
+  /** Shown if the user has at least one of these roles */
+  requiredRoles?: string[];
   requiresWritableRepo?: boolean;
 }
 

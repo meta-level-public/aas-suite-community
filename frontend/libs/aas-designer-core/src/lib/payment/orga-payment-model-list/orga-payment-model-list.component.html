@@ -17,7 +17,7 @@
     >
       <ng-template #header>
         <tr>
-          @if (showMenu) {
+          @if (canShowMenu) {
             <th scope="col"></th>
           }
           <th scope="col"></th>
@@ -30,7 +30,7 @@
       </ng-template>
       <ng-template pTemplate="body" let-bezahlmodell>
         <tr>
-          @if (showMenu) {
+          @if (canShowMenu) {
             <td class="w-12">
               <p-button
                 [ariaLabel]="'MORE_ACTIONS' | translate"
@@ -82,7 +82,7 @@
       <ng-template pTemplate="footer">
         @if (bezahlmodelle.length > 0) {
           <tr>
-            @if (showMenu) {
+            @if (canShowMenu) {
               <td class="w-12"></td>
             }
             <td class="w-12"></td>
@@ -103,7 +103,7 @@
       </ng-template>
       <ng-template pTemplate="emptymessage">
         <tr>
-          <td [attr.colspan]="showMenu ? 7 : 6">{{ 'NO_DATA_FOUND' | translate }}</td>
+          <td [attr.colspan]="canShowMenu ? 7 : 6">{{ 'NO_DATA_FOUND' | translate }}</td>
         </tr>
       </ng-template>
     </p-table>

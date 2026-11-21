@@ -5051,6 +5051,9 @@
           },
           "dppApiUrl": {
             "type": "string"
+          },
+          "darfMarktPublizieren": {
+            "type": "boolean"
           }
         }
       },

@@ -8,6 +8,22 @@ namespace AasDesignerCommon.Utils
 {
     public static class InfrastrukturRechteUtil
     {
+        // Virtual roles the rights on an infrastructure grant for a request on it. Used by the
+        // designer API and the marketplace so both evaluate the rights the same way.
+        public static List<string> GetVirtualRoles(BenutzerInfrastrukturRecht? recht)
+        {
+            var rollen = new List<string>();
+            if (recht == null || recht.Geloescht)
+                return rollen;
+            if (recht.DarfLesen || recht.DarfSchreiben)
+                rollen.Add(AuthRoles.SHELLS_READER);
+            if (recht.DarfSchreiben)
+                rollen.Add(AuthRoles.SHELLS_EDITOR);
+            if (recht.DarfMarktPublizieren)
+                rollen.Add(AuthRoles.MARKT_PUBLISHER);
+            return rollen;
+        }
+
         // Grants full access on a newly created infrastructure to all active (non-system) users
         // of the organisation. Changes are tracked only; the caller is responsible for saving.
         public static void GrantAllOrganisationUsers(

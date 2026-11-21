@@ -12,10 +12,19 @@
   @for (qualifier of qualifiers; track qualifier) {
     <div class="grid grid-cols-12 gap-2">
       <div class="col-span-11 flex gap-2">
-        <div class="flex-1 flex items-center gap-2">
-          <lib-help-label tag="QUALIFIER_KIND" for="qualifierKind" width="w-20"></lib-help-label>
-          <p-select [(ngModel)]="qualifier.kind" [options]="qualifierKindOptions" class="flex-1"></p-select>
-        </div>
+        @if (qualifier.kind != null) {
+          <div class="flex-1 flex items-center gap-2">
+            <lib-help-label tag="QUALIFIER_KIND" for="qualifierKind" width="w-20"></lib-help-label>
+            <input
+              pInputText
+              id="qualifierKind"
+              class="flex-1"
+              [value]="kindLabel(qualifier)"
+              [readOnly]="true"
+              [pTooltip]="'QUALIFIER_KIND_INVALIDATED' | translate"
+            />
+          </div>
+        }
         <div class="flex-1 flex flex-col gap-1">
           <div class="flex items-center gap-2">
             <lib-help-label tag="QUALIFIER_TYPE" for="qualifierType" width="w-20"></lib-help-label>

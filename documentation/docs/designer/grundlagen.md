@@ -1,6 +1,24 @@
 ---
 sidebar_position: 2
 title: AAS-Grundlagen
+description: Erklärt die Grundbegriffe der Verwaltungsschale wie Asset, Kennungen, Typ und Instanz, Teilmodelle, Elemente, Semantik, Infrastruktur und Austauschformate.
+stichworte:
+  Asset: asset-und-verwaltungsschale
+  Verwaltungsschale: asset-und-verwaltungsschale
+  idShort: asset-und-verwaltungsschale
+  Globale Asset-ID: asset-und-verwaltungsschale
+  Typ und Instanz: typ-und-instanz
+  Teilmodell: teilmodelle
+  Elementtypen: elemente
+  Semantic ID: semantik
+  AAS-Infrastruktur: aas-infrastruktur
+  AASX: austauschformate
+quellen:
+  - frontend/libs/aas-designer-core/src/lib/v3-editor/v3-tree/v3-tree-labels.ts
+  - frontend/libs/aas-designer-core/src/lib/v3-editor/v3-editor/v3-editor.component.html
+  - frontend/libs/aas-designer-core/src/lib/v3-editor/components/v3-component-base.ts
+  - frontend/libs/helpers/src/tag-helper.ts
+  - frontend/libs/translations/i18n/de.json
 ---
 
 # AAS-Grundlagen
@@ -25,8 +43,8 @@ Jede AAS hat zwei weltweit eindeutige Kennungen:
 
 | Kennung | Bedeutung | Beispiel |
 |---|---|---|
-| AAS-ID | Kennung der Verwaltungsschale selbst | `https://example.com/ids/aas/demoKreiselpumpeKp200` |
-| Globale Asset-ID | Kennung des Assets, das beschrieben wird | `https://example.com/ids/asset/demoKreiselpumpeKp200` |
+| AAS-ID | Kennung der Verwaltungsschale selbst | `https://demo-pumpen.example/ids/aas/demoKreiselpumpeKp200` |
+| Globale Asset-ID | Kennung des Assets, das beschrieben wird | `https://demo-pumpen.example/assets/kp200-0001/SN-DEMO-0001` |
 
 Dazu kommt der **idShort**, ein kurzer, lesbarer Name ohne Leerzeichen, z. B.
 `demoKreiselpumpeKp200`. Er muss nur innerhalb seiner Ebene eindeutig sein.
@@ -45,10 +63,11 @@ Eine AAS beschreibt entweder einen **Typ** oder eine **Instanz**:
   Kreiselpumpe KP-200 mit ihren technischen Daten. Sie enthält keine Angaben
   zu einem einzelnen Exemplar.
 - Eine **Instanz-AAS** beschreibt ein konkretes Exemplar, z. B. die Pumpe mit
-  der Seriennummer 4711, hergestellt im März 2026, mit ihren Betriebsdaten.
+  der Seriennummer SN-DEMO-0001, hergestellt 2026, mit ihren Betriebsdaten.
 
 Aus einer Typ-AAS lassen sich Instanzen ableiten, siehe
-[Typ und Instanz](./typ-und-instanz.md).
+[Typ und Instanz](./typ-und-instanz.md). Das Metamodell kennt außerdem die
+Arten **Rolle** und **Nicht zutreffend**; sie kommen seltener vor.
 
 ## Teilmodelle
 
@@ -79,7 +98,7 @@ Teilmodelle bestehen aus **Elementen** (Submodel Elements). Im Baum des
 | SML | Submodel Element List | Liste gleichartiger Elemente, z. B. mehrere Kennzeichnungen |
 | Prop | Property | Ein einzelner Wert mit Datentyp, z. B. eine Zahl oder ein Datum |
 | MLP | Multi Language Property | Ein Text in mehreren Sprachen, z. B. eine Produktbezeichnung |
-| Range | Range | Ein Wertebereich mit Minimum und Maximum |
+| Range | Range | Ein Wertebereich mit Minimum und Maximum, siehe Hinweis unten |
 | File | File | Eine Datei, z. B. ein Bild oder ein PDF |
 | Blob | Blob | Binärdaten direkt im Modell |
 | Ref | Reference Element | Verweis auf ein anderes Element oder eine andere AAS |
@@ -88,6 +107,16 @@ Teilmodelle bestehen aus **Elementen** (Submodel Elements). Im Baum des
 | Opr | Operation | Eine aufrufbare Funktion |
 | Cap | Capability | Eine Fähigkeit des Assets |
 | Evt | Basic Event Element | Ein Ereignis |
+
+Im Baum tragen außerdem die AAS das Kürzel **AAS**, Teilmodelle **SM**,
+Konzeptbeschreibungen **CD** und Zusatzdateien **F**.
+
+:::note Range
+Das Element Range ist im AAS-Metamodell inzwischen für ungültig erklärt
+(„invalidated“). Vorhandene Range-Elemente, z. B. aus Vorlagen, lassen sich
+weiter lesen und befüllen. Neue Wertebereiche besser als Collection (SMC) mit
+den Elementen `min` und `max` anlegen.
+:::
 
 ## Semantik
 
@@ -116,7 +145,7 @@ AAS-Spezifikation (Teil 2, API):
 | Discovery | Findet zu einer Asset-ID die passende AAS |
 
 Eine Organisation kann mehrere Infrastrukturen nutzen. Welche gerade aktiv
-ist, steht oben in den Listen und im Editor.
+ist, steht oben in den Listen und im Editor unter **AAS Infrastruktur**.
 
 ## Austauschformate
 

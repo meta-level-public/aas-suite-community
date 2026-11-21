@@ -8,12 +8,14 @@ import { PermissionService } from './permission.service';
 describe('PermissionService', () => {
   let service: PermissionService;
   let router: { navigate: ReturnType<typeof vi.fn>; getCurrentNavigation: () => unknown };
+  let allowedRoles: string[] = [];
   const portalService = { loggedIn: true, isPublicViewerSession: false, prepareLogin: vi.fn(), user: { id: 3 } };
 
   beforeEach(() => {
     portalService.loggedIn = true;
     portalService.isPublicViewerSession = false;
     portalService.prepareLogin.mockClear();
+    allowedRoles = [];
     router = {
       navigate: vi.fn(),
       getCurrentNavigation: () => ({ finalUrl: { toString: () => '/shells-list' } }),
@@ -22,7 +24,7 @@ describe('PermissionService', () => {
       providers: [
         PermissionService,
         { provide: PortalService, useValue: portalService },
-        { provide: AccessService, useValue: { isAllowed: () => false } },
+        { provide: AccessService, useValue: { isAllowed: (role: string) => allowedRoles.includes(role) } },
         { provide: Router, useValue: router },
       ],
     });
@@ -42,6 +44,21 @@ describe('PermissionService', () => {
     expect(service.isAllowed([AuthRoles.SYSTEM_ADMIN])).toBe(false);
 
     expect(portalService.prepareLogin).not.toHaveBeenCalled();
+    expect(router.navigate).toHaveBeenCalledWith(['/', 'forbidden']);
+  });
+
+  it('lets a route pass if the user has one of the required roles', () => {
+    // e.g. the virtual role of the selected infrastructure for "Marktplatz Freigaben"
+    allowedRoles = [AuthRoles.MARKT_PUBLISHER];
+
+    expect(service.isAllowed([AuthRoles.MARKT_PUBLISHER, AuthRoles.SYSTEM_ADMIN])).toBe(true);
+    expect(router.navigate).not.toHaveBeenCalled();
+  });
+
+  it('keeps "Marktplatz Freigaben" closed for organisation admins without publishing right', () => {
+    allowedRoles = [AuthRoles.ORGA_ADMIN];
+
+    expect(service.isAllowed([AuthRoles.MARKT_PUBLISHER, AuthRoles.SYSTEM_ADMIN])).toBe(false);
     expect(router.navigate).toHaveBeenCalledWith(['/', 'forbidden']);
   });
 });

@@ -355,12 +355,99 @@ namespace AasDesignerApi.EClass
             };
         }
 
-        public bool HasEclassImported(AppUser benutzer)
+        public bool HasEclassImported(AppUser benutzer) =>
+            HasEclassImported(benutzer.OrganisationId);
+
+        public bool HasEclassImported(long orgaId)
         {
             var eclassOrga = _context
                 .Organisations.Include(o => o.OwnedEclassData)
-                .FirstOrDefault(o => o.Id == benutzer.OrganisationId);
+                .FirstOrDefault(o => o.Id == orgaId);
             return eclassOrga?.OwnedEclassData.Count > 0;
+        }
+
+        /// <summary>
+        /// Merkmale aus dem eClass-Import der Organisation, deren Vorzugsbenennung in einer der
+        /// Sprachen passt, jeweils mit ihrer Einheit. Veraltete Merkmale bleiben außen vor.
+        /// </summary>
+        public List<EClassPropertyMatch> FindPropertiesByPreferredName(
+            long orgaId,
+            Func<string, bool> matchesName,
+            int maxResults = 200
+        )
+        {
+            var metadataIds = OwnedMetadataIds(orgaId);
+            if (metadataIds.Count == 0)
+                return [];
+
+            // Die Namen liegen als JSON in einer Spalte; verglichen wird deshalb im Speicher
+            var ids = _context
+                .EClassProperties.Where(p =>
+                    metadataIds.Contains(p.EClassMetadataId) && !p.IsDeprecated
+                )
+                .Select(p => new { p.Id, p.PreferredName })
+                .AsEnumerable()
+                .Where(p => p.PreferredName.Values.Any(matchesName))
+                .Select(p => p.Id)
+                .Take(maxResults)
+                .ToList();
+            return LoadMatches(metadataIds, ids);
+        }
+
+        /// <summary>Merkmale aus dem eClass-Import der Organisation zu den IRDIs, mit Einheit.</summary>
+        public List<EClassPropertyMatch> FindPropertiesByIrdi(
+            long orgaId,
+            IReadOnlyCollection<string> irdis
+        )
+        {
+            var metadataIds = OwnedMetadataIds(orgaId);
+            if (metadataIds.Count == 0 || irdis.Count == 0)
+                return [];
+
+            var ids = _context
+                .EClassProperties.Where(p =>
+                    metadataIds.Contains(p.EClassMetadataId) && irdis.Contains(p.Irdi)
+                )
+                .Select(p => p.Id)
+                .ToList();
+            return LoadMatches(metadataIds, ids);
+        }
+
+        private List<long> OwnedMetadataIds(long orgaId) =>
+            _context
+                .Organisations.Where(o => o.Id == orgaId)
+                .SelectMany(o => o.OwnedEclassData)
+                .Where(e => e.Id != null)
+                .Select(e => e.Id!.Value)
+                .ToList();
+
+        private List<EClassPropertyMatch> LoadMatches(List<long> metadataIds, List<long?> ids)
+        {
+            if (ids.Count == 0)
+                return [];
+
+            var properties = _context
+                .EClassProperties.Include(p => p.Domain)
+                .Where(p => ids.Contains(p.Id))
+                .ToList();
+            var unitIrdis = properties
+                .Select(p => p.Domain?.Unit)
+                .OfType<string>()
+                .Distinct()
+                .ToList();
+            var units = _context
+                .EClassUnits.Where(u =>
+                    unitIrdis.Contains(u.Irdi) && metadataIds.Contains(u.EClassMetadataId)
+                )
+                .ToList();
+            return properties
+                .Select(p => new EClassPropertyMatch(
+                    p,
+                    units.FirstOrDefault(u => u.Irdi == p.Domain?.Unit),
+                    p.Domain == null ? null : GetXsDataType(p.Domain),
+                    GetIecDataType(p.Domain)
+                ))
+                .ToList();
         }
 
         public string GetLanguage(string languageKey)
@@ -400,4 +487,12 @@ namespace AasDesignerApi.EClass
                 .ToList();
         }
     }
+
+    /// <summary>Ein Merkmal aus dem eClass-Import mit Einheit und Datentypen.</summary>
+    public sealed record EClassPropertyMatch(
+        EClassProperty Property,
+        EClassUnit? Unit,
+        DataTypeDefXsd? ValueType,
+        DataTypeIec61360 IecDataType
+    );
 }

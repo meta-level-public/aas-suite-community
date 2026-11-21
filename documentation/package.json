@@ -10,8 +10,14 @@
     "clear": "docusaurus clear",
     "typecheck": "tsc",
     "check:topics": "node scripts/check-docs-topics.mjs",
-    "screenshots:login": "node scripts/screenshots/login.mjs",
-    "screenshots": "node scripts/screenshots/capture.mjs"
+    "check:images": "node scripts/check-images.mjs",
+    "screenshots": "node scripts/screenshots/run.mjs",
+    "screenshots:headed": "HEADED=1 node scripts/screenshots/run.mjs",
+    "screenshots:oss": "node scripts/screenshots/run.mjs --oss",
+    "screenshots:stack": "node scripts/screenshots/stack.mjs",
+    "check:quellen": "node scripts/check-quellen.mjs",
+    "pdf": "node scripts/pdf.mjs --build-dir build",
+    "pdf:oss": "node scripts/pdf.mjs --build-dir build-oss"
   },
   "dependencies": {
     "@docusaurus/core": "3.10.2",
@@ -27,6 +33,9 @@
     "@docusaurus/module-type-aliases": "3.10.2",
     "@docusaurus/tsconfig": "3.10.2",
     "@docusaurus/types": "3.10.2",
+    "@playwright/test": "^1.64.1",
+    "js-yaml": "^4.3.2",
+    "pagedjs": "^0.4.3",
     "playwright-core": "1.64.1",
     "typescript": "~5.9.3"
   },

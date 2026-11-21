@@ -14,6 +14,14 @@ public sealed class GatewayBffSessionService
 {
     private const string SessionStateKey = "gateway:bff:session";
     private const string PendingStateKey = "gateway:bff:pending-oidc";
+
+    // The anonymous user of a shared link (public viewer) gets its own slot in the browser
+    // session. Otherwise opening a shared link replaced the designer login of the same browser
+    // and ended it in every other window.
+    private const string PublicViewerStateKey = "gateway:bff:public-viewer-session";
+
+    /// <summary>Set by the frontend on requests of a window that shows the public viewer.</summary>
+    public const string PublicViewerSessionHeaderName = "X-Public-Viewer-Session";
     private static readonly TimeSpan RefreshWindow = TimeSpan.FromMinutes(3);
     private static readonly TimeSpan RefreshReuseWindow = TimeSpan.FromSeconds(30);
     private static readonly JsonSerializerOptions JsonOptions = new(JsonSerializerDefaults.Web);
@@ -53,20 +61,88 @@ public sealed class GatewayBffSessionService
 
     public async Task<GatewayAuthResponse?> GetSanitizedSessionAsync(
         ISession session,
-        CancellationToken cancellationToken
+        CancellationToken cancellationToken,
+        bool publicViewer = false
     )
     {
-        var state = await GetSessionAsync(session, cancellationToken);
+        var state = publicViewer
+            ? await GetPublicViewerSessionAsync(session, cancellationToken)
+            : await GetSessionAsync(session, cancellationToken);
         return state?.AuthResponse.Sanitize();
     }
 
     public async Task<GatewayAuthResponse?> RefreshSessionAsync(
         ISession session,
+        CancellationToken cancellationToken,
+        bool publicViewer = false
+    )
+    {
+        // The anonymous user of the public viewer exists only in the designer's memory and has
+        // no refreshable token; its session ends with its JWT.
+        if (publicViewer)
+        {
+            return null;
+        }
+
+        var state = await EnsureFreshSessionAsync(session, forceRefresh: true, cancellationToken);
+        return state?.AuthResponse.Sanitize();
+    }
+
+    public static bool IsPublicViewerRequest(HttpRequest request)
+    {
+        return request.Headers.TryGetValue(PublicViewerSessionHeaderName, out var values)
+            && values.Any(value => string.Equals(value, "1", StringComparison.Ordinal));
+    }
+
+    public Task<GatewaySessionState?> GetPublicViewerSessionAsync(
+        ISession session,
         CancellationToken cancellationToken
     )
     {
-        var state = await EnsureFreshSessionAsync(session, forceRefresh: true, cancellationToken);
-        return state?.AuthResponse.Sanitize();
+        _ = cancellationToken;
+        return Task.FromResult(Deserialize<GatewaySessionState>(session, PublicViewerStateKey));
+    }
+
+    public Task SavePublicViewerSessionAsync(
+        ISession session,
+        GatewayAuthResponse authResponse,
+        CancellationToken cancellationToken
+    )
+    {
+        _ = cancellationToken;
+        Save(
+            session,
+            PublicViewerStateKey,
+            new GatewaySessionState { AuthResponse = authResponse }
+        );
+        return Task.CompletedTask;
+    }
+
+    /// <summary>
+    /// Session whose token a downstream request carries: the public viewer's for requests of a
+    /// public viewer window, otherwise the designer login. A browser without designer login falls
+    /// back to the public viewer, e.g. for requests the frontend cannot mark.
+    /// </summary>
+    public async Task<GatewaySessionState?> GetSessionForRequestAsync(
+        ISession session,
+        bool publicViewerRequest,
+        CancellationToken cancellationToken
+    )
+    {
+        if (publicViewerRequest)
+        {
+            return await GetPublicViewerSessionAsync(session, cancellationToken);
+        }
+
+        return await EnsureFreshSessionAsync(session, forceRefresh: false, cancellationToken)
+            ?? await GetPublicViewerSessionAsync(session, cancellationToken);
+    }
+
+    /// <summary>Ends only the public viewer session; a designer login of the browser stays.</summary>
+    public GatewayLogoutResponse ClearPublicViewerSession(ISession session)
+    {
+        session.Remove(PublicViewerStateKey);
+        return new GatewayLogoutResponse();
     }
 
     public async Task<GatewaySessionState?> EnsureFreshSessionAsync(
@@ -207,6 +283,7 @@ public sealed class GatewayBffSessionService
         var state = await GetSessionAsync(session, cancellationToken);
         session.Remove(SessionStateKey);
         session.Remove(PendingStateKey);
+        session.Remove(PublicViewerStateKey);
         _sessionRefreshContexts
             .GetOrAdd(session.Id, _ => new SessionRefreshContext())
             .ClearLastSuccessfulState();

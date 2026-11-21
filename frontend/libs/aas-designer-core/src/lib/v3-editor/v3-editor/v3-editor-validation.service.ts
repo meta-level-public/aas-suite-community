@@ -24,6 +24,37 @@ export function encodeFilePath(value: string): string {
   return encodeURI(value.trim().replace(/\\/g, '/')).replace(/%25([0-9A-Fa-f]{2})/g, '%$1');
 }
 
+/**
+ * Key type for the first key of a model reference that violates AASd-123 (first key must be one of
+ * AssetAdministrationShell, Submodel, ConceptDescription or Identifiable):
+ * the type of the identifiable with that id in the environment, otherwise a type that fits where the
+ * reference is used, otherwise the generic Identifiable.
+ */
+export function guessAasIdentifiableKeyType(
+  reference: aas.types.Reference,
+  path: string,
+  environment: aas.types.Environment,
+): aas.types.KeyTypes {
+  const KeyTypes = aas.types.KeyTypes;
+  const value = reference.keys[0]?.value;
+  if (environment.submodels?.some((sm) => sm.id === value)) return KeyTypes.Submodel;
+  if (environment.assetAdministrationShells?.some((shell) => shell.id === value)) {
+    return KeyTypes.AssetAdministrationShell;
+  }
+  if (environment.conceptDescriptions?.some((cd) => cd.id === value)) return KeyTypes.ConceptDescription;
+
+  if (/assetAdministrationShells\[\d+\]\.submodels\[\d+\]$/.test(path)) return KeyTypes.Submodel;
+  if (path.endsWith('.derivedFrom')) return KeyTypes.AssetAdministrationShell;
+  if (/(\.semanticId|\.supplementalSemanticIds\[\d+\]|\.isCaseOf\[\d+\])$/.test(path)) {
+    return KeyTypes.ConceptDescription;
+  }
+  // keys pointing into a submodel (submodel element keys) start with the submodel
+  if (reference.keys.length > 1 || aas.constants.AAS_SUBMODEL_ELEMENTS_AS_KEYS.has(reference.keys[0].type)) {
+    return KeyTypes.Submodel;
+  }
+  return KeyTypes.Identifiable;
+}
+
 @Injectable()
 export class V3EditorValidationService {
   private translate = inject(TranslateService);
@@ -249,14 +280,14 @@ export class V3EditorValidationService {
           ) {
             set(this.shellResult?.v3Shell, path, null);
           } else if (path.toString().endsWith('.text')) {
-            set(this.shellResult?.v3Shell, path, ' ');
+            this.removeLangStringsAt([path]);
           }
           break;
         case 'String shall have a maximum length of 18 characters.':
           this.shortenAt(path);
           break;
         case 'Constraint AASd-123: For model references the value of type of the first key of keys shall be one of AAS identifiables.':
-          set(this.shellResult?.v3Shell, path.toString() + '.type', 0);
+          this.fixModelReferenceAt(path);
           break;
         case 'Constraint AASd-122: For external references the value of type of the first key of keys shall be one of Generic Globally Identifiables.':
           if (x.keys != null && x.keys[0] != null) x.keys[0].type = aas.types.KeyTypes.GlobalReference;
@@ -427,6 +458,7 @@ export class V3EditorValidationService {
   }
 
   private fixNotEmpty(error: VerificationError): void {
+    const emptyTextPaths: string[] = [];
     this.validationErrors()
       .filter((e) => e.message === error.message)
       .forEach((e) => {
@@ -443,11 +475,39 @@ export class V3EditorValidationService {
         ) {
           const x = get(this.shellResult.v3Shell, path);
           if (x != null) set(this.shellResult?.v3Shell, path, null);
-        } else if (this.shellResult?.v3Shell != null && path.endsWith('.text')) {
-          const x = get(this.shellResult.v3Shell, path);
-          if (x != null) set(this.shellResult?.v3Shell, path, ' ');
+        } else if (path.endsWith('.text')) {
+          emptyTextPaths.push(path);
         }
       });
+    this.removeLangStringsAt(emptyTextPaths);
+  }
+
+  /**
+   * Removes the language strings whose (empty) text is addressed by the given paths, e.g.
+   * `submodels[0].description[1].text`. A list that becomes empty is removed (set to null),
+   * except required lists (preferred name), which stay empty so the validation keeps reporting them.
+   */
+  private removeLangStringsAt(textPaths: string[]): void {
+    const environment = this.shellResult?.v3Shell;
+    if (environment == null) return;
+
+    const toRemove = new Map<string, unknown[]>();
+    textPaths.forEach((textPath) => {
+      const match = /^(.*)\[\d+\]\.text$/.exec(textPath);
+      if (match == null) return;
+      const listPath = match[1];
+      const langString = get(environment, textPath.substring(0, textPath.length - '.text'.length));
+      if (langString == null) return;
+      toRemove.set(listPath, [...(toRemove.get(listPath) ?? []), langString]);
+    });
+
+    toRemove.forEach((langStrings, listPath) => {
+      const list = get(environment, listPath);
+      if (!Array.isArray(list)) return;
+      const remaining = list.filter((entry) => !langStrings.includes(entry));
+      const required = listPath.endsWith('preferredName');
+      set(environment, listPath, remaining.length > 0 || required ? remaining : null);
+    });
   }
 
   private fixModelReference(error: VerificationError): void {
@@ -455,12 +515,18 @@ export class V3EditorValidationService {
       .filter((e) => e.message === error.message)
       .forEach((e) => {
         if (this.shellResult?.v3Shell != null) {
-          const path = e.path.toString().substring(1);
-          const typePath = path + '.type';
-          const x = get(this.shellResult.v3Shell, typePath);
-          if (x != null) set(this.shellResult?.v3Shell, typePath, 0);
+          this.fixModelReferenceAt(e.path.toString().substring(1));
         }
       });
+  }
+
+  /** AASd-123: keeps the model reference and sets the type of its first key to a matching AAS identifiable. */
+  private fixModelReferenceAt(path: string): void {
+    const environment = this.shellResult?.v3Shell;
+    if (environment == null) return;
+    const reference = get(environment, path);
+    const firstKey = reference?.keys?.[0];
+    if (firstKey != null) firstKey.type = guessAasIdentifiableKeyType(reference, path, environment);
   }
 
   private fixAllGlobalReference(error: VerificationError): void {

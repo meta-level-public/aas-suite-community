@@ -29,7 +29,7 @@ export type InfraRechteMode = 'user' | 'infra';
 })
 export class InfrastrukturRechteComponent implements OnChanges {
   /** Page of the user documentation linked from this view */
-  readonly docsTopic = docsTopic('designer/rollen-und-rechte#infrastruktur-rechte');
+  readonly docsTopic = docsTopic('designer/rollen-und-rechte', 'infrastruktur-rechte');
 
   infraRechteClient = inject(InfrastrukturRechteClient);
   notificationService = inject(NotificationService);

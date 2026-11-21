@@ -116,7 +116,7 @@
           (configureDppApi)="editDppAccessPolicy()"
         ></aas-infrastructure-list>
       }
-      @if (settings()?.isInternal && !settings()?.isGoInfrastructure && accessService.isAllowed('ORGA_ADMIN')) {
+      @if (showGoUpgrade()) {
         <aas-infrastructure-migrate-go
           [allInfrastructures]="allInfrastructures()"
           (goInfraCreated)="requestReload.emit(); reloadInfrastuctureList.emit()"

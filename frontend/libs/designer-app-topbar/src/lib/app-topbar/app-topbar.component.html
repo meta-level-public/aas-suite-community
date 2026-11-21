@@ -29,6 +29,9 @@
   </div>
 
   <div class="flex flex-row gap-2 items-center shrink-0">
+    @for (topbarComponent of topbarActionComponents; track topbarComponent) {
+      <ng-container *ngComponentOutlet="topbarComponent"></ng-container>
+    }
     <!-- On phones language and organisation are part of the user menu -->
     <div class="hidden md:flex flex-row gap-2 items-center">
       <p-button

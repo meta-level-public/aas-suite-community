@@ -14,6 +14,26 @@ function createSubmodelReference(submodelId: string) {
 }
 
 /**
+ * The submodel in the environment that a copied submodel can be pasted into `target` as reference:
+ * the target is a shell, the submodel (same id) still exists in the same environment and the shell
+ * does not reference it yet. Otherwise undefined – then only pasting as copy makes sense.
+ */
+export function findSubmodelToPasteAsReference(
+  target: unknown,
+  copied: unknown,
+  shellResult: ShellResult | undefined,
+): aas.types.Submodel | undefined {
+  if (!(target instanceof aas.types.AssetAdministrationShell) || !(copied instanceof aas.types.Submodel)) {
+    return undefined;
+  }
+  const alreadyReferenced = target.submodels?.some((ref) =>
+    ref.keys.some((key) => key.type === aas.types.KeyTypes.Submodel && key.value === copied.id),
+  );
+  if (alreadyReferenced) return undefined;
+  return shellResult?.v3Shell?.submodels?.find((submodel) => submodel.id === copied.id);
+}
+
+/**
  * Adds `element` to the model content of the target node (environment, shell, submodel or container element).
  * When pasting a shell or submodel as copy, the referenced submodels get new ids and are added to the environment.
  */

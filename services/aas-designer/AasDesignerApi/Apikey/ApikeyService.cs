@@ -14,7 +14,10 @@ namespace AasDesignerApi.Apikey
         public Model.Apikey? GetByKey(Guid key)
         {
             return _context.Apikeys.FirstOrDefault(a =>
-                a.Key == key && (a.ValidUntil == null || a.ValidUntil >= DateTime.Today)
+                a.Key == key
+                && a.Active
+                && !a.Geloescht
+                && (a.ValidUntil == null || a.ValidUntil >= DateTime.Today)
             );
         }
     }

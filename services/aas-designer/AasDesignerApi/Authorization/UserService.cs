@@ -134,7 +134,7 @@ public class UserService : IUserService
         {
             throw new AuthenticationException("SHARED_LINK_DOES_NOT_EXIST");
         }
-        if (sharedLink.Ablaufdatum < DateTime.Now)
+        if (sharedLink.IsExpired(DateTime.UtcNow))
         {
             throw new AuthenticationException("SHARED_LINK_EXPIRED");
         }
@@ -385,15 +385,7 @@ public class UserService : IUserService
             );
             if (infraRecht != null)
             {
-                if (infraRecht.DarfLesen)
-                    rollen.Add(AuthRoles.SHELLS_READER);
-                if (infraRecht.DarfSchreiben)
-                {
-                    rollen.Add(AuthRoles.SHELLS_EDITOR);
-                    rollen.Add(AuthRoles.SHELLS_READER);
-                }
-                if (infraRecht.DarfMarktPublizieren)
-                    rollen.Add(AuthRoles.MARKT_PUBLISHER);
+                rollen.AddRange(InfrastrukturRechteUtil.GetVirtualRoles(infraRecht));
                 _logger.LogDebug(
                     "[AuthDiag] InfraRecht found for benutzerId={BenutzerId} infraId={InfraId}: DarfLesen={Lesen} DarfSchreiben={Schreiben}",
                     benutzerId,

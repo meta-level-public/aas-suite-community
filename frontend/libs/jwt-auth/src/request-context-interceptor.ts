@@ -1,4 +1,4 @@
-import { PortalService } from '@aas/common-services';
+import { PUBLIC_VIEWER_SESSION_HEADER, PortalService } from '@aas/common-services';
 import { HttpEvent, HttpHandler, HttpInterceptor, HttpRequest } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
@@ -20,6 +20,9 @@ export class RequestContextInterceptor implements HttpInterceptor {
     let headers = req.headers.set('X-Gui-Language', language).set('X-Infrastructure-ID', infrastructureId.toString());
     if (orgaId != null) {
       headers = headers.set('X-Organisation-ID', orgaId);
+    }
+    if (this.portalService.isPublicViewerSession) {
+      headers = headers.set(PUBLIC_VIEWER_SESSION_HEADER, '1');
     }
 
     return next.handle(req.clone({ headers }));

@@ -27,29 +27,11 @@ export class PermissionService {
       return false;
     }
 
-    // SHELLS_READER und SHELLS_EDITOR sind virtuelle Server-Rollen, die nie ins sessionStorage
-    // geschrieben werden. Sie werden stattdessen aus der gewählten Infrastruktur abgeleitet:
-    // isReadonly=false → SHELLS_EDITOR; Infra vorhanden (Backend filtert ohne DarfLesen raus) → SHELLS_READER.
-    const currentInfra = PortalService.getCurrentAasInfrastructureSetting();
-
-    let allowed = false;
-    requiredAccessRights.forEach((r) => {
-      if (this.accessService.isAllowed(r)) {
-        allowed = true;
-      }
-      if (!allowed && r === AuthRoles.SHELLS_READER && currentInfra != null) {
-        allowed = true;
-      }
-      if (!allowed && r === AuthRoles.SHELLS_EDITOR && currentInfra != null && currentInfra.isReadonly === false) {
-        allowed = true;
-      }
-    });
-    if (requiredAccessRights.length === 0) {
-      // no restriction for any right, only login required
-      allowed = true;
-    }
-
-    if (!allowed) {
+    // Virtual roles of the selected infrastructure (SHELLS_READER, SHELLS_EDITOR, MARKT_PUBLISHER) are part of
+    // PortalService.getRights()
+    const allowed = requiredAccessRights.some((r) => this.accessService.isAllowed(r));
+    // no restriction for any right, only login required
+    if (requiredAccessRights.length > 0 && !allowed) {
       this.router.navigate(buildForbiddenRoute());
       return false;
     }

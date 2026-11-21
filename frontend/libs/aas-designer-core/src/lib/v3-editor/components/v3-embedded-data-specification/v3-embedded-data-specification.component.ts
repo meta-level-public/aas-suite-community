@@ -74,16 +74,7 @@ export class V3EmbeddedDataSpecificationComponent extends V3ComponentBase {
       this.dataSpecification = this.dataSpecificationParent.embeddedDataSpecifications;
     }
 
-    const dataspec = new aas.types.EmbeddedDataSpecification(
-      new aas.types.Reference(aas.types.ReferenceTypes.ExternalReference, [
-        new aas.types.Key(
-          aas.types.KeyTypes.GlobalReference,
-          'http://admin-shell.io/DataSpecificationTemplates/DataSpecificationIEC61360/3/0',
-        ),
-      ]),
-      new aas.types.DataSpecificationIec61360([new aas.types.LangStringTextType('en', '')]),
-    );
-    this.dataSpecification?.push(dataspec);
+    this.dataSpecification?.push(DataspecificationIec61360Helper.createEmbeddedDataSpecification());
   }
 
   getDataSpecContent(spec: aas.types.EmbeddedDataSpecification) {

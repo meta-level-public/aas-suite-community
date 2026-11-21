@@ -5,4 +5,6 @@ build-oss
 .cache-loader
 .DS_Store
 npm-debug.log*
-scripts/screenshots/.auth/
+scripts/screenshots/.stack/
+test-results/
+playwright-report/

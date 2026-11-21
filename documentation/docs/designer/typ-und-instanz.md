@@ -1,6 +1,26 @@
 ---
 sidebar_position: 6
 title: Typ und Instanz
+description: Zeigt, wie eine Typ-AAS angelegt, daraus eine Instanz erstellt und eine AAS dupliziert wird.
+stichworte:
+  Typ-AAS: typ-aas-anlegen
+  Typverwaltungsschale: typ-aas-anlegen
+  Art des Asset: typ-aas-anlegen
+  Instanz erstellen: instanz-aus-einem-typ-erstellen
+  Seriennummer: instanz-aus-einem-typ-erstellen
+  derivedFrom: instanz-aus-einem-typ-erstellen
+  Duplizieren: duplizieren
+quellen:
+  - frontend/libs/aas-designer-core/src/lib/shells-list/shells-list.component.ts
+  - frontend/libs/aas-designer-core/src/lib/shells-list/create-instance/create-instance.component.ts
+  - frontend/libs/aas-designer-core/src/lib/shells-list/create-instance/create-instance.component.html
+  - frontend/libs/aas-designer-core/src/lib/v3-editor/components/v3-asset/v3-asset.component.html
+  - frontend/libs/aas-designer-core/src/lib/v3-editor/components/v3-component-base.ts
+  - frontend/libs/helpers/src/tag-helper.ts
+  - services/aas-designer/AasDesignerCommon/Environment/EnvironmentCreateInstanceModifier.cs
+  - services/aas-designer/AasDesignerAasApi/Shells/Commands/CreateInstance/CreateInstanceCommand.cs
+  - services/tests/AasDesignerApi.UnitTests/EnvironmentCreateInstanceModifierTests.cs
+  - frontend/libs/translations/i18n/de.json
 ---
 
 # Typ und Instanz
@@ -27,7 +47,9 @@ gehören zu einem einzelnen Exemplar.
 | Typische Inhalte | Katalogdaten, technische Daten, Dokumentation | Daten des Exemplars, z. B. Seriennummer und Betriebsdaten |
 
 Die Art lässt sich auch nachträglich im Editor ändern: Abschnitt **Asset**,
-Feld **Art des Asset**.
+Feld **Art des Asset**. Die Auswahlliste zeigt die Werte des Metamodells:
+`Type`, `Instance`, `Role` und `NotApplicable`. Im Baum erscheint die Art
+übersetzt als Kennzeichen neben der AAS, z. B. **Typ** oder **Instanz**.
 
 ## Instanz aus einem Typ erstellen
 
@@ -40,9 +62,10 @@ des Typs übernimmt:
 
    ![Menü Erweitert mit dem Eintrag Instanz erstellen](/img/designer/shells-menue-erweitert.png)
 
-3. Im Dialog die **Seriennummer** eintragen und das **Herstellungsdatum**
-   prüfen (vorbelegt mit dem aktuellen Zeitpunkt). Ins Typenschild wird das
-   Datum so übernommen, wie es im Dialog steht.
+3. Im Dialog die **Seriennummer** eintragen, z. B. `SN-DEMO-0002`, und das
+   **Herstellungsdatum** prüfen (vorbelegt mit dem aktuellen Zeitpunkt). Ins
+   Typenschild wird das Datum so übernommen, wie es im Dialog steht. Ohne
+   Seriennummer oder Datum bleibt **Speichern** gesperrt.
 
    ![Dialog Instanz erstellen](/img/designer/instanz-erstellen.png)
 

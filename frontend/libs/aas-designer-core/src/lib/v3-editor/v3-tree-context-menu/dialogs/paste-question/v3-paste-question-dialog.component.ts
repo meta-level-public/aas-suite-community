@@ -1,4 +1,4 @@
-import { Component, model, ChangeDetectionStrategy } from '@angular/core';
+import { Component, input, model, ChangeDetectionStrategy } from '@angular/core';
 import { TranslateModule } from '@ngx-translate/core';
 import { ButtonModule } from '@openng/optimus-ui/button';
 import { DialogModule } from '@openng/optimus-ui/dialog';
@@ -12,6 +12,8 @@ import { DialogModule } from '@openng/optimus-ui/dialog';
 })
 export class V3PasteQuestionDialogComponent {
   visible = model<boolean>(false);
+  /** Translation key of the question (shell with its submodels or a single submodel). */
+  questionKey = input<string>('PASTE_AS_REFERENCE_QUESTION');
   // Signal-based result: 'reference' | 'copy' | null
   acceptedAction = model<'reference' | 'copy' | null>(null);
 

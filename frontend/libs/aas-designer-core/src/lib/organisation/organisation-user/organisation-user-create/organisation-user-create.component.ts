@@ -8,12 +8,21 @@ import { InputTextModule } from '@openng/optimus-ui/inputtext';
 import { KeyFilterModule } from '@openng/optimus-ui/keyfilter';
 import { MessageModule } from '@openng/optimus-ui/message';
 import { OrganisationService } from '../../organisation.service';
+import { RoleLabelPipe } from '../../role-label/role-label.pipe';
 
 @Component({
   selector: 'aas-organisation-user-create',
   templateUrl: './organisation-user-create.component.html',
   changeDetection: ChangeDetectionStrategy.Eager,
-  imports: [FormsModule, MessageModule, InputTextModule, TranslateModule, KeyFilterModule, CheckboxModule],
+  imports: [
+    FormsModule,
+    MessageModule,
+    InputTextModule,
+    TranslateModule,
+    KeyFilterModule,
+    CheckboxModule,
+    RoleLabelPipe,
+  ],
 })
 export class OrganisationUserCreateComponent extends DirtyCheckable implements OnInit {
   invitation = input.required<UserInvitation>();

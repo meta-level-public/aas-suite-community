@@ -13,13 +13,23 @@ describe('DESIGNER_DOCS_CONTEXT', () => {
   it('uses dedicated pages for shared links and snippets in my space', () => {
     expect(topicFor('/my-space/shared-links')).toBe('designer/geteilte-links');
     expect(topicFor('/my-space/snippets')).toBe('designer/schnipsel');
-    expect(topicFor('/my-space/addresses')).toBe('designer/mein-bereich');
+    expect(topicFor('/my-space/addresses')).toBe('designer/mein-bereich#adressen');
+    expect(topicFor('/my-space')).toBe('designer/mein-bereich');
   });
 
   it('opens the administration pages for organisation and system management', () => {
-    expect(topicFor('/my-organization/users')).toBe('designer/organisation');
-    expect(topicFor('/system-management/mail-settings')).toBe('designer/systemverwaltung');
+    expect(topicFor('/my-organization/users')).toBe('designer/organisation#benutzer');
+    expect(topicFor('/my-organization/infrastructure/3')).toBe('designer/organisation#aas-infrastruktur');
+    expect(topicFor('/system-management/mail-settings')).toBe('designer/systemverwaltung#mail-einstellungen');
+    expect(topicFor('/system-management/job-settings/idta-crawler')).toBe(
+      'designer/systemverwaltung#job-konfiguration',
+    );
     expect(topicFor('/plugins')).toBe('betrieb/plugins');
+  });
+
+  it('opens the matching section for lists of submodels and concept descriptions', () => {
+    expect(topicFor('/submodels')).toBe('designer/aas-verwalten#teilmodelle-und-konzeptbeschreibungen');
+    expect(topicFor('/cds-list')).toBe('designer/konzeptbeschreibungen#liste-der-konzeptbeschreibungen');
   });
 
   it('falls back to the designer overview for unknown routes', () => {

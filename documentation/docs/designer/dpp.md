@@ -1,6 +1,27 @@
 ---
 sidebar_position: 14
 title: Digitaler Produktpass
+description: Wie aus einer AAS im Designer ein digitaler Produktpass (DPP) wird, wie er veröffentlicht und seine Abrufbarkeit geprüft wird.
+stichworte:
+  DPP: ''
+  Digitaler Produktpass: ''
+  DPP-Metadaten: dpp-metadaten-anlegen
+  DPP-Status: pass-veröffentlichen
+  Öffentliche DPP-URL: pass-veröffentlichen
+  DPP-Bereitschaft: bereitschaft-prüfen
+  Granularität: dpp-metadaten-anlegen
+  Wirtschaftsakteur-ID: dpp-metadaten-anlegen
+quellen:
+  - frontend/libs/aas-designer-core/src/lib/v3-editor/components/dpp-metadata/dpp-metadata.component.html
+  - frontend/libs/aas-designer-core/src/lib/v3-editor/components/dpp-metadata/dpp-metadata.component.ts
+  - frontend/libs/aas-designer-core/src/lib/v3-editor/components/v3-shell/v3-shell.component.html
+  - frontend/libs/aas-designer-core/src/lib/v3-editor/v3-editor/v3-editor.component.html
+  - frontend/libs/aas-designer-core/src/lib/v3-editor/v3-editor/v3-editor.component.ts
+  - frontend/libs/aas-designer-core/src/lib/generator/save-and-confirm/save-and-confirm.component.html
+  - frontend/libs/aas-designer-core/src/lib/generator/save-and-confirm/save-and-confirm.component.ts
+  - frontend/libs/helpers/src/dpp-metadata-options.ts
+  - services/aas-designer/AasDesignerAasApi/Controllers/DppMetadataController.cs
+  - frontend/libs/translations/i18n/de.json
 ---
 
 # Digitaler Produktpass (DPP)
@@ -24,23 +45,43 @@ passende AAS mit dem [DPP-Assistenten oder dem Batteriepass-Assistenten](./assis
 Eine vorhandene AAS lässt sich ebenso verwenden; fehlende Teilmodelle werden
 im [Editor](./editor.md#teilmodell-einfügen) aus den IDTA-Vorlagen ergänzt.
 
+:::tip DPP-Metadaten schon im Assistenten
+Der DPP-Assistent und der Batteriepass-Assistent fragen die DPP-Metadaten im
+letzten Schritt ab, siehe
+[DPP-Metadaten im Assistenten](./assistenten.md#dpp-metadaten-im-assistenten).
+Die AAS hat dann beim ersten Öffnen im Editor bereits DPP-Metadaten, sofern
+die Infrastruktur eine DPP-API hat. Ohne DPP-API speichert der Assistent nur
+die AAS und weist darauf hin.
+:::
+
 ## DPP-Metadaten anlegen
 
 Ein Klick auf die AAS im Baum des Editors zeigt oben die Leiste **DPP** mit
-dem aktuellen Stand, z. B. „Für diese AAS ist der DPP noch nicht
-konfiguriert.“
+dem aktuellen Stand:
 
-1. Ungespeicherte Änderungen zuerst speichern; vorher ist der Button
-   gesperrt.
+| Anzeige | Bedeutung |
+|---|---|
+| Status wird geprüft… | Der Designer fragt den DPP-Dienst ab |
+| Für diese AAS ist der DPP noch nicht konfiguriert. | Es gibt noch keine DPP-Metadaten |
+| Für diese AAS ist der DPP konfiguriert. | DPP-Metadaten sind vorhanden |
+| DPP-Status derzeit nicht verfügbar. | Der DPP-Dienst antwortet nicht oder mit einem Fehler |
+
+Erkennt der Designer Teilmodelle des Batteriepasses in der AAS, zeigt die
+Leiste zusätzlich deren Anzahl an.
+
+1. Ungespeicherte Änderungen zuerst speichern. Solange es ungespeicherte
+   Änderungen gibt, fehlt der Button **DPP-Metadaten anlegen**; auf
+   schreibgeschützten Infrastrukturen fehlt er immer.
 2. **DPP-Metadaten anlegen** wählen.
-3. Die Angaben im Dialog ausfüllen und **Metadaten anlegen**.
+3. Die Angaben im Dialog ausfüllen und **Metadaten anlegen**. Der Button
+   ist erst aktiv, wenn alle Pflichtfelder ausgefüllt sind.
 
 ![Dialog DPP-Metadaten anlegen](/img/designer/dpp-metadaten-anlegen.png)
 
 | Feld | Bedeutung |
 |---|---|
 | DPP-ID | Kennung des Passes; entspricht der AAS-ID und ist nicht änderbar |
-| Eindeutige Produktkennung | Kennung des Produkts, vorbelegt mit der Asset-ID |
+| Eindeutige Produktkennung | Kennung des Produkts, vorbelegt mit der globalen Asset-ID |
 | Granularität | Gilt der Pass für ein **Einzelstück**, ein **Modell** oder eine **Charge** |
 | DPP-Schemaversion | Version des Pass-Schemas, nach dem die Daten aufgebaut sind |
 | DPP-Status | **Entwurf**, **Aktiv**, **Ausgesetzt** oder **Zurückgezogen** |
@@ -56,13 +97,16 @@ hin. Für andere Produktpässe kann dieser Hinweis ignoriert werden.
 
 ## Pass veröffentlichen
 
-Neu angelegte Metadaten haben den Status **Entwurf**. Zum Veröffentlichen
-**DPP-Metadaten bearbeiten** wählen und den **DPP-Status** auf **Aktiv**
-setzen.
+Neu angelegte Metadaten haben den Status **Entwurf**. Zum Veröffentlichen:
 
-Die öffentliche Adresse liefert nur Pässe im Status **Aktiv**. Die Leiste
-**DPP** zeigt dann die öffentliche URL mit **Link kopieren**. Wird keine URL
-angezeigt, ist die öffentliche Adresse des DPP-Dienstes nicht konfiguriert.
+1. **DPP-Metadaten bearbeiten** wählen.
+2. Den **DPP-Status** auf **Aktiv** setzen.
+3. **Änderungen speichern**.
+
+Sobald DPP-Metadaten vorhanden sind, zeigt die Leiste **DPP** die öffentliche
+URL des Passes mit **Link kopieren**. Abrufbar ist der Pass dort aber nur im
+Status **Aktiv**. Wird keine URL angezeigt, ist die öffentliche Adresse des
+DPP-Dienstes nicht konfiguriert.
 
 | Status | Bedeutung |
 |---|---|
@@ -73,9 +117,16 @@ angezeigt, ist die öffentliche Adresse des DPP-Dienstes nicht konfiguriert.
 
 ## Bereitschaft prüfen
 
-**DPP-Bereitschaft prüfen** prüft, ob der Pass technisch über die API
-abrufbar ist, und listet gefundene Probleme auf. Die Prüfung bewertet nur die
-technische Abrufbarkeit, nicht die rechtliche Konformität des Passes.
+Sind DPP-Metadaten vorhanden, bietet die Leiste **DPP** den Button
+**DPP-Bereitschaft prüfen**. Er prüft, ob der Pass technisch über die API
+abrufbar ist. Der Dialog **DPP-Bereitschaft** meldet als Ergebnis
+„DPP über die API abrufbar“ oder „DPP derzeit nicht abrufbar“ und listet
+gefundene Probleme als Fehler oder Warnung auf.
+
+:::note
+Die Prüfung bewertet nur die technische Abrufbarkeit, nicht die rechtliche
+Konformität des Passes.
+:::
 
 ## Hinweise
 

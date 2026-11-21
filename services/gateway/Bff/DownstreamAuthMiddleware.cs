@@ -44,9 +44,9 @@ public sealed class DownstreamAuthMiddleware
 
         if (ShouldAttachDownstreamToken(context.Request.Path))
         {
-            var sessionState = await sessionService.EnsureFreshSessionAsync(
+            var sessionState = await sessionService.GetSessionForRequestAsync(
                 context.Session,
-                forceRefresh: false,
+                GatewayBffSessionService.IsPublicViewerRequest(context.Request),
                 context.RequestAborted
             );
 

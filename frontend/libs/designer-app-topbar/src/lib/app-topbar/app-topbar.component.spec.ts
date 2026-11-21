@@ -9,6 +9,7 @@ import { TranslateModule } from '@ngx-translate/core';
 import { DialogService } from '@openng/optimus-ui/dynamicdialog';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { AppTopBarComponent } from './app-topbar.component';
+import { VersionInfo } from './version-info';
 
 describe('AppTopBarComponent user menu', () => {
   let isMobile: ReturnType<typeof signal<boolean>>;
@@ -80,5 +81,29 @@ describe('AppTopBarComponent user menu', () => {
     userDocsService.isAvailable.mockReturnValue(false);
 
     expect(userMenu().items.map((item) => item.label)).not.toContain('USER_DOCUMENTATION');
+  });
+
+  it('shows no date entry if the build date is unknown', () => {
+    const topbar = TestBed.createComponent(AppTopBarComponent).componentInstance;
+    topbar.versionInfo = VersionInfo.fromDto({ version: 'dev', date: 'unknown' });
+
+    topbar.onShowUserActions();
+    const labels = topbar.userMenuItems().map((item) => item.label);
+
+    expect(labels).toContain('VERSION: dev');
+    expect(labels).not.toContain('null');
+    expect(labels).not.toContain('');
+  });
+
+  it('shows the build date below the version', () => {
+    const topbar = TestBed.createComponent(AppTopBarComponent).componentInstance;
+    topbar.versionInfo = VersionInfo.fromDto({ version: '1.2.3', date: '2026-11-08 14:05' });
+
+    topbar.onShowUserActions();
+    const items = topbar.userMenuItems();
+    const versionIndex = items.findIndex((item) => item.label === 'VERSION: 1.2.3');
+
+    expect(items[versionIndex + 1].label).toMatch(/2026|26/);
+    expect(items[versionIndex + 1].disabled).toBe(true);
   });
 });

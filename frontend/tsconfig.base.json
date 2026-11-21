@@ -45,6 +45,8 @@
       ],
       "@aas/aas-designer-core/user": ["libs/aas-designer-core/src/lib/user/user.routes.ts"],
       "@aas/aas-designer-core/v3-editor": ["libs/aas-designer-core/src/lib/v3-editor/v3-editor.routes.ts"],
+      "@aas/aas-designer-core/v3-editor-extension": ["libs/aas-designer-core/src/lib/v3-editor/v3-editor-extension.ts"],
+      "@aas/aas-designer-core/v3-tree-service": ["libs/aas-designer-core/src/lib/v3-editor/v3-tree-service-entry.ts"],
       "@aas/aas-designer-shared": ["libs/aas-designer-shared/src/index.ts"],
       "@aas/aas-designer-shared/public-viewer": ["libs/aas-designer-shared/src/public-viewer.ts"],
       "@aas/aas-designer-styles": ["libs/aas-designer-styles/src/index.ts"],
