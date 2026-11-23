@@ -1,0 +1,71 @@
+.toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 16px;
+}
+
+.sheet {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4mm;
+}
+
+.label {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+  width: 18mm;
+  height: 24mm;
+  margin: 0;
+  padding: 1mm;
+  border: 0.2mm dashed #999;
+  background: #fff;
+  color: #000;
+
+  img {
+    width: 16mm;
+    height: 16mm;
+    image-rendering: pixelated;
+  }
+
+  figcaption {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-top: 1mm;
+    line-height: 1;
+
+    strong {
+      font-size: 3.2mm;
+    }
+
+    span {
+      margin-top: 0.8mm;
+      font-size: 2.2mm;
+    }
+  }
+
+  &.truck {
+    width: 30mm;
+    height: 38mm;
+
+    img {
+      width: 26mm;
+      height: 26mm;
+    }
+
+    strong {
+      font-size: 4mm;
+    }
+  }
+}
+
+@media print {
+  .label {
+    break-inside: avoid;
+  }
+}

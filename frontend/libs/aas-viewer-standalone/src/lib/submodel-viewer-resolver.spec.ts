@@ -95,4 +95,37 @@ describe('SubmodelViewerResolver', () => {
 
     expect(SubmodelViewerResolver.resolve(submodel)).toBe('Nameplate');
   });
+
+  describe('supplementalSemanticIds', () => {
+    const hierarchicalStructures = 'https://admin-shell.io/idta/HierarchicalStructures/1/1/Submodel';
+
+    it('uses a supplemental semantic ID when the own semantic ID has no specialized viewer', () => {
+      const submodel = submodelWithSemanticId('urn:aas-suite:demo:truck-loading:LoadingList');
+      submodel.supplementalSemanticIds = [semanticRef(hierarchicalStructures)];
+
+      expect(SubmodelViewerResolver.resolve(submodel)).toBe('Bom');
+      expect(SubmodelViewerResolver.hasSpecializedViewer(submodel)).toBe(true);
+    });
+
+    it('takes the first supplemental semantic ID with a specialized viewer', () => {
+      const submodel = submodelWithSemanticId('urn:example:custom');
+      submodel.supplementalSemanticIds = [semanticRef('urn:example:unknown'), semanticRef(hierarchicalStructures)];
+
+      expect(SubmodelViewerResolver.resolve(submodel)).toBe('Bom');
+    });
+
+    it('keeps the viewer of a known own semantic ID', () => {
+      const submodel = submodelWithSemanticId('https://admin-shell.io/idta/nameplate/3/0/Nameplate');
+      submodel.supplementalSemanticIds = [semanticRef(hierarchicalStructures)];
+
+      expect(SubmodelViewerResolver.resolve(submodel)).toBe('Nameplate');
+    });
+
+    it('stays generic when no semantic ID is known', () => {
+      const submodel = submodelWithSemanticId('urn:example:custom');
+      submodel.supplementalSemanticIds = [semanticRef('urn:example:unknown')];
+
+      expect(SubmodelViewerResolver.resolve(submodel)).toBe('Generic');
+    });
+  });
 });

@@ -1,0 +1,25 @@
+<div class="toolbar no-print">
+  <p class="hint">
+    Kisten-Etiketten sind 18 × 24 mm groß und passen auf die Seitenfläche (22 × 40 mm). Beim Drucken
+    die Skalierung auf 100 % stellen.
+  </p>
+  <button type="button" [disabled]="labels().length === 0" (click)="print()">Drucken</button>
+</div>
+
+@if (labels().length === 0) {
+  <p class="hint">Noch keine Etiketten: Richte zuerst Lkw und Kisten ein.</p>
+}
+
+<div class="sheet">
+  @for (label of labels(); track label.key) {
+    <figure class="label" [class.truck]="label.kind === 'truck'">
+      <img [src]="label.qr" [alt]="'QR-Code ' + label.title" />
+      <figcaption>
+        <strong>{{ label.title }}</strong>
+        @if (label.kind === 'truck') {
+          <span>{{ label.subtitle }}</span>
+        }
+      </figcaption>
+    </figure>
+  }
+</div>

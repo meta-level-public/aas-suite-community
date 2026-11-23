@@ -1,0 +1,35 @@
+<div class="truck" [class.large]="large()">
+  <div class="cab" aria-hidden="true">Fahrerhaus</div>
+  <div class="tray" role="grid" aria-label="Ladetablett">
+    @for (state of slots(); track state.slot) {
+      <button
+        type="button"
+        class="slot"
+        role="gridcell"
+        [class.occupied]="state.box"
+        [class.selected]="state.slot === selected()"
+        (click)="slotSelected.emit(state.slot)"
+      >
+        <span class="slot-id">{{ state.slot }}</span>
+        @if (state.box; as box) {
+          <span class="box-label">{{ box.label }}</span>
+          <span class="count">
+            @switch (box.parts.length) {
+              @case (0) {
+                leer
+              }
+              @case (1) {
+                1 Teil
+              }
+              @default {
+                {{ box.parts.length }} Teile
+              }
+            }
+          </span>
+        } @else {
+          <span class="empty">frei</span>
+        }
+      </button>
+    }
+  </div>
+</div>

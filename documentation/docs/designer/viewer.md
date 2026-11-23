@@ -104,7 +104,12 @@ Dialog den letzten Suchbegriff und die Treffer wieder an.
 
 Für die folgenden Teilmodelle zeigt die formatierte Anzeige eine eigene
 Darstellung. Erkannt werden sie an der Semantic ID des Teilmodells; andere
-Versionen derselben Vorlage erscheinen als Elementbaum.
+Versionen derselben Vorlage erscheinen als Elementbaum. Hat die Semantic ID
+keine eigene Darstellung, prüft der Viewer die zusätzlichen Semantic IDs
+(Supplemental Semantic IDs) des Teilmodells der Reihe nach. So erscheint z. B.
+ein Teilmodell mit eigener Semantic ID, das zusätzlich Hierarchical
+Structures angibt, als Hierarchiediagramm. Der Editor zeigt das Diagramm nach
+derselben Regel.
 
 | Teilmodell | Darstellung |
 |---|---|

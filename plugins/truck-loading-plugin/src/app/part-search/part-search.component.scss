@@ -1,0 +1,21 @@
+.search {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+
+  &.single {
+    grid-template-columns: 1fr;
+  }
+}
+
+.item-list {
+  max-height: 320px;
+  margin-top: 12px;
+  overflow-y: auto;
+}
+
+@media (max-width: 600px) {
+  .search {
+    grid-template-columns: 1fr;
+  }
+}

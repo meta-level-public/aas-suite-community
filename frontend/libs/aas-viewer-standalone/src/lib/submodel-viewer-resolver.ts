@@ -23,8 +23,27 @@ export type SpecializedSubmodelViewerType =
   | 'Generic';
 
 export class SubmodelViewerResolver {
+  /**
+   * Picks the viewer by the submodel's semanticId. If that has no specialized viewer, the
+   * supplementalSemanticIds are checked in order: they state that the submodel also conforms to
+   * another template (e.g. a custom "loading list" that is structured as Hierarchical Structures).
+   */
   static resolve(submodel: aas.types.Submodel | null | undefined): SpecializedSubmodelViewerType {
-    const semanticId = this.getSemanticId(submodel);
+    const primary = this.resolveSemanticId(this.getSemanticId(submodel?.semanticId));
+    if (primary !== 'Generic') {
+      return primary;
+    }
+
+    for (const reference of submodel?.supplementalSemanticIds ?? []) {
+      const supplemental = this.resolveSemanticId(this.getSemanticId(reference));
+      if (supplemental !== 'Generic') {
+        return supplemental;
+      }
+    }
+    return 'Generic';
+  }
+
+  private static resolveSemanticId(semanticId: string | undefined): SpecializedSubmodelViewerType {
     const semId = semanticId?.trim().toLowerCase();
 
     switch (semId) {
@@ -95,8 +114,8 @@ export class SubmodelViewerResolver {
     return this.resolve(submodel) !== 'Generic';
   }
 
-  private static getSemanticId(submodel: aas.types.Submodel | null | undefined): string | undefined {
-    return submodel?.semanticId?.keys?.find(
+  private static getSemanticId(reference: aas.types.Reference | null | undefined): string | undefined {
+    return reference?.keys?.find(
       (k) =>
         k.type === aas.types.KeyTypes.ConceptDescription ||
         k.type === aas.types.KeyTypes.GlobalReference ||

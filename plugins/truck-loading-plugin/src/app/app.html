@@ -1,0 +1,136 @@
+<header class="topbar no-print">
+  <div class="title">
+    <h1>Lkw-Beladung</h1>
+    <p class="hint">
+      Teile aus den Repositories in die Kisten laden. Die Ladeliste steht in der AAS des Lkw.
+    </p>
+  </div>
+
+  <label>
+    Demo-Infrastruktur
+    <select
+      [disabled]="demo.busy()"
+      [ngModel]="demo.infrastructureId()"
+      (ngModelChange)="selectInfrastructure($event)"
+    >
+      @for (infrastructure of demo.writableInfrastructures(); track infrastructure.id) {
+        <option [ngValue]="infrastructure.id">{{ infrastructure.name }}</option>
+      }
+    </select>
+  </label>
+</header>
+
+<nav class="tabs no-print" aria-label="Ansicht">
+  <button type="button" [class.active]="view() === 'loading'" (click)="showView('loading')">
+    Beladen
+  </button>
+  <button
+    type="button"
+    [class.active]="view() === 'presentation'"
+    (click)="showView('presentation')"
+  >
+    Vorführmodus
+  </button>
+  <button type="button" [class.active]="view() === 'labels'" (click)="showView('labels')">
+    Etiketten
+  </button>
+  <button type="button" class="secondary refresh" [disabled]="demo.busy()" (click)="demo.refresh()">
+    Aktualisieren
+  </button>
+</nav>
+
+@if (demo.error(); as message) {
+  <p class="error no-print" role="alert">{{ message }}</p>
+}
+
+@if (demo.infrastructureId() === null && !demo.busy()) {
+  <p class="hint">
+    Es gibt keine beschreibbare Infrastruktur. Lege im Designer eine an oder lass dir von einem
+    Admin Schreibrechte geben.
+  </p>
+} @else if (demo.needsSetup() && !demo.busy()) {
+  <section class="card setup no-print">
+    <h2>Demo einrichten</h2>
+    @if (demo.truck(); as truck) {
+      <p>
+        Lkw: <strong>{{ truck.idShort ?? truck.id }}</strong>. Es fehlen noch Kisten oder
+        Ladelisten. Das Plugin legt {{ boxCount }} Kisten-AAS an (K-01 bis K-0{{ boxCount }}),
+        jeweils mit einem Teilmodell <em>HierarchicalStructures</em>. Vorhandene AAS bleiben
+        erhalten.
+      </p>
+      <button type="button" (click)="demo.setUp()">Kisten anlegen</button>
+    } @else {
+      <p>
+        Wähle die bestehende AAS deines Lkw. Sie bekommt nur zusätzlich das Teilmodell
+        <em>Ladung</em> (HierarchicalStructures); IDs, assetType und andere Teilmodelle bleiben
+        unverändert. Danach legt das Plugin {{ boxCount }} Kisten-AAS an (K-01 bis K-0{{
+          boxCount
+        }}).
+      </p>
+      <app-part-search
+        [fixedInfrastructureId]="demo.infrastructureId()"
+        actionLabel="Als Lkw verwenden"
+        (partChosen)="demo.setUp($event.aasId)"
+      />
+      <p class="hint alternative">
+        Keine Lkw-AAS vorhanden?
+        <button type="button" class="secondary" (click)="demo.setUp()">Demo-Lkw neu anlegen</button>
+      </p>
+    }
+  </section>
+} @else {
+  @switch (view()) {
+    @case ('loading') {
+      <main class="layout">
+        <section class="card">
+          <app-truck-bed
+            [slots]="demo.slots()"
+            [selected]="selectedSlot()"
+            (slotSelected)="selectedSlot.set($event)"
+          />
+          @if (demo.boxesOffTruck().length > 0) {
+            <p class="hint off-truck">
+              Nicht geladen:
+              @for (box of demo.boxesOffTruck(); track box.aasId; let last = $last) {
+                {{ box.label }}{{ last ? '' : ', ' }}
+              }
+            </p>
+          }
+        </section>
+        <section class="card">
+          @if (selectedState(); as state) {
+            <app-slot-panel [state]="state" />
+          } @else {
+            <p class="hint">Wähle einen Stellplatz auf dem Tablett.</p>
+          }
+        </section>
+      </main>
+    }
+    @case ('presentation') {
+      <main class="presentation">
+        <app-truck-bed [slots]="demo.slots()" [large]="true" />
+        <ul class="manifest">
+          @for (state of demo.slots(); track state.slot) {
+            @if (state.box; as box) {
+              <li>
+                <strong>{{ state.slot }} · {{ box.label }}</strong>
+                @for (part of box.parts; track part.idShort) {
+                  <span>{{ part.name }}</span>
+                } @empty {
+                  <span class="hint">leer</span>
+                }
+              </li>
+            }
+          }
+        </ul>
+      </main>
+    }
+    @case ('labels') {
+      <app-label-sheet />
+    }
+  }
+}
+
+@if (demo.busy() && view() !== 'presentation') {
+  <div class="busy no-print" aria-live="polite">Speichere bzw. lade …</div>
+}

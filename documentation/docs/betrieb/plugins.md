@@ -79,8 +79,11 @@ Die Oberfläche läuft im Designer in einem eingebetteten Frame. Ein
 Backend-Teil implementiert `IAasSuiteBackendPlugin` und stellt eigene
 Endpunkte unter `/designer-api/plugin-api/<id>/…` bereit.
 
-Beispiele liegen im Repository unter `plugins/`, z. B. `hello-world-demo`
-und `dpp-explorer-plugin`. Das Skript
+Beispiele liegen im Repository unter `plugins/`, z. B. `hello-world-demo`,
+`dpp-explorer-plugin` und `truck-loading-plugin`. Das Demo-Plugin
+`truck-loading-plugin` schreibt über die Speicher-Endpunkte des Designers und
+braucht deshalb eine beschreibbare Infrastruktur sowie die Rolle zur
+AAS-Bearbeitung. Das Skript
 `node plugins/bundle-plugin.mjs` erzeugt daraus ein installierbares Archiv;
 Details stehen in `plugins/README.md`.
 

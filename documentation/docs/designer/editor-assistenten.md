@@ -254,7 +254,9 @@ leeren Collection verwenden.
 
 Eine Stückliste nach Hierarchical Structures (BOM) wird im Editor als
 Hierarchiediagramm bearbeitet. Es erscheint in der **Ansicht** des
-Teilmodells und unter **Bearbeiten** im Abschnitt **Stückliste**.
+Teilmodells und unter **Bearbeiten** im Abschnitt **Stückliste**. Das gilt
+auch für Teilmodelle mit eigener Semantic ID, die Hierarchical Structures 1.0
+oder 1.1 als zusätzliche Semantic ID (Supplemental Semantic ID) angeben.
 
 ### Stückliste anlegen
 

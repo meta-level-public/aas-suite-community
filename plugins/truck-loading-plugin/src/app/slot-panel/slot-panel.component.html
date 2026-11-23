@@ -1,0 +1,60 @@
+<header>
+  <h2>Stellplatz {{ state().slot }}</h2>
+  <label>
+    Kiste
+    <select
+      [disabled]="demo.busy()"
+      [ngModel]="state().box?.aasId ?? null"
+      (ngModelChange)="changeBox($event)"
+    >
+      <option [ngValue]="null">– frei –</option>
+      @for (box of selectableBoxes(); track box.aasId) {
+        <option [ngValue]="box.aasId">{{ box.label }}</option>
+      }
+    </select>
+  </label>
+</header>
+
+@if (state().box; as box) {
+  <section>
+    <h3>
+      Inhalt von {{ box.label }}
+      @if (boxLink(box); as link) {
+        <a [href]="link" target="_top">AAS öffnen</a>
+      }
+    </h3>
+    @if (box.parts.length === 0) {
+      <p class="hint">Die Kiste ist leer.</p>
+    } @else {
+      <ul class="item-list">
+        @for (part of box.parts; track part.idShort) {
+          <li>
+            <div class="item-name">
+              @if (partLink(part); as link) {
+                <a [href]="link" target="_top">{{ part.name }}</a>
+              } @else {
+                <strong>{{ part.name }}</strong>
+              }
+              <small>{{ part.globalAssetId ?? part.aasId }}</small>
+            </div>
+            <button
+              type="button"
+              class="secondary"
+              [disabled]="demo.busy()"
+              (click)="unload(box, part)"
+            >
+              Ausladen
+            </button>
+          </li>
+        }
+      </ul>
+    }
+  </section>
+
+  <section>
+    <h3>Teil einladen</h3>
+    <app-part-search (partChosen)="load(box, $event)" />
+  </section>
+} @else {
+  <p class="hint">Auf diesem Platz steht keine Kiste. Wähle unter „Kiste“ eine aus.</p>
+}
