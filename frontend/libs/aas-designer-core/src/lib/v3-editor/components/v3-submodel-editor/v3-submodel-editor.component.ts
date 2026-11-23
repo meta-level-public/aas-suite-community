@@ -1,4 +1,5 @@
 import * as aas from '@aas-core-works/aas-core3.1-typescript';
+import { SubmodelViewerResolver } from '@aas/aas-viewer-standalone';
 import { BomHierarchyChartComponent } from '@aas/bom-diagram';
 import { HelpLabelComponent } from '@aas/common-components';
 import { AppConfigService, PortalService } from '@aas/common-services';
@@ -95,10 +96,8 @@ export class V3SubmodelEditorComponent extends V3ComponentBase implements OnChan
         this.changelogCollection.set(new aas.types.SubmodelElementCollection());
       }
 
-      if (
-        this.hasSemanticId(this.submodel.content, 'https://admin-shell.io/idta/HierarchicalStructures/1/0/Submodel') ||
-        this.hasSemanticId(this.submodel.content, 'https://admin-shell.io/idta/HierarchicalStructures/1/1/Submodel')
-      ) {
+      // same rule as the viewer, including supplementalSemanticIds
+      if (SubmodelViewerResolver.resolve(this.submodel.content) === 'Bom') {
         queueMicrotask(() => this.isBomSubmodel.set(true));
       } else {
         queueMicrotask(() => this.isBomSubmodel.set(false));

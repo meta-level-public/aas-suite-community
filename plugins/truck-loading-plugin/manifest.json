@@ -1,0 +1,14 @@
+{
+  "manifestVersion": 1,
+  "id": "truck-loading-plugin",
+  "route": "/truck-loading",
+  "name": "Lkw-Beladung",
+  "icon": "pi pi-truck",
+  "entryPoint": "index.html",
+  "type": "GuiApp",
+  "description": "Teile aus konfigurierten Repositories in die Kisten eines Demo-Lkw laden. Die Ladeliste steht als HierarchicalStructures in den AAS von Lkw und Kisten.",
+  "shortLabel": "LKW",
+  "sortOrder": 50,
+  "version": "0.1.0",
+  "author": "AAS Suite"
+}
