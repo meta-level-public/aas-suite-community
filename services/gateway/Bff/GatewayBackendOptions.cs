@@ -12,6 +12,13 @@ public sealed class GatewayBackendOptions
     public string ExternalBasePath { get; set; } = string.Empty;
 
     /// <summary>
+    /// Basis-Pfade weiterer SPAs hinter dem Gateway (z.B. der Markt unter "/markt-ui").
+    /// Rücksprung-URLs nach dem SSO-Login, die mit einem dieser Pfade beginnen, werden
+    /// unverändert übernommen statt unter <see cref="FrontendBasePath"/> gehängt.
+    /// </summary>
+    public string[] AdditionalFrontendBasePaths { get; set; } = ["/markt-ui"];
+
+    /// <summary>
     /// The base path prefix under which the frontend SPA is served (e.g. "/designer-ui").
     /// Derived from FrontendLoginPath by stripping the last path segment.
     /// </summary>

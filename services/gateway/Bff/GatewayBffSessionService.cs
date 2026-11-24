@@ -33,6 +33,7 @@ public sealed class GatewayBffSessionService
     private readonly IHttpContextAccessor _httpContextAccessor;
     private readonly ILogger<GatewayBffSessionService> _logger;
     private readonly string _frontendBasePath;
+    private readonly string[] _additionalFrontendBasePaths;
 
     public GatewayBffSessionService(
         HttpClient httpClient,
@@ -46,6 +47,10 @@ public sealed class GatewayBffSessionService
         _appSettings = appSettings;
         _designerBaseUrl = options.Value.DesignerBaseUrl.TrimEnd('/');
         _frontendBasePath = options.Value.FrontendBasePath;
+        _additionalFrontendBasePaths = options
+            .Value.AdditionalFrontendBasePaths.Select(path => path.Trim().TrimEnd('/'))
+            .Where(path => path.StartsWith('/') && path.Length > 1)
+            .ToArray();
         _httpContextAccessor = httpContextAccessor;
         _logger = logger;
     }
@@ -981,6 +986,17 @@ public sealed class GatewayBffSessionService
         )
         {
             return fallback;
+        }
+
+        // Rücksprung in eine andere SPA hinter dem Gateway (z.B. Markt) nicht unter den Designer hängen
+        if (
+            _additionalFrontendBasePaths.Any(basePath =>
+                trimmed.Equals(basePath, StringComparison.OrdinalIgnoreCase)
+                || trimmed.StartsWith(basePath + '/', StringComparison.OrdinalIgnoreCase)
+            )
+        )
+        {
+            return trimmed;
         }
 
         // Prepend frontend base path if URL lacks it (Angular router URLs are relative to base href)
